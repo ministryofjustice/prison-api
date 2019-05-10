@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
+import net.syscon.elite.service.support.Language;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,7 @@ public interface InmateRepository {
 	Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId);
 
 	List<ProfileInformation> getProfileInformation(long bookingId);
+	List<Language> getLanguages(long bookingId);
 
 	List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId);
 

@@ -169,13 +169,14 @@ public class InmateServiceImpl implements InmateService {
     public InmateDetail findInmate(final Long bookingId, final String username) {
         final var inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
+        getFirstPreferredSpokenLanguage(bookingId).ifPresent(inmate::setLanguage);
         inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
         inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
         inmate.setProfileInformation(getProfileInformation(bookingId));
-        inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
-        final var assignedLivingUnit = repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).orElse(null);
-        formatLocationDescription(assignedLivingUnit);
-        inmate.setAssignedLivingUnit(assignedLivingUnit);
+        repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).ifPresent(assignedLivingUnit -> {
+            assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
+            inmate.setAssignedLivingUnit(assignedLivingUnit);
+        });
         setAlertsFields(inmate);
         setAssessmentsFields(bookingId, inmate);
 
@@ -185,6 +186,15 @@ public class InmateServiceImpl implements InmateService {
             keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
         }
         return inmate;
+    }
+
+    private Optional<String> getFirstPreferredSpokenLanguage(Long bookingId) {
+        return repository
+                .getLanguages(bookingId)
+                .stream()
+                .filter(l -> "PREF_SPEAK".equals(l.getType()))
+                .map(Language::getDescription)
+                .max(Comparator.naturalOrder());
     }
 
     private void setAssessmentsFields(final Long bookingId, final InmateDetail inmate) {
@@ -222,12 +232,6 @@ public class InmateServiceImpl implements InmateService {
         return assessmentsFiltered;
     }
 
-    private void formatLocationDescription(final AssignedLivingUnit assignedLivingUnit) {
-        if (assignedLivingUnit != null) {
-            assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
-        }
-    }
-
     private void setAlertsFields(final InmateDetail inmate) {
         final var bookingId = inmate.getBookingId();
         final var inmateAlertPage = inmateAlertService.getInmateAlerts(bookingId, "", null, null, 0, 1000);
@@ -249,7 +253,7 @@ public class InmateServiceImpl implements InmateService {
 
     /**
      * Get assessments, latest per code, order not important.
-     * @param bookingId
+     * @param bookingId tacit
      * @return latest assessment of each code for the offender
      */
     @Override
@@ -332,8 +336,8 @@ public class InmateServiceImpl implements InmateService {
     }
     
     /**
-     * @param bookingId
-     * @param assessmentCode
+     * @param bookingId tacit
+     * @param assessmentCode tacit
      * @return Latest assessment of given code if any
      */
     @Override

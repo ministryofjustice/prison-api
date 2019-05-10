@@ -13,6 +13,7 @@ import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
+import net.syscon.elite.service.support.Language;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.RegExUtils;
@@ -99,6 +100,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
     private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
     private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
+    private final StandardBeanPropertyRowMapper<Language> LANGUAGE_MAPPER = new StandardBeanPropertyRowMapper<>(Language.class);
     private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
     private final StandardBeanPropertyRowMapper<OffenderCategorise> UNCATEGORISED_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderCategorise.class);
 
@@ -349,6 +351,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 sql,
                 createParams("bookingId", bookingId),
                 PROFILE_INFORMATION_MAPPER);
+    }
+
+    @Override
+    @Cacheable("bookingLanguages")
+    public List<Language> getLanguages(final long bookingId) {
+        return jdbcTemplate.query(
+                getQuery("FIND_LANGUAGES_BY_BOOKING"),
+                createParams("bookingId", bookingId),
+                LANGUAGE_MAPPER
+        );
     }
 
     @Override

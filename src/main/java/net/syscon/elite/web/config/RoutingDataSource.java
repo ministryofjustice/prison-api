@@ -9,14 +9,13 @@ public class RoutingDataSource extends AbstractRoutingDataSource {
         PRIMARY, REPLICA
     }
 
-    public static void clearReplicaRoute() {
+    public static void clearRoute() {
         ctx.remove();
     }
 
-    public static void setPrimaryRoute() {
-        ctx.set(Route.PRIMARY);
+    public static void setReplicaRoute() {
+        ctx.set(Route.REPLICA);
     }
-
 
     @Override
     protected Object determineCurrentLookupKey() {

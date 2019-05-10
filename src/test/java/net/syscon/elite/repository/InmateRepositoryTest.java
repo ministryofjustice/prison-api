@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
+import net.syscon.elite.service.support.Language;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -146,7 +147,6 @@ public class InmateRepositoryTest {
         assertThat(result.getAssignedLivingUnitId()).isEqualTo(-3L);
         assertThat(result.getDateOfBirth()).isEqualTo(LocalDate.of(1969, 12, 30));
         assertThat(result.getFacialImageId()).isEqualTo(-1L);
-        assertThat(result.getLanguage()).isEqualTo("Polish");
     }
 
     @Test
@@ -764,7 +764,7 @@ public class InmateRepositoryTest {
         return m -> ((Map<String, String>) m).get(field);
     }
 
-    private static int extractSeq(Object m) {
+    private static int extractSeq(final Object m) {
         return ((BigDecimal) ((Map) m).get("ASSESSMENT_SEQ")).intValue();
     }
 
@@ -794,6 +794,31 @@ public class InmateRepositoryTest {
         final var offenders = repository.getBasicInmateDetailsByBookingIds("LEI", List.of(-3L, -4L, -35L));  //-35L ignored as it is MDI agency
         assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, LocalDate.parse("1999-10-27"))
         ,new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, LocalDate.parse("1970-01-01")));
+    }
+
+    @Test
+    public void testGetLanguages() {
+        assertThat(repository.getLanguages(-1))
+                .containsExactly(
+                        Language.builder().type("PREF_SPEAK").code("POL").description("Polish").build());
+
+        assertThat(repository.getLanguages(-3))
+                .containsExactlyInAnyOrder(
+                        Language.builder().type("PREF_SPEAK").code("TUR").description("Turkish").build(),
+                        Language.builder().type("PREF_SPEAK").code("ENG").description("English").build(),
+                        Language.builder().type("SEC").code("ENG").description("English").build(),
+                        Language.builder().type("SEC").code("KUR").description("Kurdish").build(),
+                        Language.builder().type("SEC").code("SPA").description("Spanish; Castilian").build(),
+                        Language.builder().type("PREF_WRITE").code("TUR").description("Turkish").build()
+                        );
+    }
+
+    @Test
+    public void findPhysicalAttributes() {
+        final var physicalAttributes = repository.findPhysicalAttributes(-1);
+        assertThat(physicalAttributes).get().isEqualToIgnoringGivenFields(
+                new PhysicalAttributes(Collections.emptyMap(), "Male", "W1", "White: British", 5, 6, null, 168, 165, 75),
+                "additionalProperties");
     }
 
     /*****************************************************************************************/
