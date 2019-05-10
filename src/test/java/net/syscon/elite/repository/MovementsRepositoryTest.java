@@ -213,7 +213,7 @@ public class MovementsRepositoryTest {
                 .extracting("offenderNo", "fromAgency", "toAgency")
                 .contains(tuple("Z0018ZZ", "LEI", "BMI"))
                 .contains(tuple("A9876EC", "BMI", "MDI"))
-                .contains(tuple("A118FFF", "MDI", "LEI"));
+                .contains(tuple("A1179MT", "MDI", "LEI"));
     }
 
     @Test
