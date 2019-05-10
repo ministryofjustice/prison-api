@@ -77,6 +77,6 @@ public class MovementResourceImpl implements MovementResource {
 
     @Override
     public List<Movement> getTransfers(final List<String> agencyIds, final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {
-        return movementsService.getTransferMovements(agencyIds, fromDateTime, toDateTime);
+        return movementsService.getTransferMovementsForAgencies(agencyIds, fromDateTime, toDateTime);
     }
 }

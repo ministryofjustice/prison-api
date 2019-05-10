@@ -42,5 +42,5 @@ public interface MovementsRepository {
      */
     List<OffenderOut> getOffendersCurrentlyOut(String agencyId);
 
-    List<Movement> getTransferMovementsForAgency(List<String> agencies, LocalDateTime from, LocalDateTime to);
+    List<Movement> getTransferMovementsForAgencies(List<String> agencies, LocalDateTime from, LocalDateTime to);
 }

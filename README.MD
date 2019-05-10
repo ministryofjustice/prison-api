@@ -35,6 +35,48 @@ set JAVA_OPTS=-Dspring.profiles.active=nomis-hsqldb
 gradlew bootRun
 ```
 
+### Querying a local HSQLDB Database 
+
+The feature tests and repository integration tests create and populate a local in-memory HSQLDB called `nomis-db`.
+This is by definition transient but it can be very useful to persist this database temporarily in order to 
+execute test queries, examine the data and check your repository queries.
+
+To do this:
+
+* Alter the file `application-nomis-hsqldb.yml` to use a file-based url.
+  In this example I created a directory ~/dbs under my home directory first.
+  
+`spring:
+   datasource:
+     url: jdbc:hsqldb:file:~/dbs/nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
+     username: sa
+     password: changeme
+`
+
+* Add a temporary password to the spring datasource (by default its blank) which 
+  then does not allow a client connection via the IntelliJ database tools.
+
+* Run one of the repository integration tests in IntelliJ to create and populate the DB
+  and let it finish and exit. As its now file-based the database remains intact.
+
+* Within IntelliJ, select the `Database` tab and add a datasource with the following properties:
+
+`DriverType: HSQLDB`
+`Connection type: URL only`
+`URL: jdbc:hsqldb:file:/<your home dir>/dbs/nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false;hsqldb.lock_file=false`
+`User: sa`
+`Password: changme`
+
+* Connect, open an SQL editor or browse the tables with the test data present.
+
+* Important: Close the connection and remove the database files before attempting
+  to re-run any integration or feature tests.
+  
+  `$ cd ~/dbs`
+  `$ rm -rf nomis-db*`
+
+* Don't commit these changes!  
+
 ### Environment Variables
 
 Below are the key environment variables that can be set per service:-
@@ -66,12 +108,20 @@ docker-compose up -d
 
 ### Running Feature Tests ###
 
-All feature tests can be run within intellij by running `net.syscon.elite.executablespecification.AllFeatureTest`
-with environment variable of `api.db.target=nomis`
+All feature tests can be run from `net.syscon.elite.executablespecification.AllFeatureTest`
 
-Tests can be run individually by adding a `@wip` tag to the top of the feature file, or to an individual feature scenario.
-Then add the environment variable `cucumber.options=--tags '@wip'` to the executable arguments.
+Tests can be run individually by adding a `@wip` tag to the top of the feature file, or to an individual feature scenario, and
+then adding the environment variable `cucumber.options=--tags '@wip'` to the executable arguments in 'Edit Confgurations'.
+
+To run all feature tests in IntelliJ, avoiding known @wip or @broken tests, add the following env vars into the 'Edit Configurations' tab:-
+
+| Env var        | Value                         |
+| -------------- | ------------------------------|
+|api.db.target   | nomis                         | 
+|cucumber.options| --tags `not(@wip or @broken)` |
+
 
 ### Project related links ###
-* [BitBucket](https://bitbucket.org/cool_syscon_team/mobile)
+* [GitHub](https://github.com/ministryofjustice/elite2-api)
+* [Old location - BitBucket](https://bitbucket.org/cool_syscon_team/mobile)
 * [CircleCi](https://circleci.com/bb/cool_syscon_team)

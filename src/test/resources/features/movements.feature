@@ -116,3 +116,19 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
     Then information about 'offenders in' is returned as follows:
       | offenderNo | bookingId | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription   | toAgencyDescription | fromAgencyId   | toAgencyId   |  movementTime | location    |
       | A118FFF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Moorland                | Leeds               | MDI            | LEI          | 00:00         |             |
+
+  Scenario Outline: Get the details of the external movements between two times for a list of agencies
+
+    Given a user has a token name of "GLOBAL_SEARCH"
+    When a request is made to retrieve movements involving agencies "<agency1>" and "<agency2>" between "<fromTime>" and "<toTime>"
+    Then the response should contain "<responseCount>" movements
+    And the response code should be "<responseCode>"
+    And the presence of an error response is "<errorResponsePresent>"
+    Examples:
+      | agency1 | agency2  | fromTime            | toTime              | responseCount | responseCode | errorResponsePresent |
+      | LEI     |          | 2019-05-01T11:00:00 | 2019-05-01T17:00:00 | 2             | 200          |  false               |
+      | LEI     | MDI      | 2019-05-01T11:00:00 | 2019-05-01T17:00:00 | 3             | 200          |  false               |
+      | LEI     | MDI      | 2019-05-01T17:00:00 | 2019-05-01T11:00:00 | 0             | 400          |  true                |
+      | INVAL   | INVAL    | 2019-05-01T11:00:00 | 2019-05-01T17:00:00 | 0             | 200          |  false               |
+      | LEI     | LEI      | 2019-05-01TXX:XX:XX | 2019-05-01TXX:XX:XX | 0             | 500          |  true                |
+      |         |          | 2019-05-01T11:00:00 | 2019-05-01T17:00:00 | 0             | 400          |  true                |

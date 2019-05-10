@@ -13,14 +13,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MovementsServiceImplTest {
@@ -223,6 +225,61 @@ public class MovementsServiceImplTest {
 
         verify(movementsRepository).getRecentMovementsByOffenders(List.of("offender1"), Collections.emptyList());
         verify(movementsRepository).getRecentMovementsByOffenders(List.of("offender2"), Collections.emptyList());
+    }
+
+
+    @Test
+    public void testMovementsForAgenciesBetweenTwoTimes() {
+
+        // Valid arguments provided and a mocked result should be returned
+        List<Movement> listOfMovements = List.of(
+            Movement.builder().offenderNo("1111").movementType("TRN").movementTime(LocalTime.now()).directionCode("OUT").fromAgency("LEI").fromAgencyDescription("Leicester").toAgency("MDI").toAgencyDescription("Midlands").movementReason("Court").build(),
+            Movement.builder().offenderNo("2222").movementType("TRN").movementTime(LocalTime.now()).directionCode("OUT").fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("LEI").toAgencyDescription("Leicester").movementReason("Transfer").build(),
+            Movement.builder().offenderNo("4333").movementType("TRN").movementTime(LocalTime.now()).directionCode("OUT").fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("HOW").toAgencyDescription("Howden").movementReason("Transfer").build()
+        );
+
+        LocalDateTime from = LocalDateTime.parse("2019-05-01T11:00:00");
+        LocalDateTime to = LocalDateTime.parse("2019-05-01T17:00:00");
+        final var agencyList = List.of("LEI", "MDI");
+
+        when(movementsRepository.getTransferMovementsForAgencies(agencyList, from, to)).thenReturn(listOfMovements);
+
+        final var movements = movementsService.getTransferMovementsForAgencies(agencyList, from, to);
+
+        assertThat(movements).containsAll(listOfMovements);
+
+        verify(movementsRepository).getTransferMovementsForAgencies(agencyList, from, to);
+        verifyNoMoreInteractions(movementsRepository);
+    }
+
+    @Test
+    public void testMovementsForAgenciesNoAgencyCodes() {
+
+        // No agency identifiers provided
+        LocalDateTime from = LocalDateTime.parse("2019-05-01T11:00:00");
+        LocalDateTime to = LocalDateTime.parse("2019-05-01T17:00:00");
+        final var agencyList = Collections.<String> emptyList();
+
+        assertThatThrownBy(() -> {
+            final var movements = movementsService.getTransferMovementsForAgencies(agencyList, from, to);
+        }).isInstanceOf(BadRequestException.class).hasMessageContaining("No agency location identifiers were supplied");
+
+        verifyNoMoreInteractions(movementsRepository);
+    }
+
+    @Test
+    public void testMovementsForAgenciesInvalidDateRange() {
+
+        // From time is AFTER the to time
+        LocalDateTime from = LocalDateTime.parse("2019-05-01T17:00:00");
+        LocalDateTime to = LocalDateTime.parse("2019-05-01T11:00:00");
+        final var agencyList = List.of("LEI", "MDI");
+
+        assertThatThrownBy(() -> {
+            final var movements = movementsService.getTransferMovementsForAgencies(agencyList, from, to);
+        }).isInstanceOf(BadRequestException.class).hasMessageContaining("The supplied fromDateTime parameter is after the toDateTime value");
+
+        verifyNoMoreInteractions(movementsRepository);
     }
 
 }

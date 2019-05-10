@@ -169,17 +169,20 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public List<Movement> getTransferMovements(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime) {
+    public List<Movement> getTransferMovementsForAgencies(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime) {
 
         if (agencyIds == null || agencyIds.size() < 1) {
-            throw new BadRequestException("No agency location identifiers provided.");
+            final var msg = "No agency location identifiers were supplied";
+            log.info(msg);
+            throw new BadRequestException(msg);
         }
 
         if (fromDateTime.isAfter(toDateTime)) {
-            log.info("The supplied 'fromDateTime' parameter is AFTER the 'toDateTime'.");
-            throw new BadRequestException("The supplied 'fromDateTime' is later than the 'toDateTime' value - use format yyyy-mm-ddThh:mi:ss");
+            final var msg = "The supplied fromDateTime parameter is after the toDateTime value";
+            log.info(msg);
+            throw new BadRequestException(msg);
         }
 
-        return movementsRepository.getTransferMovementsForAgency(agencyIds, fromDateTime, toDateTime);
+        return movementsRepository.getTransferMovementsForAgencies(agencyIds, fromDateTime, toDateTime);
     }
 }

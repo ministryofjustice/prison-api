@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification;
 
 import cucumber.api.DataTable;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.Movement;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 
 public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
@@ -50,11 +52,9 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.verifyListOfUnassignedRollCounts();
     }
 
-
     @When("^a request is made to retrieve the movement counts for an \"([^\"]*)\" on \"([^\"]*)\"$")
     public void aRequestIsMadeToRetrieveTheMovementCountsForAnOn(final String agency, final String date) throws Throwable {
         movementsSteps.retrieveMovementCounts(agency, date.equals("today") ? LocalDate.now().toString() : date);
-
     }
 
     @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\"$")
@@ -99,7 +99,6 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     @Then("^information about 'offenders in' is returned as follows:$")
     public void informationAboutOffendersInIsReturnedAsFollows(final DataTable table) {
         final var offendersIn = table.asList(OffenderIn.class);
-
         movementsSteps.verifyOffendersIn(offendersIn);
     }
 
@@ -133,5 +132,26 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\" for all movement types$")
     public void aMakeARequestForRecentMovementsForAndForAllMovementTypes(final String offenderNo1, final String offenderNo2) throws Throwable {
         movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2), false);
+    }
+
+    @When("^a request is made to retrieve movements involving agencies \"([^\"]*)\" and \"([^\"]*)\" between \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveMovementsForAgencies(final String agency1, final String agency2, final String fromTime, final String toTime) throws Throwable {
+        final var agencies = List.of(agency1,agency2);
+        movementsSteps.getMovementsForAgencies(agencies, fromTime, toTime);
+    }
+
+    @Then("^the response should contain \"([^\"]*)\" movements$")
+    public void movementCountCheck(final String responseCount) {
+        movementsSteps.verifyAgencyMovementCount(Integer.parseInt(responseCount));
+    }
+
+    @And("^the response code should be \"([^\"]*)\"$")
+    public void responseCodeCheck(final String responseCode) {
+        movementsSteps.verifyErrorResponseCode(Integer.parseInt(responseCode));
+    }
+
+    @And("^the presence of an error response is \"([^\"]*)\"$")
+    public void errorResponseCheck(final String errorResponsePresent) {
+        movementsSteps.verifyErrorResponse(Boolean.parseBoolean(errorResponsePresent));
     }
 }

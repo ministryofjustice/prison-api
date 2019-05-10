@@ -183,6 +183,10 @@ public abstract class CommonSteps {
         this.errorResponse = errorResponse;
     }
 
+    protected ErrorResponse getErrorResponse() {
+        return errorResponse;
+    }
+
     protected HttpEntity<?> createEntity() {
         return createEntity(null, null);
     }

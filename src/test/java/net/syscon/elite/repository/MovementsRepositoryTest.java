@@ -22,6 +22,7 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -196,5 +197,36 @@ public class MovementsRepositoryTest {
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
                 .contains(tuple("Z0020ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 20, 0, 0), "LEI", "OUT", "TAP", "OUT"));
+    }
+
+    @Test
+    public void testMovementsForAgenciesBetweenTwoTimes() {
+
+        final var fromTime = LocalDateTime.of(2019, Month.MAY, 1, 11, 0, 0);
+        final var toTime = LocalDateTime.of(2019, Month.MAY, 1, 17, 0, 0);
+        final var agencies = List.of("LEI","MDI");
+
+        final var movements = repository.getTransferMovementsForAgencies(agencies, fromTime, toTime);
+
+        // Expected results set up in seeded data
+        assertThat(movements).asList()
+                .extracting("offenderNo", "fromAgency", "toAgency")
+                .contains(tuple("Z0018ZZ", "LEI", "BMI"))
+                .contains(tuple("A9876EC", "BMI", "MDI"))
+                .contains(tuple("A118FFF", "MDI", "LEI"));
+    }
+
+    @Test
+    public void testMovementsForAgenciesEmptyResponse() {
+
+        final var fromTime = LocalDateTime.of(2019, Month.MAY, 1, 11, 0, 0);
+        final var toTime = LocalDateTime.of(2019, Month.MAY, 1, 17, 0, 0);
+
+        // Agencies not present in seeded data
+        final var agencies = List.of("XXX","YYY");
+
+        final var movements = repository.getTransferMovementsForAgencies(agencies, fromTime, toTime);
+
+        assertThat(movements).asList().isEmpty();
     }
 }
