@@ -764,7 +764,7 @@ public class InmateRepositoryTest {
         return m -> ((Map<String, String>) m).get(field);
     }
 
-    private static int extractSeq(Object m) {
+    private static int extractSeq(final Object m) {
         return ((BigDecimal) ((Map) m).get("ASSESSMENT_SEQ")).intValue();
     }
 
@@ -811,6 +811,14 @@ public class InmateRepositoryTest {
                         Language.builder().type("SEC").code("SPA").description("Spanish; Castilian").build(),
                         Language.builder().type("PREF_WRITE").code("TUR").description("Turkish").build()
                         );
+    }
+
+    @Test
+    public void findPhysicalAttributes() {
+        final var physicalAttributes = repository.findPhysicalAttributes(-1);
+        assertThat(physicalAttributes).get().isEqualToIgnoringGivenFields(
+                new PhysicalAttributes(Collections.emptyMap(), "Male", "W1", "White: British", 5, 6, null, 168, 165, 75),
+                "additionalProperties");
     }
 
     /*****************************************************************************************/
