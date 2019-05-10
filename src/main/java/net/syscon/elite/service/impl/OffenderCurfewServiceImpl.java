@@ -21,7 +21,7 @@ import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @Validated
 public class OffenderCurfewServiceImpl implements OffenderCurfewService {
 
@@ -134,6 +134,7 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
      */
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
+    @Transactional
     public void setHdcChecks(final long bookingId, final HdcChecks hdcChecks) {
         val curfew = getLatestHomeDetentionCurfew(bookingId);
         if (curfew.getPassed() != null) {
@@ -151,6 +152,7 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
      * @throws IllegalStateException If the APPROVAL_STATUS for the selected row has already been set.
      */
     @Override
+    @Transactional
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
     public void setApprovalStatus(final long bookingId, final ApprovalStatus approvalStatus) {
 
