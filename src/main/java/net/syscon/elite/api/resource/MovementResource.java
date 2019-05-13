@@ -147,7 +147,6 @@ public interface MovementResource {
             @ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
             @ApiParam(value = "date", required = true) @PathParam("isoDate") LocalDate movementsDate);
 
-
     @GET
     @Path("/rollcount/{agencyId}/in-reception")
     @Consumes({"application/json"})
@@ -159,4 +158,21 @@ public interface MovementResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderInReception> getOffendersInReception(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId);
+
+    @GET
+    @Path("/transfers")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Information on all movements between two dates/times.", notes = "Information on all movements betweeen two dates/times.", nickname = "getTransfers")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "At least one of the agency identifiers was invalid, or the fromDateTime was after the toDateTime, or the format of parameters was incorrect.", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "The token presented did not contain the necessary role to access this resource.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "The token presented has expired.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    public List<Movement> getTransfers(
+            @ApiParam(value = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) @QueryParam("agencyId") List<String> agencyIds,
+            @ApiParam(value = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true)   @QueryParam("fromDateTime")LocalDateTime fromDateTime,
+            @ApiParam(value = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true)  @QueryParam("toDateTime") LocalDateTime toDateTime);
+
 }

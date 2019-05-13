@@ -161,4 +161,17 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 ),
                 OFFENDER_OUT_MAPPER);
     }
+
+    public List<Movement> getTransferMovementsForAgencies(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+
+        final var listOfTransferMovements = jdbcTemplate.query (
+             getQuery("GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD"),
+             createParams("agencyListFrom", agencies,
+                          "agencyListTo", agencies,
+                          "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
+                          "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
+                          MOVEMENT_MAPPER);
+
+        return listOfTransferMovements;
+    }
 }

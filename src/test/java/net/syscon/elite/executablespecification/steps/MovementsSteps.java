@@ -28,6 +28,8 @@ public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_MOVEMENT_ENROUTE_URL = API_PREFIX + "movements/{agencyId}/enroute?movementDate={date}";
     private static final String API_REQUEST_OFFENDERS_IN =  API_PREFIX + "movements/{agencyId}/in/{isoDate}";
     private static final String API_REQUEST_OFFENDERS_IN_RECEPTION = API_PREFIX + "movements/rollcount/{agencyId}/in-reception";
+    private static final String API_REQUEST_TRANSFERS_BY_AGENCY_AND_TIME = API_PREFIX + "movements/transfers?fromDateTime={fromTime}&toDateTime={toTime}";
+
 
     private List<Movement> movements;
     private List<OffenderOutTodayDto> offendersOutToday;
@@ -304,7 +306,6 @@ public class MovementsSteps extends CommonSteps {
 
     public void verifyOffenderMovements(final String offenderNo, final String movementType, final String fromDescription, final String toDescription, final String reasonDescription, final String movementTime, final String fromCity, final String toCity) {
 
-
         final var matched = movements
                 .stream()
                 .filter(m -> m.getOffenderNo().equals(offenderNo) &&
@@ -319,5 +320,56 @@ public class MovementsSteps extends CommonSteps {
                 .length != 0;
 
         assertThat(matched).isTrue();
+    }
+
+    public void getMovementsForAgencies(final List<String> agencies, final String fromTime, final String toTime) {
+
+        init();
+
+        var url = API_REQUEST_TRANSFERS_BY_AGENCY_AND_TIME;
+
+        // Cater for variable number of agencies supplied
+        for (String agency : agencies) {
+            if (agency != null && !agency.isBlank()) {
+                url += "&agencyId=" + agency;
+            }
+        }
+
+        try {
+            final var response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<List<Movement>>() {},
+                    fromTime, toTime);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            movements = response.getBody();
+            buildResourceData(response);
+
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    public void verifyAgencyMovementCount(final int responseCount) {
+        if (movements == null || movements.isEmpty()) {
+            assertThat(0).isEqualTo(responseCount);
+        } else {
+            assertThat(movements).hasSize(responseCount);
+        }
+    }
+
+    public void verifyErrorResponseCode(final int responseCode) {
+        ErrorResponse er = getErrorResponse();
+        if (er != null) {
+            assertThat(er.getStatus().intValue()).isEqualTo(responseCode);
+        } else {
+            assertThat(200).isEqualTo(responseCode);
+        }
+    }
+
+    public void verifyErrorResponse(final boolean errorResponsePresent) {
+        assertThat(getErrorResponse() != null).isEqualTo(errorResponsePresent);
     }
 }

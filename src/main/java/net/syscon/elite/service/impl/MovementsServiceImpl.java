@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
@@ -13,11 +14,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class MovementsServiceImpl implements MovementsService {
@@ -162,5 +165,24 @@ public class MovementsServiceImpl implements MovementsService {
                         .lastName(WordUtils.capitalizeFully(offender.getLastName()))
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
+    public List<Movement> getTransferMovementsForAgencies(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime) {
+
+        if (agencyIds == null || agencyIds.size() < 1) {
+            final var msg = "No agency location identifiers were supplied";
+            log.info(msg);
+            throw new BadRequestException(msg);
+        }
+
+        if (fromDateTime.isAfter(toDateTime)) {
+            final var msg = "The supplied fromDateTime parameter is after the toDateTime value";
+            log.info(msg);
+            throw new BadRequestException(msg);
+        }
+
+        return movementsRepository.getTransferMovementsForAgencies(agencyIds, fromDateTime, toDateTime);
     }
 }

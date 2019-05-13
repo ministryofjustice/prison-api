@@ -29,4 +29,6 @@ public interface MovementsService {
     List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId);
 
     List<OffenderOut> getOffendersCurrentlyOut(String agencyId);
+
+    List<Movement> getTransferMovementsForAgencies(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime);
 }
