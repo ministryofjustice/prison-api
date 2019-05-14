@@ -65,7 +65,7 @@ public class CurfewSteps extends CommonSteps {
         reset(bookingId);
         if (StringUtils.isNotEmpty(checksPassed)) {
             putRequest(CURFEW_CHECKS_PASSED_URI, hdcChecksBody(checksPassed, "2019-01-01"), bookingId);
-            verifyHttpStatusCode(200);
+            verifyHttpStatusCode(204);
             resetErrors();
         }
         putRequest(CURFEW_APPROVAL_STATUS_URI, approvalStatusBody(approvalStatus, refusedReason, dateString), bookingId);

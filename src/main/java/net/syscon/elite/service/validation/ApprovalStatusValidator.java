@@ -13,6 +13,7 @@ public class ApprovalStatusValidator implements ConstraintValidator<ValidApprova
 
     @Override
     public boolean isValid(ApprovalStatus approvalStatus, ConstraintValidatorContext context) {
-        return approvalStatus.isApproved() || approvalStatus.hasRefusedReason();
+        return approvalStatus.isApproved() && !approvalStatus.hasRefusedReason() ||
+                !approvalStatus.isApproved() && approvalStatus.hasRefusedReason();
     }
 }

@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.model.HomeDetentionCurfew;
 import net.syscon.elite.service.support.OffenderCurfew;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -19,15 +20,25 @@ public interface OffenderCurfewRepository {
      */
     Collection<OffenderCurfew> offenderCurfews(Set<String> agencyIds);
 
+    Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(long bookingId, Set<String> statusTrackingCodesToMatch);
+
     void setHDCChecksPassed(long curfewId, HdcChecks hdcChecks);
 
-    void setApprovalStatusForCurfew(long curfewId, ApprovalStatus approvalStatus);
+    void setHdcChecksPassedDate(long curfewId, LocalDate date);
+
+    void setApprovalStatus(long curfewId, ApprovalStatus approvalStatus);
+
+    void setApprovalStatusDate(long curfewId, LocalDate date);
 
     long createHdcStatusTracking(long curfewId, String statusCode);
 
+    OptionalLong findHdcStatusTracking(long curfewId, String statusTrackingCode);
+
+    void deleteStatusTrackings(long curfewId, Set<String> statusTrackingCodesToMatch);
+
     void createHdcStatusReason(long hdcStatusTrackingId, String statusReasonCode);
 
-    Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(long bookingId, Set<String> statusTrackingCodesToMatch);
+    void deleteStatusReasons(long curfewId, Set<String> statusTrackingCodesToMatch);
 
-    OptionalLong findHdcStatusTracking(long curfewId, String statusTrackingCode);
+    void resetCurfew(long curfewId);
 }

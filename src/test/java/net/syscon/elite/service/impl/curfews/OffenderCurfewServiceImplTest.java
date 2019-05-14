@@ -1,4 +1,4 @@
-package net.syscon.elite.service.impl;
+package net.syscon.elite.service.impl.curfews;
 
 import lombok.val;
 import net.syscon.elite.api.model.*;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
-import static net.syscon.elite.service.impl.OffenderCurfewServiceImpl.currentOffenderCurfews;
+import static net.syscon.elite.service.impl.curfews.OffenderCurfewServiceImpl.currentOffenderCurfews;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -389,30 +389,6 @@ public class OffenderCurfewServiceImplTest {
     }
 
     @Test
-    public void givenNoHDCCheck_thenCheckIsSet() {
-        val date = LocalDate.now();
-
-        when(offenderCurfewRepository.getLatestHomeDetentionCurfew(eq(1L), any())).thenReturn(Optional.of(HomeDetentionCurfew.builder().build()));
-        offenderCurfewService.setHdcChecks(1L, HdcChecks.builder().passed(true).date(date).build());
-    }
-
-    @Test
-    public void givenHDCCheckIsSet_thenSetHdcChecksFails() {
-        val date = LocalDate.now();
-
-        when(offenderCurfewRepository.getLatestHomeDetentionCurfew(eq(1L), any())).thenReturn(Optional.of(HomeDetentionCurfew.builder().passed(true).build()));
-        assertThatThrownBy(() -> offenderCurfewService.setHdcChecks(
-                1L,
-                    HdcChecks
-                        .builder()
-                        .passed(true)
-                        .date(date)
-                        .build()))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("HDC Checks already set to true");
-    }
-
-    @Test
     public void badApprovalStatus() {
         val rejectedStatus = "XXX";
 
@@ -439,59 +415,6 @@ public class OffenderCurfewServiceImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Refused reason code 'XXX' is not a valid NOMIS value.");
     }
-
-    @Test
-    public void setApprovalStatusNoBooking() {
-        when(referenceDomainService.isReferenceCodeActive("HDC_APPROVE", "APPROVED")).thenReturn(true);
-        when(offenderCurfewRepository.getLatestHomeDetentionCurfew(eq(1L), any())).thenReturn(Optional.empty());
-
-        val approvalStatus = ApprovalStatus.builder().approvalStatus(ApprovalStatus.APPROVED_STATUS).date(LocalDate.now()).build();
-
-        assertThatThrownBy(() ->  offenderCurfewService.setApprovalStatus(1L, approvalStatus))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("No 'latest' Home Detention Curfew found for bookingId 1");
-    }
-
-    @Test
-    public void whenSetApprovalStatusAPPROVEDWithRefusedReason_thenRejected() {
-        when(referenceDomainService.isReferenceCodeActive(anyString(), anyString())).thenReturn(true);
-
-        val approvalStatus = ApprovalStatus.builder().approvalStatus(ApprovalStatus.APPROVED_STATUS).refusedReason("XXX").date(LocalDate.now()).build();
-
-        assertThatThrownBy(() ->  offenderCurfewService.setApprovalStatus(1L, approvalStatus))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("A refused reason is not allowed when the approval status set to APPROVED.");
-
-    }
-
-    @Test
-    public void givenChecksPassedNotSet_whenSetApprovalStatus_thenRejected() {
-        when(referenceDomainService.isReferenceCodeActive(anyString(), anyString())).thenReturn(true);
-        when(offenderCurfewRepository.getLatestHomeDetentionCurfew(eq(1L), any()))
-                .thenReturn(Optional.of(HomeDetentionCurfew.builder().build()));
-
-        val approvalStatus = ApprovalStatus.builder().approvalStatus("YYY").refusedReason("XXX").date(LocalDate.now()).build();
-
-        assertThatThrownBy(() ->  offenderCurfewService.setApprovalStatus(1L, approvalStatus))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Checks passed has not been set.");
-
-    }
-
-    @Test
-    public void whenSetApprovalStatusAlreadySet_thenRejected() {
-        when(referenceDomainService.isReferenceCodeActive(anyString(), anyString())).thenReturn(true);
-        when(offenderCurfewRepository.getLatestHomeDetentionCurfew(eq(1L), any()))
-                .thenReturn(Optional.of(HomeDetentionCurfew.builder().passed(true).approvalStatus("ZZZ").build()));
-
-        val approvalStatus = ApprovalStatus.builder().approvalStatus("YYY").refusedReason("XXX").date(LocalDate.now()).build();
-
-        assertThatThrownBy(() ->  offenderCurfewService.setApprovalStatus(1L, approvalStatus))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Approval status has already been set to ZZZ.");
-
-    }
-
 
     private List<OffenderSentenceCalculation> offenderSentenceCalculations() {
 

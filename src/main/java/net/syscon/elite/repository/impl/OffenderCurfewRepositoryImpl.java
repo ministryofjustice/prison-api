@@ -6,7 +6,6 @@ import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.model.HomeDetentionCurfew;
 import net.syscon.elite.repository.OffenderCurfewRepository;
-import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.OffenderCurfew;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.beans.PropertyDescriptor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Repository
@@ -64,7 +64,7 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
 
     @Override
     public void setHDCChecksPassed(final long curfewId, final HdcChecks hdcChecks) {
-        final var rowsUpdated = jdbcTemplate.update(
+        jdbcTemplate.update(
                 getQuery("UPDATE_CURFEW_CHECKS_PASSED"),
                 createParams(
                         "curfewId", curfewId,
@@ -72,14 +72,22 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
                         "checksPassed", hdcChecks.checksPassed()
                 )
         );
-        if (rowsUpdated < 1) {
-            throw new EntityNotFoundException(String.format("OFFENDER_CURFEWS record for id %1$d not found.", curfewId));
-        }
     }
 
     @Override
-    public void setApprovalStatusForCurfew(final long curfewId, final ApprovalStatus approvalStatus) {
-        val rowsUpdated = jdbcTemplate.update(
+    public void setHdcChecksPassedDate(long curfewId, LocalDate date) {
+        jdbcTemplate.update(
+                getQuery("UPDATE_CURFEW_CHECKS_PASSED_DATE"),
+                createParams(
+                        "curfewId", curfewId,
+                        "date", date
+                )
+        );
+    }
+
+    @Override
+    public void setApprovalStatus(final long curfewId, final ApprovalStatus approvalStatus) {
+        jdbcTemplate.update(
                 getQuery("UPDATE_APPROVAL_STATUS"),
                 createParams(
                         "curfewId", curfewId,
@@ -87,8 +95,17 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
                         "approvalStatus", approvalStatus.getApprovalStatus()
                 )
         );
-        if (rowsUpdated < 1)
-            throw new EntityNotFoundException(String.format("OFFENDER_CURFEWS having id %1$d not found.", curfewId));
+    }
+
+    @Override
+    public void setApprovalStatusDate(long curfewId, LocalDate date) {
+        jdbcTemplate.update(
+                getQuery("UPDATE_APPROVAL_STATUS_DATE"),
+                createParams(
+                        "curfewId", curfewId,
+                        "date", date
+                )
+        );
     }
 
     @Override
@@ -101,6 +118,28 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
                 Long.class
         );
         return hdsStatusTrackingIds.isEmpty() ? OptionalLong.empty() : OptionalLong.of(hdsStatusTrackingIds.get(0));
+    }
+
+    @Override
+    public void deleteStatusReasons(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        jdbcTemplate.update(
+                getQuery("DELETE_HDC_STATUS_REASONS"),
+                createParams(
+                        "curfewId", curfewId,
+                        "codes", statusTrackingCodesToMatch
+                    )
+                );
+    }
+
+    @Override
+    public void deleteStatusTrackings(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        jdbcTemplate.update(
+                getQuery("DELETE_HDC_STATUS_TRACKINGS"),
+                createParams(
+                        "curfewId", curfewId,
+                        "codes", statusTrackingCodesToMatch
+                )
+        );
     }
 
     @Override
@@ -133,10 +172,17 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
     public Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(long bookingId, Set<String> statusTrackingCodesToMatch) {
         val results = jdbcTemplate.query(
                 getQuery("LATEST_HOME_DETENTION_CURFEW"),
-                Map.of(
+                createParams(
                         "bookingId", bookingId,
                         "statusTrackingCodes", statusTrackingCodesToMatch),
                 HOME_DETENTION_CURFEW_ROW_MAPPER);
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
+
+    @Override
+    public void resetCurfew(long curfewId) {
+        jdbcTemplate.update(
+                getQuery("RESET_OFFENDER_CURFEW"),
+                createParams("curfewId", curfewId));
     }
 }

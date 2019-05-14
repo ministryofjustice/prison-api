@@ -19,4 +19,8 @@ public interface OffenderCurfewService {
     void setApprovalStatus(long bookingId, @Valid ApprovalStatus approvalStatus);
 
     HomeDetentionCurfew getLatestHomeDetentionCurfew(long bookingId);
+
+    void deleteHdcChecks(Long bookingId);
+
+    void deleteApprovalStatus(Long bookingId);
 }

@@ -61,6 +61,18 @@ public class ApprovalStatusTest {
     }
 
     @Test
+    public void approvedWithRefusedReason() {
+        assertThat(validator.validate(
+                builder()
+                        .approvalStatus("APPROVED")
+                        .refusedReason("XXX")
+                        .date(LocalDate.EPOCH)
+                        .build())
+        ).hasSize(1);
+    }
+
+
+    @Test
     public void noApprovalStatus() {
         assertThat(validator.validate(
                 builder()
@@ -88,7 +100,7 @@ public class ApprovalStatusTest {
                         .date(LocalDate.EPOCH)
                         .build())
         ).hasSize(1)
-        .extracting("message").contains("A refusedReason is required when approval status is not 'APPROVED'");
+        .extracting("message").contains("A refusedReason is required when approval status is not 'APPROVED'.");
     }
 
     @Test
