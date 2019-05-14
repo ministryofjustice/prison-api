@@ -31,15 +31,15 @@ public class CurfewStepDefinitions extends AbstractStepDefinitions {
         curfewSteps.verifyHttpStatusCode(Integer.valueOf(statusString));
     }
 
-    @And("^the latest home detention curfew for booking \"([^\"]*)\" should match \"([^\"]*)\", \"([^\"]*)\" if \"([^\"]*)\" is 200$")
+    @And("^the latest home detention curfew for booking \"([^\"]*)\" should match \"([^\"]*)\", \"([^\"]*)\" if \"([^\"]*)\" is 204$")
     public void theLatestHomeDetentionCurfewForBookingShouldMatchIfIs(Long bookingId, Boolean checksPassed, String checksPassedDate, int httpStatus) {
-        if (200 != httpStatus) return;
+        if (204 != httpStatus) return;
         curfewSteps.verifyLatestHomeDetentionCurfew(bookingId, checksPassed, asLocalDate(checksPassedDate));
     }
 
-    @And("^the latest home detention curfew for booking \"([^\"]*)\" should match \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\" if \"([^\"]*)\" is 200$")
+    @And("^the latest home detention curfew for booking \"([^\"]*)\" should match \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\" if \"([^\"]*)\" is 204$")
     public void theLatestHomeDetentionCurfewForBookingShouldMatchIfIs(Long bookingId, String approvalStatus, String refusedReason, String approvalStatusDate, int httpStatus) {
-        if (200 != httpStatus) return;
+        if (204 != httpStatus) return;
         curfewSteps.verifyLatestHomeDetentionCurfew(
                 bookingId,
                 approvalStatus,

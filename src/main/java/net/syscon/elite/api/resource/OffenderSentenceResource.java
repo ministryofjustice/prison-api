@@ -53,22 +53,42 @@ public interface OffenderSentenceResource {
     @Consumes({"application/json"})
     @ApiOperation(value = "Set the HDC checks passed flag")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The checks passed flag was set"),
+            @ApiResponse(code = 204, message = "The checks passed flag was set"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
     })
     Response setCurfewChecks(@PathParam("bookingId") Long bookingId, HdcChecks hdcChecks);
+
+    @DELETE
+    @Path("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
+    @ApiOperation(value = "Clear the HDC checks passed flag")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "The checks passed flag was cleared"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+    })
+    Response clearCurfewChecks(@PathParam("bookingId") Long bookingId);
 
     @PUT
     @Path("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @Consumes({"application/json"})
     @ApiOperation(value = "Set the HDC approval status")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The new approval status was set"),
+            @ApiResponse(code = 204, message = "The new approval status was set"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
     })
     Response setApprovalStatus(@PathParam("bookingId") Long bookingId, ApprovalStatus approvalStatus);
+
+    @DELETE
+    @Path("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
+    @ApiOperation(value = "Clear the HDC approval status")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "The new approval status was cleared"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+    })
+    Response clearApprovalStatus(@PathParam("bookingId") Long bookingId);
 
     @POST
     @Consumes({"application/json"})

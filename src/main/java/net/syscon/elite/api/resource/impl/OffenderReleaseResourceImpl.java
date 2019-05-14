@@ -66,25 +66,30 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     @Override
     @ProxyUser
     public Response setCurfewChecks(final Long bookingId, final HdcChecks hdcChecks) {
-        try {
             offenderCurfewService.setHdcChecks(bookingId, hdcChecks);
-            return Response.ok().build();
-        } catch (final Throwable t) {
-            log.debug("PUT HDC check status failed");
-            throw t;
-        }
+            return Response.noContent().build();
+    }
+
+    @Override
+    @ProxyUser
+    public Response clearCurfewChecks(Long bookingId) {
+        offenderCurfewService.deleteHdcChecks(bookingId);
+        return Response.noContent().build();
     }
 
     @Override
     @ProxyUser
     public Response setApprovalStatus(final Long bookingId, final ApprovalStatus approvalStatus) {
-        try {
+
             offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
-            return Response.ok().build();
-        } catch (final Throwable t) {
-            log.debug("PUT ApprovalStatus failed");
-            throw t;
-        }
+            return Response.noContent().build();
+    }
+
+    @Override
+    @ProxyUser
+    public Response clearApprovalStatus(Long bookingId) {
+        offenderCurfewService.deleteApprovalStatus(bookingId);
+        return Response.noContent().build();
     }
 
     @Override

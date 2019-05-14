@@ -5,7 +5,6 @@ import lombok.val;
 import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.model.HomeDetentionCurfew;
-import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.OffenderCurfew;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
@@ -28,7 +27,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("nomis-hsqldb")
@@ -184,6 +183,35 @@ public class OffenderCurfewRepositoryTest {
     }
 
     @Test
+    public void shouldSetHdcChecksPassedDate() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        LocalDate date1 = LocalDate.of(2018, 1, 2);
+
+        repository.setHDCChecksPassed(curfewId, HdcChecks.builder().passed(false).date(date1).build());
+        assertCurfewHDCChecksPassedEqualTo(curfewId, "N", date1);
+
+        LocalDate date2 = LocalDate.of(2019, 2, 3);
+
+        repository.setHdcChecksPassedDate(curfewId, date2);
+        assertCurfewHDCChecksPassedEqualTo(curfewId, "N", date2);
+    }
+
+    @Test
+    public void shouldSetApprovalStatusDate() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        val date1 = LocalDate.of(2018, 1, 2);
+
+        repository.setApprovalStatus(curfewId, ApprovalStatus.builder().approvalStatus("XXX").date(date1).build());
+
+        assertCurfewEqualTo(curfewId, null, null, "XXX", date1);
+
+        val date2 = LocalDate.of(2019, 2, 3);
+
+        repository.setApprovalStatusDate(curfewId, date2);
+        assertCurfewEqualTo(curfewId, null, null, "XXX", date2);
+    }
+
+    @Test
     public void givenCurfewWithHdcCheckPassed_thenShouldRetrieveThatCurfewData() {
         val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
         assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH))
@@ -209,16 +237,6 @@ public class OffenderCurfewRepositoryTest {
 
         assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH))
                 .hasValue(HomeDetentionCurfew.builder().id(curfewId).passed(Boolean.FALSE).checksPassedDate(date).build());
-    }
-
-    @Test
-    public void shouldRejectUnknownCurfewForSetHDCChecksPassed() {
-        assertThatThrownBy(() ->
-                repository.setHDCChecksPassed(
-                        99999,
-                        HdcChecks.builder().passed(true).date(LocalDate.now()).build()))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("OFFENDER_CURFEWS record for id 99999 not found.");
     }
 
     @Test
@@ -277,7 +295,7 @@ public class OffenderCurfewRepositoryTest {
         val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
 
         LocalDate date = LocalDate.of(2018, 1, 2);
-        repository.setApprovalStatusForCurfew(
+        repository.setApprovalStatus(
                 curfewId,
                 ApprovalStatus.builder()
                         .approvalStatus("APPROVED")
@@ -299,6 +317,31 @@ public class OffenderCurfewRepositoryTest {
                 .contains(HomeDetentionCurfew.builder().id(curfewId).refusedReason("YYY").build());
     }
 
+    @Test
+    public void shouldDeleteStatusTrackings() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        repository.createHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_REFUSED);
+        repository.createHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_MANUAL_FAIL);
+
+        assertThat(statusTrackingCount(curfewId, TRACKING_CODES_TO_MATCH)).isEqualTo(2);
+
+        repository.deleteStatusTrackings(curfewId, TRACKING_CODES_TO_MATCH);
+        assertThat(statusTrackingCount(curfewId, TRACKING_CODES_TO_MATCH)).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldDeleteStatusReasons() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        val trackingId1 = repository.createHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_REFUSED);
+        val trackingId2 = repository.createHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_MANUAL_FAIL);
+
+        repository.createHdcStatusReason(trackingId1, "A");
+        repository.createHdcStatusReason(trackingId2, "B");
+        assertThat(statusReasonCount(curfewId, TRACKING_CODES_TO_MATCH)).isEqualTo(2);
+
+        repository.deleteStatusReasons(curfewId, TRACKING_CODES_TO_MATCH);
+        assertThat(statusReasonCount(curfewId, TRACKING_CODES_TO_MATCH)).isEqualTo(0);
+    }
 
     private void assertCurfewHDCChecksPassedEqualTo(final long bookingId, final String passedFlag, final LocalDate assessmentDate) {
         assertCurfewEqualTo(bookingId, passedFlag, assessmentDate, null, null);
@@ -315,6 +358,38 @@ public class OffenderCurfewRepositoryTest {
         assertThat(results.get("ASSESSMENT_DATE")).isEqualTo(assessmentDate == null ? null : Timestamp.valueOf(assessmentDate.atStartOfDay()));
         assertThat(results.get("APPROVAL_STATUS")).isEqualTo(approvalStatus);
         assertThat(results.get("DECISION_DATE")).isEqualTo(decisionDate == null ? null : Timestamp.valueOf(decisionDate.atStartOfDay()));
+    }
+
+    private int statusTrackingCount(long curfewId, Set<String> codesToMatch) {
+        val count = jdbcTemplate.queryForObject(
+                "SELECT count(*) from HDC_STATUS_TRACKINGS WHERE OFFENDER_CURFEW_ID = :curfewId AND STATUS_CODE IN (:codesToMatch)",
+                Map.of(
+                        "curfewId", curfewId,
+                        "codesToMatch", codesToMatch
+                ),
+                Integer.class
+        );
+        if (count != null) {
+            return count;
+        }
+        fail("No count value. This shouldn't happen!");
+        return -1; // Unreachable!
+    }
+
+    private int statusReasonCount(long curfewId, Set<String> codesToMatch){
+        val count = jdbcTemplate.queryForObject(
+                "SELECT count(*) from HDC_STATUS_REASONS SR JOIN HDC_STATUS_TRACKINGS ST ON SR.HDC_STATUS_TRACKING_ID = ST.HDC_STATUS_TRACKING_ID WHERE ST.OFFENDER_CURFEW_ID = :curfewId AND ST.STATUS_CODE IN (:codesToMatch)",
+                Map.of(
+                        "curfewId", curfewId,
+                        "codesToMatch", codesToMatch
+                ),
+                Integer.class
+        );
+        if (count != null) {
+            return count;
+        }
+        fail("No count value. This shouldn't happen!");
+        return -1; // Unreachable!
     }
 
     private void assertCurfewHasStatusTracking(long curfewId, long statusTrackingId, String statusCode) {

@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import net.syscon.elite.service.validation.ValidApprovalStatus;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
@@ -24,7 +25,7 @@ public class ApprovalStatus {
     public static final String APPROVED_STATUS = "APPROVED";
 
     @ApiModelProperty(required = true, value = "Approval status. Must be one of the 'HDC_APPROVE' reference codes", example = "APPROVED")
-    @NotNull
+    @NotBlank
     String approvalStatus;
 
     @ApiModelProperty(value = "Refused reason. Must be one of the 'HDC_REJ_RSN' reference codes", example = "UNDER_14DAYS")
