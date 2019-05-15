@@ -406,9 +406,9 @@ public class OffenderCurfewServiceIntegrationTest {
         setApprovalStatus("PRES UNSUIT", "OUTSTANDING", date2);
         setHdcCheck(false, date3);
 
-        assertOffenderCurfew(false, date3, "PRES UNSUIT", date2);
+        assertOffenderCurfew(false, date3, null, null);
         assertStatusAndReasons(
-                statusAndReason("MAN_CK_FAIL", "OUTSTANDING"),
+                statusAndReason("MAN_CK_FAIL", null),
                 statusAndReason("INELIGIBLE", "MAN_CK_FAIL")
         );
     }
@@ -538,11 +538,10 @@ public class OffenderCurfewServiceIntegrationTest {
         setApprovalStatus("OPT_OUT", "ADDRESS", date2);
         setHdcCheck(true, date3);
 
-        assertOffenderCurfew(true, date3, "OPT_OUT", date2);
+        assertOffenderCurfew(true, date3, null, null);
         assertStatusAndReasons(
                 statusAndReason("MAN_CK_PASS", "MAN_CK"),
-                statusAndReason("ELIGIBLE", "PASS_ALL_CK"),
-                statusAndReason("REFUSED", "ADDRESS")
+                statusAndReason("ELIGIBLE", "PASS_ALL_CK")
         );
     }
 

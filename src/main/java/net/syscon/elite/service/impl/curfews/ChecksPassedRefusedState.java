@@ -17,9 +17,8 @@ class ChecksPassedRefusedState extends CurfewState {
                 actions.setHdcChecksPassedDate(hdcChecks.getDate());
             }
         } else {
-            actions.deleteTrackings(StatusTrackingCodes.CHECKS_PASSED_AND_REFUSED_CODES);
+            doDeleteHdcChecks();
             actions.setHdcChecks(hdcChecks);
-            actions.setChecksFailedRefusedReason(curfew.getRefusedReason());
         }
     }
 
@@ -35,7 +34,6 @@ class ChecksPassedRefusedState extends CurfewState {
 
     @Override
     void doDeleteHdcChecks() {
-        doDeleteApprovalStatus();
         actions.deleteHdcChecks();
         actions.deleteTrackings(StatusTrackingCodes.CHECKS_PASSED_AND_REFUSED_CODES);
     }

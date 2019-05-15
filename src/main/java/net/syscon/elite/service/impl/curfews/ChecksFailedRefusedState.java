@@ -12,10 +12,8 @@ class ChecksFailedRefusedState extends CurfewState {
     @Override
     void doSetHdcChecks(HdcChecks hdcChecks) {
         if (hdcChecks.getPassed()) {
-            actions.deleteChecksFailedRefusedReason();
-            actions.deleteTrackings(StatusTrackingCodes.CHECKS_FAILED_CODES);
+            doDeleteHdcChecks();
             actions.setHdcChecks(hdcChecks);
-            actions.setChecksPassedRefusedReason(curfew.getRefusedReason());
         } else {
             if (!hdcChecks.getDate().equals(curfew.getChecksPassedDate())) {
                 actions.setHdcChecksPassedDate(hdcChecks.getDate());
