@@ -2,6 +2,9 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: elite2-api
+
   jersey:
     type: servlet
     application-path: /api
