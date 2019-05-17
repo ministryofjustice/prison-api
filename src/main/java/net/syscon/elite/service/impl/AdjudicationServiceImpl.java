@@ -2,7 +2,7 @@ package net.syscon.elite.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import net.syscon.elite.api.model.Adjudication;
-import net.syscon.elite.api.model.AdjudicationDetail;
+import net.syscon.elite.api.model.AdjudicationSummary;
 import net.syscon.elite.api.model.AdjudicationOffence;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Award;
@@ -62,7 +62,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
      */
     @Override
     @VerifyBookingAccess
-    public AdjudicationDetail getAdjudications(final Long bookingId, final LocalDate awardCutoffDateParam, final LocalDate adjudicationCutoffDateParam) {
+    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam, final LocalDate adjudicationCutoffDateParam) {
         final var list = repository.findAwards(bookingId);
         final var today = LocalDate.now();
         var awardCutoffDate = awardCutoffDateParam;
@@ -89,7 +89,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
                 iterator.remove();
             }
         }
-        return AdjudicationDetail.builder().awards(list).adjudicationCount(adjudicationCount).build();
+        return AdjudicationSummary.builder().awards(list).adjudicationCount(adjudicationCount).build();
     }
 
     private LocalDate calculateEndDate(final Award award) {

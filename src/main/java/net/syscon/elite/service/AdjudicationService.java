@@ -1,7 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Adjudication;
-import net.syscon.elite.api.model.AdjudicationDetail;
+import net.syscon.elite.api.model.AdjudicationSummary;
 import net.syscon.elite.api.model.AdjudicationOffence;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.support.Page;
@@ -17,5 +17,5 @@ public interface AdjudicationService {
 
     List<Agency> findAdjudicationAgencies(String offenderNo);
 
-    AdjudicationDetail getAdjudications(Long bookingId, LocalDate awardCutoffDate, LocalDate adjudicationCutoffDate);
+    AdjudicationSummary getAdjudicationSummary(Long bookingId, LocalDate awardCutoffDate, LocalDate adjudicationCutoffDate);
 }
