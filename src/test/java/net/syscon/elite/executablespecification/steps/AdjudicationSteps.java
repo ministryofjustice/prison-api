@@ -1,6 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.AdjudicationDetail;
+import net.syscon.elite.api.model.AdjudicationSummary;
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -16,17 +16,17 @@ public class AdjudicationSteps extends CommonSteps {
     private static final String BOOKING_ADJUDICATIONS_API_URL = API_PREFIX + "bookings/{bookingId}/adjudications?";
     private static final String AWARD_CUTOFF_DATE_DATE_PREFIX = "&awardCutoffDate=";
     private static final String ADJUDICATION_CUTOFF_DATE_PREFIX = "&adjudicationCutoffDate=";
-    private AdjudicationDetail details;
+    private AdjudicationSummary summary;
     private int index;
 
-    @Step("Get offender adjudication details")
-    public void getAwards(final Long bookingId, final String awardCutoffDate, final String adjudicationCutoffDate) {
+    @Step("Get offender adjudication summary")
+    public void getAdjudicationSummary(final Long bookingId, final String awardCutoffDate, final String adjudicationCutoffDate) {
         doSingleResultApiCall(bookingId, awardCutoffDate, adjudicationCutoffDate);
     }
 
-    @Step("Verify value of field in details")
+    @Step("Verify value of field in summary")
     public void verifyAwardField(final String field, final String value) throws ReflectiveOperationException {
-        verifyField(details.getAwards().get(index), field, value);
+        verifyField(summary.getAwards().get(index), field, value);
     }
 
     private void doSingleResultApiCall(final long bookingId, final String awardCutoffDate, final String adjudicationCutoffDate) {
@@ -40,8 +40,8 @@ public class AdjudicationSteps extends CommonSteps {
                 url += ADJUDICATION_CUTOFF_DATE_PREFIX + adjudicationCutoffDate;
             }
             final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
-                    AdjudicationDetail.class, bookingId);
-            details = response.getBody();
+                    AdjudicationSummary.class, bookingId);
+            summary = response.getBody();
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -49,11 +49,11 @@ public class AdjudicationSteps extends CommonSteps {
 
     protected void init() {
         super.init();
-        details = null;
+        summary = null;
     }
 
     public void verifyNoAwards() {
-        assertTrue("There are " + details.getAwards().size() + " awards", details.getAwards().isEmpty());
+        assertTrue("There are " + summary.getAwards().size() + " awards", summary.getAwards().isEmpty());
     }
 
     public void setIndex(final int i) {
@@ -61,16 +61,16 @@ public class AdjudicationSteps extends CommonSteps {
     }
 
     public void verifyAwardsNumber(final int n) {
-        assertEquals(n, details.getAwards().size());
+        assertEquals(n, summary.getAwards().size());
     }
 
     public void verifyAdjudicationCount(final Integer n) {
-        assertEquals(n, details.getAdjudicationCount());
+        assertEquals(n, summary.getAdjudicationCount());
     }
 
     public void verifyAwards(final List<Award> expected) {
         final var expectedIterator = expected.iterator();
-        final var awardsIterator = details.getAwards().iterator();
+        final var awardsIterator = summary.getAwards().iterator();
         while (expectedIterator.hasNext()) {
             final var expectedThis = expectedIterator.next();
             final var actualThis = awardsIterator.next();

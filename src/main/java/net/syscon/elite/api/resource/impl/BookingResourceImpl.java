@@ -544,11 +544,9 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetAdjudicationsResponse getAdjudications(final Long bookingId, final String awardCutoffDate, final String adjudicationCutoffDate) {
-        final var adjudicationDetail = adjudicationService.getAdjudications(bookingId,
+    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final String awardCutoffDate, final String adjudicationCutoffDate) {
+        return  adjudicationService.getAdjudicationSummary(bookingId,
                 fromISO8601DateString(awardCutoffDate), fromISO8601DateString(adjudicationCutoffDate));
-
-        return GetAdjudicationsResponse.respond200WithApplicationJson(adjudicationDetail);
     }
 
     @Override

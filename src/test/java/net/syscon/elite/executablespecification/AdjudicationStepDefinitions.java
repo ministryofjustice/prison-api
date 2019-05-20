@@ -22,19 +22,19 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private AdjudicationSteps adjudicationSteps;
 
-    @When("^adjudication details with booking id ([0-9-]+) is requested$")
+    @When("^adjudication summary with booking id ([0-9-]+) is requested$")
     public void withBookingId(final Long id) {
         adjudicationSteps.setIndex(0);
-        adjudicationSteps.getAwards(id, null, null);
+        adjudicationSteps.getAdjudicationSummary(id, null, null);
     }
 
-    @When("^adjudication details with booking id ([0-9-]+), award cutoff date \"([^\"]*)\" and adjudication cutoff date \"([^\"]*)\" is requested$")
+    @When("^adjudication summary with booking id ([0-9-]+), award cutoff date \"([^\"]*)\" and adjudication cutoff date \"([^\"]*)\" is requested$")
     public void withBookingId(final Long id, final String awardCutoffDate, final String adjudicationCutoffDate) {
         adjudicationSteps.setIndex(0);
-        adjudicationSteps.getAwards(id, awardCutoffDate, adjudicationCutoffDate);
+        adjudicationSteps.getAdjudicationSummary(id, awardCutoffDate, adjudicationCutoffDate);
     }
 
-    @Then("^resource not found response is received from adjudication details API$")
+    @Then("^resource not found response is received from adjudication summary API$")
     public void resourceNotFoundResponseIsReceivedFromAwardsAPI() throws Throwable {
         adjudicationSteps.verifyResourceNotFound();
     }

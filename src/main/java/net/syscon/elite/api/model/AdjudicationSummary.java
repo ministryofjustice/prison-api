@@ -15,18 +15,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Adjudication Details for offender
+ * Adjudication Summary for offender
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Adjudication Details for offender")
+@ApiModel(description = "Adjudication Summary for offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class AdjudicationDetail {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
+public class AdjudicationSummary {
     
     @NotNull
     private Long bookingId;
@@ -36,18 +34,7 @@ public class AdjudicationDetail {
 
     @NotNull
     @Builder.Default
-    private List<Award> awards = new ArrayList<Award>();
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
+    private List<Award> awards = new ArrayList<>();
 
     /**
       * Offender Booking Id
@@ -92,7 +79,7 @@ public class AdjudicationDetail {
     public String toString()  {
         final var sb = new StringBuilder();
 
-        sb.append("class AdjudicationDetail {\n");
+        sb.append("class AdjudicationSummary {\n");
         
         sb.append("  bookingId: ").append(bookingId).append("\n");
         sb.append("  adjudicationCount: ").append(adjudicationCount).append("\n");
