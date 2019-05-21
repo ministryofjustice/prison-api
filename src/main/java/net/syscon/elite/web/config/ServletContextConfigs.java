@@ -95,12 +95,7 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
 
     @Autowired
     public ServletContextConfigs(final ObjectMapper objectMapper) {
-        objectMapper.setDateFormat(new ISO8601DateFormat());
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
+        ObjectMapperConfigurer.configure(objectMapper);
     }
 
     @Bean(name = "SpringWebConstraintValidatorFactory")

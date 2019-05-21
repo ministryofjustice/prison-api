@@ -6,7 +6,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
-import net.syscon.elite.api.model.AdjudicationSearchResponse;
+import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
+import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.IncidentCase;
@@ -14,6 +15,7 @@ import net.syscon.elite.api.model.OffenderAddress;
 import net.syscon.elite.api.resource.BookingResource.GetAlertsByOffenderNosResponse;
 import net.syscon.elite.api.resource.IncidentsResource.IncidentListResponse;
 import net.syscon.elite.api.support.Order;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -75,6 +77,20 @@ public interface OffenderResource {
                                           @ApiParam(value = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") LocalDate toDate,
                                           @ApiParam(value = "Requested offset of first record in returned collection of adjudications.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
                                           @ApiParam(value = "Requested limit to number of adjudications returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit);
+
+    @ApiIgnore
+    @GET
+    @Path("/{offenderNo}/adjudications/{adjudicationNo}")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Return a specific adjudication")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = AdjudicationDetail.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    AdjudicationDetail getAdjudication(@ApiParam(value = "offenderNo", required = true) @PathParam("offenderNo") @NotNull String offenderNo,
+                             @ApiParam(value = "adjudicationNo", required = true) @PathParam("adjudicationNo") @NotNull long adjudicationNo);
 
     @GET
     @Path("/{offenderNo}/alerts")

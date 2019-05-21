@@ -1,7 +1,8 @@
 package net.syscon.elite.api.resource.impl;
 
 import lombok.val;
-import net.syscon.elite.api.model.AdjudicationSearchResponse;
+import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
+import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.OffenderAddress;
 import net.syscon.elite.api.resource.BookingResource.GetAlertsByOffenderNosResponse;
@@ -86,6 +87,11 @@ public class OffenderResourceImpl implements OffenderResource {
                         .agencies(adjudicationService.findAdjudicationAgencies(criteria.getOffenderNumber()))
                         .build())
                 .build();
+    }
+
+    @Override
+    public AdjudicationDetail getAdjudication(@NotNull final String offenderNo, @NotNull final long adjudicationNo) {
+        return adjudicationService.findAdjudication(offenderNo, adjudicationNo);
     }
 
     @Override

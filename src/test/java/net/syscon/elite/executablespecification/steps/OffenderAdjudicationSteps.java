@@ -3,11 +3,13 @@ package net.syscon.elite.executablespecification.steps;
 import cucumber.api.Format;
 import lombok.Builder;
 import lombok.Data;
-import net.syscon.elite.api.model.Adjudication;
-import net.syscon.elite.api.model.AdjudicationCharge;
-import net.syscon.elite.api.model.AdjudicationOffence;
-import net.syscon.elite.api.model.AdjudicationSearchResponse;
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.adjudications.Adjudication;
+import net.syscon.elite.api.model.adjudications.AdjudicationCharge;
+import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
+import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
+import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
+import net.syscon.elite.api.model.adjudications.Hearing;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -33,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OffenderAdjudicationSteps extends CommonSteps {
 
+    private AdjudicationDetail detail;
     private List<Adjudication> adjudications;
     private List<AdjudicationOffence> offences;
     private List<Agency> agencies;
@@ -67,6 +70,31 @@ public class OffenderAdjudicationSteps extends CommonSteps {
         }
     }
 
+    @Step("Retrieve adjudication detail")
+    public void findAdjudicationDetails(final String offenderNumber, final String adjudicationNo) {
+
+        init();
+
+        try {
+
+            URI uri = UriComponentsBuilder.fromPath(API_PREFIX)
+                    .path("offenders/{offenderNumber}/adjudications/{adjudicationNumber}")
+                    .build(offenderNumber, adjudicationNo);
+
+            final var responseEntity = restTemplate.exchange(uri,
+                    HttpMethod.GET,
+                    createEntity(null),
+                    AdjudicationDetail.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            detail = responseEntity.getBody();
+
+
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
 
     public void verifyAdjudications(@Format("yyyy-MM-dd HH:mm") final List<AdjudicationRow> expected) {
         final var found = adjudications.stream()
@@ -87,11 +115,18 @@ public class OffenderAdjudicationSteps extends CommonSteps {
         assertThat(found).containsExactlyInAnyOrderElementsOf(Set.copyOf(expectedChargeCodes));
     }
 
-
     public void verifyAgencies(List<String> expectedAgencyIds) {
         final var found = agencies.stream().map(Agency::getAgencyId).collect(toSet());
         assertThat(found).containsExactlyInAnyOrderElementsOf(Set.copyOf(expectedAgencyIds));
+    }
 
+    public void verifyAdjudicationDetails() {
+        verifyNoError();
+        assertThat(detail).isNotNull();
+        assertThat(detail.getAdjudicationNumber()).isEqualTo(-7);
+
+        List<Hearing> hearings = detail.getHearings();
+        assertThat(hearings).extracting(Hearing::getOicHearingId).containsExactly(-1L, -2L);
     }
 
     private String commaSeparated(final Adjudication adjudication, final Function<AdjudicationCharge, String> extractor) {

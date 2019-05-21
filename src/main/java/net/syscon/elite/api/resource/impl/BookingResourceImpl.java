@@ -1,6 +1,7 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.resource.IncidentsResource;
 import net.syscon.elite.api.support.Order;
