@@ -17,8 +17,6 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 @Data
 public class OffenderSentenceCalc<S extends BaseSentenceDetail> {
     @ApiModelProperty(required = true, value = "Offender booking id.", position = 0)

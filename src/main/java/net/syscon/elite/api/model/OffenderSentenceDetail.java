@@ -19,7 +19,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Data
-@ToString
 public class OffenderSentenceDetail extends OffenderSentenceCalc<SentenceDetail> {
     @ApiModelProperty(required = true, value = "Offender date of birth.", position = 5)
     @NotNull

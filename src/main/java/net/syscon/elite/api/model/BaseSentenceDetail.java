@@ -15,9 +15,7 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 @Data
-@ToString
 public class BaseSentenceDetail {
 
     @ApiModelProperty(value = "SED - date on which sentence expires.", position = 50)

@@ -17,8 +17,6 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 @Data
 public class OffenderIdentifier {
     @NotBlank
