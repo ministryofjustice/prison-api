@@ -1,16 +1,28 @@
 package net.syscon.elite.api.model.adjudications;
 
+import net.syscon.elite.web.config.ObjectMapperConfiguration;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
+import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
 
-import static net.syscon.elite.api.model.JsonTestUtils.assertSerialization;
+import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(SpringRunner.class)
+@JsonTest
+@ContextConfiguration(classes = ObjectMapperConfiguration.class)
 public class AdjudicationDetailTest {
 
+    @Autowired
+    private JacksonTester<AdjudicationDetail> json;
 
     @Test
-    public void checkSerialization() {
+    public void checkSerialization() throws Exception {
 
         AdjudicationDetail detail = AdjudicationDetail.builder()
                 .adjudicationNumber(-7L)
@@ -116,7 +128,7 @@ public class AdjudicationDetailTest {
                         .build())
                 .build();
 
-        assertSerialization(detail, "net/syscon/elite/api/model/adjudications/adjudication-details.json");
+        assertThat(json.write(detail)).isEqualToJson("adjudication-details.json");
     }
 
 }
