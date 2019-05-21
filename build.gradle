@@ -35,7 +35,7 @@ def formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
 version todayDate.format(formatter)
 
 jar {
-    baseName = applicationName
+    archiveBaseName = applicationName
     manifest {
         attributes 'Implementation-Title': applicationName,
                 'Implementation-Version': System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
