@@ -7,9 +7,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 @Data
-@ToString
 class FlatQuestionnaire {
 
     private String code;

@@ -1,7 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.AdjudicationSummary;
-import net.syscon.elite.api.model.Award;
+import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
+import net.syscon.elite.api.model.adjudications.Award;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;

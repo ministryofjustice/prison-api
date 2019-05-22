@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EqualsAndHashCode(of = { "incidentCaseId", "questionnaireQueId" })
 @Data
-@ToString
 class FlatIncidentCase {
 
     private Long incidentCaseId;

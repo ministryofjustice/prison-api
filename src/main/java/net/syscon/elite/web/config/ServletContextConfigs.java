@@ -1,10 +1,5 @@
 package net.syscon.elite.web.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
@@ -41,8 +36,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import javax.ws.rs.ext.ExceptionMapper;
-
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 
 
 @Configuration
@@ -91,16 +84,6 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
                 bind(ConstraintViolationExceptionHandler.class).to(ExceptionMapper.class).in(Singleton.class);
             }
         });
-    }
-
-    @Autowired
-    public ServletContextConfigs(final ObjectMapper objectMapper) {
-        objectMapper.setDateFormat(new ISO8601DateFormat());
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
     @Bean(name = "SpringWebConstraintValidatorFactory")

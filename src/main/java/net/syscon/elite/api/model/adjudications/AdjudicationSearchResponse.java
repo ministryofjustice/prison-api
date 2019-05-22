@@ -1,4 +1,4 @@
-package net.syscon.elite.api.model;
+package net.syscon.elite.api.model.adjudications;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.syscon.elite.api.model.Agency;
 
 import java.util.List;
 

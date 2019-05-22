@@ -1,11 +1,16 @@
 package net.syscon.elite.repository.impl;
 
+import com.google.common.collect.Lists;
 import lombok.val;
-import net.syscon.elite.api.model.Adjudication;
-import net.syscon.elite.api.model.AdjudicationCharge;
-import net.syscon.elite.api.model.AdjudicationOffence;
 import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Award;
+import net.syscon.elite.api.model.adjudications.Adjudication;
+import net.syscon.elite.api.model.adjudications.AdjudicationCharge;
+import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
+import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
+import net.syscon.elite.api.model.adjudications.Award;
+import net.syscon.elite.api.model.adjudications.Hearing;
+import net.syscon.elite.api.model.adjudications.HearingResult;
+import net.syscon.elite.api.model.adjudications.Sanction;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
@@ -18,6 +23,8 @@ import org.springframework.stereotype.Repository;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
@@ -30,6 +37,10 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
     private final StandardBeanPropertyRowMapper<Agency> agencyMapper = new StandardBeanPropertyRowMapper<>(Agency.class);
     private final StandardBeanPropertyRowMapper<AdjudicationChargeDto> adjudicationMapper = new StandardBeanPropertyRowMapper<>(AdjudicationChargeDto.class);
     private final StandardBeanPropertyRowMapper<AdjudicationOffence> offenceMapper = new StandardBeanPropertyRowMapper<>(AdjudicationOffence.class);
+    private final StandardBeanPropertyRowMapper<AdjudicationDetail> detailMapper = new StandardBeanPropertyRowMapper<>(AdjudicationDetail.class);
+    private final StandardBeanPropertyRowMapper<Hearing> hearingMapper = new StandardBeanPropertyRowMapper<>(Hearing.class);
+    private final StandardBeanPropertyRowMapper<HearingResult> resultMapper = new StandardBeanPropertyRowMapper<>(HearingResult.class);
+    private final StandardBeanPropertyRowMapper<Sanction> sanctionMapper = new StandardBeanPropertyRowMapper<>(Sanction.class);
 
     @Override
     public List<Award> findAwards(final long bookingId) {
@@ -48,6 +59,68 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
         return jdbcTemplate.query(getQuery("FIND_ADJUDICATION_AGENCIES_FOR_OFFENDER"),
                 createParams("offenderNo", offenderNumber),
                 agencyMapper);
+    }
+
+    @Override
+    public Optional<AdjudicationDetail> findAdjudicationDetails(final String offenderNumber,
+                                                                final long adjudicationNumber) {
+
+        val details = jdbcTemplate.query(getQuery("FIND_ADJUDICATION"),
+                createParams(
+                        "offenderNo", offenderNumber,
+                        "adjudicationNo", adjudicationNumber),
+                detailMapper);
+
+        return details.stream().map(detail -> populateDetails(adjudicationNumber, detail)).findFirst();
+    }
+
+    private AdjudicationDetail populateDetails(final long adjudicationNumber, final AdjudicationDetail detail) {
+
+        val hearings = jdbcTemplate.query(getQuery("FIND_HEARINGS"), createParams("adjudicationNo", adjudicationNumber), hearingMapper);
+
+        val hearingIds = Lists.transform(hearings, Hearing::getOicHearingId);
+
+        val results = getResults(hearingIds);
+
+        val sanctions = getSanctions(hearingIds);
+
+        val populatedHearings = hearings.stream().map(hearing ->
+                populateHearing(
+                        hearing,
+                        results.getOrDefault(hearing.getOicHearingId(), List.of()),
+                        sanctions.getOrDefault(hearing.getOicHearingId(), List.of())))
+                .collect(toList());
+
+        return detail.toBuilder().hearings(populatedHearings).build();
+    }
+
+    private Hearing populateHearing(final Hearing hearing, final List<HearingResult> results, final List<Sanction> sanctions) {
+
+        val sanctionsByResult = sanctions.stream().collect(groupingBy(Sanction::getResultSeq));
+
+        val populatedResults = results.stream().map(result ->
+                result.toBuilder()
+                        .sanctions(sanctionsByResult.get(result.getResultSeq()))
+                        .build())
+                .collect(toList());
+
+        return hearing.toBuilder().results(populatedResults).build();
+    }
+
+    private Map<Long, List<Sanction>> getSanctions(List<Long> hearingIds) {
+        return hearingIds.isEmpty()
+                ? Map.of()
+                :jdbcTemplate.query(getQuery("FIND_SANCTIONS"), createParams("hearingIds", hearingIds), sanctionMapper)
+                .stream()
+                .collect(groupingBy(Sanction::getOicHearingId));
+    }
+
+    private Map<Long, List<HearingResult>> getResults(List<Long> hearingIds) {
+        return hearingIds.isEmpty()
+                ? Map.of()
+                : jdbcTemplate.query(getQuery("FIND_RESULTS"), createParams("hearingIds", hearingIds), resultMapper)
+                .stream()
+                .collect(groupingBy(HearingResult::getOicHearingId));
     }
 
     @Override

@@ -21,8 +21,6 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 @Data
 public class UserDetail {
     @ApiModelProperty(required = true, value = "Staff Id", example = "231232")

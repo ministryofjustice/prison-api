@@ -1,7 +1,12 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.Adjudication;
-import net.syscon.elite.api.model.AdjudicationCharge;
+import lombok.val;
+import net.syscon.elite.api.model.adjudications.Adjudication;
+import net.syscon.elite.api.model.adjudications.AdjudicationCharge;
+import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
+import net.syscon.elite.api.model.adjudications.Hearing;
+import net.syscon.elite.api.model.adjudications.HearingResult;
+import net.syscon.elite.api.model.adjudications.Sanction;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.AdjudicationSearchCriteria;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -59,6 +64,7 @@ public class AdjudicationsRepositoryTest {
                     "PROVED")));
 
     @Autowired
+
     private AdjudicationsRepository repository;
 
     @Test
@@ -82,7 +88,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void testGetDetailsMultiple2() {
 
-        final var awards = repository.findAwards(-1L);
+        val awards = repository.findAwards(-1L);
 
         assertThat(awards).asList()
                 .hasSize(2)
@@ -105,7 +111,8 @@ public class AdjudicationsRepositoryTest {
 
         offences = repository.findAdjudicationOffences("A118HHH");
         assertThat(offences).extracting("id", "code", "description").containsExactly(
-                tuple("84", "51:2C", "Detains any person against his will - detention against will of prison officer grade")
+                tuple("84", "51:2C", "Detains any person against his will - detention against will of prison officer grade"),
+                tuple("85", "51:2D", "Detains any person against his will - detention against will of staff (not prison offr)")
         );
     }
 
@@ -120,15 +127,15 @@ public class AdjudicationsRepositoryTest {
 
         locations = repository.findAdjudicationAgencies("A118HHH");
         assertThat(locations).extracting("agencyId", "description", "agencyType").containsExactly(
-                tuple("LEI", "LEEDS", "INST")
+                tuple("LEI", "LEEDS", "INST"),
+                tuple("MDI", "MOORLAND", "INST")
         );
-
     }
 
     @Test
     public void retrieveAdjudicationsForOffender() {
 
-        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
+        val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .pageRequest(new PageRequest(0L, 10L))
                 .build());
@@ -139,7 +146,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void filterByStartDate() {
 
-        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
+        val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .startDate(MIDDLE_ADJUDICATION.getReportTime().plusDays(1).toLocalDate())
                 .pageRequest(new PageRequest(0L, 10L))
@@ -151,7 +158,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void filterByEndDate() {
 
-        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
+        val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .endDate(MIDDLE_ADJUDICATION.getReportTime().minusDays(1).toLocalDate())
                 .pageRequest(new PageRequest(0L, 10L))
@@ -163,7 +170,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void filterByOffence() {
 
-        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
+        val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .offenceId("86")
                 .pageRequest(new PageRequest(0L, 10L))
@@ -175,7 +182,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void filterByLocation() {
 
-        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
+        val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .agencyId(LATEST_ADJUDICATION.getAgencyId())
                 .pageRequest(new PageRequest(0L, 10L))
@@ -215,9 +222,9 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void anotherInmateHasAnAdjudicationForSameIncident() {
 
-        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
+        val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118HHH")
-                .pageRequest(new PageRequest(0L, 10L))
+                .pageRequest(new PageRequest(1L, 1L))
                 .build());
 
         assertThat(results.getItems()).containsExactly(
@@ -227,5 +234,117 @@ public class AdjudicationsRepositoryTest {
                                 "51:2C",
                                 "Detains any person against his will - detention against will of prison officer grade",
                                 "NOT_PROVED"))));
+    }
+
+    @Test
+    public void findAdjudicationDetails() {
+
+        val results = repository.findAdjudicationDetails("A118HHH", -7);
+
+
+        assertThat(results.get()).isEqualTo(
+                AdjudicationDetail.builder()
+                        .adjudicationNumber(-7L)
+                        .incidentTime(LocalDateTime.of(1999, 6, 25, 0, 0))
+                        .establishment("Moorland (HMP & YOI)")
+                        .interiorLocation("MDI-1-1-001")
+                        .incidentDetails("mKSouDOCmKSouDO")
+                        .reportNumber(-4L)
+                        .reportType("Miscellaneous")
+                        .reporterFirstName("Jo")
+                        .reporterLastName("O'brien")
+                        .reportTime(LocalDateTime.of(2019, 8, 25, 0, 3))
+                        .hearing(
+                                Hearing.builder()
+                                        .oicHearingId(-1L)
+                                        .hearingType("Governor's Hearing Adult")
+                                        .hearingTime(LocalDateTime.of(2015, 1, 2, 14, 0))
+                                        .location("LEI-AABCW-1")
+                                        .heardByFirstName("Test")
+                                        .heardByLastName("User")
+                                        .otherRepresentatives("Other folk")
+                                        .comment("A Comment")
+                                        .result(HearingResult.builder()
+                                                .oicOffenceCode("51:2D")
+                                                .offenceType("Prison Rule 51")
+                                                .offenceDescription("Detains any person against his will - detention against will of staff (not prison offr)")
+                                                .plea("Unfit to Plea or Attend")
+                                                .finding("Charge Proved")
+                                                .oicHearingId(-1)
+                                                .resultSeq(1L)
+                                                .sanction(Sanction.builder()
+                                                        .sanctionType("Stoppage of Earnings (%)")
+                                                        .sanctionDays(21L)
+                                                        .sanctionMonths(null)
+                                                        .compensationAmount(50L)
+                                                        .effectiveDate(LocalDateTime.of(2017, 11, 7, 0, 0))
+                                                        .status("Immediate")
+                                                        .statusDate(LocalDateTime.of(2017, 11, 8, 0, 0))
+                                                        .comment(null)
+                                                        .sanctionSeq(1L)
+                                                        .consecutiveSanctionSeq(1L)
+                                                        .oicHearingId(-1)
+                                                        .resultSeq(1L)
+                                                        .build())
+                                                .build())
+                                        .build())
+                        .hearing(Hearing.builder()
+                                .oicHearingId(-2L)
+                                .hearingType("Governor's Hearing Adult")
+                                .hearingTime(LocalDateTime.of(2015, 1, 2, 14, 0))
+                                .location("LEI-A-1-1001")
+                                .heardByFirstName("CA")
+                                .heardByLastName("User")
+                                .otherRepresentatives("Some Other folk")
+                                .comment("B Comment")
+                                .result(HearingResult.builder()
+                                        .oicOffenceCode("51:2C")
+                                        .offenceType("Prison Rule 51")
+                                        .offenceDescription("Detains any person against his will - detention against will of prison officer grade")
+                                        .plea("Not guilty")
+                                        .finding("Charge Proved")
+                                        .oicHearingId(-2L)
+                                        .resultSeq(1L)
+                                        .sanction(Sanction.builder()
+                                                .sanctionType("Cellular Confinement")
+                                                .sanctionDays(7L)
+                                                .sanctionMonths(1L)
+                                                .compensationAmount(null)
+                                                .effectiveDate(LocalDateTime.of(2017, 11, 07, 0, 0))
+                                                .status("Immediate")
+                                                .statusDate(null)
+                                                .comment(null)
+                                                .sanctionSeq(2L)
+                                                .consecutiveSanctionSeq(2L)
+                                                .oicHearingId(-2L)
+                                                .resultSeq(1L)
+                                                .build())
+                                        .build())
+                                .result(HearingResult.builder()
+                                        .oicOffenceCode("51:1J")
+                                        .offenceType("Prison Rule 51")
+                                        .offenceDescription("Commits any assault - assault on prison officer")
+                                        .plea("Not guilty")
+                                        .finding("Charge Proved")
+                                        .oicHearingId(-2L)
+                                        .resultSeq(2L)
+                                        .sanction(
+                                                Sanction.builder()
+                                                        .sanctionType("Forfeiture of Privileges")
+                                                        .sanctionDays(7L)
+                                                        .sanctionMonths(null)
+                                                        .compensationAmount(null)
+                                                        .effectiveDate(LocalDateTime.of(2017, 11, 8, 0, 0))
+                                                        .status("Immediate")
+                                                        .statusDate(null)
+                                                        .comment("LOTV")
+                                                        .sanctionSeq(3L)
+                                                        .consecutiveSanctionSeq(1L)
+                                                        .oicHearingId(-2)
+                                                        .resultSeq(2L)
+                                                        .build())
+                                        .build())
+                                .build())
+                        .build());
     }
 }

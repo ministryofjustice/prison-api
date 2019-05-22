@@ -1,4 +1,4 @@
-package net.syscon.elite.api.model;
+package net.syscon.elite.api.model.adjudications;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
