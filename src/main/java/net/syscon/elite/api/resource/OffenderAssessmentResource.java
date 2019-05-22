@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.api.support.ResponseDelegate;
 
 import javax.validation.Valid;
@@ -21,7 +22,7 @@ public interface OffenderAssessmentResource {
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @ApiOperation(value = "Offender assessment detail for multiple offenders.", notes = "Offender assessment detail for multiple offenders.", nickname="getOffenderAssessmentsAssessmentCode")
-    @ApiResponses(value = { 
+    @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Assessment.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
@@ -53,6 +54,7 @@ public interface OffenderAssessmentResource {
     @Path("/category/{agencyId}/uncategorised")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
+    @Deprecated
     @ApiOperation(value = "Offenders who need to be categorised.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List") })
@@ -62,11 +64,29 @@ public interface OffenderAssessmentResource {
     @Path("/category/{agencyId}/categorised")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
+    @Deprecated
     @ApiOperation(value = "Offenders who have an approved categorisation.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List") })
     GetUncategorisedResponse getApprovedCategorised(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId")String agencyId,
                                                     @ApiParam(value = "The date from which categorisations are returned", required = false) @QueryParam("fromDate") LocalDate fromDate);
+
+    @GET
+    @Path("/category/{agencyId}")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Returns category information on Offenders at a prison.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List")})
+    List<OffenderCategorise> getRecategorise(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
+                                             @ApiParam(value = "Indicates which type of category information is required." +
+                                                     "<li>UNCATEGORISED: Offenders who need to be categorised,</li>" +
+                                                     "<li>CATEGORISED: Offenders who have an approved categorisation,</li>" +
+                                                     "<li>RECATEGORISATIONS: Offenders who will soon require recategorisation</li>", required = true) @QueryParam("type") CategoryInformationType type,
+                                             @ApiParam(value = "For type CATEGORISED: The past date from which categorisations are returned.<br />" +
+                                                     "For type RECATEGORISATIONS: the future cutoff date: list includes all prisoners who require recategorisation on or before this date.<br />" +
+                                                     "For type UNCATEGORISED: Ignored; do not set this parameter.") @QueryParam("date") LocalDate date);
+
     @POST
     @Path("/category/{agencyId}")
     @Consumes({"application/json"})
@@ -76,7 +96,6 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 200, message = "The list of offenders with categorisation details is returned if categorisation record exists", response = OffenderCategorise.class, responseContainer = "List")})
     GetUncategorisedResponse getOffenderCategorisations(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
                                                         @ApiParam(value = "The required booking Ids (mandatory)", required = true) Set<Long> bookingIds);
-
 
     @POST
     @Path("/category/categorise")

@@ -479,10 +479,21 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessmentId", getCategoryAssessmentId()),
                 UNCATEGORISED_MAPPER);
 
-
         return removeEarlierCategorisations(rawData);
     }
 
+    @Override
+    public List<OffenderCategorise> getRecategorise(final String agencyId, final LocalDate cutoffDate) {
+        final var data = jdbcTemplate.query(
+                getQuery("GET_RECATEGORISE"),
+                createParams("agencyId", agencyId,
+                        "cutOffDate", DateTimeConverter.toDate(cutoffDate),
+                        "assessStatus", "A",
+                        "assessmentId", getCategoryAssessmentId()),
+                UNCATEGORISED_MAPPER);
+
+        return data;
+    }
 
     @Override
     public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, String agencyId) {
@@ -492,7 +503,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "agencyId", agencyId,
                         "assessmentId", getCategoryAssessmentId()),
                 UNCATEGORISED_MAPPER);
-
 
         return removeEarlierCategorisations(rawData);
     }

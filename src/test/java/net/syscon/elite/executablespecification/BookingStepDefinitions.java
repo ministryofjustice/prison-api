@@ -462,8 +462,13 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^a request is made for categorised offenders at \"([^\"]*)\" with an approval from Date of \"([^\"]*)\"$")
-    public void aRequestIsMadeForCategorisedOffendersAtWithAnApprovalFromDateOf(final String agencyId, final String fromDateString) throws Throwable {
+    public void aRequestIsMadeForCategorisedOffendersAtWithAnApprovalFromDateOf(final String agencyId, final String fromDateString) {
         bookingAssessment.getCategorisedOffenders(agencyId, fromDateString);
+    }
+
+    @When("^a request is made for offenders who need to be recategorised at \"([^\"]*)\" with cutoff Date of \"([^\"]*)\"$")
+    public void aRequestIsMadeForRecategorisingOffenders(final String agencyId, final String cutoff) {
+        bookingAssessment.getRecategorise(agencyId, cutoff);
     }
 
     @Then("^([0-9]+) uncategorised offenders are returned$")

@@ -104,25 +104,12 @@ public class BookingAssessmentSteps extends CommonSteps {
         }
     }
 
-    private void doUncategorisedApiCall(final String agencyId) {
+    private void doGetCategoryApiCall(final String agencyId, final String type, final String date) {
         init();
         try {
-            final var response = restTemplate.exchange(API_ASSESSMENTS_PREFIX + "category/{agencyId}/uncategorised", HttpMethod.GET,
-                    createEntity(), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId);
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            offenderCatList = response.getBody();
-            buildResourceData(response);
-        } catch (final EliteClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void doGetCategorisedApiCall(final String agencyId, final String fromDate) {
-        init();
-        try {
-            final var url = API_ASSESSMENTS_PREFIX + "category/{agencyId}/categorised" + (StringUtils.isNotBlank(fromDate) ? "?fromDate=" + fromDate : "");
+            final var url = API_ASSESSMENTS_PREFIX + "category/{agencyId}?type={type}" + (StringUtils.isNotBlank(date) ? "&date=" + date : "");
             final var response = restTemplate.exchange(url, HttpMethod.GET,
-                    createEntity(), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId);
+                    createEntity(), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId, type);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             offenderCatList = response.getBody();
             buildResourceData(response);
@@ -238,7 +225,7 @@ public class BookingAssessmentSteps extends CommonSteps {
     }
 
     public void getUncategorisedOffenders(final String agencyId) {
-        doUncategorisedApiCall(agencyId);
+        doGetCategoryApiCall(agencyId, "UNCATEGORISED", null);
     }
 
     public void verifyOffenderCategoryListSize(final int size) {
@@ -267,7 +254,11 @@ public class BookingAssessmentSteps extends CommonSteps {
     }
 
     public void getCategorisedOffenders(final String agencyId, final String fromDateString) {
-        doGetCategorisedApiCall(agencyId, fromDateString);
+        doGetCategoryApiCall(agencyId, "CATEGORISED", fromDateString);
+    }
+
+    public void getRecategorise(final String agencyId, final String dateString) {
+        doGetCategoryApiCall(agencyId, "RECATEGORISATIONS", dateString);
     }
 
     public void getOffendersCategorisations(final String agencyId, final List<Long> bookingIds) {

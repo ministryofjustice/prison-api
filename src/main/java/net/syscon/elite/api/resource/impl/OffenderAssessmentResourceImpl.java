@@ -3,7 +3,9 @@ package net.syscon.elite.api.resource.impl;
 import io.jsonwebtoken.lang.Collections;
 import net.syscon.elite.api.model.CategorisationDetail;
 import net.syscon.elite.api.model.CategoryApprovalDetail;
+import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.resource.OffenderAssessmentResource;
+import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.InmateService;
@@ -53,16 +55,23 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
+    @Deprecated
     public GetUncategorisedResponse getUncategorised(final String agencyId) {
         final var results = inmateService.getUncategorised(agencyId);
         return GetUncategorisedResponse.respond200WithApplicationJson(results);
     }
 
     @Override
+    @Deprecated
     public GetUncategorisedResponse getApprovedCategorised(final String agencyId, final LocalDate fromDate) {
         final var cutOffDate = fromDate != null ? fromDate : LocalDate.now().minusMonths(1);
         final var results = inmateService.getApprovedCategorised(agencyId, cutOffDate);
         return GetUncategorisedResponse.respond200WithApplicationJson(results);
+    }
+
+    @Override
+    public List<OffenderCategorise> getRecategorise(final String agencyId, final CategoryInformationType type, final LocalDate date) {
+        return inmateService.getCategory(agencyId, type, date);
     }
 
     @Override

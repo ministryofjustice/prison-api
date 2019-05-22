@@ -440,6 +440,25 @@ GET_APPROVED_CATEGORISED {
     and off_ass.assessment_type_id = :assessmentId
 }
 
+GET_RECATEGORISE {
+select
+    o.offender_id_display    as offender_no,
+    ob.offender_book_id      as booking_id,
+    o.last_name,
+    o.first_name,
+    COALESCE(off_ass.review_sup_level_type, off_ass.overrided_sup_level_type, off_ass.calc_sup_level_type) as category,
+    off_ass.next_review_date as next_recat_date
+from
+  offender_assessments off_ass
+    join offender_bookings ob on ob.offender_book_id = off_ass.offender_book_id
+    join offenders         o  on ob.offender_id      = o.offender_id
+where ob.agy_loc_id = :agencyId
+  and off_ass.next_review_date <= :cutOffDate
+  and off_ass.assess_status = :assessStatus
+  and off_ass.assessment_type_id = :assessmentId
+order by off_ass.next_review_date asc
+}
+
 GET_OFFENDER_CATEGORISATIONS {
   select
     o.offender_id_display as offender_no,
