@@ -11,9 +11,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 @Data
-@ToString
 public class IncidentParty implements Comparable<IncidentParty> {
 
     @ApiModelProperty(required = true, value = "Booking Id of offender involved", example = "1241232", position = 0)

@@ -3,7 +3,7 @@ package net.syscon.elite.executablespecification;
 import cucumber.api.Format;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.api.model.Award;
+import net.syscon.elite.api.model.adjudications.Award;
 import net.syscon.elite.executablespecification.steps.AdjudicationSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 

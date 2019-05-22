@@ -1,0 +1,79 @@
+{
+  "adjudicationNumber": -7,
+  "incidentTime": "1999-06-25T00:00:00",
+  "establishment": "Moorland (HMP & YOI)",
+  "interiorLocation": "MDI-1-1-001",
+  "incidentDetails": "mKSouDOCmKSouDO",
+  "reportNumber": -4,
+  "reportType": "Miscellaneous",
+  "reporterFirstName": "Jo",
+  "reporterLastName": "O'brien",
+  "reportTime": "2019-08-25T00:03:00",
+  "hearings": [{
+    "oicHearingId": -1,
+    "hearingType": "Governor's Hearing Adult",
+    "hearingTime": "2015-01-02T14:00:00",
+    "location": "LEI-AABCW-1",
+    "heardByFirstName": "Test",
+    "heardByLastName": "User",
+    "otherRepresentatives": "Other folk",
+    "comment": "A Comment",
+    "results": [{
+      "oicOffenceCode": "51:2D",
+      "offenceType": "Prison Rule 51",
+      "offenceDescription": "Detains any person against his will - detention against will of staff (not prison offr)",
+      "plea": "Unfit to Plea or Attend",
+      "finding": "Charge Proved",
+      "sanctions": [{
+        "sanctionType": "Stoppage of Earnings (%)",
+        "sanctionDays": 21,
+        "compensationAmount": 50,
+        "effectiveDate": "2017-11-07T00:00:00",
+        "status": "Immediate",
+        "statusDate": "2017-11-08T00:00:00",
+        "sanctionSeq": 1,
+        "consecutiveSanctionSeq": 1
+      }]
+    }]
+  }, {
+    "oicHearingId": -2,
+    "hearingType": "Governor's Hearing Adult",
+    "hearingTime": "2015-01-02T14:00:00",
+    "location": "LEI-A-1-1001",
+    "heardByFirstName": "CA",
+    "heardByLastName": "User",
+    "otherRepresentatives": "Some Other folk",
+    "comment": "B Comment",
+    "results": [{
+      "oicOffenceCode": "51:2C",
+      "offenceType": "Prison Rule 51",
+      "offenceDescription": "Detains any person against his will - detention against will of prison officer grade",
+      "plea": "Not guilty",
+      "finding": "Charge Proved",
+      "sanctions": [{
+        "sanctionType": "Cellular Confinement",
+        "sanctionDays": 7,
+        "sanctionMonths": 1,
+        "effectiveDate": "2017-11-07T00:00:00",
+        "status": "Immediate",
+        "sanctionSeq": 2,
+        "consecutiveSanctionSeq": 2
+      }]
+    }, {
+      "oicOffenceCode": "51:1J",
+      "offenceType": "Prison Rule 51",
+      "offenceDescription": "Commits any assault - assault on prison officer",
+      "plea": "Not guilty",
+      "finding": "Charge Proved",
+      "sanctions": [{
+        "sanctionType": "Forfeiture of Privileges",
+        "sanctionDays": 7,
+        "effectiveDate": "2017-11-08T00:00:00",
+        "status": "Immediate",
+        "comment": "LOTV",
+        "sanctionSeq": 3,
+        "consecutiveSanctionSeq": 1
+      }]
+    }]
+  }]
+}

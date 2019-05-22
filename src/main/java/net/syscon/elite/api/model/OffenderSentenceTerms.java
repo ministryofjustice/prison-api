@@ -18,8 +18,6 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 @Data
 public class OffenderSentenceTerms {
     @ApiModelProperty(required = true, value = "Offender booking id.", position = 1, example = "1132400")

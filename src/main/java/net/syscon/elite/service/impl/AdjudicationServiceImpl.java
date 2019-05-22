@@ -1,17 +1,19 @@
 package net.syscon.elite.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import net.syscon.elite.api.model.Adjudication;
-import net.syscon.elite.api.model.AdjudicationSummary;
-import net.syscon.elite.api.model.AdjudicationOffence;
 import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Award;
+import net.syscon.elite.api.model.adjudications.Adjudication;
+import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
+import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
+import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
+import net.syscon.elite.api.model.adjudications.Award;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.AdjudicationSearchCriteria;
 import net.syscon.elite.service.AdjudicationService;
 import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,19 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     @Value("${api.cutoff.adjudication.months:3}") private int adjudicationCutoffDefault;
     @Value("${api.cutoff.award.months:0}") private int awardCutoffDefault;
 
+    @Override
+    public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
+        bookingService.verifyCanViewLatestBooking(offenderNo);
+        return repository.findAdjudicationDetails(offenderNo, adjudicationNo)
+                .map(this::withFormatLocation)
+                .orElseThrow(EntityNotFoundException.withId(adjudicationNo));
+    }
+
+    private AdjudicationDetail withFormatLocation(AdjudicationDetail adjudicationDetail) {
+        return adjudicationDetail.toBuilder()
+                .establishment(LocationProcessor.formatLocation(adjudicationDetail.getEstablishment()))
+                .build();
+    }
 
     @Override
     public Page<Adjudication> findAdjudications(final AdjudicationSearchCriteria criteria) {

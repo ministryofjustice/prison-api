@@ -17,7 +17,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Data
-@ToString
 public class SentenceDetail extends BaseSentenceDetail {
     public enum NonDtoReleaseDateType {
         ARD,  CRD,  NPD,  PRRD,

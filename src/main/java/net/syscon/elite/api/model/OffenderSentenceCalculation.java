@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 @Data
 public class OffenderSentenceCalculation {
     private Long bookingId;
