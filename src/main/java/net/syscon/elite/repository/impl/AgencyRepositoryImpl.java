@@ -108,7 +108,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
 
     @Override
-    public Optional<Agency> getAgency(final String agencyId) {
+    public Optional<Agency> getAgency(final String agencyId, final boolean activeOnly) {
         final var initialSql = getQuery("GET_AGENCY");
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
 
@@ -116,8 +116,10 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
         Agency agency;
 
+        final var activeFlag = activeOnly ? "Y" : null;
+
         try {
-            agency = jdbcTemplate.queryForObject(sql, createParams("agencyId", agencyId), AGENCY_ROW_MAPPER);
+            agency = jdbcTemplate.queryForObject(sql, createParams("agencyId", agencyId, "activeFlag", activeFlag), AGENCY_ROW_MAPPER);
         } catch (final EmptyResultDataAccessException ex) {
             agency = null;
         }

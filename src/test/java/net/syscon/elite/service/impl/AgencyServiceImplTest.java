@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
+import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.AgencyRepository;
@@ -16,7 +17,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +39,13 @@ public class AgencyServiceImplTest {
         when(agencyRepo.getPrisonContactDetails(eq("ABC"))).thenReturn(buildPrisonContactDetailsListSingleResult());
         when(agencyRepo.getPrisonContactDetails(eq("BLANK"))).thenReturn(buildPrisonContactDetailsListSingleResultBlankAddress());
         when(agencyRepo.getPrisonContactDetails(eq("NOADDRESS"))).thenReturn(ImmutableList.of());
+    }
+
+    @Test
+    public void shouldCallGetAgency() {
+        when(agencyRepo.getAgency(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(Optional.of(Agency.builder().build()));
+        service.getAgency("LEI", true);
+        verify(agencyRepo).getAgency("LEI", true);
     }
 
     @Test
@@ -62,9 +72,9 @@ public class AgencyServiceImplTest {
 
     @Test()
     public void shouldIdentifyBlankAddress() throws Exception {
-        Assertions.assertThat(service.removeBlankAddresses(buildPrisonContactDetailsList())).hasSize(2);
-        Assertions.assertThat(service.removeBlankAddresses(buildPrisonContactDetailsListSingleResult())).hasSize(1);
-        Assertions.assertThat(service.removeBlankAddresses(buildPrisonContactDetailsListSingleResultBlankAddress())).isEmpty();
+        assertThat(service.removeBlankAddresses(buildPrisonContactDetailsList())).hasSize(2);
+        assertThat(service.removeBlankAddresses(buildPrisonContactDetailsListSingleResult())).hasSize(1);
+        assertThat(service.removeBlankAddresses(buildPrisonContactDetailsListSingleResultBlankAddress())).isEmpty();
     }
 
 

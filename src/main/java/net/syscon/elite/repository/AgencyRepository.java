@@ -20,7 +20,7 @@ public interface AgencyRepository {
     List<Agency> findAgenciesByUsername(String username);
     List<Agency> findAgenciesForCurrentCaseloadByUsername(String username);
     List<Agency> findAgenciesByCaseload(String caseload);
-    Optional<Agency> getAgency(String agencyId);
+    Optional<Agency> getAgency(String agencyId, boolean activeOnly);
     List<PrisonContactDetail> getPrisonContactDetails(String agencyId);
     List<Location> getAgencyLocations(String agencyId, List<String> eventTypes, String sortFields, Order sortOrder);
     List<Location> getAgencyLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);

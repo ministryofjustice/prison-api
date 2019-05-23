@@ -42,6 +42,7 @@ Feature: Agencies
       | BXI      | INST       | Brixton      |
       | LEI      | INST       | Leeds        |
 
+  @wip
   Scenario Outline: Retrieve agency details
     When a request is submitted to retrieve agency "<agencyId>"
     Then the returned agency agencyId is "<agencyId>"
@@ -52,6 +53,15 @@ Feature: Agencies
       | LEI      | INST       | Leeds       |
       | WAI      | INST       | The Weare   |
 
+  @wip
+  Scenario: Retrieve agency details when excluding inactive agencies
+    When a request is submitted to retrieve agency "ZZGHI" when "excluding" inactive
+    Then the agency is not found
+
+  @wip
+  Scenario: Retrieve agency details when including inactive agencies
+    When a request is submitted to retrieve agency "ZZGHI" when "including" inactive
+    Then the agency is found
 
   Scenario: Retrieve all locations for an agency
     When a request is submitted to retrieve location codes for agency "LEI"

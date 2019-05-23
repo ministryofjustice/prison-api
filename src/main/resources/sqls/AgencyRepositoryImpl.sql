@@ -87,7 +87,7 @@ GET_AGENCY {
            A.DESCRIPTION,
            A.AGENCY_LOCATION_TYPE AGENCY_TYPE
     FROM AGENCY_LOCATIONS A
-    WHERE A.ACTIVE_FLAG = 'Y'
+    WHERE (:activeFlag is NULL OR A.ACTIVE_FLAG = 'Y')
       AND A.AGY_LOC_ID = :agencyId
 }
 

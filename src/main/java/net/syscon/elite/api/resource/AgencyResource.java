@@ -40,7 +40,8 @@ public interface AgencyResource {
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
-    GetAgencyResponse getAgency(@ApiParam(value = "", required = true) @PathParam("agencyId") String agencyId);
+    GetAgencyResponse getAgency(@ApiParam(value = "", required = true) @PathParam("agencyId") String agencyId,
+                                @ApiParam(value = "Only return active agencies", defaultValue = "true") @QueryParam("activeOnly") @DefaultValue("true") boolean activeOnly);
 
     @GET
     @Path("/{agencyId}/eventLocations")

@@ -44,6 +44,30 @@ public class AgencyRepositoryTest {
     }
 
     @Test
+    public void testGetEnabledAgencyWhenActiveOnly() {
+        final var agency = repository.getAgency("LEI", true);
+        assertThat(agency).isPresent();
+    }
+
+    @Test
+    public void testGetEnabledAgencyWithInactive() {
+        final var agency = repository.getAgency("LEI", false);
+        assertThat(agency).isPresent();
+    }
+
+    @Test
+    public void testGetDisabledAgencyWhenActiveOnly() {
+        final var agency = repository.getAgency("ZZGHI", true);
+        assertThat(agency).isEmpty();
+    }
+
+    @Test
+    public void testGetDisabledAgencyWithInactive() {
+        final var agency = repository.getAgency("ZZGHI", false);
+        assertThat(agency).isPresent();
+    }
+
+    @Test
     public void testGetAgencyLocations() {
         final var locations = repository.getAgencyLocations("LEI", Arrays.asList("APP", "VISIT"), null, null);
         assertThat(locations).extracting("locationType").contains("AREA", "AREA", "CLAS", "WSHP");

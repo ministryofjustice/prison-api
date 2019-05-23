@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -112,17 +113,22 @@ public class AgencySteps extends CommonSteps {
         }
     }
 
-    private void dispatchObjectRequest(final String resourcePath, final String agencyId) {
+    private void dispatchObjectRequest(final String agencyId, final Boolean activeOnly) {
         init();
 
-        final var urlModifier = "";
 
-        final var url = resourcePath + urlModifier;
+        final var uriBuilder = UriComponentsBuilder.fromPath(API_AGENCY_URL);
+
+        if(activeOnly != null) {
+            uriBuilder.queryParam("activeOnly", activeOnly);
+        }
+
+        final var uri = uriBuilder.build(agencyId);
 
         try {
-            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
+            final var response = restTemplate.exchange(uri, HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<Agency>() {
-                    }, agencyId);
+                    });
 
             agency = response.getBody();
         } catch (final EliteClientException ex) {
@@ -193,8 +199,8 @@ public class AgencySteps extends CommonSteps {
     }
 
     @Step("Submit request for agency details")
-    public void getAgency(final String agencyId) {
-        dispatchObjectRequest(API_AGENCY_URL, agencyId);
+    public void getAgency(final String agencyId, final Boolean activeOnly) {
+        dispatchObjectRequest(agencyId, activeOnly);
     }
 
     public void verifyLocationList(final List<Location> expected) {
