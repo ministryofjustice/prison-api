@@ -51,7 +51,12 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a request is submitted to retrieve agency \"([^\"]*)\"$")
     public void requestSubmittedToRetrieveAgency(final String agencyId) throws Throwable {
-        agencySteps.getAgency(agencyId);
+        agencySteps.getAgency(agencyId, null);
+    }
+
+    @When("^a request is submitted to retrieve agency \"([^\"]*)\" when \"([^\"]*)\" inactive$")
+    public void requestSubmittedToRetrieveInactiveAgency(final String agencyId, final String filter) throws Throwable {
+        agencySteps.getAgency(agencyId, filter.equalsIgnoreCase("excluding"));
     }
 
     @Then("^the returned agency ([^\"]+) is \"([^\"]*)\"$")
@@ -108,5 +113,15 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
     @Then("^the returned enabled flag is \"([^\"]*)\"$")
     public void theEnabledFlagIs(final String value) throws ReflectiveOperationException {
         agencySteps.verifyWhereaboutsField("enabled", value);
+    }
+
+    @Then("^the agency is found$")
+    public void theAgencyIsFound() {
+        agencySteps.verifyNoError();
+    }
+
+    @Then("^the agency is not found$")
+    public void theAgencyIsNotFound() {
+        agencySteps.verifyResourceNotFound();
     }
 }

@@ -15,7 +15,7 @@ import java.util.Set;
  * Agency API service interface.
  */
 public interface AgencyService {
-    Agency getAgency(String agencyId);
+    Agency getAgency(String agencyId, boolean activeOnly);
     void checkAgencyExists(String agencyId);
     List<Agency> getAgenciesByType(String agencyType);
     Page<Agency> getAgencies(long offset, long limit);
