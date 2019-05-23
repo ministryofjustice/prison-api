@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
@@ -410,14 +411,30 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     @VerifyAgencyAccess
+    @Deprecated
     public List<OffenderCategorise> getUncategorised(final String agencyId) {
         return repository.getUncategorised(agencyId);
     }
 
     @Override
     @VerifyAgencyAccess
-    public List<OffenderCategorise> getApprovedCategorised(final String agencyId, final LocalDate cutOfDate) {
-        return repository.getApprovedCategorised(agencyId, cutOfDate);
+    @Deprecated
+    public List<OffenderCategorise> getApprovedCategorised(final String agencyId, final LocalDate cutOffDate) {
+        return repository.getApprovedCategorised(agencyId, cutOffDate);
+    }
+
+    @Override
+    @VerifyAgencyAccess
+    public List<OffenderCategorise> getCategory(final String agencyId, final CategoryInformationType type, final LocalDate date) {
+        switch (type) {
+            case UNCATEGORISED:
+                return repository.getUncategorised(agencyId);
+            case CATEGORISED:
+                return repository.getApprovedCategorised(agencyId, ObjectUtils.defaultIfNull(date, LocalDate.now().minusMonths(1)));
+            case RECATEGORISATIONS:
+                return repository.getRecategorise(agencyId, ObjectUtils.defaultIfNull(date, LocalDate.now().plusMonths(2)));
+        }
+        return null;
     }
 
     @Override

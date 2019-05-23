@@ -1,3 +1,4 @@
+@sdar
 Feature: Booking Details
 
   Acceptance Criteria:
@@ -167,6 +168,10 @@ Feature: Booking Details
   Scenario: Request for offender categorisation details for given booking ids that do not match the given agency
     When a request is made for offender categorisation details at "MDI" with booking id "-31"
     Then 0 categorised offenders are returned
+
+  Scenario: Request for offenders who need to be recategorised
+    When a request is made for offenders who need to be recategorised at "LEI" with cutoff Date of "2018-07-01"
+    Then 6 categorised offenders are returned
 
   Scenario: Create categorisation request
     Given a categorisation user has authenticated with the API

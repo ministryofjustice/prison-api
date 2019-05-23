@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.support.InmateDto;
@@ -39,6 +40,7 @@ public interface InmateService {
     List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean latestOnly);
 	List<OffenderCategorise> getUncategorised(String agencyId);
 	List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutOffDate);
+	List<OffenderCategorise> getCategory(String agencyId, CategoryInformationType type, LocalDate cutOffDate);
 	List<OffenderCategorise> getOffenderCategorisations(String agencyId, Set<Long> bookingIds);
 
 	List<Long> getPersonalOfficerBookings(String username);

@@ -69,7 +69,7 @@ public class InmateRepositoryTest {
         final var foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
 
         assertThat(foundInmates.getItems()).isNotEmpty();
-        assertThat(foundInmates.getItems()).extracting(OffenderBooking::getLastName).contains("FOX","DUCK","BATES");
+        assertThat(foundInmates.getItems()).extracting(OffenderBooking::getLastName).contains("FOX", "DUCK", "BATES");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class InmateRepositoryTest {
         final var alertFilter = List.of("XA", "HC");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", "A", "A", "LEI",
-                alertFilter, "All","WING", pageRequest);
+                alertFilter, "All", "WING", pageRequest);
 
         final var results = foundInmates.getItems();
         assertThat(results).hasSize(1);
@@ -93,7 +93,7 @@ public class InmateRepositoryTest {
         final var caseloads = Set.of("LEI");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "Convicted","WING", pageRequest);
+                null, "Convicted", "WING", pageRequest);
 
         final var results = foundInmates.getItems();
 
@@ -108,7 +108,7 @@ public class InmateRepositoryTest {
         final var caseloads = Set.of("LEI");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-            null, "Remand", "WING", pageRequest);
+                null, "Remand", "WING", pageRequest);
 
         final var results = foundInmates.getItems();
 
@@ -123,13 +123,13 @@ public class InmateRepositoryTest {
         final var caseloads = Set.of("LEI");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-            null,"All", "WING", pageRequest);
+                null, "All", "WING", pageRequest);
 
         final var results = foundInmates.getItems();
 
         assertThat(results).hasSize(10);
         assertThat(results).extracting("convictedStatus").containsAll(List.of("Convicted", "Remand"));
-        assertThat(results).extracting("imprisonmentStatus").containsAll(List.of("TRL","SENT"));
+        assertThat(results).extracting("imprisonmentStatus").containsAll(List.of("TRL", "SENT"));
     }
 
     @Test
@@ -624,7 +624,7 @@ public class InmateRepositoryTest {
                 "categoriserFirstName", "categoriserLastName", "category").contains(
                 Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL, "Elite2", "User", "B"));
 
-        assertThat(list).extracting("offenderNo").doesNotContain("A1234AF","A1234AG");  // "Active" categorisation should be ignored
+        assertThat(list).extracting("offenderNo").doesNotContain("A1234AF", "A1234AG"); // "Active" categorisation should be ignored
         // Note that size of list may vary depending on whether feature tests have run, e.g. approving booking id -34
     }
 
@@ -655,9 +655,33 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testGetRecategoriseNoResults() {
+        final var list = repository.getRecategorise("LEI", LocalDate.of(2003, 5, 5));
+
+        list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
+        assertThat(list).hasSize(0);
+    }
+
+    @Test
+    public void testGetRecategorise() {
+        final var list = repository.getRecategorise("LEI", LocalDate.of(2018, 6, 7));
+
+        assertThat(list)
+                .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextRecatDate")
+                .containsExactly(
+                        Tuple.tuple("A1234AC", -3L, "NORMAN", "BATES", "X", LocalDate.of(2016, 6, 8)),
+                        Tuple.tuple("A1234AD", -4L, "CHARLES", "CHAPLIN", "U", LocalDate.of(2016, 6, 8)),
+                        Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", "Z", LocalDate.of(2016, 6, 8)),
+                        Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "LOW", LocalDate.of(2018, 6, 1)),
+                        Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7)),
+                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7))
+                );
+    }
+
+    @Test
     public void testGetAllAssessments() {
         final var list = repository.findAssessmentsByOffenderNo(
-                List.of("A1234AF"), "CATEGORY", Collections.emptySet(),false);
+                List.of("A1234AF"), "CATEGORY", Collections.emptySet(), false);
 
         list.sort(Comparator.comparing(AssessmentDto::getOffenderNo).thenComparing(AssessmentDto::getBookingId));
         assertThat(list).extracting("offenderNo", "bookingId", "assessmentCode",
@@ -770,9 +794,9 @@ public class InmateRepositoryTest {
 
     @Test
     public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
-        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"),false, Set.of("LEI"));
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"), false, Set.of("LEI"));
         assertThat(offenders).hasSize(1);
-        assertThat(offenders).extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName" , "dateOfBirth", "assignedLivingUnitId").contains(
+        assertThat(offenders).extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName", "dateOfBirth", "assignedLivingUnitId").contains(
                 Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", LocalDate.parse("1970-03-01"), -7L)
         );
     }
@@ -793,7 +817,7 @@ public class InmateRepositoryTest {
     public void testGetBasicInmateDetailsByBookingIds() {
         final var offenders = repository.getBasicInmateDetailsByBookingIds("LEI", List.of(-3L, -4L, -35L));  //-35L ignored as it is MDI agency
         assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, LocalDate.parse("1999-10-27"))
-        ,new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, LocalDate.parse("1970-01-01")));
+                , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, LocalDate.parse("1970-01-01")));
     }
 
     @Test
@@ -810,7 +834,7 @@ public class InmateRepositoryTest {
                         Language.builder().type("SEC").code("KUR").description("Kurdish").build(),
                         Language.builder().type("SEC").code("SPA").description("Spanish; Castilian").build(),
                         Language.builder().type("PREF_WRITE").code("TUR").description("Turkish").build()
-                        );
+                );
     }
 
     @Test
