@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import com.microsoft.applicationinsights.TelemetryClient;
+import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -239,4 +240,44 @@ public class BookingServiceImplTest {
                 bookingService.verifyCanViewLatestBooking("off-1"))
                 .isInstanceOf(EntityNotFoundException.class);
     }
+
+    @Test
+    public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
+        val bookingId = 1L;
+
+        Mockito.when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
+        Mockito.when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "STD", "ENH"));
+
+        val iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+
+        bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment);
+
+        Mockito.verify(bookingRepository).addIepLevel(bookingId, "FRED", iepLevelAndComment);
+    }
+
+    @Test
+    public void givenInvalidIepLevel_whenIepLevelAdded() {
+        val bookingId = 1L;
+
+        Mockito.when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(false);
+
+        val iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("IEP Level 'STD' is not a valid NOMIS value.");
+    }
+
+    @Test
+    public void givenValidIepLevel_whenIepLevelNotValidForAgencyAssociatedWithBooking() {
+        val bookingId = 1L;
+
+        Mockito.when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
+        Mockito.when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "ENH"));
+
+        val iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("IEP Level 'STD' is not active for this booking's agency: Booking Id 1.");
+    }
+
 }

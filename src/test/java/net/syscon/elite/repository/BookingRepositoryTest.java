@@ -1,23 +1,22 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.OffenderSentenceTerms;
-import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.model.Visit;
+import lombok.val;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
-import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,14 +26,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,6 +50,9 @@ public class BookingRepositoryTest {
     private BookingRepository repository;
     @Autowired
     private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    NamedParameterJdbcTemplate template;
 
     @Before
     public void init() {
@@ -510,4 +510,77 @@ public class BookingRepositoryTest {
 
                 );
     }
-}
+
+    @Test
+    public void givenExistingBooking_whenAddingMultipleIepLevel() {
+
+        final long bookingId = -54L;
+        final LocalDateTime before = LocalDateTime.now();
+
+        assertThatOffenderIepLevelsForBookingAre(bookingId);
+
+        repository.addIepLevel(-54L, "A_DUMMY_USER", new IepLevelAndComment("STD","A comment"));
+
+        final Timestamp today = Timestamp.valueOf(LocalDate.now().atStartOfDay());
+
+        assertThatOffenderIepLevelsForBookingAre(bookingId,
+                Tuple.tuple(BigDecimal.valueOf(1L), today, "BMI", "STD", "A comment", "A_DUMMY_USER"));
+
+        repository.addIepLevel(-54L, "A_DIFFERENT_USER", new IepLevelAndComment("ENH", "Comment 2"));
+
+        assertThatOffenderIepLevelsForBookingAre(bookingId,
+                Tuple.tuple(BigDecimal.valueOf(1L), today, "BMI", "STD", "A comment", "A_DUMMY_USER"),
+                Tuple.tuple(BigDecimal.valueOf(2L), today, "BMI", "ENH", "Comment 2", "A_DIFFERENT_USER"));
+
+        final LocalDateTime after = LocalDateTime.now();
+
+        assertThatOffenderIepLevelTimesForBookingAreBetween(bookingId, before, after);
+    }
+
+    @Test
+    public void getIepLevelsForAgencySelectedWithABooking() {
+        final long bookingInBMI = -54L;
+        final long bookingInLEI = -1L;
+
+        assertThat(repository.getIepLevelsForAgencySelectedByBooking(bookingInBMI)).containsExactlyInAnyOrder("BAS", "STD", "ENH");
+        assertThat(repository.getIepLevelsForAgencySelectedByBooking(bookingInLEI)).containsExactlyInAnyOrder("BAS", "STD", "ENH", "ENT");
+    }
+
+    private void assertThatOffenderIepLevelTimesForBookingAreBetween(long bookingId, LocalDateTime before, LocalDateTime after) {
+        val levels = offenderIepLevelsForBooking(bookingId);
+
+        final Timestamp beforeTs = truncateNanos(before);
+        final Timestamp afterTs = truncateNanos(after);
+
+        assertThat(levels).noneMatch(iepLevel -> iepTime(iepLevel).before(beforeTs));
+        assertThat(levels).noneMatch(iepLevel -> iepTime(iepLevel).after(afterTs));
+
+    }
+
+    private static Timestamp iepTime(Map<String, Object> level) {
+        return (Timestamp) level.get("IEP_TIME");
+    }
+
+    private static Timestamp truncateNanos(LocalDateTime t) {
+        val ts = Timestamp.valueOf(t);
+        ts.setNanos(0);
+        return ts;
+    }
+
+    private void assertThatOffenderIepLevelsForBookingAre(long bookingId, Tuple... expected) {
+
+        assertThat(offenderIepLevelsForBooking(bookingId))
+                .extracting("IEP_LEVEL_SEQ", "IEP_DATE", "AGY_LOC_ID", "IEP_LEVEL", "COMMENT_TEXT", "USER_ID")
+                .containsExactly(expected);
+    }
+
+    @NotNull
+    private List<Map<String, Object>> offenderIepLevelsForBooking(long bookingId) {
+        return template.queryForList(
+                "SELECT IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID " +
+                        "FROM OFFENDER_IEP_LEVELS " +
+                        "WHERE OFFENDER_BOOK_ID = :bookingId " +
+                        "ORDER BY IEP_LEVEL_SEQ",
+                Map.of("bookingId", bookingId));
+    }
+ }

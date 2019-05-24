@@ -213,6 +213,9 @@ abstract class AbstractStepDefinitions {
         public BulkAppointmentSteps bulkAppointmentSteps() {
             return new BulkAppointmentSteps();
         }
+
+        @Bean
+        public AddIepLevelSteps addIepLevelSteps() { return new AddIepLevelSteps(); }
     }
 
     int ord2idx(final String ordinal) {

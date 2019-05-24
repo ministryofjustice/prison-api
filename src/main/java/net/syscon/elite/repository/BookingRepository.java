@@ -19,6 +19,10 @@ public interface BookingRepository {
 
     Map<Long, List<PrivilegeDetail>> getBookingIEPDetailsByBookingIds(List<Long> bookingIds);
 
+    void addIepLevel(Long bookingId, String username, IepLevelAndComment iepLevel);
+
+    Set<String> getIepLevelsForAgencySelectedByBooking(long bookingId);
+
     Map<Long, List<String>> getAlertCodesForBookings(List<Long> bookingIds, LocalDateTime cutoffDate);
 
     boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds);

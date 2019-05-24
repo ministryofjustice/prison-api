@@ -1,18 +1,11 @@
 package net.syscon.elite.api.model;
 
-import lombok.val;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-
-
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
 
 import static net.syscon.elite.api.model.ApprovalStatus.builder;
 import static org.assertj.core.api.Assertions.assertThat;
