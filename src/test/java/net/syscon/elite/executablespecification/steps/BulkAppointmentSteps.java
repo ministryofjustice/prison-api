@@ -2,9 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
-import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
-import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
+import net.syscon.elite.api.model.bulkappointments.*;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -31,12 +29,15 @@ public class BulkAppointmentSteps extends CommonSteps {
     };
     private AppointmentDefaults defaults;
     private List<AppointmentDetails> details;
+    private Repeat repeat;
     private ErrorResponse errorResponse;
     private Map<Long, List<ScheduledEvent>> eventsByBookingId;
     private int httpStatus;
 
     @Step("bulkAppointmentDefaults")
     public void appointmentDefaults(final AppointmentDefaults appointmentDefaults) {
+        details = null;
+        repeat = null;
         defaults = appointmentDefaults;
     }
 
@@ -56,6 +57,7 @@ public class BulkAppointmentSteps extends CommonSteps {
                             .builder()
                             .appointmentDefaults(defaults)
                             .appointments(details)
+                            .repeat(repeat)
                             .build()),
                     Void.class
             );
@@ -65,6 +67,11 @@ public class BulkAppointmentSteps extends CommonSteps {
             httpStatus = errorResponse.getStatus();
         }
     }
+
+    public void repeats(RepeatPeriod period, int count) {
+        repeat = Repeat.builder().repeatPeriod(period).count(count).build();
+    }
+
 
     @Step("appointmentsOnDateAre")
     public void appointmentsAre(final LocalDate date, final List<Map<String, String>> appointments) {
@@ -127,4 +134,5 @@ public class BulkAppointmentSteps extends CommonSteps {
     public void assertHttpStatusCode(final int expectedStatusCode) {
         assertThat(httpStatus).isEqualTo(expectedStatusCode);
     }
+
 }
