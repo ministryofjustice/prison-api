@@ -1,8 +1,10 @@
 package net.syscon.elite.api.model.bulkappointments;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -12,6 +14,8 @@ import java.util.stream.Stream;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Repeat {
     @ApiModelProperty(required = true, value = "The period at which the appointment should repeat.", example = "WEEKLY", allowableValues = "DAILY, WEEKDAYS, WEEKLY, FORTNIGHTLY, MONTHLY")
     @NotNull
