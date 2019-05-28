@@ -16,6 +16,10 @@ Feature: Creating multiple appointments
       | -31       |                          |                          |                 |
       | -32       | Today_plus_1_days_T14:35 | Today_plus_1_days_T14:55 | Another comment |
 
+    And these repeats:
+    | period | count |
+    | WEEKLY | 2     |
+
     When I make a request to create bulk appointments
 
     Then appointments for tomorrow are:

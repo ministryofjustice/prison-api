@@ -5,6 +5,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
+import net.syscon.elite.api.model.bulkappointments.RepeatPeriod;
 import net.syscon.elite.executablespecification.steps.BulkAppointmentSteps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,10 @@ import java.util.stream.Collectors;
 public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
 
     private static final Pattern RELATIVE_TIME_PATTERN = Pattern.compile("^(Today_plus_)(\\d+)_days_T(\\d{2}:\\d{2})$");
+
     @Autowired
     private BulkAppointmentSteps bulkAppointmentSteps;
+
 
     @When("^These appointment defaults:$")
     public void appointmentDefaults(final Map<String, String> defaults) {
@@ -53,6 +56,14 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
                 .collect(Collectors.toList());
         bulkAppointmentSteps.appointmentDetails(appointmentDetails);
     }
+
+    @And("^these repeats:$")
+    public void theseRepeats(final List<Map<String, String>> repeats) {
+        RepeatPeriod period = RepeatPeriod.valueOf(repeats.get(0).get("period"));
+        int count = Integer.valueOf(repeats.get(0).get("count"));
+        bulkAppointmentSteps.repeats(period, count);
+    }
+
 
     @Then("^appointments for tomorrow are:$")
     public void appointmentsForTomorrow(List<Map<String, String>> appointments) {
