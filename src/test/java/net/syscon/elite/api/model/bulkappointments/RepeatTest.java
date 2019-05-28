@@ -134,4 +134,14 @@ public class RepeatTest {
                         LocalDateTime.of(LocalDate.of(2019, 7, 31), START_TIME)
                 );
     }
+
+    @Test
+    public void noArgsConstructor() {
+        new Repeat();
+    }
+
+    @Test
+    public void allArgsConstructor() {
+        new Repeat(RepeatPeriod.DAILY, 1);
+    }
 }
