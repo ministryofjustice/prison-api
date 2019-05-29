@@ -63,6 +63,7 @@ public class ScheduleRepositoryTest {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
         final var results = repository.getLocationActivities(-26L, date, toDate, "lastName,startTime", Order.ASC);
+        System.out.print(results);
         assertThat(results).hasSize(24);
         assertPrisonerDetails(results.get(0));
         // assert at least 1 field from all results
@@ -70,6 +71,10 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(2).getStartTime().toString()).isEqualTo("2017-09-13T13:00");
         assertThat(results.get(3).getStartTime().toString()).isEqualTo("2017-09-14T13:00");
         assertThat(results.get(4).getStartTime().toString()).isEqualTo("2017-09-15T13:00");
+
+        assertThat(results.get(1).getBookingId().toString()).isEqualTo("-2");
+        assertThat(results.get(12).getBookingId().toString()).isEqualTo("-3");
+        assertThat(results.get(23).getBookingId().toString()).isEqualTo("-5");
 
         assertThat(results.get(5).getLastName()).isEqualTo("ANDERSON"); // date today
         assertThat(results.get(6).getLastName()).isEqualTo("ANDERSON");
@@ -92,6 +97,7 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(21).getLastName()).isEqualTo("DUCK");
         assertThat(results.get(22).getLastName()).isEqualTo("DUCK");
         assertThat(results.get(23).getLastName()).isEqualTo("DUCK");
+
 
         results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-26L));
 
