@@ -83,6 +83,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
     public List<CaseLoad> getCaseLoads(final String username, final boolean allCaseloads) {
         final var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, allCaseloads);
 		if (caseLoadsForUser.isEmpty()) {
