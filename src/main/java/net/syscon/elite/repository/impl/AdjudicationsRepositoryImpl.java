@@ -100,7 +100,7 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
 
         val populatedResults = results.stream().map(result ->
                 result.toBuilder()
-                        .sanctions(sanctionsByResult.get(result.getResultSeq()))
+                        .sanctions(sanctionsByResult.getOrDefault(result.getResultSeq(), List.of()))
                         .build())
                 .collect(toList());
 
