@@ -57,6 +57,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    @Transactional
     public List<Location> getUserLocations(final String username) {
         final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
         if (caseLoad.isEmpty() || caseLoad.get().isAdminType()) {
@@ -89,7 +90,7 @@ public class LocationServiceImpl implements LocationService {
 
         final var colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
 
-        final var inmates = inmateRepository.findInmatesByLocation(
+        return inmateRepository.findInmatesByLocation(
                 locationId,
                 locationTypeGranularity,
                 getWorkingCaseLoad(username),
@@ -98,8 +99,6 @@ public class LocationServiceImpl implements LocationService {
                 order,
                 offset,
                 limit);
-
-        return inmates;
     }
 
     @Override
