@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @ApiModel(description = "Categorisation detail for an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -29,6 +30,9 @@ public class CategorisationDetail {
     @NotNull(message = "committee must be provided")
     @ApiModelProperty(required = true, value = "The assessment committee code")
     private String committee;
+
+    @ApiModelProperty(value = "Next review date for recategorisation, defaults to current date + 6 months, if not provided")
+    private LocalDate nextReviewDate;
 
     @ApiModelProperty(value = "Initial categorisation comment")
     private String comment;

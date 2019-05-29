@@ -38,6 +38,9 @@ public class OffenderCategorise {
     @ApiModelProperty(value = "Date categorisation was approved if any")
     private LocalDate approvalDate;
 
+    @ApiModelProperty(value = "Next review (recategorisation) date")
+    private LocalDate nextReviewDate;
+
     @ApiModelProperty(value = "Sequence number within booking")
     private Integer assessmentSeq;
 
