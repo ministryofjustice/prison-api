@@ -113,8 +113,11 @@ public class ScheduleRepositoryTest {
           assertThat(results.get(1).getLastName()).isEqualTo("BATES");
           assertThat(results.get(2).getLastName()).isEqualTo("DUCK");
           assertThat(results.get(3).getLastName()).isEqualTo("DUCK");
+          assertThat(results.get(0).getBookingId().toString()).isEqualTo("-2");
+          assertThat(results.get(1).getBookingId().toString()).isEqualTo("-3");
+          assertThat(results.get(2).getBookingId().toString()).isEqualTo("-5");
 
-          results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-28L));
+        results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-28L));
     }
 
     @Test
@@ -129,6 +132,9 @@ public class ScheduleRepositoryTest {
           assertThat(results.get(3).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(4).getLastName()).isEqualTo("BATES");
           assertThat(results.get(5).getLastName()).isEqualTo("DUCK");
+          assertThat(results.get(0).getBookingId().toString()).isEqualTo("-1");
+          assertThat(results.get(4).getBookingId().toString()).isEqualTo("-3");
+          assertThat(results.get(5).getBookingId().toString()).isEqualTo("-5");
 
         results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-25L));
     }
