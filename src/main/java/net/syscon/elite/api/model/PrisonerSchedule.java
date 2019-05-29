@@ -37,6 +37,9 @@ public class PrisonerSchedule {
     @ApiModelProperty(value = "Activity id if any. Used to attend or pay the event.")
     private Long eventId;
 
+    @ApiModelProperty(value = "Booking id for offender.")
+    private Long bookingId;
+
     @ApiModelProperty(required = true, value = "The number which (uniquely) identifies the internal location associated with the Scheduled Event (Prisoner Schedule).")
     @NotNull
     private Long locationId;
