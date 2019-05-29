@@ -63,7 +63,6 @@ public class ScheduleRepositoryTest {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
         final var results = repository.getLocationActivities(-26L, date, toDate, "lastName,startTime", Order.ASC);
-        System.out.print(results);
         assertThat(results).hasSize(24);
         assertPrisonerDetails(results.get(0));
         // assert at least 1 field from all results
