@@ -174,7 +174,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(46);
+        assertThat(offenders).hasSize(47);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(51);
+        assertThat(offenders).hasSize(52);
     }
 
     @Test
@@ -214,7 +214,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(51);
+        assertThat(offenders).hasSize(52);
     }
 
     @Test

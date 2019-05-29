@@ -47,6 +47,7 @@ import static net.syscon.elite.service.ContactService.EXTERNAL_REL;
 public class BookingServiceImpl implements BookingService {
 
     private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
+    private static final String IEP_LEVEL_DOMAIN = "IEP_LEVEL";
 
     private final StartTimeComparator startTimeComparator = new StartTimeComparator();
 
@@ -155,32 +156,51 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
+    @Transactional
+    public void addIepLevel(final Long bookingId, final String username, @Valid final IepLevelAndComment iepLevel) {
+
+        if (!referenceDomainService.isReferenceCodeActive(IEP_LEVEL_DOMAIN, iepLevel.getIepLevel())) {
+            throw new IllegalArgumentException(String.format("IEP Level '%1$s' is not a valid NOMIS value.", iepLevel.getIepLevel()));
+        }
+
+        if(!activeIepLevelForAgencySelectedByBooking(bookingId, iepLevel.getIepLevel())) {
+            throw new IllegalArgumentException(String.format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId));
+        }
+
+        bookingRepository.addIepLevel(bookingId, username, iepLevel);
+    }
+
+    private boolean activeIepLevelForAgencySelectedByBooking(long bookingId, String iepLevel) {
+        Set<String> iepLevels = bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId);
+        return iepLevels.contains(iepLevel);
+    }
+
+    @Override
     public Map<Long, PrivilegeSummary> getBookingIEPSummary(final List<Long> bookingIds, final boolean withDetails) {
         final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
 
-        if (!bookingIds.isEmpty()) {
-            final var batch = Lists.partition(bookingIds, maxBatchSize);
-            batch.forEach(bookingIdList ->  {
-                final var mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIdList);
-                mapOfIEPResults.forEach((key, iepDetails) -> {
+        final var bookingIdBatches = Lists.partition(bookingIds, maxBatchSize);
+        bookingIdBatches.forEach(bookingIdBatch ->  {
+            final var mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIdBatch);
+            mapOfIEPResults.forEach((key, iepDetails) -> {
 
-                    // Extract most recent detail from list
-                    final var currentDetail = iepDetails.get(0);
+                // Extract most recent detail from list
+                final var currentDetail = mostRecentDetail(iepDetails);
 
-                    // Determine number of days since current detail became effective
-                    final var daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
+                // Determine number of days since current detail became effective
+                final var daysSinceReview = daysSinceDetailBecameEffective(currentDetail);
 
-                    mapOfEip.put(key, PrivilegeSummary.builder()
-                            .bookingId(currentDetail.getBookingId())
-                            .iepDate(currentDetail.getIepDate())
-                            .iepTime(currentDetail.getIepTime())
-                            .iepLevel(currentDetail.getIepLevel())
-                            .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
-                            .iepDetails(withDetails ? iepDetails : Collections.emptyList())
-                            .build());
-                });
+                mapOfEip.put(key, PrivilegeSummary.builder()
+                        .bookingId(currentDetail.getBookingId())
+                        .iepDate(currentDetail.getIepDate())
+                        .iepTime(currentDetail.getIepTime())
+                        .iepLevel(currentDetail.getIepLevel())
+                        .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
+                        .iepDetails(withDetails ? iepDetails : Collections.emptyList())
+                        .build());
             });
-        }
+        });
 
         // If no IEP details exist for offender, cannot derive an IEP summary.
         bookingIds.stream()
@@ -193,6 +213,14 @@ public class BookingServiceImpl implements BookingService {
                                         .build()));
 
         return mapOfEip;
+    }
+
+    private PrivilegeDetail mostRecentDetail(List<PrivilegeDetail> iepDetails) {
+        return iepDetails.get(0);
+    }
+
+    private long daysSinceDetailBecameEffective(PrivilegeDetail currentDetail) {
+        return DAYS.between(currentDetail.getIepDate(), now());
     }
 
     @Override
