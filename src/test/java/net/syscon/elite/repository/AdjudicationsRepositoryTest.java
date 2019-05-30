@@ -347,4 +347,43 @@ public class AdjudicationsRepositoryTest {
                                 .build())
                         .build());
     }
+
+    @Test
+    public void findAdjudicationDetailsWithoutSanctions() {
+
+        val results = repository.findAdjudicationDetails("A1179MT", -8);
+
+        assertThat(results.get()).isEqualTo(AdjudicationDetail.builder()
+                .adjudicationNumber(-8L)
+                .incidentTime(LocalDateTime.of(1999, 6, 25, 0, 0))
+                .establishment("Moorland (HMP & YOI)")
+                .interiorLocation("MDI-1-1-001")
+                .incidentDetails("mKSouDOCmKSouDO")
+                .reportNumber(-5L)
+                .reportType("Miscellaneous")
+                .reporterFirstName("Jo")
+                .reporterLastName("O'brien")
+                .reportTime(LocalDateTime.of(2019, 8, 25, 0, 3))
+                .hearing(Hearing.builder()
+                        .oicHearingId(-3L)
+                        .hearingType("Governor's Hearing Adult")
+                        .hearingTime(LocalDateTime.of(2015, 1, 2, 14, 0))
+                        .location("LEI-A-1-1001")
+                        .heardByFirstName("CA")
+                        .heardByLastName("User")
+                        .otherRepresentatives("Some Other folk")
+                        .comment("B Comment")
+                        .result(HearingResult.builder()
+                                .oicOffenceCode("51:2C")
+                                .offenceType("Prison Rule 51")
+                                .offenceDescription("Detains any person against his will - detention against will of prison officer grade")
+                                .plea("Not guilty")
+                                .finding("Charge Proved")
+                                .oicHearingId(-3L)
+                                .resultSeq(1L)
+                                .build())
+
+                        .build())
+                .build());
+    }
 }

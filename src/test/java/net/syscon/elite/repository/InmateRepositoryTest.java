@@ -174,7 +174,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(46);
+        assertThat(offenders).hasSize(47);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(51);
+        assertThat(offenders).hasSize(52);
     }
 
     @Test
@@ -214,7 +214,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(51);
+        assertThat(offenders).hasSize(52);
     }
 
     @Test
@@ -705,7 +705,8 @@ public class InmateRepositoryTest {
 
         final var catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").build();
 
-        repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
+        final LocalDate nextRecatDate = LocalDate.of(2019, 4, 1);
+        repository.insertCategory(catDetail, "LEI", -11L, "JDOG", nextRecatDate);
 
         final var list = repository.getUncategorised("LEI");
 

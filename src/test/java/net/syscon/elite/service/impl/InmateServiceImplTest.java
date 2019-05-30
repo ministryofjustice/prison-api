@@ -153,7 +153,23 @@ public class InmateServiceImplTest {
 
         serviceToTest.createCategorisation(1234L, catDetail);
 
-        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
+        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME", LocalDate.now().plusMonths(6));
+    }
+
+    @Test
+    public void testCreateCategorisationWithReviewDateSpecified() {
+
+        final var catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").comment("comment").nextReviewDate(LocalDate.of(2019, 4, 1)).build();
+
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ME", "credentials"));
+
+        when(bookingService.getLatestBookingByBookingId(1234L)).thenReturn(OffenderSummary.builder().agencyLocationId("CDI").bookingId(-5L).build());
+        when(userService.getUserByUsername("ME")).thenReturn(UserDetail.builder().staffId(444L).username("ME").build());
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+
+        serviceToTest.createCategorisation(1234L, catDetail);
+
+        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME", LocalDate.of(2019, 4, 1));
     }
 
     @Test

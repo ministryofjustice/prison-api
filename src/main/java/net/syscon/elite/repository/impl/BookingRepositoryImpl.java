@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
@@ -222,6 +223,32 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 PRIV_DETAIL_ROW_MAPPER);
 
         return privs.stream().collect(Collectors.groupingBy(PrivilegeDetail::getBookingId));
+    }
+
+    @Override
+    public void addIepLevel(Long bookingId, String username, IepLevelAndComment iepLevel) {
+        val now = LocalDateTime.now();
+
+        jdbcTemplate.update(
+                getQuery("ADD_IEP_LEVEL"),
+                createParams(
+                        "bookingId", bookingId,
+                        "userId", username,
+                        "date", DateTimeConverter.toDate(now.toLocalDate()),
+                        "time", DateTimeConverter.toDate(now),
+                        "iepLevel", iepLevel.getIepLevel(),
+                        "comment", iepLevel.getComment())
+        );
+    }
+
+    @Override
+    public Set<String> getIepLevelsForAgencySelectedByBooking(long bookingId){
+        final List<String> iepLevels = jdbcTemplate.queryForList(
+                getQuery("IEP_LEVELS_FOR_AGENCY_SELECTED_BY_BOOKING"),
+                Map.of("bookingId", bookingId ),
+                String.class
+        );
+        return java.util.Set.copyOf(iepLevels);
     }
 
     /**

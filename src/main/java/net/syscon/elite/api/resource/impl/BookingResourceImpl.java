@@ -331,6 +331,13 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write') && hasRole('MAINTAIN_IEP')")
+    @ProxyUser
+    public void addIepLevel(final Long bookingId, final IepLevelAndComment iepLevel){
+        bookingService.addIepLevel(bookingId, authenticationFacade.getCurrentUsername(), iepLevel);
+    }
+
+    @Override
     public GetBookingIEPSummaryForOffendersResponse getBookingIEPSummaryForOffenders(final List<Long> bookings, final boolean withDetails) {
         final var result = bookingService.getBookingIEPSummary(bookings, withDetails);
         final var privilegeSummaries = new ArrayList<>(result.values());

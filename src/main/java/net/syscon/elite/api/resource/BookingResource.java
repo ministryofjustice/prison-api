@@ -369,6 +369,13 @@ public interface BookingResource {
     GetBookingIEPSummaryResponse getBookingIEPSummary(@ApiParam(value = "The booking id of offender", required = true) @PathParam("bookingId") Long bookingId,
                                                       @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) @QueryParam("withDetails") boolean withDetails);
 
+    @POST
+    @Path("/{bookingId}/iepLevels")
+    @Consumes({"application/json"})
+    @ApiOperation("Add a new IEP (Incentives & Earned Privileges) level to an offender's booking.")
+    void addIepLevel(@ApiParam(value = "The booking id of the offender", required = true) @PathParam("bookingId") Long bookingId,
+                     @ApiParam(value = "The new IEP Level and accompanying comment (reason for change).", required = true) IepLevelAndComment ipeLevel);
+
     @GET
     @Path("/offenders/iepSummary")
     @Consumes({"application/json"})

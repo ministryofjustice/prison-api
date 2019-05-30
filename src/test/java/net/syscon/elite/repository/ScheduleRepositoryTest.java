@@ -71,6 +71,10 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(3).getStartTime().toString()).isEqualTo("2017-09-14T13:00");
         assertThat(results.get(4).getStartTime().toString()).isEqualTo("2017-09-15T13:00");
 
+        assertThat(results.get(1).getBookingId().toString()).isEqualTo("-2");
+        assertThat(results.get(12).getBookingId().toString()).isEqualTo("-3");
+        assertThat(results.get(23).getBookingId().toString()).isEqualTo("-5");
+
         assertThat(results.get(5).getLastName()).isEqualTo("ANDERSON"); // date today
         assertThat(results.get(6).getLastName()).isEqualTo("ANDERSON");
 
@@ -93,6 +97,7 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(22).getLastName()).isEqualTo("DUCK");
         assertThat(results.get(23).getLastName()).isEqualTo("DUCK");
 
+
         results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-26L));
 
     }
@@ -107,8 +112,11 @@ public class ScheduleRepositoryTest {
           assertThat(results.get(1).getLastName()).isEqualTo("BATES");
           assertThat(results.get(2).getLastName()).isEqualTo("DUCK");
           assertThat(results.get(3).getLastName()).isEqualTo("DUCK");
+          assertThat(results.get(0).getBookingId().toString()).isEqualTo("-2");
+          assertThat(results.get(1).getBookingId().toString()).isEqualTo("-3");
+          assertThat(results.get(2).getBookingId().toString()).isEqualTo("-5");
 
-          results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-28L));
+        results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-28L));
     }
 
     @Test
@@ -123,6 +131,9 @@ public class ScheduleRepositoryTest {
           assertThat(results.get(3).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(4).getLastName()).isEqualTo("BATES");
           assertThat(results.get(5).getLastName()).isEqualTo("DUCK");
+          assertThat(results.get(0).getBookingId().toString()).isEqualTo("-1");
+          assertThat(results.get(4).getBookingId().toString()).isEqualTo("-3");
+          assertThat(results.get(5).getBookingId().toString()).isEqualTo("-5");
 
         results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-25L));
     }

@@ -21,6 +21,9 @@ public interface BookingService {
     SentenceDetail getBookingSentenceDetail(Long bookingId);
 
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);
+
+    void addIepLevel(Long bookingId, String username, @Valid IepLevelAndComment iepLevel);
+
     Map<Long, PrivilegeSummary> getBookingIEPSummary(List<Long> bookings, boolean withDetails);
 
     Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
