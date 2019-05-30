@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class BookingDetailSteps extends CommonSteps {
     private static final String API_BOOKING_REQUEST_URL = API_PREFIX + "bookings/{bookingId}";
+    private static final String API_OFFENDER_IMAGE_REQUEST_URL = API_PREFIX + "bookings/offenderNo/{offenderNo}/image/data";
     private static final String API_BOOKING_DETAILS_BY_OFFENDERS = API_PREFIX + "bookings/offenders";
     private static final String API_BOOKING_DETAILS_BY_BOOKING_IDS = API_PREFIX + "bookings/offenders/{agencyId}/list";
 
@@ -27,6 +28,7 @@ public class BookingDetailSteps extends CommonSteps {
     private PhysicalAttributes physicalAttributes;
     private List<PhysicalCharacteristic> physicalCharacteristics;
     private ImageDetail imageDetail;
+    private byte[] imageBytes;
     private List<InmateDetail> offenders;
     private List<InmateBasicDetails> offendersBasic;
     private List<ProfileInformation> profileInformation;
@@ -150,6 +152,44 @@ public class BookingDetailSteps extends CommonSteps {
         }
     }
 
+    public void getImageData(final Long bookingId, final boolean fullSizeImage) {
+        init();
+
+        final ResponseEntity<byte[]> response;
+        try {
+            response =
+                    restTemplate.exchange(
+                            API_BOOKING_REQUEST_URL + format("/image/data?fullSizeImage=%s", (fullSizeImage ? "true" : "false")),
+                            HttpMethod.GET,
+                            createEntity(),
+                            byte[].class,
+                            bookingId);
+
+            imageBytes = response.getBody();
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    public void getImageData(final String offenderNo, final boolean fullSizeImage) {
+        init();
+
+        final ResponseEntity<byte[]> response;
+        try {
+            response =
+                    restTemplate.exchange(
+                            API_OFFENDER_IMAGE_REQUEST_URL + format("?fullSizeImage=%s", (fullSizeImage ? "true" : "false")),
+                            HttpMethod.GET,
+                            createEntity(),
+                            byte[].class,
+                            offenderNo);
+
+            imageBytes = response.getBody();
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     @Step("Verify offender booking number")
     public void verifyOffenderBookingNo(final String bookingNo) {
         assertThat(inmateDetail.getBookingNo()).isEqualTo(bookingNo);
@@ -246,6 +286,10 @@ public class BookingDetailSteps extends CommonSteps {
         assertThat(inmateDetail.getInactiveAlertCount())
                 .as(format("bookingId: %s",inmateDetail.getBookingId()))
                 .isEqualTo(count);
+    }
+
+    public void verifyImageBytesExists() {
+        assertThat(imageBytes).isNotNull();
     }
 
     public void verifyImageMetadataExists() {

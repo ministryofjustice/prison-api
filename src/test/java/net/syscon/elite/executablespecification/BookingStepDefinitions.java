@@ -526,6 +526,21 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.getImageMetadata(Long.valueOf(bookingId));
     }
 
+    @When("^image data is requested by booking Id \"([^\"]*)\"$")
+    public void imageDataIsRequestedByBookingId(final String bookingId) {
+        bookingDetail.getImageData(Long.valueOf(bookingId), false);
+    }
+
+    @When("^full size image is requested by booking Id \"([^\"]*)\"$")
+    public void fullSizeImageDataIsRequestedByBookingId(final String bookingId) {
+        bookingDetail.getImageData(Long.valueOf(bookingId), true);
+    }
+
+    @When("^full size image is requested by Noms Id \"([^\"]*)\"$")
+    public void fullSizeImageDataIsRequestedByNomsId(final String nomsId) {
+        bookingDetail.getImageData(nomsId, true);
+    }
+
     @When("^an physical attributes request is made with booking id \"([^\"]*)\"$")
     public void anPhysicalAttributesRequestIsMadeWithBookingId(final String bookingId) {
         bookingDetail.getPhysicalAttributes(Long.valueOf(bookingId));
@@ -546,9 +561,14 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
     }
 
-    @Then("^image data is returned$")
-    public void imageDataIsReturned() {
+    @Then("^image metadata is returned$")
+    public void imageMetaDataIsReturned() {
         bookingDetail.verifyImageMetadataExists();
+    }
+
+    @Then("^image bytes are returned$")
+    public void imageDataIsReturned() {
+        bookingDetail.verifyImageBytesExists();
     }
 
     @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\"$")

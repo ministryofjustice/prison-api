@@ -412,7 +412,8 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    GetMainBookingImageDataResponse getMainBookingImageData(@ApiParam(value = "The booking id of offender", required = true) @PathParam("bookingId") Long bookingId);
+    GetMainBookingImageDataResponse getMainBookingImageData(@ApiParam(value = "The booking id of offender", required = true) @PathParam("bookingId") Long bookingId,
+                                                            @ApiParam(value = "Return full size image", defaultValue = "false") @QueryParam("fullSizeImage") @DefaultValue("false") boolean fullSizeImage);
 
     @GET
     @Path("/{bookingId}/mainOffence")
@@ -615,7 +616,8 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    GetMainBookingImageDataByNoResponse getMainBookingImageDataByNo(@ApiParam(value = "The offender No of offender", required = true) @PathParam("offenderNo") String offenderNo);
+    GetMainBookingImageDataByNoResponse getMainBookingImageDataByNo(@ApiParam(value = "The offender No of offender", required = true) @PathParam("offenderNo") String offenderNo,
+                                                                    @ApiParam(value = "Return full size image", defaultValue = "false") @QueryParam("fullSizeImage") @DefaultValue("false") boolean fullSizeImage);
 
     @GET
     @Path("/offenderNo/{offenderNo}/key-worker")
