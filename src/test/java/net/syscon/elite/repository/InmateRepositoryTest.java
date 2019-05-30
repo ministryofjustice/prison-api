@@ -667,7 +667,7 @@ public class InmateRepositoryTest {
         final var list = repository.getRecategorise("LEI", LocalDate.of(2018, 6, 7));
 
         assertThat(list)
-                .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextRecatDate")
+                .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate")
                 .containsExactly(
                         Tuple.tuple("A1234AC", -3L, "NORMAN", "BATES", "X", LocalDate.of(2016, 6, 8)),
                         Tuple.tuple("A1234AD", -4L, "CHARLES", "CHAPLIN", "U", LocalDate.of(2016, 6, 8)),
@@ -705,8 +705,8 @@ public class InmateRepositoryTest {
 
         final var catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").build();
 
-        final LocalDate nextRecatDate = LocalDate.of(2019, 4, 1);
-        repository.insertCategory(catDetail, "LEI", -11L, "JDOG", nextRecatDate);
+        final LocalDate nextReviewDate = LocalDate.of(2019, 4, 1);
+        repository.insertCategory(catDetail, "LEI", -11L, "JDOG", nextReviewDate);
 
         final var list = repository.getUncategorised("LEI");
 
