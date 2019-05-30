@@ -20,12 +20,12 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public byte[] getImageContent(final Long imageId) {
-        return repository.getImageContent(imageId);
+    public byte[] getImageContent(final Long imageId, final boolean fullSizeImage) {
+        return repository.getImageContent(imageId, fullSizeImage);
     }
 
     @Override
-    public byte[] getImageContent(final String offenderNo) {
-        return repository.getImageContent(offenderNo);
+    public byte[] getImageContent(final String offenderNo, final boolean fullSizeImage) {
+        return repository.getImageContent(offenderNo, fullSizeImage);
     }
 }
