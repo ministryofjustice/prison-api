@@ -14,23 +14,30 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static net.syscon.elite.repository.LocationRepository.LocationFilter.*;
+
 @Repository
 public class LocationRepositoryImpl extends RepositoryBase implements LocationRepository {
 	private static final StandardBeanPropertyRowMapper<Location> LOCATION_ROW_MAPPER =
 			new StandardBeanPropertyRowMapper<>(Location.class);
 
 	@Override
-    public Optional<Location> getLocation(final long locationId) {
-        final var sql = getQuery("GET_LOCATION");
+    public Optional<Location> findLocation(final long locationId) {
+       return findLocation(locationId, ACTIVE_ONLY);
+	}
+
+	@Override
+	public Optional<Location> findLocation(final long locationId, final LocationFilter filter) {
+		final var sql = getQuery("GET_LOCATION");
 
 		try {
-            final var rawLocation = jdbcTemplate.queryForObject(
+			final var rawLocation = jdbcTemplate.queryForObject(
 					sql,
-					createParams("locationId", locationId),
+					createParams("locationId", locationId, "activeFlag", filter.getActiveFlag()),
 					LOCATION_ROW_MAPPER);
 
 			return Optional.of( LocationProcessor.processLocation(rawLocation, true));
-        } catch (final EmptyResultDataAccessException e) {
+		} catch (final EmptyResultDataAccessException e) {
 			return Optional.empty();
 		}
 	}

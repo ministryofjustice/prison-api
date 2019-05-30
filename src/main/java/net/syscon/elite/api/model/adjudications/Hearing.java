@@ -1,5 +1,6 @@
 package net.syscon.elite.api.model.adjudications;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -33,6 +34,9 @@ public class Hearing {
 
     @ApiModelProperty("Hearing Location")
     private String location;
+
+    @JsonIgnore
+    private Long internalLocationId;
 
     @ApiModelProperty("Adjudicator First name")
     private String heardByFirstName;
