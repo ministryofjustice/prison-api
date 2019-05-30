@@ -52,7 +52,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
                 .orElseThrow(EntityNotFoundException.withId(adjudicationNo));
     }
 
-    private AdjudicationDetail withFormatLocation(AdjudicationDetail detail) {
+    private AdjudicationDetail withFormatLocation(final AdjudicationDetail detail) {
 
         val hearings = hearingWithDescriptions(detail.getHearings());
 
@@ -105,9 +105,10 @@ public class AdjudicationServiceImpl implements AdjudicationService {
      */
     @Override
     @VerifyBookingAccess
-    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam, final LocalDate adjudicationCutoffDateParam) {
-        final var list = repository.findAwards(bookingId);
-        final var today = LocalDate.now();
+    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam,
+                                                      final LocalDate adjudicationCutoffDateParam) {
+        val list = repository.findAwards(bookingId);
+        val today = LocalDate.now();
         var awardCutoffDate = awardCutoffDateParam;
         if (awardCutoffDate == null) {
             awardCutoffDate = today.plus(-awardCutoffDefault, ChronoUnit.MONTHS);
@@ -116,13 +117,13 @@ public class AdjudicationServiceImpl implements AdjudicationService {
         if (adjudicationCutoffDate == null) {
             adjudicationCutoffDate = today.plus(-adjudicationCutoffDefault, ChronoUnit.MONTHS);
         }
-        final var iterator = list.iterator();
+        val iterator = list.iterator();
         var adjudicationCount = 0;
         Award previous = null;
 
         while (iterator.hasNext()) {
-            final var current = iterator.next();
-            final var endDate = calculateEndDate(current);
+            val current = iterator.next();
+            val endDate = calculateEndDate(current);
 
             if (!adjudicationCutoffDate.isAfter(endDate) && changed(previous, current)) {
                 adjudicationCount++;
