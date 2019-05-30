@@ -352,8 +352,8 @@ public class BookingResourceImpl implements BookingResource {
 
 
     @Override
-    public GetMainBookingImageDataByNoResponse getMainBookingImageDataByNo(final String offenderNo) {
-        final var data = imageService.getImageContent(offenderNo);
+    public GetMainBookingImageDataByNoResponse getMainBookingImageDataByNo(final String offenderNo, final boolean fullSizeImage) {
+        final var data = imageService.getImageContent(offenderNo, fullSizeImage);
         if (data != null) {
             try {
                 final var temp = File.createTempFile("userimage", ".tmp");
@@ -376,10 +376,10 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetMainBookingImageDataResponse getMainBookingImageData(final Long bookingId) {
+    public GetMainBookingImageDataResponse getMainBookingImageData(final Long bookingId, final boolean fullSizeImage) {
         final var mainBookingImage = inmateService.getMainBookingImage(bookingId);
         final var imageId = mainBookingImage.getImageId();
-        final var data = imageService.getImageContent(imageId);
+        final var data = imageService.getImageContent(imageId, fullSizeImage);
         if (data != null) {
             try {
                 final var temp = File.createTempFile("userimage", ".tmp");

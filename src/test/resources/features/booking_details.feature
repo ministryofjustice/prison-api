@@ -1,4 +1,3 @@
-@sdar
 Feature: Booking Details
 
   Acceptance Criteria:
@@ -291,7 +290,19 @@ Feature: Booking Details
 
   Scenario: Request for image metadata
     When image metadata is requested for Booking Id "-1"
-    Then image data is returned
+    Then image metadata is returned
+
+  Scenario: Request for image data
+    When image data is requested by booking Id "-1"
+    Then image bytes are returned
+
+  Scenario: Request for image data full size
+    When full size image is requested by booking Id "-1"
+    Then image bytes are returned
+
+  Scenario: Request for image data by Noms Id
+    When full size image is requested by Noms Id "A1234AA"
+    Then image bytes are returned
 
     Scenario Outline: Request offender basic details by offender numbers
       When a request is made for  "A1234AE,A1234AB"

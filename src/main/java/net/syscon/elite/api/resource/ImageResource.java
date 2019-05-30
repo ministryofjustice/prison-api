@@ -36,7 +36,8 @@ public interface ImageResource {
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
-    GetImageDataResponse getImageData(@ApiParam(value = "The image id of offender", required = true) @PathParam("imageId") Long imageId);
+    GetImageDataResponse getImageData(@ApiParam(value = "The image id of offender", required = true) @PathParam("imageId") Long imageId,
+                                      @ApiParam(value = "Return full size image", defaultValue = "false") @QueryParam("fullSizeImage") @DefaultValue("false") boolean fullSizeImage );
 
     class GetImageResponse extends ResponseDelegate {
 

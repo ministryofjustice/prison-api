@@ -20,8 +20,8 @@ public class ImagesResourceImpl implements ImageResource {
 	private ImageService imageService;
 
 	@Override
-	public GetImageDataResponse getImageData(final Long imageId) {
-        final var data = imageService.getImageContent(imageId);
+	public GetImageDataResponse getImageData(final Long imageId, final boolean fullSizeImage) {
+        final var data = imageService.getImageContent(imageId, fullSizeImage);
 		if (data != null) {
 			try {
                 final var temp = File.createTempFile("userimage", ".tmp");
