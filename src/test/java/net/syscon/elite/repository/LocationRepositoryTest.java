@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import lombok.val;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
+import static net.syscon.elite.repository.LocationRepository.LocationFilter.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -40,14 +42,30 @@ public class LocationRepositoryTest {
     }
 
     @Test
-    public void testFindLocationsByAgencyAndType() {
+    public void findLocationsByAgencyAndType() {
         final var result = repository.findLocationsByAgencyAndType("LEI", "CELL", false);
         assertEquals(30, result.size());
         assertEquals("LEI-A-1-1", result.get(0).getLocationPrefix());
     }
 
     @Test
-    public void testGetLocationGroupData() {
+    public void findLocationIdWithFilter() {
+
+        val activeAgencyLocationId = -1L;
+
+        assertThat(repository.findLocation(activeAgencyLocationId, ALL)).isPresent();
+        assertThat(repository.findLocation(activeAgencyLocationId, INACTIVE_ONLY)).isEmpty();
+        assertThat(repository.findLocation(activeAgencyLocationId, ACTIVE_ONLY)).isPresent();
+
+        val inactiveAgencyLocationId = -31L;
+
+        assertThat(repository.findLocation(inactiveAgencyLocationId, ALL)).isPresent();
+        assertThat(repository.findLocation(inactiveAgencyLocationId, INACTIVE_ONLY)).isPresent();
+        assertThat(repository.findLocation(inactiveAgencyLocationId, ACTIVE_ONLY)).isEmpty();
+    }
+
+    @Test
+    public void getLocationGroupData() {
         assertThat(repository.getLocationGroupData("LEI"))
                 .contains(
                         Location.builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("Block A").internalLocationCode("A").build(),
@@ -56,7 +74,7 @@ public class LocationRepositoryTest {
     }
 
     @Test
-    public void testGetSubLocationGroupData() {
+    public void getSubLocationGroupData() {
         final List<Location> subLocationGroupData = repository.getSubLocationGroupData(Set.of(-1L, -13L));
         assertThat(subLocationGroupData)
                 .contains(

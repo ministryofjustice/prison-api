@@ -103,7 +103,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public Location getLocation(final long locationId) {
-        return locationRepository.getLocation(locationId).orElseThrow(EntityNotFoundException.withId(locationId));
+        return locationRepository.findLocation(locationId).orElseThrow(EntityNotFoundException.withId(locationId));
     }
 
     /**

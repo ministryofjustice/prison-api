@@ -1,13 +1,16 @@
 package net.syscon.elite.service.impl;
 
 import lombok.val;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.adjudications.Adjudication;
 import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
 import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
-import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.adjudications.Hearing;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.AdjudicationsRepository;
+import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.AdjudicationSearchCriteria;
 import net.syscon.elite.service.AdjudicationService;
 import net.syscon.elite.service.BookingService;
@@ -21,6 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 import java.util.Optional;
 
+import static net.syscon.elite.repository.LocationRepository.LocationFilter.ALL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,12 +37,13 @@ import static org.mockito.Mockito.when;
 public class AdjudicationServiceImplTest {
 
     @Mock private AdjudicationsRepository adjudicationsRepository;
+    @Mock private LocationRepository locationRepository;
     @Mock private BookingService bookingService;
     private AdjudicationService adjudicationService;
 
     @Before
     public void setup() {
-        adjudicationService = new AdjudicationServiceImpl(adjudicationsRepository, bookingService);
+        adjudicationService = new AdjudicationServiceImpl(adjudicationsRepository, locationRepository, bookingService);
     }
 
     @Test
@@ -58,8 +63,27 @@ public class AdjudicationServiceImplTest {
     @Test
     public void findAdjudicationDetails() {
 
-        val dbResult = AdjudicationDetail.builder().establishment("MOORLANDS (HMP)").build();
-        val expectedResult = AdjudicationDetail.builder().establishment("Moorlands (HMP)").build();
+        val dbResult = AdjudicationDetail.builder()
+                .establishment("MOORLANDS (HMP)")
+                .internalLocationId(1L)
+                .hearing(Hearing.builder().internalLocationId(2L).build())
+                .build();
+
+        val expectedResult = AdjudicationDetail.builder()
+                .establishment("Moorlands (HMP)")
+                .internalLocationId(1)
+                .interiorLocation("Wing 1")
+                .hearing(Hearing.builder()
+                        .internalLocationId(2L)
+                        .location("Hearing Room 1")
+                        .build())
+                .build();
+
+        val incidentLocation = Location.builder().description("MDI-AA-WING-1").userDescription("Wing 1").build();
+        val hearingLocation = Location.builder().description("MDI-AA-CR-1").userDescription("Hearing Room 1").build();
+
+        when(locationRepository.findLocation(1L, ALL)).thenReturn(Optional.of(incidentLocation));
+        when(locationRepository.findLocation(2L, ALL)).thenReturn(Optional.of(hearingLocation));
 
         when(adjudicationsRepository.findAdjudicationDetails(any(), anyLong())).thenReturn(Optional.of(dbResult));
 
