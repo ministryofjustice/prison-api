@@ -1,14 +1,17 @@
 package net.syscon.elite.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.adjudications.Adjudication;
 import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
 import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.model.adjudications.Award;
+import net.syscon.elite.api.model.adjudications.Hearing;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
+import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.AdjudicationSearchCriteria;
 import net.syscon.elite.service.AdjudicationService;
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
+import static net.syscon.elite.repository.LocationRepository.LocationFilter.ALL;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,10 +36,13 @@ import static java.util.stream.Collectors.toList;
 public class AdjudicationServiceImpl implements AdjudicationService {
 
     private final AdjudicationsRepository repository;
+    private final LocationRepository locationRepository;
     private final BookingService bookingService;
 
-    @Value("${api.cutoff.adjudication.months:3}") private int adjudicationCutoffDefault;
-    @Value("${api.cutoff.award.months:0}") private int awardCutoffDefault;
+    @Value("${api.cutoff.adjudication.months:3}")
+    private int adjudicationCutoffDefault;
+    @Value("${api.cutoff.award.months:0}")
+    private int awardCutoffDefault;
 
     @Override
     public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
@@ -45,10 +52,31 @@ public class AdjudicationServiceImpl implements AdjudicationService {
                 .orElseThrow(EntityNotFoundException.withId(adjudicationNo));
     }
 
-    private AdjudicationDetail withFormatLocation(AdjudicationDetail adjudicationDetail) {
-        return adjudicationDetail.toBuilder()
-                .establishment(LocationProcessor.formatLocation(adjudicationDetail.getEstablishment()))
+    private AdjudicationDetail withFormatLocation(final AdjudicationDetail detail) {
+
+        val hearings = hearingWithDescriptions(detail.getHearings());
+
+        return detail.toBuilder()
+                .clearHearings()
+                .establishment(LocationProcessor.formatLocation(detail.getEstablishment()))
+                .interiorLocation(getInteriorLocationDescription(detail.getInternalLocationId()))
+                .hearings(hearings)
                 .build();
+    }
+
+    private List<Hearing> hearingWithDescriptions(final List<Hearing> hearings) {
+
+        return hearings.stream()
+                .map(hearing -> hearing.toBuilder()
+                        .location(getInteriorLocationDescription(hearing.getInternalLocationId()))
+                        .build())
+                .collect(toList());
+    }
+
+    private String getInteriorLocationDescription(final long id) {
+        val location = locationRepository.findLocation(id, ALL).orElseThrow(EntityNotFoundException.withId(id));
+        val processedLocation = LocationProcessor.processLocation(location, true);
+        return processedLocation.getDescription();
     }
 
     @Override
@@ -77,9 +105,10 @@ public class AdjudicationServiceImpl implements AdjudicationService {
      */
     @Override
     @VerifyBookingAccess
-    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam, final LocalDate adjudicationCutoffDateParam) {
-        final var list = repository.findAwards(bookingId);
-        final var today = LocalDate.now();
+    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam,
+                                                      final LocalDate adjudicationCutoffDateParam) {
+        val list = repository.findAwards(bookingId);
+        val today = LocalDate.now();
         var awardCutoffDate = awardCutoffDateParam;
         if (awardCutoffDate == null) {
             awardCutoffDate = today.plus(-awardCutoffDefault, ChronoUnit.MONTHS);
@@ -88,13 +117,13 @@ public class AdjudicationServiceImpl implements AdjudicationService {
         if (adjudicationCutoffDate == null) {
             adjudicationCutoffDate = today.plus(-adjudicationCutoffDefault, ChronoUnit.MONTHS);
         }
-        final var iterator = list.iterator();
+        val iterator = list.iterator();
         var adjudicationCount = 0;
         Award previous = null;
 
         while (iterator.hasNext()) {
-            final var current = iterator.next();
-            final var endDate = calculateEndDate(current);
+            val current = iterator.next();
+            val endDate = calculateEndDate(current);
 
             if (!adjudicationCutoffDate.isAfter(endDate) && changed(previous, current)) {
                 adjudicationCount++;
