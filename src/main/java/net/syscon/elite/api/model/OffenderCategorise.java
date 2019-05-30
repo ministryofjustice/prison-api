@@ -38,9 +38,6 @@ public class OffenderCategorise {
     @ApiModelProperty(value = "Date categorisation was approved if any")
     private LocalDate approvalDate;
 
-    @ApiModelProperty(value = "Next review (recategorisation) date")
-    private LocalDate nextReviewDate;
-
     @ApiModelProperty(value = "Sequence number within booking")
     private Integer assessmentSeq;
 
@@ -64,9 +61,6 @@ public class OffenderCategorise {
 
     @ApiModelProperty(value = "Categorisation")
     private String  category;
-
-    @ApiModelProperty(value = "Date due for recategorisation")
-    private LocalDate  nextRecatDate;
 
     @ApiModelProperty(required = true, value = "Where in the categorisation workflow the prisoner is")
     private CategorisationStatus status;

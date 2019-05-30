@@ -55,23 +55,14 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
-    @Deprecated
-    public GetUncategorisedResponse getUncategorised(final String agencyId) {
-        final var results = inmateService.getUncategorised(agencyId);
-        return GetUncategorisedResponse.respond200WithApplicationJson(results);
-    }
-
-    @Override
-    @Deprecated
-    public GetUncategorisedResponse getApprovedCategorised(final String agencyId, final LocalDate fromDate) {
-        final var cutOffDate = fromDate != null ? fromDate : LocalDate.now().minusMonths(1);
-        final var results = inmateService.getApprovedCategorised(agencyId, cutOffDate);
-        return GetUncategorisedResponse.respond200WithApplicationJson(results);
-    }
-
-    @Override
-    public List<OffenderCategorise> getRecategorise(final String agencyId, final CategoryInformationType type, final LocalDate date) {
-        return inmateService.getCategory(agencyId, type, date);
+    public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final String type, final LocalDate date) {
+        CategoryInformationType enumType;
+        try{
+            enumType = CategoryInformationType.valueOf(type);
+        } catch(IllegalArgumentException e){
+            throw new BadRequestException("Categorisation type is invalid: " + type);
+        }
+        return inmateService.getCategory(agencyId, enumType, date);
     }
 
     @Override
