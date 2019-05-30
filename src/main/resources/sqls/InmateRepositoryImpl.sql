@@ -394,6 +394,7 @@ SELECT
     at_offender.first_name,
     off_ass.assessment_seq,
     off_ass.assessment_date,
+    off_ass.next_review_date,
     off_ass.assess_status,
     sm.first_name                         AS CATEGORISER_FIRST_NAME,
     sm.last_name                          AS CATEGORISER_LAST_NAME,
@@ -447,7 +448,7 @@ select
     o.last_name,
     o.first_name,
     COALESCE(off_ass.review_sup_level_type, off_ass.overrided_sup_level_type, off_ass.calc_sup_level_type) as category,
-    off_ass.next_review_date as next_recat_date
+    off_ass.next_review_date
 from
   offender_assessments off_ass
     join offender_bookings ob on ob.offender_book_id = off_ass.offender_book_id

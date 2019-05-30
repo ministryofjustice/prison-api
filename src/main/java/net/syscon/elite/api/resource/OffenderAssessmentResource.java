@@ -2,10 +2,10 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.api.support.ResponseDelegate;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -51,39 +51,18 @@ public interface OffenderAssessmentResource {
     PostOffenderAssessmentsCsraListResponse postOffenderAssessmentsCsraList(@ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body);
 
     @GET
-    @Path("/category/{agencyId}/uncategorised")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @Deprecated
-    @ApiOperation(value = "Offenders who need to be categorised.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List") })
-    GetUncategorisedResponse getUncategorised(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId")String agencyId);
-
-    @GET
-    @Path("/category/{agencyId}/categorised")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @Deprecated
-    @ApiOperation(value = "Offenders who have an approved categorisation.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List") })
-    GetUncategorisedResponse getApprovedCategorised(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId")String agencyId,
-                                                    @ApiParam(value = "The date from which categorisations are returned", required = false) @QueryParam("fromDate") LocalDate fromDate);
-
-    @GET
     @Path("/category/{agencyId}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Returns category information on Offenders at a prison.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List")})
-    List<OffenderCategorise> getRecategorise(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
-                                             @ApiParam(value = "Indicates which type of category information is required." +
+    List<OffenderCategorise> getOffenderCategorisations(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
+                                                        @ApiParam(value = "Indicates which type of category information is required." +
                                                      "<li>UNCATEGORISED: Offenders who need to be categorised,</li>" +
                                                      "<li>CATEGORISED: Offenders who have an approved categorisation,</li>" +
-                                                     "<li>RECATEGORISATIONS: Offenders who will soon require recategorisation</li>", required = true) @QueryParam("type") CategoryInformationType type,
-                                             @ApiParam(value = "For type CATEGORISED: The past date from which categorisations are returned.<br />" +
+                                                     "<li>RECATEGORISATIONS: Offenders who will soon require recategorisation</li>", required = true) @QueryParam("type") @NotNull(message = "Categorisation type must not be null") String type,
+                                                        @ApiParam(value = "For type CATEGORISED: The past date from which categorisations are returned.<br />" +
                                                      "For type RECATEGORISATIONS: the future cutoff date: list includes all prisoners who require recategorisation on or before this date.<br />" +
                                                      "For type UNCATEGORISED: Ignored; do not set this parameter.") @QueryParam("date") LocalDate date);
 
