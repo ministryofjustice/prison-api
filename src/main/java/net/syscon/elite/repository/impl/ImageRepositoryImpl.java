@@ -30,7 +30,7 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 	}
 
 	@Override
-	public byte[] getImageContent(final Long imageId, boolean fullSizeImage) {
+	public byte[] getImageContent(final Long imageId, final boolean fullSizeImage) {
         byte[] content = null;
 	    try {
 
@@ -48,7 +48,7 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 	}
 
 	@Override
-	public byte[] getImageContent(final String offenderNo, boolean fullSizeImage) {
+	public byte[] getImageContent(final String offenderNo, final boolean fullSizeImage) {
         byte[] content = null;
         try {
             final var sql = getImageContextWithSize(fullSizeImage, "FIND_IMAGE_CONTENT_BY_OFFENDER_NO");
@@ -64,7 +64,7 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
         return content;
 	}
 
-	private String getImageContextWithSize(boolean fullSizeImage, String imageContentSql) {
+	private String getImageContextWithSize(final boolean fullSizeImage, String imageContentSql) {
 		return format(getQuery(imageContentSql), fullSizeImage ? "FULL_SIZE_IMAGE" : "THUMBNAIL_IMAGE");
 	}
 
