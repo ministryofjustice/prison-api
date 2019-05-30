@@ -127,8 +127,8 @@ public class LocationProcessor {
 
     public static String formatLocation(final String locationDescription) {
         var description = WordUtils.capitalizeFully(locationDescription);
-        description = StringUtils.replaceAll(description, "hmp|Hmp", "HMP");
-        description = StringUtils.replaceAll(description, "yoi|Yoi", "YOI");
+        description = RegExUtils.replaceAll(description, "hmp|Hmp", "HMP");
+        description = RegExUtils.replaceAll(description, "yoi|Yoi", "YOI");
         return description;
     }
 }

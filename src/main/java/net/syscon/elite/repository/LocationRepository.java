@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import lombok.Getter;
 import net.syscon.elite.api.model.Location;
 
 import java.util.List;
@@ -7,7 +8,21 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface LocationRepository {
-	Optional<Location> getLocation(long locationId);
+
+	@Getter
+	enum LocationFilter {
+		ALL(null), ACTIVE_ONLY("Y"), INACTIVE_ONLY("N");
+
+		private String activeFlag;
+
+		LocationFilter(final String activeFlag) {
+			this.activeFlag = activeFlag;
+		}
+	}
+
+	Optional<Location> findLocation(long locationId);
+
+	Optional<Location> findLocation(long locationId, final LocationFilter filter);
 
 	@Deprecated
 	Optional<Location> findLocation(long locationId, String username);
@@ -25,4 +40,4 @@ public interface LocationRepository {
 
 	List<Location> getLocationGroupData(final String agencyId);
 	List<Location> getSubLocationGroupData(Set<Long> parentLocationIds);
-	}
+}
