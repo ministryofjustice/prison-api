@@ -1,5 +1,6 @@
 package net.syscon.elite.api.model.adjudications;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -33,6 +34,9 @@ public class AdjudicationDetail {
 
     @ApiModelProperty("Interior Location")
     private String interiorLocation;
+
+    @JsonIgnore
+    private long internalLocationId;
 
     @ApiModelProperty("Incident Details")
     private String incidentDetails;
