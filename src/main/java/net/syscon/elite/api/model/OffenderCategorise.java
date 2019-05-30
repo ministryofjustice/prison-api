@@ -62,6 +62,9 @@ public class OffenderCategorise {
     @ApiModelProperty(value = "Categorisation")
     private String  category;
 
+    @ApiModelProperty(value = "Next Review Date - for recategorisations")
+    private LocalDate nextReviewDate;
+
     @ApiModelProperty(required = true, value = "Where in the categorisation workflow the prisoner is")
     private CategorisationStatus status;
 
