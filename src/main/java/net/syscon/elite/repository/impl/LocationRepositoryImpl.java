@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.repository.support.StatusFilter;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static net.syscon.elite.repository.LocationRepository.LocationFilter.*;
+import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
 
 @Repository
 public class LocationRepositoryImpl extends RepositoryBase implements LocationRepository {
@@ -27,7 +28,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	}
 
 	@Override
-	public Optional<Location> findLocation(final long locationId, final LocationFilter filter) {
+	public Optional<Location> findLocation(final long locationId, final StatusFilter filter) {
 		final var sql = getQuery("GET_LOCATION");
 
 		try {

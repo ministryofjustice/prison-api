@@ -10,6 +10,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
+import net.syscon.elite.repository.support.StatusFilter;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -25,9 +26,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
 import static net.syscon.elite.web.config.CacheConfig.GET_AGENCY_LOCATIONS_BOOKED;
 
 /**
@@ -55,8 +61,8 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public Agency getAgency(final String agencyId, final boolean activeOnly) {
-        final var agency = agencyRepository.getAgency(agencyId, activeOnly).orElseThrow(EntityNotFoundException.withId(agencyId));
+    public Agency getAgency(final String agencyId, final StatusFilter filter) {
+        final var agency = agencyRepository.findAgency(agencyId, filter).orElseThrow(EntityNotFoundException.withId(agencyId));
         agency.setDescription(LocationProcessor.formatLocation(agency.getDescription()));
         return agency;
     }
@@ -70,7 +76,7 @@ public class AgencyServiceImpl implements AgencyService {
     public void checkAgencyExists(final String agencyId) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
-        if(agencyRepository.getAgency(agencyId, true).isEmpty()) {
+        if(agencyRepository.findAgency(agencyId, ACTIVE_ONLY).isEmpty()) {
             throw EntityNotFoundException.withId(agencyId);
         }
     }

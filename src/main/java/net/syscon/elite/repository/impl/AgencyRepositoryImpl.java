@@ -11,6 +11,7 @@ import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.repository.support.StatusFilter;
 import net.syscon.util.DateTimeConverter;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -62,8 +63,8 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
     @Override
     public List<Agency> getAgenciesByType(final String agencyType) {
-       return jdbcTemplate.query(
-               getQuery("GET_AGENCIES_BY_TYPE"),
+        return jdbcTemplate.query(
+                getQuery("GET_AGENCIES_BY_TYPE"),
                 createParams("agencyType", agencyType, "activeFlag", "Y", "excludeIds", List.of("OUT", "TRN")),
                 AGENCY_ROW_MAPPER);
     }
@@ -108,7 +109,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
 
     @Override
-    public Optional<Agency> getAgency(final String agencyId, final boolean activeOnly) {
+    public Optional<Agency> findAgency(final String agencyId, final StatusFilter filter) {
         final var initialSql = getQuery("GET_AGENCY");
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
 
@@ -116,10 +117,10 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
         Agency agency;
 
-        final var activeFlag = activeOnly ? "Y" : null;
-
         try {
-            agency = jdbcTemplate.queryForObject(sql, createParams("agencyId", agencyId, "activeFlag", activeFlag), AGENCY_ROW_MAPPER);
+            agency = jdbcTemplate.queryForObject(sql,
+                    createParams("agencyId", agencyId, "activeFlag", filter.getActiveFlag()),
+                    AGENCY_ROW_MAPPER);
         } catch (final EmptyResultDataAccessException ex) {
             agency = null;
         }

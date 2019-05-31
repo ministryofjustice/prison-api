@@ -32,6 +32,9 @@ public class Hearing {
     @ApiModelProperty("Hearing Time")
     private LocalDateTime hearingTime;
 
+    @ApiModelProperty("Establishment")
+    private String establishment;
+
     @ApiModelProperty("Hearing Location")
     private String location;
 

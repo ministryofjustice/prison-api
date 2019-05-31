@@ -32,6 +32,9 @@ public class AdjudicationDetail {
     @ApiModelProperty("Establishment")
     private String establishment;
 
+    @JsonIgnore
+    private String agencyId;
+
     @ApiModelProperty("Interior Location")
     private String interiorLocation;
 

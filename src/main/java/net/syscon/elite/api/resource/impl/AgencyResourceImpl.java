@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import javax.ws.rs.Path;
 import java.time.LocalDate;
 
+import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
+import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
@@ -40,7 +42,7 @@ public class AgencyResourceImpl implements AgencyResource {
 
     @Override
     public GetAgencyResponse getAgency(final String agencyId, final boolean activeOnly) {
-        final var agency = agencyService.getAgency(agencyId, activeOnly);
+        final var agency = agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL);
 
         return GetAgencyResponse.respond200WithApplicationJson(agency);
     }

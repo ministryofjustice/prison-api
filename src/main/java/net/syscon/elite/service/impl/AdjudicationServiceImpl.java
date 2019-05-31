@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.adjudications.Adjudication;
 import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
 import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
@@ -11,6 +12,7 @@ import net.syscon.elite.api.model.adjudications.Award;
 import net.syscon.elite.api.model.adjudications.Hearing;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
+import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.AdjudicationSearchCriteria;
@@ -24,11 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
-import static net.syscon.elite.repository.LocationRepository.LocationFilter.ALL;
+import static net.syscon.elite.repository.support.StatusFilter.ALL;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,6 +40,7 @@ import static net.syscon.elite.repository.LocationRepository.LocationFilter.ALL;
 public class AdjudicationServiceImpl implements AdjudicationService {
 
     private final AdjudicationsRepository repository;
+    private final AgencyRepository agencyRepository;
     private final LocationRepository locationRepository;
     private final BookingService bookingService;
 
@@ -48,33 +53,59 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
         bookingService.verifyCanViewLatestBooking(offenderNo);
         return repository.findAdjudicationDetails(offenderNo, adjudicationNo)
-                .map(this::withFormatLocation)
+                .map(this::enrich)
                 .orElseThrow(EntityNotFoundException.withId(adjudicationNo));
     }
 
-    private AdjudicationDetail withFormatLocation(final AdjudicationDetail detail) {
+    private AdjudicationDetail enrich(final AdjudicationDetail detail) {
 
-        val hearings = hearingWithDescriptions(detail.getHearings());
+        val locationFinder = locationFinder();
+        val establishmentFinder = establishmentFinder();
+
+        val hearings = detail.getHearings().stream()
+                .<Hearing>map(hearing -> {
+                    val location = locationFinder.apply(hearing.getInternalLocationId());
+                    val establishment = establishmentFinder.apply(location.getAgencyId());
+                    return enrich(hearing, location, establishment);
+                })
+                .collect(toList());
+
+        val location = locationFinder.apply(detail.getInternalLocationId());
+        val establishment = establishmentFinder.apply(detail.getAgencyId());
 
         return detail.toBuilder()
                 .clearHearings()
-                .establishment(LocationProcessor.formatLocation(detail.getEstablishment()))
-                .interiorLocation(getInteriorLocationDescription(detail.getInternalLocationId()))
+                .establishment(establishment)
+                .interiorLocation(getInteriorLocationDescription(location))
                 .hearings(hearings)
                 .build();
     }
 
-    private List<Hearing> hearingWithDescriptions(final List<Hearing> hearings) {
 
-        return hearings.stream()
-                .map(hearing -> hearing.toBuilder()
-                        .location(getInteriorLocationDescription(hearing.getInternalLocationId()))
-                        .build())
-                .collect(toList());
+    private Hearing enrich(final Hearing hearing, final Location location, final String establishment) {
+
+        return hearing.toBuilder()
+                .establishment(establishment)
+                .location(getInteriorLocationDescription(location))
+                .build();
     }
 
-    private String getInteriorLocationDescription(final long id) {
-        val location = locationRepository.findLocation(id, ALL).orElseThrow(EntityNotFoundException.withId(id));
+    private Function<Long, Location> locationFinder() {
+        val locations = new HashMap<Long, Location>();
+        return locationId -> locations.computeIfAbsent(locationId, id ->
+                locationRepository.findLocation(id, ALL)
+                        .orElseThrow(EntityNotFoundException.withId(id)));
+    }
+
+    private Function<String, String> establishmentFinder() {
+        val establishments = new HashMap<String, String>();
+        return agencyId -> establishments.computeIfAbsent(agencyId, id ->
+                agencyRepository.findAgency(id, ALL)
+                        .map(agency -> LocationProcessor.formatLocation(agency.getDescription()))
+                        .orElseThrow(EntityNotFoundException.withId(agencyId)));
+    }
+
+    private String getInteriorLocationDescription(final Location location) {
         val processedLocation = LocationProcessor.processLocation(location, true);
         return processedLocation.getDescription();
     }
