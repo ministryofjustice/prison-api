@@ -24,6 +24,8 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
+import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -45,25 +47,25 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetEnabledAgencyWhenActiveOnly() {
-        final var agency = repository.getAgency("LEI", true);
+        final var agency = repository.findAgency("LEI", ACTIVE_ONLY);
         assertThat(agency).isPresent();
     }
 
     @Test
     public void testGetEnabledAgencyWithInactive() {
-        final var agency = repository.getAgency("LEI", false);
+        final var agency = repository.findAgency("LEI", ALL);
         assertThat(agency).isPresent();
     }
 
     @Test
     public void testGetDisabledAgencyWhenActiveOnly() {
-        final var agency = repository.getAgency("ZZGHI", true);
+        final var agency = repository.findAgency("ZZGHI", ACTIVE_ONLY);
         assertThat(agency).isEmpty();
     }
 
     @Test
     public void testGetDisabledAgencyWithInactive() {
-        final var agency = repository.getAgency("ZZGHI", false);
+        final var agency = repository.findAgency("ZZGHI", ALL);
         assertThat(agency).isPresent();
     }
 

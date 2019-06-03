@@ -8,7 +8,6 @@ import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +18,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 import java.util.Optional;
 
+import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,7 +34,7 @@ public class AgencyServiceImplTest {
     @Mock private ReferenceDomainService referenceDomainService;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         service = new AgencyServiceImpl(authenticationFacade, agencyRepo, referenceDomainService);
         when(agencyRepo.getPrisonContactDetails(eq(null))).thenReturn(buildPrisonContactDetailsList());
         when(agencyRepo.getPrisonContactDetails(eq("ABC"))).thenReturn(buildPrisonContactDetailsListSingleResult());
@@ -43,9 +44,9 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldCallGetAgency() {
-        when(agencyRepo.getAgency(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(Optional.of(Agency.builder().build()));
-        service.getAgency("LEI", true);
-        verify(agencyRepo).getAgency("LEI", true);
+        when(agencyRepo.findAgency(Mockito.anyString(), any())).thenReturn(Optional.of(Agency.builder().build()));
+        service.getAgency("LEI", ALL);
+        verify(agencyRepo).findAgency("LEI", ALL);
     }
 
     @Test

@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static net.syscon.elite.repository.LocationRepository.LocationFilter.*;
+import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
+import static net.syscon.elite.repository.support.StatusFilter.ALL;
+import static net.syscon.elite.repository.support.StatusFilter.INACTIVE_ONLY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
