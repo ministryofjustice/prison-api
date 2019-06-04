@@ -444,9 +444,6 @@ public class InmateServiceImpl implements InmateService {
     public void createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
         final var currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
-        if (categorisationDetail.getNextReviewDate() == null){
-            categorisationDetail.setNextReviewDate(LocalDate.now().plusMonths(6));
-        }
         repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());
 
         // Log event

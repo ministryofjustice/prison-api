@@ -36,4 +36,8 @@ public class CategorisationDetail {
 
     @ApiModelProperty(value = "Initial categorisation comment")
     private String comment;
+
+    public LocalDate getNextReviewDate() {
+        return nextReviewDate == null ? LocalDate.now().plusMonths(6) : nextReviewDate;
+    }
 }
