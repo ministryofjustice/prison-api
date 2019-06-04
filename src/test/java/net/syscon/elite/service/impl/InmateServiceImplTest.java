@@ -153,7 +153,8 @@ public class InmateServiceImplTest {
 
         serviceToTest.createCategorisation(1234L, catDetail);
 
-        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME", LocalDate.now().plusMonths(6));
+        catDetail.setNextReviewDate(LocalDate.now().plusMonths(6));
+        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
     }
 
     @Test
@@ -169,7 +170,7 @@ public class InmateServiceImplTest {
 
         serviceToTest.createCategorisation(1234L, catDetail);
 
-        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME", LocalDate.of(2019, 4, 1));
+        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
     }
 
     @Test

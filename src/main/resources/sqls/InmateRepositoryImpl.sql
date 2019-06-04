@@ -501,6 +501,7 @@ Insert into OFFENDER_ASSESSMENTS
      ASSESS_STATUS,
      CALC_SUP_LEVEL_TYPE,
      ASSESS_STAFF_ID,
+     ASSESSOR_STAFF_ID,
      ASSESS_COMMENT_TEXT,
      NEXT_REVIEW_DATE,
      MODIFY_USER_ID,
@@ -519,6 +520,7 @@ VALUES
      (select s.MAX_SCORE from assessment_supervisions s where s.assessment_id = :assessmentId and s.supervision_level_type = :category),
      :assessStatus,  -- P  (AWAITING_APPROVAL)
      :category,
+     :assessStaffId,
      :assessStaffId,
      :assessComment,
      :reviewDate, -- (+ 6 months )
