@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
+import net.syscon.elite.repository.support.StatusFilter;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Set;
  * Agency API service interface.
  */
 public interface AgencyService {
-    Agency getAgency(String agencyId, boolean activeOnly);
+    Agency getAgency(String agencyId, StatusFilter filter);
     void checkAgencyExists(String agencyId);
     List<Agency> getAgenciesByType(String agencyType);
     Page<Agency> getAgencies(long offset, long limit);

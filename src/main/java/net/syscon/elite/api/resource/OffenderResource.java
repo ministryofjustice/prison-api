@@ -6,16 +6,15 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
-import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
-import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.api.model.OffenderAddress;
+import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
+import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.resource.BookingResource.GetAlertsByOffenderNosResponse;
 import net.syscon.elite.api.resource.IncidentsResource.IncidentListResponse;
 import net.syscon.elite.api.support.Order;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -77,8 +76,7 @@ public interface OffenderResource {
                                           @ApiParam(value = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") LocalDate toDate,
                                           @ApiParam(value = "Requested offset of first record in returned collection of adjudications.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
                                           @ApiParam(value = "Requested limit to number of adjudications returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit);
-
-    @ApiIgnore
+    
     @GET
     @Path("/{offenderNo}/adjudications/{adjudicationNo}")
     @Consumes({"application/json"})
