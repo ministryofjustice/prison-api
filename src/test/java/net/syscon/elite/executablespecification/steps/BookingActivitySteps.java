@@ -42,9 +42,30 @@ public class BookingActivitySteps extends ScheduledEventSteps {
         }
     }
 
+    private void dispatchUpdateRequest(final Long bookingId, final Long eventId, final UpdateAttendance updateAttendance) {
+        init();
+        try {
+            restTemplate.exchange(BOOKING_ACTIVITIES_API_URL + "/{activityId}/attendance", HttpMethod.PUT,
+                    createEntity(updateAttendance), Object.class, bookingId, eventId);
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+
     @Step("Update Attendance")
     public void updateAttendance(final String offenderNo, final Long activityId, final String outcome, final String performance, final String comment) {
         dispatchUpdateRequest(offenderNo, activityId,
+                UpdateAttendance.builder()
+                        .eventOutcome(outcome)
+                        .performance(performance)
+                        .outcomeComment(comment)
+                        .build());
+    }
+
+    @Step("Update Attendance by Id")
+    public void updateAttendance(final Long bookingId, final Long activityId, final String outcome, final String performance, final String comment) {
+        dispatchUpdateRequest(bookingId, activityId,
                 UpdateAttendance.builder()
                         .eventOutcome(outcome)
                         .performance(performance)

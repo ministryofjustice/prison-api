@@ -757,7 +757,6 @@ public interface BookingResource {
     @Path("/offenderNo/{offenderNo}/activities/{activityId}/attendance")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Update offender attendance and pay.", notes = "Update offender attendance and pay.", nickname = "updateAttendance")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Invalid request - e.g. validation error.", response = ErrorResponse.class),
@@ -767,6 +766,21 @@ public interface BookingResource {
     UpdateAttendanceResponse updateAttendance(@ApiParam(value = "The offenderNo of the prisoner", required = true) @PathParam("offenderNo") String offenderNo,
                                               @ApiParam(value = "The activity id", required = true) @PathParam("activityId") Long activityId,
                                               @ApiParam(value = "", required = true) UpdateAttendance body);
+
+    @PUT
+    @Path("/{bookingId}/activities/{activityId}/attendance")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Update offender attendance and pay.", notes = "Update offender attendance and pay.", nickname = "updateAttendance")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 400, message = "Invalid request - e.g. validation error.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to attend activity.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Resource not found - booking or event does not exist or is not accessible to user.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
+    UpdateAttendanceResponse updateAttendance(@ApiParam(value = "The booking Id of the prisoner", required = true) @PathParam("bookingId") @NotNull Long bookingId,
+                                              @ApiParam(value = "The activity id", required = true) @PathParam("activityId") @NotNull Long activityId,
+                                              @ApiParam(value = "", required = true) @NotNull UpdateAttendance body);
 
     @GET
     @Path("/{bookingId}/incidents")

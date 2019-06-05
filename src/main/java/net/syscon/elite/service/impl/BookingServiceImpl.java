@@ -268,12 +268,17 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    @VerifyBookingAccess
     public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        final var offenderSummary = getLatestBookingByOffenderNo(offenderNo);
-        if (offenderSummary == null || offenderSummary.getBookingId() == null) {
-            throw EntityNotFoundException.withMessage("Offender No %s not found", offenderNo);
-        }
+        updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo));
+    }
+
+    @Transactional
+    @Override
+    public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
+        updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId));
+    }
+
+    private void updateAttendance(Long activityId, UpdateAttendance updateAttendance, OffenderSummary offenderSummary) {
         verifyBookingAccess(offenderSummary.getBookingId());
         validateActivity(activityId, offenderSummary);
 
@@ -281,6 +286,7 @@ public class BookingServiceImpl implements BookingService {
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
         bookingRepository.updateAttendance(offenderSummary.getBookingId(), activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
     }
+
 
     private void validateActivity(final Long activityId, final OffenderSummary offenderSummary) {
         // Find details for activities for same offender and same day as this one
@@ -293,7 +299,7 @@ public class BookingServiceImpl implements BookingService {
         final var thisEvent = bookingActivities.stream()
                 .filter(a -> a.getEventId().equals(activityId))
                 .findFirst();
-        if (!thisEvent.isPresent()) {
+        if (thisEvent.isEmpty()) {
             return;
         }
 
