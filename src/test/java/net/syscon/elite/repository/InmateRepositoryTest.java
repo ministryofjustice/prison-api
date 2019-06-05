@@ -703,15 +703,43 @@ public class InmateRepositoryTest {
         assertThat(uncat).extracting("offenderNo", "bookingId", "firstName", "lastName", "status").doesNotContain(
                 Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
 
-        final var catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").build();
+        final var catDetail = CategorisationDetail.builder()
+                .bookingId(-5L)
+                .category("D")
+                .committee("GOV")
+                .comment("init cat")
+                .nextReviewDate(LocalDate.of(2019, 6, 1))
+                .build();
 
-        final LocalDate nextReviewDate = LocalDate.of(2019, 4, 1);
-        repository.insertCategory(catDetail, "LEI", -11L, "JDOG", nextReviewDate);
+        repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
 
         final var list = repository.getUncategorised("LEI");
 
         assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
                 Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
+
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -5 AND ASSESSMENT_SEQ = 3");
+        assertThat(results).asList()
+                .extracting(extractInteger("ASSESSMENT_SEQ"),
+                        extractString("CALC_SUP_LEVEL_TYPE"),
+                        extractInteger("ASSESSMENT_TYPE_ID"),
+                        extractInteger("SCORE"),
+                        extractString("ASSESS_STATUS"),
+                        extractInteger("ASSESS_STAFF_ID"),
+                        extractInteger("ASSESSOR_STAFF_ID"),
+                        extractString("ASSESS_COMMENT_TEXT"),
+                        extractString("ASSESSMENT_CREATE_LOCATION"),
+                        extractString("ASSESS_COMMITTE_CODE"),
+                        extractString("CREATION_USER"),
+                        extractString("CREATE_USER_ID"),
+                        extractString("MODIFY_USER_ID"))
+                .contains(Tuple.tuple(3, "D", -2, 1006, "P", -11, -11, "init cat", "LEI", "GOV", "JDOG", "JDOG", "JDOG"));
+
+        assertThat((Date) results.get(0).get("ASSESSMENT_DATE")).isToday();
+        assertThat((Date) results.get(0).get("CREATION_DATE")).isToday();
+        assertThat((Date) results.get(0).get("CREATE_DATETIME")).isToday();
+        assertThat((Date) results.get(0).get("MODIFY_DATETIME")).isToday();
+        assertThat((Timestamp) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2019-06-01T00:00:00.000", 1000);
     }
 
     @Test
@@ -733,11 +761,11 @@ public class InmateRepositoryTest {
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
         assertThat(results).asList()
-                .extracting(InmateRepositoryTest::extractSeq, extractString("ASSESS_STATUS"), extractString("MODIFY_USER_ID"))
+                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"), extractString("MODIFY_USER_ID"))
                 .contains(Tuple.tuple(6, "I", "KDOG")
                 );
         assertThat(results).asList()
-                .extracting(InmateRepositoryTest::extractSeq,
+                .extracting(extractInteger("ASSESSMENT_SEQ"),
                         extractString("REVIEW_SUP_LEVEL_TYPE"),
                         extractString("REVIEW_COMMITTE_CODE"),
                         extractString("EVALUATION_RESULT_CODE"),
@@ -770,7 +798,7 @@ public class InmateRepositoryTest {
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
         assertThat(results).asList()
-                .extracting(InmateRepositoryTest::extractSeq,
+                .extracting(extractInteger("ASSESSMENT_SEQ"),
                         extractString("REVIEW_SUP_LEVEL_TYPE"),
                         extractString("REVIEW_COMMITTE_CODE"),
                         extractString("EVALUATION_RESULT_CODE"),
@@ -789,8 +817,8 @@ public class InmateRepositoryTest {
         return m -> ((Map<String, String>) m).get(field);
     }
 
-    private static int extractSeq(final Object m) {
-        return ((BigDecimal) ((Map) m).get("ASSESSMENT_SEQ")).intValue();
+    private static Function<Object, Integer> extractInteger(String field) {
+        return m -> ((Map<String, BigDecimal>) m).get(field).intValue();
     }
 
     @Test

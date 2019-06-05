@@ -629,7 +629,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    public void insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId, final LocalDate reviewDate) {
+    public void insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId) {
 
         jdbcTemplate.update(
                 getQuery("INSERT_CATEGORY"),
@@ -641,7 +641,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "category", detail.getCategory(),
                         "assessStaffId", assessStaffId,
                         "assessComment", detail.getComment(),
-                        "reviewDate", reviewDate,
+                        "reviewDate", detail.getNextReviewDate(),
                         "userId", userId,
                         "assessCommitteeCode", detail.getCommittee(),
                         "dateTime", LocalDateTime.now(),
