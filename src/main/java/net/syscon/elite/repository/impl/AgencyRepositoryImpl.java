@@ -163,7 +163,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
         return jdbcTemplate.query(
                 sql,
-                createParams("agencyId", agencyId),
+                createParams("agencyId", agencyId, "refCodeDomain", "IEP_LEVEL", "activeFlag", "Y"),
                 IEP_LEVEL_ROW_MAPPER);
     }
 

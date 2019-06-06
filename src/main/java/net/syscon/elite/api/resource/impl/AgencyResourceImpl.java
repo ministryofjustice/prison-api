@@ -1,6 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.WhereaboutsConfig;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.AgencyResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
 import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static net.syscon.util.ResourceUtils.nvl;
+
+import java.util.List;
 
 @RestResource
 @Path("/agencies")
@@ -55,10 +57,8 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
-    public GetAgencyIepLevelsResponse getAgencyIepLevels(final String agencyId) {
-        final var iepLevels = agencyService.getAgencyIepLevels(agencyId);
-
-        return GetAgencyIepLevelsResponse.respond200WithApplicationJson(iepLevels);
+    public List<IepLevel> getAgencyIepLevels(final String agencyId) {
+        return agencyService.getAgencyIepLevels(agencyId);
     }
 
     @Override

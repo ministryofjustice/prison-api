@@ -96,7 +96,7 @@ public interface AgencyResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
-    GetAgencyIepLevelsResponse getAgencyIepLevels(@ApiParam(value = "agencyId", required = true) @PathParam("agencyId") String agencyId);
+    List<IepLevel> getAgencyIepLevels(@ApiParam(value = "agencyId", required = true) @PathParam("agencyId") String agencyId);
 
     @GET
     @Path("/{agencyId}/locations/groups")
@@ -353,45 +353,6 @@ public interface AgencyResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyLocationsResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetAgencyIepLevelsResponse extends ResponseDelegate {
-
-        private GetAgencyIepLevelsResponse(final Response response) {
-            super(response);
-        }
-
-        private GetAgencyIepLevelsResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetAgencyIepLevelsResponse respond200WithApplicationJson(final List<IepLevel> entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetAgencyIepLevelsResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetAgencyIepLevelsResponse respond400WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(400)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetAgencyIepLevelsResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetAgencyIepLevelsResponse respond404WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(404)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetAgencyIepLevelsResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetAgencyIepLevelsResponse respond500WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(500)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetAgencyIepLevelsResponse(responseBuilder.build(), entity);
         }
     }
 
