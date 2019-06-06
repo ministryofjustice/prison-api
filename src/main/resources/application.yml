@@ -17,3 +17,10 @@ management:
   endpoints:
     web:
       base-path: /
+  endpoint:
+    health:
+      cache:
+        time-to-live: 2000ms
+    info:
+      cache:
+        time-to-live: 2000ms
