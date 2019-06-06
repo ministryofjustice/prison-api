@@ -131,3 +131,12 @@ Feature: Agencies
       | HLI      | true    |
       | WAI      | false   |
       | SYI      | false   |
+
+  Scenario: Retrieve IEP levels for an agency
+    When a request is submitted to retrieve IEP levels for agency "LEI"
+    Then the returned IEP levels are as follows:
+      | iepLevel | iepDescription |
+      | ENT      | Entry          |
+      | BAS      | Basic          |
+      | STD      | Standard       |
+      | ENH      | Enhanced       |

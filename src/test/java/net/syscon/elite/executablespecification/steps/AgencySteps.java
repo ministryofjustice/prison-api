@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.IepLevel;
 import net.syscon.elite.api.model.WhereaboutsConfig;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
@@ -27,6 +28,7 @@ public class AgencySteps extends CommonSteps {
     private static final String API_REF_PREFIX = API_PREFIX + "agencies/";
     public static final String API_AGENCY_URL = API_REF_PREFIX + "{agencyId}";
     private static final String API_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/locations";
+    private static final String API_IEP_LEVELS_URL = API_REF_PREFIX + "{agencyId}/iepLevels";
     private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
     private static final String API_BOOKED_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocationsBooked";
     private static final String API_CASELOAD_URL = API_REF_PREFIX + "caseload/{caseload}";
@@ -34,6 +36,7 @@ public class AgencySteps extends CommonSteps {
     private List<Agency> agencies;
     private Agency agency;
     private List<Location> locations;
+    private List<IepLevel> iepLevels;
     private WhereaboutsConfig whereaboutsConfig;
 
     private void dispatchPagedListRequest(final String resourcePath, final Long offset, final Long limit, final Object... params) {
@@ -108,6 +111,26 @@ public class AgencySteps extends CommonSteps {
             locations = response.getBody();
 
             buildResourceData(response);
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchIepLevelsRequest(final String agencyId) {
+        init();
+
+
+        final var uriBuilder = UriComponentsBuilder.fromPath(API_IEP_LEVELS_URL);
+
+
+        final var uri = uriBuilder.build(agencyId);
+
+        try {
+            final var response = restTemplate.exchange(uri, HttpMethod.GET, createEntity(),
+                    new ParameterizedTypeReference<List<IepLevel>>() {
+                    });
+
+            iepLevels = response.getBody();
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -223,6 +246,22 @@ public class AgencySteps extends CommonSteps {
 
     public void aRequestIsMadeToGetWhereabouts(final String agencyId) {
         dispatchWhereaboutsCall(WHEREABOUTS_API_URL, agencyId);
+    }
+
+    public void aRequestIsMadeToRetrieveIepLevels(final String agencyId) {
+        dispatchIepLevelsRequest(agencyId);
+    }
+
+    public void verifyIepLevelsList(final List<IepLevel> expected) {
+        final var expectedIterator = expected.iterator();
+        final var actualIterator = iepLevels.iterator();
+        while (expectedIterator.hasNext()) {
+            final var expectedThis = expectedIterator.next();
+            final var actualThis = actualIterator.next();
+            assertEquals(expectedThis.getIepLevel(), actualThis.getIepLevel());
+            assertEquals(expectedThis.getIepDescription(), actualThis.getIepDescription());
+        }
+        assertFalse("Too many actual events", actualIterator.hasNext());
     }
 
     private void dispatchWhereaboutsCall(final String url, final String agencyId) {

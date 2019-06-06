@@ -6,6 +6,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.IepLevel;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.executablespecification.steps.AgencySteps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,5 +124,16 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
     @Then("^the agency is not found$")
     public void theAgencyIsNotFound() {
         agencySteps.verifyResourceNotFound();
+    }
+
+    @When("^a request is submitted to retrieve IEP levels for agency \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveIepLevels(final String agencyId) throws Throwable {
+        agencySteps.aRequestIsMadeToRetrieveIepLevels(agencyId);
+    }
+
+    @Then("^the returned IEP levels are as follows:$")
+    public void IepLevelsAreReturnedAsFollows(final DataTable table) throws Throwable {
+        final var expected = table.asList(IepLevel.class);
+        agencySteps.verifyIepLevelsList(expected);
     }
 }

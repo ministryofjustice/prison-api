@@ -87,6 +87,18 @@ public interface AgencyResource {
                                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
 
     @GET
+    @Path("/{agencyId}/iepLevels")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "List of active IEP levels for agency.", notes = "List of active IEP levels for agency.", nickname="getAgencyIepLevels")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = IepLevel.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    List<IepLevel> getAgencyIepLevels(@ApiParam(value = "agencyId", required = true) @PathParam("agencyId") String agencyId);
+
+    @GET
     @Path("/{agencyId}/locations/groups")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
