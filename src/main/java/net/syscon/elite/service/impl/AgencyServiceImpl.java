@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.IepLevel;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
@@ -175,6 +176,11 @@ public class AgencyServiceImpl implements AgencyService {
         final var processedLocations =  LocationProcessor.processLocations(locations, true);
         processedLocations.sort(LOCATION_DESCRIPTION_COMPARATOR);
         return processedLocations;
+    }
+
+    @Override
+    public List<IepLevel> getAgencyIepLevels(final String agencyId) {
+        return agencyRepository.getAgencyIepLevels(agencyId);
     }
 
     @Override

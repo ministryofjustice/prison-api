@@ -55,6 +55,13 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
+    public GetAgencyIepLevelsResponse getAgencyIepLevels(final String agencyId) {
+        final var iepLevels = agencyService.getAgencyIepLevels(agencyId);
+
+        return GetAgencyIepLevelsResponse.respond200WithApplicationJson(iepLevels);
+    }
+
+    @Override
     public GetAvailableLocationGroupsResponse getAvailableLocationGroups(final String agencyId) {
         final var locationGroups = locationGroupService.getLocationGroupsForAgency(agencyId);
         return GetAvailableLocationGroupsResponse.respond200WithApplicationJson(locationGroups);

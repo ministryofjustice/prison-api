@@ -2,6 +2,7 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.IepLevel;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -27,6 +28,7 @@ public interface AgencyService {
     List<Location> getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder);
     List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
     List<Location> getAgencyEventLocationsBookedNonCached(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
+    List<IepLevel> getAgencyIepLevels(String agencyId);
     List<PrisonContactDetail> getPrisonContactDetail();
     PrisonContactDetail getPrisonContactDetail(String agencyId);
     List<Agency> getAgenciesByCaseload(String caseload);
