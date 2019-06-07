@@ -21,6 +21,7 @@ management:
     health:
       cache:
         time-to-live: 2000ms
+      show-details: always
     info:
       cache:
         time-to-live: 2000ms
