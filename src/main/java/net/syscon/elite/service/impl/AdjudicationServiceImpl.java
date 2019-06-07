@@ -135,7 +135,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
      * count proved adjudications which expired on or later than the from date.
      */
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam,
                                                       final LocalDate adjudicationCutoffDateParam) {
         val list = repository.findAwards(bookingId);
