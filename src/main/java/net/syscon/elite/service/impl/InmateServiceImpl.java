@@ -166,7 +166,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public InmateDetail findInmate(final Long bookingId, final String username) {
         final var inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
@@ -317,7 +317,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public InmateDetail getBasicInmateDetail(final Long bookingId) {
         return repository.getBasicInmateDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
@@ -342,7 +342,7 @@ public class InmateServiceImpl implements InmateService {
      * @return Latest assessment of given code if any
      */
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Optional<Assessment> getInmateAssessmentByCode(final Long bookingId, final String assessmentCode) {
         final var assessmentForCodeType = repository.findAssessments(Collections.singletonList(bookingId), assessmentCode, Collections.emptySet());
 

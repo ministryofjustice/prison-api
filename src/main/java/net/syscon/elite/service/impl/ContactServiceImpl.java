@@ -41,7 +41,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public ContactDetail getContacts(final Long bookingId) {
         final var contacts = repository.getOffenderRelationships(bookingId, null);
 
@@ -58,7 +58,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<Contact> getRelationships(final Long bookingId, final String relationshipType) {
         return repository.getOffenderRelationships(bookingId, relationshipType);
     }
