@@ -19,7 +19,7 @@ public class FinanceServiceImpl implements FinanceService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Account getBalances(final Long bookingId) {
         return financeRepository.getBalances(bookingId);
     }
