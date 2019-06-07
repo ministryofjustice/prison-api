@@ -302,18 +302,6 @@ public class BookingServiceImpl implements BookingService {
         if (thisEvent.isEmpty()) {
             return;
         }
-
-        // Narrow down to an already-paid activity in same slot
-        final var timeSlot = CalcDateRanges.startTimeToTimeSlot(thisEvent.get().getStartTime());
-        final var paidActivity = bookingActivities.stream()
-                .filter(a -> CalcDateRanges.startTimeToTimeSlot(a.getStartTime()) == timeSlot)
-                .filter(ScheduledEvent::getPaid)
-                .findFirst();
-
-        if (paidActivity.isPresent()) {
-            throw new BadRequestException(String.format("Prisoner %s has already been paid for '%s'",
-                    offenderSummary.getOffenderNo(), paidActivity.get().getEventSourceDesc()));
-        }
     }
 
     @Override
