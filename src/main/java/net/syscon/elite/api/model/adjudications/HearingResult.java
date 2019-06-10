@@ -22,19 +22,19 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Data
 public class HearingResult {
 
-    @ApiModelProperty("OIC Offence Code")
+    @ApiModelProperty(value = "OIC Offence Code", example = "51:22")
     private String oicOffenceCode;
 
-    @ApiModelProperty("Offence Type")
+    @ApiModelProperty(value = "Offence Type", example = "Prison Rule 51")
     private String offenceType;
 
-    @ApiModelProperty("Offence Description")
+    @ApiModelProperty(value = "Offence Description", example = "Disobeys any lawful order")
     private String offenceDescription;
 
-    @ApiModelProperty("Plea")
+    @ApiModelProperty(value = "Plea", example = "Guilty")
     private String plea;
 
-    @ApiModelProperty("Finding")
+    @ApiModelProperty(value = "Finding", example = "Charge Proved")
     private String finding;
 
     @Singular

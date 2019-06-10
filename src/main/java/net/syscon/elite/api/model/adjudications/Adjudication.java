@@ -22,15 +22,15 @@ import java.util.List;
 @Data
 public class Adjudication {
 
-    @ApiModelProperty("Adjudication Number")
+    @ApiModelProperty(value = "Adjudication Number", example = "1234567")
     private long adjudicationNumber;
-    @ApiModelProperty("Report Time")
+    @ApiModelProperty(value = "Report Time", example = "2017-03-17T08:02:00")
     private LocalDateTime reportTime;
-    @ApiModelProperty("Agency Incident Id")
+    @ApiModelProperty(value = "Agency Incident Id", example = "1484302")
     private long agencyIncidentId;
-    @ApiModelProperty("Agency Id")
+    @ApiModelProperty(value = "Agency Id", example = "MDI")
     private String agencyId;
-    @ApiModelProperty("Party Sequence")
+    @ApiModelProperty(value = "Party Sequence", example = "1")
     private long partySeq;
     @ApiModelProperty("Charges made as part of the adjudication")
     @Singular private List<AdjudicationCharge> adjudicationCharges;
