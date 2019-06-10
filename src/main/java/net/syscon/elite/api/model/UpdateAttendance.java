@@ -1,100 +1,35 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Attendance details
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Attendance details")
+@ApiModel(description = "Attendance details.  This is used to update the attendance details of an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@ToString
+@Data
 public class UpdateAttendance {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-    
+
+    @ApiModelProperty(required = true, position = 0, value = "Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.", example="ATT", allowableValues = "ABS,ACCAB,ATT,CANC,NREQ,SUS,UNACAB,REST")
     @Length(max=12) @NotBlank
     private String eventOutcome;
 
+    @ApiModelProperty(value = "Possible values are the codes in the 'PERFORMANCE' reference domain, mandatory for eventOutcome 'ATT'.", position = 1, example = "ACCEPT", allowableValues = "ACCEPT,GOOD,POOR,STANDARD,UNACCEPT")
     @Length(max=12) private String performance;
 
+    @ApiModelProperty(value = "Free text comment, maximum length 240 characters.", position = 2, example = "Turned up very late")
     @Length(max=240) private String outcomeComment;
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
-
-    /**
-      * Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.
-      */
-    @ApiModelProperty(required = true, value = "Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.")
-    @JsonProperty("eventOutcome")
-    public String getEventOutcome() {
-        return eventOutcome;
-    }
-
-    public void setEventOutcome(final String eventOutcome) {
-        this.eventOutcome = eventOutcome;
-    }
-
-    /**
-      * Possible values are the codes in the 'PERFORMANCE' reference domain, mandatory for eventOutcome 'ATT'.
-      */
-    @ApiModelProperty(value = "Possible values are the codes in the 'PERFORMANCE' reference domain, mandatory for eventOutcome 'ATT'.")
-    @JsonProperty("performance")
-    public String getPerformance() {
-        return performance;
-    }
-
-    public void setPerformance(final String performance) {
-        this.performance = performance;
-    }
-
-    /**
-      * Free text comment, maximum length 240 characters.
-      */
-    @ApiModelProperty(value = "Free text comment, maximum length 240 characters.")
-    @JsonProperty("outcomeComment")
-    public String getOutcomeComment() {
-        return outcomeComment;
-    }
-
-    public void setOutcomeComment(final String outcomeComment) {
-        this.outcomeComment = outcomeComment;
-    }
-
-    @Override
-    public String toString()  {
-        final var sb = new StringBuilder();
-
-        sb.append("class UpdateAttendance {\n");
-        
-        sb.append("  eventOutcome: ").append(eventOutcome).append("\n");
-        sb.append("  performance: ").append(performance).append("\n");
-        sb.append("  outcomeComment: ").append(outcomeComment).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
-    }
 }
