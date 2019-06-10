@@ -16,10 +16,10 @@ import lombok.NoArgsConstructor;
 @Data
 public class AdjudicationOffence {
 
-    @ApiModelProperty("Offence Id")
+    @ApiModelProperty(value = "Offence Id", example = "8")
     private String id;
-    @ApiModelProperty("Offence Code")
+    @ApiModelProperty(value = "Offence Code", example = "51:7")
     private String code;
-    @ApiModelProperty("Offence Description")
+    @ApiModelProperty(value = "Offence Description", example = "Escapes or absconds from prison or from legal custody")
     private String description;
 }
