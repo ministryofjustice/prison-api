@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+$command = "git-diff-index --cached HEAD 2>&1 | sed 's/^:.*     //' | uniq";
+open (FILES,$command . "|") || die "Cannot run '$command': $!\n";
+
+$check_file = "./checkstyle/checks.xml";
+$checkstyle_jar = "./checkstyle/checkstyle-8.21-all.jar";
+
+$command = "java -jar $checkstyle_jar -c $check_file";
+
+@java_files = ();
+
+foreach (<FILES>)
+{
+   chomp;
+   next if (!(/\.java$/));
+   push @java_files,$_;
+   $command .= " ";
+   $command .= $_;
+}
+if ($#java_files >= 0)
+{
+   if (&run_and_log_system ($command))
+   {
+       print STDERR "Commit aborted.\n";
+       exit -1;
+   }
+}
+
+exit 0;
+
+sub run_and_log_system
+{
+   ($cmd) = @_;
+
+   system $cmd;
+}

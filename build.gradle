@@ -26,6 +26,13 @@ repositories {
     mavenCentral()
 }
 
+def hookFile = file("${projectDir}/.git/hooks/pre-commit")
+
+if (!System.getenv('CI') && !hookFile.exists()) {
+    logger.lifecycle "Creating checkstyle precommit hook"
+    ant.symlink(resource: "${projectDir}/checkstyle/pre-commit", link: hookFile)
+}
+
 def applicationName = 'elite2-api'
 def today = java.time.Instant.now()
 
