@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -169,20 +170,76 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public List<Movement> getTransferMovementsForAgencies(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime) {
+    public TransferSummary getTransferMovementsForAgencies(List<String> agencyIds,
+                                                           LocalDateTime fromDateTime, LocalDateTime toDateTime,
+                                                           final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents, final boolean movements) {
 
+        String badRequestMsg = checkTransferParameters(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
+        if (badRequestMsg != null) {
+            log.info("Request parameters supplied were not valid - {}", badRequestMsg);
+            throw new BadRequestException(badRequestMsg);
+        }
+
+        List<CourtEvent> listOfCourtEvents;
+        if (courtEvents) {
+            listOfCourtEvents = movementsRepository.getCourtEvents(agencyIds, fromDateTime, toDateTime);
+        } else {
+            listOfCourtEvents = List.of();
+        }
+
+        List<ReleaseEvent> listOfReleaseEvents;
+        if (releaseEvents) {
+            listOfReleaseEvents = movementsRepository.getOffenderReleases(agencyIds, fromDateTime, toDateTime);
+        } else {
+            listOfReleaseEvents = List.of();
+        }
+
+        List<TransferEvent> listOfTransferEvents;
+        if (transferEvents) {
+            listOfTransferEvents = movementsRepository.getOffenderTransfers(agencyIds, fromDateTime, toDateTime);
+        } else {
+            listOfTransferEvents = List.of();
+        }
+
+        List<MovementSummary> listOfMovements;
+        if (movements) {
+            listOfMovements = movementsRepository.getCompletedMovementsForAgencies(agencyIds, fromDateTime, toDateTime);
+        } else {
+            listOfMovements = List.of();
+        }
+
+        return TransferSummary.builder()
+                .courtEvents(listOfCourtEvents)
+                .releaseEvents(listOfReleaseEvents)
+                .transferEvents(listOfTransferEvents)
+                .movements(listOfMovements)
+                .build();
+    }
+
+    private String checkTransferParameters(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime,
+                                                final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents,
+                                                final boolean movements) {
+
+        // Needs at least one agency ID specified
         if (agencyIds == null || agencyIds.size() < 1) {
-            final var msg = "No agency location identifiers were supplied";
-            log.info(msg);
-            throw new BadRequestException(msg);
+            return "No agency location identifiers were supplied";
         }
 
+        // The from time must be before the to time
         if (fromDateTime.isAfter(toDateTime)) {
-            final var msg = "The supplied fromDateTime parameter is after the toDateTime value";
-            log.info(msg);
-            throw new BadRequestException(msg);
+            return "The supplied fromDateTime parameter is after the toDateTime value";
         }
 
-        return movementsRepository.getTransferMovementsForAgencies(agencyIds, fromDateTime, toDateTime);
+        // The time period requested must be shorter than or equal to 24 hours
+        if (toDateTime.isAfter(fromDateTime.plus(24, ChronoUnit.HOURS))) {
+            return "The supplied time period is more than 24 hours - limit to 24 hours maximum";
+        }
+
+        // One of the event/movement type query parameters must be true
+        if (!courtEvents && !releaseEvents && !transferEvents && !movements) {
+            return "At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movementEvents]";
+        }
+
+        return null;
     }
 }

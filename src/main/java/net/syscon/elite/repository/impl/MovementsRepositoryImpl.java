@@ -24,6 +24,10 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     private final StandardBeanPropertyRowMapper<OffenderIn> OFFENDER_IN_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIn.class);
     private final StandardBeanPropertyRowMapper<OffenderOut> OFFENDER_OUT_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderOut.class);
     private final StandardBeanPropertyRowMapper<OffenderInReception> OFFENDER_IN_RECEPTION_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderInReception.class);
+    private final StandardBeanPropertyRowMapper<MovementSummary> MOVEMENT_SUMMARY_MAPPER = new StandardBeanPropertyRowMapper<>(MovementSummary.class);
+    private final StandardBeanPropertyRowMapper<CourtEvent> COURT_EVENT_MAPPER = new StandardBeanPropertyRowMapper<>(CourtEvent.class);
+    private final StandardBeanPropertyRowMapper<TransferEvent> OFFENDER_TRANSFER_MAPPER = new StandardBeanPropertyRowMapper<>(TransferEvent.class);
+    private final StandardBeanPropertyRowMapper<ReleaseEvent> OFFENDER_RELEASE_MAPPER = new StandardBeanPropertyRowMapper<>(ReleaseEvent.class);
 
     private static final String MOVEMENT_DATE_CLAUSE = " AND OEM.MOVEMENT_DATE = :movementDate";
 
@@ -162,16 +166,55 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 OFFENDER_OUT_MAPPER);
     }
 
-    public List<Movement> getTransferMovementsForAgencies(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+    public List<MovementSummary> getCompletedMovementsForAgencies(List<String> agencies, LocalDateTime from, LocalDateTime to) {
 
-        final var listOfTransferMovements = jdbcTemplate.query (
+        final var listOfCompletedMovements = jdbcTemplate.query (
              getQuery("GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD"),
              createParams("agencyListFrom", agencies,
                           "agencyListTo", agencies,
                           "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
                           "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
-                          MOVEMENT_MAPPER);
+                          MOVEMENT_SUMMARY_MAPPER);
 
-        return listOfTransferMovements;
+        return listOfCompletedMovements;
     }
+
+    public List<CourtEvent> getCourtEvents(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+
+        final var listOfCourtMovements = jdbcTemplate.query (
+                getQuery("GET_COURT_EVENTS_BY_AGENCY_AND_TIME_PERIOD"),
+                createParams("agencyListFrom", agencies,
+                        "agencyListTo", agencies,
+                        "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
+                        "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
+                COURT_EVENT_MAPPER);
+
+        return listOfCourtMovements;
+    }
+
+    public List<TransferEvent> getOffenderTransfers(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+
+        final var listOfOffenderTransfers = jdbcTemplate.query (
+                getQuery("GET_OFFENDER_TRANSFERS_BY_AGENCY_AND_TIME_PERIOD"),
+                createParams("agencyListFrom", agencies,
+                        "agencyListTo", agencies,
+                        "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
+                        "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
+                OFFENDER_TRANSFER_MAPPER);
+
+        return listOfOffenderTransfers;
+    }
+
+    public List<ReleaseEvent> getOffenderReleases(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+
+        final var listOfOffenderReleases = jdbcTemplate.query (
+                getQuery("GET_OFFENDER_RELEASES_BY_AGENCY_AND_DATE"),
+                createParams("agencyListFrom", agencies,
+                             "fromDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(from)),
+                             "toDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(to))),
+                OFFENDER_RELEASE_MAPPER);
+
+        return listOfOffenderReleases;
+    }
+
 }

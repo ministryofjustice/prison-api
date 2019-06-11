@@ -120,15 +120,19 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
   Scenario Outline: Get the details of the external movements between two times for a list of agencies
 
     Given a user has a token name of "GLOBAL_SEARCH"
-    When a request is made to retrieve movements involving agencies "<agency1>" and "<agency2>" between "<fromTime>" and "<toTime>"
-    Then the response should contain "<responseCount>" movements
+    When a request is made to retrieve events involving agencies "<agency1>" and "<agency2>" between "<fromTime>" and "<toTime>"
+    Then the response should contain "<movementCount>" movements
+    And the response should contain "<courtCount>" court events
+    And the response should contain "<transferCount>" transfer events
+    And the response should contain "<releaseCount>" release events
     And the response code should be "<responseCode>"
     And the presence of an error response is "<errorResponsePresent>"
     Examples:
-      | agency1 | agency2  | fromTime            | toTime              | responseCount | responseCode | errorResponsePresent |
-      | LEI     |          | 2019-05-01T11:00:00 | 2019-05-01T17:00:00 | 2             | 200          |  false               |
-      | LEI     | MDI      | 2019-05-01T11:00:00 | 2019-05-01T17:00:00 | 3             | 200          |  false               |
-      | LEI     | MDI      | 2019-05-01T17:00:00 | 2019-05-01T11:00:00 | 0             | 400          |  true                |
-      | INVAL   | INVAL    | 2019-05-01T11:00:00 | 2019-05-01T17:00:00 | 0             | 200          |  false               |
-      | LEI     | LEI      | 2019-05-01TXX:XX:XX | 2019-05-01TXX:XX:XX | 0             | 500          |  true                |
-      |         |          | 2019-05-01T11:00:00 | 2019-05-01T17:00:00 | 0             | 400          |  true                |
+      | agency1 | agency2  | fromTime            | toTime              | movementCount | courtCount | transferCount | releaseCount | responseCode | errorResponsePresent |
+      | LEI     |          | 2019-05-01T11:00:00 | 2019-05-01T18:00:00 | 2             |    1       |      1        |     0        |  200         |  false               |
+      | MDI     | LEI      | 2019-05-01T00:00:00 | 2019-05-01T00:00:00 | 0             |    0       |      0        |     1        |  200         |  false               |
+      | LEI     | MDI      | 2019-05-01T11:00:00 | 2019-05-01T18:00:00 | 3             |    1       |      1        |     0        |  200         |  false               |
+      | LEI     | MDI      | 2019-05-01T17:00:00 | 2019-05-01T11:00:00 | 0             |    0       |      0        |     0        |  400         |  true                |
+      | INVAL   | INVAL    | 2019-05-01T11:00:00 | 2019-05-01T18:00:00 | 0             |    0       |      0        |     0        |  200         |  false               |
+      | LEI     | LEI      | 2019-05-01TXX:XX:XX | 2019-05-01TXX:XX:XX | 0             |    0       |      0        |     0        |  500         |  true                |
+      |         |          | 2019-05-01T11:00:00 | 2019-05-01T17:00:00 | 0             |    0       |      0        |     0        |  400         |  true                |

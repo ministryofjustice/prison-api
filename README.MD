@@ -118,7 +118,7 @@ To run all feature tests in IntelliJ, avoiding known @wip or @broken tests, add 
 | Env var        | Value                         |
 | -------------- | ------------------------------|
 |api.db.target   | nomis                         | 
-|cucumber.options| --tags `not(@wip or @broken)` |
+|cucumber.options| --tags 'not(@wip or @broken)' |
 
 
 ### Project related links ###

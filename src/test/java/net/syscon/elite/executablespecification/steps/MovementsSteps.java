@@ -38,6 +38,7 @@ public class MovementsSteps extends CommonSteps {
     private MovementCount movementCount;
     private List<OffenderIn> offendersIn;
     private List<OffenderInReception> offendersInReception;
+    private TransferSummary transferSummary;
 
     @Override
     protected void init() {
@@ -49,6 +50,7 @@ public class MovementsSteps extends CommonSteps {
         offendersIn = null;
         offendersOutToday = null;
         offendersInReception = null;
+        transferSummary = null;
     }
 
     @Step("Retrieve all movement records")
@@ -328,35 +330,60 @@ public class MovementsSteps extends CommonSteps {
 
         var url = API_REQUEST_TRANSFERS_BY_AGENCY_AND_TIME;
 
-        // Cater for variable number of agencies supplied
         for (String agency : agencies) {
             if (agency != null && !agency.isBlank()) {
                 url += "&agencyId=" + agency;
             }
         }
 
+        // Default the query parameters to true for courtEvents, releaseEvents, transferEvents and movements
+        url += "&courtEvents=true&releaseEvents=true&transferEvents=true&movements=true";
+
         try {
             final var response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<List<Movement>>() {},
+                    TransferSummary.class,
                     fromTime, toTime);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            movements = response.getBody();
-            buildResourceData(response);
+            transferSummary = response.getBody();
 
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void verifyAgencyMovementCount(final int responseCount) {
-        if (movements == null || movements.isEmpty()) {
-            assertThat(0).isEqualTo(responseCount);
+    public void verifyMovementCount(final int movementCount) {
+        if (transferSummary == null || transferSummary.getMovements() == null) {
+            assertThat(0).isEqualTo(movementCount);
         } else {
-            assertThat(movements).hasSize(responseCount);
+            assertThat(transferSummary.getMovements()).hasSize(movementCount);
+        }
+    }
+
+    public void verifyReleaseCount(final int releaseCount) {
+        if (transferSummary == null || transferSummary.getReleaseEvents() == null) {
+            assertThat(0).isEqualTo(releaseCount);
+        } else {
+            assertThat(transferSummary.getReleaseEvents()).hasSize(releaseCount);
+        }
+    }
+
+    public void verifyTransferCount(final int transferCount) {
+        if (transferSummary == null || transferSummary.getTransferEvents() == null) {
+            assertThat(0).isEqualTo(transferCount);
+        } else {
+            assertThat(transferSummary.getTransferEvents()).hasSize(transferCount);
+        }
+    }
+
+    public void verifyCourtCount(final int courtCount) {
+        if (transferSummary == null || transferSummary.getCourtEvents() == null) {
+            assertThat(0).isEqualTo(courtCount);
+        } else {
+            assertThat(transferSummary.getCourtEvents()).hasSize(courtCount);
         }
     }
 

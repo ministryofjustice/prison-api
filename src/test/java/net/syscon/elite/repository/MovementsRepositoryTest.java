@@ -190,7 +190,7 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void testRecentMovements_byMovementTypes() {
+    public void canRetrieveRecentMoves_byMovementTypes() {
         final var threshold = LocalDateTime.of(2000, Month.JANUARY, 1, 0, 0, 0);
         final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), Collections.singletonList("TAP"));
         assertThat(recentMovements).hasSize(1);
@@ -200,15 +200,14 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void testMovementsForAgenciesBetweenTwoTimes() {
+    public void canRetrieveMovementsForAgenciesFromTo() {
 
         final var fromTime = LocalDateTime.of(2019, Month.MAY, 1, 11, 0, 0);
         final var toTime = LocalDateTime.of(2019, Month.MAY, 1, 17, 0, 0);
         final var agencies = List.of("LEI","MDI");
 
-        final var movements = repository.getTransferMovementsForAgencies(agencies, fromTime, toTime);
+        final var movements = repository.getCompletedMovementsForAgencies(agencies, fromTime, toTime);
 
-        // Expected results set up in seeded data
         assertThat(movements).asList()
                 .extracting("offenderNo", "fromAgency", "toAgency")
                 .contains(tuple("Z0018ZZ", "LEI", "BMI"))
@@ -217,16 +216,63 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void testMovementsForAgenciesEmptyResponse() {
+    public void canRetrieveCompletedMovementsByAgency() {
 
         final var fromTime = LocalDateTime.of(2019, Month.MAY, 1, 11, 0, 0);
         final var toTime = LocalDateTime.of(2019, Month.MAY, 1, 17, 0, 0);
 
         // Agencies not present in seeded data
         final var agencies = List.of("XXX","YYY");
-
-        final var movements = repository.getTransferMovementsForAgencies(agencies, fromTime, toTime);
-
+        final var movements = repository.getCompletedMovementsForAgencies(agencies, fromTime, toTime);
         assertThat(movements).asList().isEmpty();
     }
+
+    @Test
+    public void canRetrieveCourtEventsByAgency() {
+
+        final var fromTime = LocalDateTime.of(2017, Month.OCTOBER, 16, 17, 0, 0);
+        final var toTime = LocalDateTime.of(2017, Month.OCTOBER, 16, 20, 0, 0);
+        final var agencies = List.of("LEI");
+
+        final var courtEvents = repository.getCourtEvents(agencies, fromTime, toTime);
+
+        assertThat(courtEvents).isNotEmpty();
+        assertThat(courtEvents).asList()
+                .extracting("offenderNo", "fromAgency", "toAgency", "eventClass", "eventType", "eventStatus", "directionCode")
+                .contains(tuple("A1234AG", "LEI", "LEI", "EXT_MOV", "CRT", "COMP", "IN"));
+    }
+
+    @Test
+    public void canRetrieveReleaseEventsByAgency() {
+
+        final var fromTime = LocalDateTime.of(2022, Month.FEBRUARY, 2, 0, 0, 0);
+        final var toTime = LocalDateTime.of(2022, Month.FEBRUARY, 2, 23, 59, 59);
+        final var agencies = List.of("LEI","MDI");
+
+        final var releaseEvents = repository.getOffenderReleases(agencies, fromTime, toTime);
+
+        assertThat(releaseEvents).isNotEmpty();
+        assertThat(releaseEvents).asList()
+                .extracting("eventClass", "eventStatus", "movementTypeCode", "movementTypeDescription", "offenderNo", "movementReasonCode")
+                .contains(tuple("EXT_MOV","SCH","REL","Release","Z0024ZZ","DD"));
+    }
+
+    @Test
+    public void canRetrieveTransferEventsByAgency() {
+
+        // Match with specific rows loaded in the seeded data
+        final var fromTime = LocalDateTime.now().minusHours(1);
+        final var toTime = LocalDateTime.now().plusHours(23);
+        final var agencies = List.of("LEI","MDI");
+
+        final var transferEvents = repository.getOffenderTransfers(agencies, fromTime, toTime);
+
+        assertThat(transferEvents).isNotEmpty();
+
+        assertThat(transferEvents).asList()
+                .extracting("eventClass", "eventStatus", "eventType", "offenderNo", "fromAgency", "toAgency")
+                .contains(tuple("EXT_MOV", "SCH", "TRN", "A1234AC", "LEI", "MDI"))
+                .contains(tuple("EXT_MOV", "SCH", "TRN", "A1234AC", "MDI", "LEI"));
+    }
+
 }
