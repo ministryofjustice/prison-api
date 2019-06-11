@@ -105,7 +105,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public SentenceDetail getBookingSentenceDetail(final Long bookingId) {
 
         final var sentenceDetail = getSentenceDetail(bookingId);
@@ -145,7 +145,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public PrivilegeSummary getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
         final var bookingIEPSummary = getBookingIEPSummary(Collections.singletonList(bookingId), withDetails);
         final var privilegeSummary = bookingIEPSummary.get(bookingId);
@@ -268,12 +268,17 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    @VerifyBookingAccess
     public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        final var offenderSummary = getLatestBookingByOffenderNo(offenderNo);
-        if (offenderSummary == null || offenderSummary.getBookingId() == null) {
-            throw EntityNotFoundException.withMessage("Offender No %s not found", offenderNo);
-        }
+        updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo));
+    }
+
+    @Transactional
+    @Override
+    public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
+        updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId));
+    }
+
+    private void updateAttendance(Long activityId, UpdateAttendance updateAttendance, OffenderSummary offenderSummary) {
         verifyBookingAccess(offenderSummary.getBookingId());
         validateActivity(activityId, offenderSummary);
 
@@ -281,6 +286,7 @@ public class BookingServiceImpl implements BookingService {
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
         bookingRepository.updateAttendance(offenderSummary.getBookingId(), activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
     }
+
 
     private void validateActivity(final Long activityId, final OffenderSummary offenderSummary) {
         // Find details for activities for same offender and same day as this one
@@ -293,20 +299,8 @@ public class BookingServiceImpl implements BookingService {
         final var thisEvent = bookingActivities.stream()
                 .filter(a -> a.getEventId().equals(activityId))
                 .findFirst();
-        if (!thisEvent.isPresent()) {
+        if (thisEvent.isEmpty()) {
             return;
-        }
-
-        // Narrow down to an already-paid activity in same slot
-        final var timeSlot = CalcDateRanges.startTimeToTimeSlot(thisEvent.get().getStartTime());
-        final var paidActivity = bookingActivities.stream()
-                .filter(a -> CalcDateRanges.startTimeToTimeSlot(a.getStartTime()) == timeSlot)
-                .filter(ScheduledEvent::getPaid)
-                .findFirst();
-
-        if (paidActivity.isPresent()) {
-            throw new BadRequestException(String.format("Prisoner %s has already been paid for '%s'",
-                    offenderSummary.getOffenderNo(), paidActivity.get().getEventSourceDesc()));
         }
     }
 
@@ -342,13 +336,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Visit getBookingVisitLast(final Long bookingId) {
         return bookingRepository.getBookingVisitLast(bookingId, LocalDateTime.now());
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Visit getBookingVisitNext(final Long bookingId) {
         return bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
     }
@@ -599,7 +593,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<OffenceDetail> getMainOffenceDetails(final Long bookingId) {
         return sentenceRepository.getMainOffenceDetails(bookingId);
     }
@@ -611,7 +605,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<ScheduledEvent> getEventsToday(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today, today);
@@ -684,7 +678,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public OffenderSentenceTerms getOffenderSentenceTerms(final Long bookingId) {
 
         final var results = bookingRepository.getOffenderSentenceTerms(bookingId, "IMP");

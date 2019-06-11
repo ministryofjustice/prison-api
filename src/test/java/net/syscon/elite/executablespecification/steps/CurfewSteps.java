@@ -112,7 +112,6 @@ public class CurfewSteps extends CommonSteps {
     }
 
     private void putRequest(final String uri, final String json, final Object... uriVariables) {
-        System.out.println("json: " + json);
         try {
             final var response = restTemplate.exchange(
                     uri,

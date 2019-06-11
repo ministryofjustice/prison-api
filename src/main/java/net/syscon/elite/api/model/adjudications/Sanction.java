@@ -21,34 +21,34 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Data
 public class Sanction {
 
-    @ApiModelProperty("Sanction Type")
+    @ApiModelProperty(value = "Sanction Type", example = "Stoppage of Earnings (amount)")
     private String sanctionType;
 
-    @ApiModelProperty("Sanction Days")
+    @ApiModelProperty(value = "Sanction Days", example = "14")
     private Long sanctionDays;
 
-    @ApiModelProperty("Sanction Months")
+    @ApiModelProperty(value = "Sanction Months", example = "1")
     private Long sanctionMonths;
 
-    @ApiModelProperty("CompensationAmount")
+    @ApiModelProperty(value = "Compensation Amount", example = "50")
     private Long compensationAmount;
 
-    @ApiModelProperty("Effective")
+    @ApiModelProperty(value = "Effective", example = "2017-03-22T00:00:00")
     private LocalDateTime effectiveDate;
 
-    @ApiModelProperty("Sanction status")
+    @ApiModelProperty(value = "Sanction status", example = "Immediate")
     private String status;
 
-    @ApiModelProperty("Status Date")
+    @ApiModelProperty(value = "Status Date", example = "2017-03-22T00:00:00")
     private LocalDateTime statusDate;
 
-    @ApiModelProperty("Comment")
+    @ApiModelProperty(value = "Comment", example = "14x LOTV, 14x LOGYM, 14x LOC, 14x LOA, 14x LOE 50%, 14x CC")
     private String comment;
 
-    @ApiModelProperty("Sanction Seq")
+    @ApiModelProperty(value = "Sanction Seq", example = "1")
     private Long sanctionSeq;
 
-    @ApiModelProperty("Consecutive Sanction Seq")
+    @ApiModelProperty(value = "Consecutive Sanction Seq", example = "1")
     private Long consecutiveSanctionSeq;
 
     @JsonIgnore

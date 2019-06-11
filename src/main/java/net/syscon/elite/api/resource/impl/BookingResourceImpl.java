@@ -219,8 +219,15 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @ProxyUser
-    public UpdateAttendanceResponse updateAttendance(final String offenderNo, final Long activityId, final UpdateAttendance body) {
-        bookingService.updateAttendance(offenderNo, activityId, body);
+    public UpdateAttendanceResponse updateAttendance(final String offenderNo, final Long activityId, final UpdateAttendance updateAttendance) {
+        bookingService.updateAttendance(offenderNo, activityId, updateAttendance);
+        return UpdateAttendanceResponse.respond201WithApplicationJson();
+    }
+
+    @Override
+    @ProxyUser
+    public UpdateAttendanceResponse updateAttendance(final Long bookingId, final Long activityId, final UpdateAttendance updateAttendance) {
+        bookingService.updateAttendance(bookingId, activityId, updateAttendance);
         return UpdateAttendanceResponse.respond201WithApplicationJson();
     }
 

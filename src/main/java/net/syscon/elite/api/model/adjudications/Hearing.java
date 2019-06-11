@@ -23,34 +23,34 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Data
 public class Hearing {
 
-    @ApiModelProperty("OIC Hearing ID")
+    @ApiModelProperty(value = "OIC Hearing ID", example = "1985937")
     private Long oicHearingId;
 
-    @ApiModelProperty("Hearing Type")
+    @ApiModelProperty(value = "Hearing Type", example = "Governor's Hearing Adult")
     private String hearingType;
 
-    @ApiModelProperty("Hearing Time")
+    @ApiModelProperty(value = "Hearing Time", example = "2017-03-17T08:30:00")
     private LocalDateTime hearingTime;
 
-    @ApiModelProperty("Establishment")
+    @ApiModelProperty(value = "Establishment", example = "Moorland (HMP & YOI)")
     private String establishment;
 
-    @ApiModelProperty("Hearing Location")
+    @ApiModelProperty(value = "Hearing Location", example = "Adjudication Room")
     private String location;
 
     @JsonIgnore
     private Long internalLocationId;
 
-    @ApiModelProperty("Adjudicator First name")
+    @ApiModelProperty(value = "Adjudicator First name", example = "Bob")
     private String heardByFirstName;
 
-    @ApiModelProperty("Adjudicator Last name")
+    @ApiModelProperty(value = "Adjudicator Last name", example = "Smith")
     private String heardByLastName;
 
-    @ApiModelProperty("Other Representatives")
+    @ApiModelProperty(value = "Other Representatives", example = "Councillor Adams")
     private String otherRepresentatives;
 
-    @ApiModelProperty("Comment")
+    @ApiModelProperty(value = "Comment", example = "The defendant conducted themselves in a manner...")
     private String comment;
 
     @Singular

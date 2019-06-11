@@ -749,24 +749,38 @@ public interface BookingResource {
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to amend case note.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Resource not found - booking or case note does not exist or is not accessible to user.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
-    UpdateOffenderCaseNoteResponse updateOffenderCaseNote(@ApiParam(value = "The booking id of offender", required = true) @PathParam("bookingId") Long bookingId,
-                                                          @ApiParam(value = "The case note id", required = true) @PathParam("caseNoteId") Long caseNoteId,
+    UpdateOffenderCaseNoteResponse updateOffenderCaseNote(@ApiParam(value = "The booking id of offender", required = true, example = "1231212") @PathParam("bookingId") Long bookingId,
+                                                          @ApiParam(value = "The case note id", required = true, example = "1212134") @PathParam("caseNoteId") Long caseNoteId,
                                                           @ApiParam(value = "", required = true) UpdateCaseNote body);
 
     @PUT
     @Path("/offenderNo/{offenderNo}/activities/{activityId}/attendance")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Update offender attendance and pay.", notes = "Update offender attendance and pay.", nickname = "updateAttendance")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 201, message = "Attendance data has been updated"),
             @ApiResponse(code = 400, message = "Invalid request - e.g. validation error.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to attend activity.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Resource not found - booking or event does not exist or is not accessible to user.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
-    UpdateAttendanceResponse updateAttendance(@ApiParam(value = "The offenderNo of the prisoner", required = true) @PathParam("offenderNo") String offenderNo,
-                                              @ApiParam(value = "The activity id", required = true) @PathParam("activityId") Long activityId,
-                                              @ApiParam(value = "", required = true) UpdateAttendance body);
+    UpdateAttendanceResponse updateAttendance(@ApiParam(value = "The offenderNo of the prisoner", required = true, example = "A1234AA") @PathParam("offenderNo") String offenderNo,
+                                              @ApiParam(value = "The activity id", required = true, example = "1212131") @PathParam("activityId") Long activityId,
+                                              @ApiParam(value = "", required = true, example = "{eventOutcome = 'ATT', performance = 'ACCEPT' outcomeComment = 'Turned up very late'}") UpdateAttendance updateAttendance);
+
+    @PUT
+    @Path("/{bookingId}/activities/{activityId}/attendance")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Update offender attendance and pay.", notes = "Update offender attendance and pay.", nickname = "updateAttendance")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Attendance data has been updated"),
+            @ApiResponse(code = 400, message = "Invalid request - e.g. validation error.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to attend activity.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Resource not found - booking or event does not exist or is not accessible to user.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
+    UpdateAttendanceResponse updateAttendance(@ApiParam(value = "The booking Id of the prisoner", required = true, example = "213531") @PathParam("bookingId") @NotNull Long bookingId,
+                                              @ApiParam(value = "The activity id", required = true,example = "1212131") @PathParam("activityId") @NotNull Long activityId,
+                                              @ApiParam(value = "", required = true) @NotNull UpdateAttendance body);
 
     @GET
     @Path("/{bookingId}/incidents")

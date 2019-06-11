@@ -89,6 +89,11 @@ Feature: Booking Details
     When an offender booking request is made with booking id "-13"
     Then booking number of offender booking returned is "A00123"
 
+  Scenario: Request for specific offender as global search user can return data even though booking is a different caseload
+    When a user has a token name of "GLOBAL_SEARCH"
+    When an offender booking request is made with booking id "-16"
+    Then booking number of offender booking returned is "A00126"
+
   Scenario: Request for specific offender as user with Inactive Booking Role can return data even though booking is inactive
     When a user has a token name of "INACTIVE_BOOKING_USER"
     When an offender booking request is made with booking id "-13"

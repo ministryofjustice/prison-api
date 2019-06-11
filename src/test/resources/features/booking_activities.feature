@@ -1,3 +1,4 @@
+@wip
 Feature: Booking Activities
 
   Acceptance Criteria
@@ -145,3 +146,7 @@ Feature: Booking Activities
   Scenario: Pay an activity with unauthorised booking id
     When a request is made to update attendance for offender id "A1234AP" and activity "-2" with outcome "ATT", performance "STANDARD" and comment "blah"
     Then resource not found response is received from booking activities API
+
+  Scenario: Pay an activity and reject double payment Booking id -3 has 2 activities scheduled on 2017-09-12 PM with eventId -6 and -7
+    When a request is made to update attendance for booking id "-3" and activity "-7" with outcome "ATT", performance "STANDARD" and comment "blah"
+    Then the booking activity is rejected as offender has already been paid for "Substance misuse course"

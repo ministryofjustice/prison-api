@@ -153,6 +153,11 @@ public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
         bookingActivities.updateAttendance(offenderNo, activityId, outcome, performance, comment);
     }
 
+    @When("^a request is made to update attendance for booking id \"([^\"]*)\" and activity \"([^\"]*)\" with outcome \"([^\"]*)\", performance \"([^\"]*)\" and comment \"([^\"]*)\"$")
+    public void updateAttendance(final Long bookingId, final Long activityId, final String outcome, final String performance, final String comment) throws Throwable {
+        bookingActivities.updateAttendance(bookingId, activityId, outcome, performance, comment);
+    }
+
     @Then("^the booking activities request is successful$")
     public void success() throws Throwable {
         bookingActivities.verifyNoError();

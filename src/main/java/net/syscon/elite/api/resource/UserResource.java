@@ -17,12 +17,13 @@ public interface UserResource {
 
     @DELETE
     @Path("/{username}/caseload/{caseload}/access-role/{roleCode}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Remove the given access role from the user.", notes = "Remove the given access role from the user.", nickname="removeUsersAccessRoleForCaseload")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = ""),
-        @ApiResponse(code = 404, message = "") })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Remove the given access role from the user.", notes = "Remove the given access role from the user.", nickname = "removeUsersAccessRoleForCaseload")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "User role has been removed"),
+            @ApiResponse(code = 404, message = "The role is not recognised or user does not have role on caseload"),
+            @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles")})
     RemoveUsersAccessRoleForCaseloadResponse removeUsersAccessRoleForCaseload(@ApiParam(value = "The username of the user.", required = true) @PathParam("username") String username,
                                                                               @ApiParam(value = "Caseload Id", required = true) @PathParam("caseload") String caseload,
                                                                               @ApiParam(value = "access role code", required = true) @PathParam("roleCode") String roleCode);
@@ -261,23 +262,28 @@ public interface UserResource {
 
     @PUT
     @Path("/{username}/access-role/{roleCode}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Add the given access role to the user.", notes = "Add the given access role to the user.", nickname="addAccessRole")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Add the given access role to the user.", notes = "Add the given access role to the user.", nickname = "addAccessRole")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = ""),
-        @ApiResponse(code = 201, message = "") })
+            @ApiResponse(code = 200, message = "User already has role"),
+            @ApiResponse(code = 201, message = "Role has been successfully added to user"),
+            @ApiResponse(code = 404, message = "The role is not recognised or user cannot access caseload"),
+            @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles"),
+    })
     AddAccessRoleResponse addAccessRole(@ApiParam(value = "The username of the user.", required = true) @PathParam("username") String username,
                                         @ApiParam(value = "access role code", required = true) @PathParam("roleCode") String roleCode);
 
     @PUT
     @Path("/{username}/caseload/{caseload}/access-role/{roleCode}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Add the given access role to the user and caseload.", notes = "Add the given access role to the user and caseload.", nickname="addAccessRoleByCaseload")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Add the given access role to the user and caseload.", notes = "Add the given access role to the user and caseload.", nickname = "addAccessRoleByCaseload")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = ""),
-        @ApiResponse(code = 201, message = "") })
+            @ApiResponse(code = 200, message = "User already has role"),
+            @ApiResponse(code = 201, message = "Role has been successfully added to user"),
+            @ApiResponse(code = 404, message = "The role is not recognised or user cannot access caseload"),
+            @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles")})
     AddAccessRoleByCaseloadResponse addAccessRoleByCaseload(@ApiParam(value = "The username of the user.", required = true) @PathParam("username") String username,
                                                             @ApiParam(value = "Caseload Id", required = true) @PathParam("caseload") String caseload,
                                                             @ApiParam(value = "access role code", required = true) @PathParam("roleCode") String roleCode);

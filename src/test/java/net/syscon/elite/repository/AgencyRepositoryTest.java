@@ -76,6 +76,12 @@ public class AgencyRepositoryTest {
     }
 
     @Test
+    public void testGetAgencyIepLevels() {
+        final var iepLevels = repository.getAgencyIepLevels("LEI");
+        assertThat(iepLevels).extracting("iepDescription").contains("Entry", "Basic", "Standard", "Enhanced");
+    }
+
+    @Test
     public void testGetAgencyByType() {
         final var agencies = repository.getAgenciesByType("INST");
         assertThat(agencies).extracting("agencyId")

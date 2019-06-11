@@ -23,43 +23,43 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Data
 public class AdjudicationDetail {
 
-    @ApiModelProperty("Adjudication Number")
+    @ApiModelProperty(value = "Adjudication Number", example = "1234567")
     private Long adjudicationNumber;
 
-    @ApiModelProperty("Incident Time")
+    @ApiModelProperty(value = "Incident Time", example = "2017-03-17T08:02:00")
     private LocalDateTime incidentTime;
 
-    @ApiModelProperty("Establishment")
+    @ApiModelProperty(value = "Establishment", example = "Moorland (HMP & YOI)")
     private String establishment;
 
     @JsonIgnore
     private String agencyId;
 
-    @ApiModelProperty("Interior Location")
+    @ApiModelProperty(value = "Interior Location", example = "Wing A")
     private String interiorLocation;
 
     @JsonIgnore
     private long internalLocationId;
 
-    @ApiModelProperty("Incident Details")
+    @ApiModelProperty(value = "Incident Details", example = "Whilst conducting an intelligence cell search...")
     private String incidentDetails;
 
-    @ApiModelProperty("Report Number")
+    @ApiModelProperty(value = "Report Number" ,example = "1234567")
     private Long reportNumber;
 
-    @ApiModelProperty("Report Type")
+    @ApiModelProperty(value = "Report Type", example = "Governor's Report")
     private String reportType;
 
-    @ApiModelProperty("Reporter First Name")
+    @ApiModelProperty(value = "Reporter First Name", example = "John")
     private String reporterFirstName;
 
-    @ApiModelProperty("Reporter Last Name")
+    @ApiModelProperty(value = "Reporter Last Name", example = "Smith")
     private String reporterLastName;
 
-    @ApiModelProperty("ReportTime Time")
+    @ApiModelProperty(value = "Report Time", example = "2017-03-17T08:02:00")
     private LocalDateTime reportTime;
 
     @Singular
-    @ApiModelProperty("Hearings")
+    @ApiModelProperty(value = "Hearings")
     private List<Hearing> hearings;
 }

@@ -3,6 +3,7 @@ package net.syscon.elite.repository.impl;
 import com.google.common.annotations.VisibleForTesting;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.IepLevel;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.api.support.Order;
@@ -39,6 +40,9 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
     private static final StandardBeanPropertyRowMapper<Location> LOCATION_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Location.class);
+
+    private static final StandardBeanPropertyRowMapper<IepLevel> IEP_LEVEL_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(IepLevel.class);
 
     @Override
     public Page<Agency> getAgencies(final String orderByField, final Order order, final long offset, final long limit) {
@@ -146,6 +150,21 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                 sql,
                 createParams("agencyId", agencyId, "eventTypes", eventTypes),
                 LOCATION_ROW_MAPPER);
+    }
+
+    @Override
+    public List<IepLevel> getAgencyIepLevels(final String agencyId) {
+        final var initialSql = getQuery("GET_AGENCY_IEP_LEVELS");
+
+
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, IEP_LEVEL_ROW_MAPPER);
+
+        final var sql = builder.build();
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("agencyId", agencyId, "refCodeDomain", "IEP_LEVEL", "activeFlag", "Y"),
+                IEP_LEVEL_ROW_MAPPER);
     }
 
     @Override
