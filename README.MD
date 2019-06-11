@@ -35,6 +35,14 @@ set JAVA_OPTS=-Dspring.profiles.active=nomis-hsqldb
 gradlew bootRun
 ```
 
+#### Health
+
+- `/ping`: will respond `pong` to all requests.  This should be used by dependent systems to check connectivity to auth,
+rather than calling the `/health` endpoint.
+- `/health`: provides information about the application health and its dependencies.  This should only be used
+by auth health monitoring (e.g. pager duty) and not other systems who wish to find out the state of auth.
+- `/info`: provides information about the version of deployed application.
+
 ### Querying a local HSQLDB Database 
 
 The feature tests and repository integration tests create and populate a local in-memory HSQLDB called `nomis-db`.
