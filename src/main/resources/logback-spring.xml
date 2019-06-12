@@ -56,7 +56,7 @@
         <appender-ref ref="aiAppender"/>
     </logger>
 
-    <logger name="com.zaxxer.hikari" additivity="false" level="DEBUG" >
+    <logger name="com.zaxxer.hikari" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
         <appender-ref ref="aiAppender"/>
     </logger>
