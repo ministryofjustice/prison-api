@@ -46,16 +46,16 @@ public class LoggingAspect {
     @Around("loggingPointcut()")
     public Object logAround(final ProceedingJoinPoint joinPoint) throws Throwable {
         final var start = LocalDateTime.now();
-        if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
-            log.debug(
+        if (log.isTraceEnabled() && MdcUtility.isLoggingAllowed()) {
+            log.trace(
                     "Enter: {}.{}()",
                     joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName());
         }
         try {
             final var result = joinPoint.proceed();
-            if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
-                log.debug(
+            if (log.isTraceEnabled() && MdcUtility.isLoggingAllowed()) {
+                log.trace(
                         "Exit: {}.{}() - Duration {} ms",
                         joinPoint.getSignature().getDeclaringTypeName(),
                         joinPoint.getSignature().getName(),

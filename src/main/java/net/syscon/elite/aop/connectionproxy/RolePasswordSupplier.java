@@ -45,7 +45,7 @@ public class RolePasswordSupplier {
     }
 
     private void retrieveRolePassword() {
-        log.debug("Retrieving role password");
+        log.trace("Retrieving role password");
 
         final var encryptedPassword = getEncryptedPassword();
         rolePassword = decryptPassword(encryptedPassword);

@@ -30,7 +30,7 @@ public class RequestAspect {
 
         final var start = LocalDateTime.now();
         if (MdcUtility.isLoggingAllowed()) {
-            log.debug("Enter: {}.{}() with argument[s] = {}",
+            log.trace("Enter: {}.{}() with argument[s] = {}",
                     joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
         }
@@ -38,7 +38,7 @@ public class RequestAspect {
 
         if (MdcUtility.isLoggingAllowed()) {
             final var duration = Duration.between(start, LocalDateTime.now()).toMillis();
-            log.debug("Exit: {}.{}() - Started: {}, Duration: {} ms",
+            log.trace("Exit: {}.{}() - Started: {}, Duration: {} ms",
                     joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), start.format(formatter), duration);
         }
