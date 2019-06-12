@@ -26,18 +26,18 @@ public class ReadOnlyRouteInterceptor {
                 .findFirst()
                 .map(m -> m.getAnnotation(Transactional.class)).orElse(transactional);
 
-        log.debug("Transaction Pointcut: {}.{}() - Transaction Read Only = {}",
+        log.trace("Transaction Pointcut: {}.{}() - Transaction Read Only = {}",
                 proceedingJoinPoint.getSignature().getDeclaringTypeName(),
                 proceedingJoinPoint.getSignature().getName(), tx.readOnly());
         try {
             if (TransactionSynchronizationManager.isActualTransactionActive()) {
-                log.debug("Transaction already active, skipping ...");
+                log.trace("Transaction already active, skipping ...");
             } else {
                 if (tx.readOnly()) {
                     RoutingDataSource.setReplicaRoute();
-                    log.debug("Routing database call to the replica");
+                    log.trace("Routing database call to the replica");
                 } else {
-                    log.debug("Routing database call to the master");
+                    log.trace("Routing database call to the master");
                 }
             }
             return proceedingJoinPoint.proceed();
