@@ -174,7 +174,7 @@ public class MovementsServiceImpl implements MovementsService {
                                                            LocalDateTime fromDateTime, LocalDateTime toDateTime,
                                                            final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents, final boolean movements) {
 
-        String badRequestMsg = checkTransferParameters(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
+        final var badRequestMsg = checkTransferParameters(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
         if (badRequestMsg != null) {
             log.info("Request parameters supplied were not valid - {}", badRequestMsg);
             throw new BadRequestException(badRequestMsg);
@@ -216,7 +216,7 @@ public class MovementsServiceImpl implements MovementsService {
                 .build();
     }
 
-    private String checkTransferParameters(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime,
+    private final String checkTransferParameters(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime,
                                                 final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents,
                                                 final boolean movements) {
 

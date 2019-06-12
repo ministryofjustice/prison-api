@@ -292,7 +292,7 @@ public class MovementsServiceImplTest {
     }
 
     @Test
-    public void testAgenciyEventsInvalidDateRange() {
+    public void testAgencyEventsInvalidDateRange() {
 
         // From time is AFTER the to time
         LocalDateTime from = LocalDateTime.parse("2019-05-01T17:00:00");
