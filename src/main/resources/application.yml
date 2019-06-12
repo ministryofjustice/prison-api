@@ -17,6 +17,8 @@ management:
   endpoints:
     web:
       base-path: /
+      exposure:
+        include: 'info, health, ping'
   endpoint:
     health:
       cache:
