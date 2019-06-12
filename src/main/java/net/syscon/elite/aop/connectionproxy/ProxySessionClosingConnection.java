@@ -24,7 +24,7 @@ public class ProxySessionClosingConnection implements Connection {
     @Override
     public void close() throws SQLException {
         final var oracleConnection = (OracleConnection) wrappedConnection.unwrap(Connection.class);
-        log.debug("Closing proxy connection {}", oracleConnection);
+        log.trace("Closing proxy connection {}", oracleConnection);
         oracleConnection.close(OracleConnection.PROXY_SESSION);
         wrappedConnection.close();
     }

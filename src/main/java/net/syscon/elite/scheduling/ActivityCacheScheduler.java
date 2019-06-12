@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.WhereaboutsEnabledService;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -22,7 +21,8 @@ public class ActivityCacheScheduler {
         this.whereaboutsEnabledService = whereaboutsEnabledService;
     }
 
-    @Scheduled(fixedRate = 10 * 60 * 1000, initialDelay = 30000)
+//    @Scheduled(fixedRate = 10 * 60 * 1000, initialDelay = 30000)
+    // Removed schedule as no long needed, but left in for now just in case...
     public void cacheActivityLocations() {
 
         final var start = System.currentTimeMillis();

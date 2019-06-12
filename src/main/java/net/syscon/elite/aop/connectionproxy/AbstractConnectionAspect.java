@@ -20,15 +20,15 @@ public abstract class AbstractConnectionAspect {
     @Around("onNewConnectionPointcut()")
     public Object connectionAround(final ProceedingJoinPoint joinPoint) throws Throwable {
 
-        if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
-            log.debug("Enter: {}.{}()", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
+        if (log.isTraceEnabled() && MdcUtility.isLoggingAllowed()) {
+            log.trace("Enter: {}.{}()", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
         }
         final var pooledConnection = (Connection) joinPoint.proceed();
         try {
             final var connectionToReturn = openProxySessionIfIdentifiedAuthentication(pooledConnection);
 
-            if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
-                log.debug(
+            if (log.isTraceEnabled() && MdcUtility.isLoggingAllowed()) {
+                log.trace(
                         "Exit: {}.{}()",
                         joinPoint.getSignature().getDeclaringTypeName(),
                         joinPoint.getSignature().getName());
