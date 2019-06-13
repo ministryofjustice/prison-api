@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.v1.Location;
 import net.syscon.elite.repository.impl.RepositoryBase;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.repository.v1.model.LocationInformation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -38,7 +39,7 @@ public class NomisApiV1Repository extends RepositoryBase {
 
         return location.map(locationInformation -> Location.builder()
                         .establishment(new CodeDescription(locationInformation.getAgyLocId(), locationInformation.getAgyLocDesc()))
-                        .housingLocation(new InternalLocation(locationInformation.getHousingLocation(), locationInformation.getHousingLevels()))
+                        .housingLocation(StringUtils.isNotBlank(locationInformation.getHousingLocation()) ? new InternalLocation(locationInformation.getHousingLocation(), locationInformation.getHousingLevels()) : null)
                         .build()
             );
     }

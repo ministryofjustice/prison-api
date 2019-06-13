@@ -1,6 +1,7 @@
 package net.syscon.elite.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Builder
 @EqualsAndHashCode
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Booking {
 
     @JsonIgnore

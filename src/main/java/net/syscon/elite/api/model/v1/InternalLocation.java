@@ -1,5 +1,6 @@
 package net.syscon.elite.api.model.v1;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonPropertyOrder({"description", "levels"})
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class InternalLocation {
 
    final static int MAX_LEVELS = 4;
