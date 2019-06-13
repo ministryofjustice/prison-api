@@ -406,6 +406,8 @@ public class InmateServiceImpl implements InmateService {
                 .assessmentDate(assessmentDto.getAssessmentDate())
                 .cellSharingAlertFlag(assessmentDto.isCellSharingAlertFlag())
                 .nextReviewDate(assessmentDto.getNextReviewDate())
+                .approvalDate(assessmentDto.getApprovalDate())
+                .approvalAgencyId(assessmentDto.getReviewAgencyId())
                 .build();
     }
 

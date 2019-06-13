@@ -29,31 +29,46 @@ public class Assessment {
     private Map<String, Object> additionalProperties;
     
     @NotNull
+    @ApiModelProperty(value = "Booking number.")
     private Long bookingId;
 
     @NotBlank
+    @ApiModelProperty(value = "Offender number (e.g. NOMS Number).")
     private String offenderNo;
 
     @NotBlank
+    @ApiModelProperty(value = "Classification code")
     private String classificationCode;
 
     @NotBlank
+    @ApiModelProperty(value = "Classification description")
     private String classification;
 
     @NotBlank
+    @ApiModelProperty(value = "Identifies the type of assessent", example = "CATEGORY")
     private String assessmentCode;
 
     @NotBlank
+    @ApiModelProperty(value = "Assessment description")
     private String assessmentDescription;
 
     @NotNull
+    @ApiModelProperty(value = "Indicates the presence of a cell sharing alert")
     private boolean cellSharingAlertFlag;
 
     @NotNull
+    @ApiModelProperty(value = "Date assessment was created")
     private LocalDate assessmentDate;
 
     @NotNull
+    @ApiModelProperty(value = "Date of next review")
     private LocalDate nextReviewDate;
+
+    @ApiModelProperty(value = "Date of assessment approval")
+    private LocalDate approvalDate;
+
+    @ApiModelProperty(value = "Agency id for the assessment approval", example = "MDI")
+    private String approvalAgencyId;
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
