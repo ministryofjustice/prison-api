@@ -357,7 +357,7 @@ public class MovementsSteps extends CommonSteps {
 
     public void verifyMovementCount(final int movementCount) {
         if (transferSummary == null || transferSummary.getMovements() == null) {
-            assertThat(0).isEqualTo(movementCount);
+            assertThat(movementCount).isZero();
         } else {
             assertThat(transferSummary.getMovements()).hasSize(movementCount);
         }
@@ -365,7 +365,7 @@ public class MovementsSteps extends CommonSteps {
 
     public void verifyReleaseCount(final int releaseCount) {
         if (transferSummary == null || transferSummary.getReleaseEvents() == null) {
-            assertThat(0).isEqualTo(releaseCount);
+            assertThat(releaseCount).isZero();
         } else {
             assertThat(transferSummary.getReleaseEvents()).hasSize(releaseCount);
         }
@@ -373,7 +373,7 @@ public class MovementsSteps extends CommonSteps {
 
     public void verifyTransferCount(final int transferCount) {
         if (transferSummary == null || transferSummary.getTransferEvents() == null) {
-            assertThat(0).isEqualTo(transferCount);
+            assertThat(transferCount).isZero();
         } else {
             assertThat(transferSummary.getTransferEvents()).hasSize(transferCount);
         }
@@ -381,7 +381,7 @@ public class MovementsSteps extends CommonSteps {
 
     public void verifyCourtCount(final int courtCount) {
         if (transferSummary == null || transferSummary.getCourtEvents() == null) {
-            assertThat(0).isEqualTo(courtCount);
+            assertThat(courtCount).isZero();
         } else {
             assertThat(transferSummary.getCourtEvents()).hasSize(courtCount);
         }
@@ -392,7 +392,7 @@ public class MovementsSteps extends CommonSteps {
         if (er != null) {
             assertThat(er.getStatus().intValue()).isEqualTo(responseCode);
         } else {
-            assertThat(200).isEqualTo(responseCode);
+            assertThat(responseCode).isEqualTo(200);
         }
     }
 

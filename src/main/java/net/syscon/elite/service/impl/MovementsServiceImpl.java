@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
@@ -221,7 +222,7 @@ public class MovementsServiceImpl implements MovementsService {
                                                 final boolean movements) {
 
         // Needs at least one agency ID specified
-        if (agencyIds == null || agencyIds.size() < 1) {
+        if (CollectionUtils.isEmpty(agencyIds)) {
             return "No agency location identifiers were supplied";
         }
 

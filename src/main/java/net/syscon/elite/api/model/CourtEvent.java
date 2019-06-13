@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -19,62 +18,60 @@ import java.time.LocalDateTime;
 @Data
 public class CourtEvent {
 
-    @NotBlank
-    @ApiModelProperty(required = true, value = "Offender number (NOMS ID)")
+    @ApiModelProperty(required = true, value = "Offender number (NOMS ID)", example = "G3878UK")
     private String offenderNo;
 
-    @NotBlank
-    @ApiModelProperty(required = true, value = "Date and time the record was created")
+    @ApiModelProperty(required = true, value = "Date and time the record was created", example = "2019-12-01T13:34:00.000Z")
     private LocalDateTime createDateTime;
 
-    @ApiModelProperty(required = true, value = "The internal event ID")
+    @ApiModelProperty(required = true, value = "The internal event ID", example = "12343434")
     private Long eventId;
 
-    @ApiModelProperty(required = true, value = "The agency code from which the release will be made")
+    @ApiModelProperty(required = true, value = "The agency code ", example = "LEI")
     private String fromAgency;
 
-    @ApiModelProperty(required = true, value = "The from agency description")
+    @ApiModelProperty(required = true, value = "The from agency description", example = "HMP LEEDS")
     private String fromAgencyDescription;
 
-    @ApiModelProperty(required = true, value = "The agency code to which the transfer will be made (if an agency)")
+    @ApiModelProperty(required = true, value = "The agency code to which the transfer will be made (if an agency)", example = "LEEDSCC")
     private String toAgency;
 
-    @ApiModelProperty(required = true, value = "The to agency description")
+    @ApiModelProperty(required = true, value = "The to agency description", example = "Leeds Crown Court")
     private String toAgencyDescription;
 
-    @ApiModelProperty(required = true, value = "The date on which the event is scheduled to occur")
+    @ApiModelProperty(required = true, value = "The date on which the event is scheduled to occur", example = "2019-12-01")
     private LocalDate eventDate;
 
-    @ApiModelProperty(required = true, value = "The planned date and time of the start of the event")
+    @ApiModelProperty(required = true, value = "The planned date and time of the start of the event", example = "2019-12-01T14:00:00.000Z")
     private LocalDateTime startTime;
 
-    @ApiModelProperty(required = true, value = "The planned date and time of the end of the event")
+    @ApiModelProperty(required = true, value = "The planned date and time of the end of the event", example = "2019-12-01T14:40:00.000Z")
     private LocalDateTime endTime;
 
-    @ApiModelProperty(required = true, value = "The event class (from COURT_EVENTS)")
+    @ApiModelProperty(required = true, value = "The event class (from COURT_EVENTS)", example = "EXT_MOV")
     private String eventClass;
 
-    @ApiModelProperty(required = true, value = "The event type - always CRT")
+    @ApiModelProperty(required = true, value = "The event type", example = "CRT")
     private String eventType;
 
-    @ApiModelProperty(required = true, value = "The event sub-type (from COURT_EVENT_TYPE)")
+    @ApiModelProperty(required = true, value = "The event sub-type", example = "DP")
     private String eventSubType;
 
-    @ApiModelProperty(required = true, value = "The event status - either SCH (scheduled) or COMP (completed)")
+    @ApiModelProperty(required = true, value = "The event status - either SCH (scheduled) or COMP (completed)", example = "SCH")
     private String eventStatus;
 
-    @ApiModelProperty(required = true, value = "Judge name, where available")
+    @ApiModelProperty(required = true, value = "Judge name, where available", example = "Harris")
     private String judgeName;
 
-    @ApiModelProperty(required = true, value = "The direction code (IN or OUT)")
+    @ApiModelProperty(required = true, value = "The direction code (IN or OUT)", example = "IN")
     private String directionCode;
 
-    @ApiModelProperty(required = true, value = "The comment text stored against this event")
+    @ApiModelProperty(required = true, value = "The comment text stored against this event", example = "Restricted access to parking level")
     private String commentText;
 
-    @ApiModelProperty(required = true, value = "The booking active flag - either Y or N from offender bookings")
-    private String bookingActiveFlag;
+    @ApiModelProperty(required = true, value = "The booking active flag", example = "true")
+    private boolean bookingActiveFlag;
 
-    @ApiModelProperty(required = true, value = "The booking in or out status - either IN or OUT")
+    @ApiModelProperty(required = true, value = "The booking in or out status - either IN or OUT", example = "OUT")
     private String bookingInOutStatus;
 }
