@@ -41,10 +41,10 @@ public class CategoryApprovalDetail {
     @ApiModelProperty(value = "Overall comment")
     private String committeeCommentText;
 
-    @ApiModelProperty(value = "Prison which the prisoner should go to")
+    @Deprecated
     private String reviewPlacementAgencyId;
 
-    @ApiModelProperty(value = "Approved placement comment")
+    @Deprecated
     private String reviewPlacementText;
 
     @ApiModelProperty(value = "Next review date (date of recategorisation, remains unchanged if not provided)")

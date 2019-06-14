@@ -134,15 +134,30 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2), false);
     }
 
-    @When("^a request is made to retrieve movements involving agencies \"([^\"]*)\" and \"([^\"]*)\" between \"([^\"]*)\" and \"([^\"]*)\"$")
+    @When("^a request is made to retrieve events involving agencies \"([^\"]*)\" and \"([^\"]*)\" between \"([^\"]*)\" and \"([^\"]*)\"$")
     public void aRequestIsMadeToRetrieveMovementsForAgencies(final String agency1, final String agency2, final String fromTime, final String toTime) throws Throwable {
         final var agencies = List.of(agency1,agency2);
         movementsSteps.getMovementsForAgencies(agencies, fromTime, toTime);
     }
 
     @Then("^the response should contain \"([^\"]*)\" movements$")
-    public void movementCountCheck(final String responseCount) {
-        movementsSteps.verifyAgencyMovementCount(Integer.parseInt(responseCount));
+    public void movementCountCheck(final String movementCount) {
+        movementsSteps.verifyMovementCount(Integer.parseInt(movementCount));
+    }
+
+    @And("^the response should contain \"([^\"]*)\" court events$")
+    public void courtCountCheck(final String courtCount) {
+        movementsSteps.verifyCourtCount(Integer.parseInt(courtCount));
+    }
+
+    @And("^the response should contain \"([^\"]*)\" release events$")
+    public void releaseCountCheck(final String releaseCount) {
+        movementsSteps.verifyReleaseCount(Integer.parseInt(releaseCount));
+    }
+
+    @And("^the response should contain \"([^\"]*)\" transfer events$")
+    public void transferCountCheck(final String transferCount) {
+        movementsSteps.verifyTransferCount(Integer.parseInt(transferCount));
     }
 
     @And("^the response code should be \"([^\"]*)\"$")
@@ -155,3 +170,4 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.verifyErrorResponse(Boolean.parseBoolean(errorResponsePresent));
     }
 }
+
