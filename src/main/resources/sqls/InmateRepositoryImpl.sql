@@ -543,8 +543,6 @@ APPROVE_CATEGORY {
     REVIEW_SUP_LEVEL_TYPE=:category,
     REVIEW_COMMITTE_CODE=:reviewCommitteeCode,
     COMMITTE_COMMENT_TEXT=:committeeCommentText,
-    REVIEW_PLACE_AGY_LOC_ID=:reviewPlacementAgencyId,
-    REVIEW_PLACEMENT_TEXT=:reviewPlacementText,
     NEXT_REVIEW_DATE=COALESCE(:nextReviewDate, NEXT_REVIEW_DATE),
     REVIEW_SUP_LEVEL_TEXT=:approvedCategoryComment,
     MODIFY_USER_ID=:userId,
