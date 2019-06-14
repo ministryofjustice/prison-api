@@ -11,6 +11,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 @Service
 @Transactional(readOnly = true)
 @PreAuthorize("hasRole('NOMIS_API_V1')")
@@ -42,4 +45,9 @@ public class NomisApiV1Service {
                 .orElseThrow(EntityNotFoundException.withId(nomsId));
     }
 
+    @Transactional
+    public String createTransaction(String prisonId, String nomsId, String type, String description, BigDecimal amountInPounds, LocalDate txDate, String txId, String uniqueClientId) {
+
+        return dao.postTransaction(prisonId, nomsId, type, description, amountInPounds, txDate, txId, uniqueClientId);
+    }
 }

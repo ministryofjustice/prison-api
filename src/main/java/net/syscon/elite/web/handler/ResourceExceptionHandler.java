@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.OperationResponse;
 import net.syscon.elite.service.*;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.access.AccessDeniedException;
@@ -61,6 +62,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             userMessage = ex.getMessage();
             log.warn("Insufficient privileges to access resource.", ex);
         } else if (ex instanceof InvalidDataAccessApiUsageException) {
+            status = Response.Status.BAD_REQUEST.getStatusCode();
+            userMessage = ex.getMessage();
+            log.info(userMessage);
+        } else if (ex instanceof DuplicateKeyException) {
             status = Response.Status.BAD_REQUEST.getStatusCode();
             userMessage = ex.getMessage();
             log.info(userMessage);

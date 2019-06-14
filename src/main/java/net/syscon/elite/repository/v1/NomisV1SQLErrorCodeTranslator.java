@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.v1;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
@@ -76,7 +77,7 @@ public class NomisV1SQLErrorCodeTranslator extends SQLErrorCodeSQLExceptionTrans
         SQL_EXCEPTION_MAP.put(20016, new InvalidDataAccessApiUsageException(NO_VO_PVO_BALANCE));
         SQL_EXCEPTION_MAP.put(20017, new InvalidDataAccessApiUsageException(NOT_IN_SPECIFIED_PRISON));
         SQL_EXCEPTION_MAP.put(20018, new InvalidDataAccessApiUsageException(INVALID_TRANSACTION_TYPE));
-        SQL_EXCEPTION_MAP.put(20019, new InvalidDataAccessApiUsageException(DUPLICATE_POST));
+        SQL_EXCEPTION_MAP.put(20019, new DuplicateKeyException(DUPLICATE_POST));
         SQL_EXCEPTION_MAP.put(20020, new InvalidDataAccessApiUsageException(SUB_ACCNT_NOT_EXIST));
         SQL_EXCEPTION_MAP.put(20021, new InvalidDataAccessApiUsageException(NO_SUB_ACCT_BALANCE));
         SQL_EXCEPTION_MAP.put(20022, new InvalidDataAccessApiUsageException(HOLD_AMOUNT_NOT_EXCEED));
