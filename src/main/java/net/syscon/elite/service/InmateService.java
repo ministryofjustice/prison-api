@@ -38,8 +38,6 @@ public interface InmateService {
 	List<Assessment> getAssessments(Long bookingId);
 	Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode);
     List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean latestOnly);
-	List<OffenderCategorise> getUncategorised(String agencyId);
-	List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutOffDate);
 	List<OffenderCategorise> getCategory(String agencyId, CategoryInformationType type, LocalDate cutOffDate);
 	List<OffenderCategorise> getOffenderCategorisations(String agencyId, Set<Long> bookingIds);
 

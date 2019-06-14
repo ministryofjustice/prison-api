@@ -102,7 +102,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
     private final StandardBeanPropertyRowMapper<Language> LANGUAGE_MAPPER = new StandardBeanPropertyRowMapper<>(Language.class);
     private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
-    private final StandardBeanPropertyRowMapper<OffenderCategorise> UNCATEGORISED_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderCategorise.class);
+    private final StandardBeanPropertyRowMapper<OffenderCategorise> OFFENDER_CATEGORY_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderCategorise.class);
 
     private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
@@ -464,7 +464,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var rawData = jdbcTemplate.query(
                 getQuery("GET_UNCATEGORISED"),
                 createParams("agencyId", agencyId, "assessmentId", getCategoryAssessmentId()),
-                UNCATEGORISED_MAPPER);
+                OFFENDER_CATEGORY_MAPPER);
 
         return applyCategorisationRestrictions(rawData);
     }
@@ -477,7 +477,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "cutOffDate", DateTimeConverter.toDate(cutoffDate),
                         "assessStatus", "A",
                         "assessmentId", getCategoryAssessmentId()),
-                UNCATEGORISED_MAPPER);
+                OFFENDER_CATEGORY_MAPPER);
 
         return removeEarlierCategorisations(rawData);
     }
@@ -490,7 +490,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "cutOffDate", DateTimeConverter.toDate(cutoffDate),
                         "assessStatus", "A",
                         "assessmentId", getCategoryAssessmentId()),
-                UNCATEGORISED_MAPPER);
+                OFFENDER_CATEGORY_MAPPER);
 
         return data;
     }
@@ -502,7 +502,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 createParams("bookingIds", bookingIds,
                         "agencyId", agencyId,
                         "assessmentId", getCategoryAssessmentId()),
-                UNCATEGORISED_MAPPER);
+                OFFENDER_CATEGORY_MAPPER);
 
         return removeEarlierCategorisations(rawData);
     }
@@ -675,8 +675,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "evaluationResultCode", "APP", // or 'REJ'
                         "reviewCommitteeCode", detail.getReviewCommitteeCode(),
                         "committeeCommentText", detail.getCommitteeCommentText(),
-                        "reviewPlacementAgencyId", detail.getReviewPlacementAgencyId(),
-                        "reviewPlacementText", detail.getReviewPlacementText(),
                         "nextReviewDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getNextReviewDate())),
                         "approvedCategoryComment", detail.getApprovedCategoryComment(),
                         "userId", currentUser.getUsername(),
