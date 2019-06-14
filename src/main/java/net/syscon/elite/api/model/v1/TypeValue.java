@@ -12,9 +12,9 @@ import lombok.*;
 @EqualsAndHashCode
 public class TypeValue {
 
-   @ApiModelProperty(value = "Type", position = 0, example = "Wing")
-   private String type;
+    @ApiModelProperty(value = "Type", position = 0, example = "Wing")
+    private String type;
 
-   @ApiModelProperty(value = "Value", position = 1, example = "C")
-   private String value;
+    @ApiModelProperty(value = "Value", position = 1, example = "C")
+    private String value;
 }

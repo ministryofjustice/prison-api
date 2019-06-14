@@ -16,22 +16,22 @@ import lombok.ToString;
 @Builder
 public class CodeDescription {
 
-   @ApiModelProperty(value = "Code", position = 0)
-   private final String code;
+    @ApiModelProperty(value = "Code", position = 0)
+    private final String code;
 
-   @ApiModelProperty(value = "Description", position = 1)
-   private String desc;
+    @ApiModelProperty(value = "Description", position = 1)
+    private String desc;
 
-   @JsonCreator
-   public CodeDescription(@JsonProperty("code") String code, @JsonProperty("desc") String desc) {
-      super();
-      this.code = code;
-      this.desc = desc;
-   }
+    @JsonCreator
+    public CodeDescription(@JsonProperty("code") String code, @JsonProperty("desc") String desc) {
+        super();
+        this.code = code;
+        this.desc = desc;
+    }
 
-   public CodeDescription(String code) {
-      super();
-      this.code = code;
-   }
+    public CodeDescription(String code) {
+        super();
+        this.code = code;
+    }
 
 }

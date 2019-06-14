@@ -19,21 +19,20 @@ import java.util.List;
 @ToString
 public class LegalCase {
 
-   @JsonIgnore
-   private Long caseId;
-   @JsonProperty("case_info_number")
-   private String caseInfoNumber;
-   @JsonProperty("case_started")
-   private LocalDate beginDate;
-   @JsonProperty("case_active")
-   private boolean caseActive;
-   @JsonProperty("court")
-   private CodeDescription court;
-   @JsonProperty("legal_case_type")
-   private CodeDescription caseType;
-   @JsonProperty("charges")
-   List<Charge> charges;
-
+    @JsonProperty("charges")
+    List<Charge> charges;
+    @JsonIgnore
+    private Long caseId;
+    @JsonProperty("case_info_number")
+    private String caseInfoNumber;
+    @JsonProperty("case_started")
+    private LocalDate beginDate;
+    @JsonProperty("case_active")
+    private boolean caseActive;
+    @JsonProperty("court")
+    private CodeDescription court;
+    @JsonProperty("legal_case_type")
+    private CodeDescription caseType;
 
 
 }

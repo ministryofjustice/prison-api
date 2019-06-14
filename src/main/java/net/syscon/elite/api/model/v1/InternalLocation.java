@@ -20,31 +20,30 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InternalLocation {
 
-   final static int MAX_LEVELS = 4;
+    final static int MAX_LEVELS = 4;
 
-   @ApiModelProperty(value = "Description", position = 0, example = "BMI-C-2-03")
-   @JsonProperty("description")
-   private String description;
+    @ApiModelProperty(value = "Description", position = 0, example = "BMI-C-2-03")
+    @JsonProperty("description")
+    private String description;
 
-   @ApiModelProperty(value = "Levels", position = 1)
-   @JsonProperty("levels")
-   private List<TypeValue> levels;
+    @ApiModelProperty(value = "Levels", position = 1)
+    @JsonProperty("levels")
+    private List<TypeValue> levels;
 
-   public InternalLocation(String description, String levelStr) {
-      this.description = description;
-      if (levelStr != null) {
-         this.levels = new ArrayList<>();
-         for (String level :levelStr.split("\\|", MAX_LEVELS)) {
-            String[] tv = level.split(",");
-            if (tv.length == 2) {
-               this.levels.add(new TypeValue(tv[0],tv[1]));
-            } else {
-               throw new RuntimeException("Badly formed levelStr:" + levelStr);
+    public InternalLocation(String description, String levelStr) {
+        this.description = description;
+        if (levelStr != null) {
+            this.levels = new ArrayList<>();
+            for (String level : levelStr.split("\\|", MAX_LEVELS)) {
+                String[] tv = level.split(",");
+                if (tv.length == 2) {
+                    this.levels.add(new TypeValue(tv[0], tv[1]));
+                } else {
+                    throw new RuntimeException("Badly formed levelStr:" + levelStr);
+                }
             }
-         }
-      }
-   }
-
+        }
+    }
 
 
 }

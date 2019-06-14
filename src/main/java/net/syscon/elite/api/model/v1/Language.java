@@ -18,12 +18,11 @@ import lombok.*;
 @ToString
 public class Language {
 
-   @JsonProperty("preferred_spoken")
-   private CodeDescription spokenLanguage;
+    @JsonProperty("preferred_spoken")
+    private CodeDescription spokenLanguage;
 
-   @JsonProperty("interpreter_required")
-   private Boolean interpreterRequired;
-
+    @JsonProperty("interpreter_required")
+    private Boolean interpreterRequired;
 
 
 }

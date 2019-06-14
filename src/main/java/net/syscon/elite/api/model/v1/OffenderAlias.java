@@ -17,16 +17,16 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @ToString
 public class OffenderAlias {
-   
-   @JsonProperty("given_name")
-	private String givenName;
-   
-   @JsonProperty("middle_names")
-	private String middleNames;
-   
-   @JsonProperty("surname")
-	private String surname;
-	
-	@JsonProperty("date_of_birth")
-	private LocalDate birthDate;
+
+    @JsonProperty("given_name")
+    private String givenName;
+
+    @JsonProperty("middle_names")
+    private String middleNames;
+
+    @JsonProperty("surname")
+    private String surname;
+
+    @JsonProperty("date_of_birth")
+    private LocalDate birthDate;
 }
