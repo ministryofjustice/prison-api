@@ -20,9 +20,17 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     }
 
     @Override
+    public OffenderResponse getOffender(@NotNull String nomsId) {
+        return new OffenderResponse(Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON).build(), service.getOffender(nomsId));
+
+    }
+
+    @Override
     public LatestBookingLocationResponse getLatestBookingLocation(@NotNull String nomsId) {
         return new LatestBookingLocationResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(), service.getLatestBookingLocation(nomsId));
 
     }
+
 }

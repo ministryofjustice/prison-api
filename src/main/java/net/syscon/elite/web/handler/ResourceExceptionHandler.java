@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.OperationResponse;
 import net.syscon.elite.service.*;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 
@@ -46,6 +48,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.NOT_FOUND.getStatusCode();
             userMessage = ex.getMessage();
             log.info(userMessage);
+        } else if (ex instanceof EmptyResultDataAccessException) {
+            status = Response.Status.NOT_FOUND.getStatusCode();
+            userMessage = ex.getMessage();
+            log.info(userMessage);
         } else if (ex instanceof EntityAlreadyExistsException) {
             status = Response.Status.CONFLICT.getStatusCode();
             userMessage = ex.getMessage();
@@ -54,6 +60,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.FORBIDDEN.getStatusCode();
             userMessage = ex.getMessage();
             log.warn("Insufficient privileges to access resource.", ex);
+        } else if (ex instanceof InvalidDataAccessApiUsageException) {
+            status = Response.Status.BAD_REQUEST.getStatusCode();
+            userMessage = ex.getMessage();
+            log.info(userMessage);
         } else if (ex instanceof ConstraintViolationException) {
             status = Response.Status.BAD_REQUEST.getStatusCode();
             developerMessage = ex.toString();
