@@ -1,6 +1,9 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.CourtEvent;
+import net.syscon.elite.api.model.TransferEvent;
+import net.syscon.elite.api.model.ReleaseEvent;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,5 +45,11 @@ public interface MovementsRepository {
      */
     List<OffenderOut> getOffendersCurrentlyOut(String agencyId);
 
-    List<Movement> getTransferMovementsForAgencies(List<String> agencies, LocalDateTime from, LocalDateTime to);
+    List<MovementSummary> getCompletedMovementsForAgencies(List<String> agencies, LocalDateTime from, LocalDateTime to);
+
+    List<CourtEvent> getCourtEvents(List<String> agencies, LocalDateTime from, LocalDateTime to);
+
+    List<TransferEvent> getOffenderTransfers(List<String> agencies, LocalDateTime from, LocalDateTime to);
+
+    List<ReleaseEvent> getOffenderReleases(List<String> agencies, LocalDateTime from, LocalDateTime to);
 }

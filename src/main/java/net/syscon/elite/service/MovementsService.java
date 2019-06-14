@@ -30,5 +30,6 @@ public interface MovementsService {
 
     List<OffenderOut> getOffendersCurrentlyOut(String agencyId);
 
-    List<Movement> getTransferMovementsForAgencies(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime);
+    TransferSummary getTransferMovementsForAgencies(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime,
+                                                          boolean courtEvents, boolean releaseEvents, boolean transferEvents, boolean movements);
 }
