@@ -35,6 +35,13 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     }
 
     @Override
+    public OffenderImageResponse getOffenderImage(@NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId) {
+        return new OffenderImageResponse(Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON).build(), service.getOffenderImage(nomsId));
+
+    }
+
+    @Override
     public LatestBookingLocationResponse getLatestBookingLocation(@NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId) {
         return new LatestBookingLocationResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(), service.getLatestBookingLocation(nomsId));

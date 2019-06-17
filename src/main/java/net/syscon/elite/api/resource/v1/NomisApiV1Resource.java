@@ -2,10 +2,7 @@ package net.syscon.elite.api.resource.v1;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.v1.CreateTransaction;
-import net.syscon.elite.api.model.v1.Location;
-import net.syscon.elite.api.model.v1.Offender;
-import net.syscon.elite.api.model.v1.TransactionResponse;
+import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.support.ResponseDelegate;
 import org.hibernate.validator.constraints.Length;
 
@@ -35,6 +32,25 @@ public interface NomisApiV1Resource {
     class OffenderResponse extends ResponseDelegate {
         public OffenderResponse(final Response response, final Offender location) {
             super(response, location);
+        }
+    }
+
+    @GET
+    @Path("/offenders/{nomsId}/image")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get Current Photograph of the offender",
+            notes = "Returns a 480wx600h JPEG photograph of the offender. The data is base64 encoded within the image key.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Image.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    OffenderImageResponse getOffenderImage(@ApiParam(value = "nomsId", example = "A1417AE", required = true) @PathParam("nomsId") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
+
+    class OffenderImageResponse extends ResponseDelegate {
+        public OffenderImageResponse(final Response response, final Image image) {
+            super(response, image);
         }
     }
 

@@ -1,10 +1,8 @@
 package net.syscon.elite.service.v1;
 
-import net.syscon.elite.api.model.v1.CodeDescription;
-import net.syscon.elite.api.model.v1.InternalLocation;
-import net.syscon.elite.api.model.v1.Location;
-import net.syscon.elite.api.model.v1.Offender;
-import net.syscon.elite.repository.v1.NomisApiV1Repository;
+import net.syscon.elite.api.model.v1.*;
+import net.syscon.elite.repository.v1.BookingV1Repository;
+import net.syscon.elite.repository.v1.OffenderV1Repository;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,14 +17,17 @@ import java.time.LocalDate;
 @PreAuthorize("hasRole('NOMIS_API_V1')")
 public class NomisApiV1Service {
 
-    private final NomisApiV1Repository dao;
+    private final BookingV1Repository bookingV1Repository;
+    private final OffenderV1Repository offenderV1Repository;
 
-    public NomisApiV1Service(NomisApiV1Repository dao) {
-        this.dao = dao;
+    public NomisApiV1Service(BookingV1Repository bookingV1Repository, OffenderV1Repository offenderV1Repository) {
+        this.bookingV1Repository = bookingV1Repository;
+        this.offenderV1Repository = offenderV1Repository;
     }
 
+
     public Location getLatestBookingLocation(final String nomsId) {
-        return dao.getLatestBooking(nomsId)
+        return bookingV1Repository.getLatestBooking(nomsId)
                 .map(l -> Location.builder()
                         .establishment(new CodeDescription(l.getAgyLocId(), l.getAgyLocDesc()))
                         .housingLocation(StringUtils.isNotBlank(l.getHousingLocation()) ? new InternalLocation(l.getHousingLocation(), l.getHousingLevels()) : null)
@@ -35,7 +36,7 @@ public class NomisApiV1Service {
     }
 
     public Offender getOffender(final String nomsId) {
-        return dao.getOffender(nomsId)
+        return offenderV1Repository.getOffender(nomsId)
                 .map(o -> Offender.builder()
                         .givenName(o.getFirstName())
                         .middleNames(o.getMiddleNames())
@@ -48,6 +49,10 @@ public class NomisApiV1Service {
     @Transactional
     public String createTransaction(String prisonId, String nomsId, String type, String description, BigDecimal amountInPounds, LocalDate txDate, String txId, String uniqueClientId) {
 
-        return dao.postTransaction(prisonId, nomsId, type, description, amountInPounds, txDate, txId, uniqueClientId);
+        return bookingV1Repository.postTransaction(prisonId, nomsId, type, description, amountInPounds, txDate, txId, uniqueClientId);
+    }
+
+    public Image getOffenderImage(final String nomsId) {
+        return offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
     }
 }
