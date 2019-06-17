@@ -19,7 +19,7 @@ public class AssessmentDto {
     private LocalDate nextReviewDate;
     private String reviewSupLevelType;
     private String reviewSupLevelTypeDesc;
-    private String reviewAgencyId;
+    private String assessmentCreateLocation;
     private LocalDate approvalDate;
     private String overridedSupLevelType;
     private String overridedSupLevelTypeDesc;

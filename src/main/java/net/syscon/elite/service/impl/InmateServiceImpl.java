@@ -369,8 +369,12 @@ public class InmateServiceImpl implements InmateService {
 
                 for (final var assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
 
-                    // The first is the most recent date / seq for each booking where cellSharingAlertFlag = Y
-                    results.add(createAssessment(assessmentForBooking.get(0)));
+                    if(latestOnly){
+                        // The first is the most recent date / seq for each booking where cellSharingAlertFlag = Y
+                        results.add(createAssessment(assessmentForBooking.get(0)));
+                    }else {
+                        assessmentForBooking.forEach(assessment -> results.add(createAssessment(assessment)));
+                    }
                 }
             });
         }
@@ -407,7 +411,7 @@ public class InmateServiceImpl implements InmateService {
                 .cellSharingAlertFlag(assessmentDto.isCellSharingAlertFlag())
                 .nextReviewDate(assessmentDto.getNextReviewDate())
                 .approvalDate(assessmentDto.getApprovalDate())
-                .approvalAgencyId(assessmentDto.getReviewAgencyId())
+                .assessmentAgencyId(assessmentDto.getAssessmentCreateLocation())
                 .build();
     }
 

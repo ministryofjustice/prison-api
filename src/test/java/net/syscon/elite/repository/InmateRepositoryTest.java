@@ -686,7 +686,7 @@ public class InmateRepositoryTest {
         list.sort(Comparator.comparing(AssessmentDto::getOffenderNo).thenComparing(AssessmentDto::getBookingId));
         assertThat(list).extracting("offenderNo", "bookingId", "assessmentCode",
                 "assessmentDescription", "assessmentDate", "assessmentSeq", "nextReviewDate",
-                "reviewSupLevelType", "reviewSupLevelTypeDesc", "reviewAgencyId", "approvalDate", "overridedSupLevelType", "overridedSupLevelTypeDesc",
+                "reviewSupLevelType", "reviewSupLevelTypeDesc", "assessmentCreateLocation", "approvalDate", "overridedSupLevelType", "overridedSupLevelTypeDesc",
                 "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
 
         ).containsExactlyInAnyOrder(

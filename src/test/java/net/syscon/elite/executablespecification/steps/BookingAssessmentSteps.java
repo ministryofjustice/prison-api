@@ -181,7 +181,7 @@ public class BookingAssessmentSteps extends CommonSteps {
     }
 
     public void verifyCsra(final boolean csra) {
-        assertThat(assessment.getCellSharingAlertFlag()).isEqualTo(csra);
+        assertThat(assessment.isCellSharingAlertFlag()).isEqualTo(csra);
     }
 
     public void verifyNextReviewDate(final String nextReviewDate) {
@@ -218,10 +218,11 @@ public class BookingAssessmentSteps extends CommonSteps {
     public void verifyMultipleCategoryAssessments() {
         verifyNoError();
         assertThat(assessments).asList()
-                .extracting("bookingId", "offenderNo", "classification", "assessmentCode", "nextReviewDate")
-                .containsExactlyInAnyOrder(tuple(-6L, "A1234AF", "Cat C", "CATEGORY", LocalDate.of(2018, Month.JUNE, 7)),
-                        tuple(-48L, "A1234AF", "Cat A", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8)),
-                        tuple(-5L, "A1234AE", "Unclass", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8)));
+                .extracting("bookingId", "offenderNo", "classification", "assessmentCode", "nextReviewDate", "assessmentAgencyId", "assessmentDate", "approvalDate")
+                .containsExactlyInAnyOrder(tuple(-6L, "A1234AF", "Cat C", "CATEGORY", LocalDate.of(2018, Month.JUNE, 7), null, LocalDate.of(2017, Month.APRIL, 4), null),
+                        tuple(-48L, "A1234AF", "Cat A", "CATEGORY", LocalDate.of(2016, Month.AUGUST, 8), "LEI", LocalDate.of(2016, Month.APRIL, 4), LocalDate.of(2016, Month.JULY, 7)),
+                        tuple(-48L, "A1234AF", "Cat B", "CATEGORY", LocalDate.of(2018, Month.MAY, 8), "MDI", LocalDate.of(2016, Month.MAY, 4), LocalDate.of(2016, Month.MAY, 9)),
+                        tuple(-5L, "A1234AE", "Unclass", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8), null, LocalDate.of(2016, Month.APRIL, 4), null ));
     }
 
     public void getUncategorisedOffenders(final String agencyId) {
