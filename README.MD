@@ -24,6 +24,16 @@
 * Database configuration
   To connect the application to a database, change the configurations in your configuration profile file, for example in mobile-dev.yml.
 
+### Checkstyle
+
+A pre-commit hook runs checkstyle on each staged file at commit. Any errors will result in the commit being aborted.
+
+The [CheckStyle-IDEA](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea) plugin can be used to detect issues in real-time whilst developing.
+
+Need to point the plugin to same checkstyle configuration file: `checkstyle/checks.xml` via: 'preferences' -> 'Other Settings' -> 'checkstyle'
+
+It will then underline errors in red as they occur.
+
 ### How to run the Application? ###
 
 1) Run `net.syscon.elite.Elite2ApiServer` using spring boot profile `nomis-hsqldb`
@@ -132,4 +142,4 @@ To run all feature tests in IntelliJ, avoiding known @wip or @broken tests, add 
 ### Project related links ###
 * [GitHub](https://github.com/ministryofjustice/elite2-api)
 * [Old location - BitBucket](https://bitbucket.org/cool_syscon_team/mobile)
-* [CircleCi](https://circleci.com/bb/cool_syscon_team)
+* [CircleCi](https://circleci.com/gh/ministryofjustice/elite2-api)
