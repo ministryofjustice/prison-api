@@ -32,7 +32,11 @@ public abstract class RepositoryBase  {
 	@PostConstruct
 	public void initSql() {
 		sqlProvider.loadSql(getClass().getSimpleName().replace('.', '/'));
-		((JdbcTemplate)jdbcTemplate.getJdbcOperations()).setFetchSize(fetchSize);
+		getJdbcTemplateBase().setFetchSize(fetchSize);
+	}
+
+	public JdbcTemplate getJdbcTemplateBase() {
+		return ((JdbcTemplate)jdbcTemplate.getJdbcOperations());
 	}
 
     protected MapSqlParameterSource createParams(final Object... params) {

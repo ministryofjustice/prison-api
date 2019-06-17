@@ -752,8 +752,6 @@ public class InmateRepositoryTest {
                 .approvedCategoryComment("My comment")
                 .reviewCommitteeCode("REVIEW")
                 .committeeCommentText("committeeCommentText")
-                .reviewPlacementAgencyId("MDI")
-                .reviewPlacementText("reviewPlacementText")
                 .nextReviewDate(LocalDate.of(2019, 7, 24))
                 .build();
 
@@ -772,10 +770,8 @@ public class InmateRepositoryTest {
                         extractString("ASSESS_STATUS"),
                         extractString("REVIEW_SUP_LEVEL_TEXT"),
                         extractString("COMMITTE_COMMENT_TEXT"),
-                        extractString("REVIEW_PLACE_AGY_LOC_ID"),
-                        extractString("REVIEW_PLACEMENT_TEXT"),
                         extractString("MODIFY_USER_ID"))
-                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText", "MDI", "reviewPlacementText", "KDOG")
+                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText", "KDOG")
                 );
         assertThat((Date) results.get(0).get("MODIFY_DATETIME")).isToday();
         assertThat((Timestamp) results.get(0).get("EVALUATION_DATE")).isNull();

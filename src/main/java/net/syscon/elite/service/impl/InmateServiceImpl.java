@@ -417,20 +417,6 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     @VerifyAgencyAccess
-    @Deprecated
-    public List<OffenderCategorise> getUncategorised(final String agencyId) {
-        return repository.getUncategorised(agencyId);
-    }
-
-    @Override
-    @VerifyAgencyAccess
-    @Deprecated
-    public List<OffenderCategorise> getApprovedCategorised(final String agencyId, final LocalDate cutOffDate) {
-        return repository.getApprovedCategorised(agencyId, cutOffDate);
-    }
-
-    @Override
-    @VerifyAgencyAccess
     public List<OffenderCategorise> getCategory(final String agencyId, final CategoryInformationType type, final LocalDate date) {
         switch (type) {
             case UNCATEGORISED:
