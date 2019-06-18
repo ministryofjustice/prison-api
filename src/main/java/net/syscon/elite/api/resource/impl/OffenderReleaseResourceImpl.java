@@ -114,10 +114,8 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     @Override
-    public GetOffenderSentenceTermsResponse getOffenderSentenceTerms(final Long bookingId) {
-        val sentences = bookingService.getOffenderSentenceTerms(bookingId);
-
-        return GetOffenderSentenceTermsResponse.respond200WithApplicationJson(sentences);
+    public Object getOffenderSentenceTerms(final Long bookingId, final Boolean earliestOnly) {
+        return bookingService.getOffenderSentenceTerms(bookingId, earliestOnly);
     }
 
     private void validateOffenderList(final List offenderList) {
