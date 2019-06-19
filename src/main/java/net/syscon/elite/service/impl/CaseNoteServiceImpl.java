@@ -8,6 +8,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -40,89 +41,93 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 @Slf4j
 public class CaseNoteServiceImpl implements CaseNoteService {
-	private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
-	private static final int MAXIMUM_CHARACTER_LIMIT = 4000;
+    private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
+    private static final int MAXIMUM_CHARACTER_LIMIT = 4000;
 
-	@Value("${api.caseNote.sourceCode:AUTO}")
-	private String caseNoteSource;
+    @Value("${api.caseNote.sourceCode:AUTO}")
+    private String caseNoteSource;
 
     private final CaseNoteRepository caseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final UserService userService;
-	private final TelemetryClient telemetryClient;
+    private final TelemetryClient telemetryClient;
+    private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
 
     public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
                                final UserService userService, final TelemetryClient telemetryClient,
+                               final AuthenticationFacade authenticationFacade,
                                @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
         this.telemetryClient = telemetryClient;
+        this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
     }
 
-	@Override
-	@VerifyBookingAccess
+    @Override
+    @VerifyBookingAccess
     public Page<CaseNote> getCaseNotes(final Long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
         final var orderByBlank = StringUtils.isBlank(orderBy);
 
         final var caseNotePage = caseNoteRepository.getCaseNotes(
-				bookingId,
-				query,
-				from,
-				to,
-				orderByBlank ? "creationDateTime" : orderBy,
-				orderByBlank ? Order.DESC : order,
-				offset,
-				limit);
+                bookingId,
+                query,
+                from,
+                to,
+                orderByBlank ? "creationDateTime" : orderBy,
+                orderByBlank ? Order.DESC : order,
+                offset,
+                limit);
 
         final var transformedCaseNotes =
-				caseNotePage.getItems().stream().map(transformer::transform).collect(Collectors.toList());
+                caseNotePage.getItems().stream().map(transformer::transform).collect(Collectors.toList());
 
-		log.info("Returning {} out of {} matching Case Notes, starting at {} for booking id {}", transformedCaseNotes.size(), caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), bookingId);
+        log.info("Returning {} out of {} matching Case Notes, starting at {} for booking id {}", transformedCaseNotes.size(), caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), bookingId);
 
-		return new Page<>(transformedCaseNotes, caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), caseNotePage.getPageLimit());
-	}
+        return new Page<>(transformedCaseNotes, caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), caseNotePage.getPageLimit());
+    }
 
-	@Override
-	@VerifyBookingAccess
+    @Override
+    @VerifyBookingAccess
     public CaseNote getCaseNote(final Long bookingId, final Long caseNoteId) {
         final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
-				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
+                .orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
-		log.info("Returning casenote {} for bookingId {}", caseNoteId, bookingId);
+        log.info("Returning casenote {} for bookingId {}", caseNoteId, bookingId);
 
-		return transformer.transform(caseNote);
-	}
+        return transformer.transform(caseNote);
+    }
 
-	@Override
-	@Transactional
-	@VerifyBookingAccess
+    @Override
+    @Transactional
+    @VerifyBookingAccess
     public CaseNote createCaseNote(final Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid final NewCaseNote caseNote, final String username) {
         final var userDetail = userService.getUserByUsername(username);
-		// TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
+        // TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
         final var caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
 
         final var caseNoteCreated = getCaseNote(bookingId, caseNoteId);
 
-		// Log event
-		telemetryClient.trackEvent("CaseNoteCreated", ImmutableMap.of("type", caseNoteCreated.getType(), "subType", caseNoteCreated.getSubType()), null);
+        // Log event
+        telemetryClient.trackEvent("CaseNoteCreated", ImmutableMap.of("type", caseNoteCreated.getType(), "subType", caseNoteCreated.getSubType()), null);
 
-		return caseNoteCreated;
+        return caseNoteCreated;
     }
 
-	@Override
-	@Transactional
-	@VerifyBookingAccess
+    @Override
+    @Transactional
+    @VerifyBookingAccess
     public CaseNote updateCaseNote(final Long bookingId, final Long caseNoteId, final String username, @NotBlank(message = "{caseNoteTextBlank}") final String newCaseNoteText) {
         final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
-				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
+                .orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
         // Verify that user attempting to amend case note is same one who created it.
         final var userDetail = userService.getUserByUsername(username);
+        final var bypassCaseNoteAmendmentRestriction = authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN");
 
-		if (!caseNote.getStaffId().equals(userDetail.getStaffId())) {
+        if (!bypassCaseNoteAmendmentRestriction && !caseNote.getStaffId().equals(userDetail.getStaffId())) {
             throw new AccessDeniedException("User not authorised to amend case note.");
         }
 
@@ -132,7 +137,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
                 newCaseNoteText);
 
-		if (amendedText.length() > MAXIMUM_CHARACTER_LIMIT) {
+        if (amendedText.length() > MAXIMUM_CHARACTER_LIMIT) {
 
             final var spaceLeft = MAXIMUM_CHARACTER_LIMIT - (caseNote.getText().length() + (amendedText.length() - newCaseNoteText.length()));
 
@@ -140,70 +145,70 @@ public class CaseNoteServiceImpl implements CaseNoteService {
                     "Amendments can no longer be made due to the maximum character limit being reached" :
                     format("Length should not exceed %d characters", spaceLeft);
 
-		 	throw new BadRequestException(errorMessage);
-		}
+            throw new BadRequestException(errorMessage);
+        }
 
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
 
         return getCaseNote(bookingId, caseNoteId);
-	}
+    }
 
-	@Override
-	@VerifyBookingAccess
+    @Override
+    @VerifyBookingAccess
     public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
-		// Validate date range
-		if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
-			throw new BadRequestException("Invalid date range: toDate is before fromDate.");
-		}
+        // Validate date range
+        if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
+            throw new BadRequestException("Invalid date range: toDate is before fromDate.");
+        }
 
         final var count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);
 
         return CaseNoteCount.builder()
-				.bookingId(bookingId)
-				.type(type)
-				.subType(subType)
-				.fromDate(fromDate)
-				.toDate(toDate)
-				.count(count)
-				.build();
-	}
+                .bookingId(bookingId)
+                .type(type)
+                .subType(subType)
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .count(count)
+                .build();
+    }
 
-	@Override
+    @Override
     public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
-		return caseNoteRepository.getCaseNoteTypesByCaseLoadType(caseLoadType);
-	}
+        return caseNoteRepository.getCaseNoteTypesByCaseLoadType(caseLoadType);
+    }
 
-	@Override
+    @Override
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
-		return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
-	}
+        return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
+    }
 
-	@Override
-	public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
-		return caseNoteRepository.getUsedCaseNoteTypesWithSubTypes();
-	}
+    @Override
+    public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
+        return caseNoteRepository.getUsedCaseNoteTypesWithSubTypes();
+    }
 
-	@Override
+    @Override
     public List<CaseNoteUsage> getCaseNoteUsage(final String type, final String subType, @NotEmpty final List<String> offenderNos, final Integer staffId, final String agencyId, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
         final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
-		final List<CaseNoteUsage> caseNoteUsage = new ArrayList<>();
+        final List<CaseNoteUsage> caseNoteUsage = new ArrayList<>();
 
-		Lists.partition(offenderNos, maxBatchSize).forEach(offenderNosList ->
-				caseNoteUsage.addAll(
-						caseNoteRepository.getCaseNoteUsage(type, subType, offenderNosList, staffId, agencyId, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse())
-				)
-		);
-		return caseNoteUsage;
-	}
+        Lists.partition(offenderNos, maxBatchSize).forEach(offenderNosList ->
+                caseNoteUsage.addAll(
+                        caseNoteRepository.getCaseNoteUsage(type, subType, offenderNosList, staffId, agencyId, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse())
+                )
+        );
+        return caseNoteUsage;
+    }
 
-	@Override
+    @Override
     public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(final String type, final String subType, @NotEmpty final List<Integer> bookingIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
-		final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
+        final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
 
-		return caseNoteRepository.getCaseNoteUsageByBookingId(type, subType, bookingIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
-	}
+        return caseNoteRepository.getCaseNoteUsageByBookingId(type, subType, bookingIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
+    }
 
-	@Override
+    @Override
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, @NotEmpty final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
         final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
 
@@ -214,38 +219,38 @@ public class CaseNoteServiceImpl implements CaseNoteService {
                 )
         );
         return caseNoteStaffUsage;
-	}
+    }
 
-	private static class DeriveDates {
-		private LocalDate fromDateToUse;
-		private LocalDate toDateToUse;
+    private static class DeriveDates {
+        private LocalDate fromDateToUse;
+        private LocalDate toDateToUse;
 
         public DeriveDates(final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
             final var now = LocalDate.now();
-			fromDateToUse = now.minusMonths(numMonths);
-			toDateToUse = now;
+            fromDateToUse = now.minusMonths(numMonths);
+            toDateToUse = now;
 
-			if (fromDate != null && toDate != null) {
-				fromDateToUse = fromDate;
-				toDateToUse = toDate;
-			} else if (fromDate != null) {
-				fromDateToUse = fromDate;
-				toDateToUse = fromDate.plusMonths(numMonths);
-			} else if (toDate != null) {
-				fromDateToUse = toDate.minusMonths(numMonths);
-				toDateToUse = toDate;
-			}
+            if (fromDate != null && toDate != null) {
+                fromDateToUse = fromDate;
+                toDateToUse = toDate;
+            } else if (fromDate != null) {
+                fromDateToUse = fromDate;
+                toDateToUse = fromDate.plusMonths(numMonths);
+            } else if (toDate != null) {
+                fromDateToUse = toDate.minusMonths(numMonths);
+                toDateToUse = toDate;
+            }
 
-			toDateToUse = toDateToUse.plusDays(1);
-		}
+            toDateToUse = toDateToUse.plusDays(1);
+        }
 
-		public LocalDate getFromDateToUse() {
-			return fromDateToUse;
-		}
+        public LocalDate getFromDateToUse() {
+            return fromDateToUse;
+        }
 
-		public LocalDate getToDateToUse() {
-			return toDateToUse;
-		}
+        public LocalDate getToDateToUse() {
+            return toDateToUse;
+        }
 
-	}
+    }
 }
