@@ -56,7 +56,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
     public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
                                final UserService userService, final TelemetryClient telemetryClient,
-                               AuthenticationFacade authenticationFacade, @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                               final AuthenticationFacade authenticationFacade,
+                               @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
