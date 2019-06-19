@@ -8,6 +8,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -50,16 +51,18 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     private final CaseNoteTransformer transformer;
     private final UserService userService;
 	private final TelemetryClient telemetryClient;
+	private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
 
     public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
-                               final UserService userService, final TelemetryClient telemetryClient,
-                               @Value("${batch.max.size:1000}") final int maxBatchSize) {
+							   final UserService userService, final TelemetryClient telemetryClient,
+							   AuthenticationFacade authenticationFacade, @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
         this.telemetryClient = telemetryClient;
-        this.maxBatchSize = maxBatchSize;
+		this.authenticationFacade = authenticationFacade;
+		this.maxBatchSize = maxBatchSize;
     }
 
 	@Override
@@ -115,14 +118,15 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	@Transactional
 	@VerifyBookingAccess
-    public CaseNote updateCaseNote(final Long bookingId, final Long caseNoteId, final String username, @NotBlank(message = "{caseNoteTextBlank}") final String newCaseNoteText) {
+	public CaseNote updateCaseNote(final Long bookingId, final Long caseNoteId, final String username, @NotBlank(message = "{caseNoteTextBlank}") final String newCaseNoteText) {
         final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
 				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
         // Verify that user attempting to amend case note is same one who created it.
         final var userDetail = userService.getUserByUsername(username);
+        final var bypassCaseNoteAmendmentRestriction = authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN");
 
-		if (!caseNote.getStaffId().equals(userDetail.getStaffId())) {
+		if (!bypassCaseNoteAmendmentRestriction && !caseNote.getStaffId().equals(userDetail.getStaffId())) {
             throw new AccessDeniedException("User not authorised to amend case note.");
         }
 
