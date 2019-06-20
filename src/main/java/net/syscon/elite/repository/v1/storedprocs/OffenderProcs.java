@@ -20,10 +20,10 @@ public class OffenderProcs {
 
         public GetOffenderDetails(DataSource dataSource) {
             super(dataSource);
-            this
-                    .withSchemaName(StoreProcMetadata.API_OWNER)
+            withSchemaName(StoreProcMetadata.API_OWNER)
                     .withCatalogName(API_OFFENDER_PROCS)
                     .withProcedureName("get_offender_details")
+                    .withNamedBinding()
                     .declareParameters(
                             new SqlParameter(StoreProcMetadata.P_NOMS_ID, Types.VARCHAR),
                             new SqlOutParameter(StoreProcMetadata.P_OFFENDER_CSR, Types.REF_CURSOR))
@@ -40,10 +40,10 @@ public class OffenderProcs {
 
         public GetOffenderImage(DataSource dataSource) {
             super(dataSource);
-            this
-                    .withSchemaName(StoreProcMetadata.API_OWNER)
+            withSchemaName(StoreProcMetadata.API_OWNER)
                     .withCatalogName(API_OFFENDER_PROCS)
                     .withProcedureName("get_offender_image")
+                    .withNamedBinding()
                     .declareParameters(
                             new SqlParameter(StoreProcMetadata.P_NOMS_ID, Types.VARCHAR),
                             new SqlOutParameter(P_IMAGE, Types.BLOB));

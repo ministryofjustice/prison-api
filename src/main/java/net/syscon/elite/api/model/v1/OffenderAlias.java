@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModel;
 import lombok.*;
 
 import java.time.LocalDate;
 
+@ApiModel(description = "Offender Alias")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

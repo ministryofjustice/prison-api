@@ -3,8 +3,9 @@ package net.syscon.elite.api.resource.v1;
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.v1.*;
-import net.syscon.elite.api.support.ResponseDelegate;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -18,7 +19,7 @@ public interface NomisApiV1Resource {
     String NOMS_ID_REGEX_PATTERN = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}";
 
     @GET
-    @Path("/offenders/{nomsId}")
+    @Path("/offenders/{noms_id}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Returns general offender information.")
@@ -27,16 +28,11 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    OffenderResponse getOffender(@ApiParam(value = "nomsId", example = "A1417AE", required = true) @PathParam("nomsId") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
+    Offender getOffender(@ApiParam(name = "noms_id", value = "Offender Noms ID", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
 
-    class OffenderResponse extends ResponseDelegate {
-        public OffenderResponse(final Response response, final Offender location) {
-            super(response, location);
-        }
-    }
 
     @GET
-    @Path("/offenders/{nomsId}/image")
+    @Path("/offenders/{noms_id}/image")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Get Current Photograph of the offender",
@@ -46,16 +42,11 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    OffenderImageResponse getOffenderImage(@ApiParam(value = "nomsId", example = "A1417AE", required = true) @PathParam("nomsId") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
+    Image getOffenderImage(@ApiParam(name = "noms_id", value = "Offender Noms ID", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
 
-    class OffenderImageResponse extends ResponseDelegate {
-        public OffenderImageResponse(final Response response, final Image image) {
-            super(response, image);
-        }
-    }
 
     @GET
-    @Path("/offenders/{nomsId}/location")
+    @Path("/offenders/{noms_id}/location")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Current Location of the offender",
@@ -65,19 +56,50 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    LatestBookingLocationResponse getLatestBookingLocation(@ApiParam(value = "nomsId", example = "A1417AE", required = true) @PathParam("nomsId") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
+    Location getLatestBookingLocation(@ApiParam(name = "noms_id", value = "Offender Noms ID", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
 
-    class LatestBookingLocationResponse extends ResponseDelegate {
-        public LatestBookingLocationResponse(final Response response, final Location location) {
-            super(response, location);
-        }
-    }
+    @GET
+    @Path("/offenders/{noms_id}/charges")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Legal cases for each booking and charges within each legal case.",
+            notes = "Returns all the bookings, the legal cases for each booking and charges within each legal case.<br/>" +
+                    "The ordering is as follows:<ul>" +
+                    "<li><strong>bookings</strong>: Current or latest booking first, others in descending order of booking date</li>" +
+                    "<li><strong>legal_cases</strong>: Active cases followed by inactive cases, further ordered by begin_date, latest first</li>" +
+                    "<li><strong>charges</strong>: Most serious active charge first, then remaining active charges, followed by inactive charges</li></ul>")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Bookings.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Bookings getBookings(@ApiParam(name = "noms_id", value = "Offender Noms ID", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
+
+    @GET
+    @Path("/offenders/{noms_id}/alerts")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Fetch alerts by offender",
+            notes = "Returns all active alerts for the specified offender or those that meet the optional criteria. Active alerts are listed first, followed by inactive alerts, both sorted by ascending order of alert date.<br/>" +
+                    "<ul><li>if alert_type is specified then only alerts of that type are returned</li>" +
+                    "<li>if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123</li>" +
+                    "<li>If include_inactive=true is specified then inactive alerts are also returned.</li></ul>")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Alerts.class),
+            @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Alerts getAlerts(@ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1583AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
+                       @ApiParam(name = "alert_type", value = "Alert Type, if alert_type is specified then only alerts of that type are returned", example = "H") @QueryParam("alert_type") String alertType,
+                       @ApiParam(name = "modified_since", value = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @QueryParam("modified_since") String modifiedSince,
+                       @ApiParam(name = "include_inactive", value = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true", defaultValue = "false") @QueryParam("include_inactive") @DefaultValue("false") boolean includeInactive);
+
 
     @POST
     @Path("/prison/{prison_id}/offenders/{noms_id}/transactions")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Post a financial transaction to Nomis.",
+    @ApiOperation(value = "Post a financial transaction to NOMIS.",
             notes = "The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>" +
                     "This will be setup by script intially as part of the deployment process as shown below<br/><br/>" +
                     "<table>" +
@@ -94,9 +116,10 @@ public interface NomisApiV1Resource {
                     "</table>Notes:<br/><ul>" +
                     "<li>The sub_account the amount is debited or credited from will be determined by the transaction_type definition in NOMIS.</li>" +
                     "<li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.</li>" +
-                    "<li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li></ul>")
+                    "<li>The clientUniqueRef can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li></ul>")
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "Transaction Created")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = TransactionResponse.class),
+            @ApiResponse(code = 201, message = "Transaction Created", response = TransactionResponse.class),
             @ApiResponse(code = 400, message = "One of: <ul><li>Insufficient Funds - The prisoner has insufficient funds in the required account to cover the cost of the debit transaction</li>" +
                     "<li>Offender not in specified prison - prisoner identified by {noms_id} is not in prison {prison_id}</li>" +
                     "<li>Invalid transaction type - The transaction type has not been set up for the API for {prison_id}</li>" +
@@ -104,16 +127,9 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 409, message = "Duplicate post - The unique_client_ref has been used before", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-
-    CreateTransactionResponse createTransaction(
-                                    @ApiParam(value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @HeaderParam(" X-Client-Name") String clientName,
-                                    @ApiParam(value = "prison_id", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max=3) String prisonId,
-                                    @ApiParam(value = "noms_id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-                                    @ApiParam(value = "", required = true) @NotNull @Valid CreateTransaction createTransaction);
-
-    class CreateTransactionResponse extends ResponseDelegate {
-        public CreateTransactionResponse(final Response response, final TransactionResponse txResp) {
-            super(response, txResp);
-        }
-    }
+    Response createTransaction(
+                                    @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @HeaderParam("X-Client-Name") String clientName,
+                                    @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max=3) String prisonId,
+                                    @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
+                                    @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
 }
