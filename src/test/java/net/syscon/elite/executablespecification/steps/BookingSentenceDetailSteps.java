@@ -32,6 +32,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     private SentenceDetail sentenceDetail;
     private OffenderSentenceTerms offenderSentenceTerms;
+    private List<OffenderSentenceTerms> offenderSentenceTermsList;
     private List<OffenderSentenceDetail> offenderSentenceDetails;
 
     @Step("Get booking sentence detail")
@@ -220,6 +221,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         super.init();
         offenderSentenceDetails = null;
         offenderSentenceTerms = null;
+        offenderSentenceTermsList = null;
         sentenceDetail = null;
     }
 
@@ -238,16 +240,25 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         }
     }
 
-    private void dispatchSentenceTerms(final String bookingId) {
+    private void dispatchSentenceTerms(final String bookingId, boolean earliestOnly) {
         init();
 
-        final ResponseEntity<OffenderSentenceTerms> response;
-
         try {
-            response = restTemplate.exchange(BOOKING_SENTENCE_TERMS_API_URL, HttpMethod.GET, createEntity(),
-                    OffenderSentenceTerms.class, bookingId);
+            final String url = BOOKING_SENTENCE_TERMS_API_URL + (earliestOnly ? "" : "?earliestOnly=false");
+            if (earliestOnly) {
+                final ResponseEntity<OffenderSentenceTerms> response;
+                response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
+                        OffenderSentenceTerms.class, bookingId);
 
-            offenderSentenceTerms = response.getBody();
+                offenderSentenceTerms = response.getBody();
+            } else {
+                final ResponseEntity<List<OffenderSentenceTerms>> response;
+                response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
+                        new ParameterizedTypeReference<List<OffenderSentenceTerms>>() {}, bookingId);
+
+                offenderSentenceTermsList = response.getBody();
+
+            }
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -274,9 +285,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             buildResourceData(response);
 
             offenderSentenceDetails = response.getBody();
-            if (offenderSentenceDetails != null &&
-                    !offenderSentenceDetails.isEmpty() &&
-                    offenderSentenceDetails.size() == 1) {
+            if (offenderSentenceDetails != null && offenderSentenceDetails.size() == 1) {
                 sentenceDetail = offenderSentenceDetails.get(0).getSentenceDetail();
             }
         } catch (final EliteClientException ex) {
@@ -323,12 +332,17 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         return urlModifier.length() > 0 ? "&" : "?";
     }
 
-    public void requestSentenceTerms(final String bookingId) {
-        dispatchSentenceTerms(bookingId);
+    public void requestSentenceTerms(final String bookingId, boolean earliestOnly) {
+        dispatchSentenceTerms(bookingId, earliestOnly);
     }
 
-    public void verifySentenceTerms() {
+    @Deprecated
+    public void verifySentenceTermsOld() {
         assertThat(offenderSentenceTerms).isEqualTo(new OffenderSentenceTerms(
-                -3L, LocalDate.of(2015, 3, 16), 5, null, null, null, false));
+                -3L, 2, 1, null, "R", "Prohibited Activity", LocalDate.of(2015, 3, 16), 5, null, null, null, false));
+    }
+
+    public void verifySentenceTerms(List<OffenderSentenceTerms> expected) {
+        assertThat(offenderSentenceTermsList).asList().containsAll(expected);
     }
 }

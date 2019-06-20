@@ -1,8 +1,10 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
 import net.syscon.elite.executablespecification.steps.BookingSentenceDetailSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -225,12 +227,23 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
         bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
     }
 
-    @When("^sentence terms are requested for booking id \"([^\"]*)\"$")
-    public void sentenceTermsAreRequested(final String bookingId) {
-        bookingSentenceDetail.requestSentenceTerms(bookingId);
+    @When("^sentence terms are requested for booking id \"([^\"]*)\" getting earliest only$")
+    public void sentenceTermsAreRequestedEarliestOnly(final String bookingId) {
+        bookingSentenceDetail.requestSentenceTerms(bookingId, true);
     }
+
+    @When("^sentence terms are requested for booking id \"([^\"]*)\" getting all$")
+    public void sentenceTermsAreRequested(final String bookingId) {
+        bookingSentenceDetail.requestSentenceTerms(bookingId, false);
+    }
+
     @Then("^correct sentence terms data is returned$")
-    public void verifySentenceTerms() {
-        bookingSentenceDetail.verifySentenceTerms();
+    public void verifySentenceTermsOld() {
+        bookingSentenceDetail.verifySentenceTermsOld();
+    }
+
+    @Then("^correct sentence terms data is returned as follows:$")
+    public void sentenceTermsAreReturnedAsFollows(final DataTable table) {
+        bookingSentenceDetail.verifySentenceTerms(table.asList(OffenderSentenceTerms.class));
     }
 }

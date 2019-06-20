@@ -55,7 +55,7 @@ public interface BookingService {
     List<ScheduledEvent> getEventsThisWeek(Long bookingId);
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
     List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForAgency(Set<String> agencyIds);
-    OffenderSentenceTerms getOffenderSentenceTerms(Long bookingId);
+    Object getOffenderSentenceTerms(Long bookingId, Boolean earliestOnly);
     List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos);
     List<OffenderSentenceDetail> getBookingSentencesSummary(String username, List<Long> bookingIds);
 

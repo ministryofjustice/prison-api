@@ -679,11 +679,16 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public OffenderSentenceTerms getOffenderSentenceTerms(final Long bookingId) {
+    public Object getOffenderSentenceTerms(final Long bookingId, final Boolean earliestOnly) {
 
         final var results = bookingRepository.getOffenderSentenceTerms(bookingId, "IMP");
-        final var earliest = results.stream().min(Comparator.comparing(OffenderSentenceTerms::getStartDate));
-        return earliest.orElseThrow(EntityNotFoundException.withId(bookingId));
+        if (earliestOnly == Boolean.FALSE) {
+            return results;
+        } else {
+            // Deprecated. Can just return list once the cat tool is ready
+            final var earliest = results.stream().min(Comparator.comparing(OffenderSentenceTerms::getStartDate));
+            return earliest.orElseThrow(EntityNotFoundException.withId(bookingId));
+        }
     }
 
     @Override

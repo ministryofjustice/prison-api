@@ -16,16 +16,15 @@ public class AssessmentDto {
     private String assessmentDescription;
     private LocalDate assessmentDate;
     private int assessmentSeq;
-
     private LocalDate nextReviewDate;
-
     private String reviewSupLevelType;
     private String reviewSupLevelTypeDesc;
+    private String assessmentCreateLocation;
+    private LocalDate approvalDate;
     private String overridedSupLevelType;
     private String overridedSupLevelTypeDesc;
     private String calcSupLevelType;
     private String calcSupLevelTypeDesc;
-
     private boolean cellSharingAlertFlag;
     private String assessStatus;
     private String caseloadType;

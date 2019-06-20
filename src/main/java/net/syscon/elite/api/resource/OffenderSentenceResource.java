@@ -115,7 +115,8 @@ public interface OffenderSentenceResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Sentence term details for a prisoner.", response = OffenderSentenceTerms.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List")})
-    GetOffenderSentenceTermsResponse getOffenderSentenceTerms(@ApiParam(value = "The required booking id (mandatory)", required = true) @PathParam("bookingId") Long bookingId);
+    Object getOffenderSentenceTerms(@ApiParam(value = "The required booking id (mandatory)", required = true) @PathParam("bookingId") Long bookingId,
+                                    @ApiParam(value = "Returns only the earliest active sentence if true, otherwise all active sentences are included", defaultValue = "true") @QueryParam("earliestOnly") Boolean earliestOnly);
 
     class GetOffenderSentencesResponse extends ResponseDelegate {
 
@@ -153,27 +154,6 @@ public interface OffenderSentenceResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetOffenderSentenceTermsResponse extends ResponseDelegate {
-
-        private GetOffenderSentenceTermsResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetOffenderSentenceTermsResponse respond200WithApplicationJson(final OffenderSentenceTerms entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetOffenderSentenceTermsResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetOffenderSentenceTermsResponse respond404WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(404)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetOffenderSentenceTermsResponse(responseBuilder.build(), entity);
         }
     }
 

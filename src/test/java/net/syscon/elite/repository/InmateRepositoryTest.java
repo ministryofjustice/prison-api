@@ -686,12 +686,13 @@ public class InmateRepositoryTest {
         list.sort(Comparator.comparing(AssessmentDto::getOffenderNo).thenComparing(AssessmentDto::getBookingId));
         assertThat(list).extracting("offenderNo", "bookingId", "assessmentCode",
                 "assessmentDescription", "assessmentDate", "assessmentSeq", "nextReviewDate",
-                "reviewSupLevelType", "reviewSupLevelTypeDesc", "overridedSupLevelType", "overridedSupLevelTypeDesc",
+                "reviewSupLevelType", "reviewSupLevelTypeDesc", "assessmentCreateLocation", "approvalDate", "overridedSupLevelType", "overridedSupLevelTypeDesc",
                 "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
 
         ).containsExactlyInAnyOrder(
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 1, LocalDate.of(2016, 6, 8), "A", "Cat A", "D", "Cat D", "B", "Cat B", false, "A"),
-                Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, false, "A")
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 2, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 1, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, null, null, false, "A")
         );
     }
 
