@@ -121,7 +121,7 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok:1.18.8'
 
-    compile('org.hsqldb:hsqldb:2.4.1')
+    runtime('org.hsqldb:hsqldb:2.4.1')
     runtime("org.flywaydb:flyway-core:5.2.4")
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
