@@ -13,13 +13,17 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
+import net.syscon.util.ProfileUtil;
 import org.springframework.core.env.Environment;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestResource
@@ -210,7 +214,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetMyAssignmentsResponse getMyAssignments(final Long pageOffset, final Long pageLimit) {
-        final var nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
+        final var nomisProfile = ProfileUtil.isNomisProfile(env);
         var iepLevel = false;
         List<Long> bookingIds = null;
         List<String> offenderNos = null;

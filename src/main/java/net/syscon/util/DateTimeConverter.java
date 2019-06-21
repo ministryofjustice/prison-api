@@ -6,7 +6,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.Date;
 
 public class DateTimeConverter {
@@ -163,4 +165,32 @@ public class DateTimeConverter {
         final var period = Period.between(dateOfBirth, LocalDate.now());
 		return period.getYears();
 	}
+
+	public static LocalDateTime optionalStrToLocalDateTime(String optStr) {
+		LocalDateTime localDateTime = null;
+		if (optStr != null) {
+			try {
+				var fmtBase = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+				var fmt = new DateTimeFormatterBuilder().append(fmtBase)
+						.optionalStart()
+						.appendPattern("'T'HH:mm")
+						.optionalEnd()
+						.optionalStart()
+						.appendPattern(":ss")
+						.optionalEnd()
+						.optionalStart()
+						.appendPattern(".SSS")
+						.optionalEnd()
+						.parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+						.parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+						.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+						.toFormatter();
+				localDateTime = LocalDateTime.parse(optStr.replace(" ", "T"), fmt);
+			} catch (DateTimeParseException e) {
+				throw new IllegalArgumentException("Cannot convert [" + optStr + "] to a LocalDateTime.");
+			}
+		}
+		return localDateTime;
+	}
+
 }

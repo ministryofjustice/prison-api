@@ -1,6 +1,7 @@
 package net.syscon.elite.security;
 
 import net.syscon.elite.service.UserService;
+import net.syscon.util.ProfileUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,6 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +42,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
 	@Override
 	@Cacheable("loadUserByUsername")
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final var nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
+		final var nomisProfile = ProfileUtil.isNomisProfile(env);
 
         final var userDetail = userService.getUserByUsername(username);
         final var roles = userService.getRolesByUsername(username, false);

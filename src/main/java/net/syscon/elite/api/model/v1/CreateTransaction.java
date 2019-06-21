@@ -2,7 +2,9 @@ package net.syscon.elite.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,6 +16,7 @@ import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+@ApiModel(description = "Transaction to Create")
 @Data
 @EqualsAndHashCode
 @ToString
@@ -36,13 +39,15 @@ public class CreateTransaction {
     @NotNull
     @Length(max = 12)
     @ApiModelProperty(value = "Client Transaction Id", example = "CL123212", position = 3)
-    private String client_transaction_id;
+    @JsonProperty(value = "client_transaction_id")
+    private String clientTransactionId;
 
     @NotNull
     @Length(max = 64)
     @Pattern(regexp = "[a-zA-Z0-9-_]+")
+    @JsonProperty(value = "client_unique_ref")
     @ApiModelProperty(value = "A reference unique to the client making the post. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed", example = "CLIENT121131-0_11", position = 5)
-    private String client_unique_ref;
+    private String clientUniqueRef;
 
     @JsonIgnore
     public BigDecimal getAmountInPounds() {

@@ -18,6 +18,7 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.ReferenceDomain;
 import net.syscon.elite.service.support.*;
+import net.syscon.util.ProfileUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
@@ -182,7 +183,7 @@ public class InmateServiceImpl implements InmateService {
         setAssessmentsFields(bookingId, inmate);
 
         //TODO: Remove once KW service available - Nomis only!
-        final var nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
+        final var nomisProfile = ProfileUtil.isNomisProfile(env);
         if (nomisProfile) {
             keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
         }
