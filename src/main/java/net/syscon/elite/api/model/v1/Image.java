@@ -12,5 +12,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class Image {
     @ApiModelProperty(value = "Base64 Encoded JPEG data", example = "<base64_encoded_jpeg_data>")
-    private byte[] image;
+    private String image;
 }

@@ -5,12 +5,14 @@ import net.syscon.elite.repository.v1.*;
 import net.syscon.elite.repository.v1.model.BookingSP;
 import net.syscon.elite.repository.v1.model.ChargeSP;
 import net.syscon.elite.repository.v1.model.LegalCaseSP;
+import net.syscon.elite.repository.v1.model.OffenderSP;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.bind.DatatypeConverter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -63,7 +65,6 @@ public class NomisApiV1Service {
                             .bookingActive("Y".equals(booking.getActiveFlag()))
                             .bookingBeginDate(booking.getBookingBeginDate())
                             .bookingEndDate(booking.getBookingEndDate())
-                            .location(buildLocation(booking))
                             .latestBooking("Y".equals(booking.getLatestBooking()))
                             .releaseDate(booking.getRelDate())
                             .legalCases(legalV1Repository.getBookingCases(booking.getOffenderBookId()).stream()
@@ -103,7 +104,7 @@ public class NomisApiV1Service {
                 .imprisonmentStatus(CodeDescription.builder().code(charge.getImprisonmentStatus()).desc(charge.getImprisonmentStatusDesc()).build())
                 .result(CodeDescription.builder().code(charge.getResultCode()).desc(charge.getResultDesc()).build())
                 .noOfOffences(charge.getNoOfOffences())
-                .chargeActive("Y".equalsIgnoreCase(charge.getChargeStatus()))
+                .chargeActive("A".equalsIgnoreCase(charge.getChargeStatus()))
                 .mostSerious("Y".equals(charge.getMostSeriousFlag()))
                 .convicted("Y".equalsIgnoreCase(charge.getConvictionFlag()))
                 .severityRanking(charge.getSeverityRanking())
@@ -145,7 +146,7 @@ public class NomisApiV1Service {
                         .pncNumber(o.getPncNumber())
                         .croNumber(o.getCroNumber())
                         .nationalities(o.getNationalities())
-                        .language(Language.builder().interpreterRequired("Y".equals(o.getInterpreterRequestedFlag())).spokenLanguage(CodeDescription.builder().code(o.getSpokenLanguageCode()).desc(o.getSpokenLanguageDesc()).build()).build())
+                        .language(buildLanguage(o))
                         .convicted("Convicted".equalsIgnoreCase(o.getConvictedStatus()))
                         .ethnicity(CodeDescription.builder().code(o.getEthnicityCode()).desc(o.getEthnicityDesc()).build())
                         .gender(CodeDescription.builder().code(o.getSexCode()).desc(o.getSexDesc()).build())
@@ -155,9 +156,22 @@ public class NomisApiV1Service {
                         .diet(CodeDescription.builder().code(o.getDietCode()).desc(o.getDietDesc()).build())
                         .iepLevel(CodeDescription.builder().code(o.getIepLevel()).desc(o.getIepLevelDesc()).build())
                         .imprisonmentStatus(CodeDescription.builder().code(o.getImprisonmentStatus()).desc(o.getImprisonmentStatusDesc()).build())
-                        .diet(CodeDescription.builder().code(o.getDietCode()).desc(o.getDietDesc()).build())
+                        .diet(CodeDescription.safeNullBuild(o.getDietCode(), o.getDietDesc()))
                         .build())
                 .orElseThrow(EntityNotFoundException.withId(nomsId));
+    }
+
+    private Language buildLanguage(OffenderSP offender) {
+        if (StringUtils.isNotBlank(offender.getSpokenLanguageCode())) {
+            return Language.builder()
+                    .interpreterRequired("Y".equals(offender.getInterpreterRequestedFlag()))
+                    .spokenLanguage(CodeDescription.builder()
+                            .code(offender.getSpokenLanguageCode())
+                            .desc(offender.getSpokenLanguageDesc())
+                            .build())
+                    .build();
+        }
+        return null;
     }
 
     @Transactional
@@ -167,6 +181,8 @@ public class NomisApiV1Service {
     }
 
     public Image getOffenderImage(final String nomsId) {
-        return offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
+        byte[] imageBytes = offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
+
+        return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
     }
 }

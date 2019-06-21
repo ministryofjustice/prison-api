@@ -1,6 +1,5 @@
 package net.syscon.elite.repository.v1;
 
-import net.syscon.elite.api.model.v1.Image;
 import net.syscon.elite.repository.impl.RepositoryBase;
 import net.syscon.elite.repository.v1.model.OffenderSP;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
@@ -44,14 +43,13 @@ public class OffenderV1Repository extends RepositoryBase {
         return Optional.ofNullable(offender.isEmpty() ? null : offender.get(0));
     }
 
-    public Optional<Image> getPhoto(final String nomsId) {
+    public Optional<byte[]> getPhoto(final String nomsId) {
 
         final var param = new MapSqlParameterSource().addValue(P_NOMS_ID, nomsId);
         final var result = getOffenderImageProc.execute(param);
         var blobBytes = (Blob) result.get(P_IMAGE);
         try {
-            var image = blobBytes != null ? Image.builder().image(IOUtils.toByteArray(blobBytes.getBinaryStream())).build() : null;
-            return Optional.ofNullable(image);
+            return Optional.ofNullable(blobBytes != null ? IOUtils.toByteArray(blobBytes.getBinaryStream()) : null);
         } catch (IOException | SQLException e) {
             return Optional.empty();
         }

@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 
 @ApiModel(description = "Code Description")
 @Data
@@ -16,11 +17,18 @@ import lombok.ToString;
 @Builder
 public class CodeDescription {
 
-    @ApiModelProperty(value = "Code", position = 0)
+    @ApiModelProperty(value = "Code")
     private final String code;
 
     @ApiModelProperty(value = "Description", position = 1)
-    private String desc;
+    private final String desc;
+
+    public static CodeDescription safeNullBuild(final String code, final String desc) {
+        if (StringUtils.isNotBlank(code)) {
+            return CodeDescription.builder().code(code).desc(desc).build();
+        }
+        return null;
+    }
 
     @JsonCreator
     public CodeDescription(@JsonProperty("code") String code, @JsonProperty("desc") String desc) {
@@ -28,10 +36,4 @@ public class CodeDescription {
         this.code = code;
         this.desc = desc;
     }
-
-    public CodeDescription(String code) {
-        super();
-        this.code = code;
-    }
-
 }
