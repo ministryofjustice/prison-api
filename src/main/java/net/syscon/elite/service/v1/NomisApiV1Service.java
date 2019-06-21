@@ -3,6 +3,8 @@ package net.syscon.elite.service.v1;
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.repository.v1.*;
 import net.syscon.elite.repository.v1.model.BookingSP;
+import net.syscon.elite.repository.v1.model.ChargeSP;
+import net.syscon.elite.repository.v1.model.LegalCaseSP;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -65,32 +67,7 @@ public class NomisApiV1Service {
                             .latestBooking("Y".equals(booking.getLatestBooking()))
                             .releaseDate(booking.getRelDate())
                             .legalCases(legalV1Repository.getBookingCases(booking.getOffenderBookId()).stream()
-                                    .map(lc ->
-                                            LegalCase.builder()
-                                                    .caseId(lc.getCaseId())
-                                                    .beginDate(lc.getBeginDate())
-                                                    .caseActive("A".equalsIgnoreCase(lc.getCaseStatus()))
-                                                    .caseInfoNumber(lc.getCaseInfoNumber())
-                                                    .court(CodeDescription.builder().code(lc.getCourtCode()).desc(lc.getCourtDesc()).build())
-                                                    .caseType(CodeDescription.builder().code(lc.getCaseTypeCode()).desc(lc.getCaseTypeDesc()).build())
-                                                    .charges(legalV1Repository.getCaseCharges(lc.getCaseId()).stream()
-                                                                .map(charge -> Charge.builder()
-                                                                        .offenderChargeId(charge.getOffenderChargeId())
-                                                                        .statute(CodeDescription.builder().code(charge.getStatuteCode()).desc(charge.getStatuteDesc()).build())
-                                                                        .offence(CodeDescription.builder().code(charge.getOffenceCode()).desc(charge.getOffenceDesc()).build())
-                                                                        .band(CodeDescription.builder().code(charge.getBandCode()).desc(charge.getBandDesc()).build())
-                                                                        .disposition(CodeDescription.builder().code(charge.getDispositionCode()).desc(charge.getDispositionDesc()).build())
-                                                                        .imprisonmentStatus(CodeDescription.builder().code(charge.getImprisonmentStatus()).desc(charge.getImprisonmentStatusDesc()).build())
-                                                                        .result(CodeDescription.builder().code(charge.getResultCode()).desc(charge.getResultDesc()).build())
-                                                                        .noOfOffences(charge.getNoOfOffences())
-                                                                        .chargeActive("Y".equalsIgnoreCase(charge.getChargeStatus()))
-                                                                        .mostSerious("Y".equals(charge.getMostSeriousFlag()))
-                                                                        .convicted("Y".equalsIgnoreCase(charge.getConvictionFlag()))
-                                                                        .severityRanking(charge.getSeverityRanking())
-                                                                        .build())
-                                                                .collect(Collectors.toList()))
-                                                                .build()
-                                    ).collect(Collectors.toList()))
+                                    .map(this::buildCase).collect(Collectors.toList()))
                             .build()
                 )
                 .collect(Collectors.toList());
@@ -100,6 +77,37 @@ public class NomisApiV1Service {
         }
 
         return Bookings.builder().bookings(bookings).build();
+    }
+
+    private LegalCase buildCase(final LegalCaseSP lc) {
+        return LegalCase.builder()
+                .caseId(lc.getCaseId())
+                .beginDate(lc.getBeginDate())
+                .caseActive("A".equalsIgnoreCase(lc.getCaseStatus()))
+                .caseInfoNumber(lc.getCaseInfoNumber())
+                .court(CodeDescription.builder().code(lc.getCourtCode()).desc(lc.getCourtDesc()).build())
+                .caseType(CodeDescription.builder().code(lc.getCaseTypeCode()).desc(lc.getCaseTypeDesc()).build())
+                .charges(legalV1Repository.getCaseCharges(lc.getCaseId()).stream()
+                            .map(this::buildCharge)
+                            .collect(Collectors.toList()))
+                .build();
+    }
+
+    private Charge buildCharge(final ChargeSP charge) {
+        return Charge.builder()
+                .offenderChargeId(charge.getOffenderChargeId())
+                .statute(CodeDescription.builder().code(charge.getStatuteCode()).desc(charge.getStatuteDesc()).build())
+                .offence(CodeDescription.builder().code(charge.getOffenceCode()).desc(charge.getOffenceDesc()).build())
+                .band(CodeDescription.builder().code(charge.getBandCode()).desc(charge.getBandDesc()).build())
+                .disposition(CodeDescription.builder().code(charge.getDispositionCode()).desc(charge.getDispositionDesc()).build())
+                .imprisonmentStatus(CodeDescription.builder().code(charge.getImprisonmentStatus()).desc(charge.getImprisonmentStatusDesc()).build())
+                .result(CodeDescription.builder().code(charge.getResultCode()).desc(charge.getResultDesc()).build())
+                .noOfOffences(charge.getNoOfOffences())
+                .chargeActive("Y".equalsIgnoreCase(charge.getChargeStatus()))
+                .mostSerious("Y".equals(charge.getMostSeriousFlag()))
+                .convicted("Y".equalsIgnoreCase(charge.getConvictionFlag()))
+                .severityRanking(charge.getSeverityRanking())
+                .build();
     }
 
     public List<Alert> getAlerts(final String nomsId, final boolean includeInactive, final LocalDateTime modifiedSince) {
