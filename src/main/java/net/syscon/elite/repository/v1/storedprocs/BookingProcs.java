@@ -2,7 +2,6 @@ package net.syscon.elite.repository.v1.storedprocs;
 
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.repository.v1.model.BookingSP;
-import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -18,7 +17,7 @@ public class BookingProcs {
     @Component
     public static class GetLatestBooking extends SimpleJdbcCall {
 
-        public GetLatestBooking(DataSource dataSource, Environment env) {
+        public GetLatestBooking(DataSource dataSource) {
             super(dataSource);
             withSchemaName(StoreProcMetadata.API_OWNER)
                     .withCatalogName(API_BOOKING_PROCS)
