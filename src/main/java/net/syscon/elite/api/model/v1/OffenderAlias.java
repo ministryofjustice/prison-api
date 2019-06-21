@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @ToString
 public class OffenderAlias {
 
-    @ApiModelProperty(value = "Given Name", name = "given_name", example = "JENIFER", position = 0)
+    @ApiModelProperty(value = "Given Name", name = "given_name", example = "JENNIFER", position = 0)
     @JsonProperty("given_name")
     private String givenName;
 

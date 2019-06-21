@@ -36,7 +36,7 @@ public class Offender {
     @JsonIgnore
     private Long rootOffenderId;
 
-    @ApiModelProperty(value = "Given Name", name = "given_name", example = "JENIFER", position = 0)
+    @ApiModelProperty(value = "Given Name", name = "given_name", example = "JENNIFER", position = 0)
     @JsonProperty("given_name")
     private String givenName;
 
@@ -50,7 +50,7 @@ public class Offender {
     @ApiModelProperty(value = "Title", name = "title", example = "MR", position = 3)
     private String title;
 
-    @ApiModelProperty(value = "Suffix", name = "suffix", example = "JENIFER", position = 4)
+    @ApiModelProperty(value = "Suffix", name = "suffix", position = 4)
     private String suffix;
 
     @ApiModelProperty(value = "Date of Birth", name = "date_of_birth", example = "1970-01-01", position = 5)
