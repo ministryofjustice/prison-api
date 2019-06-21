@@ -119,8 +119,6 @@ public class NomisApiV1Service {
             throw EntityNotFoundException.withId(nomsId);
         }
         return alerts;
-
-
     }
 
     public Offender getOffender(final String nomsId) {
@@ -130,6 +128,26 @@ public class NomisApiV1Service {
                         .middleNames(o.getMiddleNames())
                         .surname(o.getLastName())
                         .birthDate(o.getBirthDate())
+                        .aliases(o.getOffenderAliases().stream().map(a -> OffenderAlias.builder()
+                                .givenName(a.getFirstName())
+                                .middleNames(a.getMiddleNames())
+                                .surname(a.getLastName())
+                                .birthDate(a.getBirthDate())
+                                .build()).collect(Collectors.toList()))
+                        .pncNumber(o.getPncNumber())
+                        .croNumber(o.getCroNumber())
+                        .nationalities(o.getNationalities())
+                        .language(Language.builder().interpreterRequired("Y".equals(o.getInterpreterRequestedFlag())).spokenLanguage(CodeDescription.builder().code(o.getSpokenLanguageCode()).desc(o.getSpokenLanguageDesc()).build()).build())
+                        .convicted("Convicted".equalsIgnoreCase(o.getConvictedStatus()))
+                        .ethnicity(CodeDescription.builder().code(o.getEthnicityCode()).desc(o.getEthnicityDesc()).build())
+                        .gender(CodeDescription.builder().code(o.getSexCode()).desc(o.getSexDesc()).build())
+                        .religion(CodeDescription.builder().code(o.getReligionCode()).desc(o.getReligionDesc()).build())
+                        .csra(CodeDescription.builder().code(o.getCsraCode()).desc(o.getCsraDescription()).build())
+                        .categorisationLevel(CodeDescription.builder().code(o.getCatLevel()).desc(o.getCatLevelDesc()).build())
+                        .diet(CodeDescription.builder().code(o.getDietCode()).desc(o.getDietDesc()).build())
+                        .iepLevel(CodeDescription.builder().code(o.getIepLevel()).desc(o.getIepLevelDesc()).build())
+                        .imprisonmentStatus(CodeDescription.builder().code(o.getImprisonmentStatus()).desc(o.getImprisonmentStatusDesc()).build())
+                        .diet(CodeDescription.builder().code(o.getDietCode()).desc(o.getDietDesc()).build())
                         .build())
                 .orElseThrow(EntityNotFoundException.withId(nomsId));
     }

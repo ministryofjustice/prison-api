@@ -3,7 +3,9 @@ package net.syscon.elite.repository.v1.model;
 import lombok.Data;
 import lombok.ToString;
 
+import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @ToString
@@ -22,7 +24,7 @@ public class OffenderSP {
     private String imprisonmentStatus;
     private String imprisonmentStatusDesc;
     private String convictedStatus;
-    private String aliases;
+    private ResultSet aliases;
     private String nationalities;
     private String religionCode;
     private String religionDesc;
@@ -39,6 +41,8 @@ public class OffenderSP {
     private String csraDescription;
     private String catLevel;
     private String catLevelDesc;
+
+    private List<AliasSP> offenderAliases;
 
 
 }

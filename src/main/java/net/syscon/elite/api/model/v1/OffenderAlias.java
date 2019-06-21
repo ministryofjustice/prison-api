@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -20,15 +21,18 @@ import java.time.LocalDate;
 @ToString
 public class OffenderAlias {
 
+    @ApiModelProperty(value = "Given Name", name = "given_name", example = "JENIFER", position = 0)
     @JsonProperty("given_name")
     private String givenName;
 
+    @ApiModelProperty(value = "Middle Names", name = "middle_names", example = "ESMERALADA JANE", position = 1)
     @JsonProperty("middle_names")
     private String middleNames;
 
-    @JsonProperty("surname")
+    @ApiModelProperty(value = "Surname", name = "surname", example = "HALLIBUT", position = 2)
     private String surname;
 
+    @ApiModelProperty(value = "Date of Birth", name = "date_of_birth", example = "1970-01-01", position = 3)
     @JsonProperty("date_of_birth")
     private LocalDate birthDate;
 }

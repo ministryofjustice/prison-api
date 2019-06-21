@@ -8,9 +8,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApiModel(description = "Internal Location")
 @Data
@@ -30,20 +32,24 @@ public class InternalLocation {
     @JsonProperty("levels")
     private List<TypeValue> levels;
 
-    public InternalLocation(String description, String levelStr) {
+    public InternalLocation(final String description, final String levelStr) {
         this.description = description;
         if (levelStr != null) {
-            this.levels = new ArrayList<>();
-            for (String level : levelStr.split("\\|", MAX_LEVELS)) {
-                String[] tv = level.split(",");
-                if (tv.length == 2) {
-                    this.levels.add(new TypeValue(tv[0], tv[1]));
-                } else {
-                    throw new RuntimeException("Badly formed levelStr:" + levelStr);
-                }
-            }
+            this.levels = buildLevels(levelStr);
         }
     }
 
+    private List<TypeValue> buildLevels(String levelStr) {
+        return Arrays.stream(StringUtils.split(levelStr, "\\|", MAX_LEVELS))
+                .map(level -> {
+                    var tv = level.split(",");
+                    if (tv.length == 2) {
+                        return new TypeValue(tv[0], tv[1]);
+                    } else {
+                        throw new RuntimeException("Badly formed levelStr:" + levelStr);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
 
 }
