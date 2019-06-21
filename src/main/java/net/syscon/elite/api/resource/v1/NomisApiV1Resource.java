@@ -116,7 +116,7 @@ public interface NomisApiV1Resource {
                     "</table>Notes:<br/><ul>" +
                     "<li>The sub_account the amount is debited or credited from will be determined by the transaction_type definition in NOMIS.</li>" +
                     "<li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.</li>" +
-                    "<li>The clientUniqueRef can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li></ul>")
+                    "<li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li></ul>")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "Transaction Created")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Transaction Created", response = TransactionResponse.class),
