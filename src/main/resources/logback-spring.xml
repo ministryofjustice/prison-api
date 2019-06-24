@@ -7,12 +7,6 @@
     <springProperty scope="context" name="appName" source="info.app.name"/>
     <springProperty scope="context" name="appVersion" source="info.app.version"/>
 
-    <appender name="logAppender" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>${LOG_PATTERN}</Pattern>
-        </layout>
-    </appender>
-
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>${LOG_PATTERN}</Pattern>
