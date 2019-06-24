@@ -79,7 +79,7 @@ public class InmateRepositoryTest {
         final var alertFilter = List.of("XA", "HC");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", "A", "A", "LEI",
-                alertFilter, "All", "WING", pageRequest);
+                alertFilter, "All", "WING", null, null, pageRequest);
 
         final var results = foundInmates.getItems();
         assertThat(results).hasSize(1);
@@ -93,7 +93,7 @@ public class InmateRepositoryTest {
         final var caseloads = Set.of("LEI");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "Convicted", "WING", pageRequest);
+                null, "Convicted", "WING", null, null, pageRequest);
 
         final var results = foundInmates.getItems();
 
@@ -108,7 +108,7 @@ public class InmateRepositoryTest {
         final var caseloads = Set.of("LEI");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "Remand", "WING", pageRequest);
+                null, "Remand", "WING", null, null, pageRequest);
 
         final var results = foundInmates.getItems();
 
@@ -123,7 +123,7 @@ public class InmateRepositoryTest {
         final var caseloads = Set.of("LEI");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "All", "WING", pageRequest);
+                null, "All", "WING", null, null, pageRequest);
 
         final var results = foundInmates.getItems();
 

@@ -7,6 +7,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class OffenderSearchSteps extends CommonSteps {
 
     @Step("Perform offender search without any criteria")
     public void findAll(final String locationPrefix) {
-        search(locationPrefix, null, true, false, false,null);
+        search(locationPrefix, null, true, false, false,null, null, null);
     }
 
     @Step("Verify first names of offender returned by search")
@@ -44,6 +45,11 @@ public class OffenderSearchSteps extends CommonSteps {
     @Step("Verify living unit of offender returned by search")
     public void verifyLivingUnits(final String livingUnitList) {
         verifyPropertyValues(offenderBookings, OffenderBooking::getAssignedLivingUnitDesc, livingUnitList);
+    }
+
+    @Step("Verify Dob")
+    public void verifyDob(final String dob) {
+        verifyLocalDateValues(offenderBookings, OffenderBooking::getDateOfBirth, dob);
     }
 
     @Step("Verify alerts of offender returned by search")
@@ -68,7 +74,7 @@ public class OffenderSearchSteps extends CommonSteps {
         assertThat(actual).isEqualTo(true);
     }
 
-    public void search(final String locationPrefix, final String keywords, final boolean returnIep, final boolean returnAlerts, final boolean returnCategory, final String alerts) {
+    public void search(final String locationPrefix, final String keywords, final boolean returnIep, final boolean returnAlerts, final boolean returnCategory, final String alerts, LocalDate fromDob, LocalDate toDob) {
         init();
         final var queryUrl = new StringBuilder(format(LOCATION_SEARCH, locationPrefix.trim()) + "?");
 
@@ -83,6 +89,12 @@ public class OffenderSearchSteps extends CommonSteps {
         }
         if (StringUtils.isNotBlank(keywords)) {
             queryUrl.append("keywords=").append(keywords).append("&");
+        }
+        if (fromDob != null) {
+            queryUrl.append("fromDob=").append(fromDob).append("&");
+        }
+        if (toDob != null) {
+            queryUrl.append("toDob=").append(toDob).append("&");
         }
         final var alertList = csv2list(alerts);
         for (final var a : alertList) {

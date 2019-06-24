@@ -91,3 +91,15 @@ Feature: Offender Search V2
       | V46,P1 | LEI      | 2      | ANDREWS,DUCK   | V46,P1      | C,Z        |
       | XA     | LEI      | 1      | ANDERSON       | XA,HC       | LOW        |
       | RSS    | LEI      | 0      |                |             |            |
+
+@wip
+  Scenario Outline: Search based on date of birth ranges
+    When an offender search is made in location "<location>" filtering between DOB between "<fromDob>" and "<toDob>"
+    Then "<number>" total offender records are available
+    And DOB match "<date of birth>"
+
+    Examples:
+      | location | fromDob    | toDob       |  number | date of birth                                                                |
+      | LEI      | 1970-01-01 | 1972-01-01  |  4      | 1970-01-01,1970-01-01,1970-03-01,1972-01-01                                  |
+      | LEI      | 1972-01-02 |             |  7      | 1974-01-01,1977-01-02,1979-12-31,1980-01-02,1986-06-01,1998-08-28,1999-10-27 |
+      | LEI      |            | 1945-01-09  |  1      | 1945-01-09                                                                   |

@@ -1,8 +1,5 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,9 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @ApiModel(description = "Offender Booking Summary")
@@ -28,96 +23,65 @@ import java.util.Map;
 @NoArgsConstructor
 public class OffenderBooking {
 
-    @JsonIgnore
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    private Map<String, Object> additionalProperties;
-    
     @NotNull
-    @ApiModelProperty(required = true, value = "Unique, numeric booking id.")
+    @ApiModelProperty(required = true, value = "Unique, numeric booking id.", position = 1, example = "1234134")
     private Long bookingId;
 
-    @ApiModelProperty(value = "Booking number.")
+    @ApiModelProperty(value = "Booking number.", position = 2, example = "A12121")
     private String bookingNo;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Offender number (e.g. NOMS Number).")
+    @ApiModelProperty(required = true, value = "Offender number (e.g. NOMS Number).", position = 3, example = "A1234AA")
     private String offenderNo;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Offender first name.")
+    @ApiModelProperty(required = true, value = "Offender first name.", position = 4, example = "JOHN")
     private String firstName;
 
-    @ApiModelProperty(value = "Offender middle name.")
+    @ApiModelProperty(value = "Offender middle name.", position = 5, example = "ASHLEY")
     private String middleName;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Offender last name.")
+    @ApiModelProperty(required = true, value = "Offender last name.", position = 6, example = "SMITH")
     private String lastName;
 
     @NotNull
-    @ApiModelProperty(required = true, value = "Offender date of birth.")
+    @ApiModelProperty(required = true, value = "Offender date of birth.", position = 7, example = "1980-05-02")
     private LocalDate dateOfBirth;
 
     @NotNull
-    @ApiModelProperty(required = true, value = "Offender's current age.")
+    @ApiModelProperty(required = true, value = "Offender's current age.", position = 8, example = "32")
     private Integer age;
 
-    @NotNull
-    @Builder.Default
-    @ApiModelProperty(required = true, value = "List of offender's current alert types.")
-    private List<String> alertsCodes = new ArrayList<String>();
-
-    @NotNull
-    @Builder.Default
-    @ApiModelProperty(required = true, value = "List of offender's current alert codes.")
-    private List<String> alertsDetails = new ArrayList<String>();
-
     @NotBlank
-    @ApiModelProperty(required = true, value = "Identifier of agency that offender is associated with.")
+    @ApiModelProperty(required = true, value = "Identifier of agency that offender is associated with.", position = 11, example = "MDI")
     private String agencyId;
 
-    @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that offender is assigned to.")
+    @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that offender is assigned to.", position = 12, example = "123123")
     private Long assignedLivingUnitId;
 
-    @ApiModelProperty(value = "Description of living unit (e.g. cell) that offender is assigned to.")
+    @ApiModelProperty(value = "Description of living unit (e.g. cell) that offender is assigned to.", position = 13, example = "MDI-1-1-3")
     private String assignedLivingUnitDesc;
 
-    @ApiModelProperty(value = "Identifier of facial image of offender.")
+    @ApiModelProperty(value = "Identifier of facial image of offender.", position = 14, example = "1241241")
     private Long facialImageId;
 
-    @ApiModelProperty(value = "Identifier of officer (key worker) to which offender is assigned.")
+    @ApiModelProperty(value = "Identifier of officer (key worker) to which offender is assigned.", position = 15, example = "354543")
     private String assignedOfficerUserId;
 
-    @ApiModelProperty(value = "List of offender's alias names.")
+    @ApiModelProperty(value = "List of offender's alias names.", position = 16, allowEmptyValue = true)
     private List<String> aliases;
 
-    @ApiModelProperty(value = "The IEP Level of the offender (UK Only)")
+    @ApiModelProperty(value = "The IEP Level of the offender (UK Only)", position = 17, example = "Basic")
     private String iepLevel;
 
-    @ApiModelProperty(value = "The Cat A/B/C/D of the offender")
+    @ApiModelProperty(value = "The Cat A/B/C/D of the offender", position = 18, example = "C", allowableValues = "A,B,C,D,I,J")
     private String categoryCode;
-
-    @ApiModelProperty(value = "The convicted status of the offender calculated from their sentence band code")
-    private String convictedStatus;
-
-    @ApiModelProperty(hidden = true)
-    private String bandCode;
-
-    @ApiModelProperty(value = "The imprisonment status of the offender")
-    private String imprisonmentStatus;
-
-    /**
-     * Specialised getter which initialises the additionalProperties if it is null
-     */
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
 
     /**
      * Specialised setter for the 'virtual' attribute convictedStatus, an interpreted value based on the bandCode
      */
+    @ApiModelProperty(value = "Convicted Status", position = 19, example = "Convicted", allowableValues = "Convicted,Remand")
     public String getConvictedStatus() {
         if (this.bandCode != null) {
             return Integer.valueOf(this.bandCode) <= 8 ? "Convicted" : "Remand";
@@ -125,10 +89,26 @@ public class OffenderBooking {
         return null;
     }
 
+    @ApiModelProperty(value = "The imprisonment status of the offender", position = 20, example = "SENT")
+    private String imprisonmentStatus;
+
+    @NotNull
+    @Builder.Default
+    @ApiModelProperty(required = true, value = "List of offender's current alert types.", position = 21)
+    private List<String> alertsCodes = new ArrayList<>();
+
+    @NotNull
+    @Builder.Default
+    @ApiModelProperty(required = true, value = "List of offender's current alert codes.", position = 22)
+    private List<String> alertsDetails = new ArrayList<>();
+
+    @ApiModelProperty(hidden = true, position = 23, example = "8")
+    private String bandCode;
+
     /**
      * Specialised getter so that the ApiModelProperty(hidden = true) is not ignored by a Lombok-generated getter for 'bandCode'
      */
-    @ApiModelProperty(hidden=true)
+    @ApiModelProperty(hidden=true, position = 23, example = "8")
     public String getBandCode() {
         return bandCode;
     }

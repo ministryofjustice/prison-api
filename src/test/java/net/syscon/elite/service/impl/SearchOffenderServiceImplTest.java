@@ -42,7 +42,7 @@ public class SearchOffenderServiceImplTest {
         );
 
         when(inmateRepository.searchForOffenderBookings(anySet(), isNull(), anyString(), isNull(), anyString(),
-                isNull(), isNull(), eq(locationTypeGranularity), any())).thenReturn(new Page<>(bookings, bookings.size(), 0, bookings.size()));
+                isNull(), isNull(), eq(locationTypeGranularity), isNull(), isNull(), any())).thenReturn(new Page<>(bookings, bookings.size(), 0, bookings.size()));
 
         final var service = new SearchOffenderServiceImpl(bookingService, userService, inmateRepository, authenticationFacade,
                 locationTypeGranularity, offenderNoRegex, maxBatchSize);

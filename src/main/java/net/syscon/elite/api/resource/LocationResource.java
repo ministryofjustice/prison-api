@@ -11,6 +11,7 @@ import net.syscon.elite.api.support.ResponseDelegate;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.List;
 
 @Api(tags = {"/locations"})
@@ -29,6 +30,8 @@ public interface LocationResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
     GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(@ApiParam(value = "", required = true) @PathParam("locationPrefix") String locationPrefix,
                                                                                 @ApiParam(value = "offender name or id to match") @QueryParam("keywords") String keywords,
+                                                                                @ApiParam(value = "Offenders with a DOB >= this date", example = "1970-01-02") @QueryParam("fromDob") LocalDate fromDob,
+                                                                                @ApiParam(value = "Offenders with a DOB <= this date", example = "1975-01-02") @QueryParam("toDob") LocalDate toDob,
                                                                                 @ApiParam(value = "alert flags to filter by") @QueryParam("alerts") List<String> alerts,
                                                                                 @ApiParam(value = "return IEP data", defaultValue = "false") @QueryParam("returnIep") boolean returnIep,
                                                                                 @ApiParam(value = "return Alert data", defaultValue = "false") @QueryParam("returnAlerts") boolean returnAlerts,

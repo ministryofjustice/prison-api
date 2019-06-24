@@ -94,7 +94,6 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         String offenderNo = null;
         String searchTerm1 = null;
         String searchTerm2 = null;
-        String bandCodeValue = null;
 
         // Search by keywords and values
 
@@ -116,7 +115,7 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
                 request.getLocationPrefix(),
                 request.getAlerts(),
                 request.getConvictedStatus(),
-                locationTypeGranularity, pageRequest);
+                locationTypeGranularity, request.getFromDob(), request.getToDob(), pageRequest);
     }
 
     private boolean isOffenderNo(final String potentialOffenderNumber) {

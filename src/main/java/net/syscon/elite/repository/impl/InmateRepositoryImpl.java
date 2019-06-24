@@ -201,7 +201,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     @Override
     @Cacheable("searchForOffenderBookings")
     public Page<OffenderBooking> searchForOffenderBookings(final Set<String> caseloads, final String offenderNo, final String searchTerm1, final String searchTerm2,
-                                                           final String locationPrefix, final List<String> alerts, final String convictedStatus, final String locationTypeRoot, final PageRequest pageRequest) {
+                                                           final String locationPrefix, final List<String> alerts, final String convictedStatus, final String locationTypeRoot,
+                                                           final LocalDate fromDob, final LocalDate toDob, final PageRequest pageRequest) {
         var initialSql = getQuery("FIND_ALL_INMATES");
         initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 
@@ -238,6 +239,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             }
         }
 
+        if (fromDob != null || toDob != null) {
+            if (fromDob != null) {
+                initialSql += " AND O.BIRTH_DATE >= :fromDob ";
+            }
+            if (toDob != null) {
+                initialSql += " AND O.BIRTH_DATE <= :toDob ";
+            }
+        }
+
+
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 
         final var sql = builder
@@ -259,6 +270,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "-%",
                         "caseLoadId", caseloads,
                         "locationTypeRoot", locationTypeRoot,
+                        "fromDob", fromDob,
+                        "toDob", toDob,
                         "alerts", alerts,
                         "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit()),
                 paRowMapper);
