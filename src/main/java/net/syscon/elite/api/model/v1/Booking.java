@@ -23,33 +23,33 @@ public class Booking {
     @JsonIgnore
     private Long offenderBookId;
 
-    @ApiModelProperty(name = "booking_no", value = "Bookings", position = 0, required = true)
+    @ApiModelProperty(name = "booking_no", value = "Bookings", position = 1, required = true, example = "A12313")
     @JsonProperty("booking_no")
     private String bookingNo;
 
-    @ApiModelProperty(name = "booking_started", value = "Start Date of Booking", position = 1, required = true)
+    @ApiModelProperty(name = "booking_started", value = "Start Date of Booking", position = 2, required = true, example = "2017-02-04")
     @JsonProperty("booking_started")
     private LocalDate bookingBeginDate;
 
-    @ApiModelProperty(name = "booking_ended", value = "End date of Booking", position = 2)
+    @ApiModelProperty(name = "booking_ended", value = "End date of Booking", position = 3, example = "2019-06-04")
     @JsonProperty("booking_ended")
     private LocalDate bookingEndDate;
 
-    @ApiModelProperty(name = "booking_active", value = "Booking Active?", example = "true", position = 3, required = true)
+    @ApiModelProperty(name = "booking_active", value = "Booking Active?", example = "true", position = 4, required = true)
     @JsonProperty("booking_active")
     private boolean bookingActive;
 
-    @ApiModelProperty(name = "location", value = "Location of Offender", position = 4)
+    @ApiModelProperty(name = "location", value = "Location of Offender", position = 5)
     private Location location;
 
     @JsonIgnore
     private boolean latestBooking;
 
-    @ApiModelProperty(name = "release_date", value = "Release Date", position = 5)
+    @ApiModelProperty(name = "release_date", value = "Release Date", position = 6, example = "2019-02-04")
     @JsonProperty("release_date")
     private LocalDate releaseDate;
 
-    @ApiModelProperty(name = "legal_cases", value = "Legal Cases", position = 6, allowEmptyValue = true)
+    @ApiModelProperty(name = "legal_cases", value = "Legal Cases", position = 7, allowEmptyValue = true)
     @JsonProperty("legal_cases")
     private List<LegalCase> legalCases;
 
