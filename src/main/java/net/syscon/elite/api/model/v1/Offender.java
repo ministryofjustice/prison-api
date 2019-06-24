@@ -26,7 +26,7 @@ import java.util.List;
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({"given_name", "middle_names", "surname", "title", "suffix", "date_of_birth",
         "aliases", "gender", "nationalities", "religion", "ethnicity", "language",
-        "csra", "convicted", "pnc_number", "cro_number"})
+        "csra", "convicted", "pnc_number", "cro_number", "imprisonment_status", "iep_level", "diet", "security_category"})
 public class Offender {
 
     @JsonIgnore

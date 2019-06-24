@@ -5,12 +5,14 @@ import net.syscon.elite.repository.v1.*;
 import net.syscon.elite.repository.v1.model.BookingSP;
 import net.syscon.elite.repository.v1.model.ChargeSP;
 import net.syscon.elite.repository.v1.model.LegalCaseSP;
+import net.syscon.elite.repository.v1.model.OffenderSP;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.bind.DatatypeConverter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,7 +51,7 @@ public class NomisApiV1Service {
 
     private Location buildLocation(BookingSP l) {
         return Location.builder()
-                .establishment(new CodeDescription(l.getAgyLocId(), l.getAgyLocDesc()))
+                .establishment(CodeDescription.safeNullBuild(l.getAgyLocId(), l.getAgyLocDesc()))
                 .housingLocation(StringUtils.isNotBlank(l.getHousingLocation()) ? new InternalLocation(l.getHousingLocation(), l.getHousingLevels()) : null)
                 .build();
     }
@@ -63,7 +65,6 @@ public class NomisApiV1Service {
                             .bookingActive("Y".equals(booking.getActiveFlag()))
                             .bookingBeginDate(booking.getBookingBeginDate())
                             .bookingEndDate(booking.getBookingEndDate())
-                            .location(buildLocation(booking))
                             .latestBooking("Y".equals(booking.getLatestBooking()))
                             .releaseDate(booking.getRelDate())
                             .legalCases(legalV1Repository.getBookingCases(booking.getOffenderBookId()).stream()
@@ -85,8 +86,8 @@ public class NomisApiV1Service {
                 .beginDate(lc.getBeginDate())
                 .caseActive("A".equalsIgnoreCase(lc.getCaseStatus()))
                 .caseInfoNumber(lc.getCaseInfoNumber())
-                .court(CodeDescription.builder().code(lc.getCourtCode()).desc(lc.getCourtDesc()).build())
-                .caseType(CodeDescription.builder().code(lc.getCaseTypeCode()).desc(lc.getCaseTypeDesc()).build())
+                .court(CodeDescription.safeNullBuild(lc.getCourtCode(), lc.getCourtDesc()))
+                .caseType(CodeDescription.safeNullBuild(lc.getCaseTypeCode(), lc.getCaseTypeDesc()))
                 .charges(legalV1Repository.getCaseCharges(lc.getCaseId()).stream()
                             .map(this::buildCharge)
                             .collect(Collectors.toList()))
@@ -96,14 +97,14 @@ public class NomisApiV1Service {
     private Charge buildCharge(final ChargeSP charge) {
         return Charge.builder()
                 .offenderChargeId(charge.getOffenderChargeId())
-                .statute(CodeDescription.builder().code(charge.getStatuteCode()).desc(charge.getStatuteDesc()).build())
-                .offence(CodeDescription.builder().code(charge.getOffenceCode()).desc(charge.getOffenceDesc()).build())
-                .band(CodeDescription.builder().code(charge.getBandCode()).desc(charge.getBandDesc()).build())
-                .disposition(CodeDescription.builder().code(charge.getDispositionCode()).desc(charge.getDispositionDesc()).build())
-                .imprisonmentStatus(CodeDescription.builder().code(charge.getImprisonmentStatus()).desc(charge.getImprisonmentStatusDesc()).build())
-                .result(CodeDescription.builder().code(charge.getResultCode()).desc(charge.getResultDesc()).build())
+                .statute(CodeDescription.safeNullBuild(charge.getStatuteCode(), charge.getStatuteDesc()))
+                .offence(CodeDescription.safeNullBuild(charge.getOffenceCode(), charge.getOffenceDesc()))
+                .band(CodeDescription.safeNullBuild(charge.getBandCode(), charge.getBandDesc()))
+                .disposition(CodeDescription.safeNullBuild(charge.getDispositionCode(), charge.getDispositionDesc()))
+                .imprisonmentStatus(CodeDescription.safeNullBuild(charge.getImprisonmentStatus(), charge.getImprisonmentStatusDesc()))
+                .result(CodeDescription.safeNullBuild(charge.getResultCode(), charge.getResultDesc()))
                 .noOfOffences(charge.getNoOfOffences())
-                .chargeActive("Y".equalsIgnoreCase(charge.getChargeStatus()))
+                .chargeActive("A".equalsIgnoreCase(charge.getChargeStatus()))
                 .mostSerious("Y".equals(charge.getMostSeriousFlag()))
                 .convicted("Y".equalsIgnoreCase(charge.getConvictionFlag()))
                 .severityRanking(charge.getSeverityRanking())
@@ -114,8 +115,8 @@ public class NomisApiV1Service {
         var alerts = alertV1Repository.getAlerts(nomsId, includeInactive, modifiedSince).stream()
                 .filter(a -> a.getAlertSeq() != null)
                 .map(a -> Alert.builder()
-                        .type(CodeDescription.builder().code(a.getAlertType()).desc(a.getAlertTypeDesc()).build())
-                        .subType(CodeDescription.builder().code(a.getAlertCode()).desc(a.getAlertCodeDesc()).build())
+                        .type(CodeDescription.safeNullBuild(a.getAlertType(), a.getAlertTypeDesc()))
+                        .subType(CodeDescription.safeNullBuild(a.getAlertCode(), a.getAlertCodeDesc()))
                         .date(a.getAlertDate())
                         .expiryDate(a.getExpiryDate())
                         .comment(a.getCommentText())
@@ -136,6 +137,8 @@ public class NomisApiV1Service {
                         .middleNames(o.getMiddleNames())
                         .surname(o.getLastName())
                         .birthDate(o.getBirthDate())
+                        .title(o.getTitle())
+                        .suffix(o.getSuffix())
                         .aliases(o.getOffenderAliases().stream().map(a -> OffenderAlias.builder()
                                 .givenName(a.getFirstName())
                                 .middleNames(a.getMiddleNames())
@@ -145,19 +148,29 @@ public class NomisApiV1Service {
                         .pncNumber(o.getPncNumber())
                         .croNumber(o.getCroNumber())
                         .nationalities(o.getNationalities())
-                        .language(Language.builder().interpreterRequired("Y".equals(o.getInterpreterRequestedFlag())).spokenLanguage(CodeDescription.builder().code(o.getSpokenLanguageCode()).desc(o.getSpokenLanguageDesc()).build()).build())
+                        .language(buildLanguage(o))
                         .convicted("Convicted".equalsIgnoreCase(o.getConvictedStatus()))
-                        .ethnicity(CodeDescription.builder().code(o.getEthnicityCode()).desc(o.getEthnicityDesc()).build())
-                        .gender(CodeDescription.builder().code(o.getSexCode()).desc(o.getSexDesc()).build())
-                        .religion(CodeDescription.builder().code(o.getReligionCode()).desc(o.getReligionDesc()).build())
-                        .csra(CodeDescription.builder().code(o.getCsraCode()).desc(o.getCsraDescription()).build())
-                        .categorisationLevel(CodeDescription.builder().code(o.getCatLevel()).desc(o.getCatLevelDesc()).build())
-                        .diet(CodeDescription.builder().code(o.getDietCode()).desc(o.getDietDesc()).build())
-                        .iepLevel(CodeDescription.builder().code(o.getIepLevel()).desc(o.getIepLevelDesc()).build())
-                        .imprisonmentStatus(CodeDescription.builder().code(o.getImprisonmentStatus()).desc(o.getImprisonmentStatusDesc()).build())
-                        .diet(CodeDescription.builder().code(o.getDietCode()).desc(o.getDietDesc()).build())
+                        .ethnicity(CodeDescription.safeNullBuild(o.getEthnicityCode(), o.getEthnicityDesc()))
+                        .gender(CodeDescription.safeNullBuild(o.getSexCode(), o.getSexDesc()))
+                        .religion(CodeDescription.safeNullBuild(o.getReligionCode(), o.getReligionDesc()))
+                        .csra(CodeDescription.safeNullBuild(o.getCsraCode(), o.getCsraDescription()))
+                        .categorisationLevel(CodeDescription.safeNullBuild(o.getCatLevel(), o.getCatLevelDesc()))
+                        .diet(CodeDescription.safeNullBuild(o.getDietCode(), o.getDietDesc()))
+                        .iepLevel(CodeDescription.safeNullBuild(o.getIepLevel(), o.getIepLevelDesc()))
+                        .imprisonmentStatus(CodeDescription.safeNullBuild(o.getImprisonmentStatus(), o.getImprisonmentStatusDesc()))
+                        .diet(CodeDescription.safeNullBuild(o.getDietCode(), o.getDietDesc()))
                         .build())
                 .orElseThrow(EntityNotFoundException.withId(nomsId));
+    }
+
+    private Language buildLanguage(OffenderSP offender) {
+        if (StringUtils.isNotBlank(offender.getSpokenLanguageCode())) {
+            return Language.builder()
+                    .interpreterRequired("Y".equals(offender.getInterpreterRequestedFlag()))
+                    .spokenLanguage(CodeDescription.safeNullBuild(offender.getSpokenLanguageCode(), offender.getSpokenLanguageDesc()))
+                    .build();
+        }
+        return null;
     }
 
     @Transactional
@@ -167,6 +180,8 @@ public class NomisApiV1Service {
     }
 
     public Image getOffenderImage(final String nomsId) {
-        return offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
+        byte[] imageBytes = offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
+
+        return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
     }
 }
