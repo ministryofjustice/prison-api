@@ -137,6 +137,8 @@ public class NomisApiV1Service {
                         .middleNames(o.getMiddleNames())
                         .surname(o.getLastName())
                         .birthDate(o.getBirthDate())
+                        .title(o.getTitle())
+                        .suffix(o.getSuffix())
                         .aliases(o.getOffenderAliases().stream().map(a -> OffenderAlias.builder()
                                 .givenName(a.getFirstName())
                                 .middleNames(a.getMiddleNames())
