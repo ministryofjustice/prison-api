@@ -92,7 +92,6 @@ Feature: Offender Search V2
       | XA     | LEI      | 1      | ANDERSON       | XA,HC       | LOW        |
       | RSS    | LEI      | 0      |                |             |            |
 
-@wip
   Scenario Outline: Search based on date of birth ranges
     When an offender search is made in location "<location>" filtering between DOB between "<fromDob>" and "<toDob>"
     Then "<number>" total offender records are available
