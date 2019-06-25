@@ -14,6 +14,7 @@ RUN addgroup --gid 2000 --system appgroup && \
 WORKDIR /app
 
 COPY --chown=appuser:appgroup ./build/libs/elite2-api*.jar /app/app.jar
+COPY --chown=appuser:appgroup run.sh /app
 
 USER 2000
 
