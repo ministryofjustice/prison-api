@@ -20,6 +20,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDate;
@@ -111,19 +112,36 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-    public List<CaseNoteUsage> getCaseNoteUsage(final String type, final String subType, final List<String> offenderNos, final Integer staffId, final String agencyId, final LocalDate fromDate, final LocalDate toDate) {
+    public List<CaseNoteUsage> getCaseNoteUsage(@NotNull final LocalDate fromDate, @NotNull final LocalDate toDate, final String agencyId, final List<String> offenderNos, final Integer staffId, final String type, final String subType) {
 
-        final var sql = String.format(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
-				StringUtils.isNotBlank(agencyId) ? " AND OCS.AGY_LOC_ID = :agencyId " : "");
+    	final var addSql = new StringBuilder();
+		if (StringUtils.isNotBlank(type)) {
+			addSql.append(" AND OCS.CASE_NOTE_TYPE = :type ");
+		}
+		if (StringUtils.isNotBlank(subType)) {
+			addSql.append(" AND OCS.CASE_NOTE_SUB_TYPE = :subType ");
+		}
+    	if (StringUtils.isNotBlank(agencyId)) {
+    		addSql.append(" AND OCS.AGY_LOC_ID = :agencyId ");
+		}
+		if (offenderNos != null && !offenderNos.isEmpty()) {
+			addSql.append(" AND O.OFFENDER_ID_DISPLAY IN (:offenderNos) ");
+		}
+		if (staffId != null) {
+			addSql.append(" AND OCS.STAFF_ID = :staffId ");
+		}
+
+		final var sql = String.format(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"), addSql.length() > 0 ? addSql.toString() : "");
 
 		return jdbcTemplate.query(sql,
-				createParams("offenderNos", offenderNos,
-						"staffId", new SqlParameterValue(Types.INTEGER, staffId),
-						"agencyId", new SqlParameterValue(Types.VARCHAR, agencyId),
+				createParams(
+						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate)),
 						"type", new SqlParameterValue(Types.VARCHAR, type),
 						"subType", new SqlParameterValue(Types.VARCHAR, subType),
-						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+						"offenderNos", offenderNos,
+						"agencyId", new SqlParameterValue(Types.VARCHAR, agencyId),
+						"staffId", new SqlParameterValue(Types.INTEGER, staffId)),
 				CASE_NOTE_USAGE_MAPPER);
 	}
 
