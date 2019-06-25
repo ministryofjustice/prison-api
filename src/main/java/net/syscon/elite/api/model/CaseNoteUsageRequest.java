@@ -23,10 +23,10 @@ import java.util.List;
 @Data
 public class CaseNoteUsageRequest {
 
-    @ApiModelProperty(required = true, value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate", position = 1, example = "2018-11-01")
+    @ApiModelProperty(value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate", position = 1, example = "2018-11-01")
     private LocalDate fromDate;
 
-    @ApiModelProperty(required = true, value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate", position = 2, example = "2018-12-01")
+    @ApiModelProperty(value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate", position = 2, example = "2018-12-01")
     private LocalDate toDate;
 
     @ApiModelProperty(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", position = 3, example = "2")
