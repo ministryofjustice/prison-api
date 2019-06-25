@@ -1,43 +1,31 @@
-buildscript {
-    ext {
-        springBootVersion = '2.1.5.RELEASE'
-    }
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.21.0"
-    }
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+import java.time.Instant
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'org.springframework.boot' version '2.1.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'com.github.ben-manes.versions' version '0.21.0'
 }
-
-group 'net.syscon.elite'
-
-apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: "com.github.ben-manes.versions"
 
 project.sourceCompatibility = 11
 project.targetCompatibility = 11
 
-repositories {
-    mavenCentral()
-}
+def today = Instant.now()
+group 'net.syscon.elite'
 
-def applicationName = 'elite2-api'
-def today = java.time.Instant.now()
-
-
-def todayDate = java.time.LocalDate.now()
-def formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
+def todayDate = LocalDate.now()
+def formatter = DateTimeFormatter.ofPattern('yyyy-MM-dd')
 version todayDate.format(formatter)
 
 jar {
-    archiveBaseName = applicationName
+    archiveBaseName = rootProject.name
     manifest {
-        attributes 'Implementation-Title': applicationName,
+        attributes 'Implementation-Title': rootProject.name,
                 'Implementation-Version': System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
     }
 }
@@ -47,7 +35,7 @@ springBoot {
         properties {
             artifact = rootProject.name
             version = System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
-            group = 'net.syscon.elite'
+            group = group
             name = rootProject.name
             time = today
             additional = [
@@ -60,100 +48,111 @@ springBoot {
     }
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 configurations {
-    compile.exclude module: "commons-logging"
-    compile.exclude module: "log4j"
-    compile.exclude module: "c3p0"
-    compile.exclude module: "tomcat-jdbc"
+    compile.exclude module: 'commons-logging'
+    compile.exclude module: 'log4j'
+    compile.exclude module: 'c3p0'
+    compile.exclude module: 'tomcat-jdbc'
 }
 
 // Exclude Serenity BDD integration and IntTest tests from 'test' task so they can be controlled independently
 test {
-    exclude "**/executablespecification/*", "**/*IntTest*"
+    exclude '**/executablespecification/*', '**/*IntTest*'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom(SpringBootPlugin.BOM_COORDINATES)
+    }
 }
 
 dependencies {
 
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    annotationProcessor('org.projectlombok:lombok:1.18.8')
-    testAnnotationProcessor('org.projectlombok:lombok:1.18.8')
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
 
-    compile files("${rootDir}/lib/ojdbc8-18.3.jar")
+    implementation files("${rootDir}/lib/ojdbc8-18.3.jar")
 
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.springframework.boot:spring-boot-starter-aop")
-    compile('org.springframework.boot:spring-boot-starter-actuator')
-    compile('org.springframework.boot:spring-boot-starter-jersey')
-    compile("org.springframework.boot:spring-boot-starter-jdbc")
-    compile("org.springframework.boot:spring-boot-starter-security")
-    compile("org.springframework.boot:spring-boot-starter-cache")
-    compile("org.springframework.boot:spring-boot-devtools")
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-jersey'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-devtools'
 
-    compile("org.springframework.security.oauth:spring-security-oauth2:2.3.6.RELEASE")
-    compile("org.springframework.security:spring-security-jwt:1.0.10.RELEASE")
+    implementation 'org.springframework.security.oauth:spring-security-oauth2:2.3.6.RELEASE'
+    implementation 'org.springframework.security:spring-security-jwt:1.0.10.RELEASE'
 
-    compile 'javax.annotation:javax.annotation-api:1.3.2'
-    compile 'javax.xml.bind:jaxb-api:2.3.1'
-    compile 'com.sun.xml.bind:jaxb-impl:2.3.2'
-    compile 'com.sun.xml.bind:jaxb-core:2.3.0.1'
-    compile 'javax.activation:activation:1.1.1'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'com.sun.xml.bind:jaxb-impl:2.3.2'
+    implementation 'com.sun.xml.bind:jaxb-core:2.3.0.1'
+    implementation 'javax.activation:activation:1.1.1'
 
-    compile 'commons-codec:commons-codec:1.12'
-    compile("org.apache.commons:commons-text:1.6")
-    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8")
-    compile("com.github.jsqlparser:jsqlparser:2.0")
-    compile("net.sf.ehcache:ehcache:2.10.6")
-    compile("io.jsonwebtoken:jjwt:0.9.1")
-    compile("com.zaxxer:HikariCP:3.3.1")
+    implementation 'commons-codec:commons-codec:1.12'
+    implementation 'org.apache.commons:commons-text:1.6'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.9'
+    implementation 'com.github.jsqlparser:jsqlparser:2.0'
+    implementation 'net.sf.ehcache:ehcache:2.10.6'
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation 'com.zaxxer:HikariCP:3.3.1'
 
-    compile("io.swagger:swagger-jersey2-jaxrs:1.5.22")
-    compile("io.springfox:springfox-swagger-ui:2.9.2")
-    compile("io.springfox:springfox-swagger2:2.9.2")
-    compile("net.logstash.logback:logstash-logback-encoder:5.3")
-    compile("com.microsoft.azure:applicationinsights-spring-boot-starter:1.2.0-BETA")
-    compile("com.microsoft.azure:applicationinsights-logging-logback:2.3.1")
+    implementation 'io.swagger:swagger-jersey2-jaxrs:1.5.22'
+    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+    implementation 'io.springfox:springfox-swagger2:2.9.2'
+    implementation 'net.logstash.logback:logstash-logback-encoder:5.3'
+    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:1.2.0-BETA'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.4.0-BETA'
 
-    compile("org.apache.commons:commons-lang3:3.9")
-    compile("commons-io:commons-io:2.6")
-    compile("org.apache.commons:commons-text:1.6")
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'org.apache.commons:commons-text:1.6'
 
-    compile 'com.github.timpeeters:spring-boot-graceful-shutdown:2.1.1'
+    implementation 'com.github.timpeeters:spring-boot-graceful-shutdown:2.1.1'
 
     compileOnly 'org.projectlombok:lombok:1.18.8'
 
-    runtime('org.hsqldb:hsqldb:2.4.1')
-    runtime("org.flywaydb:flyway-core:5.2.4")
+    runtime 'org.hsqldb:hsqldb:2.4.1'
+    runtime 'org.flywaydb:flyway-core:5.2.4'
 
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
-    testCompile("io.rest-assured:rest-assured:3.3.0")
-    testCompile("io.rest-assured:json-schema-validator:3.3.0")
-    testCompile("io.rest-assured:spring-mock-mvc:3.3.0")
-    testCompile("org.springframework.security:spring-security-test")
-    testCompile("com.google.code.gson:gson:2.8.5")
-    testCompile 'org.powermock:powermock-api-mockito2:2.0.0-RC.4'
-    testCompile 'org.powermock:powermock-module-junit4:2.0.0-RC.4'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
+    testImplementation 'io.rest-assured:rest-assured:3.3.0'
+    testImplementation 'io.rest-assured:json-schema-validator:3.3.0'
+    testImplementation 'io.rest-assured:spring-mock-mvc:3.3.0'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'com.google.code.gson:gson:2.8.5'
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
 
-    testCompile 'com.tngtech.java:junit-dataprovider:1.13.1'
+    testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
 
-    testCompile 'net.serenity-bdd:serenity-core:2.0.48'
-    testCompile 'net.serenity-bdd:serenity-junit:2.0.48'
-    testCompile 'net.serenity-bdd:serenity-spring:2.0.48'
-    testCompile 'net.serenity-bdd:serenity-cucumber:1.9.37'
+    testImplementation 'net.serenity-bdd:serenity-core:2.0.55'
+    testImplementation 'net.serenity-bdd:serenity-junit:2.0.55'
+    testImplementation 'net.serenity-bdd:serenity-spring:2.0.55'
+    testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.37'
+    testImplementation 'org.slf4j:slf4j-api:1.7.25'
     testCompileOnly 'org.projectlombok:lombok:1.18.8'
-    testCompile 'org.slf4j:slf4j-api:1.7.25'
 }
 
 task testIntegration(type: Test) {
-    include "**/*IntTest*"
+    include '**/*IntTest*'
 }
 
 task testWithSchemaNomis(type: Test) {
     def nomisEnvVars = ['api.db.target'   : 'nomis',
                         'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
-    exclude "**/persistence/*"
-    exclude "**/*IntTest*"
+    exclude '**/persistence/*'
+    exclude '**/*IntTest*'
     environment nomisEnvVars
 }
 
@@ -161,8 +160,8 @@ task testWithSchemaNomisOracle(type: Test) {
     def nomisEnvVars = ['api.db.target'   : 'nomis', 'api.db.dialect': 'oracle',
                         'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
-    exclude "**/persistence/*"
-    exclude "**/*IntTest*"
+    exclude '**/persistence/*'
+    exclude '**/*IntTest*'
     environment nomisEnvVars
 }
 
