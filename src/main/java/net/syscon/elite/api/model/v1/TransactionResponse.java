@@ -1,10 +1,12 @@
 package net.syscon.elite.api.model.v1;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
+@ApiModel(description = "Transaction Response")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

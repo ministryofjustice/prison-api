@@ -9,6 +9,7 @@ import net.syscon.elite.service.SearchOffenderService;
 import net.syscon.elite.service.support.SearchOffenderRequest;
 
 import javax.ws.rs.Path;
+import java.time.LocalDate;
 import java.util.List;
 
 import static net.syscon.util.ResourceUtils.nvl;
@@ -28,9 +29,9 @@ public class LocationsResourceImpl implements LocationResource {
 
 	@Override
 	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(
-            final String locationPrefix, final String keywords, final List<String> alerts,
-            final boolean returnIep, final boolean returnAlerts, final boolean returnCategory, final String convictedStatus,
-            final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+			final String locationPrefix, final String keywords, final LocalDate fromDob, final LocalDate toDob, final List<String> alerts,
+			final boolean returnIep, final boolean returnAlerts, final boolean returnCategory, final String convictedStatus,
+			final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var request = SearchOffenderRequest.builder()
 				.username(authenticationFacade.getCurrentUsername())
 				.keywords(keywords)
@@ -40,6 +41,8 @@ public class LocationsResourceImpl implements LocationResource {
 				.returnCategory(returnCategory)
 				.convictedStatus(convictedStatus)
 				.alerts(alerts)
+				.fromDob(fromDob)
+				.toDob(toDob)
 				.orderBy(sortFields)
 				.order(sortOrder)
 				.offset(nvl(pageOffset, 0L))

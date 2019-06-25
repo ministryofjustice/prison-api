@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Data
 @ToString
-public class LatestBookingSP {
+public class BookingSP {
 
     private Long offenderBookId;
     private String bookingNo;
