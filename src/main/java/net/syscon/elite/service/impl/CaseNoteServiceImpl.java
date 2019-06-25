@@ -193,7 +193,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
         final var caseNoteUsage = new ArrayList<CaseNoteUsage>();
 
-        if (offenderNos != null) {
+        if (offenderNos != null && !offenderNos.isEmpty()) {
             Lists.partition(offenderNos, maxBatchSize).forEach(offenderNosList ->
                     caseNoteUsage.addAll(
                             caseNoteRepository.getCaseNoteUsage(deriveDates.getFromDateToUse(), deriveDates.getToDateToUse(), agencyId, offenderNosList, staffId, type, subType)
