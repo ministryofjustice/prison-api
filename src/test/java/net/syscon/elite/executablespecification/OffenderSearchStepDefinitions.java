@@ -5,7 +5,10 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.OffenderSearchSteps;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDate;
 
 /**
  * BDD step definitions for the following Offender Search API endpoints:
@@ -28,17 +31,22 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
 
     @When("^an offender search is made for location \"([^\"]*)\"$")
     public void aOffenderSearchIsMadeForLocation(final String locationPrefix) throws Throwable {
-        offenderSearch.search(locationPrefix, null, false, false, false, null);
+        offenderSearch.search(locationPrefix, null, false, false, false, null, null, null);
     }
 
     @When("^an offender search is made with keywords \"([^\"]*)\" in location \"([^\"]*)\"$")
     public void anOffenderSearchIsMadeWithKeywordsInLocation(final String keywords, final String locationPrefix) throws Throwable {
-        offenderSearch.search(locationPrefix, keywords, true, false, false, null);
+        offenderSearch.search(locationPrefix, keywords, true, false, false, null, null, null);
     }
 
     @When("^an offender search is made filtering by alerts \"([^\"]*)\" in location \"([^\"]*)\"$")
     public void aBookingSearchIsMadeWithAlerts(final String alerts, final String locationPrefix) {
-        offenderSearch.search(locationPrefix,  null, false, true, true, alerts);
+        offenderSearch.search(locationPrefix,  null, false, true, true, alerts, null, null);
+    }
+
+    @When("^an offender search is made in location \"([^\"]*)\" filtering between DOB between \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void aBookingSearchIsMadeFilteringOnDobRange( final String locationPrefix, final String fromDob, final String toDob) {
+        offenderSearch.search(locationPrefix,  null, false, true, true, null, StringUtils.isNotBlank(fromDob) ? LocalDate.parse(fromDob) : null, StringUtils.isNotBlank(toDob) ? LocalDate.parse(toDob) : null);
     }
 
     @Then("^\"([^\"]*)\" offender records are returned$")
@@ -71,6 +79,11 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
         offenderSearch.verifyLivingUnits(livingUnits);
     }
 
+    @And("^DOB match \"([^\"]*)\"$")
+    public void dobMatch(final String dobs) throws Throwable {
+        offenderSearch.verifyDob(dobs);
+    }
+
     @And("^the offender alerts match \"([^\"]*)\"$")
     public void offenderAlertsMatch(final String alerts) throws Throwable {
         offenderSearch.verifyAlerts(alerts);
@@ -83,7 +96,7 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a booking search is made in \"([^\"]*)\"$")
     public void aBookingSearchIsMadeIn(final String subLocation) throws Throwable {
-        offenderSearch.search(subLocation, null, true, true, false,null);
+        offenderSearch.search(subLocation, null, true, true, false,null, null, null);
     }
 
     @Then("^only offenders situated in \"([^\"]*)\" be present in the results$")
