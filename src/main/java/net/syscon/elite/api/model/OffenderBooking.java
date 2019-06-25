@@ -1,6 +1,8 @@
 package net.syscon.elite.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -81,7 +83,8 @@ public class OffenderBooking {
     /**
      * Specialised setter for the 'virtual' attribute convictedStatus, an interpreted value based on the bandCode
      */
-    @ApiModelProperty(value = "Convicted Status", position = 19, example = "Convicted", allowableValues = "Convicted,Remand")
+    @ApiModelProperty(value = "Convicted Status", name = "convictedStatus", position = 19, example = "Convicted", allowableValues = "Convicted,Remand")
+    @JsonProperty("convictedStatus")
     public String getConvictedStatus() {
         if (this.bandCode != null) {
             return Integer.valueOf(this.bandCode) <= 8 ? "Convicted" : "Remand";
@@ -102,14 +105,7 @@ public class OffenderBooking {
     @ApiModelProperty(required = true, value = "List of offender's current alert codes.", position = 22)
     private List<String> alertsDetails = new ArrayList<>();
 
-    @ApiModelProperty(hidden = true, position = 23, example = "8")
+    @JsonIgnore
     private String bandCode;
 
-    /**
-     * Specialised getter so that the ApiModelProperty(hidden = true) is not ignored by a Lombok-generated getter for 'bandCode'
-     */
-    @ApiModelProperty(hidden=true, position = 23, example = "8")
-    public String getBandCode() {
-        return bandCode;
-    }
 }

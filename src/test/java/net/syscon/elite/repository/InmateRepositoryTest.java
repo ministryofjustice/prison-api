@@ -78,8 +78,16 @@ public class InmateRepositoryTest {
         final var caseloads = Set.of("LEI", "BXI");
         final var alertFilter = List.of("XA", "HC");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", "A", "A", "LEI",
-                alertFilter, "All", "WING", null, null, pageRequest);
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(caseloads)
+                .offenderNo("A1234AA")
+                .searchTerm1("A")
+                .searchTerm2("A")
+                .locationPrefix("LEI")
+                .alerts(alertFilter)
+                .convictedStatus("All")
+                .pageRequest(pageRequest)
+                .build());
 
         final var results = foundInmates.getItems();
         assertThat(results).hasSize(1);
@@ -92,8 +100,13 @@ public class InmateRepositoryTest {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "Convicted", "WING", null, null, pageRequest);
+        final var foundInmates = repository.searchForOffenderBookings(
+                OffenderBookingSearchRequest.builder()
+                        .caseloads(caseloads)
+                        .locationPrefix("LEI")
+                        .convictedStatus("Convicted")
+                        .pageRequest(pageRequest)
+                        .build());
 
         final var results = foundInmates.getItems();
 
@@ -107,8 +120,12 @@ public class InmateRepositoryTest {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "Remand", "WING", null, null, pageRequest);
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(caseloads)
+                .locationPrefix("LEI")
+                .convictedStatus("Remand")
+                .pageRequest(pageRequest)
+                .build());
 
         final var results = foundInmates.getItems();
 
@@ -122,8 +139,12 @@ public class InmateRepositoryTest {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "All", "WING", null, null, pageRequest);
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(caseloads)
+                .locationPrefix("LEI")
+                .convictedStatus("All")
+                .pageRequest(pageRequest)
+                .build());
 
         final var results = foundInmates.getItems();
 

@@ -1,6 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.OffenderBooking;
+import lombok.Data;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OffenderSearchSteps extends CommonSteps {
     private static final String LOCATION_SEARCH = API_PREFIX + "locations/description/%s/inmates";
 
-    private List<OffenderBooking> offenderBookings;
+    private List<OffenderBookingResponse> offenderBookings;
 
     @Step("Perform offender search without any criteria")
     public void findAll(final String locationPrefix) {
@@ -29,27 +29,27 @@ public class OffenderSearchSteps extends CommonSteps {
 
     @Step("Verify first names of offender returned by search")
     public void verifyFirstNames(final String nameList) {
-        verifyPropertyValues(offenderBookings, OffenderBooking::getFirstName, nameList);
+        verifyPropertyValues(offenderBookings, OffenderBookingResponse::getFirstName, nameList);
     }
 
     @Step("Verify middle names of offender returned by search")
     public void verifyMiddleNames(final String nameList) {
-        verifyPropertyValues(offenderBookings, OffenderBooking::getMiddleName, nameList);
+        verifyPropertyValues(offenderBookings, OffenderBookingResponse::getMiddleName, nameList);
     }
 
     @Step("Verify last names of offender returned by search")
     public void verifyLastNames(final String nameList) {
-        verifyPropertyValues(offenderBookings, OffenderBooking::getLastName, nameList);
+        verifyPropertyValues(offenderBookings, OffenderBookingResponse::getLastName, nameList);
     }
 
     @Step("Verify living unit of offender returned by search")
     public void verifyLivingUnits(final String livingUnitList) {
-        verifyPropertyValues(offenderBookings, OffenderBooking::getAssignedLivingUnitDesc, livingUnitList);
+        verifyPropertyValues(offenderBookings, OffenderBookingResponse::getAssignedLivingUnitDesc, livingUnitList);
     }
 
     @Step("Verify Dob")
     public void verifyDob(final String dob) {
-        verifyLocalDateValues(offenderBookings, OffenderBooking::getDateOfBirth, dob);
+        verifyLocalDateValues(offenderBookings, OffenderBookingResponse::getDateOfBirth, dob);
     }
 
     @Step("Verify alerts of offender returned by search")
@@ -63,7 +63,7 @@ public class OffenderSearchSteps extends CommonSteps {
 
     @Step("Verify categories of offender returned by search")
     public void verifyCategories(final String categories) {
-        verifyPropertyValues(offenderBookings, OffenderBooking::getCategoryCode, categories);
+        verifyPropertyValues(offenderBookings, OffenderBookingResponse::getCategoryCode, categories);
     }
 
     public void verifySubLocationPrefixInResults(final String subLocationPrefix) {
@@ -104,11 +104,36 @@ public class OffenderSearchSteps extends CommonSteps {
         final var responseEntity = restTemplate.exchange(queryUrl.toString(),
                 HttpMethod.GET,
                 createEntity(null, addPaginationHeaders()),
-                new ParameterizedTypeReference<List<OffenderBooking>>() {
+                new ParameterizedTypeReference<List<OffenderBookingResponse>>() {
                 });
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         offenderBookings = responseEntity.getBody();
         buildResourceData(responseEntity);
+    }
+
+    @Data
+    public static class OffenderBookingResponse {
+        private Long bookingId;
+        private String bookingNo;
+        private String offenderNo;
+        private String firstName;
+        private String middleName;
+        private String lastName;
+        private LocalDate dateOfBirth;
+        private Integer age;
+        private String agencyId;
+        private Long assignedLivingUnitId;
+        private String assignedLivingUnitDesc;
+        private Long facialImageId;
+        private String assignedOfficerUserId;
+        private List<String> aliases;
+        private String iepLevel;
+        private String categoryCode;
+        private String convictedStatus;
+        private String imprisonmentStatus;
+        private List<String> alertsCodes;
+        private List<String> alertsDetails;
+
     }
 }

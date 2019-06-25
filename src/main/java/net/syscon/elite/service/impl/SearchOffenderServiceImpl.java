@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.repository.OffenderBookingSearchRequest;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.SearchOffenderService;
@@ -32,7 +33,6 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
     private final UserService userService;
     private final InmateRepository repository;
     private final AuthenticationFacade securityUtils;
-    private final String locationTypeGranularity;
     private final Pattern offenderNoRegex;
     private final int maxBatchSize;
 
@@ -40,14 +40,12 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
                                      final UserService userService,
                                      final InmateRepository repository,
                                      final AuthenticationFacade securityUtils,
-                                     @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
                                      @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") final String offenderNoRegex,
                                      @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingService = bookingService;
         this.userService = userService;
         this.repository = repository;
         this.securityUtils = securityUtils;
-        this.locationTypeGranularity = locationTypeGranularity;
         this.offenderNoRegex = Pattern.compile(offenderNoRegex);
         this.maxBatchSize = maxBatchSize;
     }
@@ -96,7 +94,6 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         String searchTerm2 = null;
 
         // Search by keywords and values
-
         if (StringUtils.isNotBlank(keywordSearch)) {
             if (isOffenderNo(keywordSearch)) {
                 offenderNo = keywordSearch;
@@ -111,11 +108,20 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         }
 
         return repository.searchForOffenderBookings(
-                caseloads, offenderNo, searchTerm1, searchTerm2,
-                request.getLocationPrefix(),
-                request.getAlerts(),
-                request.getConvictedStatus(),
-                locationTypeGranularity, request.getFromDob(), request.getToDob(), pageRequest);
+                OffenderBookingSearchRequest.builder()
+                        .caseloads(caseloads)
+                        .offenderNo(offenderNo)
+                        .searchTerm1(searchTerm1)
+                        .searchTerm2(searchTerm2)
+                        .locationPrefix(request.getLocationPrefix())
+                        .alerts(request.getAlerts())
+                        .convictedStatus(request.getConvictedStatus())
+                        .fromDob(request.getFromDob())
+                        .toDob(request.getToDob())
+                        .pageRequest(pageRequest)
+                        .build());
+
+
     }
 
     private boolean isOffenderNo(final String potentialOffenderNumber) {

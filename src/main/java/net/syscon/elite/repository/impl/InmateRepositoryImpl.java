@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.repository.OffenderBookingSearchRequest;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
@@ -143,7 +144,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var assignedInmateRowMapper =
                 Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
-        final var paRowMapper = new PageAwareRowMapper<OffenderBooking>(assignedInmateRowMapper);
+        final var paRowMapper = new PageAwareRowMapper<>(assignedInmateRowMapper);
 
         final var results = jdbcTemplate.query(
                 sql,
@@ -183,7 +184,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var assignedInmateRowMapper =
                 Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
-        final var paRowMapper = new PageAwareRowMapper<OffenderBooking>(assignedInmateRowMapper);
+        final var paRowMapper = new PageAwareRowMapper<>(assignedInmateRowMapper);
 
         final var inmates = jdbcTemplate.query(
                 sql,
@@ -200,50 +201,48 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     @Override
     @Cacheable("searchForOffenderBookings")
-    public Page<OffenderBooking> searchForOffenderBookings(final Set<String> caseloads, final String offenderNo, final String searchTerm1, final String searchTerm2,
-                                                           final String locationPrefix, final List<String> alerts, final String convictedStatus, final String locationTypeRoot,
-                                                           final LocalDate fromDob, final LocalDate toDob, final PageRequest pageRequest) {
+    public Page<OffenderBooking> searchForOffenderBookings(final OffenderBookingSearchRequest request) {
         var initialSql = getQuery("FIND_ALL_INMATES");
         initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 
-        if (!caseloads.isEmpty()) {
+        if (!request.getCaseloads().isEmpty()) {
             initialSql += " AND " + getQuery("CASELOAD_FILTER");
         }
 
-        if (StringUtils.isNotBlank(offenderNo)) {
+        if (StringUtils.isNotBlank(request.getOffenderNo())) {
             initialSql += " AND O.OFFENDER_ID_DISPLAY = :offenderNo ";
         }
 
-        if (StringUtils.isNotBlank(searchTerm1) && StringUtils.isNotBlank(searchTerm2)) {
+        if (StringUtils.isNotBlank(request.getSearchTerm1()) && StringUtils.isNotBlank(request.getSearchTerm2())) {
             initialSql += " AND ((O.LAST_NAME like :searchTerm1 and O.FIRST_NAME like :searchTerm2) " +
                     "OR (O.FIRST_NAME like :searchTerm1 and O.LAST_NAME like :searchTerm2) ) ";
-        } else if (StringUtils.isNotBlank(searchTerm1)) {
+        } else if (StringUtils.isNotBlank(request.getSearchTerm1())) {
             initialSql += " AND (O.FIRST_NAME like :searchTerm1 OR O.LAST_NAME like :searchTerm1) ";
-        } else if (StringUtils.isNotBlank(searchTerm2)) {
+        } else if (StringUtils.isNotBlank(request.getSearchTerm2())) {
             initialSql += " AND (O.FIRST_NAME like :searchTerm2 OR O.LAST_NAME like :searchTerm2) ";
         }
 
-        if (alerts != null && !alerts.isEmpty()) {
+        if (request.getAlerts() != null && !request.getAlerts().isEmpty()) {
             initialSql += " AND " + getQuery("ALERT_FILTER");
         }
 
         // Search by specific convictedStatus (Convicted is any sentence with a bandCode <=8, Remand is any with a bandCode > 8)
 
-        if (convictedStatus != null && !StringUtils.equalsIgnoreCase(convictedStatus, "all")) {
-            if (StringUtils.equalsIgnoreCase(convictedStatus, "convicted")) {
+        if (request.getConvictedStatus() != null && !StringUtils.equalsIgnoreCase(request.getConvictedStatus(), "all")) {
+            if (StringUtils.equalsIgnoreCase(request.getConvictedStatus(), "convicted")) {
                 initialSql += " AND CAST(IST.BAND_CODE AS int) <= 8 ";
-            } else if (StringUtils.equalsIgnoreCase(convictedStatus, "remand")) {
+            } else if (StringUtils.equalsIgnoreCase(request.getConvictedStatus(), "remand")) {
                 initialSql += " AND CAST(IST.BAND_CODE AS int) > 8 ";
             } else {
-                log.info("Ignoring unrecognised value requested for convictionStatus [" + convictedStatus + "]");
+                log.info("Ignoring unrecognised value requested for convictionStatus [" + request.getConvictedStatus() + "]");
             }
         }
 
-        if (fromDob != null || toDob != null) {
-            if (fromDob != null) {
+        if (request.getFromDob() != null || request.getToDob() != null) {
+            if (request.getFromDob() != null) {
                 initialSql += " AND O.BIRTH_DATE >= :fromDob ";
             }
-            if (toDob != null) {
+            if (request.getToDob() != null) {
                 initialSql += " AND O.BIRTH_DATE <= :toDob ";
             }
         }
@@ -253,32 +252,33 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         final var sql = builder
                 .addRowCount()
-                .addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
+                .addOrderBy(request.getPageRequest().getOrder(), request.getPageRequest().getOrderBy())
                 .addPagination()
                 .build();
 
         final var offenderBookingRowMapper =
                 Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
-        final var paRowMapper = new PageAwareRowMapper<OffenderBooking>(offenderBookingRowMapper);
+        final var paRowMapper = new PageAwareRowMapper<>(offenderBookingRowMapper);
 
         final var offenderBookings = jdbcTemplate.query(
                 sql,
-                createParams("offenderNo", offenderNo,
-                        "searchTerm1", StringUtils.trimToEmpty(searchTerm1) + "%",
-                        "searchTerm2", StringUtils.trimToEmpty(searchTerm2) + "%",
-                        "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "-%",
-                        "caseLoadId", caseloads,
-                        "locationTypeRoot", locationTypeRoot,
-                        "fromDob", fromDob,
-                        "toDob", toDob,
-                        "alerts", alerts,
-                        "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit()),
+                createParams(
+                        "offenderNo", request.getOffenderNo(),
+                        "searchTerm1", StringUtils.trimToEmpty(request.getSearchTerm1()) + "%",
+                        "searchTerm2", StringUtils.trimToEmpty(request.getSearchTerm2()) + "%",
+                        "locationPrefix", StringUtils.trimToEmpty(request.getLocationPrefix()) + "-%",
+                        "caseLoadId", request.getCaseloads(),
+                        "fromDob", request.getFromDob(),
+                        "toDob", request.getToDob(),
+                        "alerts", request.getAlerts(),
+                        "offset", request.getPageRequest().getOffset(),
+                        "limit", request.getPageRequest().getLimit()),
                 paRowMapper);
 
         offenderBookings.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
 
-        return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
+        return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), request.getPageRequest().getOffset(), request.getPageRequest().getLimit());
     }
 
 
@@ -497,15 +497,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     @Override
     public List<OffenderCategorise> getRecategorise(final String agencyId, final LocalDate cutoffDate) {
-        final var data = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 getQuery("GET_RECATEGORISE"),
                 createParams("agencyId", agencyId,
                         "cutOffDate", DateTimeConverter.toDate(cutoffDate),
                         "assessStatus", "A",
                         "assessmentId", getCategoryAssessmentId()),
                 OFFENDER_CATEGORY_MAPPER);
-
-        return data;
     }
 
     @Override
@@ -534,7 +532,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .filter(o -> o.getAssessStatus() == null || o.getAssessStatus().equals("P")
                         || StringUtils.containsAny(o.getCategory(), "UXZ"))
 
-                .map(o -> OffenderCategorise.deriveStatus(o))
+                .map(OffenderCategorise::deriveStatus)
                 .collect(Collectors.toList());
     }
 
@@ -552,10 +550,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var maxDateOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
         if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return individualCatList;
 
-        final var toReplace = individualCatList.stream()
+        return individualCatList.stream()
                 .filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
                 .collect(Collectors.toList());
-        return toReplace;
     }
 
     @Override
@@ -591,7 +588,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                     sql,
                     createParams("bookingId", bookingId),
                     inmateRowMapper);
-            inmate.setAge(DateTimeConverter.getAge(inmate.getDateOfBirth()));
+            if (inmate != null) {
+                inmate.setAge(DateTimeConverter.getAge(inmate.getDateOfBirth()));
+            }
         } catch (final EmptyResultDataAccessException ex) {
             inmate = null;
         }
@@ -631,7 +630,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .build();
 
         final var aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, aliasMapping);
-        final var paRowMapper = new PageAwareRowMapper<Alias>(aliasAttributesRowMapper);
+        final var paRowMapper = new PageAwareRowMapper<>(aliasAttributesRowMapper);
 
         final var results = jdbcTemplate.query(
                 sql,
