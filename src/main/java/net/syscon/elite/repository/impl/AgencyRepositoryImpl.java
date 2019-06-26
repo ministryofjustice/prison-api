@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.val;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.IepLevel;
@@ -13,19 +14,26 @@ import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.repository.support.StatusFilter;
+import net.syscon.elite.service.OffenderIepReview;
+import net.syscon.elite.service.OffenderIepReviewSearchCriteria;
 import net.syscon.util.DateTimeConverter;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import javax.ws.rs.BadRequestException;
+import java.sql.Types;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Agency API repository implementation.
@@ -43,6 +51,9 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
     private static final StandardBeanPropertyRowMapper<IepLevel> IEP_LEVEL_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(IepLevel.class);
+
+    private static final StandardBeanPropertyRowMapper<OffenderIepReview> OFFENDER_IEP_REVIEW_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderIepReview.class);
 
     @Override
     public Page<Agency> getAgencies(final String orderByField, final Order order, final long offset, final long limit) {
@@ -219,13 +230,13 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
     List<PrisonContactDetail> mapResultsToPrisonContactDetailsList(final Collection<List<Address>> groupedResults) {
         return groupedResults.stream().map(this::mapResultsToPrisonContactDetails)
                 .sorted(Comparator.comparing(PrisonContactDetail::getAgencyId))
-                .collect(Collectors.toList());
+                .collect(toList());
 
     }
 
     private PrisonContactDetail mapResultsToPrisonContactDetails(final List<Address> addressList) {
         final var telephones = addressList.stream().map(a ->
-                Telephone.builder().number(a.getPhoneNo()).type(a.getPhoneType()).ext(a.getExtNo()).build()).collect(Collectors.toList());
+                Telephone.builder().number(a.getPhoneNo()).type(a.getPhoneType()).ext(a.getExtNo()).build()).collect(toList());
 
         final var address = addressList.stream().findAny().get();
         return PrisonContactDetail.builder().agencyId(address.getAgencyId())
@@ -240,5 +251,27 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
     private Map<String, List<Address>> groupAddresses(final List<Address> list) {
         return list.stream().collect(groupingBy(Address::getAgencyId));
+    }
+
+    @Override
+    public Page<OffenderIepReview> getPrisonIepReview(final OffenderIepReviewSearchCriteria criteria) {
+        val pageRequest = criteria.getPageRequest();
+
+        val params = createParamSource(pageRequest,
+                "agencyId", new SqlParameterValue(Types.VARCHAR, criteria.getAgencyId()),
+                "bookingSeq", new SqlParameterValue(Types.INTEGER, 1),
+                "hearingFinding", new SqlParameterValue(Types.VARCHAR, "PROVED"),
+                "threeMonthsAgo",  new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now().minus(Period.ofMonths(3)))),
+                "iepLevel", new SqlParameterValue(Types.VARCHAR, criteria.getIepLevel()),
+                "location", new SqlParameterValue(Types.VARCHAR, criteria.getLocation()));
+
+        val results = jdbcTemplate.query(getQuery("GET_AGENCY_IEP_REVIEW_INFORMATION"), params, OFFENDER_IEP_REVIEW_ROW_MAPPER);
+
+        val page = results.stream()
+                .skip(criteria.getPageRequest().getOffset())
+                .limit(criteria.getPageRequest().getLimit())
+                .collect(toList());
+
+        return new Page<>(page, results.size(), pageRequest);
     }
 }

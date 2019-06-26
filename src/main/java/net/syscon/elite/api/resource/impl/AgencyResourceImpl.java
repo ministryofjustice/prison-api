@@ -1,15 +1,19 @@
 package net.syscon.elite.api.resource.impl;
 
+import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.AgencyResource;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.LocationGroupService;
+import net.syscon.elite.service.OffenderIepReviewSearchCriteria;
 import net.syscon.elite.service.WhereaboutsEnabledService;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Path;
 import java.time.LocalDate;
 
@@ -103,4 +107,22 @@ public class AgencyResourceImpl implements AgencyResource {
         final var prisonContactDetail = agencyService.getPrisonContactDetail(agencyId);
         return GetPrisonContactDetailResponse.respond200WithApplicationJson(prisonContactDetail);
     }
+
+    @Override
+    public GetPrisonIepReviewResponse getPrisonIepReview(@NotNull final String agencyId,
+                                                         final String iepLevel,
+                                                         final String location,
+                                                         final Long pageOffset,
+                                                         final Long pageLimit) {
+        val criteria = OffenderIepReviewSearchCriteria.builder()
+                .agencyId(agencyId)
+                .iepLevel(iepLevel)
+                .location(location)
+                .pageRequest(new PageRequest(pageOffset, pageLimit))
+                .build();
+
+        final var prisonIepReview = agencyService.getPrisonIepReview(criteria);
+        return GetPrisonIepReviewResponse.respond200WithApplicationJson(prisonIepReview);
+    }
+
 }
