@@ -189,15 +189,19 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     }
 
     @Override
-    public List<CaseNoteUsage> getCaseNoteUsage(final String type, final String subType, @NotEmpty final List<String> offenderNos, final Integer staffId, final String agencyId, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
+    public List<CaseNoteUsage> getCaseNoteUsage(final String type, final String subType, final List<String> offenderNos, final Integer staffId, final String agencyId, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
         final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
-        final List<CaseNoteUsage> caseNoteUsage = new ArrayList<>();
+        final var caseNoteUsage = new ArrayList<CaseNoteUsage>();
 
-        Lists.partition(offenderNos, maxBatchSize).forEach(offenderNosList ->
-                caseNoteUsage.addAll(
-                        caseNoteRepository.getCaseNoteUsage(type, subType, offenderNosList, staffId, agencyId, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse())
-                )
-        );
+        if (offenderNos != null && !offenderNos.isEmpty()) {
+            Lists.partition(offenderNos, maxBatchSize).forEach(offenderNosList ->
+                    caseNoteUsage.addAll(
+                            caseNoteRepository.getCaseNoteUsage(deriveDates.getFromDateToUse(), deriveDates.getToDateToUse(), agencyId, offenderNosList, staffId, type, subType)
+                    )
+            );
+        } else {
+            caseNoteUsage.addAll(caseNoteRepository.getCaseNoteUsage(deriveDates.getFromDateToUse(), deriveDates.getToDateToUse(), agencyId, null, staffId, type, subType));
+        }
         return caseNoteUsage;
     }
 

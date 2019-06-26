@@ -123,6 +123,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("CREATE_DATE", new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
             .build();
 
+    private static final Set<String> UNSENTENCED_OR_UNCLASSIFIED_CATEGORY_CODES = Set.of("U", "X", "Z");
+
     InmateRepositoryImpl() {
         final Map<String, FieldMapper> map = new HashMap<>(PRISONER_DETAIL_MAPPER.getFieldMap());
         map.put("OFFENDER_ID", new FieldMapper("OFFENDER_ID"));
@@ -497,13 +499,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     @Override
     public List<OffenderCategorise> getRecategorise(final String agencyId, final LocalDate cutoffDate) {
-        return jdbcTemplate.query(
+        final var rawData = jdbcTemplate.query(
                 getQuery("GET_RECATEGORISE"),
                 createParams("agencyId", agencyId,
                         "cutOffDate", DateTimeConverter.toDate(cutoffDate),
                         "assessStatus", "A",
                         "assessmentId", getCategoryAssessmentId()),
                 OFFENDER_CATEGORY_MAPPER);
+
+        return removeUnsentencedOrUnclassifiedCategoryRecords(rawData);
     }
 
     @Override
@@ -530,7 +534,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         // 'unclassified' (Z,X) or 'unsentenced' (U) categories
         return catList.stream()
                 .filter(o -> o.getAssessStatus() == null || o.getAssessStatus().equals("P")
-                        || StringUtils.containsAny(o.getCategory(), "UXZ"))
+                        || UNSENTENCED_OR_UNCLASSIFIED_CATEGORY_CODES.contains(o.getCategory()))
 
                 .map(OffenderCategorise::deriveStatus)
                 .collect(Collectors.toList());
@@ -752,4 +756,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         return maxSeq == null ? 1 : maxSeq;
     }
+
+    private List<OffenderCategorise> removeUnsentencedOrUnclassifiedCategoryRecords(List<OffenderCategorise> rawData) {
+        return rawData.stream().filter(cat -> !UNSENTENCED_OR_UNCLASSIFIED_CATEGORY_CODES.contains(cat.getCategory())).collect(Collectors.toList());
+    }
+
 }

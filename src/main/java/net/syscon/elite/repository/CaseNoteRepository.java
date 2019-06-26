@@ -5,6 +5,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +28,7 @@ public interface CaseNoteRepository {
 
     List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes();
 
-    List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, String agencyId, LocalDate fromDate, LocalDate toDate);
+    List<CaseNoteUsage> getCaseNoteUsage(@NotNull LocalDate fromDate, @NotNull LocalDate toDate, String agencyId, List<String> offenderNos, Integer staffId, String type, String subType);
 
     List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, List<Integer> staffIds, LocalDate fromDate, LocalDate toDate);
 
