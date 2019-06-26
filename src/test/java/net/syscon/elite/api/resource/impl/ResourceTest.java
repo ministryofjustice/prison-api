@@ -8,6 +8,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -15,6 +16,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @ActiveProfiles("nomis-hsqldb")
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@TestPropertySource(value = "/application-test.properties")
 public abstract class ResourceTest {
 
     @Autowired
@@ -32,5 +34,4 @@ public abstract class ResourceTest {
 
         return new HttpEntity<>(body, headers);
     }
-
 }
