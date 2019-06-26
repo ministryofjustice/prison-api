@@ -684,15 +684,12 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testGetRecategorise() {
+    public void testGetRecategoriseRemovesUnclassifiedAndUnsentenced() {
         final var list = repository.getRecategorise("LEI", LocalDate.of(2018, 6, 7));
 
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate")
                 .containsExactly(
-                        Tuple.tuple("A1234AC", -3L, "NORMAN", "BATES", "X", LocalDate.of(2016, 6, 8)),
-                        Tuple.tuple("A1234AD", -4L, "CHARLES", "CHAPLIN", "U", LocalDate.of(2016, 6, 8)),
-                        Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", "Z", LocalDate.of(2016, 6, 8)),
                         Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "LOW", LocalDate.of(2018, 6, 1)),
                         Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7)),
                         Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7))
