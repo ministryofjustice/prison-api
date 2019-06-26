@@ -238,7 +238,7 @@ public class MovementsServiceImpl implements MovementsService {
 
         // One of the event/movement type query parameters must be true
         if (!courtEvents && !releaseEvents && !transferEvents && !movements) {
-            return "At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movementEvents]";
+            return "At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]";
         }
 
         return null;
