@@ -175,7 +175,7 @@ Feature: Booking Details
 
   Scenario: Request for offenders who need to be recategorised
     When a request is made for offenders who need to be recategorised at "LEI" with cutoff Date of "2018-07-01"
-    Then 6 categorised offenders are returned
+    Then 3 categorised offenders are returned
 
   Scenario: Create categorisation request
     Given a categorisation user has authenticated with the API

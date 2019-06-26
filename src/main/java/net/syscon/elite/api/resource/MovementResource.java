@@ -163,8 +163,8 @@ public interface MovementResource {
     @Path("/transfers")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Information on all scheduled CRT, TRN, REL events and movements between two dates/times.",
-                  notes = "Planned movements are recorded as events - either court, release or offender transfers/appointments. When these are actualised they are recorded as movements.",
+    @ApiOperation(value = "Information on scheduled court, transfer and release events, and confirmed movements between two dates/times for a specified number of agencies.",
+                  notes = "Planned movements are recorded as events of type court, release or transfers/appointments. When these events are started they are actualised as external movements.",
                   nickname = "getTransfers")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = TransferSummary.class),
@@ -176,9 +176,9 @@ public interface MovementResource {
             @ApiParam(value = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) @QueryParam("agencyId") List<String> agencyIds,
             @ApiParam(value = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true)   @QueryParam("fromDateTime")LocalDateTime fromDateTime,
             @ApiParam(value = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true)  @QueryParam("toDateTime") LocalDateTime toDateTime,
-            @ApiParam(value = "Set to true to include planned court events", required=false, defaultValue = "true") @QueryParam("courtEvents") boolean courtEvents,
-            @ApiParam(value = "Set to true to include planned release events", required=false, defaultValue = "true") @QueryParam("releaseEvents") boolean releaseEvents,
-            @ApiParam(value = "Set to true to include planned transfer/appointment events", required=false, defaultValue = "true") @QueryParam("transferEvents") boolean transferEvents,
-            @ApiParam(value = "Set to true to include confirmed movements", required=false, defaultValue = "true") @QueryParam("movements") boolean movements);
+            @ApiParam(value = "Set to true to include planned court events", required=false, defaultValue = "false") @QueryParam("courtEvents")  boolean courtEvents,
+            @ApiParam(value = "Set to true to include planned release events", required=false, defaultValue = "false") @QueryParam("releaseEvents") boolean releaseEvents,
+            @ApiParam(value = "Set to true to include planned transfer/appointment events", required=false, defaultValue = "false") @QueryParam("transferEvents") boolean transferEvents,
+            @ApiParam(value = "Set to true to include confirmed movements", required=false, defaultValue = "false") @QueryParam("movements") boolean movements);
 
 }

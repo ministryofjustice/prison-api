@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.OperationResponse;
 import net.syscon.elite.service.*;
+import org.glassfish.jersey.server.ParamException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -102,7 +103,13 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.BAD_REQUEST.getStatusCode();
             userMessage = ex.getMessage();
             log.info(userMessage);
-        } else {
+        } else if (ex instanceof ParamException.QueryParamException) {
+            status = Response.Status.BAD_REQUEST.getStatusCode();
+            developerMessage = ex.getMessage();
+            userMessage = "Parameter exception (invalid date, time, format, type)";
+            log.info(developerMessage);
+        }
+        else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";
             developerMessage = ex.getMessage();
