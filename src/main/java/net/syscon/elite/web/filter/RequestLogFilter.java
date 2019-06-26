@@ -1,7 +1,6 @@
 package net.syscon.elite.web.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.util.MdcUtility;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,13 +26,10 @@ public class RequestLogFilter implements Filter {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS");
 
-    private final MdcUtility mdcUtility;
-
     private final Pattern excludeUriRegex;
 
     @Autowired
-    public RequestLogFilter(final MdcUtility mdcUtility, @Value("${logging.uris.exclude.regex}") final String excludeUris) {
-        this.mdcUtility = mdcUtility;
+    public RequestLogFilter(@Value("${logging.uris.exclude.regex}") final String excludeUris) {
         excludeUriRegex = Pattern.compile(excludeUris);
     }
     @Override
@@ -55,7 +51,6 @@ public class RequestLogFilter implements Filter {
 
         try {
             final var start = LocalDateTime.now();
-            MDC.put(REQUEST_ID, mdcUtility.generateCorrelationId());
             if (log.isTraceEnabled() && isLoggingAllowed()) {
                 log.trace("Request: {} {}", req.getMethod(), req.getRequestURI());
             }
@@ -72,7 +67,6 @@ public class RequestLogFilter implements Filter {
         } finally {
             MDC.remove(REQUEST_DURATION);
             MDC.remove(RESPONSE_STATUS);
-            MDC.remove(REQUEST_ID);
             MDC.remove(SKIP_LOGGING);
         }
     }
