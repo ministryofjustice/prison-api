@@ -47,6 +47,12 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.authenticateAsClient(NORMAL_USER);
     }
 
+    @Given("^a user has authenticated with the API and has the pay role$")
+    public void aUserHasAuthenticatedWithTheAPIAndHasThePayRole() {
+        user.authenticateAsClient(PAY);
+    }
+
+
     @Given("^a categorisation user has authenticated with the API$")
     public void aCategorisationUserHasAuthenticatedWithTheAPI() {
         user.authenticateAsClient(CATEGORISATION_CREATE);

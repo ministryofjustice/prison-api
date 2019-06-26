@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 
-@ActiveProfiles("nomis-hsqldb")
+@ActiveProfiles("test")
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

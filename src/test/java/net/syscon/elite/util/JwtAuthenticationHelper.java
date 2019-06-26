@@ -4,7 +4,6 @@ package net.syscon.elite.util;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
@@ -19,7 +18,6 @@ import java.util.UUID;
 public class JwtAuthenticationHelper {
     private final KeyPair keyPair;
 
-    @Autowired
     public JwtAuthenticationHelper(@Value("${jwt.signing.key.pair}") final String privateKeyPair,
                                    @Value("${jwt.keystore.password}") final String keystorePassword,
                                    @Value("${jwt.keystore.alias:elite2api}") final String keystoreAlias) {

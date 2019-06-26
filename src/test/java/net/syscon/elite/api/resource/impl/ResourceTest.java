@@ -7,16 +7,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @RunWith(SpringRunner.class)
-@ActiveProfiles("nomis-hsqldb")
+@ActiveProfiles(value = "test")
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@TestPropertySource(value = "/application-test.properties")
 public abstract class ResourceTest {
 
     @Autowired
