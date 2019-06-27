@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("nomis-hsqldb")
+@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
@@ -29,7 +29,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @ContextConfiguration(classes = PersistenceConfigs.class)
 public class CaseLoadRepositoryTest {
     private static final String TEST_USERNAME = "ITAG_USER";
-    
+
     @Autowired
     private CaseLoadRepository repository;
 
@@ -44,7 +44,7 @@ public class CaseLoadRepositoryTest {
 
         assertThat(caseLoad).get().extracting(CaseLoad::getDescription).isEqualTo("Leeds (HMP)");
     }
-    
+
     @Test
     public void testGetAllCaseLoadsByUsername() {
         final var caseLoads = repository.getAllCaseLoadsByUsername(TEST_USERNAME);
