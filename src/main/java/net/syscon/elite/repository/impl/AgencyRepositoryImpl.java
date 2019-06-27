@@ -32,6 +32,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
@@ -261,13 +262,14 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                 "agencyId", new SqlParameterValue(Types.VARCHAR, criteria.getAgencyId()),
                 "bookingSeq", new SqlParameterValue(Types.INTEGER, 1),
                 "hearingFinding", new SqlParameterValue(Types.VARCHAR, "PROVED"),
-                "threeMonthsAgo",  new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now().minus(Period.ofMonths(3)))),
+                "threeMonthsAgo",  new SqlParameterValue(Types.DATE, LocalDate.now().minus(Period.ofMonths(3))),
                 "iepLevel", new SqlParameterValue(Types.VARCHAR, criteria.getIepLevel()),
                 "location", new SqlParameterValue(Types.VARCHAR, criteria.getLocation()));
 
         val results = jdbcTemplate.query(getQuery("GET_AGENCY_IEP_REVIEW_INFORMATION"), params, OFFENDER_IEP_REVIEW_ROW_MAPPER);
 
         val page = results.stream()
+                .sorted(comparing(OffenderIepReview::getNegativeIeps).reversed())
                 .skip(criteria.getPageRequest().getOffset())
                 .limit(criteria.getPageRequest().getLimit())
                 .collect(toList());

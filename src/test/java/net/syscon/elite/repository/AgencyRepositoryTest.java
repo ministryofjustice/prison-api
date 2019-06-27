@@ -177,46 +177,59 @@ public class AgencyRepositoryTest {
 
         val criteria = OffenderIepReviewSearchCriteria.builder()
                 .agencyId("LEI")
-                .pageRequest(new PageRequest(0L, 100L))
+                .pageRequest(new PageRequest(0L, 10L))
                 .build();
 
         val results = repository.getPrisonIepReview(criteria);
 
-        assertThat(results.getItems()).contains(OFFENDER_1_IEP_REVIEW,
-                                                OFFENDER_2_IEP_REVIEW,
-                                                OFFENDER_3_IEP_REVIEW,
-                                                OFFENDER_4_IEP_REVIEW,
-                                                OFFENDER_5_IEP_REVIEW,
-                                                OFFENDER_6_IEP_REVIEW,
-                                                OFFENDER_7_IEP_REVIEW,
-                                                OFFENDER_8_IEP_REVIEW,
-                                                OFFENDER_9_IEP_REVIEW,
-                                                OFFENDER_10_IEP_REVIEW);
+        assertThat(results.getItems()).containsExactly(OFFENDER_1_IEP_REVIEW,
+                                                        OFFENDER_2_IEP_REVIEW,
+                                                        OFFENDER_3_IEP_REVIEW,
+                                                        OFFENDER_4_IEP_REVIEW,
+                                                        OFFENDER_5_IEP_REVIEW,
+                                                        OFFENDER_6_IEP_REVIEW,
+                                                        OFFENDER_7_IEP_REVIEW,
+                                                        OFFENDER_8_IEP_REVIEW,
+                                                        OFFENDER_9_IEP_REVIEW,
+                                                        OFFENDER_10_IEP_REVIEW);
+    }
+
+    @Test
+    public void testFilterPrisonIepReviewByIepLevel() {
+
+        val criteria = OffenderIepReviewSearchCriteria.builder()
+                .agencyId("LEI")
+                .iepLevel("Basic")
+                .pageRequest(new PageRequest(0L, 1L))
+                .build();
+
+        val results = repository.getPrisonIepReview(criteria);
+
+        assertThat(results.getItems()).containsExactly(OFFENDER_6_IEP_REVIEW);
     }
 
     private static final OffenderIepReview OFFENDER_1_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo("A5577RS")
-            .currentLevel(null)
+            .currentLevel("Standard")
             .provenAdjudications(2)
-            .positiveIeps(0)
-            .negativeIeps(0)
+            .positiveIeps(1)
+            .negativeIeps(10)
             .bookingId(-33L)
-            .lastReviewTime(null)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
             .firstName("HAROLD")
             .middleName(null)
             .lastName("LLOYD")
             .cellLocation("LEI-H-1")
             .build();
 
-
     private static final OffenderIepReview OFFENDER_2_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo(null)
-            .currentLevel(null)
+            .currentLevel("Standard")
             .provenAdjudications(0)
             .positiveIeps(0)
-            .negativeIeps(0)
-            .bookingId(-54L)
-            .lastReviewTime(null)
+            .negativeIeps(9)
+            .bookingId(-51L)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
             .firstName(null)
             .middleName(null)
             .lastName(null)
@@ -225,12 +238,12 @@ public class AgencyRepositoryTest {
 
     private static final OffenderIepReview OFFENDER_3_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo("A1176RS")
-            .currentLevel(null)
+            .currentLevel("Enhanced")
             .provenAdjudications(1)
             .positiveIeps(0)
-            .negativeIeps(0)
-            .bookingId(-32)
-            .lastReviewTime(null)
+            .negativeIeps(8)
+            .bookingId(-32L)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
             .firstName("FRED")
             .middleName(null)
             .lastName("JAMES")
@@ -239,12 +252,12 @@ public class AgencyRepositoryTest {
 
     private static final OffenderIepReview OFFENDER_4_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo("A5576RS")
-            .currentLevel(null)
+            .currentLevel("Standard")
             .provenAdjudications(0)
-            .positiveIeps(0)
-            .negativeIeps(0)
+            .positiveIeps(1)
+            .negativeIeps(7)
             .bookingId(-31L)
-            .lastReviewTime(null)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
             .firstName("HARRY")
             .middleName(null)
             .lastName("SARLY")
@@ -253,12 +266,12 @@ public class AgencyRepositoryTest {
 
     private static final OffenderIepReview OFFENDER_5_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo("A4476RS")
-            .currentLevel(null)
+            .currentLevel("Standard")
             .provenAdjudications(0)
             .positiveIeps(0)
-            .negativeIeps(0)
+            .negativeIeps(6)
             .bookingId(-30L)
-            .lastReviewTime(null)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
             .firstName("NEIL")
             .middleName(null)
             .lastName("SARLY")
@@ -267,12 +280,12 @@ public class AgencyRepositoryTest {
 
     private static final OffenderIepReview OFFENDER_6_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo("A6676RS")
-            .currentLevel(null)
+            .currentLevel("Basic")
             .provenAdjudications(1)
             .positiveIeps(0)
-            .negativeIeps(0)
+            .negativeIeps(5)
             .bookingId(-29L)
-            .lastReviewTime(null)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
             .firstName("NEIL")
             .middleName("IAN")
             .lastName("BRADLEY")
@@ -281,12 +294,12 @@ public class AgencyRepositoryTest {
 
     private static final OffenderIepReview OFFENDER_7_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo("A9876RS")
-            .currentLevel(null)
+            .currentLevel("Standard")
             .provenAdjudications(0)
             .positiveIeps(0)
-            .negativeIeps(0)
+            .negativeIeps(4)
             .bookingId(-28L)
-            .lastReviewTime(null)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
             .firstName("RODERICK")
             .middleName(null)
             .lastName("STEWART")
@@ -295,12 +308,12 @@ public class AgencyRepositoryTest {
 
     private static final OffenderIepReview OFFENDER_8_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo("A9876EC")
-            .currentLevel(null)
+            .currentLevel("Standard")
             .provenAdjudications(0)
             .positiveIeps(0)
-            .negativeIeps(0)
+            .negativeIeps(3)
             .bookingId(-27L)
-            .lastReviewTime(null)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
             .firstName("ERIC")
             .middleName(null)
             .lastName("CLAPTON")
@@ -309,12 +322,12 @@ public class AgencyRepositoryTest {
 
     private static final OffenderIepReview OFFENDER_9_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo("A1178RS")
-            .currentLevel(null)
+            .currentLevel("Standard")
             .provenAdjudications(0)
             .positiveIeps(0)
-            .negativeIeps(0)
+            .negativeIeps(2)
             .bookingId(-34L)
-            .lastReviewTime(null)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
             .firstName("FRED")
             .middleName(null)
             .lastName("QUIMBY")
@@ -322,17 +335,17 @@ public class AgencyRepositoryTest {
             .build();
 
     private static final OffenderIepReview OFFENDER_10_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo(null)
-            .currentLevel(null)
+            .offenderNo("A1234AD")
+            .currentLevel("Standard")
             .provenAdjudications(0)
             .positiveIeps(0)
-            .negativeIeps(0)
-            .bookingId(-22L)
-            .lastReviewTime(null)
-            .firstName(null)
-            .middleName(null)
-            .lastName(null)
-            .cellLocation(null)
+            .negativeIeps(1)
+            .bookingId(-4L)
+            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
+            .firstName("CHARLES")
+            .middleName("JAMES")
+            .lastName("CHAPLIN")
+            .cellLocation("LEI-A-1")
             .build();
 
 }
