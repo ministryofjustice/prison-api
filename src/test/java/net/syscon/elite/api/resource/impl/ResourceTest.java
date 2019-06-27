@@ -1,6 +1,5 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.util.JwtAuthenticationHelper;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,9 +17,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ActiveProfiles(value = "test")
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 public abstract class ResourceTest {
-
-    @Autowired
-    protected JwtAuthenticationHelper jwtAuthenticationHelper;
 
     @Autowired
     protected TestRestTemplate testRestTemplate;
