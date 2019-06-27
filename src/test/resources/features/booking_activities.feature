@@ -4,7 +4,7 @@ Feature: Booking Activities
   A logged on staff user can retrieve scheduled activities for an offender booking.
 
   Background:
-    Given a user has authenticated with the API
+    Given a user has authenticated with the API and has the pay role
 
   Scenario: Retrieve scheduled activities for an existing offender that is not in a caseload accessible to authenticated user
     When scheduled activities are requested for an offender with booking id "-16"
