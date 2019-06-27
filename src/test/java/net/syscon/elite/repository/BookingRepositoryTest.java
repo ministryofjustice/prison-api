@@ -515,22 +515,24 @@ public class BookingRepositoryTest {
     public void givenExistingBooking_whenAddingMultipleIepLevel() {
 
         final long bookingId = -54L;
-        final LocalDateTime before = LocalDateTime.now();
+        final LocalDateTime before = LocalDateTime.of(2017, 9, 6, 0, 0);
 
-        assertThatOffenderIepLevelsForBookingAre(bookingId);
+        assertThatOffenderIepLevelsForBookingAre(bookingId, Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"));
 
         repository.addIepLevel(-54L, "A_DUMMY_USER", new IepLevelAndComment("STD","A comment"));
 
         final Timestamp today = Timestamp.valueOf(LocalDate.now().atStartOfDay());
 
         assertThatOffenderIepLevelsForBookingAre(bookingId,
-                Tuple.tuple(BigDecimal.valueOf(1L), today, "BMI", "STD", "A comment", "A_DUMMY_USER"));
+                Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"),
+                Tuple.tuple(BigDecimal.valueOf(2L), today, "BMI", "STD", "A comment", "A_DUMMY_USER"));
 
         repository.addIepLevel(-54L, "A_DIFFERENT_USER", new IepLevelAndComment("ENH", "Comment 2"));
 
         assertThatOffenderIepLevelsForBookingAre(bookingId,
-                Tuple.tuple(BigDecimal.valueOf(1L), today, "BMI", "STD", "A comment", "A_DUMMY_USER"),
-                Tuple.tuple(BigDecimal.valueOf(2L), today, "BMI", "ENH", "Comment 2", "A_DIFFERENT_USER"));
+                Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"),
+                Tuple.tuple(BigDecimal.valueOf(2L), today, "BMI", "STD", "A comment", "A_DUMMY_USER"),
+                Tuple.tuple(BigDecimal.valueOf(3L), today, "BMI", "ENH", "Comment 2", "A_DIFFERENT_USER"));
 
         final LocalDateTime after = LocalDateTime.now();
 

@@ -9,7 +9,6 @@ import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.service.OffenderIepReview;
 import net.syscon.elite.service.OffenderIepReviewSearchCriteria;
 import net.syscon.elite.web.config.PersistenceConfigs;
-import org.jruby.RubyProcess;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
