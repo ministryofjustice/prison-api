@@ -217,6 +217,9 @@ abstract class AbstractStepDefinitions {
 
         @Bean
         public AddIepLevelSteps addIepLevelSteps() { return new AddIepLevelSteps(); }
+
+        @Bean
+        public NomisApiV1Steps nomisApiV1Steps() { return new NomisApiV1Steps(); }
     }
 
     int ord2idx(final String ordinal) {

@@ -50,7 +50,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 				.build();
 
         final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
-        final var paRowMapper = new PageAwareRowMapper<Alert>(alertMapper);
+        final var paRowMapper = new PageAwareRowMapper<>(alertMapper);
 
         final var results = jdbcTemplate.query(
                 sql,
