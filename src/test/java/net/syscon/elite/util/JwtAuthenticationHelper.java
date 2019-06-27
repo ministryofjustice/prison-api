@@ -33,7 +33,6 @@ public class JwtAuthenticationHelper {
 
         claims.put("user_name", parameters.getUsername());
         claims.put("client_id", "elite2apiclient");
-        claims.put("internalUser", true);
 
         if (parameters.getRoles() != null && !parameters.getRoles().isEmpty())
             claims.put("authorities", parameters.getRoles());

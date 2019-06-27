@@ -2,14 +2,15 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.util.JwtAuthenticationHelper;
 import net.syscon.elite.util.JwtParameters;
+import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AuthenticationSteps {
-
-    private JwtAuthenticationHelper jwtAuthenticationHelper;
+@Component
+public class AuthTokenHelper {
 
     private final Map<String, String> tokens = new HashMap<>();
     private String currentToken;
@@ -37,8 +38,7 @@ public class AuthenticationSteps {
         }
 
 
-    public AuthenticationSteps(JwtAuthenticationHelper jwtAuthenticationHelper) {
-        this.jwtAuthenticationHelper = jwtAuthenticationHelper;
+    public AuthTokenHelper(final JwtAuthenticationHelper jwtAuthenticationHelper) {
 
         tokens.put(String.valueOf(AuthToken.ELITE2_API_USER), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4NTg2NTg1OTgsImludGVybmFsVXNlciI6dHJ1ZSwidXNlcl9uYW1lIjoiRUxJVEUyX0FQSV9VU0VSIiwianRpIjoiODlmNDgwMTQtNmEwNy00ODhhLThlMzAtOWFiNDZlYzVjZmRhIiwiY2xpZW50X2lkIjoiZWxpdGUyYXBpY2xpZW50Iiwic2NvcGUiOlsicmVhZCJdfQ.QofcTDHseJacUUR-JlJTjBE_lym-oDy-f3w8NprHfRhn5zP6EqJzpsftPynFWUGI82dKgnG7PzpKQ5ckAIWHJ4OQcfV0a6FnCOb5ewzD0YzNk5EgD9Hj2RSAEygD9qBqsrqlzKH7vaw7Vk332T6Dqr6IzbhZEbWPJHL61JSJnunJmO5fMUVH0S5d6l9zz6QnPv9EWVWA81JIYrG01BZq6j28BYOrjHgkwDyq2zE98VK6DL5gTuQ6JxkuV1VlR02BZW804XmxjAdNF-_eQts9ncKePUhSmqtL4nlf2Zg5MMc5HWv_XvtatXRMAOKHVf260RF-4iSL1iiDFobLErbZsA");
         tokens.put(String.valueOf(AuthToken.API_TEST_USER), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4NTg2NTg2NDMsImludGVybmFsVXNlciI6dHJ1ZSwidXNlcl9uYW1lIjoiQVBJX1RFU1RfVVNFUiIsImp0aSI6ImQyZDU5MTM0LWJhZGMtNDIxZS05OTI0LTAyZDU3YzhlZDEwZiIsImNsaWVudF9pZCI6ImVsaXRlMmFwaWNsaWVudCIsInNjb3BlIjpbInJlYWQiXX0.UmwOWECCnp6yDenn6pnQ0uM-Gw3DRkwBLGb5L-jrDW1cJTR5q5ASyv1sQ1QNTB0Xk4vlsSl9aNZXaMaAIkRadugmd83Nr5Q5kgFD29lG9sOvBukh2Py7nwzIzoU_pToMEJSKIl2c4UqaaQxgXqgI6F2ex2-W_TtyBwLmKIBwGmo0_KeqFpmZXivNPyUDu7OD61kflofzmliZl6Igen7O3WS5Q0lyChiIz9IGDnkngVKoCfZTBdFz4OAD98hmNi3Rxwzcd2ocFLSvYRZKjAR60uHcge2GtCoYChnNYbl_HSW1TXw8V-gPZH3eR1H_HfdrGnZRLyxiIxHXgZ3QxuW6yw");
@@ -59,11 +59,12 @@ public class AuthenticationSteps {
         tokens.put(String.valueOf(AuthToken.NORMAL_USER), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4NTg2NTY0MDMsImludGVybmFsVXNlciI6dHJ1ZSwidXNlcl9uYW1lIjoiSVRBR19VU0VSIiwianRpIjoiOWY1NDQ0NjktNDk3Yy00MGRhLWI4MTUtYjcxNjc3MTIxNzFmIiwiY2xpZW50X2lkIjoiZWxpdGUyYXBpY2xpZW50Iiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl19.rGMbs4_rkPM_hn_cE89sCv5k3Z8x6gqPzP1DPGUjeOotcVQzngQVRHnXKrDLk70ej29jGMADpQX5jglyVQRoNEYJkjQgWfRvWgUxLUjIUsIrvkxLWJ-NpQJN66_6VZ4FqvBbx3KkHlnTvhfTQkX2RRAzi8uNA5G2s89r106LrAVZ3yT9Ui9X1E-v5tieNB-M-gdUpz2K_XwkCm2pLPmF6_bFYypyDqBIQg_u9dcokPGxdwJNEavaWnyf0G7Gix1kgZRk6u1uNDHXbLM-y5mJ7UXxAD9jFoUodctMaeFSoLk5dHNft9Oba4m09TGiuVkJKFgh7_LD24cx7tTO9pLp2w");
 
         tokens.put(String.valueOf(AuthToken.PAY),
-              this.jwtAuthenticationHelper.createJwt(JwtParameters
+                jwtAuthenticationHelper.createJwt(JwtParameters
                 .builder()
                 .username("ITAG_USER")
                 .roles(List.of("ROLE_PAY"))
                 .scope(List.of("read", "write"))
+                        .expiryTime(Duration.ofDays(1))
                 .build()));
     }
 

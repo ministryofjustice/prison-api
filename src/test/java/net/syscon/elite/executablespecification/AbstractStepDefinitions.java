@@ -33,8 +33,8 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public AuthenticationSteps auth(JwtAuthenticationHelper jwtAuthenticationHelper) {
-            return new AuthenticationSteps(jwtAuthenticationHelper);
+        public AuthTokenHelper auth(JwtAuthenticationHelper jwtAuthenticationHelper) {
+            return new AuthTokenHelper(jwtAuthenticationHelper);
         }
 
         @Bean

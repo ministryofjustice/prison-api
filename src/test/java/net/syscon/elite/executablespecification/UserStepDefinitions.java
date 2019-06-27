@@ -4,13 +4,13 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.executablespecification.steps.AuthenticationSteps;
+import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import net.syscon.elite.executablespecification.steps.UserSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 
-import static net.syscon.elite.executablespecification.steps.AuthenticationSteps.AuthToken.*;
+import static net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken.*;
 
 /**
  * BDD step definitions for User API endpoints:
@@ -30,7 +30,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
 
     @Given("^a user has a token name of \"([^\"]*)\"$")
     public void aUserHasAToken(final String tokenName) {
-        user.authenticateAsClient(AuthenticationSteps.AuthToken.valueOf(tokenName));
+        user.authenticateAsClient(AuthTokenHelper.AuthToken.valueOf(tokenName));
     }
 
     @Given("^a user has logged in with username \"([^\"]*)\" and password \"([^\"]*)\"$")
