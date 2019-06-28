@@ -221,6 +221,7 @@ public class AgencyRepositoryTest {
             .cellLocation("LEI-H-1")
             .build();
 
+
     private static final OffenderIepReview OFFENDER_2_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo(null)
             .currentLevel("Standard")
@@ -334,17 +335,17 @@ public class AgencyRepositoryTest {
             .build();
 
     private static final OffenderIepReview OFFENDER_10_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A1234AD")
-            .currentLevel("Standard")
+            .offenderNo("A1234AI")
+            .currentLevel(null)
             .provenAdjudications(0)
             .positiveIeps(0)
             .negativeIeps(1)
-            .bookingId(-4L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName("CHARLES")
+            .bookingId(-9L)
+            .lastReviewTime(null)
+            .firstName("CHESTER")
             .middleName("JAMES")
-            .lastName("CHAPLIN")
-            .cellLocation("LEI-A-1")
+            .lastName("THOMPSON")
+            .cellLocation("LEI-A-1-5")
             .build();
 
 }

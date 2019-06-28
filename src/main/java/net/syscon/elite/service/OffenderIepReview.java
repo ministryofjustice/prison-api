@@ -26,10 +26,10 @@ public class OffenderIepReview {
     @ApiModelProperty(value = "Number of proven adjudications", required = true, example = "3")
     private int provenAdjudications;
 
-    @ApiModelProperty(value = "Date of last IEP review", required = true, example = "2017-03-17T08:02:00")
+    @ApiModelProperty(value = "Date of last IEP review", example = "2017-03-17T08:02:00")
     private LocalDateTime lastReviewTime;
 
-    @ApiModelProperty(value = "The current IEP level for offender", required = true, example = "Basic")
+    @ApiModelProperty(value = "The current IEP level for offender", example = "Basic")
     private String currentLevel;
 
     @ApiModelProperty(value = "Offender first name", required = true, example = "John")
