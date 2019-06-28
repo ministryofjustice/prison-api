@@ -288,28 +288,33 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyAccessDenied(userMessage);
     }
 
-    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
     public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String offenderNos, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteUsage(offenderNos, null, null, type, subType, fromDate, toDate);
     }
 
-    @When("^case note usage by booking id between \"([^\"]*)\" and \"([^\"]*)\" is requested of booking Id \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
+    @When("^case note usage by booking id between \"([^\"]*)\" and \"([^\"]*)\" is requested of booking Id \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
     public void caseNoteUsageByBookingIdBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String offenderNos, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteUsageByBookingId(offenderNos, type, subType, fromDate, toDate);
     }
 
-    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" with staff Id \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" with staff Id \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
     public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String offenderNos, final String staffId, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteUsage(offenderNos, staffId, null, type, subType, fromDate, toDate);
     }
 
-    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" with staff Id \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\" and agencyId \"([^\"]*)\"$")
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" with staff Id \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\" and agencyId \"([^\"]*)\"$")
     public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubTypeAndAgency(final String fromDate, final String toDate, final String offenderNos, final String staffId, final String type, final String subType, final String agencyId) throws Throwable {
         caseNote.getCaseNoteUsage(offenderNos, staffId, agencyId, type, subType, fromDate, toDate);
     }
 
-    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of staff ID \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of staff ID \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
     public void caseNoteUsageBetweenAndIsRequestedOfStaffIDForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String staffIds, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteStaffUsage(staffIds, type, subType, fromDate, toDate);
+    }
+
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\" and agencyId \"([^\"]*)\"$")
+    public void caseNoteUsageBetweenAndIsRequestedForCaseNoteTypeAndSubTypeAndAgencyId(final String fromDate, final String toDate, final String type, final String subType, final String agencyId) throws Throwable {
+        caseNote.getCaseNoteUsage(null, null, agencyId, type, subType, fromDate, toDate);
     }
 }

@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.repository.OffenderBookingSearchRequest;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.UserService;
@@ -32,7 +33,6 @@ public class SearchOffenderServiceImplTest {
 
     @Test
     public void testFindOffenders_findAssessmentsCorrectlyBatchesQueries() {
-        final var locationTypeGranularity = "WING";
         final var offenderNoRegex = "^[A-Za-z]\\d{4}[A-Za-z]{2}$}";
         final int maxBatchSize = 1;
 
@@ -41,11 +41,9 @@ public class SearchOffenderServiceImplTest {
                 OffenderBooking.builder().firstName("firstName2").bookingId(2L).bookingNo("2").build()
         );
 
-        when(inmateRepository.searchForOffenderBookings(anySet(), isNull(), anyString(), isNull(), anyString(),
-                isNull(), isNull(), eq(locationTypeGranularity), any())).thenReturn(new Page<>(bookings, bookings.size(), 0, bookings.size()));
+        when(inmateRepository.searchForOffenderBookings(isA(OffenderBookingSearchRequest.class))).thenReturn(new Page<>(bookings, bookings.size(), 0, bookings.size()));
 
-        final var service = new SearchOffenderServiceImpl(bookingService, userService, inmateRepository, authenticationFacade,
-                locationTypeGranularity, offenderNoRegex, maxBatchSize);
+        final var service = new SearchOffenderServiceImpl(bookingService, userService, inmateRepository, authenticationFacade, offenderNoRegex, maxBatchSize);
 
         service.findOffenders(SearchOffenderRequest.builder().keywords("firstName").locationPrefix("LEI").returnCategory(true).build());
 

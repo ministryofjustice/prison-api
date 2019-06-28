@@ -2,7 +2,6 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.LocationGroup;
-import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +29,7 @@ public class LocationsSteps extends CommonSteps {
     private Location location;
     private List<Location> locationList;
     private List<LocationGroup> groupList;
-    private List<OffenderBooking> bookingList;
+    private List<OffenderSearchSteps.OffenderBookingResponse> bookingList;
 
     @Step("Perform location search by location id")
     public void findByLocationId(final Long locationId) {
@@ -149,7 +148,7 @@ public class LocationsSteps extends CommonSteps {
                     queryUrl,
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
-                    new ParameterizedTypeReference<List<OffenderBooking>>() {});
+                    new ParameterizedTypeReference<List<OffenderSearchSteps.OffenderBookingResponse>>() {});
 
             assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
             bookingList = response.getBody();

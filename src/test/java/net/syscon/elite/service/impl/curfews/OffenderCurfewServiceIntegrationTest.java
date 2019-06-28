@@ -38,7 +38,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
  * Integration tests for the OffenderCurfewServiceImpl + OffenderCurfewRepositoryImpl combination. These tests
  * seem necessary because the desired service behaviour relies upon interactions between the service and database triggers.
  */
-@ActiveProfiles("nomis-hsqldb")
+@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)

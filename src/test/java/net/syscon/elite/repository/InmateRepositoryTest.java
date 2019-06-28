@@ -34,7 +34,7 @@ import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("nomis-hsqldb")
+@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
@@ -78,8 +78,16 @@ public class InmateRepositoryTest {
         final var caseloads = Set.of("LEI", "BXI");
         final var alertFilter = List.of("XA", "HC");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", "A", "A", "LEI",
-                alertFilter, "All", "WING", pageRequest);
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(caseloads)
+                .offenderNo("A1234AA")
+                .searchTerm1("A")
+                .searchTerm2("A")
+                .locationPrefix("LEI")
+                .alerts(alertFilter)
+                .convictedStatus("All")
+                .pageRequest(pageRequest)
+                .build());
 
         final var results = foundInmates.getItems();
         assertThat(results).hasSize(1);
@@ -92,8 +100,13 @@ public class InmateRepositoryTest {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "Convicted", "WING", pageRequest);
+        final var foundInmates = repository.searchForOffenderBookings(
+                OffenderBookingSearchRequest.builder()
+                        .caseloads(caseloads)
+                        .locationPrefix("LEI")
+                        .convictedStatus("Convicted")
+                        .pageRequest(pageRequest)
+                        .build());
 
         final var results = foundInmates.getItems();
 
@@ -107,8 +120,12 @@ public class InmateRepositoryTest {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "Remand", "WING", pageRequest);
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(caseloads)
+                .locationPrefix("LEI")
+                .convictedStatus("Remand")
+                .pageRequest(pageRequest)
+                .build());
 
         final var results = foundInmates.getItems();
 
@@ -122,8 +139,12 @@ public class InmateRepositoryTest {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
-                null, "All", "WING", pageRequest);
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(caseloads)
+                .locationPrefix("LEI")
+                .convictedStatus("All")
+                .pageRequest(pageRequest)
+                .build());
 
         final var results = foundInmates.getItems();
 
@@ -663,15 +684,12 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testGetRecategorise() {
+    public void testGetRecategoriseRemovesUnclassifiedAndUnsentenced() {
         final var list = repository.getRecategorise("LEI", LocalDate.of(2018, 6, 7));
 
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate")
                 .containsExactly(
-                        Tuple.tuple("A1234AC", -3L, "NORMAN", "BATES", "X", LocalDate.of(2016, 6, 8)),
-                        Tuple.tuple("A1234AD", -4L, "CHARLES", "CHAPLIN", "U", LocalDate.of(2016, 6, 8)),
-                        Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", "Z", LocalDate.of(2016, 6, 8)),
                         Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "LOW", LocalDate.of(2018, 6, 1)),
                         Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7)),
                         Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7))

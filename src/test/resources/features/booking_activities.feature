@@ -1,11 +1,10 @@
-@wip
 Feature: Booking Activities
 
   Acceptance Criteria
   A logged on staff user can retrieve scheduled activities for an offender booking.
 
   Background:
-    Given a user has authenticated with the API
+    Given a user has authenticated with the API and has the pay role
 
   Scenario: Retrieve scheduled activities for an existing offender that is not in a caseload accessible to authenticated user
     When scheduled activities are requested for an offender with booking id "-16"
@@ -122,6 +121,7 @@ Feature: Booking Activities
     When scheduled activities between "2017-09-18" and "2017-09-12" are requested for an offender with booking id "-1"
     Then bad request response, with "Invalid date range: toDate is before fromDate." message, is received from booking activities API
 
+@broken
 # Pay is Nomis-only for now due to the "offender id to booking id mapping sql" using nomis-specific booking_seq column
   Scenario: Pay an activity and reject double payment
         Offender id A1234AC has 2 activities scheduled on 2017-09-12 PM with eventId -6 and -7
@@ -147,6 +147,7 @@ Feature: Booking Activities
     When a request is made to update attendance for offender id "A1234AP" and activity "-2" with outcome "ATT", performance "STANDARD" and comment "blah"
     Then resource not found response is received from booking activities API
 
+@broken
   Scenario: Pay an activity and reject double payment Booking id -3 has 2 activities scheduled on 2017-09-12 PM with eventId -6 and -7
     When a request is made to update attendance for booking id "-3" and activity "-7" with outcome "ATT", performance "STANDARD" and comment "blah"
     Then the booking activity is rejected as offender has already been paid for "Substance misuse course"

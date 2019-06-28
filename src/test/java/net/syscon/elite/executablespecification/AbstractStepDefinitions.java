@@ -3,6 +3,7 @@ package net.syscon.elite.executablespecification;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.executablespecification.steps.*;
 import net.syscon.elite.test.DatasourceActiveProfilesResolver;
+import net.syscon.elite.util.JwtAuthenticationHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -32,8 +33,8 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public AuthenticationSteps auth() {
-            return new AuthenticationSteps();
+        public AuthTokenHelper auth(JwtAuthenticationHelper jwtAuthenticationHelper) {
+            return new AuthTokenHelper(jwtAuthenticationHelper);
         }
 
         @Bean
@@ -155,7 +156,7 @@ abstract class AbstractStepDefinitions {
         public BookingVisitSteps bookingVisit() {
             return new BookingVisitSteps();
         }
-        
+
         @Bean
         public BookingEventSteps bookingEvent() {
             return new BookingEventSteps();
@@ -216,6 +217,9 @@ abstract class AbstractStepDefinitions {
 
         @Bean
         public AddIepLevelSteps addIepLevelSteps() { return new AddIepLevelSteps(); }
+
+        @Bean
+        public NomisApiV1Steps nomisApiV1Steps() { return new NomisApiV1Steps(); }
     }
 
     int ord2idx(final String ordinal) {

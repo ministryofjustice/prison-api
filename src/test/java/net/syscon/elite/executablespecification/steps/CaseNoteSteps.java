@@ -164,7 +164,7 @@ public class CaseNoteSteps extends CommonSteps {
 
     @Step("Verify case note usage size")
     public void verifyCaseNoteUsageSize(final int size) {
-        assertEquals(caseNoteUsageList.size(), size);
+        assertEquals(size, caseNoteUsageList.size());
     }
 
     @Step("Verify case note usage size")

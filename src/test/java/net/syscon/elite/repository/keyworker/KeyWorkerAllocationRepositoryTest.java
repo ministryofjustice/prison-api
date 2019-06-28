@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("nomis-hsqldb")
+@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @JdbcTest()
 @Transactional

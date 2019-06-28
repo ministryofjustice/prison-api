@@ -14,7 +14,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
@@ -38,7 +37,7 @@ public abstract class CommonSteps {
     public static final String API_PREFIX = "/api/";
 
     @Autowired
-    private AuthenticationSteps auth;
+    private AuthTokenHelper auth;
 
     @Autowired
     protected TestRestTemplate restTemplate;
@@ -69,7 +68,7 @@ public abstract class CommonSteps {
         assertThat(resources.isEmpty()).isTrue();
     }
 
-    public void authenticateAsClient(final AuthenticationSteps.AuthToken clientId) {
+    public void authenticateAsClient(final AuthTokenHelper.AuthToken clientId) {
         auth.setToken(clientId);
     }
 

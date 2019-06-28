@@ -15,7 +15,6 @@ import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
 import net.syscon.elite.service.support.ReferenceDomain;
 import net.syscon.elite.service.validation.AttendanceTypesValid;
-import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -267,12 +266,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ROLE_PAY')")
     @Override
     public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ROLE_PAY')")
     @Override
     public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId));

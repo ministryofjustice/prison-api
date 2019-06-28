@@ -321,7 +321,7 @@ public class MovementsServiceImplTest {
 
         assertThatThrownBy(() -> {
             final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
-        }).isInstanceOf(BadRequestException.class).hasMessageContaining("At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movementEvents]");
+        }).isInstanceOf(BadRequestException.class).hasMessageContaining("At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]");
 
         verifyNoMoreInteractions(movementsRepository);
     }
