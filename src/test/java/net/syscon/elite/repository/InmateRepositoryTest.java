@@ -32,6 +32,7 @@ import java.util.function.Function;
 import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVAL;
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -730,7 +731,10 @@ public class InmateRepositoryTest {
                 .nextReviewDate(LocalDate.of(2019, 6, 1))
                 .build();
 
-        repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
+        final Map responseMap = repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
+
+        assertThat(responseMap).contains(entry("bookingId", -5L), entry("sequenceNumber", 3)); // 2 previous category records for A1234AE
+
 
         final var list = repository.getUncategorised("LEI");
 

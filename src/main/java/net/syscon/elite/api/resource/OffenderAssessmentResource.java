@@ -85,7 +85,7 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to categorise the offender.", response = ErrorResponse.class) })
-    CreateCategorisationResponse createCategorisation(@ApiParam(value = "Categorisation details", required = true) @Valid CategorisationDetail body);
+    Response createCategorisation(@ApiParam(value = "Categorisation details", required = true) @Valid CategorisationDetail body);
 
     @PUT
     @Path("/category/approve")
@@ -188,19 +188,6 @@ public interface OffenderAssessmentResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUncategorisedResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class CreateCategorisationResponse extends ResponseDelegate {
-
-        public CreateCategorisationResponse(final Response response) {
-            super(response);
-        }
-
-        public static OffenderAssessmentResource.CreateCategorisationResponse respond201WithApplicationJson() {
-            final var responseBuilder = Response.status(201)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build());
         }
     }
 }
