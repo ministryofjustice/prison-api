@@ -645,13 +645,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    public void insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId) {
+    public Map insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId) {
 
+        final int newSeq = getOffenderAssessmentSeq(detail.getBookingId()) + 1;
         jdbcTemplate.update(
                 getQuery("INSERT_CATEGORY"),
                 createParams("bookingId", detail.getBookingId(),
                         "assessmentId", getCategoryAssessmentId(),
-                        "seq", getOffenderAssessmentSeq(detail.getBookingId()) + 1,
+                        "seq", newSeq,
                         "assessmentDate", LocalDate.now(),
                         "assessStatus", "P",
                         "category", detail.getCategory(),
@@ -662,6 +663,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessCommitteeCode", detail.getCommittee(),
                         "dateTime", LocalDateTime.now(),
                         "agencyId", agencyId));
+
+        return Map.of("sequenceNumber", newSeq, "bookingId", detail.getBookingId());
     }
 
     @Override

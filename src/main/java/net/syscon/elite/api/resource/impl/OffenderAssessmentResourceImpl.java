@@ -73,9 +73,11 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     @ProxyUser
-    public CreateCategorisationResponse createCategorisation(final CategorisationDetail detail) {
-        inmateService.createCategorisation(detail.getBookingId(), detail);
-        return CreateCategorisationResponse.respond201WithApplicationJson();
+    public Response createCategorisation(final CategorisationDetail detail) {
+        return Response.ok()
+                .status(201)
+                .entity(inmateService.createCategorisation(detail.getBookingId(), detail))
+                .build();
     }
 
     @Override
