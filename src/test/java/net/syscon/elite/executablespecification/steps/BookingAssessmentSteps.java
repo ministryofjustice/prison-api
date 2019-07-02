@@ -120,12 +120,12 @@ public class BookingAssessmentSteps extends CommonSteps {
         }
     }
 
-    private void doPostOffendersCategorisations(final String agencyId, final List<Long> bookingIds) {
+    private void doPostOffendersCategorisations(final String agencyId, final List<Long> bookingIds, final boolean latestOnly) {
         init();
         try {
-            final var url = API_ASSESSMENTS_PREFIX + "category/{agencyId}";
+            final var url = API_ASSESSMENTS_PREFIX + "category/{agencyId}?latestOnly={latestOnly}";
             final var response = restTemplate.exchange(url, HttpMethod.POST,
-                    createEntity(bookingIds), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId);
+                    createEntity(bookingIds), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId, latestOnly);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             offenderCatList = response.getBody();
             buildResourceData(response);
@@ -267,7 +267,7 @@ public class BookingAssessmentSteps extends CommonSteps {
         doGetCategoryApiCall(agencyId, "RECATEGORISATIONS", dateString);
     }
 
-    public void getOffendersCategorisations(final String agencyId, final List<Long> bookingIds) {
-        doPostOffendersCategorisations(agencyId, bookingIds);
+    public void getOffendersCategorisations(final String agencyId, final List<Long> bookingIds, final boolean latestOnly) {
+        doPostOffendersCategorisations(agencyId, bookingIds, latestOnly);
     }
 }

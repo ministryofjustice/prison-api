@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -216,14 +217,14 @@ public class InmateServiceImplTest {
                 .limit(50)
                 .collect(Collectors.toList());
 
-        when(repository.getOffenderCategorisations(listOf100Longs, "LEI")).thenReturn(Collections.singletonList(catDetail1));
-        when(repository.getOffenderCategorisations(listOf50Longs, "LEI")).thenReturn(ImmutableList.of(catDetail2, catDetail3));
+        when(repository.getOffenderCategorisations(listOf100Longs, "LEI", true)).thenReturn(Collections.singletonList(catDetail1));
+        when(repository.getOffenderCategorisations(listOf50Longs, "LEI", true)).thenReturn(ImmutableList.of(catDetail2, catDetail3));
 
-        final var results = serviceToTest.getOffenderCategorisations("LEI", setOf150Longs);
+        final var results = serviceToTest.getOffenderCategorisations("LEI", setOf150Longs, true);
 
         assertThat(results).hasSize(3);
 
-        Mockito.verify(repository, Mockito.times(2)).getOffenderCategorisations(bookingIdsArgument.capture(), agencyArgument.capture());
+        Mockito.verify(repository, Mockito.times(2)).getOffenderCategorisations(bookingIdsArgument.capture(), agencyArgument.capture(), eq(true));
         var capturedArguments = bookingIdsArgument.getAllValues();
         assertThat(capturedArguments.get(0)).containsAll(listOf100Longs);
         assertThat(capturedArguments.get(1)).containsAll(listOf50Longs);

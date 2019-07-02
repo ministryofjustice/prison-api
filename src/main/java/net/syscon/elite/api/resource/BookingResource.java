@@ -433,7 +433,7 @@ public interface BookingResource {
     @Produces({"application/json"})
     @ApiOperation(value = "Offence history.", notes = "All Offences recorded for this offender.", nickname = "getOffenceHistory")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenceDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "OK", response = OffenceHistoryDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})

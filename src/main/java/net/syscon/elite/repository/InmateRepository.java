@@ -77,7 +77,7 @@ public interface InmateRepository {
 	List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutoffDate);
     List<OffenderCategorise> getRecategorise(String agencyId, LocalDate cutoffDate);
 
-    List<OffenderCategorise> getOffenderCategorisations(List<Long> bookingIds, String agencyId);
+    List<OffenderCategorise> getOffenderCategorisations(List<Long> bookingIds, String agencyId, boolean latestOnly);
 
 	Optional<ImageDetail> getMainBookingImage(long bookingId);
 
