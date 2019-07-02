@@ -23,14 +23,12 @@ import org.springframework.core.env.Environment;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -171,10 +169,12 @@ public class InmateServiceImplTest {
 
         when(bookingService.getLatestBookingByBookingId(1234L)).thenReturn(OffenderSummary.builder().agencyLocationId("CDI").bookingId(-5L).build());
         when(userService.getUserByUsername("ME")).thenReturn(UserDetail.builder().staffId(444L).username("ME").build());
+        when(repository.insertCategory(catDetail, "CDI", 444L, "ME")).thenReturn(Map.of("sequenceNumber", 2L, "bookingId", -5L));
         when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
 
-        serviceToTest.createCategorisation(1234L, catDetail);
+        final var responseMap = serviceToTest.createCategorisation(1234L, catDetail);
 
+        assertThat(responseMap).contains(entry("bookingId", -5L), entry("sequenceNumber", 2L));
         assertThat(catDetail.getNextReviewDate()).isEqualTo(LocalDate.now().plusMonths(6));
         Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
     }

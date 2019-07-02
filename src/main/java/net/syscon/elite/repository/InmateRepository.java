@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -84,7 +85,7 @@ public interface InmateRepository {
 
 	List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
 	List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue);
-	void insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId);
+	Map<String, Long> insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId);
 	void approveCategory(CategoryApprovalDetail detail, UserDetail currentUser);
 
     List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData , Set<String> caseloads);

@@ -45,6 +45,8 @@ import javax.ws.rs.ext.ExceptionMapper;
 @EnableAsync(proxyTargetClass = true)
 public class ServletContextConfigs extends ResourceConfig implements BeanFactoryAware  {
 
+    @Value("${server.servlet.context-path:}")
+    private String contextPath;
     @Value("${spring.jersey.application-path:/api}")
     private String apiPath;
 
@@ -69,9 +71,7 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
 
         registerClasses(restResources);
 
-        final var contextPath = env.getProperty("spring.jersey.application-path");
-
-        register(new EndpointLoggingListener(contextPath));
+        register(new EndpointLoggingListener(apiPath));
 
         register(ResourceExceptionHandler.class);
         register(RequestContextFilter.class);
@@ -127,7 +127,7 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         config.setVersion(getVersion());
         config.setContact("HMPPS Sheffield Studio Development Team");
         config.setSchemes(new String[] { "https" });
-        config.setBasePath(apiPath);
+        config.setBasePath(contextPath + apiPath);
         config.setResourcePackage("net.syscon.elite.api");
         config.setPrettyPrint(true);
         config.setScan(true);

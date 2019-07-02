@@ -9,6 +9,7 @@ import net.syscon.elite.service.support.InmateDto;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ public interface InmateService {
 
 	List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(String agencyId, Set<Long> bookingIds);
 
-    void createCategorisation(Long bookingId, CategorisationDetail detail);
+    Map<String, Long> createCategorisation(Long bookingId, CategorisationDetail detail);
 	void approveCategorisation(Long bookingId, CategoryApprovalDetail detail);
 
     Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
