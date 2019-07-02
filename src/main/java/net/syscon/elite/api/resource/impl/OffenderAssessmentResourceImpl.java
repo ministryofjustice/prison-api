@@ -77,6 +77,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
         return Response.ok()
                 .status(201)
                 .entity(inmateService.createCategorisation(detail.getBookingId(), detail))
+                .header("Content-Type", MediaType.APPLICATION_JSON)
                 .build();
     }
 
