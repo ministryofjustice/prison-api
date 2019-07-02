@@ -40,7 +40,7 @@ public interface InmateService {
 	Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode);
     List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean latestOnly);
 	List<OffenderCategorise> getCategory(String agencyId, CategoryInformationType type, LocalDate cutOffDate);
-	List<OffenderCategorise> getOffenderCategorisations(String agencyId, Set<Long> bookingIds);
+	List<OffenderCategorise> getOffenderCategorisations(String agencyId, Set<Long> bookingIds, boolean latestOnly);
 
 	List<Long> getPersonalOfficerBookings(String username);
 	List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations);

@@ -511,7 +511,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, String agencyId) {
+    public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, final String agencyId, final boolean latestOnly) {
         final var rawData = jdbcTemplate.query(
                 getQuery("GET_OFFENDER_CATEGORISATIONS"),
                 createParams("bookingIds", bookingIds,
@@ -519,7 +519,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessmentId", getCategoryAssessmentId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        return removeEarlierCategorisations(rawData);
+        return latestOnly ? removeEarlierCategorisations(rawData) : rawData;
     }
 
     private Long getCategoryAssessmentId() {

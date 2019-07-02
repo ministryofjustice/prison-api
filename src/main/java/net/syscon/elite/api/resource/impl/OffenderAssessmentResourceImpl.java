@@ -66,9 +66,9 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
-    public GetUncategorisedResponse getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds) {
-        final var results = inmateService.getOffenderCategorisations(agencyId, bookingIds);
-        return GetUncategorisedResponse.respond200WithApplicationJson(results);
+    public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final Boolean latestOnly) {
+        final var results = inmateService.getOffenderCategorisations(agencyId, bookingIds, !Boolean.FALSE.equals(latestOnly));
+        return results;
     }
 
     @Override

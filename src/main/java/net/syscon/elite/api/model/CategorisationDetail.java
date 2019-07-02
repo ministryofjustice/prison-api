@@ -28,7 +28,7 @@ public class CategorisationDetail {
     private String category;
 
     @NotNull(message = "committee must be provided")
-    @ApiModelProperty(required = true, value = "The assessment committee code")
+    @ApiModelProperty(required = true, value = "The assessment committee code (reference code in domain 'ASSESS_COMM')")
     private String committee;
 
     @ApiModelProperty(value = "Next review date for recategorisation, defaults to current date + 6 months, if not provided")
