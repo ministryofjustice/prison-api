@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.v1;
 
 import net.syscon.elite.repository.impl.RepositoryBase;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs;
 import net.syscon.util.DateTimeConverter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
@@ -26,7 +27,7 @@ public class FinanceV1Repository extends RepositoryBase {
 
     public String postTransaction(String prisonId, String nomsId, String type, String description, BigDecimal amountInPounds, LocalDate txDate, String txId, String uniqueClientId) {
         final var params = new MapSqlParameterSource()
-                .addValue(P_AGY_LOC_ID, prisonId)
+                .addValue(FinanceProcs.P_AGY_LOC_ID, prisonId)
                 .addValue(P_NOMS_ID, nomsId)
                 .addValue(P_ROOT_OFFENDER_ID, null)
                 .addValue(P_SINGLE_OFFENDER_ID, null)

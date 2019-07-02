@@ -132,4 +132,28 @@ public interface NomisApiV1Resource {
                                     @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max=3) String prisonId,
                                     @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
                                     @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
+
+    @GET
+    @Path("/offenders/{noms_id}/pss_detail")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Fetch PSS detail by offender",
+            notes = "Returns the PSS detail for the specified offender. The response structure is :<br/> " +
+                    "<br/>" +
+                    "<table>" +
+                    "<tr><th>Attribute Name</th><th>Value</th><th>Notes</th></tr>" +
+                    "<tr><td>type</td><td>offender_detail_request</td><td>Always set to this value</td></tr>" +
+                    "<tr><td>id</td><td>0</td><td>Always zero when an object is present</td></tr>" +
+                    "<tr><td>timestamp</td><td>2019-04-23 14:23.000</td><td>Set to the date and time of the request</td></tr>" +
+                    "<tr><td>prison_id</td><td>MDI</td><td>The agency location code for the establishment</td></tr>" +
+                    "<tr><td>noms_id</td><td>A1417AE</td><td>The unique identifier for this offender in NOMIS</td></tr>" +
+                    "<tr><td>offender_details_request</td><td>JSON object</td><td>Details of the offender, their sentence, location, warnings/alerts, IEP level and case notes. ** These are generated directly from the Nomis DB and not within the API.</td></tr>" +
+                    "</table>")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderPssDetailEvent.class),
+            @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    OffenderPssDetailEvent getOffenderPssDetail(@ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
+
 }

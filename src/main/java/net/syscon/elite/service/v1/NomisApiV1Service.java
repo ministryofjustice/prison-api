@@ -16,6 +16,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -184,4 +185,23 @@ public class NomisApiV1Service {
 
         return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
     }
+
+    /**
+     * The repository creates a temporary CLOB in Oracle so direct this transaction to the writable DB.
+     */
+    @Transactional
+    public OffenderPssDetailEvent getOffenderPssDetail(final String nomsId) {
+
+        return offenderV1Repository.getOffenderPssDetail(nomsId)
+                .map(o -> OffenderPssDetailEvent.builder()
+                        .eventType(o.getEventType())
+                        .nomsId(o.getNomsId())
+                        .eventTimeStamp(LocalDateTime.ofInstant(o.getEventTimestamp().toInstant(), ZoneId.systemDefault()))
+                        .id(o.getId())
+                        .prisonId(o.getPrisonId())
+                        .eventData(o.getEventData())
+                        .build())
+                .orElseThrow(EntityNotFoundException.withId(nomsId));
+    }
+
 }

@@ -76,4 +76,10 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
         return Response.status(HttpStatus.CREATED.value()).entity(TransactionResponse.builder().id(result).build()).header("Content-Type", MediaType.APPLICATION_JSON).build();
     }
 
+
+    @Override
+    public OffenderPssDetailEvent getOffenderPssDetail(@NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
+
+        return service.getOffenderPssDetail(nomsId);
+    }
 }
