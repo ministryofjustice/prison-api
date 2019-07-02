@@ -645,9 +645,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    public Map insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId) {
+    public Map<String, Long> insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId) {
 
-        final int newSeq = getOffenderAssessmentSeq(detail.getBookingId()) + 1;
+        final var newSeq = getOffenderAssessmentSeq(detail.getBookingId()) + 1;
         jdbcTemplate.update(
                 getQuery("INSERT_CATEGORY"),
                 createParams("bookingId", detail.getBookingId(),
@@ -664,7 +664,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "dateTime", LocalDateTime.now(),
                         "agencyId", agencyId));
 
-        return Map.of("sequenceNumber", newSeq, "bookingId", detail.getBookingId());
+        return Map.of("sequenceNumber", (long) newSeq, "bookingId", detail.getBookingId());
     }
 
     @Override

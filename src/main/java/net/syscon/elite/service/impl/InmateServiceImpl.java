@@ -434,7 +434,7 @@ public class InmateServiceImpl implements InmateService {
     @VerifyBookingAccess
     @PreAuthorize("hasRole('CREATE_CATEGORISATION')")
     @Transactional
-    public Map createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
+    public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
         final var currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
         final var responseKeyMap = repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());

@@ -731,9 +731,9 @@ public class InmateRepositoryTest {
                 .nextReviewDate(LocalDate.of(2019, 6, 1))
                 .build();
 
-        final Map responseMap = repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
+        final var responseMap = repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
 
-        assertThat(responseMap).contains(entry("bookingId", -5L), entry("sequenceNumber", 3)); // 2 previous category records for A1234AE
+        assertThat(responseMap).contains(entry("bookingId", -5L), entry("sequenceNumber", 3L)); // 2 previous category records for A1234AE
 
 
         final var list = repository.getUncategorised("LEI");
