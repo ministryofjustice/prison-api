@@ -13,9 +13,7 @@ import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.support.StatusFilter;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.AgencyService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.ReferenceDomainService;
+import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AlphaNumericComparator;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
@@ -213,5 +211,10 @@ public class AgencyServiceImpl implements AgencyService {
 
     private boolean isBlankAddress(final PrisonContactDetail pcd) {
         return pcd.getPremise() == null && pcd.getCity() == null && pcd.getLocality() == null && pcd.getPostCode() == null;
+    }
+
+    @Override
+    public Page<OffenderIepReview> getPrisonIepReview(final OffenderIepReviewSearchCriteria criteria) {
+        return agencyRepository.getPrisonIepReview(criteria);
     }
 }

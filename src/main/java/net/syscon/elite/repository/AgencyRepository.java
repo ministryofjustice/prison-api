@@ -8,6 +8,8 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.support.StatusFilter;
+import net.syscon.elite.service.OffenderIepReview;
+import net.syscon.elite.service.OffenderIepReviewSearchCriteria;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,4 +30,5 @@ public interface AgencyRepository {
     List<Location> getAgencyLocations(String agencyId, List<String> eventTypes, String sortFields, Order sortOrder);
     List<Location> getAgencyLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
     List<IepLevel> getAgencyIepLevels(String agencyId);
+    Page<OffenderIepReview> getPrisonIepReview(OffenderIepReviewSearchCriteria criteria);
 }
