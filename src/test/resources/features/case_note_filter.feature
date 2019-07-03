@@ -15,11 +15,11 @@ Feature: Case Note Retrieval and Filtering
     And case note sub types match "<case note sub types>"
 
     Examples:
-      | bookingId | number | case note types                                                 | case note sub types                                             |
-      | -1        | 1      | CHAP                                                            | FAMMAR                                                          |
-      | -2        | 4      | COMMS,APP,ETE,COMMS                                             | COM_IN,OUTCOME,ETERTO,COM_OUT                                   |
-      | -3        | 8      | OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE | OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN |
-      | -31       | 0      |                                                                 |                                                                 |
+      | bookingId | number | case note types                                                 | case note sub types                                                     |
+      | -1        | 1      | CHAP                                                            | FAMMAR                                                                  |
+      | -2        | 4      | COMMS,APP,ETE,COMMS                                             | COM_IN,OUTCOME,ETERTO,COM_OUT                                           |
+      | -3        | 8      | OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE | OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN         |
+      | -31       | 8      | NEG,NEG,NEG,NEG,NEG,NEG,NEG,POS                                 | IEP_WARN,IEP_WARN,IEP_WARN,IEP_WARN,IEP_WARN,IEP_WARN,IEP_WARN,IEP_ENC  |
 
   Scenario Outline: Retrieve filtered case notes
     When case note type "<case note type>" filter applied

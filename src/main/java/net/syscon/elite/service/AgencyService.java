@@ -32,4 +32,5 @@ public interface AgencyService {
     List<PrisonContactDetail> getPrisonContactDetail();
     PrisonContactDetail getPrisonContactDetail(String agencyId);
     List<Agency> getAgenciesByCaseload(String caseload);
+    Page<OffenderIepReview> getPrisonIepReview(OffenderIepReviewSearchCriteria criteria);
 }
