@@ -32,6 +32,7 @@ import java.util.function.Function;
 import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVAL;
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -660,13 +661,27 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testGetOffenderCategorisations() {
-        final var list = repository.getOffenderCategorisations(Arrays.asList(-1L, -31L), "LEI");
+    public void testGetOffenderCategorisationsLatest() {
+        final var list = repository.getOffenderCategorisations(Arrays.asList(-1L, -31L), "LEI", true);
 
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category")
-                .containsExactly(Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A"));
+                .containsExactly(
+                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "B"),
+                        Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A"));
+    }
+
+    @Test
+    public void testGetOffenderCategorisationsAll() {
+        final var list = repository.getOffenderCategorisations(Arrays.asList(-1L, -31L), "LEI", false);
+        assertThat(list)
+                .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "LOW"),
+                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "B"),
+                        Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A"),
+                        Tuple.tuple("A5576RS", -31L, "API", "User", "API", "User", "C"));
     }
 
     @Test
@@ -730,7 +745,10 @@ public class InmateRepositoryTest {
                 .nextReviewDate(LocalDate.of(2019, 6, 1))
                 .build();
 
-        repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
+        final var responseMap = repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
+
+        assertThat(responseMap).contains(entry("bookingId", -5L), entry("sequenceNumber", 3L)); // 2 previous category records for A1234AE
+
 
         final var list = repository.getUncategorised("LEI");
 

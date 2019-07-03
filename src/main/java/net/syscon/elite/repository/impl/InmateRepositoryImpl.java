@@ -511,7 +511,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, String agencyId) {
+    public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, final String agencyId, final boolean latestOnly) {
         final var rawData = jdbcTemplate.query(
                 getQuery("GET_OFFENDER_CATEGORISATIONS"),
                 createParams("bookingIds", bookingIds,
@@ -519,7 +519,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessmentId", getCategoryAssessmentId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        return removeEarlierCategorisations(rawData);
+        return latestOnly ? removeEarlierCategorisations(rawData) : rawData;
     }
 
     private Long getCategoryAssessmentId() {
@@ -645,13 +645,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    public void insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId) {
+    public Map<String, Long> insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId) {
 
+        final var newSeq = getOffenderAssessmentSeq(detail.getBookingId()) + 1;
         jdbcTemplate.update(
                 getQuery("INSERT_CATEGORY"),
                 createParams("bookingId", detail.getBookingId(),
                         "assessmentId", getCategoryAssessmentId(),
-                        "seq", getOffenderAssessmentSeq(detail.getBookingId()) + 1,
+                        "seq", newSeq,
                         "assessmentDate", LocalDate.now(),
                         "assessStatus", "P",
                         "category", detail.getCategory(),
@@ -662,6 +663,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessCommitteeCode", detail.getCommittee(),
                         "dateTime", LocalDateTime.now(),
                         "agencyId", agencyId));
+
+        return Map.of("sequenceNumber", (long) newSeq, "bookingId", detail.getBookingId());
     }
 
     @Override

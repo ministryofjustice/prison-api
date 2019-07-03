@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -31,7 +32,8 @@ public class BookingAssessmentSteps extends CommonSteps {
     private Assessment assessment;
     private List<Assessment> assessments;
     private List<OffenderCategorise> offenderCatList;
-    private ResponseEntity createUpdateResponse;
+    private ResponseEntity updateResponse;
+    private Map createResponse;
 
     public void getAssessmentByCode(final Long bookingId, final String assessmentCode) {
         doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/assessment/" + assessmentCode);
@@ -118,12 +120,12 @@ public class BookingAssessmentSteps extends CommonSteps {
         }
     }
 
-    private void doPostOffendersCategorisations(final String agencyId, final List<Long> bookingIds) {
+    private void doPostOffendersCategorisations(final String agencyId, final List<Long> bookingIds, final boolean latestOnly) {
         init();
         try {
-            final var url = API_ASSESSMENTS_PREFIX + "category/{agencyId}";
+            final var url = API_ASSESSMENTS_PREFIX + "category/{agencyId}?latestOnly={latestOnly}";
             final var response = restTemplate.exchange(url, HttpMethod.POST,
-                    createEntity(bookingIds), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId);
+                    createEntity(bookingIds), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId, latestOnly);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             offenderCatList = response.getBody();
             buildResourceData(response);
@@ -135,11 +137,13 @@ public class BookingAssessmentSteps extends CommonSteps {
     private void doCreateCategorisationApiCall(final Long bookingId, final String category, final String committee) {
         init();
         try {
-            createUpdateResponse =
+            final var response =
                     restTemplate.exchange(
                             API_ASSESSMENTS_PREFIX + "category/categorise",
                             POST,
-                            createEntity(CategorisationDetail.builder().bookingId(bookingId).category(category).committee(committee).build()), ResponseEntity.class);
+                            createEntity(CategorisationDetail.builder().bookingId(bookingId).category(category).committee(committee).build()), new ParameterizedTypeReference<Map>() {});
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            createResponse = response.getBody();
 
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -149,7 +153,7 @@ public class BookingAssessmentSteps extends CommonSteps {
     private void doApproveCategorisationApiCall(final Long bookingId, final String category, final LocalDate date, final String comment) {
         init();
         try {
-            createUpdateResponse =
+            updateResponse =
                     restTemplate.exchange(
                             API_ASSESSMENTS_PREFIX + "category/approve",
                             PUT,
@@ -172,7 +176,8 @@ public class BookingAssessmentSteps extends CommonSteps {
         assessment = null;
         assessments = null;
         offenderCatList = null;
-        createUpdateResponse = null;
+        updateResponse = null;
+        createResponse = null;
     }
 
     public void verifyField(final String field, final String value) throws ReflectiveOperationException {
@@ -262,7 +267,7 @@ public class BookingAssessmentSteps extends CommonSteps {
         doGetCategoryApiCall(agencyId, "RECATEGORISATIONS", dateString);
     }
 
-    public void getOffendersCategorisations(final String agencyId, final List<Long> bookingIds) {
-        doPostOffendersCategorisations(agencyId, bookingIds);
+    public void getOffendersCategorisations(final String agencyId, final List<Long> bookingIds, final boolean latestOnly) {
+        doPostOffendersCategorisations(agencyId, bookingIds, latestOnly);
     }
 }

@@ -73,8 +73,9 @@ public interface OffenderAssessmentResource {
     @ApiOperation(value = "Returns the latest Categorisation details for supplied Offenders (if one exists) - POST version to allow large offender lists.", notes = "Categorisation details for supplied Offenders", nickname = "postOffenderSentences")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The list of offenders with categorisation details is returned if categorisation record exists", response = OffenderCategorise.class, responseContainer = "List")})
-    GetUncategorisedResponse getOffenderCategorisations(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
-                                                        @ApiParam(value = "The required booking Ids (mandatory)", required = true) Set<Long> bookingIds);
+    List<OffenderCategorise> getOffenderCategorisations(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
+                                                        @ApiParam(value = "The required booking Ids (mandatory)", required = true) Set<Long> bookingIds,
+                                                        @ApiParam(value = "Only get the latest category for each booking", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly);
 
     @POST
     @Path("/category/categorise")
@@ -85,7 +86,7 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to categorise the offender.", response = ErrorResponse.class) })
-    CreateCategorisationResponse createCategorisation(@ApiParam(value = "Categorisation details", required = true) @Valid CategorisationDetail body);
+    Response createCategorisation(@ApiParam(value = "Categorisation details", required = true) @Valid CategorisationDetail body);
 
     @PUT
     @Path("/category/approve")
@@ -170,37 +171,6 @@ public interface OffenderAssessmentResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostOffenderAssessmentsCsraListResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetUncategorisedResponse extends ResponseDelegate {
-
-        private GetUncategorisedResponse(final Response response) {
-            super(response);
-        }
-
-        private GetUncategorisedResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetUncategorisedResponse respond200WithApplicationJson(final List<OffenderCategorise> entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetUncategorisedResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class CreateCategorisationResponse extends ResponseDelegate {
-
-        public CreateCategorisationResponse(final Response response) {
-            super(response);
-        }
-
-        public static OffenderAssessmentResource.CreateCategorisationResponse respond201WithApplicationJson() {
-            final var responseBuilder = Response.status(201)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build());
         }
     }
 }

@@ -384,12 +384,12 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     @VerifyAgencyAccess
-    public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds) {
+    public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
         final List<OffenderCategorise> results = new ArrayList<>();
         if (!bookingIds.isEmpty()) {
             final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
             batch.forEach(offenderBatch -> {
-                final var categorisations = repository.getOffenderCategorisations(offenderBatch, agencyId);
+                final var categorisations = repository.getOffenderCategorisations(offenderBatch, agencyId, latestOnly);
                 results.addAll(categorisations);
             });
         }
@@ -434,13 +434,14 @@ public class InmateServiceImpl implements InmateService {
     @VerifyBookingAccess
     @PreAuthorize("hasRole('CREATE_CATEGORISATION')")
     @Transactional
-    public void createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
+    public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
         final var currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
-        repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());
+        final var responseKeyMap = repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());
 
         // Log event
         telemetryClient.trackEvent("CategorisationCreated", ImmutableMap.of("bookingId", bookingId.toString(), "category", categorisationDetail.getCategory()), null);
+        return responseKeyMap;
     }
 
     @Override

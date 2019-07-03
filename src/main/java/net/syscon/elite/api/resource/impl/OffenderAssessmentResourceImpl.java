@@ -66,16 +66,19 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
-    public GetUncategorisedResponse getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds) {
-        final var results = inmateService.getOffenderCategorisations(agencyId, bookingIds);
-        return GetUncategorisedResponse.respond200WithApplicationJson(results);
+    public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final Boolean latestOnly) {
+        final var results = inmateService.getOffenderCategorisations(agencyId, bookingIds, !Boolean.FALSE.equals(latestOnly));
+        return results;
     }
 
     @Override
     @ProxyUser
-    public CreateCategorisationResponse createCategorisation(final CategorisationDetail detail) {
-        inmateService.createCategorisation(detail.getBookingId(), detail);
-        return CreateCategorisationResponse.respond201WithApplicationJson();
+    public Response createCategorisation(final CategorisationDetail detail) {
+        return Response.ok()
+                .status(201)
+                .entity(inmateService.createCategorisation(detail.getBookingId(), detail))
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .build();
     }
 
     @Override
