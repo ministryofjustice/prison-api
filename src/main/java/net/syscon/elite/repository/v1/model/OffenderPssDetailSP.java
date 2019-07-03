@@ -1,9 +1,6 @@
 package net.syscon.elite.repository.v1.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Calendar;
 

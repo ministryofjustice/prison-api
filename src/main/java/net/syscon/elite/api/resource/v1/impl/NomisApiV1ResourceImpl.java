@@ -90,7 +90,6 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
         return StringUtils.isNotBlank(clientName) ? clientName + "-" + clientUniqueRef : clientUniqueRef;
     }
 
-
     @Override
     public OffenderPssDetailEvent getOffenderPssDetail(@NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
 
