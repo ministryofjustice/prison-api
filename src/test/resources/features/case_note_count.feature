@@ -72,7 +72,7 @@ Feature: Case Note Count
       | A1234AC    | OBSERVE | OBS_GEN | 2016-01-01 | 2017-07-31 | LEI      | 4     |          1   | 2017-07-31T12:00 |
       | A1234AC    | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 |          | 2     |          1   | 2017-08-13T12:00 |
       | A1234AC    |         |         | 2016-01-01 | 2019-01-01 | LEI      | 6     |          1   | 2017-08-13T12:00 |
-      |            |         |         | 2016-01-01 | 2019-01-01 | LEI      | 1     |          6   | 2017-05-13T12:00 |
+      |            |         |         | 2016-01-01 | 2019-01-01 | LEI      | 9     |          18  | 2017-05-13T12:00 |
 
   Scenario Outline: Get case note usage for a prison and date ranges
     When case note usage between "<fromDate>" and "<toDate>" is requested for case note type "<type>" and sub-type "<subType>" and agencyId "<agencyId>"
@@ -80,7 +80,7 @@ Feature: Case Note Count
 
     Examples:
       |  agencyId | type    | subType | fromDate   | toDate     | totalResults |
-      |  LEI      |         |         | 2016-01-01 | 2019-01-01 |          7   |
+      |  LEI      |         |         | 2016-01-01 | 2019-01-01 |          19  |
       |  LEI      |         |         |            |            |          0   |
       |  LEI      | CHAP    |         | 2016-01-01 | 2019-01-01 |          1   |
       |  BXI      |         |         | 2016-01-01 | 2019-01-01 |          1   |

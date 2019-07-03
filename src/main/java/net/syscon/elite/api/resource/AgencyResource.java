@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.ResponseDelegate;
 import net.syscon.elite.api.support.TimeSlot;
+import net.syscon.elite.service.OffenderIepReview;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -157,6 +158,22 @@ public interface AgencyResource {
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
     GetPrisonContactDetailResponse getPrisonContactDetail(@ApiParam(value = "", required = true) @PathParam("agencyId") String agencyId);
+
+    @GET
+    @Path("/{agencyId}/iepReview")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Per offender information necessary for IEP review.", notes = "IEP review information", nickname="getPrisonIepReview")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderIepReview.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    GetPrisonIepReviewResponse getPrisonIepReview(@ApiParam(value = "", required = true) @PathParam("agencyId") String agencyId,
+                                                  @ApiParam(value = "IEP level to filter by.") @QueryParam("iepLevel") String iepLevel,
+                                                  @ApiParam(value = "Offender location to filter by.") @QueryParam("location") String location,
+                                                  @ApiParam(value = "Requested offset of first record in returned offenders.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                                  @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "20") @HeaderParam("Page-Limit") Long pageLimit);
 
     class GetAgenciesResponse extends ResponseDelegate {
 
@@ -509,6 +526,48 @@ public interface AgencyResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonContactDetailResponse(responseBuilder.build(), entity);
+        }
+    }
+
+    class GetPrisonIepReviewResponse extends ResponseDelegate {
+
+        private GetPrisonIepReviewResponse(final Response response) {
+            super(response);
+        }
+
+        private GetPrisonIepReviewResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetPrisonIepReviewResponse respond200WithApplicationJson(final Page<OffenderIepReview> page) {
+            final var responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON)
+                    .header("Total-Records", page.getTotalRecords())
+                    .header("Page-Offset", page.getPageOffset())
+                    .header("Page-Limit", page.getPageLimit());
+            responseBuilder.entity(page.getItems());
+            return new GetPrisonIepReviewResponse(responseBuilder.build(), page.getItems());
+        }
+
+        public static GetPrisonIepReviewResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetPrisonIepReviewResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetPrisonIepReviewResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetPrisonIepReviewResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetPrisonIepReviewResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetPrisonIepReviewResponse(responseBuilder.build(), entity);
         }
     }
 }

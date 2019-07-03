@@ -19,22 +19,22 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CategorisationDetail {
 
-    @ApiModelProperty(required = true, value = "Booking Id")
+    @ApiModelProperty(required = true, value = "Booking Id", position = 1)
     @NotNull(message = "bookingId must be provided")
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Category code")
+    @ApiModelProperty(required = true, value = "Category code", position = 2)
     @NotNull(message = "category must be provided")
     private String category;
 
     @NotNull(message = "committee must be provided")
-    @ApiModelProperty(required = true, value = "The assessment committee code")
+    @ApiModelProperty(required = true, value = "The assessment committee code (reference code in domain 'ASSESS_COMM')", position = 3)
     private String committee;
 
-    @ApiModelProperty(value = "Next review date for recategorisation, defaults to current date + 6 months, if not provided")
+    @ApiModelProperty(value = "Next review date for recategorisation, defaults to current date + 6 months, if not provided", position = 4)
     private LocalDate nextReviewDate;
 
-    @ApiModelProperty(value = "Initial categorisation comment")
+    @ApiModelProperty(value = "Initial categorisation comment", position = 5)
     private String comment;
 
     public LocalDate getNextReviewDate() {
