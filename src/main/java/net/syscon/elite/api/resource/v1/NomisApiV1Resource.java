@@ -11,7 +11,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 
 @Api(tags = {"/v1"})
 public interface NomisApiV1Resource {
@@ -94,6 +93,37 @@ public interface NomisApiV1Resource {
                        @ApiParam(name = "modified_since", value = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @QueryParam("modified_since") String modifiedSince,
                        @ApiParam(name = "include_inactive", value = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true", defaultValue = "false") @QueryParam("include_inactive") @DefaultValue("false") boolean includeInactive);
 
+    @POST
+    @Path("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Record transaction at previous Prison.",
+            notes = "<p>Post a financial transaction to Nomis to a prison that the offender is no longer at.</p>" +
+                    "<p>The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid. Only Transaction types with a usage of R (Receipt) are valid." +
+                    "Transaction Types are maintained via the Maintain Transaction Types screen (OCMTRANS).</p>" +
+                    "<p>Transaction is posted to the specified prison.  if the account has been closed at this prison then it is re-opened first.</p>" +
+                    "<p>If the offender has been transferred to another prison then the funds are transferred to this prison.</p>" +
+                    "<p>If the account was previously closed then it will be closed again.</p>" +
+                    "<p>If the offender has been released then the funds are transferred to NACRO. Based on the Nomis Clear Inactive accounts screen (OTDCLINA).</p>")
+    @ResponseStatus(value = HttpStatus.OK, reason = "Transaction Created")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Transaction Created", response = Transfer.class),
+            @ApiResponse(code = 400, message = "One of: <ul><li>Invalid transaction type - The transaction type has not been set up for the API for {prison_id}</li>" +
+                    "<li>Finance Exception - This indicates an unexpected financial problem, check the nomis_api_log table for details.</li>" +
+                    "<li>Only receipt transaction types allowed - Only transaction types with a transaction usage of Receipt are allowed.</li>" +
+                    "<li>Sum of sub account balances not equal to current balance - The sum of all the sub account balances does equal the current balance held for the trust account</li>" +
+                    "<li>Offender being transferred - The offender is currently in transit</li>" +
+                    "<li>Offender still in specified prison - The offender is still at the specified prison. Use Record Transaction instead.</li></ul>", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "One of: <ul><li>Offender Not Found - No offender matching the specified offender_id has been found on nomis.</li>" +
+                    "<li>Offender never at prison - The offender has never been at the specified prison</li></ul>", response = ErrorResponse.class),
+            @ApiResponse(code = 409, message = "Duplicate Post - A transaction already exists with the client_unique_ref provided.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Transfer transferTransaction(
+            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @HeaderParam("X-Client-Name") String clientName,
+            @ApiParam(name = "previous_prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("previous_prison_id") @NotNull @Length(max = 3) String previousPrisonId,
+            @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
+            @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
+
 
     @POST
     @Path("/prison/{prison_id}/offenders/{noms_id}/transactions")
@@ -117,9 +147,9 @@ public interface NomisApiV1Resource {
                     "<li>The sub_account the amount is debited or credited from will be determined by the transaction_type definition in NOMIS.</li>" +
                     "<li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.</li>" +
                     "<li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li></ul>")
-    @ResponseStatus(value = HttpStatus.CREATED, reason = "Transaction Created")
+    @ResponseStatus(value = HttpStatus.OK, reason = "Transaction Created")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Transaction Created", response = TransactionResponse.class),
+            @ApiResponse(code = 201, message = "Transaction Created", response = Transaction.class),
             @ApiResponse(code = 400, message = "One of: <ul><li>Insufficient Funds - The prisoner has insufficient funds in the required account to cover the cost of the debit transaction</li>" +
                     "<li>Offender not in specified prison - prisoner identified by {noms_id} is not in prison {prison_id}</li>" +
                     "<li>Invalid transaction type - The transaction type has not been set up for the API for {prison_id}</li>" +
@@ -127,7 +157,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 409, message = "Duplicate post - The unique_client_ref has been used before", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    Response createTransaction(
+    Transaction createTransaction(
                                     @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @HeaderParam("X-Client-Name") String clientName,
                                     @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max=3) String prisonId,
                                     @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
