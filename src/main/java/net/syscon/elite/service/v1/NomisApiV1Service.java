@@ -2,10 +2,7 @@ package net.syscon.elite.service.v1;
 
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.repository.v1.*;
-import net.syscon.elite.repository.v1.model.BookingSP;
-import net.syscon.elite.repository.v1.model.ChargeSP;
-import net.syscon.elite.repository.v1.model.LegalCaseSP;
-import net.syscon.elite.repository.v1.model.OffenderSP;
+import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,11 +27,11 @@ public class NomisApiV1Service {
     private final FinanceV1Repository financeV1Repository;
     private final AlertV1Repository alertV1Repository;
 
-    public NomisApiV1Service(BookingV1Repository bookingV1Repository,
-                             OffenderV1Repository offenderV1Repository,
-                             LegalV1Repository legalV1Repository,
-                             FinanceV1Repository financeV1Repository,
-                             AlertV1Repository alertV1Repository) {
+    public NomisApiV1Service(final BookingV1Repository bookingV1Repository,
+                             final OffenderV1Repository offenderV1Repository,
+                             final LegalV1Repository legalV1Repository,
+                             final FinanceV1Repository financeV1Repository,
+                             final AlertV1Repository alertV1Repository) {
         this.bookingV1Repository = bookingV1Repository;
         this.offenderV1Repository = offenderV1Repository;
         this.legalV1Repository = legalV1Repository;
@@ -49,7 +46,7 @@ public class NomisApiV1Service {
                 .orElseThrow(EntityNotFoundException.withId(nomsId));
     }
 
-    private Location buildLocation(BookingSP l) {
+    private Location buildLocation(final BookingSP l) {
         return Location.builder()
                 .establishment(CodeDescription.safeNullBuild(l.getAgyLocId(), l.getAgyLocDesc()))
                 .housingLocation(StringUtils.isNotBlank(l.getHousingLocation()) ? new InternalLocation(l.getHousingLocation(), l.getHousingLevels()) : null)
@@ -57,7 +54,7 @@ public class NomisApiV1Service {
     }
 
     public Bookings getBookings(final String nomsId) {
-        var bookings = bookingV1Repository.getOffenderBookings(nomsId).stream()
+        final var bookings = bookingV1Repository.getOffenderBookings(nomsId).stream()
                 .map(booking ->
                     Booking.builder()
                             .offenderBookId(booking.getOffenderBookId())
@@ -112,7 +109,7 @@ public class NomisApiV1Service {
     }
 
     public List<Alert> getAlerts(final String nomsId, final boolean includeInactive, final LocalDateTime modifiedSince) {
-        var alerts = alertV1Repository.getAlerts(nomsId, includeInactive, modifiedSince).stream()
+        final var alerts = alertV1Repository.getAlerts(nomsId, includeInactive, modifiedSince).stream()
                 .filter(a -> a.getAlertSeq() != null)
                 .map(a -> Alert.builder()
                         .type(CodeDescription.safeNullBuild(a.getAlertType(), a.getAlertTypeDesc()))
@@ -163,7 +160,7 @@ public class NomisApiV1Service {
                 .orElseThrow(EntityNotFoundException.withId(nomsId));
     }
 
-    private Language buildLanguage(OffenderSP offender) {
+    private Language buildLanguage(final OffenderSP offender) {
         if (StringUtils.isNotBlank(offender.getSpokenLanguageCode())) {
             return Language.builder()
                     .interpreterRequired("Y".equals(offender.getInterpreterRequestedFlag()))
@@ -174,13 +171,17 @@ public class NomisApiV1Service {
     }
 
     @Transactional
-    public String createTransaction(String prisonId, String nomsId, String type, String description, BigDecimal amountInPounds, LocalDate txDate, String txId, String uniqueClientId) {
+    public TransferSP transferTransaction(final String prisonId, final String nomsId, final String type, final String description, final BigDecimal amountInPounds, final LocalDate txDate, final String txId, final String uniqueClientId) {
+        return financeV1Repository.postTransfer(prisonId, nomsId, type, description, amountInPounds, txDate, txId, uniqueClientId);
+    }
 
+    @Transactional
+    public String createTransaction(final String prisonId, final String nomsId, final String type, final String description, final BigDecimal amountInPounds, final LocalDate txDate, final String txId, final String uniqueClientId) {
         return financeV1Repository.postTransaction(prisonId, nomsId, type, description, amountInPounds, txDate, txId, uniqueClientId);
     }
 
     public Image getOffenderImage(final String nomsId) {
-        byte[] imageBytes = offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
+        final var imageBytes = offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
 
         return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
     }
