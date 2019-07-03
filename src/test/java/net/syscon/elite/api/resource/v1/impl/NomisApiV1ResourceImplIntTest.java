@@ -2,7 +2,8 @@ package net.syscon.elite.api.resource.v1.impl;
 
 import net.syscon.elite.api.model.v1.CreateTransaction;
 import net.syscon.elite.api.resource.impl.ResourceTest;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransaction;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransfer;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
+import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

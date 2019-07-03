@@ -49,7 +49,7 @@ public class FinanceV1Repository extends RepositoryBase {
 
     public String postTransaction(final String prisonId, final String nomsId, final String type, final String description, final BigDecimal amountInPounds, final LocalDate txDate, final String txId, final String uniqueClientId) {
         final var params = new MapSqlParameterSource()
-                .addValue(FinanceProcs.P_AGY_LOC_ID, prisonId)
+                .addValue(P_AGY_LOC_ID, prisonId)
                 .addValue(P_NOMS_ID, nomsId)
                 .addValue(P_ROOT_OFFENDER_ID, null)
                 .addValue(P_SINGLE_OFFENDER_ID, null)
