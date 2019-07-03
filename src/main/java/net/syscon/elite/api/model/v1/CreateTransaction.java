@@ -25,20 +25,20 @@ import java.math.RoundingMode;
 public class CreateTransaction {
 
     @NotNull
-    @ApiModelProperty(value = "Valid transaction type for the prison_id", example = "CANT", allowableValues = "CANT,REFND,PHONE,MRPR,MTDS,DTDS,CASHD,RELA,RELS", position = 0)
+    @ApiModelProperty(value = "Valid transaction type for the prison_id", example = "CANT", allowableValues = "CANT,REFND,PHONE,MRPR,MTDS,DTDS,CASHD,RELA,RELS", position = 1)
     private String type;
 
     @Length(max = 240)
-    @ApiModelProperty(value = "Description of the Transaction", example = "Canteen Purchase of £16.34", position = 1)
+    @ApiModelProperty(value = "Description of the Transaction", example = "Canteen Purchase of £16.34", position = 2)
     private String description;
 
     @NotNull
-    @ApiModelProperty(value = "Amount of transaction in pence, hence 1634 is £16.34", example = "1634", position = 2)
+    @ApiModelProperty(value = "Amount of transaction in pence, hence 1634 is £16.34", example = "1634", position = 3)
     private Long amount;
 
     @NotNull
     @Length(max = 12)
-    @ApiModelProperty(value = "Client Transaction Id", example = "CL123212", position = 3)
+    @ApiModelProperty(value = "Client Transaction Id", example = "CL123212", position = 4)
     @JsonProperty(value = "client_transaction_id")
     private String clientTransactionId;
 
