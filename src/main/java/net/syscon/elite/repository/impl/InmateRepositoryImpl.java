@@ -445,13 +445,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     @Override
     @Cacheable("offenderAssessments")
-    public List<AssessmentDto> findAssessmentsByOffenderNo(final List<String> offenderNos, final String assessmentCode, final Set<String> caseLoadId, final boolean latestOnly) {
+    public List<AssessmentDto> findAssessmentsByOffenderNo(final List<String> offenderNos, final String assessmentCode, final Set<String> caseLoadId, final boolean latestOnly, boolean activeOnly) {
         var initialSql = getQuery("FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO");
         if (!caseLoadId.isEmpty()) {
             initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
         }
         if (latestOnly) {
             initialSql += " AND OB.BOOKING_SEQ = 1";
+        }
+        if (activeOnly) {
+            initialSql += " AND OFF_ASS.ASSESS_STATUS = 'A'";
         }
         return doFindAssessments(offenderNos, assessmentCode, caseLoadId, initialSql, "offenderNos");
     }
@@ -507,7 +510,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessmentId", getCategoryAssessmentId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        return removeUnsentencedOrUnclassifiedCategoryRecords(rawData);
+        return removeNonStandardCategoryRecords(rawData);
     }
 
     @Override
@@ -760,8 +763,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         return maxSeq == null ? 1 : maxSeq;
     }
 
-    private List<OffenderCategorise> removeUnsentencedOrUnclassifiedCategoryRecords(List<OffenderCategorise> rawData) {
-        return rawData.stream().filter(cat -> !UNSENTENCED_OR_UNCLASSIFIED_CATEGORY_CODES.contains(cat.getCategory())).collect(Collectors.toList());
+    private List<OffenderCategorise> removeNonStandardCategoryRecords(List<OffenderCategorise> rawData) {
+        final var validCategoryCodes = Set.of("B", "C", "D", "J", "I");
+        return rawData.stream().filter(cat -> validCategoryCodes.contains(cat.getCategory())).collect(Collectors.toList());
     }
 
 }

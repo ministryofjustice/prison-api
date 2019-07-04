@@ -357,7 +357,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly) {
+    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, boolean activeOnly) {
         final List<Assessment> results = new ArrayList<>();
         if (!offenderNos.isEmpty()) {
             final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
@@ -366,7 +366,7 @@ public class InmateServiceImpl implements InmateService {
 
             final var batch = Lists.partition(offenderNos, maxBatchSize);
             batch.forEach(offenderBatch -> {
-                final var assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly);
+                final var assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly, activeOnly );
 
                 for (final var assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
 
