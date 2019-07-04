@@ -44,7 +44,7 @@ public class OffenderCategorise {
     @ApiModelProperty(value = "assessment type", allowableValues = "CATEGORY")
     private Long assessmentTypeId;
 
-    @ApiModelProperty(value = "Categorisation status", allowableValues = "P,null")
+    @ApiModelProperty(value = "Categorisation status", allowableValues = "P,A,I,null")
     private String assessStatus;
 
     @ApiModelProperty(value = "Categoriser First Name")
