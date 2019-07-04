@@ -699,22 +699,21 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testGetRecategoriseRemovesUnclassifiedAndUnsentenced() {
+    public void testGetRecategoriseRemovesNonStandardCategoryResults() {
         final var list = repository.getRecategorise("LEI", LocalDate.of(2018, 6, 7));
 
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate")
                 .containsExactly(
-                        Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "LOW", LocalDate.of(2018, 6, 1)),
                         Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7)),
                         Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7))
                 );
     }
 
     @Test
-    public void testGetAllAssessments() {
+    public void testGetALLActiveAssessments() {
         final var list = repository.findAssessmentsByOffenderNo(
-                List.of("A1234AF"), "CATEGORY", Collections.emptySet(), false);
+                List.of("A1234AF"), "CATEGORY", Collections.emptySet(), false, true);
 
         list.sort(Comparator.comparing(AssessmentDto::getOffenderNo).thenComparing(AssessmentDto::getBookingId));
         assertThat(list).extracting("offenderNo", "bookingId", "assessmentCode",
@@ -723,8 +722,27 @@ public class InmateRepositoryTest {
                 "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
 
         ).containsExactlyInAnyOrder(
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 2, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D",  "B", "Cat B", false, "A"),
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 1, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, null, null, false, "A")
+        );
+    }
+
+    @Test
+    public void testGetAssessmentsIncludingHistoricalAndInactive() {
+        final var list = repository.findAssessmentsByOffenderNo(
+                List.of("A1234AF"), "CATEGORY", Collections.emptySet(), false, false);
+
+        list.sort(Comparator.comparing(AssessmentDto::getOffenderNo).thenComparing(AssessmentDto::getBookingId));
+        assertThat(list).extracting("offenderNo", "bookingId", "assessmentCode",
+                "assessmentDescription", "assessmentDate", "assessmentSeq", "nextReviewDate",
+                "reviewSupLevelType", "reviewSupLevelTypeDesc", "assessmentCreateLocation", "approvalDate", "overridedSupLevelType", "overridedSupLevelTypeDesc",
+                "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
+
+        ).containsExactlyInAnyOrder(
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 3, 4), 1, LocalDate.of(2016, 3, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 3, 9), "B", "Cat B", "B", "Cat B", false, "I"),
                 Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, null, null, false, "A")
         );
     }

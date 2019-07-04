@@ -72,7 +72,7 @@ public interface InmateRepository {
 	List<PhysicalMark> findPhysicalMarks(long inmateId);
 
     List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadIdsForUser);
-    List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean latestOnly);
+    List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean latestOnly, boolean activeOnly);
 	List<OffenderCategorise> getUncategorised(String agencyId);
 	List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutoffDate);
     List<OffenderCategorise> getRecategorise(String agencyId, LocalDate cutoffDate);

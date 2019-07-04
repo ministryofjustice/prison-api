@@ -31,8 +31,10 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
-    public GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly) {
-        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, !Boolean.FALSE.equals(latestOnly));
+    public GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly) {
+        var latest = latestOnly == null ? true : latestOnly;
+        var active = activeOnly == null ? true : activeOnly;
+        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, latest, active);
         return GetOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
     }
 
@@ -41,7 +43,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
         validateOffenderList(offenderList);
 
-        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, true);
+        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, true, true);
         return PostOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
     }
 
@@ -50,7 +52,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
         validateOffenderList(offenderList);
 
-        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, null, true);
+        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true);
         return PostOffenderAssessmentsCsraListResponse.respond200WithApplicationJson(results);
     }
 
@@ -67,7 +69,8 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final Boolean latestOnly) {
-        final var results = inmateService.getOffenderCategorisations(agencyId, bookingIds, !Boolean.FALSE.equals(latestOnly));
+        var latest = latestOnly == null ? true : latestOnly;
+        final var results = inmateService.getOffenderCategorisations(agencyId, bookingIds, latest);
         return results;
     }
 
