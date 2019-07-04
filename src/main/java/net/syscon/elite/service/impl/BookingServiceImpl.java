@@ -266,12 +266,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ROLE_PAY')")
     @Override
     public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ROLE_PAY')")
     @Override
     public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId));
