@@ -69,6 +69,7 @@ public class ScheduledEvent {
     @ApiModelProperty(value = "Location at which event takes place (could be an internal location, agency or external address).")
     private String eventLocation;
 
+    @ApiModelProperty(value = "Id of an internal event location")
     private Long eventLocationId;
 
     @ApiModelProperty(required = true, value = "Code identifying underlying source of event data")
