@@ -413,6 +413,7 @@ public class InmateServiceImpl implements InmateService {
                 .nextReviewDate(assessmentDto.getNextReviewDate())
                 .approvalDate(assessmentDto.getApprovalDate())
                 .assessmentAgencyId(assessmentDto.getAssessmentCreateLocation())
+                .assessmentStatus(assessmentDto.getAssessStatus())
                 .build();
     }
 
