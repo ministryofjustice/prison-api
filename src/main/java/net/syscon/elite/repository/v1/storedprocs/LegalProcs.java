@@ -1,11 +1,11 @@
 package net.syscon.elite.repository.v1.storedprocs;
 
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.repository.v1.NomisV1SQLErrorCodeTranslator;
 import net.syscon.elite.repository.v1.model.ChargeSP;
 import net.syscon.elite.repository.v1.model.LegalCaseSP;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -19,10 +19,10 @@ public class LegalProcs {
     public static final String P_CASE_ID = "p_case_id";
 
     @Component
-    public static class GetBookingCases extends SimpleJdbcCall {
+    public static class GetBookingCases extends SimpleJdbcCallWithExceptionTranslater {
 
-        public GetBookingCases(DataSource dataSource) {
-            super(dataSource);
+        public GetBookingCases(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+            super(dataSource, errorCodeTranslator);
             withSchemaName(StoreProcMetadata.API_OWNER)
                     .withCatalogName(API_LEGAL_PROCS)
                     .withProcedureName("get_booking_cases")
@@ -37,10 +37,10 @@ public class LegalProcs {
     }
 
     @Component
-    public static class GetCaseCharges extends SimpleJdbcCall {
+    public static class GetCaseCharges extends SimpleJdbcCallWithExceptionTranslater {
 
-        public GetCaseCharges(DataSource dataSource) {
-            super(dataSource);
+        public GetCaseCharges(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+            super(dataSource, errorCodeTranslator);
             withSchemaName(StoreProcMetadata.API_OWNER)
                     .withCatalogName(API_LEGAL_PROCS)
                     .withProcedureName("get_case_charges")
