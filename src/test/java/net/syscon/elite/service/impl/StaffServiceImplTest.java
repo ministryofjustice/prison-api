@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.StaffRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -37,13 +38,16 @@ public class StaffServiceImplTest {
     public StaffRepository staffRepository;
 
     @Mock
+    public CaseLoadRepository caseLoadRepository;
+
+    @Mock
     public UserRepository userRepository;
 
     private StaffService staffService;
 
     @Before
     public void init() {
-        staffService = new StaffServiceImpl(staffRepository, userRepository);
+        staffService = new StaffServiceImpl(staffRepository, userRepository, caseLoadRepository);
     }
 
     @Test

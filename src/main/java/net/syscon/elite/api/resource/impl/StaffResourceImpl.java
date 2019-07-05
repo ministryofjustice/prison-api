@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.resource.StaffResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
@@ -10,6 +11,7 @@ import net.syscon.elite.service.StaffService.GetStaffRoleRequest;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.ws.rs.Path;
+import java.util.List;
 
 @RestResource
 @Path("staff")
@@ -31,6 +33,11 @@ public class StaffResourceImpl implements StaffResource {
     @Override
     public GetStaffEmailResponse getStaffEmailAddresses(final Long staffId) {
         return GetStaffEmailResponse.respond200WithApplicationJson(staffService.getStaffEmailAddresses(staffId));
+    }
+
+    @Override
+    public List<CaseLoad> getStaffCaseloads(final Long staffId) {
+        return staffService.getStaffCaseloads(staffId);
     }
 
     @Override

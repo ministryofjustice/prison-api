@@ -105,6 +105,19 @@ public interface StaffResource {
     GetStaffEmailResponse getStaffEmailAddresses(@ApiParam(value = "The staff id of the staff user.", required = true) @PathParam("staffId") Long staffId);
 
     @GET
+    @Path("/{staffId}/caseloads")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Returns a list of caseloads associated with this staff user", notes = "List of caseloads for a specified staff user", nickname="getStaffCaseloads")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "The staffId supplied was not valid.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 204, message = "No email addresses were found for this staff member."),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    List<CaseLoad> getStaffCaseloads(@ApiParam(value = "The staff id of the staff user.", required = true, example = "123123") @PathParam("staffId") Long staffId);
+
+
+    @GET
     @Path("/{staffId}/access-roles")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })

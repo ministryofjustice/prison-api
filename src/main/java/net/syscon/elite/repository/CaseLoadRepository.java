@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface CaseLoadRepository {
 	Optional<CaseLoad> getCaseLoad(String caseLoadId);
 
+	List<CaseLoad> getCaseLoadsByStaffId(Long staffId);
+
 	List<CaseLoad> getCaseLoadsByUsername(String username);
 
 	List<CaseLoad> getAllCaseLoadsByUsername(String username);
