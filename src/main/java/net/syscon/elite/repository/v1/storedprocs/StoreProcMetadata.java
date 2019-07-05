@@ -10,4 +10,5 @@ public interface StoreProcMetadata {
 
     String P_BOOKING_CSR = "P_BOOKING_CSR";
     String P_OFFENDER_CSR = "p_offender_csr";
+    String P_HOLDS_CSR = "p_holds_csr";
 }

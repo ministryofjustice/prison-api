@@ -169,6 +169,15 @@ public class BookingRepositoryTest {
     }
 
     @Test
+    public void testThatEventLocationIdIsPresent() {
+        final var results = repository.getBookingActivities(-2L, LocalDate.parse("2011-12-11"), LocalDate.now(), null, null);
+
+        assertThat(results).asList().hasSize(8);
+        assertThat(results).asList().extracting("eventId", "eventLocation", "eventLocationId")
+                    .contains(new Tuple(-11L,"Carpentry Workshop", -26L));
+    }
+
+    @Test
     public void testGetLatestBookingByBookingIdInvalidBookingId() {
         final var response = repository.getLatestBookingByBookingId(99999L);
 
