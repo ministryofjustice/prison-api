@@ -280,8 +280,8 @@ public class SchedulesServiceImplTest {
 
     @Test
     public void testThatScheduleEventIsCorrectlyMappedToPrisonSchedule() {
-        final var now = LocalDateTime.now();
-        final var today = LocalDate.now();
+        var today = LocalDate.now().atStartOfDay().toLocalDate();
+        final var now = today.atStartOfDay().plusHours(10);
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("username");
         when(inmateService.findInmatesByLocation(anyString(), anyString(), anyList())).thenReturn(List.of(
