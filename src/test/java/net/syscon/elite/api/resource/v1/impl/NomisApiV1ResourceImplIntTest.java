@@ -15,6 +15,7 @@ import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderPssDe
 import net.syscon.elite.api.model.v1.Hold;
 import net.syscon.elite.repository.v1.model.HoldSP;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
+import oracle.sql.BlobDBAccess;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -142,7 +144,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         assertThatJson(responseEntity.getBody()).isEqualTo("{id:\"someId-someSeq\"}");
     }
 
-    // @Test - failing - return type in mocked procedure call
+    @Test
     public void getOffenderPssDetail() throws SQLException {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
@@ -152,14 +154,15 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var localDateTime = LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.systemDefault());
         final var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         final var expectedTime = formatter.format(localDateTime);
+        final var procedureResponse = Map.of(
+                P_NOMS_ID, (Object) "A1404AE",
+                P_ROOT_OFFENDER_ID, (Object) 0L,
+                P_SINGLE_OFFENDER_ID, (Object) "",
+                P_AGY_LOC_ID, (Object)"MDI",
+                P_DETAILS_CLOB, (Object) testClob,
+                P_TIMESTAMP, (Object) timestamp);
 
-        when(offenderPssDetail.execute(any(SqlParameterSource.class))).thenReturn(
-                Map.of( P_NOMS_ID, "A1404AE",
-                        P_ROOT_OFFENDER_ID, "1L",
-                        P_SINGLE_OFFENDER_ID, "0",
-                        P_AGY_LOC_ID, "MDI",
-                        P_DETAILS_CLOB, testClob,
-                        P_TIMESTAMP, timestamp));
+        when(offenderPssDetail.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE/pss_detail", HttpMethod.GET, requestEntity, OffenderPssDetailEvent.class);
 
@@ -170,21 +173,21 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         final var actual = (OffenderPssDetailEvent) responseEntity.getBody();
 
-        assertThat(actual.getNomsId()).isEqualTo("A1401AE");
+        assertThat(actual.getNomsId()).isEqualTo("A1404AE");
         assertThat(actual.getPrisonId()).isEqualTo("MDI");
         assertThat(actual.getEventData()).isNotNull();
     }
 
-    // @Test - failing - return type in mocked procedure call
+    @Test
     public void offenderDetail() {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
         final var expectedSurname = "HALIBUT";
+        final var procedureResponse = Map.of(P_OFFENDER_CSR, (Object) List.of(OffenderSP.builder().lastName(expectedSurname)
+                .offenderAliases(List.of(AliasSP.builder().lastName("PLAICE").build()))
+                .build()));
 
-        when(offenderDetails.execute(any(SqlParameterSource.class))).thenReturn(
-                Map.of(P_OFFENDER_CSR, List.of(OffenderSP.builder().lastName(expectedSurname)
-                        .offenderAliases(List.of(AliasSP.builder().lastName("PLAICE").build()))
-                        .build())));
+        when(offenderDetails.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE", HttpMethod.GET, requestEntity, Offender.class);
 
@@ -199,22 +202,26 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         assertThat(offenderActual.getAliases()).hasSize(1);
     }
 
-    // @Test - failing - return type in mocked procedure call
-    public void offenderImage() {
+    @Test
+    public void offenderImage() throws SQLException {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
 
-        when(offenderImage.execute(any(SqlParameterSource.class))).thenReturn(
-                Map.of( P_IMAGE, "XXX"));
+        byte[] imageBytes = "XXX".getBytes();
+        Blob blob = new javax.sql.rowset.serial.SerialBlob(imageBytes);
+        final var procedureResponse = Map.of( P_IMAGE, (Object) blob);
 
-        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE/image", HttpMethod.GET, requestEntity, Image.class);
+        when(offenderImage.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE/image", HttpMethod.GET, requestEntity, String.class);
         if (responseEntity.getStatusCodeValue()!= 200) {
             fail("offenderImage failed. Response body : " + responseEntity.getBody());
             return;
         }
 
-        final var actualImage = (Image) responseEntity.getBody();
-        assertThat(actualImage.getImage()).isEqualToIgnoringCase("XXX");
+        // Encoded image returns this value for the test XXX value used
+        final var actualJson = responseEntity.getBody();
+        assertThatJson(actualJson).isEqualTo("{\"image\":\"WFhY\"}");
     }
 
     @Test
