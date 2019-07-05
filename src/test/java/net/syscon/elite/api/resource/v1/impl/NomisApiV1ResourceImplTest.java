@@ -79,4 +79,32 @@ public class NomisApiV1ResourceImplTest {
         verify(service).getOffenderPssDetail(anyString());
         verifyNoMoreInteractions(service);
     }
+
+
+    @Test
+    public void offenderDetail() {
+
+        when(service.getOffender(anyString())).thenReturn(Offender.builder().nomsId("A1404AE").build());
+
+        final var offender = nomisApiV1Resource.getOffender("A1404AE");
+
+        assertThat(offender).extracting("nomsId").contains("A1404AE");
+
+        verify(service).getOffender(anyString());
+        verifyNoMoreInteractions(service);
+    }
+
+
+    @Test
+    public void offenderImage() {
+
+        when(service.getOffenderImage(anyString())).thenReturn(Image.builder().image("ABCDEFGHI").build());
+
+        final var event = nomisApiV1Resource.getOffenderImage("A1404AE");
+
+        assertThat(event).extracting("image").contains("ABCDEFGHI");
+
+        verify(service).getOffenderImage(anyString());
+        verifyNoMoreInteractions(service);
+    }
 }

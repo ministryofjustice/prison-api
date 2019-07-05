@@ -4,9 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.repository.impl.RepositoryBase;
 import net.syscon.elite.repository.v1.model.OffenderPssDetailSP;
 import net.syscon.elite.repository.v1.model.OffenderSP;
-import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
-import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderImage;
-import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderPssDetail;
 import org.apache.commons.io.IOUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
@@ -14,39 +11,31 @@ import org.springframework.stereotype.Repository;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
+import static net.syscon.elite.repository.v1.storedprocs.OffenderProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 
 @Repository
 @Slf4j
 public class OffenderV1Repository extends RepositoryBase {
 
-    private static final String OFFENDER_DETAILS_REQUEST_TYPE = "offender_details_request";
+    private static final String OFFENDER_DETAILS_REQUEST_TYPE = "OFFENDER_DETAILS_REQUEST_TYPE";
 
     private final GetOffenderDetails getOffenderDetailsProc;
     private final GetOffenderImage getOffenderImageProc;
     private final GetOffenderPssDetail getOffenderPssDetailProc;
 
-    public OffenderV1Repository(NomisV1SQLErrorCodeTranslator errorCodeTranslator,
-                                GetOffenderDetails getOffenderDetailsProc,
-                                GetOffenderImage getOffenderImageProc,
-                                GetOffenderPssDetail getOffenderPssDetailProc) {
+    public OffenderV1Repository(final GetOffenderDetails getOffenderDetailsProc,
+                                final GetOffenderImage getOffenderImageProc,
+                                final GetOffenderPssDetail getOffenderPssDetailProc) {
 
         this.getOffenderDetailsProc = getOffenderDetailsProc;
         this.getOffenderImageProc = getOffenderImageProc;
         this.getOffenderPssDetailProc = getOffenderPssDetailProc;
-
-        //TODO: There will be a better way of doing this...
-        this.getOffenderDetailsProc.getJdbcTemplate().setExceptionTranslator(errorCodeTranslator);
-        this.getOffenderImageProc.getJdbcTemplate().setExceptionTranslator(errorCodeTranslator);
-        this.getOffenderPssDetailProc.getJdbcTemplate().setExceptionTranslator(errorCodeTranslator);
     }
 
     public Optional<OffenderSP> getOffender(final String nomsId) {
@@ -71,14 +60,16 @@ public class OffenderV1Repository extends RepositoryBase {
 
     public Optional<OffenderPssDetailSP> getOffenderPssDetail(final String nomsId) {
 
-        final var pNomsId = new MapSqlParameterSource().addValue(P_NOMS_ID, nomsId);
-        final var pRootOffenderId = new MapSqlParameterSource().addValue(P_ROOT_OFFENDER_ID, null);
-        final var pSingleOffenderId = new MapSqlParameterSource().addValue(P_SINGLE_OFFENDER_ID, null);
-        final var pAgyLocId = new MapSqlParameterSource().addValue(P_AGY_LOC_ID, null);
+        // Last three parameters are hard-coded to null in current NomisAPI too
+        final var params = new MapSqlParameterSource()
+                .addValue(P_NOMS_ID, nomsId, Types.VARCHAR)
+                .addValue(P_ROOT_OFFENDER_ID, null, Types.INTEGER)
+                .addValue(P_SINGLE_OFFENDER_ID, null, Types.VARCHAR)
+                .addValue(P_AGY_LOC_ID, null, Types.VARCHAR);
 
         try {
 
-            final var result = getOffenderPssDetailProc.execute(pNomsId, pRootOffenderId, pSingleOffenderId, pAgyLocId);
+            final var result = getOffenderPssDetailProc.execute(params);
             if (result.isEmpty()) {
                 return Optional.empty();
             }
@@ -96,7 +87,7 @@ public class OffenderV1Repository extends RepositoryBase {
 
             return Optional.ofNullable(pssDetail);
 
-        } catch (Exception sql) {
+        } catch (Exception sqle) {
 
             return Optional.empty();
         }

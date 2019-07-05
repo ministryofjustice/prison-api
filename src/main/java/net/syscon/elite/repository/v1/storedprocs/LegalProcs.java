@@ -11,24 +11,21 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Types;
 
-public class LegalProcs {
+import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 
-    private static final String API_LEGAL_PROCS = "api_legal_procs";
-    public static final String P_CASES_CSR = "p_cases_csr";
-    public static final String P_CHARGES_CSR = "p_charges_csr";
-    public static final String P_CASE_ID = "p_case_id";
+public class LegalProcs {
 
     @Component
     public static class GetBookingCases extends SimpleJdbcCall {
 
         public GetBookingCases(DataSource dataSource) {
             super(dataSource);
-            withSchemaName(StoreProcMetadata.API_OWNER)
+            withSchemaName(API_OWNER)
                     .withCatalogName(API_LEGAL_PROCS)
                     .withProcedureName("get_booking_cases")
                     .withNamedBinding()
                     .declareParameters(
-                            new SqlParameter(StoreProcMetadata.P_OFFENDER_BOOK_ID, Types.INTEGER),
+                            new SqlParameter(P_OFFENDER_BOOK_ID, Types.INTEGER),
                             new SqlOutParameter(P_CASES_CSR, Types.REF_CURSOR))
                     .returningResultSet(P_CASES_CSR,
                             StandardBeanPropertyRowMapper.newInstance(LegalCaseSP.class));
@@ -41,7 +38,7 @@ public class LegalProcs {
 
         public GetCaseCharges(DataSource dataSource) {
             super(dataSource);
-            withSchemaName(StoreProcMetadata.API_OWNER)
+            withSchemaName(API_OWNER)
                     .withCatalogName(API_LEGAL_PROCS)
                     .withProcedureName("get_case_charges")
                     .withNamedBinding()

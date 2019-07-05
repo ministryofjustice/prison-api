@@ -24,8 +24,8 @@ public class FinanceProcs {
                     .declareParameters(
                             new SqlParameter(P_AGY_LOC_ID, Types.VARCHAR),
                             new SqlParameter(P_NOMS_ID, Types.VARCHAR),
-                            new SqlParameter(StoreProcMetadata.P_ROOT_OFFENDER_ID, Types.INTEGER),
-                            new SqlParameter(StoreProcMetadata.P_SINGLE_OFFENDER_ID, Types.VARCHAR),
+                            new SqlParameter(P_ROOT_OFFENDER_ID, Types.INTEGER),
+                            new SqlParameter(P_SINGLE_OFFENDER_ID, Types.VARCHAR),
                             new SqlParameter(P_TXN_TYPE, Types.VARCHAR),
                             new SqlParameter(P_TXN_REFERENCE_NUMBER, Types.VARCHAR),
                             new SqlParameter(P_TXN_ENTRY_DESC, Types.VARCHAR),
@@ -47,9 +47,9 @@ public class FinanceProcs {
                     .withProcedureName("post_transfer")
                     .withNamedBinding()
                     .declareParameters(
-                            new SqlParameter(StoreProcMetadata.P_NOMS_ID, Types.VARCHAR),
-                            new SqlParameter(StoreProcMetadata.P_ROOT_OFFENDER_ID, Types.INTEGER),
-                            new SqlParameter(StoreProcMetadata.P_SINGLE_OFFENDER_ID, Types.VARCHAR),
+                            new SqlParameter(P_NOMS_ID, Types.VARCHAR),
+                            new SqlParameter(P_ROOT_OFFENDER_ID, Types.INTEGER),
+                            new SqlParameter(P_SINGLE_OFFENDER_ID, Types.VARCHAR),
                             new SqlParameter(P_FROM_AGY_LOC_ID, Types.VARCHAR),
                             new SqlParameter(P_TXN_TYPE, Types.VARCHAR),
                             new SqlParameter(P_TXN_REFERENCE_NUMBER, Types.VARCHAR),

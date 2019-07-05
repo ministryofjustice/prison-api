@@ -6,6 +6,8 @@ public interface StoreProcMetadata {
     public static final String API_OWNER              = "API_OWNER";
     public static final String API_OFFENDER_PROCS     = "api_offender_procs";
     public static final String API_FINANCE_PROCS      = "api_finance_procs";
+    public static final String API_BOOKING_PROCS      = "api_booking_procs";
+    public static final String API_LEGAL_PROCS        = "api_legal_procs";
 
     // Named parameters for stored procedures - common across different procedures
     public static final String P_NOMS_ID              = "p_noms_id";
@@ -33,7 +35,7 @@ public interface StoreProcMetadata {
     public static final String P_CURRENT_AGY_DESC     = "p_current_agy_desc";
 
 
-
-
-
+    public static final String P_CASES_CSR            = "p_cases_csr";
+    public static final String P_CHARGES_CSR          = "p_charges_csr";
+    public static final String P_CASE_ID              = "p_case_id";
 }
