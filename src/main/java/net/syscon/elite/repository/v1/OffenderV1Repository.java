@@ -1,5 +1,6 @@
 package net.syscon.elite.repository.v1;
 
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.repository.impl.RepositoryBase;
 import net.syscon.elite.repository.v1.model.OffenderSP;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
@@ -19,6 +20,7 @@ import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.P_NOM
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.P_OFFENDER_CSR;
 
 @Repository
+@Slf4j
 public class OffenderV1Repository extends RepositoryBase {
 
     private final GetOffenderDetails getOffenderDetailsProc;
@@ -47,6 +49,7 @@ public class OffenderV1Repository extends RepositoryBase {
         try {
             return Optional.ofNullable(blobBytes != null ? IOUtils.toByteArray(blobBytes.getBinaryStream()) : null);
         } catch (final IOException | SQLException e) {
+            log.error("Caught {} trying to get photo for {}", e.getClass().getName(), nomsId, e);
             return Optional.empty();
         }
     }
