@@ -62,14 +62,18 @@ public class FinanceProcs {
             super(dataSource, errorCodeTranslator);
             withSchemaName(StoreProcMetadata.API_OWNER)
                     .withCatalogName(API_FINANCE_PROCS)
-                    .withProcedureName("holds")
+                    .withProcedureName("post_transfer")
                     .withNamedBinding()
                     .declareParameters(
                             new SqlParameter(P_NOMS_ID, Types.VARCHAR),
                             new SqlParameter(P_ROOT_OFFENDER_ID, Types.INTEGER),
                             new SqlParameter(P_SINGLE_OFFENDER_ID, Types.VARCHAR),
-                            new SqlParameter(P_AGY_LOC_ID, Types.VARCHAR),
-                            new SqlParameter(P_AGY_LOC_ID, Types.VARCHAR),
+                            new SqlParameter(P_FROM_AGY_LOC_ID, Types.VARCHAR),
+                            new SqlParameter(P_TXN_TYPE, Types.VARCHAR),
+                            new SqlParameter(P_TXN_REFERENCE_NUMBER, Types.VARCHAR),
+                            new SqlParameter(P_TXN_ENTRY_DATE, Types.DATE),
+                            new SqlParameter(P_TXN_ENTRY_DESC, Types.VARCHAR),
+                            new SqlParameter(P_TXN_ENTRY_AMOUNT, Types.NUMERIC),
                             new SqlParameter(P_CLIENT_UNIQUE_REF, Types.VARCHAR),
                             new SqlOutParameter(P_CURRENT_AGY_LOC_ID, Types.VARCHAR),
                             new SqlOutParameter(P_CURRENT_AGY_DESC, Types.VARCHAR),
