@@ -13,8 +13,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,8 +102,7 @@ public class StaffServiceImplTest {
     }
 
     private Optional<StaffDetail> getValidStaffDetails(final Long staffId) {
-        final var additionalProperties = new HashMap<String,Object>();
-        final var staffDetail = new StaffDetail(additionalProperties, staffId, "Bob", "Harris", "ACTIVE", 0L);
+        final var staffDetail = StaffDetail.builder().staffId(staffId).firstName("Bob").lastName("Harris").status("ACTIVE").gender("M").dateOfBirth(LocalDate.EPOCH).build();
         return Optional.of(staffDetail);
     }
 }

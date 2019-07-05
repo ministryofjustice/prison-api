@@ -34,7 +34,7 @@ public class StaffCaseloadsResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCanRetrieveCaseloadForNonExistantStaffMember() {
+    public void testCanRetrieveCaseloadForNonExistentStaffMember() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var httpEntity = createHttpEntity(token, null);
@@ -48,6 +48,23 @@ public class StaffCaseloadsResourceTest extends ResourceTest {
                 10);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
+    }
+
+    @Test
+    public void testCanRetrieveCaseloadForStaffWithNoCaseloads() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/staff/{staffId}/caseloads",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                -10);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(204);
     }
 
 }
