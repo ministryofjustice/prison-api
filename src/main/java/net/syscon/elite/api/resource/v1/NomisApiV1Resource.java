@@ -11,11 +11,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import java.util.List;
 
 @Api(tags = {"/v1"})
 public interface NomisApiV1Resource {
 
     String NOMS_ID_REGEX_PATTERN = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}";
+    String CLIENT_UNIQUE_REF_PATTERN = "[a-zA-Z0-9-_]+";
 
     @GET
     @Path("/offenders/{noms_id}")
@@ -89,9 +91,9 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Alerts getAlerts(@ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1583AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-                       @ApiParam(name = "alert_type", value = "Alert Type, if alert_type is specified then only alerts of that type are returned", example = "H") @QueryParam("alert_type") String alertType,
-                       @ApiParam(name = "modified_since", value = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @QueryParam("modified_since") String modifiedSince,
-                       @ApiParam(name = "include_inactive", value = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true", defaultValue = "false") @QueryParam("include_inactive") @DefaultValue("false") boolean includeInactive);
+                     @ApiParam(name = "alert_type", value = "Alert Type, if alert_type is specified then only alerts of that type are returned", example = "H") @QueryParam("alert_type") String alertType,
+                     @ApiParam(name = "modified_since", value = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @QueryParam("modified_since") String modifiedSince,
+                     @ApiParam(name = "include_inactive", value = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true", defaultValue = "false") @QueryParam("include_inactive") @DefaultValue("false") boolean includeInactive);
 
     @POST
     @Path("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
@@ -158,8 +160,26 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 409, message = "Duplicate post - The unique_client_ref has been used before", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Transaction createTransaction(
-                                    @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @HeaderParam("X-Client-Name") String clientName,
-                                    @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max=3) String prisonId,
-                                    @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-                                    @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
+            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @HeaderParam("X-Client-Name") String clientName,
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
+            @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
+            @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
+
+    @GET
+    @Path("/prison/{prison_id}/offenders/{noms_id}/holds")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get holds.",
+            notes = "Gets every hold on an offender’s account or just the hold identified by the client_unique_ref")
+    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Transaction Created", response = Transfer.class),
+            @ApiResponse(code = 404, message = "Offender Not Found - No offender matching the specified offender_id has been found on nomis.", response = ErrorResponse.class),
+            @ApiResponse(code = 409, message = "Offender not in specified prison", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<Hold> getHolds(
+            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @HeaderParam("X-Client-Name") String clientName,
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
+            @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
+            @ApiParam(name = "client_unique_ref", value = "Client unique reference", required = false) @QueryParam("client_unique_ref") @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
 }

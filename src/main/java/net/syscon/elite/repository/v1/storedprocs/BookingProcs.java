@@ -1,10 +1,10 @@
 package net.syscon.elite.repository.v1.storedprocs;
 
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.repository.v1.NomisV1SQLErrorCodeTranslator;
 import net.syscon.elite.repository.v1.model.BookingSP;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -15,10 +15,10 @@ public class BookingProcs {
     private static final String API_BOOKING_PROCS = "api_booking_procs";
 
     @Component
-    public static class GetLatestBooking extends SimpleJdbcCall {
+    public static class GetLatestBooking extends SimpleJdbcCallWithExceptionTranslater {
 
-        public GetLatestBooking(DataSource dataSource) {
-            super(dataSource);
+        public GetLatestBooking(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+            super(dataSource, errorCodeTranslator);
             withSchemaName(StoreProcMetadata.API_OWNER)
                     .withCatalogName(API_BOOKING_PROCS)
                     .withProcedureName("get_latest_booking")
@@ -34,10 +34,10 @@ public class BookingProcs {
     }
 
     @Component
-    public static class GetOffenderBookings extends SimpleJdbcCall {
+    public static class GetOffenderBookings extends SimpleJdbcCallWithExceptionTranslater {
 
-        public GetOffenderBookings(DataSource dataSource) {
-            super(dataSource);
+        public GetOffenderBookings(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+            super(dataSource, errorCodeTranslator);
             withSchemaName(StoreProcMetadata.API_OWNER)
                     .withCatalogName(API_BOOKING_PROCS)
                     .withProcedureName("get_offender_bookings")

@@ -1,9 +1,6 @@
 package net.syscon.elite.api.resource.v1.impl;
 
-import net.syscon.elite.api.model.v1.CodeDescription;
-import net.syscon.elite.api.model.v1.CreateTransaction;
-import net.syscon.elite.api.model.v1.Transaction;
-import net.syscon.elite.api.model.v1.Transfer;
+import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.repository.v1.model.TransferSP;
 import net.syscon.elite.repository.v1.model.TransferSP.TransactionSP;
 import net.syscon.elite.service.v1.NomisApiV1Service;
@@ -12,6 +9,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,5 +57,13 @@ public class NomisApiV1ResourceImplTest {
 
         final var transfer = nomisApiV1Resource.createTransaction("client", "previous", "nomis", createTransaction);
         assertThat(transfer).isEqualTo(new Transaction("someId"));
+    }
+
+    @Test
+    public void getHolds() {
+        final var holds = List.of(new Hold(3L, "ref", "12345", "entry", null, 12345L, null));
+        when(service.getHolds(anyString(), anyString(), anyString(), anyString())).thenReturn(holds);
+        final var transfer = nomisApiV1Resource.getHolds("client", "prison", "nomis", "ref");
+        assertThat(transfer).isEqualTo(holds);
     }
 }

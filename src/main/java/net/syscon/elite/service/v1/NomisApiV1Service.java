@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,17 +57,17 @@ public class NomisApiV1Service {
     public Bookings getBookings(final String nomsId) {
         final var bookings = bookingV1Repository.getOffenderBookings(nomsId).stream()
                 .map(booking ->
-                    Booking.builder()
-                            .offenderBookId(booking.getOffenderBookId())
-                            .bookingNo(booking.getBookingNo())
-                            .bookingActive("Y".equals(booking.getActiveFlag()))
-                            .bookingBeginDate(booking.getBookingBeginDate())
-                            .bookingEndDate(booking.getBookingEndDate())
-                            .latestBooking("Y".equals(booking.getLatestBooking()))
-                            .releaseDate(booking.getRelDate())
-                            .legalCases(legalV1Repository.getBookingCases(booking.getOffenderBookId()).stream()
-                                    .map(this::buildCase).collect(Collectors.toList()))
-                            .build()
+                        Booking.builder()
+                                .offenderBookId(booking.getOffenderBookId())
+                                .bookingNo(booking.getBookingNo())
+                                .bookingActive("Y".equals(booking.getActiveFlag()))
+                                .bookingBeginDate(booking.getBookingBeginDate())
+                                .bookingEndDate(booking.getBookingEndDate())
+                                .latestBooking("Y".equals(booking.getLatestBooking()))
+                                .releaseDate(booking.getRelDate())
+                                .legalCases(legalV1Repository.getBookingCases(booking.getOffenderBookId()).stream()
+                                        .map(this::buildCase).collect(Collectors.toList()))
+                                .build()
                 )
                 .collect(Collectors.toList());
 
@@ -86,8 +87,8 @@ public class NomisApiV1Service {
                 .court(CodeDescription.safeNullBuild(lc.getCourtCode(), lc.getCourtDesc()))
                 .caseType(CodeDescription.safeNullBuild(lc.getCaseTypeCode(), lc.getCaseTypeDesc()))
                 .charges(legalV1Repository.getCaseCharges(lc.getCaseId()).stream()
-                            .map(this::buildCharge)
-                            .collect(Collectors.toList()))
+                        .map(this::buildCharge)
+                        .collect(Collectors.toList()))
                 .build();
     }
 
@@ -184,5 +185,34 @@ public class NomisApiV1Service {
         final var imageBytes = offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
 
         return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
+    }
+
+    public List<Hold> getHolds(final String prisonId, final String nomsId, final String uniqueClientId, final String clientName) {
+        return financeV1Repository.getHolds(prisonId, nomsId, uniqueClientId)
+                .stream()
+                .map(h -> Hold.builder()
+                        .clientUniqueRef(stripClientName(h.getClientUniqueRef(), clientName))
+                        .holdNumber(h.getHoldNumber())
+                        .holdUntilDate(h.getHoldUntilDate())
+                        .amount(convertToPence(h.getTxnEntryAmount()))
+                        .entryDate(h.getTxnEntryDate())
+                        .description(h.getTxnEntryDesc())
+                        .referenceNo(h.getTxnReferenceNumber())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private Long convertToPence(final BigDecimal value) {
+        return value.setScale(2, RoundingMode.HALF_UP).movePointRight(2).longValue();
+    }
+
+    private String stripClientName(final String clientUniqueRef, final String clientName) {
+        if (StringUtils.isBlank(clientName)) {
+            return clientUniqueRef;
+        }
+        if (StringUtils.startsWith(clientUniqueRef, clientName)) {
+            return StringUtils.substringAfter(clientUniqueRef, clientName + "-");
+        }
+        return clientUniqueRef;
     }
 }

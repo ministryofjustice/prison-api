@@ -24,21 +24,17 @@ public class OffenderV1Repository extends RepositoryBase {
     private final GetOffenderDetails getOffenderDetailsProc;
     private final GetOffenderImage getOffenderImageProc;
 
-    public OffenderV1Repository(NomisV1SQLErrorCodeTranslator errorCodeTranslator,
-                                GetOffenderDetails getOffenderDetailsProc,
-                                GetOffenderImage getOffenderImageProc) {
+    public OffenderV1Repository(final GetOffenderDetails getOffenderDetailsProc,
+                                final GetOffenderImage getOffenderImageProc) {
         this.getOffenderDetailsProc = getOffenderDetailsProc;
         this.getOffenderImageProc = getOffenderImageProc;
-
-        //TODO: There will be a better way of doing this...
-        this.getOffenderDetailsProc.getJdbcTemplate().setExceptionTranslator(errorCodeTranslator);
-        this.getOffenderImageProc.getJdbcTemplate().setExceptionTranslator(errorCodeTranslator);
     }
 
     public Optional<OffenderSP> getOffender(final String nomsId) {
         final var param = new MapSqlParameterSource().addValue(P_NOMS_ID, nomsId);
         final var result = getOffenderDetailsProc.execute(param);
-        var offender = (List<OffenderSP>) result.get(P_OFFENDER_CSR);
+        //noinspection unchecked
+        final var offender = (List<OffenderSP>) result.get(P_OFFENDER_CSR);
 
         return Optional.ofNullable(offender.isEmpty() ? null : offender.get(0));
     }
@@ -47,10 +43,10 @@ public class OffenderV1Repository extends RepositoryBase {
 
         final var param = new MapSqlParameterSource().addValue(P_NOMS_ID, nomsId);
         final var result = getOffenderImageProc.execute(param);
-        var blobBytes = (Blob) result.get(P_IMAGE);
+        final var blobBytes = (Blob) result.get(P_IMAGE);
         try {
             return Optional.ofNullable(blobBytes != null ? IOUtils.toByteArray(blobBytes.getBinaryStream()) : null);
-        } catch (IOException | SQLException e) {
+        } catch (final IOException | SQLException e) {
             return Optional.empty();
         }
     }

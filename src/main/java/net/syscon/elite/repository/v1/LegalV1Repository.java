@@ -18,25 +18,23 @@ public class LegalV1Repository extends RepositoryBase {
     private final LegalProcs.GetBookingCases getBookingCases;
     private final LegalProcs.GetCaseCharges getCaseCharges;
 
-    public LegalV1Repository(NomisV1SQLErrorCodeTranslator errorCodeTranslator,
-                             LegalProcs.GetBookingCases getBookingCases,
-                             LegalProcs.GetCaseCharges getCaseCharges) {
+    public LegalV1Repository(final LegalProcs.GetBookingCases getBookingCases,
+                             final LegalProcs.GetCaseCharges getCaseCharges) {
         this.getBookingCases = getBookingCases;
         this.getCaseCharges = getCaseCharges;
-
-        this.getBookingCases.getJdbcTemplate().setExceptionTranslator(errorCodeTranslator);
-        this.getCaseCharges.getJdbcTemplate().setExceptionTranslator(errorCodeTranslator);
     }
 
     public List<LegalCaseSP> getBookingCases(final Long bookingId) {
         final var param = new MapSqlParameterSource().addValue(P_OFFENDER_BOOK_ID, bookingId);
         final var result = getBookingCases.execute(param);
+        //noinspection unchecked
         return (List<LegalCaseSP>) result.get(P_CASES_CSR);
     }
 
     public List<ChargeSP> getCaseCharges(final Long caseId) {
         final var param = new MapSqlParameterSource().addValue(P_CASE_ID, caseId);
         final var result = getCaseCharges.execute(param);
+        //noinspection unchecked
         return (List<ChargeSP>) result.get(P_CHARGES_CSR);
     }
 }
