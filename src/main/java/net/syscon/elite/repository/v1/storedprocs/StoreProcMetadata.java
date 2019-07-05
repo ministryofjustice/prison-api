@@ -38,4 +38,6 @@ public interface StoreProcMetadata {
     public static final String P_CASES_CSR            = "p_cases_csr";
     public static final String P_CHARGES_CSR          = "p_charges_csr";
     public static final String P_CASE_ID              = "p_case_id";
+
+    public static final String P_HOLDS_CSR            = "p_holds_csr";
 }

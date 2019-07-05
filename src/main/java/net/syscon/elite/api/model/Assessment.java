@@ -69,4 +69,7 @@ public class Assessment {
 
     @ApiModelProperty(value = "The assessment creation agency id", position = 11, example = "MDI")
     private String assessmentAgencyId;
+
+    @ApiModelProperty(value = "The status of the assessment", position = 12, example = "A", allowableValues = "P,A,I")
+    private String assessmentStatus;
 }

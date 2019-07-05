@@ -41,7 +41,8 @@ public class OffenderV1Repository extends RepositoryBase {
     public Optional<OffenderSP> getOffender(final String nomsId) {
         final var param = new MapSqlParameterSource().addValue(P_NOMS_ID, nomsId);
         final var result = getOffenderDetailsProc.execute(param);
-        var offender = (List<OffenderSP>) result.get(P_OFFENDER_CSR);
+        //noinspection unchecked
+        final var offender = (List<OffenderSP>) result.get(P_OFFENDER_CSR);
 
         return Optional.ofNullable(offender.isEmpty() ? null : offender.get(0));
     }
@@ -50,10 +51,11 @@ public class OffenderV1Repository extends RepositoryBase {
 
         final var param = new MapSqlParameterSource().addValue(P_NOMS_ID, nomsId);
         final var result = getOffenderImageProc.execute(param);
-        var blobBytes = (Blob) result.get(P_IMAGE);
+        final var blobBytes = (Blob) result.get(P_IMAGE);
         try {
             return Optional.ofNullable(blobBytes != null ? IOUtils.toByteArray(blobBytes.getBinaryStream()) : null);
-        } catch (IOException | SQLException e) {
+        } catch (final IOException | SQLException e) {
+            log.error("Caught {} trying to get photo for {}", e.getClass().getName(), nomsId, e);
             return Optional.empty();
         }
     }

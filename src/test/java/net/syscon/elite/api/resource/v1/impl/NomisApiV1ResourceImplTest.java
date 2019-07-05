@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,7 +81,6 @@ public class NomisApiV1ResourceImplTest {
         verifyNoMoreInteractions(service);
     }
 
-
     @Test
     public void offenderDetail() {
 
@@ -94,7 +94,6 @@ public class NomisApiV1ResourceImplTest {
         verifyNoMoreInteractions(service);
     }
 
-
     @Test
     public void offenderImage() {
 
@@ -106,5 +105,13 @@ public class NomisApiV1ResourceImplTest {
 
         verify(service).getOffenderImage(anyString());
         verifyNoMoreInteractions(service);
+    }
+
+    @Test    
+    public void getHolds() {
+        final var holds = List.of(new Hold(3L, "ref", "12345", "entry", null, 12345L, null));
+        when(service.getHolds(anyString(), anyString(), anyString(), anyString())).thenReturn(holds);
+        final var transfer = nomisApiV1Resource.getHolds("client", "prison", "nomis", "ref");
+        assertThat(transfer).isEqualTo(holds);
     }
 }

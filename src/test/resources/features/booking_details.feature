@@ -1,4 +1,3 @@
-@sdar
 Feature: Booking Details
 
   Acceptance Criteria:
@@ -131,11 +130,11 @@ Feature: Booking Details
     Then resource not found response is received from booking assessments API
 
   Scenario: Request for CSR assessment information for multiple offenders
-    When an offender booking assessment information request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR" and latest="false"
+    When an offender booking assessment information request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR" and latest="false" and active="true"
     Then correct results are returned as for single assessment
 
   Scenario: Request for category assessment information for multiple offenders
-    When an offender booking assessment information request is made with offender numbers "A1234AE,A1234AF" and "CATEGORY" and latest="false"
+    When an offender booking assessment information request is made with offender numbers "A1234AE,A1234AF" and "CATEGORY" and latest="false" and active="false"
     Then full category history is returned
 
   Scenario: Request for CSR assessment information for multiple offenders (using post request which allows large sets of offenders)
@@ -180,7 +179,7 @@ Feature: Booking Details
 
   Scenario: Request for offenders who need to be recategorised
     When a request is made for offenders who need to be recategorised at "LEI" with cutoff Date of "2018-07-01"
-    Then 3 categorised offenders are returned
+    Then 2 categorised offenders are returned
 
   Scenario: Create categorisation request
     Given a categorisation user has authenticated with the API

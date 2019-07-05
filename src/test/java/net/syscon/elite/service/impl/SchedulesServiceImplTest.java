@@ -17,17 +17,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -169,6 +172,7 @@ public class SchedulesServiceImplTest {
                         .endTime(TIME_1040)
                         .event("APP sub type")
                         .eventDescription("Morning-10")
+                        .bookingId(-10L)
                         .build()
                 );
     }
@@ -272,6 +276,81 @@ public class SchedulesServiceImplTest {
 
         final var results = schedulesService.getLocationEvents("LEI", -100L, "PROG", DATE, TimeSlot.ED, null, null);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A10");
+    }
+
+    @Test
+    public void testThatScheduleEventIsCorrectlyMappedToPrisonSchedule() {
+        final var now = LocalDateTime.now();
+        final var today = LocalDate.now();
+
+        when(authenticationFacade.getCurrentUsername()).thenReturn("username");
+        when(inmateService.findInmatesByLocation(anyString(), anyString(), anyList())).thenReturn(List.of(
+                InmateDto.builder()
+                        .locationDescription("cell location")
+                        .firstName("first name")
+                        .lastName("last name")
+                        .offenderNo("offenderNo")
+                        .bookingId(1L)
+                        .build()));
+
+        when(bookingService.getEventsOnDay(anyCollection(), any(LocalDate.class)))
+                .thenReturn(List.of(
+                            ScheduledEvent
+                                .builder()
+                                    .bookingId(1L)
+                                    .eventClass("event class")
+                                    .eventId(2L)
+                                    .eventStatus("event status")
+                                    .eventType("event type")
+                                    .eventTypeDesc("event type description")
+                                    .eventSubType("event sub type")
+                                    .eventSubTypeDesc("event sub type description")
+                                    .eventDate(today)
+                                    .startTime(now)
+                                    .endTime(now)
+                                    .eventLocation("event location")
+                                    .eventLocationId(3L)
+                                    .eventSource("event source")
+                                    .eventSourceCode("event source code")
+                                    .eventSourceDesc("event source description")
+                                    .eventOutcome("event out come")
+                                    .performance("performance")
+                                    .outcomeComment("comments")
+                                    .paid(false)
+                                    .payRate(BigDecimal.valueOf(1))
+                                    .build()
+                        )
+                );
+
+        final var activities = schedulesService.getLocationGroupEvents("LEI", "Houseblock1",
+                today, TimeSlot.AM, null, null);
+
+        assertThat(activities).asList().containsSequence(
+                PrisonerSchedule
+                        .builder()
+                        .firstName("first name")
+                        .lastName("last name")
+                        .startTime(now)
+                        .endTime(now)
+                        .cellLocation("cell location")
+                        .locationId(3L)
+                        .bookingId(1L)
+                        .offenderNo("offenderNo")
+                        .eventOutcome("event out come")
+                        .eventType("event type")
+                        .event("event sub type")
+                        .eventLocationId(3L)
+                        .eventLocation("Event Location")
+                        .outcomeComment("comments")
+                        .eventStatus("event status")
+                        .eventId(2L)
+                        .paid(false)
+                        .payRate(BigDecimal.valueOf(1))
+                        .performance("performance")
+                        .eventType("event type")
+                        .eventDescription("event sub type description")
+                        .comment("event source description")
+                        .build());
     }
 
 }

@@ -18,27 +18,24 @@ public class BookingV1Repository extends RepositoryBase {
     private final BookingProcs.GetLatestBooking getLatestBookingProc;
     private final BookingProcs.GetOffenderBookings getOffenderBookings;
 
-    public BookingV1Repository(NomisV1SQLErrorCodeTranslator errorCodeTranslator,
-                               BookingProcs.GetLatestBooking getLatestBookingProc,
-                               BookingProcs.GetOffenderBookings getOffenderBookings) {
+    public BookingV1Repository(final BookingProcs.GetLatestBooking getLatestBookingProc,
+                               final BookingProcs.GetOffenderBookings getOffenderBookings) {
         this.getLatestBookingProc = getLatestBookingProc;
         this.getOffenderBookings = getOffenderBookings;
-
-        //TODO: There will be a better way of doing this...
-        this.getLatestBookingProc.getJdbcTemplate().setExceptionTranslator(errorCodeTranslator);
-        this.getOffenderBookings.getJdbcTemplate().setExceptionTranslator(errorCodeTranslator);
     }
 
     public Optional<BookingSP> getLatestBooking(final String nomsId) {
         final var param = new MapSqlParameterSource().addValue(P_NOMS_ID, nomsId);
         final var result = getLatestBookingProc.execute(param);
-        var latestBooking = (List<BookingSP>) result.get(P_BOOKING_CSR);
+        //noinspection unchecked
+        final var latestBooking = (List<BookingSP>) result.get(P_BOOKING_CSR);
         return Optional.ofNullable(latestBooking.isEmpty() ? null : latestBooking.get(0));
     }
 
     public List<BookingSP> getOffenderBookings(final String nomsId) {
         final var param = new MapSqlParameterSource().addValue(P_NOMS_ID, nomsId);
         final var result = getOffenderBookings.execute(param);
+        //noinspection unchecked
         return (List<BookingSP>) result.get(P_BOOKING_CSR);
     }
 }

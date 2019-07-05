@@ -31,7 +31,7 @@ public class OffenderProcs {
                             new SqlOutParameter(P_OFFENDER_CSR, Types.REF_CURSOR))
                     .returningResultSet(P_OFFENDER_CSR,
                             (rs, rowNum) -> {
-                                var offender = StandardBeanPropertyRowMapper.newInstance(OffenderSP.class).mapRow(rs, rowNum);
+                                final var offender = StandardBeanPropertyRowMapper.newInstance(OffenderSP.class).mapRow(rs, rowNum);
                                 if (offender != null) {
                                     offender.setOffenderAliases(new RowMapperResultSetExtractor<>
                                             (StandardBeanPropertyRowMapper.newInstance(AliasSP.class))
