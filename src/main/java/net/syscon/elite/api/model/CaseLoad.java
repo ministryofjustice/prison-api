@@ -18,22 +18,22 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode(of = "caseLoadId")
 @Data
 public class CaseLoad {
-    @ApiModelProperty(required = true, value = "Case Load ID")
+    @ApiModelProperty(required = true, value = "Case Load ID", position = 1, example = "MDI")
     @JsonProperty("caseLoadId")
     @NotBlank
     private String caseLoadId;
 
-    @ApiModelProperty(required = true, value = "Full description of the case load")
+    @ApiModelProperty(required = true, value = "Full description of the case load", position = 2, example = "Moorland Closed (HMP & YOI)")
     @JsonProperty("description")
     @NotBlank
     private String description;
 
-    @ApiModelProperty(required = true, value = "Type of case load")
+    @ApiModelProperty(required = true, value = "Type of case load", notes = "Reference Code CSLD_TYPE", position = 3, example = "INST", allowableValues = "COMM,INST,APP")
     @JsonProperty("type")
     @NotBlank
     private String type;
 
-    @ApiModelProperty(value = "Functional Use of the case load (nomis only)")
+    @ApiModelProperty(value = "Functional Use of the case load", position = 4, example = "GENERAL", allowableValues = "GENERAL,ADMIN")
     @JsonProperty("caseloadFunction")
     private String caseloadFunction;
 
