@@ -1,0 +1,18 @@
+[
+  {
+    "amount": 12345,
+    "hold_number": 3,
+    "client_unique_ref": "ref",
+    "reference_no": "12345",
+    "description": "entry"
+  },
+  {
+    "amount": 12346,
+    "hold_number": 4,
+    "client_unique_ref": "ref2",
+    "reference_no": "12346",
+    "description": "entry2",
+    "entry_date": "2019-01-02",
+    "hold_until_date": "2018-12-30"
+  }
+]

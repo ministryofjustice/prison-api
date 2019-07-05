@@ -33,6 +33,10 @@
         <appender-ref ref="logAppender"/>
     </logger>
 
+    <logger name="net.syscon.elite.repository.v1.storedprocs" additivity="false" level="INFO">
+        <appender-ref ref="logAppender"/>
+    </logger>
+
     <logger name="org.springframework" additivity="false" level="INFO" >
         <appender-ref ref="logAppender"/>
     </logger>

@@ -13,7 +13,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -30,27 +32,32 @@ public abstract class ResourceTest {
     protected JwtAuthenticationHelper jwtAuthenticationHelper;
 
     protected HttpEntity<?> createHttpEntity(final String bearerToken, final Object body) {
+        return createHttpEntity(bearerToken, body, Collections.emptyMap());
+    }
+
+    private HttpEntity<?> createHttpEntity(final String bearerToken, final Object body, final Map<String, String> additionalHeaders) {
         final var headers = new HttpHeaders();
 
         headers.add("Authorization", "Bearer " + bearerToken);
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "application/json");
 
+        additionalHeaders.forEach(headers::add);
+
         return new HttpEntity<>(body, headers);
     }
 
-    protected HttpEntity<?> createHttpEntityWithBearerAuthorisation(final String user, final List<String> roles, final Object body) {
-        final var headers = new HttpHeaders();
+    protected HttpEntity<?> createHttpEntityWithBearerAuthorisationAndBody(final String user, final List<String> roles, final Object body) {
         final var jwt = createJwt(user, roles);
-
-        headers.add("Authorization", "Bearer " + jwt);
-        headers.add("Content-Type", "application/json");
-        headers.add("Accept", "application/json");
-
-        return new HttpEntity<>(body, headers);
+        return createHttpEntity(jwt, body);
     }
 
-    protected String createJwt(final String user, final List<String> roles) {
+    protected HttpEntity<?> createHttpEntityWithBearerAuthorisation(final String user, final List<String> roles, final Map<String, String> additionalHeaders) {
+        final var jwt = createJwt(user, roles);
+        return createHttpEntity(jwt, null, additionalHeaders == null ? Map.of() : additionalHeaders);
+    }
+
+    private String createJwt(final String user, final List<String> roles) {
         return jwtAuthenticationHelper.createJwt(JwtParameters.builder()
                 .username(user)
                 .roles(roles)
