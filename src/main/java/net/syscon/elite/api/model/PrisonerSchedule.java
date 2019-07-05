@@ -71,6 +71,9 @@ public class PrisonerSchedule {
     @ApiModelProperty(required = true, value = "Location of the event")
     private String eventLocation;
 
+    @ApiModelProperty(value = "Id of an internal event location")
+    private Long eventLocationId;
+
     @ApiModelProperty(required = true, value = "The event's status. Includes 'CANC', meaning cancelled for 'VISIT'")
     @NotBlank
     private String eventStatus;

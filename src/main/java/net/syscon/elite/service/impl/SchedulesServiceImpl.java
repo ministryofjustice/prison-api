@@ -114,6 +114,8 @@ public class SchedulesServiceImpl implements SchedulesService {
 
     private PrisonerSchedule prisonerSchedule(final InmateDto inmate, final ScheduledEvent event) {
         return PrisonerSchedule.builder()
+                .bookingId(inmate.getBookingId())
+                .locationId(event.getEventLocationId())
                 .cellLocation(inmate.getLocationDescription())
                 .lastName(inmate.getLastName())
                 .firstName(inmate.getFirstName())
@@ -132,6 +134,7 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .payRate(event.getPayRate())
                 .eventStatus(event.getEventStatus())
                 .eventLocation(WordUtils.capitalizeFully(event.getEventLocation()))
+                .eventLocationId(event.getEventLocationId())
                 .build();
     }
 
