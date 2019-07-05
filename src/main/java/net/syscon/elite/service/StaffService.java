@@ -1,16 +1,14 @@
 package net.syscon.elite.service;
 
 import lombok.Getter;
-import net.syscon.elite.api.model.StaffDetail;
-import net.syscon.elite.api.model.StaffLocationRole;
-import net.syscon.elite.api.model.StaffRole;
-import net.syscon.elite.api.model.StaffUserRole;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.support.AgencyRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public interface StaffService {
@@ -22,9 +20,9 @@ public interface StaffService {
         return StringUtils.equals(STAFF_STATUS_ACTIVE, staffDetail.getStatus());
     }
 
-    StaffDetail getStaffDetail(Long staffId);
+    StaffDetail getStaffDetail(@NotNull Long staffId);
 
-    List<String> getStaffEmailAddresses(Long staffId);
+    List<String> getStaffEmailAddresses(@NotNull Long staffId);
 
     Page<StaffLocationRole> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest);
 
@@ -42,6 +40,7 @@ public interface StaffService {
 
     List<StaffRole> getAllRolesForAgency(Long staffId, String agencyId);
 
+    List<CaseLoad> getStaffCaseloads(@NotNull Long staffId);
 
     @Getter
     class GetStaffRoleRequest extends AgencyRequest {
