@@ -3,9 +3,11 @@ package net.syscon.elite.repository.impl;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.util.DateTimeConverter;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +16,6 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 
     private static final StandardBeanPropertyRowMapper<CaseLoad> CASELOAD_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(CaseLoad.class);
-
 
     @Override
     public Optional<CaseLoad> getCaseLoad(final String caseLoadId) {
@@ -41,6 +42,15 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
                 addWhereClause("type = :type").
                 build();
         return jdbcTemplate.query(sql, createParams("username", username, "type", "INST"), CASELOAD_ROW_MAPPER);
+    }
+
+    @Override
+    public List<CaseLoad> getCaseLoadsByStaffId(final Long staffId) {
+        return jdbcTemplate.query(getQuery("FIND_CASE_LOADS_BY_STAFF_ID"),
+                createParams("staffId", staffId,
+                        "staffUserType", "GENERAL",
+                        "currentDate", DateTimeConverter.toDate(LocalDate.now())),
+        CASELOAD_ROW_MAPPER);
     }
 
     @Override

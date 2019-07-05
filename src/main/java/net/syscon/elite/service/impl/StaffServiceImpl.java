@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.StaffRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
@@ -17,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,27 +31,22 @@ import static net.syscon.elite.service.UserService.STAFF_USER_TYPE_FOR_EXTERNAL_
 public class StaffServiceImpl implements StaffService {
     private final StaffRepository staffRepository;
     private final UserRepository userRepository;
+    private final CaseLoadRepository caseLoadRepository;
 
-    public StaffServiceImpl(final StaffRepository staffRepository, final UserRepository userRepository) {
+    public StaffServiceImpl(final StaffRepository staffRepository, final UserRepository userRepository, CaseLoadRepository caseLoadRepository) {
         this.staffRepository = staffRepository;
         this.userRepository = userRepository;
+        this.caseLoadRepository = caseLoadRepository;
     }
 
     @Override
-    public StaffDetail getStaffDetail(final Long staffId) {
-        Validate.notNull(staffId, "A staff id is required.");
-
+    public StaffDetail getStaffDetail(@NotNull final Long staffId) {
         return staffRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
     }
 
     @Override
-    public List<String> getStaffEmailAddresses(final Long staffId) {
-        Validate.notNull(staffId,"A staffId is required.");
-
-        final var staffDetail = staffRepository.findByStaffId(staffId);
-        if (staffDetail.isEmpty()) {
-            throw EntityNotFoundException.withId(staffId);
-        }
+    public List<String> getStaffEmailAddresses(@NotNull final Long staffId) {
+        checkStaffExists(staffId);
 
         final var emailAddressList = staffRepository.findEmailAddressesForStaffId(staffId);
         if (emailAddressList == null || emailAddressList.isEmpty()) {
@@ -57,6 +54,20 @@ public class StaffServiceImpl implements StaffService {
         }
 
         return emailAddressList;
+    }
+
+
+    @Override
+    public List<CaseLoad> getStaffCaseloads(@NotNull final Long staffId) {
+        checkStaffExists(staffId);
+        return caseLoadRepository.getCaseLoadsByStaffId(staffId);
+    }
+
+    private void checkStaffExists(Long staffId) {
+        final var staffDetail = staffRepository.findByStaffId(staffId);
+        if (staffDetail.isEmpty()) {
+            throw EntityNotFoundException.withId(staffId);
+        }
     }
 
     @Override
