@@ -1,11 +1,13 @@
 package net.syscon.elite.service.v1;
 
+import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.v1.impl.OffenderIdentifier;
 import net.syscon.elite.repository.v1.*;
 import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1')")
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class NomisApiV1Service {
 
     private final BookingV1Repository bookingV1Repository;
@@ -29,20 +32,7 @@ public class NomisApiV1Service {
     private final FinanceV1Repository financeV1Repository;
     private final AlertV1Repository alertV1Repository;
     private final EventsV1Repository eventsV1Repository;
-
-    public NomisApiV1Service(final BookingV1Repository bookingV1Repository,
-                             final OffenderV1Repository offenderV1Repository,
-                             final LegalV1Repository legalV1Repository,
-                             final FinanceV1Repository financeV1Repository,
-                             final AlertV1Repository alertV1Repository,
-                             final EventsV1Repository eventsV1Repository) {
-        this.bookingV1Repository = bookingV1Repository;
-        this.offenderV1Repository = offenderV1Repository;
-        this.legalV1Repository = legalV1Repository;
-        this.financeV1Repository = financeV1Repository;
-        this.alertV1Repository = alertV1Repository;
-        this.eventsV1Repository = eventsV1Repository;
-    }
+    private final PrisonV1Repository prisonV1Repository;
 
     public Location getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
@@ -226,6 +216,10 @@ public class NomisApiV1Service {
                         .referenceNo(h.getTxnReferenceNumber())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public List<String> getLiveRoll(final String prisonId) {
+        return prisonV1Repository.getLiveRoll(prisonId).stream().map(LiveRollSP::getOffenderIdDisplay).collect(Collectors.toList());
     }
 
     private Long convertToPence(final BigDecimal value) {

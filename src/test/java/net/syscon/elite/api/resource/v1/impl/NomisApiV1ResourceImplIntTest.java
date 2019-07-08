@@ -3,11 +3,14 @@ package net.syscon.elite.api.resource.v1.impl;
 import net.syscon.elite.api.model.v1.CreateTransaction;
 import net.syscon.elite.api.model.v1.Events;
 import net.syscon.elite.api.model.v1.Hold;
+import net.syscon.elite.api.model.v1.LiveRoll;
 import net.syscon.elite.api.resource.impl.ResourceTest;
 import net.syscon.elite.repository.v1.model.EventSP;
 import net.syscon.elite.repository.v1.model.HoldSP;
+import net.syscon.elite.repository.v1.model.LiveRollSP;
 import net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
+import net.syscon.elite.repository.v1.storedprocs.PrisonProcs.GetLiveRoll;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -60,6 +63,12 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         public GetEvents getEvents() {
             return Mockito.mock(GetEvents.class);
         }
+
+        @Bean
+        @Primary
+        public GetLiveRoll getLiveRoll() {
+            return Mockito.mock(GetLiveRoll.class);
+        }
     }
 
     @Autowired
@@ -73,6 +82,9 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetEvents getEvents;
+
+    @Autowired
+    private GetLiveRoll getLiveRoll;
 
     @Test
     public void transferTransaction() {
@@ -186,5 +198,22 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         //noinspection ConstantConditions
         assertThat(new JsonContent<Events>(getClass(), forType(Events.class), responseEntity.getBody())).isEqualToJson("events.json");
+    }
+
+    @Test
+    public void getLiveRoll() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        final var roll = List.of(new LiveRollSP("A12345B"), new LiveRollSP("B23456C"));
+
+        final var captor = ArgumentCaptor.forClass(SqlParameterSource.class);
+        when(getLiveRoll.execute(captor.capture())).thenReturn(Map.of(P_ROLL_CSR, roll));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/MDI/live_roll", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(captor.getValue().getValue(P_AGY_LOC_ID)).isEqualTo("MDI");
+
+        //noinspection ConstantConditions
+        assertThat(new JsonContent<LiveRoll>(getClass(), forType(LiveRoll.class), responseEntity.getBody())).isEqualToJson("roll.json");
     }
 }

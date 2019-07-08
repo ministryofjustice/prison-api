@@ -210,4 +210,17 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(name = "client_unique_ref", value = "Client unique reference", required = false) @QueryParam("client_unique_ref") @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
+
+    @GET
+    @Path("/prison/{prison_id}/live_roll")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Fetching live roll.")
+    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Transaction Created", response = LiveRoll.class),
+            @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    LiveRoll getLiveRoll(
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId);
 }
