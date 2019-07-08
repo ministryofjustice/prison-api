@@ -60,7 +60,12 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public List<CaseLoad> getStaffCaseloads(@NotNull final Long staffId) {
         checkStaffExists(staffId);
-        return caseLoadRepository.getCaseLoadsByStaffId(staffId);
+        final var staffCaseloads = caseLoadRepository.getCaseLoadsByStaffId(staffId);
+
+        if (staffCaseloads == null || staffCaseloads.isEmpty()) {
+            throw NoContentException.withId(staffId);
+        }
+        return staffCaseloads;
     }
 
     private void checkStaffExists(Long staffId) {

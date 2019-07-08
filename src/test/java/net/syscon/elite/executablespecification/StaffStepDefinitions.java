@@ -32,6 +32,15 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
         staff.verifyStaffLastName(lastName);
     }
 
+    @And("^gender of staff details returned is \"([^\"]*)\"$")
+    public void genderOfStaffDetailsReturnedIs(final String gender) {
+        staff.verifyStaffGender(gender);
+    }
+
+    @And("^date of birth of staff details returned is \"([^\"]*)\"$")
+    public void dateOfBirthOfStaffDetailsReturnedIs(final String dob) {
+        staff.verifyStaffDob(dob);
+    }
     @Then("^resource not found response is received from staff API$")
     public void resourceNotFoundResponseIsReceivedFromStaffAPI() {
         staff.verifyResourceNotFound();

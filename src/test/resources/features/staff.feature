@@ -14,16 +14,18 @@ Feature: Staff Details and Roles
     When a staff member search is made using staff id "<staffId>"
     Then first name of staff details returned is "<firstName>"
     And last name of staff details returned is "<lastName>"
+    And gender of staff details returned is "<gender>"
+    And date of birth of staff details returned is "<dob>"
 # Email removed (Note staff member can have more than one email address)
 #    And email address of staff details returned is "<email>"
 
     Examples:
-      | staffId | firstName | lastName |
-      | -1      | Elite2    | User     |
-      | -2      | API       | User     |
-      | -3      | CA        | User     |
-      | -5      | RO        | User     |
-      | -6      | DM        | User     |
+      | staffId | firstName | lastName | gender |   dob      |
+      | -1      | Elite2    | User     |   F    | 1970-01-01 |
+      | -2      | API       | User     |   M    | 1970-02-01 |
+      | -3      | CA        | User     |   M    | 1970-03-01 |
+      | -5      | RO        | User     |   M    | 1970-05-01 |
+      | -6      | DM        | User     |   M    | 1970-06-01 |
 
   Scenario: Find staff member using staff id that does not exist
     When a staff member search is made using staff id "-9999"
@@ -103,7 +105,7 @@ Feature: Staff Details and Roles
       When request is submitted using "<staffId>" and "<agencyId>"
       Then a role containing "<role>" "<roleDescription>" is returned without duplicates
    Examples:
-      | staffId |agencyId  |role | roleDescription     |
+      | staffId |agencyId  |role  | roleDescription     |
       | -2      |LEI       |OS    | Offender Supervisor|
       | -1      |LEI       |KW    | Key Worker         |
       | -2      |BXI       |KW    | Key Worker         |
