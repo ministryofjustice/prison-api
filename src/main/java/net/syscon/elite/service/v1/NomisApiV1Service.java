@@ -1,6 +1,7 @@
 package net.syscon.elite.service.v1;
 
 import net.syscon.elite.api.model.v1.*;
+import net.syscon.elite.api.resource.v1.impl.OffenderIdentifier;
 import net.syscon.elite.repository.v1.*;
 import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -27,19 +28,21 @@ public class NomisApiV1Service {
     private final LegalV1Repository legalV1Repository;
     private final FinanceV1Repository financeV1Repository;
     private final AlertV1Repository alertV1Repository;
+    private final EventsV1Repository eventsV1Repository;
 
     public NomisApiV1Service(final BookingV1Repository bookingV1Repository,
                              final OffenderV1Repository offenderV1Repository,
                              final LegalV1Repository legalV1Repository,
                              final FinanceV1Repository financeV1Repository,
-                             final AlertV1Repository alertV1Repository) {
+                             final AlertV1Repository alertV1Repository,
+                             final EventsV1Repository eventsV1Repository) {
         this.bookingV1Repository = bookingV1Repository;
         this.offenderV1Repository = offenderV1Repository;
         this.legalV1Repository = legalV1Repository;
         this.financeV1Repository = financeV1Repository;
         this.alertV1Repository = alertV1Repository;
+        this.eventsV1Repository = eventsV1Repository;
     }
-
 
     public Location getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
@@ -179,6 +182,29 @@ public class NomisApiV1Service {
     @Transactional
     public String createTransaction(final String prisonId, final String nomsId, final String type, final String description, final BigDecimal amountInPounds, final LocalDate txDate, final String txId, final String uniqueClientId) {
         return financeV1Repository.postTransaction(prisonId, nomsId, type, description, amountInPounds, txDate, txId, uniqueClientId);
+    }
+
+    public List<Event> getEvents(final String prisonId, final OffenderIdentifier offenderIdentifier, final String eventType, final LocalDateTime fromDateTime, final Long limit) {
+        return eventsV1Repository.getEvents(prisonId,
+                offenderIdentifier.getNomsId(),
+                offenderIdentifier.getRootOffenderId(),
+                offenderIdentifier.getSingleOffenderId(),
+                eventType, fromDateTime, limit)
+                .stream()
+                .map(e -> Event.builder()
+                        .prisonId(e.getAgyLocId())
+                        .nomsId(e.getNomsId())
+                        .id(e.getApiEventId())
+                        .timestamp(e.getEventTimestamp())
+                        .type(e.getEventType())
+                        .eventData(convertToJsonString(e))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private String convertToJsonString(final EventSP e) {
+        final var json = StringUtils.trimToEmpty(e.getEventData_1()) + StringUtils.trimToEmpty(e.getEventData_2()) + StringUtils.trimToEmpty(e.getEventData_3());
+        return StringUtils.defaultIfEmpty(json, "{}");
     }
 
     public Image getOffenderImage(final String nomsId) {

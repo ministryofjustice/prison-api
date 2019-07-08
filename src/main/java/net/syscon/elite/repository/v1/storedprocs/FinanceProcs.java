@@ -15,7 +15,6 @@ import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 @Component
 public class FinanceProcs {
 
-    public static final String P_AGY_LOC_ID = "p_agy_loc_id";
     public static final String P_FROM_AGY_LOC_ID = "p_from_agy_loc_id";
     public static final String P_TXN_TYPE = "p_txn_type";
     public static final String P_TXN_REFERENCE_NUMBER = "p_txn_reference_number";
