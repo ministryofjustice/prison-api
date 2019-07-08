@@ -1,0 +1,56 @@
+{
+  "events": [
+    {
+      "type": "type",
+      "id": 3,
+      "nomsId": "AB1256B",
+      "prisonId": "LEI",
+      "eventData": {
+        "case_note": {
+          "id": 47004657,
+          "contact_datetime": "2019-03-31 00:00:00",
+          "source": {
+            "code": "AUTO",
+            "desc": "System"
+          },
+          "type": {
+            "code": "ALERT",
+            "desc": "Alert"
+          },
+          "sub_type": {
+            "code": "INACTIVE",
+            "desc": "Made Inactive"
+          },
+          "staff_member": {
+            "id": 1,
+            "name": "Cnomis, Admin&Onb",
+            "userid": ""
+          },
+          "text": "Alert Other and Charged under Harassment Act made inactive.",
+          "amended": false
+        }
+      }
+    },
+    {
+      "type": "type2",
+      "id": 4,
+      "nomsId": "BC1256B",
+      "prisonId": "MDI",
+      "timestamp": "2018-12-30 23:59:10.000",
+      "eventData": {
+        "account": {
+          "code": "REG",
+          "desc": "Private Cash"
+        },
+        "balance": 0
+      }
+    },
+    {
+      "type": "type3",
+      "id": 5,
+      "nomsId": "CD1256B",
+      "prisonId": "MDI",
+      "eventData": {}
+    }
+  ]
+}
