@@ -97,6 +97,11 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
         return service.getHolds(prisonId, nomsId, uniqueClientId, clientName);
     }
 
+    @Override
+    public LiveRoll getLiveRoll(final String prisonId) {
+        return new LiveRoll(service.getLiveRoll(prisonId));
+    }
+
     private String getUniqueClientId(final String clientName, final String clientUniqueRef) {
         if (StringUtils.isBlank(clientUniqueRef)) {
             return null;

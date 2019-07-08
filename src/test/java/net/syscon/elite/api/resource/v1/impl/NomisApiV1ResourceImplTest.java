@@ -74,4 +74,12 @@ public class NomisApiV1ResourceImplTest {
         final var transfer = nomisApiV1Resource.getOffenderEvents("client", null, "nomis", null, 50L);
         assertThat(transfer).isEqualTo(new Events(events));
     }
+
+    @Test
+    public void getLiveRoll() {
+        final var liveRoll = List.of("bob", "joe");
+        when(service.getLiveRoll(anyString())).thenReturn(liveRoll);
+        final var roll = nomisApiV1Resource.getLiveRoll("any");
+        assertThat(roll).isEqualTo(new LiveRoll(liveRoll));
+    }
 }
