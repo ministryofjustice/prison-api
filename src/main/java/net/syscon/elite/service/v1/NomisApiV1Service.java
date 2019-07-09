@@ -208,10 +208,6 @@ public class NomisApiV1Service {
         return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
     }
 
-    /**
-     * The repository creates a temporary CLOB in Oracle so direct this transaction to the writable DB.
-     */
-    @Transactional
     public OffenderPssDetailEvent getOffenderPssDetail(final String nomsId) {
 
         return offenderV1Repository.getOffenderPssDetail(nomsId)
