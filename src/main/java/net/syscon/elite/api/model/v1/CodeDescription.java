@@ -15,11 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 public class CodeDescription {
 
     @ApiModelProperty(value = "Code", position = 1)
-    @JsonProperty("code")
     private String code;
 
     @ApiModelProperty(value = "Description", position = 2)
-    @JsonProperty("desc")
     private String desc;
 
     public static CodeDescription safeNullBuild(final String code, final String desc) {

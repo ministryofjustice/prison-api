@@ -110,7 +110,7 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     }
 
     @Override
-    public OffenderPssDetailEvent getOffenderPssDetail(@NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
+    public OffenderPssDetailEvent getOffenderPssDetail(final String nomsId) {
 
         return service.getOffenderPssDetail(nomsId);
     }
