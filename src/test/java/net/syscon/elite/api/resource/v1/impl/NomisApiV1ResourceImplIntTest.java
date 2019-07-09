@@ -1,24 +1,16 @@
 package net.syscon.elite.api.resource.v1.impl;
 
-import net.syscon.elite.api.model.v1.CreateTransaction;
-import net.syscon.elite.api.model.v1.Image;
-import net.syscon.elite.api.model.v1.Offender;
-import net.syscon.elite.api.model.v1.OffenderPssDetailEvent;
+import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.impl.ResourceTest;
-import net.syscon.elite.repository.v1.model.AliasSP;
-import net.syscon.elite.repository.v1.model.OffenderSP;
-import net.syscon.elite.api.model.v1.Hold;
-import net.syscon.elite.api.model.v1.Events;
-import net.syscon.elite.api.model.v1.Hold;
-import net.syscon.elite.api.model.v1.LiveRoll;
-import net.syscon.elite.repository.v1.model.EventSP;
-import net.syscon.elite.repository.v1.model.HoldSP;
-import net.syscon.elite.repository.v1.model.LiveRollSP;
+import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
-import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.*;
-import net.syscon.elite.repository.v1.storedprocs.PrisonProcs.*;
-import oracle.sql.BlobDBAccess;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.GetHolds;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransaction;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransfer;
+import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
+import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderImage;
+import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderPssDetail;
+import net.syscon.elite.repository.v1.storedprocs.PrisonProcs.GetLiveRoll;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -30,24 +22,22 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
-import static org.assertj.core.api.Assertions.fail;
-import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
+import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
@@ -279,13 +269,21 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         assertThat(actual.getPrisonId()).isEqualTo("LEI");
         assertThat(actual.getPssDetail()).isNotNull();
         assertThat(actual.getPssDetail().getOffenderDetails()).isNotNull();
+        assertThat(actual.getPssDetail().getOffenderDetails().getPersonalData()).isNotNull();
+        assertThat(actual.getPssDetail().getOffenderDetails().getPersonalData().getSecurityCategory().getCode()).isEqualToIgnoringCase("C");
+        assertThat(actual.getPssDetail().getOffenderDetails().getSentenceData()).isNotNull();
+        assertThat(actual.getPssDetail().getOffenderDetails().getLocationData()).isNotNull();
+        assertThat(actual.getPssDetail().getOffenderDetails().getLocationData().getAgyLoc()).isEqualToIgnoringCase("LEI");
         assertThat(actual.getPssDetail().getOffenderDetails().getWarningData()).hasSize(2);
+        assertThat(actual.getPssDetail().getOffenderDetails().getEntitlementData()).isNotNull();
+        assertThat(actual.getPssDetail().getOffenderDetails().getCaseDetailData()).isNotNull();
     }
 
     @Test
     public void offenderDetail() {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
         final var expectedSurname = "HALIBUT";
         final var procedureResponse = Map.of(P_OFFENDER_CSR, (Object) List.of(OffenderSP.builder().lastName(expectedSurname)
                 .offenderAliases(List.of(AliasSP.builder().lastName("PLAICE").build()))

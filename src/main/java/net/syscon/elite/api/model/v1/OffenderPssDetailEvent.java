@@ -3,8 +3,6 @@ package net.syscon.elite.api.model.v1;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -24,7 +22,7 @@ import java.time.LocalDateTime;
         creatorVisibility = Visibility.NONE
 )
 @JsonInclude(Include.NON_NULL)
-@JsonPropertyOrder({"type", "id", "timestamp", "noms_id", "prison_id", "offender_details_request"})
+@JsonPropertyOrder({"type", "id", "noms_id", "prison_id", "timestamp", "offender_details_request"})
 public class OffenderPssDetailEvent {
 
     @ApiModelProperty(value = "Event type", name = "type", example = "offender_details_request", position = 0)

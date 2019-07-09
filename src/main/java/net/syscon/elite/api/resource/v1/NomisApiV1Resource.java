@@ -198,16 +198,16 @@ public interface NomisApiV1Resource {
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Fetch PSS detail by offender",
-            notes = "Returns the PSS detail for the specified offender. The response structure is :<br/> " +
+            notes = "Returns the PSS detail for the specified offender.<br/> " +
                     "<br/>" +
                     "<table>" +
                     "<tr><th>Attribute Name</th><th>Value</th><th>Notes</th></tr>" +
                     "<tr><td>type</td><td>offender_detail_request</td><td>Always set to this value</td></tr>" +
                     "<tr><td>id</td><td>0</td><td>Always zero when an object is present</td></tr>" +
-                    "<tr><td>timestamp</td><td>2019-04-23T14:23:00.000</td><td>Set to the date and time of the request</td></tr>" +
-                    "<tr><td>prison_id</td><td>MDI</td><td>The agency location code for the establishment</td></tr>" +
+                    "<tr><td>timestamp</td><td>2019-04-23 14:23:00.000</td><td>Set to the date and time of the request</td></tr>" +
+                    "<tr><td>prison_id</td><td>MDI</td><td>The agency location code for the establishment where the offender is located.</td></tr>" +
                     "<tr><td>noms_id</td><td>A1417AE</td><td>The unique identifier for this offender in NOMIS</td></tr>" +
-                    "<tr><td>offender_details_request</td><td>JSON object</td><td>Details of the offender, their sentence, location, warnings/alerts, IEP level and case notes. ** These are generated directly from the Nomis DB and not within the API.</td></tr>" +
+                    "<tr><td>offender_details_request</td><td>JSON object</td><td>Details of the offender, their sentence, location, warnings/alerts, IEP level and case notes (example below)</td></tr>" +
                     "</table>")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderPssDetailEvent.class),

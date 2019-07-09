@@ -2,8 +2,8 @@ package net.syscon.elite.service.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.extern.slf4j.Slf4j;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.v1.impl.OffenderIdentifier;
 import net.syscon.elite.repository.v1.*;
