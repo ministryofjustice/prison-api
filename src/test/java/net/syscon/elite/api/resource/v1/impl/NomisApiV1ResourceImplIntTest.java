@@ -148,23 +148,102 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
     public void getOffenderPssDetail() throws SQLException {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var exampleJson = "{\n" +
+                "        \"offender_details\": {\n" +
+                "            \"personal_details\": {\n" +
+                "                \"offender_surname\": \"ABDORIA\",\n" +
+                "                \"offender_given_name_1\": \"ONGMETAIN\",\n" +
+                "                \"offender_dob\": \"1990-12-06 00:00:00\",\n" +
+                "                \"gender\": {\n" +
+                "                    \"code\": \"M\",\n" +
+                "                    \"desc\": \"Male\"\n" +
+                "                },\n" +
+                "                \"religion\": {\n" +
+                "                    \"code\": \"NIL\",\n" +
+                "                    \"desc\": \"EfJSmIEfJSm\"\n" +
+                "                },\n" +
+                "                \"security_category\": {\n" +
+                "                    \"code\": \"C\",\n" +
+                "                    \"desc\": \"Cat C\"\n" +
+                "                },\n" +
+                "                \"nationality\": {\n" +
+                "                    \"code\": \"BRIT\",\n" +
+                "                    \"desc\": \"sxiVsxi\"\n" +
+                "                },\n" +
+                "                \"ethnicity\": {\n" +
+                "                    \"code\": \"W1\",\n" +
+                "                    \"desc\": \"White: Eng./Welsh/Scot./N.Irish/British\"\n" +
+                "                }\n" +
+                "            },\n" +
+                "            \"sentence_information\": {\n" +
+                "                \"reception_arrival_date_and_time\": \"2017-05-03 15:50:00\",\n" +
+                "                \"status\": \"Convicted\",\n" +
+                "                \"imprisonment_status\": {\n" +
+                "                    \"code\": \"LR\",\n" +
+                "                    \"desc\": \"Recalled to Prison from Parole (Non HDC)\"\n" +
+                "                }\n" +
+                "            },\n" +
+                "            \"location\": {\n" +
+                "                \"agency_location\": \"LEI\",\n" +
+                "                \"internal_location\": \"LEI-E-5-004\",\n" +
+                "                \"location_type\": \"CELL\"\n" +
+                "            },\n" +
+                "            \"warnings\": [\n" +
+                "                {\n" +
+                "                    \"warning_type\": {\n" +
+                "                        \"code\": \"P\",\n" +
+                "                        \"desc\": \"MAPPP Case\"\n" +
+                "                    },\n" +
+                "                    \"warning_sub_type\": {\n" +
+                "                        \"code\": \"P2\",\n" +
+                "                        \"desc\": \"MAPPA Level 2 Case\"\n" +
+                "                    },\n" +
+                "                    \"warning_date\": \"2015-06-03 00:00:00\",\n" +
+                "                    \"status\": \"ACTIVE\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"warning_type\": {\n" +
+                "                        \"code\": \"R\",\n" +
+                "                        \"desc\": \"Risk\"\n" +
+                "                    },\n" +
+                "                    \"warning_sub_type\": {\n" +
+                "                        \"code\": \"RCS\",\n" +
+                "                        \"desc\": \"Risk to Children - Custody\"\n" +
+                "                    },\n" +
+                "                    \"warning_date\": \"2013-06-04 00:00:00\",\n" +
+                "                    \"status\": \"ACTIVE\"\n" +
+                "                }\n" +
+                "            ],\n" +
+                "            \"entitlement\": {\n" +
+                "                \"canteen_adjudication\": false,\n" +
+                "                \"iep_level\": {\n" +
+                "                    \"code\": \"STD\",\n" +
+                "                    \"desc\": \"Standard\"\n" +
+                "                }\n" +
+                "            },\n" +
+                "            \"case_details\": {\n" +
+                "                \"personal_officer\": \"Griffine, Ymmnatpher\"\n" +
+                "            }\n" +
+                "        }\n" +
+                "     }";
 
-        final var testClob = new javax.sql.rowset.serial.SerialClob("XXX".toCharArray());
+        final var testClob = new javax.sql.rowset.serial.SerialClob(exampleJson.toCharArray());
         final var timestamp = Timestamp.valueOf(LocalDateTime.now());
         final var localDateTime = LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.systemDefault());
         final var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         final var expectedTime = formatter.format(localDateTime);
+
         final var procedureResponse = Map.of(
-                P_NOMS_ID, (Object) "A1404AE",
+                P_NOMS_ID, (Object) "G7806VO",
                 P_ROOT_OFFENDER_ID, (Object) 0L,
                 P_SINGLE_OFFENDER_ID, (Object) "",
-                P_AGY_LOC_ID, (Object)"MDI",
+                P_AGY_LOC_ID, (Object)"LEI",
                 P_DETAILS_CLOB, (Object) testClob,
                 P_TIMESTAMP, (Object) timestamp);
 
         when(offenderPssDetail.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
 
-        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE/pss_detail", HttpMethod.GET, requestEntity, OffenderPssDetailEvent.class);
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/G7806VO/pss_detail", HttpMethod.GET, requestEntity, OffenderPssDetailEvent.class);
 
         if (responseEntity.getStatusCodeValue()!= 200) {
             fail("PSS detail call failed. Response body : " + responseEntity.getBody());
@@ -173,9 +252,11 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         final var actual = (OffenderPssDetailEvent) responseEntity.getBody();
 
-        assertThat(actual.getNomsId()).isEqualTo("A1404AE");
-        assertThat(actual.getPrisonId()).isEqualTo("MDI");
-        assertThat(actual.getEventData()).isNotNull();
+        assertThat(actual.getNomsId()).isEqualTo("G7806VO");
+        assertThat(actual.getPrisonId()).isEqualTo("LEI");
+        assertThat(actual.getPssDetail()).isNotNull();
+        assertThat(actual.getPssDetail().getOffenderDetails()).isNotNull();
+        assertThat(actual.getPssDetail().getOffenderDetails().getWarningData()).hasSize(2);
     }
 
     @Test

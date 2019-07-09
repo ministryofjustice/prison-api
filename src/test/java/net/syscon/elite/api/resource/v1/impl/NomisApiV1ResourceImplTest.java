@@ -63,15 +63,20 @@ public class NomisApiV1ResourceImplTest {
     @Test
     public void offenderPssDetail() {
 
-        when(service.getOffenderPssDetail(anyString()))
-                .thenReturn(OffenderPssDetailEvent.builder()
-                        .eventType("offender_details_request")
-                        .id(0L)
-                        .eventTimeStamp(LocalDateTime.now())
-                        .prisonId("MDI")
-                        .nomsId("A1404AE")
-                        .eventData("data")
-                        .build());
+
+        final var pssDetailData = PssDetailData.builder().personalData(PssPersonalData.builder().surname("SMITH").build()).build();
+        final var pssOffenderDetail = PssOffenderDetail.builder().offenderDetails(pssDetailData).build();
+
+        final var pssEventData = OffenderPssDetailEvent.builder()
+                .eventType("offender_details_request")
+                .id(0L)
+                .eventTimeStamp(LocalDateTime.now())
+                .prisonId("MDI")
+                .nomsId("A1404AE")
+                .pssDetail(pssOffenderDetail)
+                .build();
+
+        when(service.getOffenderPssDetail(anyString())).thenReturn(pssEventData);
 
         final var event = nomisApiV1Resource.getOffenderPssDetail("A1404AE");
 

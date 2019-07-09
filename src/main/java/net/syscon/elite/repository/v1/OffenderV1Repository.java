@@ -11,7 +11,10 @@ import org.springframework.stereotype.Repository;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.sql.*;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +26,7 @@ import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 @Slf4j
 public class OffenderV1Repository extends RepositoryBase {
 
-    private static final String OFFENDER_DETAILS_REQUEST_TYPE = "OFFENDER_DETAILS_REQUEST_TYPE";
+    private static final String OFFENDER_DETAILS_REQUEST_TYPE = "OFFENDER_DETAILS_REQUEST";
 
     private final GetOffenderDetails getOffenderDetailsProc;
     private final GetOffenderImage getOffenderImageProc;
@@ -64,23 +67,23 @@ public class OffenderV1Repository extends RepositoryBase {
 
         // Last three parameters are hard-coded to null in current NomisAPI too
         final var params = new MapSqlParameterSource()
-                .addValue(P_NOMS_ID, nomsId, Types.VARCHAR)
-                .addValue(P_ROOT_OFFENDER_ID, null, Types.INTEGER)
-                .addValue(P_SINGLE_OFFENDER_ID, null, Types.VARCHAR)
-                .addValue(P_AGY_LOC_ID, null, Types.VARCHAR);
+                .addValue(P_NOMS_ID, nomsId)
+                .addValue(P_ROOT_OFFENDER_ID, null)
+                .addValue(P_SINGLE_OFFENDER_ID, null)
+                .addValue(P_AGY_LOC_ID, null);
 
         try {
 
             final var result = getOffenderPssDetailProc.execute(params);
             if (result.isEmpty()) {
+                log.error("Result of procedure call was empty for {}", nomsId);
                 return Optional.empty();
             }
 
             final var pssDetail = OffenderPssDetailSP.builder()
-                    .id(0L)
+                    .id(Long.valueOf(0L))
                     .eventTimestamp(timestampToCalendar((Timestamp) result.get(P_TIMESTAMP)))
                     .nomsId((String) result.get(P_NOMS_ID))
-                    .rootOffenderId((Long) result.get(P_ROOT_OFFENDER_ID))
                     .singleOffenderId((String) result.get(P_SINGLE_OFFENDER_ID))
                     .prisonId((String) result.get(P_AGY_LOC_ID))
                     .eventType(OFFENDER_DETAILS_REQUEST_TYPE)
@@ -91,6 +94,7 @@ public class OffenderV1Repository extends RepositoryBase {
 
         } catch (Exception sqle) {
 
+            log.error("SQLException from pss_offender_details() = msg{}", sqle.getMessage());
             return Optional.empty();
         }
     }

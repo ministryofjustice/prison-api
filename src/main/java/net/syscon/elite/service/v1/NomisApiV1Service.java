@@ -1,5 +1,8 @@
 package net.syscon.elite.service.v1;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.repository.v1.*;
 import net.syscon.elite.repository.v1.model.*;
@@ -18,6 +21,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1')")
@@ -201,7 +205,7 @@ public class NomisApiV1Service {
                         .eventTimeStamp(LocalDateTime.ofInstant(o.getEventTimestamp().toInstant(), ZoneId.systemDefault()))
                         .id(o.getId())
                         .prisonId(o.getPrisonId())
-                        .eventData(o.getEventData())
+                        .pssDetail(marshallDbJson(o.getEventData()))
                         .build())
                 .orElseThrow(EntityNotFoundException.withId(nomsId));
     }
@@ -219,6 +223,17 @@ public class NomisApiV1Service {
                         .referenceNo(h.getTxnReferenceNumber())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private PssOffenderDetail marshallDbJson(final String dbJson) {
+        PssOffenderDetail pssData = null;
+        try {
+            pssData = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(dbJson, PssOffenderDetail.class);
+        }
+        catch(Exception e) {
+            log.error("Failed to parse/map JSON eventData {} data {}", e.getMessage(), dbJson);
+        }
+        return pssData;
     }
 
     private Long convertToPence(final BigDecimal value) {

@@ -1,8 +1,6 @@
 package net.syscon.elite.repository.v1.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.sql.ResultSet;
 import java.time.LocalDate;
@@ -11,6 +9,8 @@ import java.util.List;
 @Data
 @ToString
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OffenderSP {
 
     private String firstName;

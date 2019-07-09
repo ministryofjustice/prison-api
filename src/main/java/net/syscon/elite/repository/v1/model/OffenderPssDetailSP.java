@@ -7,6 +7,8 @@ import java.util.Calendar;
 @Data
 @ToString(of = {"id","eventTimestamp"})
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OffenderPssDetailSP {
 
     private Long id;
