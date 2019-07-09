@@ -31,7 +31,6 @@ public class Hold {
     private String referenceNo;
 
     @ApiModelProperty(value = "Description", name = "description", example = "Hold via API", position = 4)
-    @JsonProperty("description")
     private String description;
 
     @ApiModelProperty(value = "Entry date", name = "entry_date", example = "2017-06-23", position = 5)
@@ -39,7 +38,6 @@ public class Hold {
     private LocalDate entryDate;
 
     @ApiModelProperty(value = "Amount in pence", name = "amount", example = "150", position = 6)
-    @JsonProperty("amount")
     private Long amount;
 
     @ApiModelProperty(value = "Hold until date", name = "hold_until_date", example = "2017-07-07", position = 7)

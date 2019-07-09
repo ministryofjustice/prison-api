@@ -3,11 +3,14 @@ package net.syscon.elite.service.v1;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.v1.*;
+import net.syscon.elite.api.resource.v1.impl.OffenderIdentifier;
 import net.syscon.elite.repository.v1.*;
 import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1')")
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class NomisApiV1Service {
 
     private final BookingV1Repository bookingV1Repository;
@@ -32,19 +36,8 @@ public class NomisApiV1Service {
     private final LegalV1Repository legalV1Repository;
     private final FinanceV1Repository financeV1Repository;
     private final AlertV1Repository alertV1Repository;
-
-    public NomisApiV1Service(final BookingV1Repository bookingV1Repository,
-                             final OffenderV1Repository offenderV1Repository,
-                             final LegalV1Repository legalV1Repository,
-                             final FinanceV1Repository financeV1Repository,
-                             final AlertV1Repository alertV1Repository) {
-        this.bookingV1Repository = bookingV1Repository;
-        this.offenderV1Repository = offenderV1Repository;
-        this.legalV1Repository = legalV1Repository;
-        this.financeV1Repository = financeV1Repository;
-        this.alertV1Repository = alertV1Repository;
-    }
-
+    private final EventsV1Repository eventsV1Repository;
+    private final PrisonV1Repository prisonV1Repository;
 
     public Location getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
@@ -186,6 +179,29 @@ public class NomisApiV1Service {
         return financeV1Repository.postTransaction(prisonId, nomsId, type, description, amountInPounds, txDate, txId, uniqueClientId);
     }
 
+    public List<Event> getEvents(final String prisonId, final OffenderIdentifier offenderIdentifier, final String eventType, final LocalDateTime fromDateTime, final Long limit) {
+        return eventsV1Repository.getEvents(prisonId,
+                offenderIdentifier.getNomsId(),
+                offenderIdentifier.getRootOffenderId(),
+                offenderIdentifier.getSingleOffenderId(),
+                eventType, fromDateTime, limit)
+                .stream()
+                .map(e -> Event.builder()
+                        .prisonId(e.getAgyLocId())
+                        .nomsId(e.getNomsId())
+                        .id(e.getApiEventId())
+                        .timestamp(e.getEventTimestamp())
+                        .type(e.getEventType())
+                        .eventData(convertToJsonString(e))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private String convertToJsonString(final EventSP e) {
+        final var json = StringUtils.trimToEmpty(e.getEventData_1()) + StringUtils.trimToEmpty(e.getEventData_2()) + StringUtils.trimToEmpty(e.getEventData_3());
+        return StringUtils.defaultIfEmpty(json, "{}");
+    }
+
     public Image getOffenderImage(final String nomsId) {
         final var imageBytes = offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
 
@@ -225,6 +241,10 @@ public class NomisApiV1Service {
                 .collect(Collectors.toList());
     }
 
+    public List<String> getLiveRoll(final String prisonId) {
+        return prisonV1Repository.getLiveRoll(prisonId).stream().map(LiveRollSP::getOffenderIdDisplay).collect(Collectors.toList());
+    }
+
     private PssOffenderDetail marshallDbJson(final String dbJson) {
         PssOffenderDetail pssData = null;
         try {
@@ -235,7 +255,6 @@ public class NomisApiV1Service {
         }
         return pssData;
     }
-
     private Long convertToPence(final BigDecimal value) {
         return value.setScale(2, RoundingMode.HALF_UP).movePointRight(2).longValue();
     }

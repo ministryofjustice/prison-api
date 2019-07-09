@@ -14,6 +14,7 @@ public interface StoreProcMetadata {
     public static final String P_OFFENDER_BOOK_ID     = "p_offender_book_id";
     public static final String P_ROOT_OFFENDER_ID     = "p_root_offender_id";
     public static final String P_SINGLE_OFFENDER_ID   = "p_single_offender_id";
+    
     public static final String P_BOOKING_CSR          = "P_BOOKING_CSR";
     public static final String P_OFFENDER_CSR         = "p_offender_csr";
     public static final String P_AGY_LOC_ID           = "p_agy_loc_id";
@@ -34,10 +35,13 @@ public interface StoreProcMetadata {
     public static final String P_CURRENT_AGY_LOC_ID   = "p_current_agy_loc_id";
     public static final String P_CURRENT_AGY_DESC     = "p_current_agy_desc";
 
-
     public static final String P_CASES_CSR            = "p_cases_csr";
     public static final String P_CHARGES_CSR          = "p_charges_csr";
     public static final String P_CASE_ID              = "p_case_id";
 
     public static final String P_HOLDS_CSR            = "p_holds_csr";
+
+    public static final String P_EVENTS_CSR           = "p_event_csr";
+
+    public static final String P_ROLL_CSR             = "p_roll_csr";
 }

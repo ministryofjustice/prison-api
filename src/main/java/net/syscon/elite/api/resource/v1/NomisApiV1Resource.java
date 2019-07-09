@@ -95,6 +95,34 @@ public interface NomisApiV1Resource {
                      @ApiParam(name = "modified_since", value = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @QueryParam("modified_since") String modifiedSince,
                      @ApiParam(name = "include_inactive", value = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true", defaultValue = "false") @QueryParam("include_inactive") @DefaultValue("false") boolean includeInactive);
 
+    @GET
+    @Path("/offenders/events")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Fetch events",
+            notes = "Returns all events that required to update the prisoner self service application. Currently these are:" +
+                    "<ul><li>ALERT</li>" +
+                    "<li>DISCHARGE</li>" +
+                    "<li>IEP_CHANGED</li>" +
+                    "<li>INTERNAL_LOCATION_CHANGED</li>" +
+                    "<li>NOMS_ID_CHANGED</li>" +
+                    "<li>PERSONAL_DETAILS_CHANGED</li>" +
+                    "<li>PERSONAL_OFFICER_CHANGED</li>" +
+                    "<li>RECEPTION</li>" +
+                    "<li>SENTENCE_INFORMATION_CHANGED</li>" +
+                    "<li>BALANCE_UPDATE</li></ul>")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Events.class),
+            @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Events getOffenderEvents(
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") @QueryParam("prison_id") @Length(max = 3) String prisonId,
+            @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1417AE") @QueryParam("offender_id") String offenderId,
+            @ApiParam(name = "event_type", value = "Event Type", example = "H") @QueryParam("event_type") String eventType,
+            @ApiParam(name = "from_datetime", value = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @QueryParam("from_datetime") String fromDateTime,
+            @ApiParam(name = "limit", value = "Number of events to return", example = "100") @QueryParam("limit") Long limit);
+
     @POST
     @Path("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
     @Consumes({"application/json"})
@@ -196,7 +224,7 @@ public interface NomisApiV1Resource {
             notes = "Gets every hold on an offender’s account or just the hold identified by the client_unique_ref")
     @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Transaction Created", response = Transfer.class),
+            @ApiResponse(code = 200, message = "Transaction Created", response = Hold.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Offender Not Found - No offender matching the specified offender_id has been found on nomis.", response = ErrorResponse.class),
             @ApiResponse(code = 409, message = "Offender not in specified prison", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -205,4 +233,17 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(name = "client_unique_ref", value = "Client unique reference", required = false) @QueryParam("client_unique_ref") @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
+
+    @GET
+    @Path("/prison/{prison_id}/live_roll")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Fetching live roll.")
+    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Transaction Created", response = LiveRoll.class),
+            @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    LiveRoll getLiveRoll(
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId);
 }

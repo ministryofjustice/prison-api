@@ -19,7 +19,7 @@ public class FinanceProcs {
     public static class PostTransaction extends SimpleJdbcCallWithExceptionTranslater {
         public PostTransaction(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
             super(dataSource, errorCodeTranslator);
-            withSchemaName(StoreProcMetadata.API_OWNER)
+            withSchemaName(API_OWNER)
                     .withCatalogName(API_FINANCE_PROCS)
                     .withProcedureName("post_transaction")
                     .withNamedBinding()
@@ -44,7 +44,7 @@ public class FinanceProcs {
     public static class PostTransfer extends SimpleJdbcCallWithExceptionTranslater {
         public PostTransfer(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
             super(dataSource, errorCodeTranslator);
-            withSchemaName(StoreProcMetadata.API_OWNER)
+            withSchemaName(API_OWNER)
                     .withCatalogName(API_FINANCE_PROCS)
                     .withProcedureName("post_transfer")
                     .withNamedBinding()
@@ -71,7 +71,7 @@ public class FinanceProcs {
     public static class GetHolds extends SimpleJdbcCallWithExceptionTranslater {
         public GetHolds(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
             super(dataSource, errorCodeTranslator);
-            withSchemaName(StoreProcMetadata.API_OWNER)
+            withSchemaName(API_OWNER)
                     .withCatalogName(API_FINANCE_PROCS)
                     .withProcedureName("holds")
                     .withNamedBinding()

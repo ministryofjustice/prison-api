@@ -49,11 +49,17 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     }
 
     @Override
-    public Alerts getAlerts(@NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId, final String alertType, final String modifiedSince, final boolean includeInactive) {
+    public Alerts getAlerts(final String nomsId, final String alertType, final String modifiedSince, final boolean includeInactive) {
         final var alerts = service.getAlerts(nomsId, includeInactive, optionalStrToLocalDateTime(modifiedSince)).stream()
                 .filter(a -> alertType == null || a.getType().getCode().equalsIgnoreCase(alertType))
                 .collect(Collectors.toList());
         return Alerts.builder().alerts(alerts).build();
+    }
+
+    @Override
+    public Events getOffenderEvents(final String prisonId, final String offenderId, final String eventType, final String fromDateTime, final Long limit) {
+        final var events = service.getEvents(prisonId, new OffenderIdentifier(offenderId), eventType, optionalStrToLocalDateTime(fromDateTime), limit);
+        return new Events(events);
     }
 
     @Override
@@ -89,6 +95,11 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
         final var uniqueClientId = getUniqueClientId(clientName, clientUniqueRef);
 
         return service.getHolds(prisonId, nomsId, uniqueClientId, clientName);
+    }
+
+    @Override
+    public LiveRoll getLiveRoll(final String prisonId) {
+        return new LiveRoll(service.getLiveRoll(prisonId));
     }
 
     private String getUniqueClientId(final String clientName, final String clientUniqueRef) {

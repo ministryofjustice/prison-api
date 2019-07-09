@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -118,5 +116,21 @@ public class NomisApiV1ResourceImplTest {
         when(service.getHolds(anyString(), anyString(), anyString(), anyString())).thenReturn(holds);
         final var transfer = nomisApiV1Resource.getHolds("client", "prison", "nomis", "ref");
         assertThat(transfer).isEqualTo(holds);
+    }
+
+    @Test
+    public void getEvents() {
+        final var events = List.of(new Event("EVENT", 3L, "noms", "prison", LocalDateTime.now(), "entry"));
+        when(service.getEvents(anyString(), any(), anyString(), any(), anyLong())).thenReturn(events);
+        final var transfer = nomisApiV1Resource.getOffenderEvents("client", null, "nomis", null, 50L);
+        assertThat(transfer).isEqualTo(new Events(events));
+    }
+
+    @Test
+    public void getLiveRoll() {
+        final var liveRoll = List.of("bob", "joe");
+        when(service.getLiveRoll(anyString())).thenReturn(liveRoll);
+        final var roll = nomisApiV1Resource.getLiveRoll("any");
+        assertThat(roll).isEqualTo(new LiveRoll(liveRoll));
     }
 }

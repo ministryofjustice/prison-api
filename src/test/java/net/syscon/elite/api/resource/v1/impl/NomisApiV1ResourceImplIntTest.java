@@ -7,14 +7,17 @@ import net.syscon.elite.api.model.v1.OffenderPssDetailEvent;
 import net.syscon.elite.api.resource.impl.ResourceTest;
 import net.syscon.elite.repository.v1.model.AliasSP;
 import net.syscon.elite.repository.v1.model.OffenderSP;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransaction;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransfer;
-import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
-import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderImage;
-import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderPssDetail;
 import net.syscon.elite.api.model.v1.Hold;
+import net.syscon.elite.api.model.v1.Events;
+import net.syscon.elite.api.model.v1.Hold;
+import net.syscon.elite.api.model.v1.LiveRoll;
+import net.syscon.elite.repository.v1.model.EventSP;
 import net.syscon.elite.repository.v1.model.HoldSP;
+import net.syscon.elite.repository.v1.model.LiveRollSP;
+import net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
+import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.*;
+import net.syscon.elite.repository.v1.storedprocs.PrisonProcs.*;
 import oracle.sql.BlobDBAccess;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +38,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +46,7 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static org.assertj.core.api.Assertions.fail;
 import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
+import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -88,6 +93,18 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         public GetHolds getHolds() {
             return Mockito.mock(GetHolds.class);
         }
+
+        @Bean
+        @Primary
+        public GetEvents getEvents() {
+            return Mockito.mock(GetEvents.class);
+        }
+
+        @Bean
+        @Primary
+        public GetLiveRoll getLiveRoll() {
+            return Mockito.mock(GetLiveRoll.class);
+        }
     }
 
     @Autowired
@@ -107,6 +124,12 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetHolds getHolds;
+
+    @Autowired
+    private GetEvents getEvents;
+
+    @Autowired
+    private GetLiveRoll getLiveRoll;
 
     @Test
     public void transferTransaction() {
@@ -340,5 +363,63 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         assertThat(new JsonContent<Hold>(getClass(), forType(Hold.class), responseEntity.getBody())).isEqualToJson("holds.json");
 
         assertThat(captor.getValue().getValue(P_CLIENT_UNIQUE_REF)).isEqualTo("some-client-some-reference");
+    }
+
+    @Test
+    public void getEvents() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        final var events = List.of(
+                new EventSP(3L, null, "LEI", "AB1256B", "type", null, null,
+                        "{\"case_note\":{\"id\":47004657,\"contact_datetime\":\"2019-03-31 00:00:00\"\n" +
+                                ",\"source\":{\"code\":\"AUTO\"\n" +
+                                ",\"desc\":\"System\"\n" +
+                                "},\"type\":{\"code\":\"ALERT\"\n" +
+                                ",\"desc\":\"Alert\"\n" +
+                                "},\"sub_type\":{\"code\":\"INACTIVE\"\n" +
+                                ",\"desc\":\"Made Inactive\"\n" +
+                                "},\"staff_member\":{\"id\":1,\"name\":\"Cnomis, Admin&Onb\"\n" +
+                                ",\"userid\":\"\"\n" +
+                                "},\"text\":\"Alert Other and Charged under Harassment Act made inactive.\"\n" +
+                                ",\"amended\":false}}"),
+                new EventSP(4L, LocalDateTime.of(2018, 12, 30, 23, 59, 10, 12456), "MDI", "BC1256B", "type2", null,
+                        "{\"account\":{\"code\":\"REG\"\n" +
+                                ",\"desc\":\"Private Cash\"\n" +
+                                "},\"balance\":0}", null),
+                new EventSP(5L, null, "MDI", "CD1256B", "type3", null, null, null)
+        );
+
+        final var captor = ArgumentCaptor.forClass(SqlParameterSource.class);
+        when(getEvents.execute(captor.capture())).thenReturn(Map.of(P_EVENTS_CSR, events));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/events?prison_id=MDI&offender_id=A1492AE&event_type=e&from_datetime=2019-07-07 07:15:20.090&limit=100", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(captor.getValue().getValue(P_AGY_LOC_ID)).isEqualTo("MDI");
+        assertThat(captor.getValue().getValue(P_NOMS_ID)).isEqualTo("A1492AE");
+        assertThat(captor.getValue().getValue(P_ROOT_OFFENDER_ID)).isNull();
+        assertThat(captor.getValue().getValue(P_SINGLE_OFFENDER_ID)).isNull();
+        assertThat(captor.getValue().getValue(P_EVENT_TYPE)).isEqualTo("e");
+        assertThat(captor.getValue().getValue(P_FROM_TS)).isEqualTo(LocalDateTime.parse("2019-07-07T07:15:20.090"));
+        assertThat(captor.getValue().getValue(P_LIMIT)).isEqualTo(100L);
+
+        //noinspection ConstantConditions
+        assertThat(new JsonContent<Events>(getClass(), forType(Events.class), responseEntity.getBody())).isEqualToJson("events.json");
+    }
+
+    @Test
+    public void getLiveRoll() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        final var roll = List.of(new LiveRollSP("A12345B"), new LiveRollSP("B23456C"));
+
+        final var captor = ArgumentCaptor.forClass(SqlParameterSource.class);
+        when(getLiveRoll.execute(captor.capture())).thenReturn(Map.of(P_ROLL_CSR, roll));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/MDI/live_roll", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(captor.getValue().getValue(P_AGY_LOC_ID)).isEqualTo("MDI");
+
+        //noinspection ConstantConditions
+        assertThat(new JsonContent<LiveRoll>(getClass(), forType(LiveRoll.class), responseEntity.getBody())).isEqualToJson("roll.json");
     }
 }
