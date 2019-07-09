@@ -870,7 +870,7 @@ public class InmateRepositoryTest {
     @Transactional
     public void testApproveCategoryHandlesNoPreviousCategorisation() {
         final var catDetail = CategoryApprovalDetail.builder()
-                .bookingId(-34L)
+                .bookingId(-36L)
                 .category("C")
                 .evaluationDate(LocalDate.of(2019, 2, 27))
                 .approvedCategoryComment("My comment")
@@ -884,7 +884,7 @@ public class InmateRepositoryTest {
         repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
 
 
-        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -34 order by ASSESSMENT_SEQ asc");
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -36 order by ASSESSMENT_SEQ asc");
 
         // confirm single categorisation is active
         assertThat(results).asList()
