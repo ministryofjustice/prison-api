@@ -674,6 +674,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     public void approveCategory(final CategoryApprovalDetail detail, final UserDetail currentUser) {
         final var assessmentId = getCategoryAssessmentId();
         final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
+        // get all active or pending categorisation sequences ordered desc
         final var sequences = jdbcTemplate.query(
                 getQuery("GET_ACTIVE_OFFENDER_CATEGORY_SEQUENCES"),
                 createParams("bookingId", detail.getBookingId(),
@@ -686,7 +687,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         }
 
         final var maxSequence = sequences.get(0);
-        final var result = jdbcTemplate.update(
+        final var approvalResult = jdbcTemplate.update(
                 getQuery("APPROVE_CATEGORY"),
                 createParams("bookingId", detail.getBookingId(),
                         "seq", maxSequence,
@@ -703,27 +704,28 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "dateTime", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now()))
                 )
         );
-        if (result != 1) {
+        if (approvalResult != 1) {
             throw new BadRequestException(String.format("No pending category assessment found, category %.10s, booking %d, seq %d",
                     detail.getCategory(),
                     detail.getBookingId(),
                     maxSequence));
         }
         if (sequences.size() > 1) {
-            final var previousSequence = sequences.get(1);
-            final var result2 = jdbcTemplate.update(
+            final var previousSequences = sequences.stream().skip(1)
+                    .collect(Collectors.toList());
+            final var updatePreviousResult = jdbcTemplate.update(
                     getQuery("APPROVE_CATEGORY_SET_STATUS"),
                     createParams("bookingId", detail.getBookingId(),
-                            "seq", previousSequence,
+                            "seq", previousSequences,
                             "assessStatus", "I",
                             "userId", currentUser.getUsername(),
                             "dateTime", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now()))
                     )
             );
-            if (result2 != 1) {
-                throw new BadRequestException(String.format("Previous category assessment not found, booking %d, seq %d",
+            if (updatePreviousResult < 1) {
+                throw new BadRequestException(String.format("Previous category assessment not found, booking %d, seq %s",
                         detail.getBookingId(),
-                        previousSequence));
+                        previousSequences));
             }
         }
     }
