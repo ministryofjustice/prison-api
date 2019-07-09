@@ -704,7 +704,6 @@ public class InmateRepositoryTest {
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate")
                 .containsExactly(
-                        Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", "B", LocalDate.of(2016, 03, 8)),
                         Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7)),
                         Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7))
                 );
