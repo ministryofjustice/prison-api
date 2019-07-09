@@ -433,7 +433,7 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     @VerifyBookingAccess
-    @PreAuthorize("hasRole('CREATE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('CREATE_CATEGORISATION,CREATE_RECATEGORISATION')")
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
