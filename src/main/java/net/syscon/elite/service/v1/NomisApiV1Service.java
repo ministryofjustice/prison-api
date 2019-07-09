@@ -38,6 +38,7 @@ public class NomisApiV1Service {
     private final AlertV1Repository alertV1Repository;
     private final EventsV1Repository eventsV1Repository;
     private final PrisonV1Repository prisonV1Repository;
+    private final ObjectMapper objectMapper;
 
     public Location getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
@@ -244,7 +245,7 @@ public class NomisApiV1Service {
     private PssOffenderDetail marshallDbJson(final String dbJson) {
         PssOffenderDetail pssData = null;
         try {
-            pssData = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(dbJson, PssOffenderDetail.class);
+            pssData = objectMapper.readValue(dbJson, PssOffenderDetail.class);
         }
         catch(Exception e) {
             log.error("Failed to parse/map JSON eventData {} data {}", e.getMessage(), dbJson);
