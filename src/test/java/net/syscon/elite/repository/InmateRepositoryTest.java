@@ -639,8 +639,7 @@ public class InmateRepositoryTest {
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED, null),
                 Tuple.tuple("A1234AC", -3L, "NORMAN", "BATES", UNCATEGORISED, "X"),
                 Tuple.tuple("A1234AD", -4L, "CHARLES", "CHAPLIN", UNCATEGORISED, "U"),
-                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", UNCATEGORISED, "Z"),
-                Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED, null));
+                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", UNCATEGORISED, "Z"));
 
         assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status",
                 "categoriserFirstName", "categoriserLastName", "category").contains(
@@ -833,6 +832,64 @@ public class InmateRepositoryTest {
         assertThat((Date) results.get(1).get("MODIFY_DATETIME")).isToday();
         assertThat((Timestamp) results.get(1).get("EVALUATION_DATE")).isCloseTo("2019-02-27T00:00:00.000", 1000);
         assertThat((Timestamp) results.get(1).get("NEXT_REVIEW_DATE")).isCloseTo("2019-07-24T00:00:00.000", 1000);
+    }
+
+    @Test
+    @Transactional
+    public void testApproveCategoryHandlesMultipleActiveCategorisations() {
+        final var catDetail = CategoryApprovalDetail.builder()
+                .bookingId(-32L)
+                .category("C")
+                .evaluationDate(LocalDate.of(2019, 2, 27))
+                .approvedCategoryComment("My comment")
+                .reviewCommitteeCode("REVIEW")
+                .committeeCommentText("committeeCommentText")
+                .nextReviewDate(LocalDate.of(2019, 7, 24))
+                .build();
+
+
+        // 4 cateorisation records with status Inactive, Active, Inactive, Pending
+        repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
+
+
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 order by ASSESSMENT_SEQ asc");
+
+        // after making the pending cat active should make any earlier categorisation inactive (regardless of order)
+        assertThat(results).asList()
+                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"), extractString("MODIFY_USER_ID"))
+                .contains(Tuple.tuple(1, "I", "KDOG"),Tuple.tuple(2, "I", "ITAG_USER"),Tuple.tuple(3, "I", "KDOG"),Tuple.tuple(4, "A", "KDOG")
+                );
+        assertThat((Date) results.get(3).get("MODIFY_DATETIME")).isToday();
+        assertThat((Timestamp) results.get(3).get("EVALUATION_DATE")).isNotNull();
+        assertThat((Date) results.get(0).get("MODIFY_DATETIME")).isToday();
+        assertThat((Date) results.get(2).get("MODIFY_DATETIME")).isToday();
+        assertThat((Date) results.get(3).get("MODIFY_DATETIME")).isToday();
+    }
+
+    @Test
+    @Transactional
+    public void testApproveCategoryHandlesNoPreviousCategorisation() {
+        final var catDetail = CategoryApprovalDetail.builder()
+                .bookingId(-36L)
+                .category("C")
+                .evaluationDate(LocalDate.of(2019, 2, 27))
+                .approvedCategoryComment("My comment")
+                .reviewCommitteeCode("REVIEW")
+                .committeeCommentText("committeeCommentText")
+                .nextReviewDate(LocalDate.of(2019, 7, 24))
+                .build();
+
+
+        // 1 pending cateorisation record
+        repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
+
+
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -36 order by ASSESSMENT_SEQ asc");
+
+        // confirm single categorisation is active
+        assertThat(results).asList()
+                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"), extractString("MODIFY_USER_ID"))
+                .contains(Tuple.tuple(1, "A", "KDOG"));
     }
 
     @Test
