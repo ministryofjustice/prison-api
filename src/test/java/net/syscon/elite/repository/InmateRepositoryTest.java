@@ -710,6 +710,18 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testGetRecategoriseIgnoresEarlierPendingOrActive() {
+        // booking id -37 has 3 active or pending categorisation records
+        final var list = repository.getRecategorise("WAI", LocalDate.of(2019, 6, 7));
+
+        assertThat(list)
+                .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate", "assessmentSeq")
+                .containsExactly(
+                        Tuple.tuple("A1181MV", -37L, "MICHAEL", "O'VAUGHAN", "B", LocalDate.of(2016, 8, 8), 3)
+                );
+    }
+
+    @Test
     public void testGetALLActiveAssessments() {
         final var list = repository.findAssessmentsByOffenderNo(
                 List.of("A1234AF"), "CATEGORY", Collections.emptySet(), false, true);
