@@ -1,16 +1,17 @@
 package net.syscon.elite.api.model.v1;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import net.syscon.elite.api.model.v1.Event.EventSerializer;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-
-import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
+import java.time.format.DateTimeFormatter;
 
 @ApiModel(description = "Offender Event")
 @Data
@@ -19,7 +20,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @Builder
 @EqualsAndHashCode
 @ToString
-@JsonInclude(Include.NON_NULL)
+@JsonSerialize(using = EventSerializer.class)
 public class Event {
 
     @ApiModelProperty(value = "Type of event", required = true, example = "IEP_CHANGED", position = 1)
@@ -31,9 +32,24 @@ public class Event {
     @ApiModelProperty(name = "prison_id", value = "Prison ID", example = "BMI", required = true, position = 4)
     private String prisonId;
     @ApiModelProperty(name = "timestamp", value = "Daten and time the event occurred", example = "2016-10-21 15:55:06.284", required = true, position = 5)
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime timestamp;
 
-    @JsonRawValue
     private String eventData;
+
+    public static class EventSerializer extends JsonSerializer<Event> {
+        private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+
+        public void serialize(final Event event, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
+            jgen.writeStartObject();
+            jgen.writeStringField("type", event.getType());
+            jgen.writeNumberField("id", event.getId());
+            jgen.writeStringField("noms_id", event.getNomsId());
+            jgen.writeStringField("prison_id", event.getPrisonId());
+            jgen.writeStringField("timestamp", event.getTimestamp().format(DATE_TIME_FORMATTER));
+            // Write value as raw data, since it's already JSON text
+            jgen.writeFieldName(event.getType().toLowerCase());
+            jgen.writeRawValue(event.getEventData());
+            jgen.writeEndObject();
+        }
+    }
 }

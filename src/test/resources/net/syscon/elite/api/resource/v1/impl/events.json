@@ -1,11 +1,12 @@
 {
   "events": [
     {
-      "type": "type",
+      "type": "ALERT",
       "id": 3,
-      "nomsId": "AB1256B",
-      "prisonId": "LEI",
-      "eventData": {
+      "noms_id": "AB1256B",
+      "prison_id": "LEI",
+      "timestamp": "2019-03-31 00:01:00.124",
+      "alert": {
         "case_note": {
           "id": 47004657,
           "contact_datetime": "2019-03-31 00:00:00",
@@ -32,12 +33,12 @@
       }
     },
     {
-      "type": "type2",
+      "type": "INTERNAL_LOCATION_CHANGED",
       "id": 4,
-      "nomsId": "BC1256B",
-      "prisonId": "MDI",
-      "timestamp": "2018-12-30 23:59:10.000",
-      "eventData": {
+      "noms_id": "BC1256B",
+      "prison_id": "MDI",
+      "timestamp": "2019-04-30 00:00:01.234",
+      "internal_location_changed": {
         "account": {
           "code": "REG",
           "desc": "Private Cash"
@@ -46,11 +47,12 @@
       }
     },
     {
-      "type": "type3",
+      "type": "PERSONAL_DETAILS_CHANGED",
       "id": 5,
-      "nomsId": "CD1256B",
-      "prisonId": "MDI",
-      "eventData": {}
+      "noms_id": "CD1256B",
+      "prison_id": "MDI",
+      "timestamp": "2019-03-31 00:00:01.000",
+      "personal_details_changed": {}
     }
   ]
 }
