@@ -448,6 +448,9 @@ select
     ob.offender_book_id      as booking_id,
     o.last_name,
     o.first_name,
+    off_ass.assessment_seq,
+    off_ass.assessment_date,
+    off_ass.evaluation_date as approval_date,
     COALESCE(off_ass.review_sup_level_type, off_ass.overrided_sup_level_type, off_ass.calc_sup_level_type) as category,
     off_ass.next_review_date
 from
@@ -456,7 +459,7 @@ from
     join offenders         o  on ob.offender_id      = o.offender_id
 where ob.agy_loc_id = :agencyId
   and off_ass.next_review_date <= :cutOffDate
-  and off_ass.assess_status = :assessStatus
+  and off_ass.assess_status in (:assessStatus)
   and off_ass.assessment_type_id = :assessmentId
 order by off_ass.next_review_date asc
 }

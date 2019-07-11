@@ -354,7 +354,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
 
         final var events = List.of(
-                new EventSP(3L, null, "LEI", "AB1256B", "type", null, null,
+                new EventSP(3L, LocalDateTime.parse("2019-03-31T00:01:00.12456"), "LEI", "AB1256B", "ALERT", null, null,
                         "{\"case_note\":{\"id\":47004657,\"contact_datetime\":\"2019-03-31 00:00:00\"\n" +
                                 ",\"source\":{\"code\":\"AUTO\"\n" +
                                 ",\"desc\":\"System\"\n" +
@@ -366,11 +366,11 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
                                 ",\"userid\":\"\"\n" +
                                 "},\"text\":\"Alert Other and Charged under Harassment Act made inactive.\"\n" +
                                 ",\"amended\":false}}"),
-                new EventSP(4L, LocalDateTime.of(2018, 12, 30, 23, 59, 10, 12456), "MDI", "BC1256B", "type2", null,
+                new EventSP(4L, LocalDateTime.parse("2019-04-30T00:00:01.234567"), "MDI", "BC1256B", "INTERNAL_LOCATION_CHANGED", null,
                         "{\"account\":{\"code\":\"REG\"\n" +
                                 ",\"desc\":\"Private Cash\"\n" +
                                 "},\"balance\":0}", null),
-                new EventSP(5L, null, "MDI", "CD1256B", "type3", null, null, null)
+                new EventSP(5L, LocalDateTime.parse("2019-03-31T00:00:01"), "MDI", "CD1256B", "PERSONAL_DETAILS_CHANGED", null, null, null)
         );
 
         final var captor = ArgumentCaptor.forClass(SqlParameterSource.class);
