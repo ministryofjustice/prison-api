@@ -1,6 +1,8 @@
 package net.syscon.elite.service.v1;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.v1.impl.OffenderIdentifier;
 import net.syscon.elite.repository.v1.*;
@@ -20,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1')")
@@ -33,6 +36,7 @@ public class NomisApiV1Service {
     private final AlertV1Repository alertV1Repository;
     private final EventsV1Repository eventsV1Repository;
     private final PrisonV1Repository prisonV1Repository;
+    private final ObjectMapper objectMapper;
 
     public Location getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
@@ -201,6 +205,20 @@ public class NomisApiV1Service {
         final var imageBytes = offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
 
         return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
+    }
+
+    public Event getOffenderPssDetail(final String nomsId)  {
+
+        return offenderV1Repository.getOffenderPssDetail(nomsId)
+                .map(e -> Event.builder()
+                        .type(e.getEventType())
+                        .nomsId(e.getNomsId())
+                        .timestamp(e.getEventTimestamp())
+                        .id(e.getApiEventId())
+                        .prisonId(e.getAgyLocId())
+                        .eventData(e.getEventData_1())
+                        .build())
+                .orElseThrow(EntityNotFoundException.withId(nomsId));
     }
 
     public List<Hold> getHolds(final String prisonId, final String nomsId, final String uniqueClientId, final String clientName) {

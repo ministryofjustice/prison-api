@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NomisApiV1ResourceImplTest {
@@ -60,6 +59,46 @@ public class NomisApiV1ResourceImplTest {
     }
 
     @Test
+    public void offenderPssDetail() {
+
+        final var testEvent = Event.builder().id(0L).nomsId("A4014AE").prisonId("MDI").timestamp(LocalDateTime.now()).eventData("data").build();
+
+        when(service.getOffenderPssDetail(anyString())).thenReturn(testEvent);
+        final var actualEvent = nomisApiV1Resource.getOffenderPssDetail("A1404AE");
+
+        assertThat(actualEvent).isEqualTo(testEvent);
+
+        verify(service).getOffenderPssDetail(anyString());
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    public void offenderDetail() {
+
+        when(service.getOffender(anyString())).thenReturn(Offender.builder().nomsId("A1404AE").build());
+
+        final var offender = nomisApiV1Resource.getOffender("A1404AE");
+
+        assertThat(offender).extracting("nomsId").contains("A1404AE");
+
+        verify(service).getOffender(anyString());
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    public void offenderImage() {
+
+        when(service.getOffenderImage(anyString())).thenReturn(Image.builder().image("ABCDEFGHI").build());
+
+        final var event = nomisApiV1Resource.getOffenderImage("A1404AE");
+
+        assertThat(event).extracting("image").contains("ABCDEFGHI");
+
+        verify(service).getOffenderImage(anyString());
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test    
     public void getHolds() {
         final var holds = List.of(new Hold(3L, "ref", "12345", "entry", null, 12345L, null));
         when(service.getHolds(anyString(), anyString(), anyString(), anyString())).thenReturn(holds);

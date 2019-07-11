@@ -194,6 +194,22 @@ public interface NomisApiV1Resource {
             @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
 
     @GET
+    @Path("/offenders/{noms_id}/pss_detail")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get the PSS detail by offender",
+            notes = "Returns the PSS detail information for the specified offender including personal data, warnings, sentence details and location information.<br/>" +
+                    "<ul><li>The 'type' field is always OFFENDER_DETAILS_REQUEST</li><br/>" +
+                    "<li>The field 'offender_details_request' contains a JSON block of data containing the offender data.</li></ul>" +
+                    "The format of 'offender_details_request' is not specified here.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Event.class),
+            @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Event getOffenderPssDetail(@ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
+
+    @GET
     @Path("/prison/{prison_id}/offenders/{noms_id}/holds")
     @Consumes({"application/json"})
     @Produces({"application/json"})

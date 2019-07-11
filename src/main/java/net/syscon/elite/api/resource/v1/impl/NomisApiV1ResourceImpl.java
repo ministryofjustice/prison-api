@@ -109,4 +109,9 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
         return StringUtils.isNotBlank(clientName) ? clientName + "-" + clientUniqueRef : clientUniqueRef;
     }
 
+    @Override
+    public Event getOffenderPssDetail(final String nomsId) {
+
+        return service.getOffenderPssDetail(nomsId);
+    }
 }
