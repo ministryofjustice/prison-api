@@ -196,8 +196,6 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         assertThat(captor.getValue().getValue(P_FROM_TS)).isEqualTo(LocalDateTime.parse("2019-07-07T07:15:20.090"));
         assertThat(captor.getValue().getValue(P_LIMIT)).isEqualTo(100L);
 
-
-        System.out.println(responseEntity.getBody());
         //noinspection ConstantConditions
         assertThat(new JsonContent<Events>(getClass(), forType(Events.class), responseEntity.getBody())).isEqualToJson("events.json");
     }
