@@ -99,7 +99,7 @@ public class OffenderV1Repository extends RepositoryBase {
             return response;
         }
         catch(final SQLException | IOException e) {
-            log.error("Exception in PSS detail response clobToString {}" + e.getClass().getName(),e);
+            log.error("Exception in PSS detail response clobToString {}",e.getClass().getName(),e);
             throw new RuntimeException(e.getMessage());
         }
     }
