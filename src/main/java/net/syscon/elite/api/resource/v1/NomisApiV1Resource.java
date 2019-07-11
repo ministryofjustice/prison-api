@@ -223,4 +223,33 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     LiveRoll getLiveRoll(
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId);
+
+
+    @POST
+    @Path("/prison/{prison_id}/offenders/{noms_id}/payment")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Store a payment for an offender account.",
+            notes = "Pay events will be stored in a table on receipt by Nomis to be processed by a batch job scheduled to run after the last Nomis payroll batch job but before the advances and scheduled payments batch jobs.\n" +
+                    "<br/>" +
+                    "Possible payment types are:<br/>" +
+                    "<table>" +
+                    "<tr><td>A_EARN</td><td>Credit, Offender Payroll</td></tr>" +
+                    "<tr><td>ADJ</td><td>Debit, Adjudication Award</td></tr>" +
+                    "</table>" +
+                    "<br/>" +
+                    "The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>" +
+                    "This will be setup by script intially as part of the deployment process as shown below<br/><br/>")
+    @ResponseStatus(value = HttpStatus.OK, reason = "Payment accepted")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Payment accepted", response = Transaction.class),
+            @ApiResponse(code = 400, message = "One of: <ul><li>Offender not in specified prison - prisoner identified by {noms_id} is not in prison {prison_id}</li><li>Invalid payment type</li>" +
+                    "<li>Exception - An unexpected error has occurred. Details will have been logged in the nomis_api_logs table on the Nomis database.</li></ul>", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 409, message = "Duplicate post - The unique_client_ref has been used before", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Transaction storePayment(
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
+            @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
+            @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
 }
