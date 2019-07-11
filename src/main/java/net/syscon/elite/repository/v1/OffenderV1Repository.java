@@ -74,7 +74,7 @@ public class OffenderV1Repository extends RepositoryBase {
 
         final var result = getOffenderPssDetailProc.execute(params);
         if (result.isEmpty()) {
-            log.error("Result of procedure call was empty for {}", nomsId);
+            log.info("Result of procedure call was empty for {}", nomsId);
             return Optional.empty();
         }
 
@@ -91,19 +91,16 @@ public class OffenderV1Repository extends RepositoryBase {
     }
 
     private String clobToString(final Clob clobField) {
-        var response = "";
         try {
-            StringBuilder sb = new StringBuilder();
             Reader reader = clobField.getCharacterStream();
-            response = IOUtils.toString(reader);
+            final var response = IOUtils.toString(reader);
             // Free resources associated with this Clob field - may cause write to temporary tablespace.
             clobField.free();
+            return response;
         }
         catch(final SQLException | IOException e) {
-            final String errString = "Exception in PSS detail response " + e.getClass().getName() + " " + e;
-            log.error(errString);
-            response = null;
+            log.error("Exception in PSS detail response clobToString {}" + e.getClass().getName(),e);
+            throw new RuntimeException(e.getMessage());
         }
-        return response;
     }
 }
