@@ -1,6 +1,5 @@
 package net.syscon.elite.api.model.v1;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -13,8 +12,6 @@ import net.syscon.elite.api.model.v1.Event.EventSerializer;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
-import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @ApiModel(description = "Offender Event")
 @Data
@@ -35,7 +32,6 @@ public class Event {
     @ApiModelProperty(name = "prison_id", value = "Prison ID", example = "BMI", required = true, position = 4)
     private String prisonId;
     @ApiModelProperty(name = "timestamp", value = "Daten and time the event occurred", example = "2016-10-21 15:55:06.284", required = true, position = 5)
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime timestamp;
 
     private String eventData;
