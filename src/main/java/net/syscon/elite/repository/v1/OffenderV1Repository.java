@@ -2,19 +2,19 @@ package net.syscon.elite.repository.v1;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.repository.impl.RepositoryBase;
-import net.syscon.elite.repository.v1.model.OffenderPssDetailSP;
+import net.syscon.elite.repository.v1.model.EventSP;
 import net.syscon.elite.repository.v1.model.OffenderSP;
 import org.apache.commons.io.IOUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +63,7 @@ public class OffenderV1Repository extends RepositoryBase {
         }
     }
 
-    public Optional<OffenderPssDetailSP> getOffenderPssDetail(final String nomsId) {
+    public Optional<EventSP> getOffenderPssDetail(final String nomsId) {
 
         // Last three parameters are hard-coded to null in current NomisAPI too
         final var params = new MapSqlParameterSource()
@@ -72,56 +72,38 @@ public class OffenderV1Repository extends RepositoryBase {
                 .addValue(P_SINGLE_OFFENDER_ID, null)
                 .addValue(P_AGY_LOC_ID, null);
 
-        try {
-
-            final var result = getOffenderPssDetailProc.execute(params);
-            if (result.isEmpty()) {
-                log.error("Result of procedure call was empty for {}", nomsId);
-                return Optional.empty();
-            }
-
-            final var pssDetail = OffenderPssDetailSP.builder()
-                    .id(Long.valueOf(0L))
-                    .eventTimestamp(timestampToCalendar((Timestamp) result.get(P_TIMESTAMP)))
-                    .nomsId((String) result.get(P_NOMS_ID))
-                    .singleOffenderId((String) result.get(P_SINGLE_OFFENDER_ID))
-                    .prisonId((String) result.get(P_AGY_LOC_ID))
-                    .eventType(OFFENDER_DETAILS_REQUEST_TYPE)
-                    .eventData(clobToString((Clob)result.get(P_DETAILS_CLOB)))
-                    .build();
-
-            return Optional.ofNullable(pssDetail);
-
-        } catch (Exception sqle) {
-
-            log.error("SQLException from pss_offender_details() = msg{}", sqle.getMessage());
+        final var result = getOffenderPssDetailProc.execute(params);
+        if (result.isEmpty()) {
+            log.error("Result of procedure call was empty for {}", nomsId);
             return Optional.empty();
         }
+
+        var pssDetail = EventSP.builder()
+                .apiEventId(0L)
+                .eventTimestamp(((Timestamp) result.get(P_TIMESTAMP)).toLocalDateTime())
+                .nomsId((String) result.get(P_NOMS_ID))
+                .agyLocId((String) result.get(P_AGY_LOC_ID))
+                .eventType(OFFENDER_DETAILS_REQUEST_TYPE)
+                .eventData_1(clobToString((Clob)result.get(P_DETAILS_CLOB)))
+                .build();
+
+        return Optional.ofNullable(pssDetail);
     }
 
-    private Calendar timestampToCalendar(final Timestamp from) {
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(from.getTime());
-
-        return calendar;
-    }
-
-    private String clobToString(final Clob clobField) throws SQLException, IOException {
-
-        StringBuilder sb = new StringBuilder();
-        Reader reader = clobField.getCharacterStream();
-        BufferedReader br = new BufferedReader(reader);
-        String line;
-
-        while(null != (line = br.readLine())) {
-           sb.append(line);
+    private String clobToString(final Clob clobField) {
+        var response = "";
+        try {
+            StringBuilder sb = new StringBuilder();
+            Reader reader = clobField.getCharacterStream();
+            response = IOUtils.toString(reader);
+            // Free resources associated with this Clob field - may cause write to temporary tablespace.
+            clobField.free();
         }
-        br.close();
-
-        // Free resources associated with this Clob field - may cause write to temporary tablespace
-        clobField.free();
-
-        return sb.toString();
+        catch(final SQLException | IOException e) {
+            final String errString = "Exception in PSS detail response " + e.getClass().getName() + " " + e;
+            log.error(errString);
+            response = null;
+        }
+        return response;
     }
 }

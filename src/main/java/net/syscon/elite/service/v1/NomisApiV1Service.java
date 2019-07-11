@@ -1,7 +1,6 @@
 package net.syscon.elite.service.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.v1.*;
@@ -20,7 +19,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -209,16 +207,16 @@ public class NomisApiV1Service {
         return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
     }
 
-    public OffenderPssDetailEvent getOffenderPssDetail(final String nomsId) {
+    public Event getOffenderPssDetail(final String nomsId)  {
 
         return offenderV1Repository.getOffenderPssDetail(nomsId)
-                .map(o -> OffenderPssDetailEvent.builder()
-                        .eventType(o.getEventType())
-                        .nomsId(o.getNomsId())
-                        .eventTimeStamp(LocalDateTime.ofInstant(o.getEventTimestamp().toInstant(), ZoneId.systemDefault()))
-                        .id(o.getId())
-                        .prisonId(o.getPrisonId())
-                        .pssDetail(marshallDbJson(o.getEventData()))
+                .map(e -> Event.builder()
+                        .type(e.getEventType())
+                        .nomsId(e.getNomsId())
+                        .timestamp(e.getEventTimestamp())
+                        .id(e.getApiEventId())
+                        .prisonId(e.getAgyLocId())
+                        .eventData(e.getEventData_1())
                         .build())
                 .orElseThrow(EntityNotFoundException.withId(nomsId));
     }
@@ -242,16 +240,6 @@ public class NomisApiV1Service {
         return prisonV1Repository.getLiveRoll(prisonId).stream().map(LiveRollSP::getOffenderIdDisplay).collect(Collectors.toList());
     }
 
-    private PssOffenderDetail marshallDbJson(final String dbJson) {
-        PssOffenderDetail pssData = null;
-        try {
-            pssData = objectMapper.readValue(dbJson, PssOffenderDetail.class);
-        }
-        catch(Exception e) {
-            log.error("Failed to parse/map JSON eventData {} data {}", e.getMessage(), dbJson);
-        }
-        return pssData;
-    }
     private Long convertToPence(final BigDecimal value) {
         return value.setScale(2, RoundingMode.HALF_UP).movePointRight(2).longValue();
     }

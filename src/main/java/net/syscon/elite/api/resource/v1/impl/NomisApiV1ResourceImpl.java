@@ -110,7 +110,7 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     }
 
     @Override
-    public OffenderPssDetailEvent getOffenderPssDetail(final String nomsId) {
+    public Event getOffenderPssDetail(final String nomsId) {
 
         return service.getOffenderPssDetail(nomsId);
     }

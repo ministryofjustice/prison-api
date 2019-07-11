@@ -28,8 +28,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -161,7 +159,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
     public void getOffenderPssDetail() throws SQLException {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
-        final var exampleJson = "{\n" +
+        final var eventData = "{\n" +
                 "        \"offender_details\": {\n" +
                 "            \"personal_details\": {\n" +
                 "                \"offender_surname\": \"ABDORIA\",\n" +
@@ -240,11 +238,8 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
                 "        }\n" +
                 "     }";
 
-        final var testClob = new javax.sql.rowset.serial.SerialClob(exampleJson.toCharArray());
-        final var timestamp = Timestamp.valueOf(LocalDateTime.now());
-        final var localDateTime = LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.systemDefault());
-        final var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-        final var expectedTime = formatter.format(localDateTime);
+        final var testClob = new javax.sql.rowset.serial.SerialClob(eventData.toCharArray());
+        final var timestamp = Timestamp.valueOf("2019-07-09 00:00:00.000");
 
         final var procedureResponse = Map.of(
                 P_NOMS_ID, (Object) "G7806VO",
@@ -256,27 +251,16 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         when(offenderPssDetail.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
 
-        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/G7806VO/pss_detail", HttpMethod.GET, requestEntity, OffenderPssDetailEvent.class);
-
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/G7806VO/pss_detail", HttpMethod.GET, requestEntity, String.class);
         if (responseEntity.getStatusCodeValue()!= 200) {
             fail("PSS detail call failed. Response body : " + responseEntity.getBody());
             return;
         }
 
-        final var actual = (OffenderPssDetailEvent) responseEntity.getBody();
+        // noinspection ConstantConditions
+        final var json = new JsonContent<Event>(getClass(), forType(Event.class), responseEntity.getBody());
 
-        assertThat(actual.getNomsId()).isEqualTo("G7806VO");
-        assertThat(actual.getPrisonId()).isEqualTo("LEI");
-        assertThat(actual.getPssDetail()).isNotNull();
-        assertThat(actual.getPssDetail().getOffenderDetails()).isNotNull();
-        assertThat(actual.getPssDetail().getOffenderDetails().getPersonalData()).isNotNull();
-        assertThat(actual.getPssDetail().getOffenderDetails().getPersonalData().getSecurityCategory().getCode()).isEqualToIgnoringCase("C");
-        assertThat(actual.getPssDetail().getOffenderDetails().getSentenceData()).isNotNull();
-        assertThat(actual.getPssDetail().getOffenderDetails().getLocationData()).isNotNull();
-        assertThat(actual.getPssDetail().getOffenderDetails().getLocationData().getAgyLoc()).isEqualToIgnoringCase("LEI");
-        assertThat(actual.getPssDetail().getOffenderDetails().getWarningData()).hasSize(2);
-        assertThat(actual.getPssDetail().getOffenderDetails().getEntitlementData()).isNotNull();
-        assertThat(actual.getPssDetail().getOffenderDetails().getCaseDetailData()).isNotNull();
+        assertThat(json).isEqualToJson("pss-detail.json");
     }
 
     @Test
@@ -300,6 +284,8 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         final var offenderActual = (Offender) responseEntity.getBody();
 
+        assertThat(offenderActual).isNotNull();
+        assertThat(offenderActual.getSurname()).isNotNull();
         assertThat(offenderActual.getSurname()).isEqualToIgnoringCase(expectedSurname);
         assertThat(offenderActual.getAliases()).hasSize(1);
     }

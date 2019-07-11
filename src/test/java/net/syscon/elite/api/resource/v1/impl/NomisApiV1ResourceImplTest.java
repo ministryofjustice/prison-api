@@ -61,24 +61,12 @@ public class NomisApiV1ResourceImplTest {
     @Test
     public void offenderPssDetail() {
 
+        final var testEvent = Event.builder().id(0L).nomsId("A4014AE").prisonId("MDI").timestamp(LocalDateTime.now()).eventData("data").build();
 
-        final var pssDetailData = PssDetailData.builder().personalData(PssPersonalData.builder().surname("SMITH").build()).build();
-        final var pssOffenderDetail = PssOffenderDetail.builder().offenderDetails(pssDetailData).build();
+        when(service.getOffenderPssDetail(anyString())).thenReturn(testEvent);
+        final var actualEvent = nomisApiV1Resource.getOffenderPssDetail("A1404AE");
 
-        final var pssEventData = OffenderPssDetailEvent.builder()
-                .eventType("offender_details_request")
-                .id(0L)
-                .eventTimeStamp(LocalDateTime.now())
-                .prisonId("MDI")
-                .nomsId("A1404AE")
-                .pssDetail(pssOffenderDetail)
-                .build();
-
-        when(service.getOffenderPssDetail(anyString())).thenReturn(pssEventData);
-
-        final var event = nomisApiV1Resource.getOffenderPssDetail("A1404AE");
-
-        assertThat(event).extracting("id","nomsId","prisonId","eventType").contains(0L,"A1404AE","MDI","offender_details_request");
+        assertThat(actualEvent).isEqualTo(testEvent);
 
         verify(service).getOffenderPssDetail(anyString());
         verifyNoMoreInteractions(service);
