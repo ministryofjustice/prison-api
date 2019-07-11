@@ -1,15 +1,15 @@
 package net.syscon.elite.api.resource.v1.impl;
 
-import net.syscon.elite.api.model.v1.CreateTransaction;
-import net.syscon.elite.api.model.v1.Events;
-import net.syscon.elite.api.model.v1.Hold;
-import net.syscon.elite.api.model.v1.LiveRoll;
+import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.impl.ResourceTest;
-import net.syscon.elite.repository.v1.model.EventSP;
-import net.syscon.elite.repository.v1.model.HoldSP;
-import net.syscon.elite.repository.v1.model.LiveRollSP;
+import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.GetHolds;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransaction;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransfer;
+import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
+import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderImage;
+import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderPssDetail;
 import net.syscon.elite.repository.v1.storedprocs.PrisonProcs.GetLiveRoll;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,6 +23,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,16 +33,19 @@ import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
-import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
 
+
+
 public class NomisApiV1ResourceImplIntTest extends ResourceTest {
     @TestConfiguration
     static class Config {
+
         @Bean
         @Primary
         public PostTransaction postTransaction() {
@@ -50,6 +56,24 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         @Primary
         public PostTransfer postTransfer() {
             return Mockito.mock(PostTransfer.class);
+        }
+
+        @Bean
+        @Primary
+        public GetOffenderPssDetail getOffenderPssDetail() {
+            return Mockito.mock(GetOffenderPssDetail.class);
+        }
+
+        @Bean
+        @Primary
+        public GetOffenderDetails getOffenderDetails() {
+            return Mockito.mock(GetOffenderDetails.class);
+        }
+
+        @Bean
+        @Primary
+        public GetOffenderImage getOffenderImage() {
+            return Mockito.mock(GetOffenderImage.class);
         }
 
         @Bean
@@ -76,6 +100,15 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private PostTransfer postTransfer;
+
+    @Autowired
+    private GetOffenderPssDetail offenderPssDetail;
+
+    @Autowired
+    private GetOffenderDetails offenderDetails;
+
+    @Autowired
+    private GetOffenderImage offenderImage;
 
     @Autowired
     private GetHolds getHolds;
@@ -120,6 +153,163 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/CKI/offenders/G1408GC/transactions", HttpMethod.POST, requestEntity, String.class);
 
         assertThatJson(responseEntity.getBody()).isEqualTo("{id:\"someId-someSeq\"}");
+    }
+
+    @Test
+    public void getOffenderPssDetail() throws SQLException {
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var eventData = "{\n" +
+                "        \"offender_details\": {\n" +
+                "            \"personal_details\": {\n" +
+                "                \"offender_surname\": \"ABDORIA\",\n" +
+                "                \"offender_given_name_1\": \"ONGMETAIN\",\n" +
+                "                \"offender_dob\": \"1990-12-06 00:00:00\",\n" +
+                "                \"gender\": {\n" +
+                "                    \"code\": \"M\",\n" +
+                "                    \"desc\": \"Male\"\n" +
+                "                },\n" +
+                "                \"religion\": {\n" +
+                "                    \"code\": \"NIL\",\n" +
+                "                    \"desc\": \"EfJSmIEfJSm\"\n" +
+                "                },\n" +
+                "                \"security_category\": {\n" +
+                "                    \"code\": \"C\",\n" +
+                "                    \"desc\": \"Cat C\"\n" +
+                "                },\n" +
+                "                \"nationality\": {\n" +
+                "                    \"code\": \"BRIT\",\n" +
+                "                    \"desc\": \"sxiVsxi\"\n" +
+                "                },\n" +
+                "                \"ethnicity\": {\n" +
+                "                    \"code\": \"W1\",\n" +
+                "                    \"desc\": \"White: Eng./Welsh/Scot./N.Irish/British\"\n" +
+                "                }\n" +
+                "            },\n" +
+                "            \"sentence_information\": {\n" +
+                "                \"reception_arrival_date_and_time\": \"2017-05-03 15:50:00\",\n" +
+                "                \"status\": \"Convicted\",\n" +
+                "                \"imprisonment_status\": {\n" +
+                "                    \"code\": \"LR\",\n" +
+                "                    \"desc\": \"Recalled to Prison from Parole (Non HDC)\"\n" +
+                "                }\n" +
+                "            },\n" +
+                "            \"location\": {\n" +
+                "                \"agency_location\": \"LEI\",\n" +
+                "                \"internal_location\": \"LEI-E-5-004\",\n" +
+                "                \"location_type\": \"CELL\"\n" +
+                "            },\n" +
+                "            \"warnings\": [\n" +
+                "                {\n" +
+                "                    \"warning_type\": {\n" +
+                "                        \"code\": \"P\",\n" +
+                "                        \"desc\": \"MAPPP Case\"\n" +
+                "                    },\n" +
+                "                    \"warning_sub_type\": {\n" +
+                "                        \"code\": \"P2\",\n" +
+                "                        \"desc\": \"MAPPA Level 2 Case\"\n" +
+                "                    },\n" +
+                "                    \"warning_date\": \"2015-06-03 00:00:00\",\n" +
+                "                    \"status\": \"ACTIVE\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"warning_type\": {\n" +
+                "                        \"code\": \"R\",\n" +
+                "                        \"desc\": \"Risk\"\n" +
+                "                    },\n" +
+                "                    \"warning_sub_type\": {\n" +
+                "                        \"code\": \"RCS\",\n" +
+                "                        \"desc\": \"Risk to Children - Custody\"\n" +
+                "                    },\n" +
+                "                    \"warning_date\": \"2013-06-04 00:00:00\",\n" +
+                "                    \"status\": \"ACTIVE\"\n" +
+                "                }\n" +
+                "            ],\n" +
+                "            \"entitlement\": {\n" +
+                "                \"canteen_adjudication\": false,\n" +
+                "                \"iep_level\": {\n" +
+                "                    \"code\": \"STD\",\n" +
+                "                    \"desc\": \"Standard\"\n" +
+                "                }\n" +
+                "            },\n" +
+                "            \"case_details\": {\n" +
+                "                \"personal_officer\": \"Griffine, Ymmnatpher\"\n" +
+                "            }\n" +
+                "        }\n" +
+                "     }";
+
+        final var testClob = new javax.sql.rowset.serial.SerialClob(eventData.toCharArray());
+        final var timestamp = Timestamp.valueOf("2019-07-09 00:00:00.000");
+
+        final var procedureResponse = Map.of(
+                P_NOMS_ID, (Object) "G7806VO",
+                P_ROOT_OFFENDER_ID, (Object) 0L,
+                P_SINGLE_OFFENDER_ID, (Object) "",
+                P_AGY_LOC_ID, (Object)"LEI",
+                P_DETAILS_CLOB, (Object) testClob,
+                P_TIMESTAMP, (Object) timestamp);
+
+        when(offenderPssDetail.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/G7806VO/pss_detail", HttpMethod.GET, requestEntity, String.class);
+        if (responseEntity.getStatusCodeValue()!= 200) {
+            fail("PSS detail call failed. Response body : " + responseEntity.getBody());
+            return;
+        }
+
+        // noinspection ConstantConditions
+        final var json = new JsonContent<Event>(getClass(), forType(Event.class), responseEntity.getBody());
+
+        assertThat(json).isEqualToJson("pss-detail.json");
+    }
+
+    @Test
+    public void offenderDetail() {
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        final var expectedSurname = "HALIBUT";
+        final var procedureResponse = Map.of(P_OFFENDER_CSR, (Object) List.of(OffenderSP.builder().lastName(expectedSurname)
+                .offenderAliases(List.of(AliasSP.builder().lastName("PLAICE").build()))
+                .build()));
+
+        when(offenderDetails.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE", HttpMethod.GET, requestEntity, Offender.class);
+
+        if (responseEntity.getStatusCodeValue()!= 200) {
+            fail("Offender detail failed. Response body : " + responseEntity.getBody());
+            return;
+        }
+
+        final var offenderActual = (Offender) responseEntity.getBody();
+
+        assertThat(offenderActual).isNotNull();
+        assertThat(offenderActual.getSurname()).isNotNull();
+        assertThat(offenderActual.getSurname()).isEqualToIgnoringCase(expectedSurname);
+        assertThat(offenderActual.getAliases()).hasSize(1);
+    }
+
+    @Test
+    public void offenderImage() throws SQLException {
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        byte[] imageBytes = "XXX".getBytes();
+        Blob blob = new javax.sql.rowset.serial.SerialBlob(imageBytes);
+        final var procedureResponse = Map.of( P_IMAGE, (Object) blob);
+
+        when(offenderImage.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE/image", HttpMethod.GET, requestEntity, String.class);
+        if (responseEntity.getStatusCodeValue()!= 200) {
+            fail("offenderImage failed. Response body : " + responseEntity.getBody());
+            return;
+        }
+
+        // Encoded image returns this value for the test XXX value used
+        final var actualJson = responseEntity.getBody();
+        assertThatJson(actualJson).isEqualTo("{\"image\":\"WFhY\"}");
     }
 
     @Test

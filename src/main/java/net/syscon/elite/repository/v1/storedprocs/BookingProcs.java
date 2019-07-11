@@ -10,24 +10,24 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Types;
 
-public class BookingProcs {
+import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 
-    private static final String API_BOOKING_PROCS = "api_booking_procs";
+public class BookingProcs {
 
     @Component
     public static class GetLatestBooking extends SimpleJdbcCallWithExceptionTranslater {
 
         public GetLatestBooking(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
             super(dataSource, errorCodeTranslator);
-            withSchemaName(StoreProcMetadata.API_OWNER)
+            withSchemaName(API_OWNER)
                     .withCatalogName(API_BOOKING_PROCS)
                     .withProcedureName("get_latest_booking")
                     .withNamedBinding()
                 .declareParameters(
-                            new SqlParameter(StoreProcMetadata.P_NOMS_ID, Types.VARCHAR),
-                            new SqlOutParameter(StoreProcMetadata.P_BOOKING_CSR, Types.REF_CURSOR)
+                            new SqlParameter(P_NOMS_ID, Types.VARCHAR),
+                            new SqlOutParameter(P_BOOKING_CSR, Types.REF_CURSOR)
                 )
-                .returningResultSet(StoreProcMetadata.P_BOOKING_CSR,
+                .returningResultSet(P_BOOKING_CSR,
                         StandardBeanPropertyRowMapper.newInstance(BookingSP.class));
             compile();
         }
@@ -38,14 +38,14 @@ public class BookingProcs {
 
         public GetOffenderBookings(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
             super(dataSource, errorCodeTranslator);
-            withSchemaName(StoreProcMetadata.API_OWNER)
+            withSchemaName(API_OWNER)
                     .withCatalogName(API_BOOKING_PROCS)
                     .withProcedureName("get_offender_bookings")
                     .withNamedBinding()
                     .declareParameters(
-                            new SqlParameter(StoreProcMetadata.P_NOMS_ID, Types.VARCHAR),
-                            new SqlOutParameter(StoreProcMetadata.P_BOOKING_CSR, Types.REF_CURSOR))
-                    .returningResultSet(StoreProcMetadata.P_BOOKING_CSR,
+                            new SqlParameter(P_NOMS_ID, Types.VARCHAR),
+                            new SqlOutParameter(P_BOOKING_CSR, Types.REF_CURSOR))
+                    .returningResultSet(P_BOOKING_CSR,
                             StandardBeanPropertyRowMapper.newInstance(BookingSP.class));
             compile();
         }

@@ -31,7 +31,7 @@ public class Event {
     private String nomsId;
     @ApiModelProperty(name = "prison_id", value = "Prison ID", example = "BMI", required = true, position = 4)
     private String prisonId;
-    @ApiModelProperty(name = "timestamp", value = "Daten and time the event occurred", example = "2016-10-21 15:55:06.284", required = true, position = 5)
+    @ApiModelProperty(name = "timestamp", value = "Date and time the event occurred", example = "2016-10-21 15:55:06.284", required = true, position = 5)
     private LocalDateTime timestamp;
 
     private String eventData;

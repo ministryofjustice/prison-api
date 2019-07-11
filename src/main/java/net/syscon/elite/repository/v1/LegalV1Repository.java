@@ -9,8 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static net.syscon.elite.repository.v1.storedprocs.LegalProcs.*;
-import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.P_OFFENDER_BOOK_ID;
+import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 
 @Repository
 public class LegalV1Repository extends RepositoryBase {
