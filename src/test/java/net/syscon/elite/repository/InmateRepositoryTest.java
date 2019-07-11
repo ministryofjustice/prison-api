@@ -702,10 +702,11 @@ public class InmateRepositoryTest {
         final var list = repository.getRecategorise("LEI", LocalDate.of(2018, 6, 7));
 
         assertThat(list)
-                .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate")
+                .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate", "assessmentSeq")
                 .containsExactly(
-                        Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7)),
-                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7))
+                        Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "B", LocalDate.of(2018, 6, 1), 8),
+                        Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7), 2),
+                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1)
                 );
     }
 

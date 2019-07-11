@@ -510,8 +510,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessmentId", getCategoryAssessmentId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        final List<OffenderCategorise> catList = removeNonStandardCategoryRecords(rawData);
-        return removeEarlierCategorisations(catList);
+        return removeEarlierCategorisations(removeNonStandardCategoryRecords(rawData));
     }
 
     @Override
