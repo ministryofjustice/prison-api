@@ -506,11 +506,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 getQuery("GET_RECATEGORISE"),
                 createParams("agencyId", agencyId,
                         "cutOffDate", DateTimeConverter.toDate(cutoffDate),
-                        "assessStatus", "A",
+                        "assessStatus", Set.of("A", "P"),
                         "assessmentId", getCategoryAssessmentId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        return removeNonStandardCategoryRecords(rawData);
+        return removeEarlierCategorisations(removeNonStandardCategoryRecords(rawData));
     }
 
     @Override
