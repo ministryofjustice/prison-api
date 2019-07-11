@@ -32,7 +32,6 @@ public class Event {
     @ApiModelProperty(name = "prison_id", value = "Prison ID", example = "BMI", required = true, position = 4)
     private String prisonId;
     @ApiModelProperty(name = "timestamp", value = "Date and time the event occurred", example = "2016-10-21 15:55:06.284", required = true, position = 5)
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime timestamp;
 
     private String eventData;

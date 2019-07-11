@@ -1,7 +1,7 @@
 {
   "type": "OFFENDER_DETAILS_REQUEST",
   "id": 0,
-  "nomis_id": "G7806VO",
+  "noms_id": "G7806VO",
   "prison_id": "LEI",
   "timestamp": "2019-07-09 00:00:00.000",
   "offender_details_request": {
