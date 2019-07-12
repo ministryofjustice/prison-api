@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
@@ -17,7 +15,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @ApiModel(description = "Transaction to Create")
+@Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)

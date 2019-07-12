@@ -5,6 +5,7 @@ import net.syscon.elite.api.resource.impl.ResourceTest;
 import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.GetHolds;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostStorePayment;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransaction;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransfer;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import javax.ws.rs.BadRequestException;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.SQLException;
@@ -34,9 +36,9 @@ import java.util.Map;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
 
@@ -93,6 +95,12 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         public GetLiveRoll getLiveRoll() {
             return Mockito.mock(GetLiveRoll.class);
         }
+
+        @Bean
+        @Primary
+        public PostStorePayment postStorePayment() {
+            return Mockito.mock(PostStorePayment.class);
+        }
     }
 
     @Autowired
@@ -118,6 +126,9 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetLiveRoll getLiveRoll;
+
+    @Autowired
+    private PostStorePayment postStorePayment;
 
     @Test
     public void transferTransaction() {
@@ -405,5 +416,33 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         //noinspection ConstantConditions
         assertThat(new JsonContent<LiveRoll>(getClass(), forType(LiveRoll.class), responseEntity.getBody())).isEqualToJson("roll.json");
+    }
+
+    @Test
+    public void storePaymentOk() {
+
+        // Valid request entity supplied
+        final var request = StorePaymentRequest.builder().type("ADJ").amount(1324L).clientTransactionId("CS123").description("Earnings for May").build();
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), request);
+
+        when(postStorePayment.execute(any(SqlParameterSource.class)));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/payment", HttpMethod.POST, requestEntity, String.class);
+
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"message\": \"Payment accepted\"}");
+    }
+
+    @Test
+    public void storePaymentInvalidDetailsSupplied() {
+
+        // Invalid request - client transaction too long - 12 character max
+        final var request = StorePaymentRequest.builder().type("ADJ").amount(123L).clientTransactionId("This-is-too-long").description("bad payment args").build();
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), request);
+
+        when(postStorePayment.execute(any(SqlParameterSource.class)));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/payment", HttpMethod.POST, requestEntity, String.class);
+
+        assertThatJson(responseEntity.getBody()).toString().contains("400");
     }
 }

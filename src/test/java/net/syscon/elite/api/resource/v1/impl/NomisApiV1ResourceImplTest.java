@@ -10,10 +10,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.ws.rs.BadRequestException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -120,5 +123,14 @@ public class NomisApiV1ResourceImplTest {
         when(service.getLiveRoll(anyString())).thenReturn(liveRoll);
         final var roll = nomisApiV1Resource.getLiveRoll("any");
         assertThat(roll).isEqualTo(new LiveRoll(liveRoll));
+    }
+
+    @Test
+    public void storePayment() {
+        final var request = StorePaymentRequest.builder().type("A_EARN").amount(1324L).clientTransactionId("CS123").description("Earnings for May").build();
+        final var response = PaymentResponse.builder().message("Payment accepted").build();
+        when(service.storePayment(anyString(), anyString(), anyString(), anyString(), any(), any(), anyString())).thenReturn(response);
+        final var result = nomisApiV1Resource.storePayment("prison", "noms", request);
+        assertThat(result.getMessage()).isEqualToIgnoringCase("payment accepted");
     }
 }
