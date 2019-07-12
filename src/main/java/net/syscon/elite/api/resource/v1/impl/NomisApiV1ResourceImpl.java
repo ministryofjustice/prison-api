@@ -1,18 +1,14 @@
 package net.syscon.elite.api.resource.v1.impl;
 
-import io.swagger.annotations.ApiParam;
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.v1.NomisApiV1Resource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.v1.NomisApiV1Service;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -120,8 +116,8 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     }
 
     @Override
-    public PaymentResponse storePayment(String prisonId, String nomsId, CreateTransaction txn) {
+    public PaymentResponse storePayment(String prisonId, String nomsId, StorePaymentRequest payment) {
 
-        return service.storePayment(prisonId, nomsId, txn.getType(), txn.getDescription(), txn.getAmountInPounds(), LocalDate.now(), txn.getClientTransactionId());
+        return service.storePayment(prisonId, nomsId, payment.getType(), payment.getDescription(), payment.getAmountInPounds(), LocalDate.now(), payment.getClientTransactionId());
     }
 }

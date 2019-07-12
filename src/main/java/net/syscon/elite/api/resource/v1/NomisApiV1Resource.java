@@ -267,5 +267,5 @@ public interface NomisApiV1Resource {
     PaymentResponse storePayment(
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-            @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
+            @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid StorePaymentRequest storePaymentRequest);
 }

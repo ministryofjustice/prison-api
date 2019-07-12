@@ -1,6 +1,5 @@
 package net.syscon.elite.service.v1;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.v1.*;
@@ -36,7 +35,6 @@ public class NomisApiV1Service {
     private final AlertV1Repository alertV1Repository;
     private final EventsV1Repository eventsV1Repository;
     private final PrisonV1Repository prisonV1Repository;
-    private final ObjectMapper objectMapper;
 
     public Location getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
@@ -240,9 +238,9 @@ public class NomisApiV1Service {
         return prisonV1Repository.getLiveRoll(prisonId).stream().map(LiveRollSP::getOffenderIdDisplay).collect(Collectors.toList());
     }
 
-    public PaymentResponse storePayment(final String prisonId, final String nomsId, final String txnType, final String txnDesc, BigDecimal txnAmount, final LocalDate txnDate, final String txnClientRef) {
-
-        final var response = financeV1Repository.postStorePayment(prisonId, nomsId, txnType, txnDesc, txnAmount, txnDate, txnClientRef);
+    @Transactional
+    public PaymentResponse storePayment(final String prisonId, final String nomsId, final String payType, final String payDesc, BigDecimal payAmount, final LocalDate payDate, final String payClientRef) {
+        final var response = financeV1Repository.postStorePayment(prisonId, nomsId, payType, payDesc, payAmount, payDate, payClientRef);
         return PaymentResponse.builder().message("Payment accepted").build();
     }
 

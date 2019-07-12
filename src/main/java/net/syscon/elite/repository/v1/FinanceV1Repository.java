@@ -82,22 +82,22 @@ public class FinanceV1Repository extends RepositoryBase {
         return (List<HoldSP>) result.get(P_HOLDS_CSR);
     }
 
-    public String postStorePayment(final String prisonId, final String nomsId, final String type, final String description, final BigDecimal amountInPounds, final LocalDate txDate, final String clientRef) {
+    public String postStorePayment(final String prisonId, final String nomsId, final String payType, final String description, final BigDecimal payAmount, final LocalDate payDate, final String clientRef) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_NOMS_ID, nomsId)
                 .addValue(P_ROOT_OFFENDER_ID, null)
                 .addValue(P_SINGLE_OFFENDER_ID, null)
                 .addValue(P_AGY_LOC_ID, prisonId)
-                .addValue(P_TXN_TYPE, type)
+                .addValue(P_TXN_TYPE, payType)
                 .addValue(P_TXN_REFERENCE_NUMBER, clientRef)
-                .addValue(P_TXN_ENTRY_DATE, DateTimeConverter.toDate(txDate))
+                .addValue(P_TXN_ENTRY_DATE, DateTimeConverter.toDate(payDate))
                 .addValue(P_TXN_ENTRY_DESC, description)
-                .addValue(P_TXN_ENTRY_AMOUNT, amountInPounds);
+                .addValue(P_TXN_ENTRY_AMOUNT, payAmount);
 
         final var result = postStorePaymentProc.execute(params);
 
-        // TODO - examine result here - no OUT parameters
+        // TODO - examine result here - no OUT parameters - what should the response be to the service when no exceptions?
 
         return "OK";
     }
