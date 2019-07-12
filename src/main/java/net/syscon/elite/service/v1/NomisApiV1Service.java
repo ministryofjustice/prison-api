@@ -240,6 +240,12 @@ public class NomisApiV1Service {
         return prisonV1Repository.getLiveRoll(prisonId).stream().map(LiveRollSP::getOffenderIdDisplay).collect(Collectors.toList());
     }
 
+    public PaymentResponse storePayment(final String prisonId, final String nomsId, final String txnType, final String txnDesc, BigDecimal txnAmount, final LocalDate txnDate, final String txnClientRef) {
+
+        final var response = financeV1Repository.postStorePayment(prisonId, nomsId, txnType, txnDesc, txnAmount, txnDate, txnClientRef);
+        return PaymentResponse.builder().message("Payment accepted").build();
+    }
+
     private Long convertToPence(final BigDecimal value) {
         return value.setScale(2, RoundingMode.HALF_UP).movePointRight(2).longValue();
     }
