@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.impl.ResourceTest;
 import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.GetHolds;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostStorePayment;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransaction;
@@ -23,7 +24,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
-import javax.ws.rs.BadRequestException;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.SQLException;
@@ -36,10 +36,11 @@ import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
+import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
 
@@ -102,6 +103,10 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         public PostStorePayment postStorePayment() {
             return Mockito.mock(PostStorePayment.class);
         }
+
+        @Bean
+        @Primary
+        public GetAccountBalances getAccountBalances() { return Mockito.mock(GetAccountBalances.class); }
     }
 
     @Autowired
@@ -130,6 +135,9 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private PostStorePayment postStorePayment;
+
+    @Autowired
+    private GetAccountBalances getAccountBalances;
 
     @Test
     public void transferTransaction() {
@@ -446,4 +454,17 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         assertThatJson(responseEntity.getBody()).toString().contains("400");
     }
+
+    @Test
+    public void getAccountBalances() {
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        when(getAccountBalances.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_CASH_BALANCE, 1234L, P_SPENDS_BALANCE, 5678L, P_SAVINGS_BALANCE, 3434L));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"cash\": 1234, \"spends\": 5678, \"savings\": 3434 }");
+    }
+
 }
