@@ -10,13 +10,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.ws.rs.BadRequestException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -126,11 +123,31 @@ public class NomisApiV1ResourceImplTest {
     }
 
     @Test
+    public void getBalance() {
+        final var balanceResponse = AccountBalance.builder().cash(1234L).spends(3434L).savings(5678L).build();
+        when(service.getAccountBalance(anyString(), anyString())).thenReturn(balanceResponse);
+        final var result = nomisApiV1Resource.getAccountBalance("prison", "noms");
+
+        assertThat(result.getCash()).isEqualTo(1234L);
+        assertThat(result.getSpends()).isEqualTo(3434L);
+        assertThat(result.getSavings()).isEqualTo(5678L);
+
+        verify(service).getAccountBalance(anyString(), anyString());
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
     public void storePayment() {
         final var request = StorePaymentRequest.builder().type("A_EARN").amount(1324L).clientTransactionId("CS123").description("Earnings for May").build();
         final var response = PaymentResponse.builder().message("Payment accepted").build();
         when(service.storePayment(anyString(), anyString(), anyString(), anyString(), any(), any(), anyString())).thenReturn(response);
+
         final var result = nomisApiV1Resource.storePayment("prison", "noms", request);
+
         assertThat(result.getMessage()).isEqualToIgnoringCase("payment accepted");
+
+        verify(service).storePayment(anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
+        verifyNoMoreInteractions(service);
     }
+
 }

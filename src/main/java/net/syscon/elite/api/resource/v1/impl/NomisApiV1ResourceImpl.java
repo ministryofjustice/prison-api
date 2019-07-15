@@ -120,4 +120,9 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
         return service.storePayment(prisonId, nomsId, payment.getType(), payment.getDescription(), payment.getAmountInPounds(), LocalDate.now(), payment.getClientTransactionId());
     }
+
+    @Override
+    public AccountBalance getAccountBalance(String prisonId, String nomsId) {
+        return service.getAccountBalance(prisonId, nomsId);
+    }
 }

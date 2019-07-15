@@ -44,4 +44,8 @@ public interface StoreProcMetadata {
     String P_EVENTS_CSR           = "p_event_csr";
 
     String P_ROLL_CSR             = "p_roll_csr";
+
+    String P_CASH_BALANCE         = "p_cash_balance";
+    String P_SPENDS_BALANCE       = "p_spends_balance";
+    String P_SAVINGS_BALANCE      = "p_savings_balance";
 }

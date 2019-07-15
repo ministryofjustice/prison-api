@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
@@ -26,6 +27,7 @@ public class FinanceV1Repository extends RepositoryBase {
     private final PostTransfer postTransferProc;
     private final GetHolds getHoldsProc;
     private final PostStorePayment postStorePaymentProc;
+    private final GetAccountBalances getAccountBalancesProc;
 
     public TransferSP postTransfer(final String prisonId, final String nomsId, final String type, final String description, final BigDecimal amountInPounds, final LocalDate txDate, final String txId, final String uniqueClientId) {
         final var params = new MapSqlParameterSource()
@@ -95,11 +97,24 @@ public class FinanceV1Repository extends RepositoryBase {
                 .addValue(P_TXN_ENTRY_DESC, description)
                 .addValue(P_TXN_ENTRY_AMOUNT, payAmount);
 
-        
+        // A runtime exception will be thrown in the event of a problem, with only other outcome a success message
         final var result = postStorePaymentProc.execute(params);
-
-        // A runtime exception will be thrown in the event of any problem
-
         return "Payment accepted";
+    }
+
+    public Map<String, Long> getAccountBalances(final String prisonId, final String nomsId) {
+
+        final var params = new MapSqlParameterSource()
+                .addValue(P_AGY_LOC_ID, prisonId)
+                .addValue(P_NOMS_ID, nomsId)
+                .addValue(P_ROOT_OFFENDER_ID, null)
+                .addValue(P_SINGLE_OFFENDER_ID, null);
+
+        final var result = getAccountBalancesProc.execute(params);
+
+        return Map.of(
+                "cash", (Long) result.get(P_CASH_BALANCE),
+                "spends", (Long) result.get(P_SPENDS_BALANCE),
+                "savings", (Long) result.get(P_SAVINGS_BALANCE));
     }
 }

@@ -108,4 +108,25 @@ public class FinanceProcs {
             compile();
         }
     }
+
+    @Component
+    public static class GetAccountBalances extends SimpleJdbcCallWithExceptionTranslater {
+        public GetAccountBalances(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+            super(dataSource, errorCodeTranslator);
+            withSchemaName(API_OWNER)
+                    .withCatalogName(API_FINANCE_PROCS)
+                    .withProcedureName("account_balances")
+                    .withNamedBinding()
+                    .declareParameters(
+                            new SqlParameter(P_NOMS_ID, Types.VARCHAR),
+                            new SqlParameter(P_ROOT_OFFENDER_ID, Types.INTEGER),
+                            new SqlParameter(P_SINGLE_OFFENDER_ID, Types.VARCHAR),
+                            new SqlParameter(P_FROM_AGY_LOC_ID, Types.VARCHAR),
+                            new SqlOutParameter(P_CASH_BALANCE, Types.NUMERIC),
+                            new SqlOutParameter(P_SPENDS_BALANCE, Types.NUMERIC),
+                            new SqlOutParameter(P_SAVINGS_BALANCE, Types.NUMERIC));
+            compile();
+        }
+    }
+
 }
