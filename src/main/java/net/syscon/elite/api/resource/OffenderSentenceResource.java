@@ -115,8 +115,7 @@ public interface OffenderSentenceResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Sentence term details for a prisoner.", response = OffenderSentenceTerms.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List")})
-    Object getOffenderSentenceTerms(@ApiParam(value = "The required booking id (mandatory)", required = true) @PathParam("bookingId") Long bookingId,
-                                    @ApiParam(value = "Returns only the earliest active sentence if true, otherwise all active sentences are included", defaultValue = "true") @QueryParam("earliestOnly") Boolean earliestOnly);
+    List<OffenderSentenceTerms> getOffenderSentenceTerms(@ApiParam(value = "The required booking id (mandatory)", required = true) @PathParam("bookingId") Long bookingId);
 
     class GetOffenderSentencesResponse extends ResponseDelegate {
 

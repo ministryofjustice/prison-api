@@ -240,25 +240,18 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         }
     }
 
-    private void dispatchSentenceTerms(final String bookingId, boolean earliestOnly) {
+    private void dispatchSentenceTerms(final String bookingId) {
         init();
 
         try {
-            final String url = BOOKING_SENTENCE_TERMS_API_URL + (earliestOnly ? "" : "?earliestOnly=false");
-            if (earliestOnly) {
-                final ResponseEntity<OffenderSentenceTerms> response;
-                response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
-                        OffenderSentenceTerms.class, bookingId);
+            final String url = BOOKING_SENTENCE_TERMS_API_URL;
+            final ResponseEntity<List<OffenderSentenceTerms>> response;
+            response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
+                    new ParameterizedTypeReference<List<OffenderSentenceTerms>>() {
+                    }, bookingId);
 
-                offenderSentenceTerms = response.getBody();
-            } else {
-                final ResponseEntity<List<OffenderSentenceTerms>> response;
-                response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
-                        new ParameterizedTypeReference<List<OffenderSentenceTerms>>() {}, bookingId);
+            offenderSentenceTermsList = response.getBody();
 
-                offenderSentenceTermsList = response.getBody();
-
-            }
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -332,8 +325,8 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         return urlModifier.length() > 0 ? "&" : "?";
     }
 
-    public void requestSentenceTerms(final String bookingId, boolean earliestOnly) {
-        dispatchSentenceTerms(bookingId, earliestOnly);
+    public void requestSentenceTerms(final String bookingId) {
+        dispatchSentenceTerms(bookingId);
     }
 
     @Deprecated
