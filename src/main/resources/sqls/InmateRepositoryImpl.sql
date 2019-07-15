@@ -452,6 +452,7 @@ select
     off_ass.assessment_date,
     off_ass.evaluation_date as approval_date,
     COALESCE(off_ass.review_sup_level_type, off_ass.overrided_sup_level_type, off_ass.calc_sup_level_type) as category,
+    off_ass.assess_status,
     off_ass.next_review_date
 from
   offender_assessments off_ass
@@ -474,6 +475,7 @@ GET_OFFENDER_CATEGORISATIONS {
     off_ass.assessment_date,
     off_ass.evaluation_date as approval_date,
     COALESCE(off_ass.review_sup_level_type, off_ass.overrided_sup_level_type, off_ass.calc_sup_level_type) as category,
+    off_ass.assess_status,
     sm.first_name as categoriser_first_name,
     sm.last_name as categoriser_last_name,
     sm_a.first_name as approver_first_name,

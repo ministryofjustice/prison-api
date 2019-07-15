@@ -665,22 +665,22 @@ public class InmateRepositoryTest {
 
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
         assertThat(list)
-                .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category")
+                .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
                 .containsExactly(
-                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "B"),
-                        Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A"));
+                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "B", "P"),
+                        Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A", "A"));
     }
 
     @Test
     public void testGetOffenderCategorisationsAll() {
         final var list = repository.getOffenderCategorisations(Arrays.asList(-1L, -31L), "LEI", false);
         assertThat(list)
-                .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category")
+                .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "LOW"),
-                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "B"),
-                        Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A"),
-                        Tuple.tuple("A5576RS", -31L, "API", "User", "API", "User", "C"));
+                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "LOW", "A"),
+                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "B", "P"),
+                        Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A", "A"),
+                        Tuple.tuple("A5576RS", -31L, "API", "User", "API", "User", "C", "A"));
     }
 
     @Test
@@ -702,11 +702,11 @@ public class InmateRepositoryTest {
         final var list = repository.getRecategorise("LEI", LocalDate.of(2018, 6, 7));
 
         assertThat(list)
-                .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate", "assessmentSeq")
+                .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate", "assessmentSeq", "assessStatus")
                 .containsExactly(
-                        Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "B", LocalDate.of(2018, 6, 1), 8),
-                        Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7), 2),
-                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1)
+                        Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "B", LocalDate.of(2018, 6, 1), 8, "P"),
+                        Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7), 2, "A"),
+                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1,"A")
                 );
     }
 
