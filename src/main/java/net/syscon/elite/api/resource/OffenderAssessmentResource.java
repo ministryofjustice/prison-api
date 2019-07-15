@@ -71,7 +71,7 @@ public interface OffenderAssessmentResource {
     @Path("/category/{agencyId}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Returns the latest Categorisation details for supplied Offenders (if one exists) - POST version to allow large offender lists.", notes = "Categorisation details for supplied Offenders", nickname = "postOffenderSentences")
+    @ApiOperation(value = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.", notes = "Categorisation details for supplied Offenders", nickname = "getOffenderCategorisations")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The list of offenders with categorisation details is returned if categorisation record exists", response = OffenderCategorise.class, responseContainer = "List")})
     List<OffenderCategorise> getOffenderCategorisations(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
