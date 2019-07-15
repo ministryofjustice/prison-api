@@ -30,6 +30,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -421,11 +422,10 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
     @Test
     public void storePaymentOk() {
 
-        // Valid request entity supplied
         final var request = StorePaymentRequest.builder().type("ADJ").amount(1324L).clientTransactionId("CS123").description("Earnings for May").build();
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), request);
 
-        when(postStorePayment.execute(any(SqlParameterSource.class)));
+        when(postStorePayment.execute(any(SqlParameterSource.class))).thenReturn(Collections.EMPTY_MAP);
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/payment", HttpMethod.POST, requestEntity, String.class);
 
@@ -439,7 +439,8 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var request = StorePaymentRequest.builder().type("ADJ").amount(123L).clientTransactionId("This-is-too-long").description("bad payment args").build();
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), request);
 
-        when(postStorePayment.execute(any(SqlParameterSource.class)));
+        // No response parameters for this method so return an emtpy map to satisfy Mockito stub
+        when(postStorePayment.execute(any(SqlParameterSource.class))).thenReturn(Collections.EMPTY_MAP);
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/payment", HttpMethod.POST, requestEntity, String.class);
 

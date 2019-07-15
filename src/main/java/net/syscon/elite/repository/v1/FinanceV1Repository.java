@@ -95,10 +95,11 @@ public class FinanceV1Repository extends RepositoryBase {
                 .addValue(P_TXN_ENTRY_DESC, description)
                 .addValue(P_TXN_ENTRY_AMOUNT, payAmount);
 
+        
         final var result = postStorePaymentProc.execute(params);
 
-        // TODO - examine result here - no OUT parameters - what should the response be to the service when no exceptions?
+        // A runtime exception will be thrown in the event of any problem
 
-        return "OK";
+        return "Payment accepted";
     }
 }

@@ -252,7 +252,13 @@ public interface NomisApiV1Resource {
                     "<table>" +
                     "<tr><td>A_EARN</td><td>Credit, Offender Payroll</td></tr>" +
                     "<tr><td>ADJ</td><td>Debit, Adjudication Award</td></tr>" +
-                    "</table>" +
+                    "</table><br/>Example request:<br/>" +
+                    "{\n" +
+                    "  \"type\": \"A_EARN\",\n" +
+                    "  \"description\": \"May earnings\",\n" +
+                    "  \"amount\": 1,\n" +
+                    "  \"client_transaction_id\": \"PAY-05-19\"\n" +
+                    "}" +
                     "<br/>" +
                     "The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>" +
                     "This will be setup by script intially as part of the deployment process as shown below<br/><br/>")
@@ -260,9 +266,10 @@ public interface NomisApiV1Resource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Payment accepted", response = Transaction.class),
             @ApiResponse(code = 400, message = "One of: <ul><li>Offender not in specified prison - prisoner identified by {noms_id} is not in prison {prison_id}</li><li>Invalid payment type</li>" +
+                    "<li>Client reference more than 12 characters</li><li>Missing data in request</li>" +
                     "<li>Exception - An unexpected error has occurred. Details will have been logged in the nomis_api_logs table on the Nomis database.</li></ul>", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 409, message = "Duplicate post - The unique_client_ref has been used before", response = ErrorResponse.class),
+            @ApiResponse(code = 409, message = "Duplicate post - after an error with a post this response will be given for subsequent duplicate attempts", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     PaymentResponse storePayment(
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,

@@ -241,7 +241,7 @@ public class NomisApiV1Service {
     @Transactional
     public PaymentResponse storePayment(final String prisonId, final String nomsId, final String payType, final String payDesc, BigDecimal payAmount, final LocalDate payDate, final String payClientRef) {
         final var response = financeV1Repository.postStorePayment(prisonId, nomsId, payType, payDesc, payAmount, payDate, payClientRef);
-        return PaymentResponse.builder().message("Payment accepted").build();
+        return PaymentResponse.builder().message(response).build();
     }
 
     private Long convertToPence(final BigDecimal value) {
