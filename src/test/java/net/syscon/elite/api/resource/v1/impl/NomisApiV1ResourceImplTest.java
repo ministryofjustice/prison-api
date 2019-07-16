@@ -123,20 +123,6 @@ public class NomisApiV1ResourceImplTest {
     }
 
     @Test
-    public void getBalance() {
-        final var balanceResponse = AccountBalance.builder().cash(1234L).spends(3434L).savings(5678L).build();
-        when(service.getAccountBalance(anyString(), anyString())).thenReturn(balanceResponse);
-        final var result = nomisApiV1Resource.getAccountBalance("prison", "noms");
-
-        assertThat(result.getCash()).isEqualTo(1234L);
-        assertThat(result.getSpends()).isEqualTo(3434L);
-        assertThat(result.getSavings()).isEqualTo(5678L);
-
-        verify(service).getAccountBalance(anyString(), anyString());
-        verifyNoMoreInteractions(service);
-    }
-
-    @Test
     public void storePayment() {
         final var request = StorePaymentRequest.builder().type("A_EARN").amount(1324L).clientTransactionId("CS123").description("Earnings for May").build();
         final var response = PaymentResponse.builder().message("Payment accepted").build();
@@ -150,4 +136,17 @@ public class NomisApiV1ResourceImplTest {
         verifyNoMoreInteractions(service);
     }
 
+    @Test
+    public void getBalance() {
+        final var balanceResponse = AccountBalance.builder().cash(1234L).spends(5678L).savings(3434L).build();
+        when(service.getAccountBalances(anyString(), anyString())).thenReturn(balanceResponse);
+        final var result = nomisApiV1Resource.getAccountBalance("prison", "noms");
+
+        assertThat(result.getCash()).isEqualTo(1234L);
+        assertThat(result.getSpends()).isEqualTo(5678L);
+        assertThat(result.getSavings()).isEqualTo(3434L);
+
+        verify(service).getAccountBalances(anyString(), anyString());
+        verifyNoMoreInteractions(service);
+    }
 }

@@ -244,9 +244,13 @@ public class NomisApiV1Service {
         return PaymentResponse.builder().message(response).build();
     }
 
-    public AccountBalance getAccountBalance(final String prisonId, final String nomsId) {
+    public AccountBalance getAccountBalances(final String prisonId, final String nomsId) {
         final var response = financeV1Repository.getAccountBalances(prisonId, nomsId);
-        return AccountBalance.builder().cash(response.get("cash")).savings(response.get("savings")).spends(response.get("spends")).build();
+        return AccountBalance.builder()
+                .cash(convertToPence(response.get("cash")))
+                .spends(convertToPence(response.get("spends")))
+                .savings(convertToPence(response.get("savings")))
+                .build();
     }
 
     private Long convertToPence(final BigDecimal value) {

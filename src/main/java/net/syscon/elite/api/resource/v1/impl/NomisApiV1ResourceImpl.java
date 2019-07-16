@@ -123,6 +123,7 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
     @Override
     public AccountBalance getAccountBalance(String prisonId, String nomsId) {
-        return service.getAccountBalance(prisonId, nomsId);
+
+        return service.getAccountBalances(prisonId, nomsId);
     }
 }

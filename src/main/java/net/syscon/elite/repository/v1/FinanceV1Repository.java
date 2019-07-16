@@ -102,7 +102,7 @@ public class FinanceV1Repository extends RepositoryBase {
         return "Payment accepted";
     }
 
-    public Map<String, Long> getAccountBalances(final String prisonId, final String nomsId) {
+    public Map<String,BigDecimal> getAccountBalances(final String prisonId, final String nomsId) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_AGY_LOC_ID, prisonId)
@@ -113,8 +113,8 @@ public class FinanceV1Repository extends RepositoryBase {
         final var result = getAccountBalancesProc.execute(params);
 
         return Map.of(
-                "cash", (Long) result.get(P_CASH_BALANCE),
-                "spends", (Long) result.get(P_SPENDS_BALANCE),
-                "savings", (Long) result.get(P_SAVINGS_BALANCE));
+                "cash", (BigDecimal) result.get(P_CASH_BALANCE),
+                "spends", (BigDecimal) result.get(P_SPENDS_BALANCE),
+                "savings", (BigDecimal) result.get(P_SAVINGS_BALANCE));
     }
 }

@@ -433,6 +433,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var request = StorePaymentRequest.builder().type("ADJ").amount(1324L).clientTransactionId("CS123").description("Earnings for May").build();
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), request);
 
+        // No response parameters for this method so return an emtpy map to satisfy Mockito stub
         when(postStorePayment.execute(any(SqlParameterSource.class))).thenReturn(Collections.EMPTY_MAP);
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/payment", HttpMethod.POST, requestEntity, String.class);
@@ -460,7 +461,8 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
 
-        when(getAccountBalances.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_CASH_BALANCE, 1234L, P_SPENDS_BALANCE, 5678L, P_SAVINGS_BALANCE, 3434L));
+        when(getAccountBalances.execute(any(SqlParameterSource.class))).thenReturn(
+                Map.of(P_CASH_BALANCE, new BigDecimal("12.34"), P_SPENDS_BALANCE, new BigDecimal("56.78"), P_SAVINGS_BALANCE, new BigDecimal("34.34")));
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts", HttpMethod.GET, requestEntity, String.class);
 
