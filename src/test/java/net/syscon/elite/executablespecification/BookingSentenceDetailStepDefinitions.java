@@ -227,14 +227,9 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
         bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
     }
 
-    @When("^sentence terms are requested for booking id \"([^\"]*)\" getting earliest only$")
-    public void sentenceTermsAreRequestedEarliestOnly(final String bookingId) {
-        bookingSentenceDetail.requestSentenceTerms(bookingId, true);
-    }
-
-    @When("^sentence terms are requested for booking id \"([^\"]*)\" getting all$")
+    @When("^sentence terms are requested for booking id \"([^\"]*)\"$")
     public void sentenceTermsAreRequested(final String bookingId) {
-        bookingSentenceDetail.requestSentenceTerms(bookingId, false);
+        bookingSentenceDetail.requestSentenceTerms(bookingId);
     }
 
     @Then("^correct sentence terms data is returned$")

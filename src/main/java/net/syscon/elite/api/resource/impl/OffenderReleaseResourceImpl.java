@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
@@ -114,8 +115,8 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     @Override
-    public Object getOffenderSentenceTerms(final Long bookingId, final Boolean earliestOnly) {
-        return bookingService.getOffenderSentenceTerms(bookingId, earliestOnly);
+    public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId) {
+        return bookingService.getOffenderSentenceTerms(bookingId);
     }
 
     private void validateOffenderList(final List offenderList) {
