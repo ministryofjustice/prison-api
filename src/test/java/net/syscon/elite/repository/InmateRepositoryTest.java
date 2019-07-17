@@ -691,7 +691,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testGetRecategoriseNoResults() {
-        final var list = repository.getRecategorise("LEI", LocalDate.of(2003, 5, 5));
+        final var list = repository.getRecategorise("BMI", LocalDate.of(2003, 5, 5));
 
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
         assertThat(list).hasSize(0);
@@ -703,10 +703,11 @@ public class InmateRepositoryTest {
 
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate", "assessmentSeq", "assessStatus")
-                .containsExactly(
+                .containsExactlyInAnyOrder(
                         Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "B", LocalDate.of(2018, 6, 1), 8, "P"),
                         Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7), 2, "A"),
-                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1, "A")
+                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1, "A"),
+                        Tuple.tuple("A1178RS", -34L, "FRED", "QUIMBY", "B", LocalDate.of(2019, 6, 9), 1, "P")
                 );
     }
 
@@ -722,14 +723,22 @@ public class InmateRepositoryTest {
                 );
     }
 
-    @Test
-    public void testGetRecategoriseLatestAfterCutoff() {
-        final var list1 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 30));
-        assertThat(list1).hasSize(1);
 
-        // The latest seq of booking id -38 is now after the cutoff so should not be selected:
+    @Test
+    public void testGetRecategorisePendingLatestAfterCutoff() {
+        final var list1 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 30));
+        assertThat(list1).hasSize(2);
+
+        // -38 and -39 within the cutoff
+        assertThat(list1).extracting("bookingId","assessmentSeq", "nextReviewDate","assessStatus"
+        ).containsExactlyInAnyOrder (Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"),
+                Tuple.tuple(-39L, 2, LocalDate.of(2019, 6, 8), "A"));
+
+        // The latest seq of booking id -38 is now after the cutoff but is pending - so should be selected, -39 is active and after cutoff:
         final var list2 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 1));
-        assertThat(list2).isEmpty();
+
+        assertThat(list2).extracting("bookingId","assessmentSeq", "nextReviewDate","assessStatus"
+        ).containsExactly (Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"));
     }
 
     @Test
