@@ -505,12 +505,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var rawData = jdbcTemplate.query(
                 getQuery("GET_RECATEGORISE"),
                 createParams("agencyId", agencyId,
-                        "cutOffDate", DateTimeConverter.toDate(cutoffDate),
                         "assessStatus", Set.of("A", "P"),
                         "assessmentId", getCategoryAssessmentId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        return removeEarlierCategorisations(removeNonStandardCategoryRecords(rawData));
+        return applyCutoffDateForActiveCategorisations(
+                removeEarlierCategorisations(removeNonStandardCategoryRecords(rawData)),
+                cutoffDate);
     }
 
     @Override
@@ -559,6 +560,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         return individualCatList.stream()
                 .filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
+                .collect(Collectors.toList());
+    }
+
+    private List<OffenderCategorise> applyCutoffDateForActiveCategorisations(List<OffenderCategorise> catList, final LocalDate cutoffDate) {
+        return catList
+                .stream()
+                .filter(cat -> "P".equals(cat.getAssessStatus()) || (cat.getNextReviewDate() != null && !cutoffDate.isBefore(cat.getNextReviewDate())))
                 .collect(Collectors.toList());
     }
 
