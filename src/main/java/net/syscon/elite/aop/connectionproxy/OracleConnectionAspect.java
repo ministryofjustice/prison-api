@@ -33,7 +33,7 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
     @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
         if (authenticationFacade.isIdentifiedAuthentication()) {
-            log.trace("Configuring Oracle Proxy Session {}", pooledConnection);
+            log.debug("Configuring Oracle Proxy Session {}", pooledConnection);
             return openAndConfigureProxySessionForConnection(pooledConnection);
         }
         setDefaultSchema(pooledConnection);
@@ -63,12 +63,12 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
 
         try {
             oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info);
-            log.trace("Opened proxy connection {}", oracleConnection);
+            log.debug("Opened proxy connection {}", oracleConnection);
         } catch (final SQLException e) {
             log.error("User {} does not support Proxy Connection", currentUsername);
             throw e;
         }
-        log.trace("Proxy Connection for {} Successful", currentUsername);
+        log.debug("Proxy Connection for {} Successful", currentUsername);
         return oracleConnection;
     }
 
