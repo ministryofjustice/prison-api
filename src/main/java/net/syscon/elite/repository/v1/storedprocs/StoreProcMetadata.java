@@ -48,4 +48,10 @@ public interface StoreProcMetadata {
     String P_CASH_BALANCE         = "p_cash_balance";
     String P_SPENDS_BALANCE       = "p_spends_balance";
     String P_SAVINGS_BALANCE      = "p_savings_balance";
+
+    String P_ACCOUNT_TYPE         = "p_account_type";
+    String P_FROM_DATE            = "p_from_date";
+    String P_TO_DATE              = "p_to_date";
+
+    String P_TRANS_CSR            = "p_trans_csr";
 }

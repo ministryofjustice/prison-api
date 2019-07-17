@@ -3,6 +3,7 @@ package net.syscon.elite.repository.v1;
 import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.v1.CodeDescription;
 import net.syscon.elite.repository.impl.RepositoryBase;
+import net.syscon.elite.repository.v1.model.AccountTransactionSP;
 import net.syscon.elite.repository.v1.model.HoldSP;
 import net.syscon.elite.repository.v1.model.TransferSP;
 import net.syscon.elite.repository.v1.model.TransferSP.TransactionSP;
@@ -28,6 +29,7 @@ public class FinanceV1Repository extends RepositoryBase {
     private final GetHolds getHoldsProc;
     private final PostStorePayment postStorePaymentProc;
     private final GetAccountBalances getAccountBalancesProc;
+    private final GetAccountTransactions getAccountTransactionsProc;
 
     public TransferSP postTransfer(final String prisonId, final String nomsId, final String type, final String description, final BigDecimal amountInPounds, final LocalDate txDate, final String txId, final String uniqueClientId) {
         final var params = new MapSqlParameterSource()
@@ -116,5 +118,27 @@ public class FinanceV1Repository extends RepositoryBase {
                 "cash", (BigDecimal) result.get(P_CASH_BALANCE),
                 "spends", (BigDecimal) result.get(P_SPENDS_BALANCE),
                 "savings", (BigDecimal) result.get(P_SAVINGS_BALANCE));
+    }
+
+    public List<AccountTransactionSP> getAccountTransactions(final String prisonId, final String nomsId, final String accountType, final LocalDate fromDate, final LocalDate toDate) {
+
+        // The procedure parameters P_CLIENT_UNIQUE_REF, P_ROOT_OFFENDER_ID and P_SINGLE_OFFENDER_ID are never supplied in the Nomis API so not supplied here.
+
+        final var params = new MapSqlParameterSource()
+                .addValue(P_AGY_LOC_ID, prisonId)
+                .addValue(P_NOMS_ID, nomsId)
+                .addValue(P_ACCOUNT_TYPE, accountType);
+
+        if (fromDate != null) {
+            params.addValue(P_FROM_DATE, DateTimeConverter.toDate(fromDate));
+        }
+        if (toDate != null) {
+            params.addValue(P_TO_DATE, DateTimeConverter.toDate(toDate));
+        }
+
+        final var result = getAccountTransactionsProc.execute(params);
+
+        //noinspection: unchecked
+        return (List<AccountTransactionSP>) result.get(P_TRANS_CSR);
     }
 }

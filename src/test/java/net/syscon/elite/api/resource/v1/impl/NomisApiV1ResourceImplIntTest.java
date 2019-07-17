@@ -466,7 +466,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts", HttpMethod.GET, requestEntity, String.class);
 
-        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"cash\": 1234, \"spends\": 5678, \"savings\": 3434 }");
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"spends\": 5678, \"savings\": 3434, \"cash\": 1234 }");
     }
 
 }

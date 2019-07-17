@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import java.time.LocalDate;
 import java.util.List;
 
 @Api(tags = {"/v1"})
@@ -234,7 +235,7 @@ public interface NomisApiV1Resource {
     @ApiOperation(value = "Fetching live roll.")
     @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Transaction Created", response = LiveRoll.class),
+            @ApiResponse(code = 200, message = "Live roll returned for this prison.", response = LiveRoll.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     LiveRoll getLiveRoll(
@@ -268,7 +269,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 400, message = "One of: <ul><li>Offender not in specified prison - prisoner identified by {noms_id} is not in prison {prison_id}</li><li>Invalid payment type</li>" +
                     "<li>Client reference more than 12 characters</li><li>Missing data in request</li>" +
                     "<li>Exception - An unexpected error has occurred. Details will have been logged in the nomis_api_logs table on the Nomis database.</li></ul>", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested prison or offender could not be found.", response = ErrorResponse.class),
             @ApiResponse(code = 409, message = "Duplicate post - after an error with a post this response will be given for subsequent duplicate attempts", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     PaymentResponse storePayment(
@@ -281,15 +282,35 @@ public interface NomisApiV1Resource {
     @Path("/prison/{prison_id}/offenders/{noms_id}/accounts")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Retrieve an offender's financial account balances.", notes = "Returns balances for the offender’s three sub accounts (Spends, Saves and Cash) for the specified prison.<br/>" +
-            "All all balances returned are represented as pence values.")
+    @ApiOperation(value = "Retrieve an offender's financial account balances.", notes = "Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>" +
+            "All balance values are represented as pence values.")
     @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Account balances retruns", response = AccountBalance.class),
-            @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Prison or offender not found", response = ErrorResponse.class),
+            @ApiResponse(code = 200, message = "Account balances returned for this offender and prison.", response = AccountBalance.class),
+            @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Prison or offender was not found", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     AccountBalance getAccountBalance(
-            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
+
+
+    @GET
+    @Path("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/transactions")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieve an offender's financial transaction history.", notes = "Transactions are ordered in the NOMIS order. (Descending order of date followed by id).<br/>" +
+            "All transaction amounts are represented as pence values.")
+    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Account transactions returned", response = AccountBalance.class),
+            @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    AccountTransactions getAccountTransactions(
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
+            @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
+            @ApiParam(name = "account_code", value = "Account code one of cash,spends or savings", example = "spends", required = true, allowableValues = "spends,cash,savings") @PathParam("account_code") @NotNull String accountCode,
+            @ApiParam(name = "from_date", value = "Start date for transactions (defaults to today if not supplied)", example="2019-04-01") @QueryParam("from_date") LocalDate fromDate,
+            @ApiParam(name = "to_date", value = "To date for transactions (defaults to today if not supplied)", example="2019-05-01") @QueryParam("to_date") LocalDate toDate);
 }

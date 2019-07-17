@@ -126,4 +126,12 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
         return service.getAccountBalances(prisonId, nomsId);
     }
+
+    @Override
+    public AccountTransactions getAccountTransactions(String prisonId, String nomsId, String accountCode, LocalDate fromDate, LocalDate toDate) {
+
+        final var transactions = service.getAccountTransactions(prisonId, nomsId, accountCode, fromDate, toDate);
+        return new AccountTransactions(transactions);
+    }
+
 }

@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-@JsonPropertyOrder({"cash", "spends", "savings"})
+@JsonPropertyOrder({"spends", "savings", "cash"})
 public class AccountBalance {
 
     @ApiModelProperty(value = "Cash balance", example = "13565")
