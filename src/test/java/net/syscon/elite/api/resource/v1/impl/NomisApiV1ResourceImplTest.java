@@ -154,7 +154,6 @@ public class NomisApiV1ResourceImplTest {
     @Test
     public void getAccountTransactions() {
 
-        final var balanceResponse = AccountBalance.builder().cash(1234L).spends(5678L).savings(3434L).build();
         final var accountTransactions = List.of(
                 AccountTransaction.builder()
                         .id("1111-1")
