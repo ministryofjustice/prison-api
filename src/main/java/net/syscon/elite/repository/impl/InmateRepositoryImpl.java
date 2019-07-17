@@ -509,7 +509,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessmentId", getCategoryAssessmentId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        return applyCutoffDate(
+        return applyCutoffDateForActiveCategorisations(
                 removeEarlierCategorisations(removeNonStandardCategoryRecords(rawData)),
                 cutoffDate);
     }
@@ -563,10 +563,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .collect(Collectors.toList());
     }
 
-    private List<OffenderCategorise> applyCutoffDate(List<OffenderCategorise> catList, final LocalDate cutoffDate) {
+    private List<OffenderCategorise> applyCutoffDateForActiveCategorisations(List<OffenderCategorise> catList, final LocalDate cutoffDate) {
         return catList
                 .stream()
-                .filter(cat -> cat.getNextReviewDate() != null && !cutoffDate.isBefore(cat.getNextReviewDate()))
+                .filter(cat -> "P".equals(cat.getAssessStatus()) || (cat.getNextReviewDate() != null && !cutoffDate.isBefore(cat.getNextReviewDate())))
                 .collect(Collectors.toList());
     }
 
