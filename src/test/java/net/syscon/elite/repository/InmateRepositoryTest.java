@@ -703,11 +703,10 @@ public class InmateRepositoryTest {
 
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate", "assessmentSeq", "assessStatus")
-                .containsExactlyInAnyOrder(
+                .contains( //-34 pending may or may not be present during the build as the feature tests approve it
                         Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "B", LocalDate.of(2018, 6, 1), 8, "P"),
                         Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7), 2, "A"),
-                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1, "A"),
-                        Tuple.tuple("A1178RS", -34L, "FRED", "QUIMBY", "B", LocalDate.of(2019, 6, 9), 1, "P")
+                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1, "A")
                 );
     }
 
