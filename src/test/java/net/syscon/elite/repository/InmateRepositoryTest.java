@@ -706,7 +706,7 @@ public class InmateRepositoryTest {
                 .containsExactly(
                         Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "B", LocalDate.of(2018, 6, 1), 8, "P"),
                         Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7), 2, "A"),
-                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1,"A")
+                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1, "A")
                 );
     }
 
@@ -720,6 +720,16 @@ public class InmateRepositoryTest {
                 .containsExactly(
                         Tuple.tuple("A1181MV", -37L, "MICHAEL", "O'VAUGHAN", "B", LocalDate.of(2016, 8, 8), 3)
                 );
+    }
+
+    @Test
+    public void testGetRecategoriseLatestAfterCutoff() {
+        final var list1 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 30));
+        assertThat(list1).hasSize(1);
+
+        // The latest seq of booking id -38 is now after the cutoff so should not be selected:
+        final var list2 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 1));
+        assertThat(list2).isEmpty();
     }
 
     @Test
