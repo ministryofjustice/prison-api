@@ -200,7 +200,8 @@ public class BookingAssessmentSteps extends CommonSteps {
 
     public void getAssessmentsByCodeUsingPost(final String offenders, final String assessmentCode) {
         final List<String> offenderList = StringUtils.isNotBlank(offenders) ? ImmutableList.copyOf(offenders.split(",")) : Collections.emptyList();
-        assessments = doMultipleResultApiCallWithPost(API_ASSESSMENTS_PREFIX + assessmentCode, offenderList);
+        final var query = "?latestOnly=true&activeOnly=true";
+        assessments = doMultipleResultApiCallWithPost(API_ASSESSMENTS_PREFIX + assessmentCode + query, offenderList);
     }
 
     public void getCsrasUsingPost(final String offenders) {
