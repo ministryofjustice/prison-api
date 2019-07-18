@@ -160,7 +160,7 @@ public class InmateServiceImpl implements InmateService {
 
     private Set<String> loadCaseLoadsOrThrow() {
         final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
-        if (caseloads.isEmpty())
+        if (CollectionUtils.isEmpty(caseloads))
             throw new BadRequestException("User has not active caseloads.");
 
         return caseloads;
@@ -327,7 +327,7 @@ public class InmateServiceImpl implements InmateService {
     @VerifyAgencyAccess
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final Set<Long> bookingIds) {
         final List<InmateBasicDetails> results = new ArrayList<>();
-        if (!bookingIds.isEmpty()) {
+        if (!CollectionUtils.isEmpty(bookingIds)) {
             final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
             batch.forEach(offenderBatch -> {
                 final var offenderList = repository.getBasicInmateDetailsByBookingIds(caseload, offenderBatch);
@@ -349,7 +349,7 @@ public class InmateServiceImpl implements InmateService {
 
         Assessment assessment = null;
 
-        if (assessmentForCodeType != null && !assessmentForCodeType.isEmpty()) {
+        if (!CollectionUtils.isEmpty(assessmentForCodeType)) {
             assessment = createAssessment(assessmentForCodeType.get(0));
         }
 
@@ -359,7 +359,7 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, boolean activeOnly) {
         final List<Assessment> results = new ArrayList<>();
-        if (!offenderNos.isEmpty()) {
+        if (!CollectionUtils.isEmpty(offenderNos)) {
             final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
                     ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
@@ -386,7 +386,7 @@ public class InmateServiceImpl implements InmateService {
     @VerifyAgencyAccess
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
         final List<OffenderCategorise> results = new ArrayList<>();
-        if (!bookingIds.isEmpty()) {
+        if (!CollectionUtils.isEmpty(bookingIds)) {
             final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
             batch.forEach(offenderBatch -> {
                 final var categorisations = repository.getOffenderCategorisations(offenderBatch, agencyId, latestOnly);
