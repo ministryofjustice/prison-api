@@ -485,7 +485,7 @@ GET_OFFENDER_CATEGORISATIONS {
       join offender_bookings ob on ob.offender_book_id = off_ass.offender_book_id
       join offenders o on ob.offender_id = o.offender_id
       join staff_members sm on off_ass.assess_staff_id = sm.staff_id
-      join staff_members sm_a ON sm_a.staff_id  = (select su.staff_id from staff_user_accounts su where off_ass.modify_user_id = su.username)
+      left join staff_members sm_a ON sm_a.staff_id  = (select su.staff_id from staff_user_accounts su where off_ass.modify_user_id = su.username)
 
   where off_ass.offender_book_id in (:bookingIds)
     and off_ass.assessment_create_location = :agencyId -- included to ensure only authorised bookings are returned
