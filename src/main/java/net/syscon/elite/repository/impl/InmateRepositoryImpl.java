@@ -510,7 +510,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 OFFENDER_CATEGORY_MAPPER);
 
         return applyCutoffDateForActiveCategorisations(
-                removeEarlierCategorisations(removeNonStandardCategoryRecords(rawData)),
+                removeNonStandardCategoryRecords(removeEarlierCategorisations(rawData)),
                 cutoffDate);
     }
 
@@ -775,7 +775,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     private List<OffenderCategorise> removeNonStandardCategoryRecords(List<OffenderCategorise> rawData) {
         final var validCategoryCodes = Set.of("B", "C", "D");
-        return rawData.stream().filter(cat -> validCategoryCodes.contains(cat.getCategory())).collect(Collectors.toList());
+        return rawData.stream().filter(cat -> cat.getCategory() != null && validCategoryCodes.contains(cat.getCategory())).collect(Collectors.toList());
     }
 
 }

@@ -711,6 +711,15 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testGetRecategoriseRemovesNonStandardCatA() {
+        final var list1 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 30));
+        assertThat(list1).hasSize(2);
+
+        // -40 is a cat A but was a B earlier.
+        assertThat(list1).extracting("bookingId").doesNotContain(Tuple.tuple(-40L));
+    }
+
+    @Test
     public void testGetRecategoriseIgnoresEarlierPendingOrActive() {
         // booking id -37 has 3 active or pending categorisation records
         final var list = repository.getRecategorise("WAI", LocalDate.of(2019, 6, 7));
@@ -721,7 +730,6 @@ public class InmateRepositoryTest {
                         Tuple.tuple("A1181MV", -37L, "MICHAEL", "O'VAUGHAN", "B", LocalDate.of(2016, 8, 8), 3)
                 );
     }
-
 
     @Test
     public void testGetRecategorisePendingLatestAfterCutoff() {
