@@ -1,6 +1,7 @@
 package net.syscon.elite.api.resource.impl;
 
 import io.jsonwebtoken.lang.Collections;
+import net.syscon.elite.api.model.Assessment;
 import net.syscon.elite.api.model.CategorisationDetail;
 import net.syscon.elite.api.model.CategoryApprovalDetail;
 import net.syscon.elite.api.model.OffenderCategorise;
@@ -32,19 +33,24 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     public GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly) {
-        var latest = latestOnly == null ? true : latestOnly;
-        var active = activeOnly == null ? true : activeOnly;
-        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, latest, active);
+
+        final var results = applyDefaultsAndGetAssessmentsByCode(assessmentCode, offenderList, latestOnly, activeOnly);
         return GetOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
     }
 
     @Override
-    public PostOffenderAssessmentsAssessmentCodeResponse postOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList) {
-
+    public PostOffenderAssessmentsAssessmentCodeResponse postOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly) {
         validateOffenderList(offenderList);
 
-        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, true, true);
+        final var results = applyDefaultsAndGetAssessmentsByCode(assessmentCode, offenderList, latestOnly, activeOnly);
         return PostOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
+    }
+
+    private List<Assessment> applyDefaultsAndGetAssessmentsByCode(String assessmentCode, List<String> offenderList, Boolean latestOnly, Boolean activeOnly) {
+        var latest = latestOnly == null ? true : latestOnly;
+        var active = activeOnly == null ? true : activeOnly;
+
+        return inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, latest, active);
     }
 
     @Override
