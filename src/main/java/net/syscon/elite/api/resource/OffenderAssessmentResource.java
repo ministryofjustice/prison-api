@@ -40,7 +40,10 @@ public interface OffenderAssessmentResource {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "The assessment list is returned.", response = Assessment.class, responseContainer = "List") })
     PostOffenderAssessmentsAssessmentCodeResponse postOffenderAssessmentsAssessmentCode(@ApiParam(value = "Assessment Type Code", required = true) @PathParam("assessmentCode") String assessmentCode,
-                                                                                        @ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body);
+                                                                                        @ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body,
+                                                                                        @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly,
+                                                                                        @ApiParam(value = "Returns only active assessments if true, otherwise assessments with any status are included", defaultValue = "true") @QueryParam("activeOnly") Boolean activeOnly);
+
 
     @POST
     @Path("/csra/list")
