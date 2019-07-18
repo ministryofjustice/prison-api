@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -120,5 +121,61 @@ public class NomisApiV1ResourceImplTest {
         when(service.getLiveRoll(anyString())).thenReturn(liveRoll);
         final var roll = nomisApiV1Resource.getLiveRoll("any");
         assertThat(roll).isEqualTo(new LiveRoll(liveRoll));
+    }
+
+    @Test
+    public void storePayment() {
+        final var request = StorePaymentRequest.builder().type("A_EARN").amount(1324L).clientTransactionId("CS123").description("Earnings for May").build();
+        final var response = PaymentResponse.builder().message("Payment accepted").build();
+        when(service.storePayment(anyString(), anyString(), anyString(), anyString(), any(), any(), anyString())).thenReturn(response);
+
+        final var result = nomisApiV1Resource.storePayment("prison", "noms", request);
+
+        assertThat(result.getMessage()).isEqualToIgnoringCase("payment accepted");
+
+        verify(service).storePayment(anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    public void getBalance() {
+        final var balanceResponse = AccountBalance.builder().cash(1234L).spends(5678L).savings(3434L).build();
+        when(service.getAccountBalances(anyString(), anyString())).thenReturn(balanceResponse);
+        final var result = nomisApiV1Resource.getAccountBalance("prison", "noms");
+
+        assertThat(result.getCash()).isEqualTo(1234L);
+        assertThat(result.getSpends()).isEqualTo(5678L);
+        assertThat(result.getSavings()).isEqualTo(3434L);
+
+        verify(service).getAccountBalances(anyString(), anyString());
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    public void getAccountTransactions() {
+
+        final var accountTransactions = List.of(
+                AccountTransaction.builder()
+                        .id("1111-1")
+                        .description("Test transaction 1")
+                        .type(CodeDescription.safeNullBuild("A","AAAAA"))
+                        .amount(1234L)
+                        .date(LocalDate.of(2019, 12, 1)).build(),
+                AccountTransaction.builder()
+                        .id("2222-2")
+                        .description("Test transaction 2")
+                        .type(CodeDescription.safeNullBuild("B","BBBBB"))
+                        .amount(4567L)
+                        .date(LocalDate.of(2019, 12, 1)).build()
+        );
+
+        when(service.getAccountTransactions(anyString(), anyString(), anyString(), any(), any())).thenReturn(accountTransactions);
+
+        final var result = nomisApiV1Resource.getAccountTransactions("prison", "noms", "spends", null, null);
+
+        assertThat(result.getTransactions()).containsAll(accountTransactions);
+
+        verify(service).getAccountTransactions(anyString(), anyString(), anyString(), any(), any());
+        verifyNoMoreInteractions(service);
     }
 }

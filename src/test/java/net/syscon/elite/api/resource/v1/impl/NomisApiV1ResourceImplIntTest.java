@@ -4,7 +4,9 @@ import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.impl.ResourceTest;
 import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.GetHolds;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostStorePayment;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransaction;
 import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransfer;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
@@ -20,6 +22,7 @@ import org.springframework.boot.test.json.JsonContent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import java.math.BigDecimal;
@@ -28,11 +31,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
+import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -41,8 +46,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
 
 
-
 public class NomisApiV1ResourceImplIntTest extends ResourceTest {
+
     @TestConfiguration
     static class Config {
 
@@ -93,6 +98,20 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         public GetLiveRoll getLiveRoll() {
             return Mockito.mock(GetLiveRoll.class);
         }
+
+        @Bean
+        @Primary
+        public PostStorePayment postStorePayment() {
+            return Mockito.mock(PostStorePayment.class);
+        }
+
+        @Bean
+        @Primary
+        public GetAccountBalances getAccountBalances() { return Mockito.mock(GetAccountBalances.class); }
+
+        @Bean
+        @Primary
+        public GetAccountTransactions getAccountTransactions() { return Mockito.mock(GetAccountTransactions.class); }
     }
 
     @Autowired
@@ -118,6 +137,15 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetLiveRoll getLiveRoll;
+
+    @Autowired
+    private PostStorePayment postStorePayment;
+
+    @Autowired
+    private GetAccountBalances getAccountBalances;
+
+    @Autowired
+    private GetAccountTransactions getAccountTransactions;
 
     @Test
     public void transferTransaction() {
@@ -406,4 +434,95 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         //noinspection ConstantConditions
         assertThat(new JsonContent<LiveRoll>(getClass(), forType(LiveRoll.class), responseEntity.getBody())).isEqualToJson("roll.json");
     }
+
+    @Test
+    public void storePaymentOk() {
+
+        final var request = StorePaymentRequest.builder().type("ADJ").amount(1324L).clientTransactionId("CS123").description("Earnings for May").build();
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), request);
+
+        // No response parameters for this method so return an emtpy map to satisfy Mockito stub
+        when(postStorePayment.execute(any(SqlParameterSource.class))).thenReturn(Collections.EMPTY_MAP);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/payment", HttpMethod.POST, requestEntity, String.class);
+
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"message\": \"Payment accepted\"}");
+    }
+
+    @Test
+    public void storePaymentInvalidDetailsSupplied() {
+
+        // Invalid request - client transaction too long - 12 character max
+        final var request = StorePaymentRequest.builder().type("ADJ").amount(123L).clientTransactionId("This-is-too-long").description("bad payment args").build();
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), request);
+
+        // No response parameters for this method so return an emtpy map to satisfy Mockito stub
+        when(postStorePayment.execute(any(SqlParameterSource.class))).thenReturn(Collections.EMPTY_MAP);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/payment", HttpMethod.POST, requestEntity, String.class);
+
+        assertThatJson(responseEntity.getBody()).toString().contains("400");
+    }
+
+    @Test
+    public void getAccountBalances() {
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        when(getAccountBalances.execute(any(SqlParameterSource.class))).thenReturn(
+                Map.of(P_CASH_BALANCE, new BigDecimal("12.34"), P_SPENDS_BALANCE, new BigDecimal("56.78"), P_SAVINGS_BALANCE, new BigDecimal("34.34")));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"spends\": 5678, \"savings\": 3434, \"cash\": 1234 }");
+    }
+
+    @Test
+    public void getCashTransactions() {
+
+        final var responseEntity = getTransactions("cash");
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"transactions\": [ { \"id\": \"111-1\", \"type\": { \"code\": \"A\", \"desc\": \"AAA\" }, \"description\": \"Transaction test\", \"amount\": 1234, \"date\": \"2019-12-01\" } ] }");
+    }
+
+    @Test
+    public void getSpendsTransactions() {
+
+        final var responseEntity = getTransactions("spends");
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"transactions\": [ { \"id\": \"111-1\", \"type\": { \"code\": \"A\", \"desc\": \"AAA\" }, \"description\": \"Transaction test\", \"amount\": 1234, \"date\": \"2019-12-01\" } ] }");
+    }
+
+    @Test
+    public void getSavingsTransactions() {
+
+        final var responseEntity = getTransactions("savings");
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"transactions\": [ { \"id\": \"111-1\", \"type\": { \"code\": \"A\", \"desc\": \"AAA\" }, \"description\": \"Transaction test\", \"amount\": 1234, \"date\": \"2019-12-01\" } ] }");
+    }
+
+    private ResponseEntity getTransactions(final String accountType) {
+        final var transactions = List.of(
+                AccountTransactionSP.builder()
+                        .txnId(111L)
+                        .txnEntrySeq(1)
+                        .txnEntryDate(LocalDate.of(2019, 12, 1))
+                        .txnEntryDesc("Transaction test")
+                        .txnType("A")
+                        .txnTypeDesc("AAA")
+                        .txnEntryAmount(new BigDecimal("12.34"))
+                        .build()
+        );
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        when(getAccountTransactions.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_TRANS_CSR, transactions));
+
+        return testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts/" + accountType + "/transactions", HttpMethod.GET, requestEntity, String.class);
+    }
+
+
 }

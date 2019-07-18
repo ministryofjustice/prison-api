@@ -1,6 +1,5 @@
 package net.syscon.elite.service.v1;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.v1.*;
@@ -14,12 +13,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.ws.rs.BadRequestException;
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,7 +37,6 @@ public class NomisApiV1Service {
     private final AlertV1Repository alertV1Repository;
     private final EventsV1Repository eventsV1Repository;
     private final PrisonV1Repository prisonV1Repository;
-    private final ObjectMapper objectMapper;
 
     public Location getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
@@ -238,6 +238,46 @@ public class NomisApiV1Service {
 
     public List<String> getLiveRoll(final String prisonId) {
         return prisonV1Repository.getLiveRoll(prisonId).stream().map(LiveRollSP::getOffenderIdDisplay).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public PaymentResponse storePayment(final String prisonId, final String nomsId, final String payType, final String payDesc, BigDecimal payAmount, final LocalDate payDate, final String payClientRef) {
+        // No return value from repository - a runtime exception will be thrown in the event of problems
+        financeV1Repository.postStorePayment(prisonId, nomsId, payType, payDesc, payAmount, payDate, payClientRef);
+        return PaymentResponse.builder().message("Payment accepted").build();
+    }
+
+    public AccountBalance getAccountBalances(final String prisonId, final String nomsId) {
+        final var response = financeV1Repository.getAccountBalances(prisonId, nomsId);
+        return AccountBalance.builder()
+                .cash(convertToPence(response.get("cash")))
+                .spends(convertToPence(response.get("spends")))
+                .savings(convertToPence(response.get("savings")))
+                .build();
+    }
+
+    public List<AccountTransaction> getAccountTransactions(final String prisonId, final String nomsId, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
+
+        final var accountType = convertAccountCodeToType(accountCode);
+        if (StringUtils.isEmpty(accountType)) {
+            throw new BadRequestException("Invalid account_code supplied. Should be one of cash, spends or savings");
+        }
+
+        return financeV1Repository.getAccountTransactions(prisonId, nomsId, accountType, fromDate, toDate)
+                .stream()
+                .map(t -> AccountTransaction.builder()
+                        .id("" + t.getTxnId() + "-" + t.getTxnEntrySeq())
+                        .type(CodeDescription.safeNullBuild(t.getTxnType(), t.getTxnTypeDesc()))
+                        .description(t.getTxnEntryDesc())
+                        .amount(convertToPence(t.getTxnEntryAmount()))
+                        .date(t.getTxnEntryDate())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private String convertAccountCodeToType(final String accountCode) {
+        final var codeTranslation = Map.of("spends", "SPND", "savings", "SAV", "cash", "REG");
+        return codeTranslation.get(accountCode);
     }
 
     private Long convertToPence(final BigDecimal value) {

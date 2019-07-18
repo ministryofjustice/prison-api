@@ -1,33 +1,38 @@
 package net.syscon.elite.repository.v1;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import net.syscon.elite.api.model.v1.CodeDescription;
 import net.syscon.elite.repository.impl.RepositoryBase;
+import net.syscon.elite.repository.v1.model.AccountTransactionSP;
 import net.syscon.elite.repository.v1.model.HoldSP;
 import net.syscon.elite.repository.v1.model.TransferSP;
 import net.syscon.elite.repository.v1.model.TransferSP.TransactionSP;
 import net.syscon.util.DateTimeConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 
+@Slf4j
 @Repository
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class FinanceV1Repository extends RepositoryBase {
 
     private final PostTransaction postTransactionProc;
     private final PostTransfer postTransferProc;
     private final GetHolds getHoldsProc;
-
-    public FinanceV1Repository(final PostTransaction postTransactionProc, final PostTransfer postTransferProc, final GetHolds getHoldsProc) {
-        this.postTransactionProc = postTransactionProc;
-        this.postTransferProc = postTransferProc;
-        this.getHoldsProc = getHoldsProc;
-    }
+    private final PostStorePayment postStorePaymentProc;
+    private final GetAccountBalances getAccountBalancesProc;
+    private final GetAccountTransactions getAccountTransactionsProc;
 
     public TransferSP postTransfer(final String prisonId, final String nomsId, final String type, final String description, final BigDecimal amountInPounds, final LocalDate txDate, final String txId, final String uniqueClientId) {
         final var params = new MapSqlParameterSource()
@@ -80,7 +85,60 @@ public class FinanceV1Repository extends RepositoryBase {
                 .addValue(P_CLIENT_UNIQUE_REF, uniqueClientId);
 
         final var result = getHoldsProc.execute(params);
+
         //noinspection unchecked
         return (List<HoldSP>) result.get(P_HOLDS_CSR);
+    }
+
+    public void postStorePayment(final String prisonId, final String nomsId, final String payType, final String description, final BigDecimal payAmount, final LocalDate payDate, final String clientRef) {
+
+        final var params = new MapSqlParameterSource()
+                .addValue(P_NOMS_ID, nomsId)
+                .addValue(P_ROOT_OFFENDER_ID, null)
+                .addValue(P_SINGLE_OFFENDER_ID, null)
+                .addValue(P_AGY_LOC_ID, prisonId)
+                .addValue(P_TXN_TYPE, payType)
+                .addValue(P_TXN_REFERENCE_NUMBER, clientRef)
+                .addValue(P_TXN_ENTRY_DATE, DateTimeConverter.toDate(payDate))
+                .addValue(P_TXN_ENTRY_DESC, description)
+                .addValue(P_TXN_ENTRY_AMOUNT, payAmount);
+
+        // No out parameters - a runtime exception will be thrown in the event of errors
+        postStorePaymentProc.execute(params);
+    }
+
+    public Map<String,BigDecimal> getAccountBalances(final String prisonId, final String nomsId) {
+
+        final var params = new MapSqlParameterSource()
+                .addValue(P_AGY_LOC_ID, prisonId)
+                .addValue(P_NOMS_ID, nomsId)
+                .addValue(P_ROOT_OFFENDER_ID, null)
+                .addValue(P_SINGLE_OFFENDER_ID, null);
+
+        final var result = getAccountBalancesProc.execute(params);
+
+        return Map.of(
+                "cash", (BigDecimal) result.get(P_CASH_BALANCE),
+                "spends", (BigDecimal) result.get(P_SPENDS_BALANCE),
+                "savings", (BigDecimal) result.get(P_SAVINGS_BALANCE));
+    }
+
+
+    public List<AccountTransactionSP> getAccountTransactions(final String prisonId, final String nomsId, final String accountType, final LocalDate fromDate, final LocalDate toDate) {
+
+        final var params = new MapSqlParameterSource()
+                .addValue(P_AGY_LOC_ID, prisonId)
+                .addValue(P_NOMS_ID, nomsId)
+                .addValue(P_ACCOUNT_TYPE, accountType)
+                .addValue(P_ROOT_OFFENDER_ID, null)
+                .addValue(P_SINGLE_OFFENDER_ID, null)
+                .addValue(P_CLIENT_UNIQUE_REF, null)
+                .addValue(P_FROM_DATE, DateTimeConverter.toDate(fromDate))
+                .addValue(P_TO_DATE, DateTimeConverter.toDate(toDate));
+
+        final var result = getAccountTransactionsProc.execute(params);
+
+        //noinspection: unchecked
+        return (List<AccountTransactionSP>) result.get(P_TRANS_CSR);
     }
 }
