@@ -242,8 +242,9 @@ public class NomisApiV1Service {
 
     @Transactional
     public PaymentResponse storePayment(final String prisonId, final String nomsId, final String payType, final String payDesc, BigDecimal payAmount, final LocalDate payDate, final String payClientRef) {
-        final var response = financeV1Repository.postStorePayment(prisonId, nomsId, payType, payDesc, payAmount, payDate, payClientRef);
-        return PaymentResponse.builder().message(response).build();
+        // No return value from repository - a runtime exception will be thrown in the event of problems
+        financeV1Repository.postStorePayment(prisonId, nomsId, payType, payDesc, payAmount, payDate, payClientRef);
+        return PaymentResponse.builder().message("Payment accepted").build();
     }
 
     public AccountBalance getAccountBalances(final String prisonId, final String nomsId) {

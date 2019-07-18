@@ -85,11 +85,12 @@ public class FinanceV1Repository extends RepositoryBase {
                 .addValue(P_CLIENT_UNIQUE_REF, uniqueClientId);
 
         final var result = getHoldsProc.execute(params);
+
         //noinspection unchecked
         return (List<HoldSP>) result.get(P_HOLDS_CSR);
     }
 
-    public String postStorePayment(final String prisonId, final String nomsId, final String payType, final String description, final BigDecimal payAmount, final LocalDate payDate, final String clientRef) {
+    public void postStorePayment(final String prisonId, final String nomsId, final String payType, final String description, final BigDecimal payAmount, final LocalDate payDate, final String clientRef) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_NOMS_ID, nomsId)
@@ -102,9 +103,8 @@ public class FinanceV1Repository extends RepositoryBase {
                 .addValue(P_TXN_ENTRY_DESC, description)
                 .addValue(P_TXN_ENTRY_AMOUNT, payAmount);
 
-        // A runtime exception will be thrown in the event of a problem, with only other outcome a success message
-        final var result = postStorePaymentProc.execute(params);
-        return "Payment accepted";
+        // No out parameters - a runtime exception will be thrown in the event of errors
+        postStorePaymentProc.execute(params);
     }
 
     public Map<String,BigDecimal> getAccountBalances(final String prisonId, final String nomsId) {
@@ -135,8 +135,6 @@ public class FinanceV1Repository extends RepositoryBase {
                 .addValue(P_CLIENT_UNIQUE_REF, null)
                 .addValue(P_FROM_DATE, DateTimeConverter.toDate(fromDate))
                 .addValue(P_TO_DATE, DateTimeConverter.toDate(toDate));
-
-        log.info("Calling procedure with prisonId {}, nomsId {}, accountType {}, fromDate {}, toDate {}", prisonId, nomsId, accountType, DateTimeConverter.toDate(fromDate), DateTimeConverter.toDate(toDate));
 
         final var result = getAccountTransactionsProc.execute(params);
 
