@@ -684,6 +684,15 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testGetOffenderCategorisationsNoApprover() {
+        final var list = repository.getOffenderCategorisations(Arrays.asList(-41L), "SYI", false);
+        assertThat(list)
+                .extracting("offenderNo", "bookingId", "lastName", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple("A1184MA", -41L, "ALI", null, null, "Elite2", "User", "B", "A"));
+    }
+
+    @Test
     public void testGetApprovedCategorisedNoResults() {
         final var list = repository.getApprovedCategorised("MDI", LocalDate.of(2022, 5, 5));
         assertThat(list).hasSize(0);
