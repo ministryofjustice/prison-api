@@ -143,9 +143,9 @@ public class FinanceProcs {
                             new SqlParameter(P_ROOT_OFFENDER_ID, Types.INTEGER),
                             new SqlParameter(P_SINGLE_OFFENDER_ID, Types.VARCHAR),
                             new SqlParameter(P_AGY_LOC_ID, Types.VARCHAR),
-                            new SqlOutParameter(P_ACCOUNT_TYPE, Types.VARCHAR),
-                            new SqlOutParameter(P_FROM_DATE, Types.DATE),
-                            new SqlOutParameter(P_TO_DATE, Types.DATE))
+                            new SqlParameter(P_ACCOUNT_TYPE, Types.VARCHAR),
+                            new SqlParameter(P_FROM_DATE, Types.DATE),
+                            new SqlParameter(P_TO_DATE, Types.DATE))
                     .returningResultSet(P_TRANS_CSR,
                             StandardBeanPropertyRowMapper.newInstance(AccountTransactionSP.class));
             compile();

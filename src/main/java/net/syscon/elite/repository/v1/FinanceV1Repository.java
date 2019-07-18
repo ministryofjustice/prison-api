@@ -1,6 +1,8 @@
 package net.syscon.elite.repository.v1;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import net.syscon.elite.api.model.v1.CodeDescription;
 import net.syscon.elite.repository.impl.RepositoryBase;
 import net.syscon.elite.repository.v1.model.AccountTransactionSP;
@@ -20,6 +22,7 @@ import java.util.Map;
 import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 
+@Slf4j
 @Repository
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class FinanceV1Repository extends RepositoryBase {
@@ -120,21 +123,20 @@ public class FinanceV1Repository extends RepositoryBase {
                 "savings", (BigDecimal) result.get(P_SAVINGS_BALANCE));
     }
 
-    public List<AccountTransactionSP> getAccountTransactions(final String prisonId, final String nomsId, final String accountType, final LocalDate fromDate, final LocalDate toDate) {
 
-        // The procedure parameters P_CLIENT_UNIQUE_REF, P_ROOT_OFFENDER_ID and P_SINGLE_OFFENDER_ID are never supplied in the Nomis API so not supplied here.
+    public List<AccountTransactionSP> getAccountTransactions(final String prisonId, final String nomsId, final String accountType, final LocalDate fromDate, final LocalDate toDate) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_AGY_LOC_ID, prisonId)
                 .addValue(P_NOMS_ID, nomsId)
-                .addValue(P_ACCOUNT_TYPE, accountType);
+                .addValue(P_ACCOUNT_TYPE, accountType)
+                .addValue(P_ROOT_OFFENDER_ID, null)
+                .addValue(P_SINGLE_OFFENDER_ID, null)
+                .addValue(P_CLIENT_UNIQUE_REF, null)
+                .addValue(P_FROM_DATE, DateTimeConverter.toDate(fromDate))
+                .addValue(P_TO_DATE, DateTimeConverter.toDate(toDate));
 
-        if (fromDate != null) {
-            params.addValue(P_FROM_DATE, DateTimeConverter.toDate(fromDate));
-        }
-        if (toDate != null) {
-            params.addValue(P_TO_DATE, DateTimeConverter.toDate(toDate));
-        }
+        log.info("Calling procedure with prisonId {}, nomsId {}, accountType {}, fromDate {}, toDate {}", prisonId, nomsId, accountType, DateTimeConverter.toDate(fromDate), DateTimeConverter.toDate(toDate));
 
         final var result = getAccountTransactionsProc.execute(params);
 
