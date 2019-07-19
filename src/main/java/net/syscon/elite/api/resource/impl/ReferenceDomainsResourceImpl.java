@@ -1,10 +1,13 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.resource.ReferenceDomainResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.ReferenceDomainService;
+import org.springframework.validation.annotation.Validated;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
@@ -13,6 +16,7 @@ import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
 @Path("/reference-domains")
+@Validated
 public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 	private final ReferenceDomainService referenceDomainService;
 	private final CaseNoteService caseNoteService;
@@ -84,10 +88,22 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 		return GetReferenceCodeByDomainAndCodeResponse.respond200WithApplicationJson(referenceCode.get());
 	}
 
-    @Override
+	@Override
+	public ReferenceCode createReferenceCode(final String domain,final String code, final ReferenceCodeInfo referenceData) {
+		return referenceDomainService.createReferenceCode(domain, code, referenceData);
+	}
+
+	@Override
+	public ReferenceCode updateReferenceCode(final String domain,final String code, final ReferenceCodeInfo referenceData) {
+		return referenceDomainService.updateReferenceCode(domain, code, referenceData);
+	}
+
+	@Override
     public GetScheduleReasonsResponse getScheduleReasons(final String eventType) {
         final var result = referenceDomainService.getScheduleReasons(eventType);
 
         return GetScheduleReasonsResponse.respond200WithApplicationJson(result);
     }
+
+
 }

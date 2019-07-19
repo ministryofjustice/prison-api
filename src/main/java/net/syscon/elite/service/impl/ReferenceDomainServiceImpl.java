@@ -1,9 +1,11 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.ReferenceCodeRepository;
+import net.syscon.elite.service.EntityAlreadyExistsException;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.ReferenceDomain;
@@ -12,6 +14,8 @@ import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +53,29 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
                 ReferenceDomain.CASE_NOTE_SOURCE.getDomain(), false,
                 getDefaultOrderBy(orderBy), getDefaultOrder(order),
                 offset, limit);
+    }
+
+    @Override
+    @Transactional
+    public ReferenceCode createReferenceCode(@NotNull final String domain, @NotNull final String code, @NotNull @Valid final ReferenceCodeInfo referenceData) {
+        referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code,false).ifPresent( p -> {
+            throw new EntityAlreadyExistsException(domain+"-"+code);
+        });
+
+        referenceCodeRepository.insertReferenceCode(domain, code, referenceData);
+
+        return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code,false)
+                .orElseThrow(new EntityNotFoundException(domain+"/"+code));
+    }
+
+    @Override
+    @Transactional
+    public ReferenceCode updateReferenceCode(@NotNull final String domain, @NotNull final String code, @NotNull @Valid final ReferenceCodeInfo referenceData) {
+
+        referenceCodeRepository.updateReferenceCode(domain, code, referenceData);
+
+        return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code,false)
+                .orElseThrow(new EntityNotFoundException(domain+"/"+code));
     }
 
     @Override

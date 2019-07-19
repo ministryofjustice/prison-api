@@ -1,190 +1,75 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Contacts Details for prison
+ * Contacts Details for agency
  **/
-@SuppressWarnings("unused")
-@ApiModel(description = "Contacts Details for prison")
+@ApiModel(description = "Contacts details for agency")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@Data
+@ToString
 public class PrisonContactDetail {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-    
+    @ApiModelProperty(required = true, position = 1, value = "Identifier of agency/prison.", example = "MDI")
     @NotBlank
     private String agencyId;
 
     @NotBlank
+    @ApiModelProperty(required = true, value = "Agency description.", example = "Moorland (HMP & YOI)")
+    private String description;
+
+    @ApiModelProperty(required = true, position = 2, value = "Type of agency.", example = "INST")
+    @NotBlank
+    private String agencyType;
+
+    @ApiModelProperty(required = true, position = 3, value = "Type of address.")
+    @NotBlank
     private String addressType;
 
+    @ApiModelProperty(required = true, position = 4, value = "The Prison name.")
     @NotBlank
     private String premise;
 
+    @ApiModelProperty(required = true, position = 5, value = "Describes the geographic location.")
     @NotBlank
     private String locality;
 
+    @ApiModelProperty(required = true, position = 6, value = "Address city.")
     @NotBlank
     private String city;
 
+    @ApiModelProperty(required = true, position = 7, value = "Address country.")
     @NotBlank
     private String country;
 
+    @ApiModelProperty(required = true, position = 8, value = "Address postcode.")
     @NotBlank
     private String postCode;
 
+    @ApiModelProperty(required = true, position = 9, value = "List of Telephone details")
     @NotNull
     @Builder.Default
-    private List<Telephone> phones = new ArrayList<Telephone>();
+    private List<Telephone> phones = new ArrayList<>();
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
 
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
 
-    /**
-      * Identifier of agency/prison.
-      */
-    @ApiModelProperty(required = true, value = "Identifier of agency/prison.")
-    @JsonProperty("agencyId")
-    public String getAgencyId() {
-        return agencyId;
-    }
 
-    public void setAgencyId(final String agencyId) {
-        this.agencyId = agencyId;
-    }
 
-    /**
-      * Type of address.
-      */
-    @ApiModelProperty(required = true, value = "Type of address.")
-    @JsonProperty("addressType")
-    public String getAddressType() {
-        return addressType;
-    }
 
-    public void setAddressType(final String addressType) {
-        this.addressType = addressType;
-    }
 
-    /**
-      * The Prison name.
-      */
-    @ApiModelProperty(required = true, value = "The Prison name.")
-    @JsonProperty("premise")
-    public String getPremise() {
-        return premise;
-    }
 
-    public void setPremise(final String premise) {
-        this.premise = premise;
-    }
 
-    /**
-      * Describes the geographic location.
-      */
-    @ApiModelProperty(required = true, value = "Describes the geographic location.")
-    @JsonProperty("locality")
-    public String getLocality() {
-        return locality;
-    }
 
-    public void setLocality(final String locality) {
-        this.locality = locality;
-    }
-
-    /**
-      * Address city.
-      */
-    @ApiModelProperty(required = true, value = "Address city.")
-    @JsonProperty("city")
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(final String city) {
-        this.city = city;
-    }
-
-    /**
-      * Address country.
-      */
-    @ApiModelProperty(required = true, value = "Address country.")
-    @JsonProperty("country")
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(final String country) {
-        this.country = country;
-    }
-
-    /**
-      * Address postcode.
-      */
-    @ApiModelProperty(required = true, value = "Address postcode.")
-    @JsonProperty("postCode")
-    public String getPostCode() {
-        return postCode;
-    }
-
-    public void setPostCode(final String postCode) {
-        this.postCode = postCode;
-    }
-
-    /**
-      * List of Telephone details
-      */
-    @ApiModelProperty(required = true, value = "List of Telephone details")
-    @JsonProperty("phones")
-    public List<Telephone> getPhones() {
-        return phones;
-    }
-
-    public void setPhones(final List<Telephone> phones) {
-        this.phones = phones;
-    }
-
-    @Override
-    public String toString()  {
-        final var sb = new StringBuilder();
-
-        sb.append("class PrisonContactDetail {\n");
-        
-        sb.append("  agencyId: ").append(agencyId).append("\n");
-        sb.append("  addressType: ").append(addressType).append("\n");
-        sb.append("  premise: ").append(premise).append("\n");
-        sb.append("  locality: ").append(locality).append("\n");
-        sb.append("  city: ").append(city).append("\n");
-        sb.append("  country: ").append(country).append("\n");
-        sb.append("  postCode: ").append(postCode).append("\n");
-        sb.append("  phones: ").append(phones).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
-    }
 }

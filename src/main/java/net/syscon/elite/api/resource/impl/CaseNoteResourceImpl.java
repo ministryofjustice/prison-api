@@ -38,7 +38,7 @@ public class CaseNoteResourceImpl implements CaseNoteResource {
     }
 
     @Override
-    public List<CaseNoteUsage>  getCaseNoteUsageSummaryByPost(final CaseNoteUsageRequest request) {
+    public List<CaseNoteUsage> getCaseNoteUsageSummaryByPost(final CaseNoteUsageRequest request) {
         return caseNoteService.getCaseNoteUsage(request.getType(), request.getSubType(), request.getOffenderNos(), request.getStaffId(), request.getAgencyId(), request.getFromDate(), request.getToDate(), ObjectUtils.defaultIfNull(request.getNumMonths(), 1));
     }
 

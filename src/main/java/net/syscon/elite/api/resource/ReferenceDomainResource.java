@@ -3,9 +3,12 @@ package net.syscon.elite.api.resource;
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.ResponseDelegate;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -88,6 +91,37 @@ public interface ReferenceDomainResource {
     GetReferenceCodeByDomainAndCodeResponse getReferenceCodeByDomainAndCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathParam("domain") String domain,
                                                                             @ApiParam(value = "The reference code.", required = true) @PathParam("code") String code,
                                                                             @ApiParam(value = "Specify whether or not to return the reference code with its associated sub-codes.", defaultValue = "false") @QueryParam("withSubCodes") boolean withSubCodes);
+
+
+    @POST
+    @Path("/domains/{domain}/codes/{code}")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "Transaction Created")
+    @ApiOperation(value = "Creates a reference code")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Created", response = ReferenceCode.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    ReferenceCode createReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathParam("domain") String domain,
+                                 @ApiParam(value = "The reference code.", required = true) @PathParam("code") String code,
+                                 @ApiParam(value = "Reference Information", required = true) ReferenceCodeInfo referenceData);
+
+    @PUT
+    @Path("/domains/{domain}/codes/{code}")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ResponseStatus(value = HttpStatus.OK, reason = "Transaction Updated")
+    @ApiOperation(value = "Creates a reference code")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Created", response = ReferenceCode.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    ReferenceCode updateReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathParam("domain") String domain,
+                                 @ApiParam(value = "The reference code.", required = true) @PathParam("code") String code,
+                                 @ApiParam(value = "Reference Information", required = true) ReferenceCodeInfo referenceData);
 
     @GET
     @Path("/scheduleReasons")
