@@ -63,7 +63,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
 
     @Step("Verify returned item has no sub-codes")
     public void verifyRefCodeNoSubCodes() {
-        assertThat(referenceCode.getSubCodes()).isNull();
+        assertThat(referenceCode.getSubCodes()).isEmpty();
     }
 
     @Step("Verify sub-code count for returned item")
