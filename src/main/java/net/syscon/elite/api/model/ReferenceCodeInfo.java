@@ -8,8 +8,10 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.DefaultValue;
 import java.time.LocalDate;
 
 @ApiModel(description = "Reference Code Data")
@@ -21,33 +23,36 @@ import java.time.LocalDate;
 @JsonPropertyOrder({"description", "parentDomain", "parentCode", "activeFlag", "listSeq", "systemDataFlag", "expiredDate"})
 @Data
 @ToString
+@Builder(toBuilder = true)
 public class ReferenceCodeInfo {
 
     @ApiModelProperty(required = true, value = "Reference data item description.", position = 1, example = "Some description")
     @NotBlank
+    @Length(max = 40)
     private String description;
 
     @ApiModelProperty(value = "Parent reference data item domain.", position = 2, example = "TASK_TYPE")
-    @Length(max = 1)
+    @Length(max = 12)
     private String parentDomain;
 
     @ApiModelProperty(value = "Parent reference data item code.", position = 3, example = "MIGRATION")
-    @Length(max = 1)
+    @Length(max = 12)
     private String parentCode;
 
     @ApiModelProperty(required = true, value = "Reference data item active indicator flag.", example = "Y", allowableValues = "Y,N", position = 4)
-    @NotBlank
     @Length(max = 1)
     @Pattern(regexp = "[N|Y]")
+    @DefaultValue("Y")
     private String activeFlag;
 
     @ApiModelProperty(value = "List Sequence", example = "1", position = 5)
-    @NotBlank
+    @Max(value = 999999)
     private Integer listSeq;
 
-    @ApiModelProperty(value = "System Data Flag", position = 6, example = "N")
+    @ApiModelProperty(value = "System Data Flag", position = 6, example = "Y")
     @Length(max = 1)
     @Pattern(regexp = "[N|Y]")
+    @DefaultValue("Y")
     private String systemDataFlag;
 
     @ApiModelProperty(value = "Expired Date", position = 7, example = "2018-03-09")

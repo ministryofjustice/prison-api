@@ -5,8 +5,6 @@ import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +29,7 @@ public interface ReferenceDomainService {
 	 */
 	boolean isReferenceCodeActive(String domain, String code);
 
-	ReferenceCode createReferenceCode(@NotNull final String domain, @NotNull final String code, @NotNull @Valid final ReferenceCodeInfo referenceData);
+	ReferenceCode createReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData);
 
-	ReferenceCode updateReferenceCode(@NotNull final String domain, @NotNull final String code, @NotNull @Valid final ReferenceCodeInfo referenceData);
+	ReferenceCode updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData);
 }
