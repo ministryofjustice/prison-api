@@ -49,7 +49,7 @@ public class ReferenceCodeInfo {
     @Max(value = 999999)
     private Integer listSeq;
 
-    @ApiModelProperty(value = "System Data Flag", position = 6, example = "Y")
+    @ApiModelProperty(value = "System Data Flag", position = 6, example = "Y", allowableValues = "Y,N")
     @Length(max = 1)
     @Pattern(regexp = "[N|Y]")
     @DefaultValue("Y")

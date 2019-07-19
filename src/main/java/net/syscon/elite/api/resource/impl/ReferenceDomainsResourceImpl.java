@@ -79,7 +79,7 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 		// If no exception thrown in service layer, we know that reference code exists for specified domain and code.
         // However, if sub-codes were requested but reference code does not have any sub-codes, response from service
         // layer will be empty - this is a bad request.
-        if (!referenceCode.isPresent()) {
+        if (referenceCode.isEmpty()) {
             final var message = String.format("Reference code for domain [%s] and code [%s] does not have sub-codes.", domain, code);
 
             throw new BadRequestException(message);
