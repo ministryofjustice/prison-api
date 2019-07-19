@@ -233,6 +233,9 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
                         .activeFlag(ref.getActiveFlag())
                         .parentCode(ref.getParentCode())
                         .parentDomain(ref.getParentDomain())
+                        .listSeq(ref.getListSeq())
+                        .systemDataFlag(ref.getSystemDataFlag())
+                        .expiredDate(ref.getExpiredDate())
                         .build();
 
                 referenceCodes.add(activeRef);
