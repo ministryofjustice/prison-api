@@ -244,6 +244,9 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
                         .domain(ref.getSubDomain())
                         .description(ref.getSubDescription())
                         .activeFlag(ref.getSubActiveFlag())
+                        .listSeq(ref.getSubListSeq())
+                        .systemDataFlag(ref.getSubSystemDataFlag())
+                        .expiredDate(ref.getSubExpiredDate())
                         .build());
             }
         }
