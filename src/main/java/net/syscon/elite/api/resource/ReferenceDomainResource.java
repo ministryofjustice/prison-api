@@ -100,7 +100,7 @@ public interface ReferenceDomainResource {
     @Path("/domains/{domain}/codes/{code}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    @ResponseStatus(value = HttpStatus.CREATED, reason = "Transaction Created")
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "Reference Code Created")
     @ApiOperation(value = "Creates a reference code")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Created", response = ReferenceCode.class),
@@ -115,8 +115,8 @@ public interface ReferenceDomainResource {
     @Path("/domains/{domain}/codes/{code}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    @ResponseStatus(value = HttpStatus.OK, reason = "Transaction Updated")
-    @ApiOperation(value = "Creates a reference code")
+    @ResponseStatus(value = HttpStatus.OK, reason = "Reference Code Updated")
+    @ApiOperation(value = "Updates a reference code")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Created", response = ReferenceCode.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
