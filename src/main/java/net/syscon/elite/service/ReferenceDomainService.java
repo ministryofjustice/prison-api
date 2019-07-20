@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
@@ -27,4 +28,8 @@ public interface ReferenceDomainService {
 	 * @return True if the tuple (domain, code) exists in the database and is active otherwise false.
 	 */
 	boolean isReferenceCodeActive(String domain, String code);
+
+	ReferenceCode createReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData);
+
+	ReferenceCode updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData);
 }

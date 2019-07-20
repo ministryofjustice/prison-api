@@ -47,8 +47,7 @@ public class CaseNoteRepositoryTest {
         assertNotNull(types);
         assertFalse(types.isEmpty());
 
-        // Ensure each type has null value for sub-types
-        types.forEach(type -> assertNull(type.getSubCodes()));
+        types.forEach(type -> assertThat(type.getSubCodes()).isEmpty());
     }
 
     @Test

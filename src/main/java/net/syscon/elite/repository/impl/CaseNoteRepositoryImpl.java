@@ -310,6 +310,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
                         .domain(ref.getSubDomain())
                         .description(ref.getSubDescription())
                         .activeFlag(ref.getSubActiveFlag())
+                        .listSeq(ref.getSubListSeq())
+                        .systemDataFlag(ref.getSubSystemDataFlag())
+                        .expiredDate(ref.getSubExpiredDate())
                         .build();
 
                 caseNoteType.getSubCodes().add(caseNoteSubType);

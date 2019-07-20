@@ -1,10 +1,15 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.resource.ReferenceDomainResource;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.ReferenceDomainService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
@@ -13,6 +18,7 @@ import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
 @Path("/reference-domains")
+@Validated
 public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 	private final ReferenceDomainService referenceDomainService;
 	private final CaseNoteService caseNoteService;
@@ -75,7 +81,7 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 		// If no exception thrown in service layer, we know that reference code exists for specified domain and code.
         // However, if sub-codes were requested but reference code does not have any sub-codes, response from service
         // layer will be empty - this is a bad request.
-        if (!referenceCode.isPresent()) {
+        if (referenceCode.isEmpty()) {
             final var message = String.format("Reference code for domain [%s] and code [%s] does not have sub-codes.", domain, code);
 
             throw new BadRequestException(message);
@@ -84,10 +90,26 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 		return GetReferenceCodeByDomainAndCodeResponse.respond200WithApplicationJson(referenceCode.get());
 	}
 
-    @Override
+	@Override
+	@PreAuthorize("#oauth2.hasScope('write') && hasAnyRole('MAINTAIN_REF_DATA', 'SYSTEM_USER')")
+	@ProxyUser
+	public ReferenceCode createReferenceCode(final String domain,final String code, final ReferenceCodeInfo referenceData) {
+		return referenceDomainService.createReferenceCode(domain, code, referenceData);
+	}
+
+	@Override
+	@PreAuthorize("#oauth2.hasScope('write') && hasAnyRole('MAINTAIN_REF_DATA', 'SYSTEM_USER')")
+	@ProxyUser
+	public ReferenceCode updateReferenceCode(final String domain,final String code, final ReferenceCodeInfo referenceData) {
+		return referenceDomainService.updateReferenceCode(domain, code, referenceData);
+	}
+
+	@Override
     public GetScheduleReasonsResponse getScheduleReasons(final String eventType) {
         final var result = referenceDomainService.getScheduleReasons(eventType);
 
         return GetScheduleReasonsResponse.respond200WithApplicationJson(result);
     }
+
+
 }

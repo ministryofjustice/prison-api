@@ -1,167 +1,43 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Reference Code
  **/
-@SuppressWarnings("unused")
 @ApiModel(description = "Reference Code")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-public class ReferenceCode {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-    
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@JsonPropertyOrder({"domain", "code", "description", "parentDomain", "parentCode", "activeFlag", "listSeq", "systemDataFlag", "expiredDate", "subCodes"})
+@Data
+@ToString
+public class ReferenceCode extends ReferenceCodeInfo {
+
+    @ApiModelProperty(required = true, value = "Reference data item domain.", position = 1, example = "TASK_TYPE")
     @NotBlank
+    @Length(max = 12)
     private String domain;
 
+    @ApiModelProperty(required = true, value = "Reference data item code.", position = 2, example = "MISC")
     @NotBlank
+    @Length(max = 12)
     private String code;
 
-    @NotBlank
-    private String description;
+    @ApiModelProperty(value = "List of subordinate reference data items associated with this reference data item.", position = 3, allowEmptyValue = true)
+    @Builder.Default
+    private List<ReferenceCode> subCodes = new ArrayList<>();
 
-    private String parentDomain;
-
-    private String parentCode;
-
-    @NotBlank
-    private String activeFlag;
-
-    private List<ReferenceCode> subCodes;
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
-
-    /**
-      * Reference data item domain.
-      */
-    @ApiModelProperty(required = true, value = "Reference data item domain.")
-    @JsonProperty("domain")
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(final String domain) {
-        this.domain = domain;
-    }
-
-    /**
-      * Reference data item code.
-      */
-    @ApiModelProperty(required = true, value = "Reference data item code.")
-    @JsonProperty("code")
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(final String code) {
-        this.code = code;
-    }
-
-    /**
-      * Reference data item description.
-      */
-    @ApiModelProperty(required = true, value = "Reference data item description.")
-    @JsonProperty("description")
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
-    /**
-      * Parent reference data item domain.
-      */
-    @ApiModelProperty(value = "Parent reference data item domain.")
-    @JsonProperty("parentDomain")
-    public String getParentDomain() {
-        return parentDomain;
-    }
-
-    public void setParentDomain(final String parentDomain) {
-        this.parentDomain = parentDomain;
-    }
-
-    /**
-      * Parent reference data item code.
-      */
-    @ApiModelProperty(value = "Parent reference data item code.")
-    @JsonProperty("parentCode")
-    public String getParentCode() {
-        return parentCode;
-    }
-
-    public void setParentCode(final String parentCode) {
-        this.parentCode = parentCode;
-    }
-
-    /**
-      * Reference data item active indicator flag.
-      */
-    @ApiModelProperty(required = true, value = "Reference data item active indicator flag.")
-    @JsonProperty("activeFlag")
-    public String getActiveFlag() {
-        return activeFlag;
-    }
-
-    public void setActiveFlag(final String activeFlag) {
-        this.activeFlag = activeFlag;
-    }
-
-    /**
-      * List of subordinate reference data items associated with this reference data item.
-      */
-    @ApiModelProperty(value = "List of subordinate reference data items associated with this reference data item.")
-    @JsonProperty("subCodes")
-    public List<ReferenceCode> getSubCodes() {
-        return subCodes;
-    }
-
-    public void setSubCodes(final List<ReferenceCode> subCodes) {
-        this.subCodes = subCodes;
-    }
-
-    @Override
-    public String toString()  {
-        final var sb = new StringBuilder();
-
-        sb.append("class ReferenceCode {\n");
-        
-        sb.append("  domain: ").append(domain).append("\n");
-        sb.append("  code: ").append(code).append("\n");
-        sb.append("  description: ").append(description).append("\n");
-        sb.append("  parentDomain: ").append(parentDomain).append("\n");
-        sb.append("  parentCode: ").append(parentCode).append("\n");
-        sb.append("  activeFlag: ").append(activeFlag).append("\n");
-        sb.append("  subCodes: ").append(subCodes).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
-    }
 }

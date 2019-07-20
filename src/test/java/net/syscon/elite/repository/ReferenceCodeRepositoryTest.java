@@ -66,7 +66,7 @@ public class ReferenceCodeRepositoryTest {
                 repository.getReferenceCodeByDomainAndCode("ALERT", "A", false);
 
         assertThat(refCode.isPresent()).isTrue();
-        assertThat(refCode.get().getSubCodes()).isNull();
+        assertThat(refCode.get().getSubCodes()).isEmpty();
     }
 
     // Tests (without retrieval of sub-codes) ordering by code (ascending) and 0-10 pagination.
