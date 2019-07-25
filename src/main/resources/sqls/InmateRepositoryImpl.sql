@@ -510,14 +510,11 @@ Insert into OFFENDER_ASSESSMENTS
      ASSESSOR_STAFF_ID,
      ASSESS_COMMENT_TEXT,
      NEXT_REVIEW_DATE,
-     MODIFY_USER_ID,
      ASSESS_COMMITTE_CODE,
      CREATION_DATE,
      CREATION_USER,
-     ASSESSMENT_CREATE_LOCATION,
-     MODIFY_DATETIME,
-     CREATE_DATETIME,
-     CREATE_USER_ID)
+     ASSESSMENT_CREATE_LOCATION
+     )
 VALUES
      (:bookingId,
      :seq,
@@ -529,15 +526,11 @@ VALUES
      :assessStaffId,
      :assessStaffId,
      :assessComment,
-     :reviewDate, -- (+ 6 months )
-     :userId,
+     :reviewDate,
      :assessCommitteeCode,
      :dateTime,
-     :userId, --
-     :agencyId,
-     :dateTime,
-     :dateTime,
-     :userId
+     :userId,
+     :agencyId
      )
 }
 
@@ -550,9 +543,7 @@ APPROVE_CATEGORY {
     REVIEW_COMMITTE_CODE=:reviewCommitteeCode,
     COMMITTE_COMMENT_TEXT=:committeeCommentText,
     NEXT_REVIEW_DATE=COALESCE(:nextReviewDate, NEXT_REVIEW_DATE),
-    REVIEW_SUP_LEVEL_TEXT=:approvedCategoryComment,
-    MODIFY_USER_ID=:userId,
-    MODIFY_DATETIME=:dateTime
+    REVIEW_SUP_LEVEL_TEXT=:approvedCategoryComment
   where OFFENDER_BOOK_ID=:bookingId
     and ASSESSMENT_SEQ=:seq
     and ASSESSMENT_TYPE_ID=:assessmentTypeId
@@ -561,9 +552,7 @@ APPROVE_CATEGORY {
 
 APPROVE_CATEGORY_SET_STATUS {
   update OFFENDER_ASSESSMENTS set
-    ASSESS_STATUS=:assessStatus,
-    MODIFY_USER_ID=:userId,
-    MODIFY_DATETIME=:dateTime
+    ASSESS_STATUS=:assessStatus
   where OFFENDER_BOOK_ID=:bookingId
     and ASSESSMENT_SEQ in (:seq)
 }

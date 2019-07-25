@@ -86,7 +86,7 @@ public interface InmateRepository {
 	List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
 	List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue);
 	Map<String, Long> insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId);
-	void approveCategory(CategoryApprovalDetail detail, UserDetail currentUser);
+	void approveCategory(CategoryApprovalDetail detail);
 
     List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData , Set<String> caseloads);
     List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(String caseload, List<Long> bookingIds);

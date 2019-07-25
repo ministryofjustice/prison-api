@@ -679,7 +679,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    public void approveCategory(final CategoryApprovalDetail detail, final UserDetail currentUser) {
+    public void approveCategory(final CategoryApprovalDetail detail) {
         final var assessmentId = getCategoryAssessmentId();
         final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
         // get all active or pending categorisation sequences ordered desc
@@ -707,9 +707,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "reviewCommitteeCode", detail.getReviewCommitteeCode(),
                         "committeeCommentText", detail.getCommitteeCommentText(),
                         "nextReviewDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getNextReviewDate())),
-                        "approvedCategoryComment", detail.getApprovedCategoryComment(),
-                        "userId", currentUser.getUsername(),
-                        "dateTime", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now()))
+                        "approvedCategoryComment", detail.getApprovedCategoryComment()
                 )
         );
         if (approvalResult != 1) {
@@ -725,9 +723,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                     getQuery("APPROVE_CATEGORY_SET_STATUS"),
                     createParams("bookingId", detail.getBookingId(),
                             "seq", previousSequences,
-                            "assessStatus", "I",
-                            "userId", currentUser.getUsername(),
-                            "dateTime", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now()))
+                            "assessStatus", "I"
                     )
             );
             if (updatePreviousResult < 1) {
