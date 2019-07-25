@@ -831,16 +831,11 @@ public class InmateRepositoryTest {
                         extractInteger("ASSESSOR_STAFF_ID"),
                         extractString("ASSESS_COMMENT_TEXT"),
                         extractString("ASSESSMENT_CREATE_LOCATION"),
-                        extractString("ASSESS_COMMITTE_CODE"),
-                        extractString("CREATION_USER"),
-                        extractString("CREATE_USER_ID"),
-                        extractString("MODIFY_USER_ID"))
-                .contains(Tuple.tuple(3, "D", -2, 1006, "P", -11, -11, "init cat", "LEI", "GOV", "JDOG", "JDOG", "JDOG"));
+                        extractString("ASSESS_COMMITTE_CODE"))
+                .contains(Tuple.tuple(3, "D", -2, 1006, "P", -11, -11, "init cat", "LEI", "GOV"));
 
         assertThat((Date) results.get(0).get("ASSESSMENT_DATE")).isToday();
         assertThat((Date) results.get(0).get("CREATION_DATE")).isToday();
-        assertThat((Date) results.get(0).get("CREATE_DATETIME")).isToday();
-        assertThat((Date) results.get(0).get("MODIFY_DATETIME")).isToday();
         assertThat((Timestamp) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2019-06-01T00:00:00.000", 1000);
     }
 
@@ -857,12 +852,12 @@ public class InmateRepositoryTest {
                 .nextReviewDate(LocalDate.of(2019, 7, 24))
                 .build();
 
-        repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
+        repository.approveCategory(catDetail);
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
         assertThat(results).asList()
-                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"), extractString("MODIFY_USER_ID"))
-                .contains(Tuple.tuple(6, "I", "KDOG")
+                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
+                .contains(Tuple.tuple(6, "I")
                 );
         assertThat(results).asList()
                 .extracting(extractInteger("ASSESSMENT_SEQ"),
@@ -871,13 +866,10 @@ public class InmateRepositoryTest {
                         extractString("EVALUATION_RESULT_CODE"),
                         extractString("ASSESS_STATUS"),
                         extractString("REVIEW_SUP_LEVEL_TEXT"),
-                        extractString("COMMITTE_COMMENT_TEXT"),
-                        extractString("MODIFY_USER_ID"))
-                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText", "KDOG")
+                        extractString("COMMITTE_COMMENT_TEXT"))
+                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText")
                 );
-        assertThat((Date) results.get(0).get("MODIFY_DATETIME")).isToday();
         assertThat((Timestamp) results.get(0).get("EVALUATION_DATE")).isNull();
-        assertThat((Date) results.get(1).get("MODIFY_DATETIME")).isToday();
         assertThat((Timestamp) results.get(1).get("EVALUATION_DATE")).isCloseTo("2019-02-27T00:00:00.000", 1000);
         assertThat((Timestamp) results.get(1).get("NEXT_REVIEW_DATE")).isCloseTo("2019-07-24T00:00:00.000", 1000);
     }
@@ -897,21 +889,17 @@ public class InmateRepositoryTest {
 
 
         // 4 cateorisation records with status Inactive, Active, Inactive, Pending
-        repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
+        repository.approveCategory(catDetail);
 
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 order by ASSESSMENT_SEQ asc");
 
         // after making the pending cat active should make any earlier categorisation inactive (regardless of order)
         assertThat(results).asList()
-                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"), extractString("MODIFY_USER_ID"))
-                .contains(Tuple.tuple(1, "I", "KDOG"),Tuple.tuple(2, "I", "ITAG_USER"),Tuple.tuple(3, "I", "KDOG"),Tuple.tuple(4, "A", "KDOG")
+                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
+                .contains(Tuple.tuple(1, "I"),Tuple.tuple(2, "I"),Tuple.tuple(3, "I"),Tuple.tuple(4, "A")
                 );
-        assertThat((Date) results.get(3).get("MODIFY_DATETIME")).isToday();
-        assertThat((Timestamp) results.get(3).get("EVALUATION_DATE")).isNotNull();
-        assertThat((Date) results.get(0).get("MODIFY_DATETIME")).isToday();
-        assertThat((Date) results.get(2).get("MODIFY_DATETIME")).isToday();
-        assertThat((Date) results.get(3).get("MODIFY_DATETIME")).isToday();
+        assertThat((Timestamp) results.get(3).get("EVALUATION_DATE")).isCloseTo("2019-02-27", 1000L);
     }
 
     @Test
@@ -927,17 +915,16 @@ public class InmateRepositoryTest {
                 .nextReviewDate(LocalDate.of(2019, 7, 24))
                 .build();
 
-
         // 1 pending cateorisation record
-        repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
+        repository.approveCategory(catDetail);
 
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -36 order by ASSESSMENT_SEQ asc");
 
         // confirm single categorisation is active
         assertThat(results).asList()
-                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"), extractString("MODIFY_USER_ID"))
-                .contains(Tuple.tuple(1, "A", "KDOG"));
+                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
+                .contains(Tuple.tuple(1, "A"));
     }
 
     @Test
@@ -950,7 +937,7 @@ public class InmateRepositoryTest {
                 .reviewCommitteeCode("REVIEW")
                 .build();
 
-        repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
+        repository.approveCategory(catDetail);
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
         assertThat(results).asList()
@@ -962,9 +949,8 @@ public class InmateRepositoryTest {
                         extractString("REVIEW_SUP_LEVEL_TEXT"),
                         extractString("COMMITTE_COMMENT_TEXT"),
                         extractString("REVIEW_PLACE_AGY_LOC_ID"),
-                        extractString("REVIEW_PLACEMENT_TEXT"),
-                        extractString("MODIFY_USER_ID"))
-                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", null, null, null, null, "KDOG")
+                        extractString("REVIEW_PLACEMENT_TEXT"))
+                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", null, null, null, null)
                 );
         assertThat((Timestamp) results.get(1).get("NEXT_REVIEW_DATE")).isCloseTo("2018-06-01T00:00:00.000", 1000);
     }

@@ -118,7 +118,7 @@ public interface ReferenceDomainResource {
     @ResponseStatus(value = HttpStatus.OK, reason = "Reference Code Updated")
     @ApiOperation(value = "Updates a reference code")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Created", response = ReferenceCode.class),
+            @ApiResponse(code = 200, message = "Updated", response = ReferenceCode.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })

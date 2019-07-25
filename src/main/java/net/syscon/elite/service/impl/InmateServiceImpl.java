@@ -452,8 +452,7 @@ public class InmateServiceImpl implements InmateService {
     @Transactional
     public void approveCategorisation(final Long bookingId, final CategoryApprovalDetail detail) {
         validate(detail);
-        final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
-        repository.approveCategory(detail, userDetail);
+        repository.approveCategory(detail);
 
         // Log event
         telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);
