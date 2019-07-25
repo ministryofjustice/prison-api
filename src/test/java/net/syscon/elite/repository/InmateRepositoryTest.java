@@ -869,9 +869,7 @@ public class InmateRepositoryTest {
                         extractString("COMMITTE_COMMENT_TEXT"))
                 .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText")
                 );
-        assertThat((Date) results.get(0).get("MODIFY_DATETIME")).isToday();
         assertThat((Timestamp) results.get(0).get("EVALUATION_DATE")).isNull();
-        assertThat((Date) results.get(1).get("MODIFY_DATETIME")).isToday();
         assertThat((Timestamp) results.get(1).get("EVALUATION_DATE")).isCloseTo("2019-02-27T00:00:00.000", 1000);
         assertThat((Timestamp) results.get(1).get("NEXT_REVIEW_DATE")).isCloseTo("2019-07-24T00:00:00.000", 1000);
     }
