@@ -782,19 +782,17 @@ public interface BookingResource {
                                               @ApiParam(value = "The activity id", required = true,example = "1212131") @PathParam("activityId") @NotNull Long activityId,
                                               @ApiParam(value = "", required = true) @NotNull UpdateAttendance body);
     @PUT
-    @Path("/activities/{activityId}/attendance")
+    @Path("/activities/attendance")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Update offender attendance and pay.", notes = "Update offender attendance and pay.", nickname = "updateAttendance")
+    @ApiOperation(value = "Update attendance and pay for multiple bookings.", notes = "Update offender attendance and pay.", nickname = "updateAttendance")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Attendance data has been updated"),
             @ApiResponse(code = 400, message = "Invalid request - e.g. validation error.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to attend activity.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Resource not found - booking or event does not exist or is not accessible to user.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
-    UpdateAttendanceResponse updateAttendanceForMultipleBookingIds(
-                                              @ApiParam(value = "The activity id", required = true,example = "1212131") @PathParam("activityId") @NotNull Long activityId,
-                                              @ApiParam(value = "", required = true) @NotNull UpdateAttendanceBatch body);
+    UpdateAttendanceResponse updateAttendanceForMultipleBookingIds(@ApiParam(required = true) @NotNull UpdateAttendanceBatch body);
 
     @GET
     @Path("/{bookingId}/incidents")

@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -310,7 +311,11 @@ public class BookingServiceImplTest {
                 .performance("STANDARD")
                 .build();
 
-        bookingService.updateAttendanceForMultipleBookingIds(activityId,bookingIds, updateAttendance);
+        val bookingActivities = bookingIds.stream()
+                .map(bookingId -> BookingActivity.builder().bookingId(bookingId).activityId(activityId).build())
+                .collect(Collectors.toSet());
+
+        bookingService.updateAttendanceForMultipleBookingIds(bookingActivities, updateAttendance);
 
         val expectedOutcome =  UpdateAttendance.builder().performance("STANDARD").eventOutcome("ATT").build();
 
