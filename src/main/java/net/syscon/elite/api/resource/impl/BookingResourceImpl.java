@@ -231,6 +231,17 @@ public class BookingResourceImpl implements BookingResource {
         return UpdateAttendanceResponse.respond201WithApplicationJson();
     }
 
+    @Override
+    public UpdateAttendanceResponse updateAttendanceForMultipleBookingIds(@NotNull Long activityId, @NotNull UpdateAttendanceBatch body) {
+        bookingService.updateAttendanceForMultipleBookingIds(activityId, body.getBookingIds(), UpdateAttendance
+                .builder()
+                .eventOutcome(body.getEventOutcome())
+                .performance(body.getPerformance())
+                .outcomeComment(body.getOutcomeComment())
+                .build());
+        return UpdateAttendanceResponse.respond201WithApplicationJson();
+    }
+
     public IncidentsResource.IncidentListResponse getIncidentsByBookingId(@NotNull final Long bookingId, final List<String> incidentTypes, final List<String> participationRoles) {
 
         return new IncidentsResource.IncidentListResponse(Response.status(200)

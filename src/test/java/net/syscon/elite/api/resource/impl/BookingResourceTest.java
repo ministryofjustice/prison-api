@@ -7,6 +7,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,6 +47,27 @@ public class BookingResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 },
                 -2, -11);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(201);
+    }
+
+    @Test
+    public void testUpdateAttendance_WithMultipleBookingIds() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.PAY);
+
+        final var body = Map.of(
+                "eventOutcome", "ATT",
+                "performance", "STANDARD",
+                "bookingIds", Set.of(-2L));
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/activities/{activityId}/attendance",
+                HttpMethod.PUT,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {},
+                 -11);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
     }
