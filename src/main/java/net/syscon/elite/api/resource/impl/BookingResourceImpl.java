@@ -232,8 +232,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public UpdateAttendanceResponse updateAttendanceForMultipleBookingIds(@NotNull Long activityId, @NotNull UpdateAttendanceBatch body) {
-        bookingService.updateAttendanceForMultipleBookingIds(activityId, body.getBookingIds(), UpdateAttendance
+    public UpdateAttendanceResponse updateAttendanceForMultipleBookingIds(final @NotNull UpdateAttendanceBatch body) {
+        bookingService.updateAttendanceForMultipleBookingIds(body.getBookingActivities(), UpdateAttendance
                 .builder()
                 .eventOutcome(body.getEventOutcome())
                 .performance(body.getPerformance())

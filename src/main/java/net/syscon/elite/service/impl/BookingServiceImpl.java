@@ -282,15 +282,13 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
-    public void updateAttendanceForMultipleBookingIds(final Long activityId,final Set<Long> bookingIds, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        bookingIds.forEach(bookingId -> {
-            updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId));
-        });
+    public void updateAttendanceForMultipleBookingIds(final Set<BookingActivity> bookingActivities, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
+        bookingActivities.forEach(bookingActivity -> updateAttendance(bookingActivity.getActivityId(), updateAttendance, getLatestBookingByBookingId(bookingActivity.getBookingId())));
     }
 
     private void updateAttendance(Long activityId, UpdateAttendance updateAttendance, OffenderSummary offenderSummary) {
         verifyBookingAccess(offenderSummary.getBookingId());
-        validateActivity(activityId, offenderSummary);
+        validateActivity(activityId);
 
         // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
@@ -298,7 +296,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
-    private void validateActivity(final Long activityId, final OffenderSummary offenderSummary) {
+    private void validateActivity(final Long activityId) {
         // Find details for activities for same offender and same day as this one
         final var attendanceEventDate = bookingRepository.getAttendanceEventDate(activityId);
         if (attendanceEventDate == null) {

@@ -32,7 +32,7 @@ public interface BookingService {
 
     void updateAttendance(String offenderNo, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance);
     void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance);
-    void updateAttendanceForMultipleBookingIds(final Long activityId, final Set<Long> bookingIds, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance);
+    void updateAttendanceForMultipleBookingIds(final Set<BookingActivity> bookingActivities, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance);
 
     Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
