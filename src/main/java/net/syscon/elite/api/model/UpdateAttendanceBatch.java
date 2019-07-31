@@ -32,12 +32,6 @@ public class UpdateAttendanceBatch {
     @Length(max = 240)
     private String outcomeComment;
 
-    @ApiModelProperty(required = true, value = "Set of booking ids")
-    private Set<Long> bookingIds;
-
-    @ApiModelProperty(required = true, value = "Set of activity ids")
-    private Set<Long> activityIds;
-
     @ApiModelProperty(required = true, value = "set of booking and activity ids")
     private Set<BookingActivity> bookingActivities;
 }
