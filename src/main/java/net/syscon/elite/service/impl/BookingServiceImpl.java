@@ -279,6 +279,15 @@ public class BookingServiceImpl implements BookingService {
         updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId));
     }
 
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_PAY')")
+    public void updateAttendanceForMultipleBookingIds(final Long activityId,final Set<Long> bookingIds, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
+        bookingIds.forEach(bookingId -> {
+            updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId));
+        });
+    }
+
     private void updateAttendance(Long activityId, UpdateAttendance updateAttendance, OffenderSummary offenderSummary) {
         verifyBookingAccess(offenderSummary.getBookingId());
         validateActivity(activityId, offenderSummary);

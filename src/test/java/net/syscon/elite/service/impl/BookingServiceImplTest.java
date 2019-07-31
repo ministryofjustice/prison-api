@@ -6,17 +6,18 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
+import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.ws.rs.BadRequestException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -25,6 +26,9 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Test cases for {@link BookingServiceImpl}.
@@ -56,17 +60,17 @@ public class BookingServiceImplTest {
                               final NewAppointment newAppointment) {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(principal, "credentials"));
 
-        Mockito.when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-        Mockito.when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
+        when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
+        when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
 
-        Mockito.when(referenceDomainService.getReferenceCodeByDomainAndCode(
+        when(referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
 
-        Mockito.when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
                 .thenReturn(eventId);
 
-        Mockito.when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
+        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
     }
 
     @Before
@@ -169,7 +173,7 @@ public class BookingServiceImplTest {
         programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
-        Mockito.when(locationService.getLocation(newAppointment.getLocationId()))
+        when(locationService.getLocation(newAppointment.getLocationId()))
                 .thenThrow(new EntityNotFoundException("test"));
 
         try {
@@ -200,7 +204,7 @@ public class BookingServiceImplTest {
         programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
-        Mockito.when(referenceDomainService.getReferenceCodeByDomainAndCode(
+        when(referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.empty());
 
@@ -218,9 +222,9 @@ public class BookingServiceImplTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        Mockito.when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
-        Mockito.when(agencyService.getAgencyIds()).thenReturn(agencyIds);
-        Mockito.when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
+        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(agencyService.getAgencyIds()).thenReturn(agencyIds);
+        when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
 
         bookingService.verifyCanViewLatestBooking("off-1");
@@ -232,9 +236,9 @@ public class BookingServiceImplTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        Mockito.when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
-        Mockito.when(agencyService.getAgencyIds()).thenReturn(agencyIds);
-        Mockito.when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
+        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(agencyService.getAgencyIds()).thenReturn(agencyIds);
+        when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
                 bookingService.verifyCanViewLatestBooking("off-1"))
@@ -245,21 +249,21 @@ public class BookingServiceImplTest {
     public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
         val bookingId = 1L;
 
-        Mockito.when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
-        Mockito.when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "STD", "ENH"));
+        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
+        when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "STD", "ENH"));
 
         val iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
 
         bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment);
 
-        Mockito.verify(bookingRepository).addIepLevel(bookingId, "FRED", iepLevelAndComment);
+        verify(bookingRepository).addIepLevel(bookingId, "FRED", iepLevelAndComment);
     }
 
     @Test
     public void givenInvalidIepLevel_whenIepLevelAdded() {
         val bookingId = 1L;
 
-        Mockito.when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(false);
+        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(false);
 
         val iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
         assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
@@ -271,13 +275,48 @@ public class BookingServiceImplTest {
     public void givenValidIepLevel_whenIepLevelNotValidForAgencyAssociatedWithBooking() {
         val bookingId = 1L;
 
-        Mockito.when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
-        Mockito.when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "ENH"));
+        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
+        when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "ENH"));
 
         val iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
         assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("IEP Level 'STD' is not active for this booking's agency: Booking Id 1.");
+    }
+
+    @Test
+    public void testThatUpdateAttendanceIsCalledForEachBooking() {
+        val bookingIds = Set.of(1L, 2L, 3L);
+        val activityId = 2L;
+
+        when(bookingRepository.getLatestBookingByBookingId(anyLong()))
+                .thenReturn(Optional.of(OffenderSummary.builder().bookingId(1L).build()))
+                .thenReturn(Optional.of(OffenderSummary.builder().bookingId(2L).build()))
+                .thenReturn(Optional.of(OffenderSummary.builder().bookingId(3L).build()));
+
+        when(agencyService.getAgencyIds()).thenReturn(Set.of("MDI"));
+        when(bookingRepository.verifyBookingAccess(anyLong(), anySet())).thenReturn(true);
+
+        when(bookingRepository.getAttendanceEventDate(anyLong())).thenReturn(LocalDate.now());
+        when( bookingRepository.getPayableAttendanceOutcome(anyString(), anyString()))
+                .thenReturn(PayableAttendanceOutcomeDto
+                        .builder()
+                        .paid(true)
+                        .build());
+
+        val updateAttendance = UpdateAttendance
+                .builder()
+                .eventOutcome("ATT")
+                .performance("STANDARD")
+                .build();
+
+        bookingService.updateAttendanceForMultipleBookingIds(activityId,bookingIds, updateAttendance);
+
+        val expectedOutcome =  UpdateAttendance.builder().performance("STANDARD").eventOutcome("ATT").build();
+
+        bookingIds.forEach(bookingId -> {
+            verify(bookingRepository).updateAttendance(bookingId, activityId, expectedOutcome, true, false);
+        });
     }
 
 }
