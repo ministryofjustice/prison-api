@@ -304,14 +304,6 @@ public class BookingServiceImpl implements BookingService {
         if (attendanceEventDate == null) {
             throw EntityNotFoundException.withMessage("Activity Id %d not found", activityId);
         }
-        final var bookingActivities = bookingRepository.getBookingActivities(
-                offenderSummary.getBookingId(), attendanceEventDate, attendanceEventDate, null, null);
-        final var thisEvent = bookingActivities.stream()
-                .filter(a -> a.getEventId().equals(activityId))
-                .findFirst();
-        if (thisEvent.isEmpty()) {
-            return;
-        }
     }
 
     @Override
