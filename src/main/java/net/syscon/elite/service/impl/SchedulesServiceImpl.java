@@ -150,6 +150,19 @@ public class SchedulesServiceImpl implements SchedulesService {
         return filterByTimeSlot(timeSlot, events);
     }
 
+    @Override
+    @VerifyAgencyAccess
+    public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
+
+        final var day = date == null ? LocalDate.now() : date;
+        final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
+        final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+
+        final var activities =  scheduleRepository.getLocationActivities(null, day, day, orderByFields, order);
+
+        return filterByTimeSlot(timeSlot, activities);
+    }
+
     private List<PrisonerSchedule> getPrisonerSchedules(final Long locationId, final String usage, final String sortFields, final Order sortOrder, final LocalDate day) {
         final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);

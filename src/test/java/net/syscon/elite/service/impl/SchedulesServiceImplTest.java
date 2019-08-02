@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -351,6 +352,48 @@ public class SchedulesServiceImplTest {
                         .eventDescription("event sub type description")
                         .comment("event source description")
                         .build());
+    }
+
+    @Test
+    public void testThatGeActivitiesAtAllLocations_callsTheRepositoryWithTheCorrectParameters() {
+        final var today = LocalDate.now();
+        final var sortFields = "lastName,startTime";
+
+        schedulesService.getActivitiesAtAllLocations("LEI", today, TimeSlot.AM, sortFields, Order.ASC);
+
+        verify(scheduleRepository).getLocationActivities(null, today, today, sortFields, Order.ASC);
+    }
+
+    @Test
+    public void testThatGeActivitiesAtAllLocations_appliesTimeSlotFiltering() {
+        final var today = LocalDate.now();
+
+        when(scheduleRepository.getLocationActivities(any(), any(), any(), any(), any()))
+                .thenReturn(List.of(
+                        PrisonerSchedule
+                                .builder()
+                                .startTime(LocalDateTime.now().withHour(23))
+                                .endTime(LocalDateTime.now().withHour(23))
+                                .locationId(3L)
+                                .bookingId(1L)
+                                .eventLocationId(3L)
+                                .eventId(2L)
+                                .build(),
+                        PrisonerSchedule
+                                .builder()
+                                .startTime(LocalDateTime.now().withHour(11))
+                                .endTime(LocalDateTime.now().withHour(11))
+                                .locationId(3L)
+                                .bookingId(1L)
+                                .eventLocationId(3L)
+                                .eventId(3L)
+                                .build()
+                ));
+
+        final var activities = schedulesService.getActivitiesAtAllLocations("LEI", today, TimeSlot.AM, null, Order.ASC);
+
+        assertThat(activities).hasSize(1);
+
     }
 
 }

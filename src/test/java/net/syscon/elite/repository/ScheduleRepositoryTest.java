@@ -193,4 +193,13 @@ public class ScheduleRepositoryTest {
                 new Tuple("A1234AA", "COURT", "PR", "Production of Unsentenced Inmate at Cour", "EXP", LocalDateTime.parse("2017-02-17T17:00:00")),
                 new Tuple("A1234AB", "COURT", "PR", "Production of Unsentenced Inmate at Cour", "COMP", LocalDateTime.parse("2017-02-17T18:00:00")));
     }
+
+    @Test
+    public void testThatScheduledActivities_FromVariousActivityLocationsAreReturned() {
+        final var date = LocalDate.parse("2015-12-11");
+        final var toDate = LocalDate.now();
+        final var results = repository.getLocationActivities(null, date, toDate, "lastName,startTime", Order.ASC);
+
+        assertThat(results).extracting("locationId").contains(-25L, -26L, -27L);
+    }
 }
