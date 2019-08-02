@@ -22,7 +22,7 @@ public interface ScheduleResource {
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @ApiOperation(value = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", notes = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", nickname="getGroupEvents")
-    @ApiResponses(value = { 
+    @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = PrisonerSchedule.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
@@ -51,6 +51,22 @@ public interface ScheduleResource {
                                                 @ApiParam(value = "AM, PM or ED") @QueryParam("timeSlot") TimeSlot timeSlot,
                                                 @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @HeaderParam("Sort-Fields") String sortFields,
                                                 @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+
+    @GET
+    @Path("/{agencyId}/activities")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Get all Prisoner activities for given date.", notes = "Get all Prisoner activities for given date", nickname="getActivitiesAtAllLocations")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PrisonerSchedule.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    GetLocationEventsResponse getActivitiesAtAllLocations(@ApiParam(value = "The prison.", required = true) @PathParam("agencyId") String agencyId,
+                                                                 @ApiParam(value = "Date of whereabouts list, default today") @QueryParam("date") LocalDate date,
+                                                                 @ApiParam(value = "AM, PM or ED") @QueryParam("timeSlot") TimeSlot timeSlot,
+                                                                 @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @HeaderParam("Sort-Fields") String sortFields,
+                                                                 @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
 
     @POST
     @Path("/{agencyId}/activities")

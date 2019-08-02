@@ -43,6 +43,13 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
+    public GetLocationEventsResponse getActivitiesAtAllLocations(String agencyId, LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder) {
+        final var activities = schedulesService.getActivitiesAtAllLocations(agencyId, date, timeSlot, sortFields, sortOrder);
+
+        return GetLocationEventsResponse.respond200WithApplicationJson(activities);
+    }
+
+    @Override
     public GetAppointmentsResponse getAppointments(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
         final var appointments = schedulesService.getAppointments(agencyId, body, date, timeSlot);
 
