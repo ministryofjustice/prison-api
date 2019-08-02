@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.resource.ScheduleResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
@@ -23,62 +24,50 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
-    public GetGroupEventsResponse getGroupEvents(final String agencyId, final String name,
+    public List<PrisonerSchedule> getGroupEvents(final String agencyId, final String name,
                                                  final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
-        final var events = schedulesService.getLocationGroupEvents(agencyId, name,
+        return schedulesService.getLocationGroupEvents(agencyId, name,
                 date, timeSlot, sortFields, sortOrder);
-
-        return GetGroupEventsResponse.respond200WithApplicationJson(events);
     }
 
     @Override
-    public GetLocationEventsResponse getLocationEvents(final String agencyId, final Long locationId, final String usage,
+    public List<PrisonerSchedule> getLocationEvents(final String agencyId, final Long locationId, final String usage,
                                                        final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
-        final var events = schedulesService.getLocationEvents(agencyId, locationId, usage,
+        return schedulesService.getLocationEvents(agencyId, locationId, usage,
                 date, timeSlot, sortFields, sortOrder);
 
-        return GetLocationEventsResponse.respond200WithApplicationJson(events);
     }
 
     @Override
-    public GetLocationEventsResponse getActivitiesAtAllLocations(String agencyId, LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder) {
-        final var activities = schedulesService.getActivitiesAtAllLocations(agencyId, date, timeSlot, sortFields, sortOrder);
-
-        return GetLocationEventsResponse.respond200WithApplicationJson(activities);
+    public List<PrisonerSchedule> getActivitiesAtAllLocations(String agencyId, LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder) {
+       return schedulesService.getActivitiesAtAllLocations(agencyId, date, timeSlot, sortFields, sortOrder);
     }
 
     @Override
-    public GetAppointmentsResponse getAppointments(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
-        final var appointments = schedulesService.getAppointments(agencyId, body, date, timeSlot);
+    public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
+        return schedulesService.getAppointments(agencyId, body, date, timeSlot);
 
-        return GetAppointmentsResponse.respond200WithApplicationJson(appointments);
     }
 
     @Override
-    public GetVisitsResponse getVisits(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
-        final var visits = schedulesService.getVisits(agencyId, body, date, timeSlot);
-
-        return GetVisitsResponse.respond200WithApplicationJson(visits);
+    public List<PrisonerSchedule> getVisits(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
+        return schedulesService.getVisits(agencyId, body, date, timeSlot);
     }
 
     @Override
-    public GetActivitiesResponse getActivities(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
-        final var activities = schedulesService.getActivities(agencyId, body, date, timeSlot, includeExcluded);
-        return GetActivitiesResponse.respond200WithApplicationJson(activities);
+    public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
+        return schedulesService.getActivities(agencyId, body, date, timeSlot, includeExcluded);
     }
 
     @Override
-    public GetCourtEventsResponse getCourtEvents(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
-        final var activities = schedulesService.getCourtEvents(agencyId, body, date, timeSlot);
-        return GetCourtEventsResponse.respond200WithApplicationJson(activities);
+    public List<PrisonerSchedule> getCourtEvents(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
+        return schedulesService.getCourtEvents(agencyId, body, date, timeSlot);
     }
 
     @Override
-    public GetExternalTransfersResponse getExternalTransfers(final String agencyId, final List<String> body, final LocalDate date) {
-        final var transfers = schedulesService.getExternalTransfers(agencyId, body, date);
-
-        return GetExternalTransfersResponse.respond200WithApplicationJson(transfers);
+    public List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> body, final LocalDate date) {
+        return schedulesService.getExternalTransfers(agencyId, body, date);
     }
 }
