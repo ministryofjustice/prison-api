@@ -37,7 +37,7 @@ public class AlertRepositoryTest {
         assertThat(alertTypes.get(0).getCode()).isEqualTo("H");
         assertThat(alertTypes.get(0).getDescription()).isEqualTo("Self Harm");
         assertThat(alertTypes.get(0).getListSeq()).isEqualTo(1);
-        
+
         assertThat(alertTypes.get(12).getCode()).isEqualTo("A");
         assertThat(alertTypes.get(12).getDescription()).isEqualTo("Social Care");
         assertThat(alertTypes.get(12).getListSeq()).isEqualTo(12);

@@ -35,5 +35,5 @@ public interface AlertResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<AlertSubtype> getAlertSubtypes(@ApiParam(value = "Parent code to filter by.") @QueryParam("parentCode") String parentCode);
+    List<AlertSubtype> getAlertSubtypes(@ApiParam(value = "Parent code to filter by.", required = true) @QueryParam("parentCode") String parentCode);
 }
