@@ -16,7 +16,7 @@ import javax.validation.constraints.NotBlank;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlertSubType {
+public class AlertSubtype {
     @ApiModelProperty(value = "The code for the alert subtype", required = true, example = "AS")
     @NotBlank(message = "Alert subtype code cannot be blank")
     private String code;
