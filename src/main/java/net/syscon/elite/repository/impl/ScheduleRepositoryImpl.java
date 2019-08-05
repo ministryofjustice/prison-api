@@ -22,8 +22,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
 
     @Override
     public List<PrisonerSchedule> getLocationActivities(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
-        final var getActivitiesAtLocation = getQuery("GET_ACTIVITIES_AT_ALL_OR_ONE_LOCATION");
-        final var initialSql = locationId != null ? getActivitiesAtLocation + getQuery("AND_INTERNAL_LOCATION_ID") : getActivitiesAtLocation;
+        final var initialSql = getQuery("GET_ACTIVITIES_AT_ALL_OR_ONE_LOCATION");
 
         return getScheduledEvents(initialSql, locationId, fromDate,toDate,orderByFields, order);
     }
