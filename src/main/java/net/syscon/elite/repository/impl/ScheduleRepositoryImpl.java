@@ -22,19 +22,10 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
 
     @Override
     public List<PrisonerSchedule> getLocationActivities(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
-        final var initialSql = getQuery("GET_ACTIVITIES_AT_LOCATION");
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
+        final var getActivitiesAtLocation = getQuery("GET_ACTIVITIES_AT_ALL_OR_ONE_LOCATION");
+        final var initialSql = locationId != null ? getActivitiesAtLocation + getQuery("AND_INTERNAL_LOCATION_ID") : getActivitiesAtLocation;
 
-        final var sql = builder
-                .addOrderBy(order, orderByFields)
-                .build();
-
-        return jdbcTemplate.query(
-                sql,
-                createParams("locationId", locationId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
-                EVENT_ROW_MAPPER);
+        return getScheduledEvents(initialSql, locationId, fromDate,toDate,orderByFields, order);
     }
 
     @Override
@@ -42,18 +33,8 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
         Objects.requireNonNull(locationId, "locationId is a required parameter");
 
         final var initialSql = getQuery("GET_APPOINTMENTS_AT_LOCATION");
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
-        final var sql = builder
-                .addOrderBy(order, orderByFields)
-                .build();
-
-        return jdbcTemplate.query(
-                sql,
-                createParams("locationId", locationId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
-                EVENT_ROW_MAPPER);
+        return getScheduledEvents(initialSql, locationId, fromDate,toDate,orderByFields, order);
     }
 
     @Override
@@ -61,6 +42,11 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
         Objects.requireNonNull(locationId, "locationId is a required parameter");
 
         final var initialSql = getQuery("GET_VISITS_AT_LOCATION");
+
+        return getScheduledEvents(initialSql, locationId, fromDate,toDate,orderByFields, order);
+    }
+
+    private List<PrisonerSchedule> getScheduledEvents(final String initialSql,final Long locationId, final LocalDate fromDate, final LocalDate toDate,  final String orderByFields, final Order order) {
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
         final var sql = builder
