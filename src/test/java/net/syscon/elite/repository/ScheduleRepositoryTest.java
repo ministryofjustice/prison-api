@@ -198,7 +198,7 @@ public class ScheduleRepositoryTest {
     public void testThatScheduledActivities_FromVariousActivityLocationsAreReturned() {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
-        final var results = repository.getLocationActivities(null, date, toDate, "lastName,startTime", Order.ASC);
+        final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC);
 
         assertThat(results).extracting("locationId").contains(-25L, -26L, -27L);
     }

@@ -19,6 +19,21 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     private static final String AND_OFFENDER_NUMBERS = " AND O.OFFENDER_ID_DISPLAY in (:offenderNos)";
     private static final StandardBeanPropertyRowMapper<PrisonerSchedule> EVENT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerSchedule.class);
 
+    @Override
+    public List<PrisonerSchedule> getAllActivitiesAtAgency(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
+        final var initialSql = getQuery("GET_ALL_ACTIVITIES_AT_AGENCY");
+
+        final var sql = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap())
+                .addOrderBy(order, orderByFields)
+                .build();
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("agencyId", agencyId,
+                             "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                             "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
+                EVENT_ROW_MAPPER);
+    }
 
     @Override
     public List<PrisonerSchedule> getLocationActivities(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {

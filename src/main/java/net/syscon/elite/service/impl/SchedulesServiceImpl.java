@@ -158,7 +158,7 @@ public class SchedulesServiceImpl implements SchedulesService {
         final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
-        final var activities =  scheduleRepository.getLocationActivities(null, day, day, orderByFields, order);
+        final var activities =  scheduleRepository.getAllActivitiesAtAgency(agencyId, day, day, orderByFields, order);
 
         return filterByTimeSlot(timeSlot, activities);
     }
