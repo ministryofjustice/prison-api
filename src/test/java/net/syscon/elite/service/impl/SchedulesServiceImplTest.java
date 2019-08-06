@@ -361,14 +361,14 @@ public class SchedulesServiceImplTest {
 
         schedulesService.getActivitiesAtAllLocations("LEI", today, TimeSlot.AM, sortFields, Order.ASC);
 
-        verify(scheduleRepository).getLocationActivities(null, today, today, sortFields, Order.ASC);
+        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", today, today, sortFields, Order.ASC);
     }
 
     @Test
     public void testThatGeActivitiesAtAllLocations_appliesTimeSlotFiltering() {
         final var today = LocalDate.now();
 
-        when(scheduleRepository.getLocationActivities(any(), any(), any(), any(), any()))
+        when(scheduleRepository.getAllActivitiesAtAgency(eq("LEI"), eq(today), eq(today), eq("lastName"), eq(Order.ASC)))
                 .thenReturn(List.of(
                         PrisonerSchedule
                                 .builder()
