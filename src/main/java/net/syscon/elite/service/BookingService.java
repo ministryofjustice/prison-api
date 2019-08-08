@@ -69,6 +69,8 @@ public interface BookingService {
 
     Long getBookingIdByOffenderNo(String offenderNo);
 
+    void verifyCanViewSensitiveBookingInfo(String offenderNo);
+
     void verifyCanViewLatestBooking(String offenderNo);
 
     /**
