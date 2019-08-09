@@ -3,7 +3,6 @@ Feature: Offenders Adjudications
   AcceptanceCriteria:
   A logged in staff user can view an offender's adjudications
 
-
   Scenario: A staff user views the adjudications for an existing offender
     Given a user has a token name of "ELITE2_API_USER"
     When I view the adjudications of offender with offender display number of "A118HHH"
@@ -25,7 +24,7 @@ Feature: Offenders Adjudications
     And the associated offences for this offender are: "51:2D, 51:8D, 51:1N, 51:2B"
     And the associated agencies for this offender are: "MDI, LEI"
 
-  Scenario: A staff user views many adjudications for an existing offender
+  Scenario: A staff user views many adjudications for an existing offender at a single prison
     Given a user has a token name of "SYSTEM_USER_READ_WRITE"
     When I view the adjudications of offender with offender display number of "A118GGG" at "LEI" with charge of type: "86"
     Then the adjudication results are:

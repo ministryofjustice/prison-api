@@ -19,9 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -247,6 +245,44 @@ public class BookingServiceImplTest {
     }
 
     @Test
+    public void verifyCanViewSensitiveBookingInfo() {
+
+        final var agencyIds = Set.of("agency-1");
+        final var bookingId = 1L;
+
+        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(agencyService.getAgencyIds()).thenReturn(agencyIds);
+        when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
+
+
+        bookingService.verifyCanViewSensitiveBookingInfo("off-1");
+    }
+
+    @Test
+    public void verifyCanViewSensitiveBookingInfo_systemUser() {
+        when(securityUtils.isOverrideRole()).thenReturn(true);
+
+        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(-1L));
+
+        bookingService.verifyCanViewSensitiveBookingInfo("off-1");
+    }
+
+    @Test
+    public void verifyCanViewSensitiveBookingInfo_not() {
+
+        final var agencyIds = Set.of("agency-1");
+        final var bookingId = 1L;
+
+        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(agencyService.getAgencyIds()).thenReturn(agencyIds);
+        when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
+
+        assertThatThrownBy(() ->
+                bookingService.verifyCanViewSensitiveBookingInfo("off-1"))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
     public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
         val bookingId = 1L;
 
@@ -324,4 +360,62 @@ public class BookingServiceImplTest {
         });
     }
 
+    @Test
+    public void getBookingIEPSummary_singleBooking_withDetail_noPrivileges() {
+        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(-1L, true))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void getBookingIEPSummary_multipleBooking_withDetail_noPrivileges() {
+        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(List.of(-1L, -2L), true))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void getBookingIEPSummary_singleBooking_noPrivileges() {
+        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(-1L, false))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void getBookingIEPSummary_multipleBooking_noPrivileges() {
+        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(List.of(-1L, -2L), false))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void getBookingIEPSummary_multipleBooking_globalSearchUser() {
+        when(securityUtils.isOverrideRole(anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+        when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
+        assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), false)).containsKeys(-5L);
+    }
+
+    @Test
+    public void getBookingIEPSummary_multipleBooking_withDetail_systemUser() {
+        when(securityUtils.isOverrideRole()).thenReturn(true);
+        when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
+        assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).containsKeys(-5L);
+    }
+
+    @Test
+    public void getBookingIEPSummary_multipleBooking_withDetail_onlyAccessToOneBooking() {
+        final Long bookingId = -1L;
+
+        final var agencyIds = Set.of("LEI");
+        when(agencyService.getAgencyIds()).thenReturn(agencyIds);
+        when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
+
+        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void getBookingIEPSummary_multipleBooking_withDetail_accessToBothBookings() {
+        final var agencyIds = Set.of("LEI");
+        when(agencyService.getAgencyIds()).thenReturn(agencyIds).thenReturn(agencyIds);
+        when(bookingRepository.verifyBookingAccess(anyLong(), any())).thenReturn(true).thenReturn(true);
+        when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
+
+        assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).containsKeys(-5L);
+    }
 }
