@@ -34,7 +34,8 @@ public class AuthTokenHelper {
             BULK_APPOINTMENTS_USER,
             // ITAG_USER with ROLE_MAINTAIN_IEP and scope ['read','write]
             MAINTAIN_IEP,
-            PAY;
+            PAY,
+            UPDATE_ALERT;
         }
 
 
@@ -66,6 +67,15 @@ public class AuthTokenHelper {
                 .scope(List.of("read", "write"))
                         .expiryTime(Duration.ofDays(1))
                 .build()));
+
+        tokens.put(String.valueOf(AuthToken.UPDATE_ALERT),
+                jwtAuthenticationHelper.createJwt(JwtParameters
+                        .builder()
+                        .username("ITAG_USER")
+                        .roles(List.of("ROLE_UPDATE_ALERT"))
+                        .scope(List.of("read", "write"))
+                        .expiryTime(Duration.ofDays(1))
+                        .build()));
     }
 
     public String getToken() {

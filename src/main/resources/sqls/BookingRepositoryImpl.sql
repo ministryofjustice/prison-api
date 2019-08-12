@@ -643,3 +643,28 @@ FIND_BOOKING_IDS_IN_AGENCY {
   WHERE OB.OFFENDER_BOOK_ID IN (:bookingIds)
   AND OB.AGY_LOC_ID = :agencyId
 }
+
+CREATE_ALERT {
+INSERT INTO OFFENDER_ALERTS (
+     OFFENDER_BOOK_ID,
+     ROOT_OFFENDER_ID,
+     ALERT_TYPE,
+     ALERT_CODE,
+     ALERT_SEQ,
+     ALERT_DATE,
+     ALERT_STATUS,
+     COMMENT_TEXT,
+     CREATE_USER_ID
+)
+VALUES
+     (:bookingId,
+     (select o.root_offender_id from offender_bookings o where o.offender_book_id = :bookingId),
+     :alertType,
+     :alertSubType,
+     coalesce ((select max(alert_seq) + 1 from offender_alerts where offender_book_id = :bookingId),1),
+     :alertDate,
+     'ACTIVE',
+     :commentText,
+     :username
+     )
+}

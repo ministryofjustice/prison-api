@@ -2,9 +2,11 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.CreateAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -24,10 +26,12 @@ import java.util.List;
 public class InmateAlertServiceImpl implements InmateAlertService {
 
     private final InmateAlertRepository inmateAlertRepository;
+    private final AuthenticationFacade authenticationFacade;
 
     @Autowired
-    public InmateAlertServiceImpl(final InmateAlertRepository inmateAlertRepository) {
+    public InmateAlertServiceImpl(final InmateAlertRepository inmateAlertRepository, final AuthenticationFacade authenticationFacade) {
         this.inmateAlertRepository = inmateAlertRepository;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
@@ -89,5 +93,26 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
         return alerts;
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
+    public long createNewAlert(final long bookingId, final CreateAlert alert) {
+        final var today = LocalDate.now();
+        final var sevenDaysAgo = LocalDate.now().minusDays(7);
+
+        if (alert.getAlertDate().isAfter(today))
+            throw new IllegalArgumentException("Alert date cannot be in the future.");
+
+        if (alert.getAlertDate().isBefore(sevenDaysAgo))
+            throw new IllegalArgumentException("Alert date cannot go back more than seven days.");
+
+        final var username = authenticationFacade.getCurrentUsername();
+        final var alertId =  inmateAlertRepository.createNewAlert(username, bookingId, alert);
+
+        log.info("Created new alert {}", alert);
+
+        return alertId;
     }
 }
