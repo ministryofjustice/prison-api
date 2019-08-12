@@ -144,7 +144,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public PrivilegeSummary getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
         final var bookingIEPSummary = getBookingIEPSummary(Collections.singletonList(bookingId), withDetails);
         final var privilegeSummary = bookingIEPSummary.get(bookingId);
@@ -170,13 +169,16 @@ public class BookingServiceImpl implements BookingService {
         bookingRepository.addIepLevel(bookingId, username, iepLevel);
     }
 
-    private boolean activeIepLevelForAgencySelectedByBooking(long bookingId, String iepLevel) {
-        Set<String> iepLevels = bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId);
+    private boolean activeIepLevelForAgencySelectedByBooking(final long bookingId, final String iepLevel) {
+        final var iepLevels = bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId);
         return iepLevels.contains(iepLevel);
     }
 
     @Override
     public Map<Long, PrivilegeSummary> getBookingIEPSummary(final List<Long> bookingIds, final boolean withDetails) {
+        if (withDetails || !isViewAllBookings()) {
+            bookingIds.forEach(this::verifyBookingAccess);
+        }
         final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
 
         final var bookingIdBatches = Lists.partition(bookingIds, maxBatchSize);
@@ -214,11 +216,11 @@ public class BookingServiceImpl implements BookingService {
         return mapOfEip;
     }
 
-    private PrivilegeDetail mostRecentDetail(List<PrivilegeDetail> iepDetails) {
+    private PrivilegeDetail mostRecentDetail(final List<PrivilegeDetail> iepDetails) {
         return iepDetails.get(0);
     }
 
-    private long daysSinceDetailBecameEffective(PrivilegeDetail currentDetail) {
+    private long daysSinceDetailBecameEffective(final PrivilegeDetail currentDetail) {
         return DAYS.between(currentDetail.getIepDate(), now());
     }
 
@@ -286,7 +288,7 @@ public class BookingServiceImpl implements BookingService {
         bookingActivities.forEach(bookingActivity -> updateAttendance(bookingActivity.getActivityId(), updateAttendance, getLatestBookingByBookingId(bookingActivity.getBookingId())));
     }
 
-    private void updateAttendance(Long activityId, UpdateAttendance updateAttendance, OffenderSummary offenderSummary) {
+    private void updateAttendance(final Long activityId, final UpdateAttendance updateAttendance, final OffenderSummary offenderSummary) {
         verifyBookingAccess(offenderSummary.getBookingId());
         validateActivity(activityId);
 
@@ -358,7 +360,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void verifyCanViewLatestBooking(String offenderNo) {
+    public void verifyCanViewSensitiveBookingInfo(final String offenderNo) {
+        final var bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        verifyBookingAccess(bookingId);
+    }
+
+    @Override
+    public void verifyCanViewLatestBooking(final String offenderNo) {
         getBookingIdByOffenderNo(offenderNo);
     }
 
@@ -461,7 +469,7 @@ public class BookingServiceImpl implements BookingService {
             result = Optional.empty();
         }
 
-        if (!result.isPresent()) {
+        if (result.isEmpty()) {
             throw new BadRequestException("Event type not recognised.");
         }
     }
@@ -569,6 +577,9 @@ public class BookingServiceImpl implements BookingService {
      */
     @Override
     public void verifyBookingAccess(final Long bookingId) {
+        // system user has access to everything
+        if (securityUtils.isOverrideRole()) return;
+
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         final var agencyIds = agencyService.getAgencyIds();
@@ -681,8 +692,7 @@ public class BookingServiceImpl implements BookingService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId) {
 
-        final var results = bookingRepository.getOffenderSentenceTerms(bookingId, "IMP");
-        return results;
+        return bookingRepository.getOffenderSentenceTerms(bookingId, "IMP");
     }
 
     @Override
