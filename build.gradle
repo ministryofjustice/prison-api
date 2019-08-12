@@ -7,9 +7,9 @@ import java.time.format.DateTimeFormatter
 plugins {
     id 'java'
     id 'groovy'
-    id 'org.springframework.boot' version '2.1.6.RELEASE'
+    id 'org.springframework.boot' version '2.1.7.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-    id 'com.github.ben-manes.versions' version '0.21.0'
+    id 'com.github.ben-manes.versions' version '0.22.0'
 }
 
 project.sourceCompatibility = 11
@@ -109,12 +109,12 @@ dependencies {
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'net.logstash.logback:logstash-logback-encoder:5.3'
-    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:1.2.0-BETA'
-    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.4.0-BETA'
+    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.5.0-BETA.2'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.5.0-BETA.2'
 
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'commons-io:commons-io:2.6'
-    implementation 'org.apache.commons:commons-text:1.6'
+    implementation 'org.apache.commons:commons-text:1.7'
 
     implementation 'com.github.timpeeters:spring-boot-graceful-shutdown:2.1.1'
 

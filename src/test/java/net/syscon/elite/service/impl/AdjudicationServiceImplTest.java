@@ -28,9 +28,7 @@ import java.util.Optional;
 import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +57,7 @@ public class AdjudicationServiceImplTest {
 
         assertThat(adjudicationService.findAdjudications(criteria)).isEqualTo(expectedResult);
 
-        verify(bookingService).verifyCanViewLatestBooking(criteria.getOffenderNumber());
+        verify(bookingService).verifyCanViewSensitiveBookingInfo(criteria.getOffenderNumber());
     }
 
     @Test
@@ -95,7 +93,7 @@ public class AdjudicationServiceImplTest {
 
         assertThat(adjudicationService.findAdjudication("OFF-1", -1)).isEqualTo(expectedResult);
 
-        verify(bookingService).verifyCanViewLatestBooking("OFF-1");
+        verify(bookingService).verifyCanViewSensitiveBookingInfo("OFF-1");
         verify(adjudicationsRepository).findAdjudicationDetails("OFF-1", -1);
     }
 
@@ -105,7 +103,7 @@ public class AdjudicationServiceImplTest {
         assertThatThrownBy(() -> adjudicationService.findAdjudication("OFF-1", -1))
                 .isInstanceOf(EntityNotFoundException.class);
 
-        verify(bookingService).verifyCanViewLatestBooking("OFF-1");
+        verify(bookingService).verifyCanViewSensitiveBookingInfo("OFF-1");
         verify(adjudicationsRepository).findAdjudicationDetails("OFF-1", -1);
     }
 

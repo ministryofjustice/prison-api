@@ -4,12 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.adjudications.Adjudication;
-import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
-import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
-import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
-import net.syscon.elite.api.model.adjudications.Award;
-import net.syscon.elite.api.model.adjudications.Hearing;
+import net.syscon.elite.api.model.adjudications.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
 import net.syscon.elite.repository.AgencyRepository;
@@ -51,7 +46,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
 
     @Override
     public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
-        bookingService.verifyCanViewLatestBooking(offenderNo);
+        bookingService.verifyCanViewSensitiveBookingInfo(offenderNo);
         return repository.findAdjudicationDetails(offenderNo, adjudicationNo)
                 .map(this::enrich)
                 .orElseThrow(EntityNotFoundException.withId(adjudicationNo));
@@ -112,7 +107,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
 
     @Override
     public Page<Adjudication> findAdjudications(final AdjudicationSearchCriteria criteria) {
-        bookingService.verifyCanViewLatestBooking(criteria.getOffenderNumber());
+        bookingService.verifyCanViewSensitiveBookingInfo(criteria.getOffenderNumber());
         return repository.findAdjudications(criteria);
     }
 
