@@ -2,6 +2,7 @@ package net.syscon.elite.repository.impl;
 
 import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.CreateAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
@@ -10,10 +11,12 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.util.DateTimeConverter;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -98,5 +101,26 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "offenderNos", offenderNos,
                         "agencyId", agencyId),
                 alertMapper);
+    }
+
+    @Override
+    public long createNewAlert(final String username, final long bookingId, final CreateAlert alert) {
+        final var sql = getQuery("CREATE_ALERT");
+        final var generatedKeyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(
+                sql,
+                createParams(
+                        "bookingId", bookingId,
+                        "alertType", alert.getAlertType(),
+                        "alertSubType", alert.getAlertCode(),
+                        "alertDate", alert.getAlertDate(),
+                        "commentText", alert.getComment(),
+                        "username", username
+                ),
+                generatedKeyHolder,
+                new String[]{"ALERT_SEQ"});
+
+        return Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
     }
 }

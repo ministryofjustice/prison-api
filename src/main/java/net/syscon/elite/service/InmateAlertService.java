@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.CreateAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
@@ -13,4 +14,6 @@ public interface InmateAlertService {
 
 	List<Alert> getInmateAlertsByOffenderNosAtAgency(String agencyId, List<String>offenderNos);
 	List<Alert> getInmateAlertsByOffenderNos(List<String>offenderNos, boolean latestOnly, String query, String orderByField, Order order);
+
+    long createNewAlert(final long bookingId, final CreateAlert alert);
 }

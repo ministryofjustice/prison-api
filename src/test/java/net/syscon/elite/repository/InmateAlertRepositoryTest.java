@@ -1,5 +1,7 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.CreateAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
@@ -48,7 +50,8 @@ public class InmateAlertRepositoryTest {
                         Tuple.tuple(-7L, 1L, "A1234AG", "V", "VOP", "Alert Text 7", null, true),
                         Tuple.tuple(-1L, 1L, "A1234AA", "X", "XA", "Alert Text 1-1", null, true),
                         Tuple.tuple(-1L, 2L, "A1234AA", "H", "HC", "Alert Text 1-2", null, true),
-                        Tuple.tuple(-1L, 3L, "A1234AA", "R", "RSS", "Inactive Alert", LocalDate.now(), false));
+                        Tuple.tuple(-1L, 3L, "A1234AA", "R", "RSS", "Inactive Alert", LocalDate.now(), false)
+                );
     }
 
     @Test
@@ -71,5 +74,25 @@ public class InmateAlertRepositoryTest {
                 .containsExactly(
                         Tuple.tuple(-1L, 1L, "A1234AA", "XA"),
                         Tuple.tuple(-1L, 3L, "A1234AA", "RSS"));
+    }
+
+    @Test
+    public void testThatAnAlertGetsCreated() {
+        final var bookingId = -10L;
+        final var latestAlertSeq = repository.createNewAlert("ITAG_USER",bookingId, CreateAlert
+                        .builder()
+                        .alertDate(LocalDate.now())
+                        .alertType("X")
+                        .alertCode("XX")
+                        .comment("Poor behaviour")
+                        .build());
+
+
+        final var alert = repository.getInmateAlerts(bookingId, latestAlertSeq).orElse(Alert.builder().build());
+
+        assertThat(alert)
+                .extracting( "alertId", "alertType", "alertCode", "comment")
+                .contains( latestAlertSeq, "X", "XX", "Poor behaviour");
+
     }
 }
