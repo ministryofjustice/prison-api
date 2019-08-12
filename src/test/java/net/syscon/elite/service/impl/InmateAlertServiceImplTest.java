@@ -16,6 +16,7 @@ import java.util.Arrays;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,6 +76,22 @@ public class InmateAlertServiceImplTest {
                 .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
                 .comment("comment1")
                 .build());
+    }
+
+    @Test
+    public void testThatAlertDate_SevenDaysInThePastThrowsException() {
+        assertThat(catchThrowable(() -> {
+            serviceToTest.createNewAlert(-1L, CreateAlert
+                    .builder().alertDate(LocalDate.now().minusDays(8)).build());
+        })).as("Alert date cannot go back more than seven days.").isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testThatAlertDate_InTheFutureThrowsException() {
+        assertThat(catchThrowable(() -> {
+            serviceToTest.createNewAlert(-1L, CreateAlert
+                    .builder().alertDate(LocalDate.now().plusDays(1)).build());
+        })).as("Alert date cannot be in the future.").isInstanceOf(IllegalArgumentException.class);
     }
 
     private Page<Alert> createAlerts() {

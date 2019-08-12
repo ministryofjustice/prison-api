@@ -99,6 +99,15 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     @Transactional
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     public long createNewAlert(final long bookingId, final CreateAlert alert) {
+        final var today = LocalDate.now();
+        final var sevenDaysAgo = LocalDate.now().minusDays(7);
+
+        if (alert.getAlertDate().isAfter(today))
+            throw new IllegalArgumentException("Alert date cannot be in the future.");
+
+        if (alert.getAlertDate().isBefore(sevenDaysAgo))
+            throw new IllegalArgumentException("Alert date cannot go back more than seven days.");
+
         final var username = authenticationFacade.getCurrentUsername();
         final var alertId =  inmateAlertRepository.createNewAlert(username, bookingId, alert);
 
