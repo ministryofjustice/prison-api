@@ -1,9 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.BookingActivity;
-import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.UpdateAttendanceBatch;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,9 +151,9 @@ public class BookingResourceTest extends ResourceTest {
                 "/api/bookings/{bookingId}/alert",
                 HttpMethod.POST,
                 createHttpEntity(token , body),
-                new ParameterizedTypeReference<Long>() {}, -10L);
+                new ParameterizedTypeReference<AlertCreated>() {}, -10L);
 
-        assertThat(response.getBody()).isGreaterThan(1);
+        assertThat(response.getBody().getAlertId()).isGreaterThan(1);
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
     }
 }
