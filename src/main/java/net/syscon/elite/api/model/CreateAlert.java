@@ -18,12 +18,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class CreateAlert {
-    @ApiModelProperty(value = "Code and description identifying the type of alert", required = true, example = "{ code: 'X', desc: 'Security' }")
+    @ApiModelProperty(value = "Code and description identifying the type of alert", required = true, example = "X")
     @NotBlank
     @Length(max=12)
     private String alertType;
 
-    @ApiModelProperty(value = "Code and description identifying the sub type of alert", position = 1, required = true, example = "{ code: 'XEL', desc: 'Escape List' }")
+    @ApiModelProperty(value = "Code and description identifying the sub type of alert", position = 1, required = true, example = "XEL")
     @NotBlank
     @Length(max=12)
     private String alertCode;
