@@ -810,13 +810,14 @@ public interface BookingResource {
                                                                    @ApiParam(value = "incidentType", example = "ASSAULT", allowMultiple = true) @QueryParam("incidentType") List<String> incidentTypes,
                                                                    @ApiParam(value = "participationRoles", example = "ASSIAL", allowMultiple = true, allowableValues = "ACTINV,ASSIAL,FIGHT,IMPED,PERP,SUSASS,SUSINV,VICT,AI,PAS,AO") @QueryParam("participationRoles") List<String> participationRoles);
 
+
     @POST
     @Path("/{bookingId}/alert")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Create an alert")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Alert id.", response = long.class),
+            @ApiResponse(code = 201, message = "Alert id.", response = AlertCreated.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)
