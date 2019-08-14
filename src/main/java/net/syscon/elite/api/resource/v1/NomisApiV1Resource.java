@@ -295,6 +295,7 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
 
 
+    @SuppressWarnings("RestParamTypeInspection")
     @GET
     @Path("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/transactions")
     @Consumes({"application/json"})
@@ -321,7 +322,7 @@ public interface NomisApiV1Resource {
     @ApiOperation(value = "Retrieve a single financial transaction using client unique ref.", notes = "All transaction amounts are represented as pence values.")
     @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Account transactions returned", response = AccountTransactions.class),
+            @ApiResponse(code = 200, message = "Account transaction returned", response = AccountTransaction.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})

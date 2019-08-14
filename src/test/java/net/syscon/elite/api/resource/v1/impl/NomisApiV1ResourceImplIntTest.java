@@ -11,7 +11,6 @@ import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderPssDe
 import net.syscon.elite.repository.v1.storedprocs.PrisonProcs.GetLiveRoll;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.json.JsonContent;
@@ -33,11 +32,11 @@ import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
-import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
 
@@ -50,69 +49,73 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         @Bean
         @Primary
         public PostTransaction postTransaction() {
-            return Mockito.mock(PostTransaction.class);
+            return mock(PostTransaction.class);
         }
 
         @Bean
         @Primary
         public PostTransfer postTransfer() {
-            return Mockito.mock(PostTransfer.class);
+            return mock(PostTransfer.class);
         }
 
         @Bean
         @Primary
         public GetOffenderPssDetail getOffenderPssDetail() {
-            return Mockito.mock(GetOffenderPssDetail.class);
+            return mock(GetOffenderPssDetail.class);
         }
 
         @Bean
         @Primary
         public GetOffenderDetails getOffenderDetails() {
-            return Mockito.mock(GetOffenderDetails.class);
+            return mock(GetOffenderDetails.class);
         }
 
         @Bean
         @Primary
         public GetOffenderImage getOffenderImage() {
-            return Mockito.mock(GetOffenderImage.class);
+            return mock(GetOffenderImage.class);
         }
 
         @Bean
         @Primary
         public GetHolds getHolds() {
-            return Mockito.mock(GetHolds.class);
+            return mock(GetHolds.class);
         }
 
         @Bean
         @Primary
         public GetEvents getEvents() {
-            return Mockito.mock(GetEvents.class);
+            return mock(GetEvents.class);
         }
 
         @Bean
         @Primary
         public GetLiveRoll getLiveRoll() {
-            return Mockito.mock(GetLiveRoll.class);
+            return mock(GetLiveRoll.class);
         }
 
         @Bean
         @Primary
         public PostStorePayment postStorePayment() {
-            return Mockito.mock(PostStorePayment.class);
+            return mock(PostStorePayment.class);
         }
 
         @Bean
         @Primary
-        public GetAccountBalances getAccountBalances() { return Mockito.mock(GetAccountBalances.class); }
+        public GetAccountBalances getAccountBalances() {
+            return mock(GetAccountBalances.class);
+        }
 
         @Bean
         @Primary
-        public GetAccountTransactions getAccountTransactions() { return Mockito.mock(GetAccountTransactions.class); }
+        public GetAccountTransactions getAccountTransactions() {
+            return mock(GetAccountTransactions.class);
+        }
 
         @Bean
         @Primary
         public GetTransactionByClientUniqueRef getTransactionByClientUniqueRef() {
-            return Mockito.mock(GetTransactionByClientUniqueRef.class);
+            return mock(GetTransactionByClientUniqueRef.class);
         }
     }
 

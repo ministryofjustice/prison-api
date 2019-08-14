@@ -290,9 +290,11 @@ public class NomisApiV1Service {
 
         if (response.size() == 1) {
             return response.get(0);
-        } else if (response.size() == 0) {
+        }
+        if (response.size() == 0) {
             throw EntityNotFoundException.withId(uniqueClientId);
-        } else throw new RuntimeException();
+        }
+        throw new RuntimeException("Found two transaction with same Client Unique Ref which shouldn't happen");
     }
 
     private String convertAccountCodeToType(final String accountCode) {
