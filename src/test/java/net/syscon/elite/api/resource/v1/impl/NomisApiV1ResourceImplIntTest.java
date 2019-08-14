@@ -4,18 +4,13 @@ import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.impl.ResourceTest;
 import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.GetHolds;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostStorePayment;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransaction;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransfer;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderImage;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderPssDetail;
 import net.syscon.elite.repository.v1.storedprocs.PrisonProcs.GetLiveRoll;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.json.JsonContent;
@@ -37,11 +32,11 @@ import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
-import static net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
 
@@ -54,64 +49,74 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         @Bean
         @Primary
         public PostTransaction postTransaction() {
-            return Mockito.mock(PostTransaction.class);
+            return mock(PostTransaction.class);
         }
 
         @Bean
         @Primary
         public PostTransfer postTransfer() {
-            return Mockito.mock(PostTransfer.class);
+            return mock(PostTransfer.class);
         }
 
         @Bean
         @Primary
         public GetOffenderPssDetail getOffenderPssDetail() {
-            return Mockito.mock(GetOffenderPssDetail.class);
+            return mock(GetOffenderPssDetail.class);
         }
 
         @Bean
         @Primary
         public GetOffenderDetails getOffenderDetails() {
-            return Mockito.mock(GetOffenderDetails.class);
+            return mock(GetOffenderDetails.class);
         }
 
         @Bean
         @Primary
         public GetOffenderImage getOffenderImage() {
-            return Mockito.mock(GetOffenderImage.class);
+            return mock(GetOffenderImage.class);
         }
 
         @Bean
         @Primary
         public GetHolds getHolds() {
-            return Mockito.mock(GetHolds.class);
+            return mock(GetHolds.class);
         }
 
         @Bean
         @Primary
         public GetEvents getEvents() {
-            return Mockito.mock(GetEvents.class);
+            return mock(GetEvents.class);
         }
 
         @Bean
         @Primary
         public GetLiveRoll getLiveRoll() {
-            return Mockito.mock(GetLiveRoll.class);
+            return mock(GetLiveRoll.class);
         }
 
         @Bean
         @Primary
         public PostStorePayment postStorePayment() {
-            return Mockito.mock(PostStorePayment.class);
+            return mock(PostStorePayment.class);
         }
 
         @Bean
         @Primary
-        public GetAccountBalances getAccountBalances() { return Mockito.mock(GetAccountBalances.class); }
+        public GetAccountBalances getAccountBalances() {
+            return mock(GetAccountBalances.class);
+        }
 
         @Bean
         @Primary
-        public GetAccountTransactions getAccountTransactions() { return Mockito.mock(GetAccountTransactions.class); }
+        public GetAccountTransactions getAccountTransactions() {
+            return mock(GetAccountTransactions.class);
+        }
+
+        @Bean
+        @Primary
+        public GetTransactionByClientUniqueRef getTransactionByClientUniqueRef() {
+            return mock(GetTransactionByClientUniqueRef.class);
+        }
     }
 
     @Autowired
@@ -146,6 +151,9 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetAccountTransactions getAccountTransactions;
+
+    @Autowired
+    private GetTransactionByClientUniqueRef getTransactionByClientUniqueRef;
 
     @Test
     public void transferTransaction() {
@@ -504,6 +512,40 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         assertThatJson(responseEntity.getBody()).isEqualTo("{ \"transactions\": [ { \"id\": \"111-1\", \"type\": { \"code\": \"A\", \"desc\": \"AAA\" }, \"description\": \"Transaction test\", \"amount\": 1234, \"date\": \"2019-12-01\" } ] }");
     }
 
+    @Test
+    public void getTransactionByClientUniqueRef() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", List.of("ROLE_NOMIS_API_V1"), Map.of("X-Client-Name", "some-client"));
+
+        final var transactions = List.of(
+                AccountTransactionSP.builder()
+                        .txnId(111L)
+                        .txnEntrySeq(1)
+                        .txnEntryDate(LocalDate.of(2019, 12, 1))
+                        .txnEntryDesc("Transaction test")
+                        .txnType("A")
+                        .txnTypeDesc("AAA")
+                        .txnEntryAmount(new BigDecimal("12.34"))
+                        .build()
+        );
+
+        when(getTransactionByClientUniqueRef.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_TRANS_CSR, transactions));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/transactions/some-reference", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"id\": \"111-1\", \"type\": { \"code\": \"A\", \"desc\": \"AAA\" }, \"description\": \"Transaction test\", \"amount\": 1234, \"date\": \"2019-12-01\" }");
+    }
+
+    @Test
+    public void getTransactionByClientUniqueRefTransactionNotFound() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", List.of("ROLE_NOMIS_API_V1"), Map.of("X-Client-Name", "some-client"));
+        final var transactions = List.of();
+        when(getTransactionByClientUniqueRef.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_TRANS_CSR, transactions));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/transactions/some-reference", HttpMethod.GET, requestEntity, String.class);
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(404);
+    }
+
     private ResponseEntity getTransactions(final String accountType) {
         final var transactions = List.of(
                 AccountTransactionSP.builder()
@@ -523,6 +565,4 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         return testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts/" + accountType + "/transactions", HttpMethod.GET, requestEntity, String.class);
     }
-
-
 }

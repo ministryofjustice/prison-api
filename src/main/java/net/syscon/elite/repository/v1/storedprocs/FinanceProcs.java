@@ -152,4 +152,23 @@ public class FinanceProcs {
         }
     }
 
+    @Component
+    public static class GetTransactionByClientUniqueRef extends SimpleJdbcCallWithExceptionTranslater {
+        public GetTransactionByClientUniqueRef(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+            super(dataSource, errorCodeTranslator);
+            withSchemaName(API_OWNER)
+                    .withCatalogName(API_FINANCE_PROCS)
+                    .withProcedureName("transaction_history")
+                    .withNamedBinding()
+                    .declareParameters(
+                            new SqlParameter(P_NOMS_ID, Types.VARCHAR),
+                            new SqlParameter(P_AGY_LOC_ID, Types.VARCHAR),
+                            new SqlParameter(P_CLIENT_UNIQUE_REF, Types.VARCHAR))
+                    .returningResultSet(P_TRANS_CSR,
+                            StandardBeanPropertyRowMapper.newInstance(AccountTransactionSP.class));
+            compile();
+        }
+    }
+
+
 }

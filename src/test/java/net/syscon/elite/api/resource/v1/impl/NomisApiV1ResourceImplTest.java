@@ -99,7 +99,7 @@ public class NomisApiV1ResourceImplTest {
         verifyNoMoreInteractions(service);
     }
 
-    @Test    
+    @Test
     public void getHolds() {
         final var holds = List.of(new Hold(3L, "ref", "12345", "entry", null, 12345L, null));
         when(service.getHolds(anyString(), anyString(), anyString(), anyString())).thenReturn(holds);
@@ -158,13 +158,13 @@ public class NomisApiV1ResourceImplTest {
                 AccountTransaction.builder()
                         .id("1111-1")
                         .description("Test transaction 1")
-                        .type(CodeDescription.safeNullBuild("A","AAAAA"))
+                        .type(CodeDescription.safeNullBuild("A", "AAAAA"))
                         .amount(1234L)
                         .date(LocalDate.of(2019, 12, 1)).build(),
                 AccountTransaction.builder()
                         .id("2222-2")
                         .description("Test transaction 2")
-                        .type(CodeDescription.safeNullBuild("B","BBBBB"))
+                        .type(CodeDescription.safeNullBuild("B", "BBBBB"))
                         .amount(4567L)
                         .date(LocalDate.of(2019, 12, 1)).build()
         );
@@ -176,6 +176,27 @@ public class NomisApiV1ResourceImplTest {
         assertThat(result.getTransactions()).containsAll(accountTransactions);
 
         verify(service).getAccountTransactions(anyString(), anyString(), anyString(), any(), any());
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    public void getTransactionByClientUniqueRef() {
+
+        final var accountTransaction =
+                AccountTransaction.builder()
+                        .id("1111-1")
+                        .description("Test transaction 1")
+                        .type(CodeDescription.safeNullBuild("A", "AAAAA"))
+                        .amount(1234L)
+                        .date(LocalDate.of(2019, 12, 1)).build();
+
+        when(service.getTransactionByClientUniqueRef(anyString(), anyString(), anyString())).thenReturn(accountTransaction);
+
+        final var result = nomisApiV1Resource.getTransactionByClientUniqueRef("client", "prison", "nomis", "ref");
+
+        assertThat(result.equals(accountTransaction));
+
+        verify(service).getTransactionByClientUniqueRef(anyString(), anyString(), anyString());
         verifyNoMoreInteractions(service);
     }
 }

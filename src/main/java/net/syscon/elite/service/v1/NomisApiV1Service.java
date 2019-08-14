@@ -207,7 +207,7 @@ public class NomisApiV1Service {
         return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
     }
 
-    public Event getOffenderPssDetail(final String nomsId)  {
+    public Event getOffenderPssDetail(final String nomsId) {
 
         return offenderV1Repository.getOffenderPssDetail(nomsId)
                 .map(e -> Event.builder()
@@ -273,6 +273,28 @@ public class NomisApiV1Service {
                         .date(t.getTxnEntryDate())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public AccountTransaction getTransactionByClientUniqueRef(final String prisonId, final String nomsId, final String uniqueClientId) {
+
+        var response = financeV1Repository.getTransactionByClientUniqueRef(prisonId, nomsId, uniqueClientId)
+                .stream()
+                .map(t -> AccountTransaction.builder()
+                        .id("" + t.getTxnId() + "-" + t.getTxnEntrySeq())
+                        .type(CodeDescription.safeNullBuild(t.getTxnType(), t.getTxnTypeDesc()))
+                        .description(t.getTxnEntryDesc())
+                        .amount(convertToPence(t.getTxnEntryAmount()))
+                        .date(t.getTxnEntryDate())
+                        .build())
+                .collect(Collectors.toList());
+
+        if (response.size() == 1) {
+            return response.get(0);
+        }
+        if (response.size() == 0) {
+            throw EntityNotFoundException.withId(uniqueClientId);
+        }
+        throw new RuntimeException("Found two transaction with same Client Unique Ref which shouldn't happen");
     }
 
     private String convertAccountCodeToType(final String accountCode) {
