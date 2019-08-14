@@ -142,4 +142,10 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
         return new AccountTransactions(transactions);
     }
 
+    @Override
+    public AccountTransaction getTransactionByClientUniqueRef(final String clientName, String prisonId, String nomsId, String clientUniqueRef) {
+        final var uniqueClientId = getUniqueClientId(clientName, clientUniqueRef);
+
+        return service.getTransactionByClientUniqueRef(prisonId, nomsId, uniqueClientId);
+    }
 }

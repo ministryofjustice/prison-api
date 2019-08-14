@@ -2,7 +2,6 @@ package net.syscon.elite.repository.v1;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import net.syscon.elite.api.model.v1.CodeDescription;
 import net.syscon.elite.repository.impl.RepositoryBase;
 import net.syscon.elite.repository.v1.model.AccountTransactionSP;
@@ -33,6 +32,7 @@ public class FinanceV1Repository extends RepositoryBase {
     private final PostStorePayment postStorePaymentProc;
     private final GetAccountBalances getAccountBalancesProc;
     private final GetAccountTransactions getAccountTransactionsProc;
+    private final GetTransactionByClientUniqueRef getTransactionByClientUniqueRefProc;
 
     public TransferSP postTransfer(final String prisonId, final String nomsId, final String type, final String description, final BigDecimal amountInPounds, final LocalDate txDate, final String txId, final String uniqueClientId) {
         final var params = new MapSqlParameterSource()
@@ -107,7 +107,7 @@ public class FinanceV1Repository extends RepositoryBase {
         postStorePaymentProc.execute(params);
     }
 
-    public Map<String,BigDecimal> getAccountBalances(final String prisonId, final String nomsId) {
+    public Map<String, BigDecimal> getAccountBalances(final String prisonId, final String nomsId) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_AGY_LOC_ID, prisonId)
@@ -137,6 +137,24 @@ public class FinanceV1Repository extends RepositoryBase {
                 .addValue(P_TO_DATE, DateTimeConverter.toDate(toDate));
 
         final var result = getAccountTransactionsProc.execute(params);
+
+        //noinspection: unchecked
+        return (List<AccountTransactionSP>) result.get(P_TRANS_CSR);
+    }
+
+    public List<AccountTransactionSP> getTransactionByClientUniqueRef(final String prisonId, final String nomsId, final String uniqueClientID) {
+
+        final var params = new MapSqlParameterSource()
+                .addValue(P_AGY_LOC_ID, prisonId)
+                .addValue(P_NOMS_ID, nomsId)
+                .addValue(P_ACCOUNT_TYPE, null)
+                .addValue(P_ROOT_OFFENDER_ID, null)
+                .addValue(P_SINGLE_OFFENDER_ID, null)
+                .addValue(P_CLIENT_UNIQUE_REF, uniqueClientID)
+                .addValue(P_FROM_DATE, null)
+                .addValue(P_TO_DATE, null);
+
+        final var result = getTransactionByClientUniqueRefProc.execute(params);
 
         //noinspection: unchecked
         return (List<AccountTransactionSP>) result.get(P_TRANS_CSR);

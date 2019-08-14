@@ -311,6 +311,23 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(name = "account_code", value = "Account code", example = "spends", required = true, allowableValues = "spends,cash,savings") @PathParam("account_code") @NotNull String accountCode,
-            @ApiParam(name = "from_date", value = "Start date for transactions (defaults to today if not supplied)", example="2019-04-01") @QueryParam("from_date") LocalDate fromDate,
-            @ApiParam(name = "to_date", value = "To date for transactions (defaults to today if not supplied)", example="2019-05-01") @QueryParam("to_date") LocalDate toDate);
+            @ApiParam(name = "from_date", value = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") @QueryParam("from_date") LocalDate fromDate,
+            @ApiParam(name = "to_date", value = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") @QueryParam("to_date") LocalDate toDate);
+
+    @GET
+    @Path("/prison/{prison_id}/offenders/{noms_id}/transactions/{client_unique_ref}")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieve a single financial transaction using client unique ref.", notes = "All transaction amounts are represented as pence values.")
+    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Account transactions returned", response = AccountTransactions.class),
+            @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    AccountTransaction getTransactionByClientUniqueRef(
+            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @HeaderParam("X-Client-Name") String clientName,
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
+            @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
+            @ApiParam(name = "client_unique_ref", value = "Client unique reference", required = true) @PathParam("client_unique_ref") @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
 }

@@ -4,11 +4,7 @@ import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.impl.ResourceTest;
 import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.GetHolds;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostStorePayment;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransaction;
-import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.PostTransfer;
+import net.syscon.elite.repository.v1.storedprocs.FinanceProcs.*;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderDetails;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderImage;
 import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderPssDetail;
@@ -112,6 +108,12 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         @Bean
         @Primary
         public GetAccountTransactions getAccountTransactions() { return Mockito.mock(GetAccountTransactions.class); }
+
+        @Bean
+        @Primary
+        public GetTransactionByClientUniqueRef getTransactionByClientUniqueRef() {
+            return Mockito.mock(GetTransactionByClientUniqueRef.class);
+        }
     }
 
     @Autowired
@@ -146,6 +148,9 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetAccountTransactions getAccountTransactions;
+
+    @Autowired
+    private GetTransactionByClientUniqueRef getTransactionByClientUniqueRef;
 
     @Test
     public void transferTransaction() {
@@ -504,6 +509,40 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         assertThatJson(responseEntity.getBody()).isEqualTo("{ \"transactions\": [ { \"id\": \"111-1\", \"type\": { \"code\": \"A\", \"desc\": \"AAA\" }, \"description\": \"Transaction test\", \"amount\": 1234, \"date\": \"2019-12-01\" } ] }");
     }
 
+    @Test
+    public void getTransactionByClientUniqueRef() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", List.of("ROLE_NOMIS_API_V1"), Map.of("X-Client-Name", "some-client"));
+
+        final var transactions = List.of(
+                AccountTransactionSP.builder()
+                        .txnId(111L)
+                        .txnEntrySeq(1)
+                        .txnEntryDate(LocalDate.of(2019, 12, 1))
+                        .txnEntryDesc("Transaction test")
+                        .txnType("A")
+                        .txnTypeDesc("AAA")
+                        .txnEntryAmount(new BigDecimal("12.34"))
+                        .build()
+        );
+
+        when(getTransactionByClientUniqueRef.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_TRANS_CSR, transactions));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/transactions/some-reference", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"id\": \"111-1\", \"type\": { \"code\": \"A\", \"desc\": \"AAA\" }, \"description\": \"Transaction test\", \"amount\": 1234, \"date\": \"2019-12-01\" }");
+    }
+
+    @Test
+    public void getTransactionByClientUniqueRefTransactionNotFound() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", List.of("ROLE_NOMIS_API_V1"), Map.of("X-Client-Name", "some-client"));
+        final var transactions = List.of();
+        when(getTransactionByClientUniqueRef.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_TRANS_CSR, transactions));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/transactions/some-reference", HttpMethod.GET, requestEntity, String.class);
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(404);
+    }
+
     private ResponseEntity getTransactions(final String accountType) {
         final var transactions = List.of(
                 AccountTransactionSP.builder()
@@ -523,6 +562,4 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         return testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts/" + accountType + "/transactions", HttpMethod.GET, requestEntity, String.class);
     }
-
-
 }
