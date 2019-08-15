@@ -148,4 +148,11 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
         return service.getTransactionByClientUniqueRef(prisonId, nomsId, uniqueClientId);
     }
+
+    @Override
+    public ActiveOffender getActiveOffender(String nomsId, LocalDate birthDate) {
+
+        return service.getActiveOffender(nomsId, birthDate);
+    }
+
 }

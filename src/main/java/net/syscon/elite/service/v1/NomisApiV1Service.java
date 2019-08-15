@@ -37,6 +37,7 @@ public class NomisApiV1Service {
     private final AlertV1Repository alertV1Repository;
     private final EventsV1Repository eventsV1Repository;
     private final PrisonV1Repository prisonV1Repository;
+    private final CoreV1Repository coreV1Repository;
 
     public Location getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
@@ -295,6 +296,19 @@ public class NomisApiV1Service {
             throw EntityNotFoundException.withId(uniqueClientId);
         }
         throw new RuntimeException("Found two transaction with same Client Unique Ref which shouldn't happen");
+    }
+
+    public ActiveOffender getActiveOffender(final String nomsId, final LocalDate birthDate) {
+        final var id = coreV1Repository.getActiveOffender(nomsId, birthDate);
+
+        if (id != null) {
+            return ActiveOffender.builder()
+                    .found(true)
+                    .offender(new OffenderId(id.longValue())).build();
+        } else {
+            return ActiveOffender.builder()
+                    .found(false).build();
+        }
     }
 
     private String convertAccountCodeToType(final String accountCode) {
