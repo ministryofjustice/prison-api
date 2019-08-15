@@ -196,7 +196,7 @@ public class NomisApiV1ResourceImplTest {
 
         assertThat(result).isEqualTo(accountTransaction);
 
-        verify(service).getTransactionByClientUniqueRef(anyString(), anyString(), anyString());
+        verify(service).getTransactionByClientUniqueRef("prison", "nomis", "client-ref");
         verifyNoMoreInteractions(service);
     }
 
@@ -210,11 +210,11 @@ public class NomisApiV1ResourceImplTest {
 
         when(service.getActiveOffender(anyString(), any(LocalDate.class))).thenReturn(activeOffender);
 
-        final var result = nomisApiV1Resource.getActiveOffender("A4014AE", LocalDate.of(1970, 01, 01));
+        final var result = nomisApiV1Resource.getActiveOffender("A4014AE", LocalDate.of(1970, 1, 1));
 
         assertThat(result).isEqualTo(activeOffender);
 
-        verify(service).getActiveOffender(anyString(), any(LocalDate.class));
+        verify(service).getActiveOffender("A4014AE", LocalDate.of(1970, 1, 1));
         verifyNoMoreInteractions(service);
     }
 }

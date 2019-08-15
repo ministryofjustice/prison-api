@@ -300,15 +300,7 @@ public class NomisApiV1Service {
 
     public ActiveOffender getActiveOffender(final String nomsId, final LocalDate birthDate) {
         final var id = coreV1Repository.getActiveOffender(nomsId, birthDate);
-
-        if (id != null) {
-            return ActiveOffender.builder()
-                    .found(true)
-                    .offender(new OffenderId(id.longValue())).build();
-        } else {
-            return ActiveOffender.builder()
-                    .found(false).build();
-        }
+        return new ActiveOffender(id);
     }
 
     private String convertAccountCodeToType(final String accountCode) {

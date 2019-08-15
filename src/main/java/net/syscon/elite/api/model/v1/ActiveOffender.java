@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @ApiModel(description = "Active Offender")
@@ -24,4 +26,9 @@ public class ActiveOffender {
     @ApiModelProperty(value = "offender", name = "offender")
     @JsonInclude(Include.NON_NULL)
     private OffenderId offender;
+
+    public ActiveOffender(BigDecimal id) {
+        this.found = id != null;
+        this.offender = found ? new OffenderId(id.longValue()) : null;
+    }
 }
