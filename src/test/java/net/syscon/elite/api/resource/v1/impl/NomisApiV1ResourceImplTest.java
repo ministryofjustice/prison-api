@@ -194,9 +194,27 @@ public class NomisApiV1ResourceImplTest {
 
         final var result = nomisApiV1Resource.getTransactionByClientUniqueRef("client", "prison", "nomis", "ref");
 
-        assertThat(result.equals(accountTransaction));
+        assertThat(result).isEqualTo(accountTransaction);
 
-        verify(service).getTransactionByClientUniqueRef(anyString(), anyString(), anyString());
+        verify(service).getTransactionByClientUniqueRef("prison", "nomis", "client-ref");
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    public void getActiveOffender() {
+
+        final var activeOffender = ActiveOffender.builder()
+                .found(true)
+                .offender(new OffenderId(1111111L))
+                .build();
+
+        when(service.getActiveOffender(anyString(), any(LocalDate.class))).thenReturn(activeOffender);
+
+        final var result = nomisApiV1Resource.getActiveOffender("A4014AE", LocalDate.of(1970, 1, 1));
+
+        assertThat(result).isEqualTo(activeOffender);
+
+        verify(service).getActiveOffender("A4014AE", LocalDate.of(1970, 1, 1));
         verifyNoMoreInteractions(service);
     }
 }

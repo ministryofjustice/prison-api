@@ -331,4 +331,20 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(name = "client_unique_ref", value = "Client unique reference", required = true) @PathParam("client_unique_ref") @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
+
+    @SuppressWarnings("RestParamTypeInspection")
+    @GET
+    @Path("/lookup/active_offender")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieve active offender", notes = "offender id will be returned if offender is found")
+    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Active Offender ID returned", response = ActiveOffender.class),
+            @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Parameter exception (invalid date, time, format, type)", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    ActiveOffender getActiveOffender(
+            @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @QueryParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
+            @ApiParam(name = "date_of_birth", value = "date of birth", example = "2019-05-01") @NotNull @QueryParam("date_of_birth") LocalDate birthDate);
 }

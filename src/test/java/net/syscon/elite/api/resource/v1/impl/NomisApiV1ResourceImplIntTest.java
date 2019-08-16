@@ -31,11 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static net.syscon.elite.repository.v1.storedprocs.CoreProcs.GetActiveOffender;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
@@ -117,6 +119,12 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         public GetTransactionByClientUniqueRef getTransactionByClientUniqueRef() {
             return mock(GetTransactionByClientUniqueRef.class);
         }
+
+        @Bean
+        @Primary
+        public GetActiveOffender getActiveOffender() {
+            return mock(GetActiveOffender.class);
+        }
     }
 
     @Autowired
@@ -154,6 +162,9 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetTransactionByClientUniqueRef getTransactionByClientUniqueRef;
+
+    @Autowired
+    private GetActiveOffender getActiveOffender;
 
     @Test
     public void transferTransaction() {
@@ -281,14 +292,14 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
                 P_NOMS_ID, (Object) "G7806VO",
                 P_ROOT_OFFENDER_ID, (Object) 0L,
                 P_SINGLE_OFFENDER_ID, (Object) "",
-                P_AGY_LOC_ID, (Object)"LEI",
+                P_AGY_LOC_ID, (Object) "LEI",
                 P_DETAILS_CLOB, (Object) testClob,
                 P_TIMESTAMP, (Object) timestamp);
 
         when(offenderPssDetail.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/G7806VO/pss_detail", HttpMethod.GET, requestEntity, String.class);
-        if (responseEntity.getStatusCodeValue()!= 200) {
+        if (responseEntity.getStatusCodeValue() != 200) {
             fail("PSS detail call failed. Response body : " + responseEntity.getBody());
             return;
         }
@@ -313,7 +324,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE", HttpMethod.GET, requestEntity, Offender.class);
 
-        if (responseEntity.getStatusCodeValue()!= 200) {
+        if (responseEntity.getStatusCodeValue() != 200) {
             fail("Offender detail failed. Response body : " + responseEntity.getBody());
             return;
         }
@@ -333,12 +344,12 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         byte[] imageBytes = "XXX".getBytes();
         Blob blob = new javax.sql.rowset.serial.SerialBlob(imageBytes);
-        final var procedureResponse = Map.of( P_IMAGE, (Object) blob);
+        final var procedureResponse = Map.of(P_IMAGE, (Object) blob);
 
         when(offenderImage.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE/image", HttpMethod.GET, requestEntity, String.class);
-        if (responseEntity.getStatusCodeValue()!= 200) {
+        if (responseEntity.getStatusCodeValue() != 200) {
             fail("offenderImage failed. Response body : " + responseEntity.getBody());
             return;
         }
@@ -544,6 +555,31 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/transactions/some-reference", HttpMethod.GET, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(404);
+    }
+
+    @Test
+    public void getActiveOffender() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        when(getActiveOffender.executeFunction(eq(BigDecimal.class), any(SqlParameterSource.class))).thenReturn(
+                new BigDecimal("1111111"));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/lookup/active_offender?noms_id=G0797UA&date_of_birth=1958-04-07", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"found\": true, \"offender\": { \"id\": 1111111 } }");
+    }
+
+    @Test
+    public void getActiveOffenderNotFound() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        when(getActiveOffender.executeFunction(eq(BigDecimal.class), any(SqlParameterSource.class))).thenReturn(null);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/lookup/active_offender?noms_id=G0797UA&date_of_birth=1958-04-07", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"found\": false }");
     }
 
     private ResponseEntity getTransactions(final String accountType) {
