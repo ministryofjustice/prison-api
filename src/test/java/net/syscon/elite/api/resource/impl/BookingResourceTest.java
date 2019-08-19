@@ -118,7 +118,7 @@ public class BookingResourceTest extends ResourceTest {
                 "/api/bookings/{bookingId}/alert/{alertSeq}",
                 HttpMethod.PUT,
                 createHttpEntity(token , body),
-                new ParameterizedTypeReference<AlertCreated>() {}, -1L, 4);
+                new ParameterizedTypeReference<AlertCreated>() {}, -14L, 1);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
     }
