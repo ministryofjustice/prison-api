@@ -2,6 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.UpdateAlert;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -13,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,6 +94,34 @@ public class InmateAlertServiceImplTest {
             serviceToTest.createNewAlert(-1L, CreateAlert
                     .builder().alertDate(LocalDate.now().plusDays(1)).build());
         })).as("Alert date cannot be in the future.").isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testThatAlertRepository_UpdateAlertIsCalledWithCorrectParams() {
+        final var updateAlert = UpdateAlert
+                .builder()
+                .expiryDate(LocalDate.now())
+                .alertStatus("INACTIVE")
+                .build();
+
+        final var alert = Alert.builder()
+                .alertId(4L)
+                .bookingId(-1L)
+                .alertType(format("ALERTYPE%d", 1L))
+                .alertCode(format("ALERTCODE%d", 1L))
+                .active(false)
+                .comment(format("This is a comment %d", 1L))
+                .dateCreated(LocalDate.now())
+                .dateExpires(LocalDate.now())
+                .build();;
+
+        when(inmateAlertRepository.updateAlert(eq(-1L), eq(4L), eq(updateAlert))).thenReturn(Optional.of(alert));
+
+        final var updatedAlert = serviceToTest.updateAlert(-1L, 4L, updateAlert);
+
+        assertThat(updatedAlert).isEqualTo(alert);
+
+        verify(inmateAlertRepository).updateAlert(-1L, 4L, updateAlert);
     }
 
     private Page<Alert> createAlerts() {

@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.UpdateAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
@@ -50,7 +51,8 @@ public class InmateAlertRepositoryTest {
                         Tuple.tuple(-7L, 1L, "A1234AG", "V", "VOP", "Alert Text 7", null, true),
                         Tuple.tuple(-1L, 1L, "A1234AA", "X", "XA", "Alert Text 1-1", null, true),
                         Tuple.tuple(-1L, 2L, "A1234AA", "H", "HC", "Alert Text 1-2", null, true),
-                        Tuple.tuple(-1L, 3L, "A1234AA", "R", "RSS", "Inactive Alert", LocalDate.now(), false)
+                        Tuple.tuple(-1L, 3L, "A1234AA", "R", "RSS", "Inactive Alert", LocalDate.now(), false),
+                        Tuple.tuple(-1L, 4L, "A1234AA", "R", "RSS", "Test alert for expiry", LocalDate.now(), true)
                 );
     }
 
@@ -62,6 +64,7 @@ public class InmateAlertRepositoryTest {
                 .containsExactly(
                         Tuple.tuple(-1L, 2L, "A1234AA", "H"),
                         Tuple.tuple(-1L, 3L, "A1234AA", "R"),
+                        Tuple.tuple(-1L, 4L, "A1234AA", "R"),
                         Tuple.tuple(-7L, 1L, "A1234AG", "V"),
                         Tuple.tuple(-1L, 1L, "A1234AA", "X"));
     }
@@ -73,7 +76,8 @@ public class InmateAlertRepositoryTest {
         assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertCode")
                 .containsExactly(
                         Tuple.tuple(-1L, 1L, "A1234AA", "XA"),
-                        Tuple.tuple(-1L, 3L, "A1234AA", "RSS"));
+                        Tuple.tuple(-1L, 3L, "A1234AA", "RSS"),
+                        Tuple.tuple(-1L, 4L, "A1234AA", "RSS"));
     }
 
     @Test
@@ -93,6 +97,26 @@ public class InmateAlertRepositoryTest {
         assertThat(alert)
                 .extracting( "alertId", "alertType", "alertCode", "comment")
                 .contains( latestAlertSeq, "X", "XX", "Poor behaviour");
+
+    }
+
+    @Test
+    public void testThatAnAlertGetsUpdated() {
+        final var bookingId = -1L;
+        final var alertSeq = 4L;
+        final var expiryDate = LocalDate.now();
+        repository.updateAlert(bookingId, alertSeq, UpdateAlert
+                .builder()
+                .expiryDate(expiryDate)
+                .alertStatus("INACTIVE")
+                .build());
+
+
+        final var alert = repository.getInmateAlerts(bookingId, alertSeq).orElse(Alert.builder().build());
+
+        assertThat(alert)
+                .extracting( "alertId", "comment", "dateExpires", "active")
+                .contains( alertSeq, "Test alert for expiry", expiryDate, false);
 
     }
 }

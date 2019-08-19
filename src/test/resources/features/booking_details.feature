@@ -249,7 +249,7 @@ Feature: Booking Details
 
     Examples:
       | bookingId | activeAlerts | inactiveAlerts | alertTypes |
-      | -1        | 2            | 1              | H,X        |
+      | -1        | 2            | 2              | H,X        |
       | -2        | 1            | 0              | H          |
       | -11       | 0            | 0              |            |
 

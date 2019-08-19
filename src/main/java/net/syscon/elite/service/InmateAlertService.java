@@ -2,10 +2,12 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.UpdateAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface InmateAlertService {
 	Page<Alert> getInmateAlerts(Long bookingId, String query, String orderBy, Order order, long offset, long limit);
@@ -16,4 +18,6 @@ public interface InmateAlertService {
 	List<Alert> getInmateAlertsByOffenderNos(List<String>offenderNos, boolean latestOnly, String query, String orderByField, Order order);
 
     long createNewAlert(final long bookingId, final CreateAlert alert);
+
+    Alert updateAlert(final long bookingId, final long alertSeq, UpdateAlert alert);
 }

@@ -94,6 +94,36 @@ public class BookingResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testUpdateAlert_UnAuthorised() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var body = UpdateAlert.builder().expiryDate(LocalDate.now()).alertStatus("INACTIVE").build();
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert/{alertSeq}",
+                HttpMethod.PUT,
+                createHttpEntity(token , body),
+                new ParameterizedTypeReference<ErrorResponse>() {}, -1L, 4);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(403);
+    }
+
+    @Test
+    public void testUpdateAlert() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.UPDATE_ALERT);
+
+        final var body = UpdateAlert.builder().expiryDate(LocalDate.now()).alertStatus("INACTIVE").build();
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert/{alertSeq}",
+                HttpMethod.PUT,
+                createHttpEntity(token , body),
+                new ParameterizedTypeReference<AlertCreated>() {}, -1L, 4);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(201);
+    }
+
+    @Test
     public void testCreateNewAlert_BadRequest() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 

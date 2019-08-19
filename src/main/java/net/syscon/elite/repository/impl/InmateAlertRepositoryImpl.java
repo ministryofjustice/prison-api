@@ -3,6 +3,7 @@ package net.syscon.elite.repository.impl;
 import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.UpdateAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
@@ -122,5 +123,22 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                 new String[]{"ALERT_SEQ"});
 
         return Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
+    }
+
+    @Override
+    public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final UpdateAlert alert) {
+	    final var sql = getQuery("UPDATE_ALERT");
+
+	    jdbcTemplate.update(
+	            sql,
+                createParams(
+                        "alertSeq", alertSeq,
+                        "bookingId", bookingId,
+                        "alertStatus", alert.getAlertStatus(),
+                        "expiryDate", alert.getExpiryDate()
+                )
+        );
+
+        return getInmateAlerts(bookingId, alertSeq);
     }
 }
