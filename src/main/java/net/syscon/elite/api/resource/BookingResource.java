@@ -833,7 +833,7 @@ public interface BookingResource {
     @Produces({"application/json"})
     @ApiOperation(value = "Update an alert")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Updated alert", response = Alert.class),
+            @ApiResponse(code = 200, message = "Updated alert", response = Alert.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)
