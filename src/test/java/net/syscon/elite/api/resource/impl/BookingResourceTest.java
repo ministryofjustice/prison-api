@@ -120,7 +120,7 @@ public class BookingResourceTest extends ResourceTest {
                 createHttpEntity(token , body),
                 new ParameterizedTypeReference<AlertCreated>() {}, -14L, 1);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(201);
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
     }
 
     @Test

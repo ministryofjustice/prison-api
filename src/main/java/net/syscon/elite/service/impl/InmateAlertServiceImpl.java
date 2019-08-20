@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -122,7 +121,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     @Transactional
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     public Alert updateAlert(final long bookingId, final long alertSeq, final UpdateAlert updateAlert) {
-        final var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, updateAlert)
+        final var username = authenticationFacade.getCurrentUsername();
+        final var alert = inmateAlertRepository.updateAlert(username, bookingId, alertSeq, updateAlert)
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
         log.info("Updated alert {}", alert);

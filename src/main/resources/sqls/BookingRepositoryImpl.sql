@@ -672,7 +672,8 @@ VALUES
 UPDATE_ALERT {
 UPDATE OFFENDER_ALERTS SET
     EXPIRY_DATE = :expiryDate,
-    ALERT_STATUS = :alertStatus
+    ALERT_STATUS = :alertStatus,
+    MODIFY_USER_ID = :modifyUserId
 WHERE ALERT_SEQ = :alertSeq
 AND OFFENDER_BOOK_ID = :bookingId
 }

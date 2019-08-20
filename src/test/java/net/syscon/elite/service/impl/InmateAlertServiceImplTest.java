@@ -113,15 +113,16 @@ public class InmateAlertServiceImplTest {
                 .comment(format("This is a comment %d", 1L))
                 .dateCreated(LocalDate.now())
                 .dateExpires(LocalDate.now())
-                .build();;
+                .build();
 
-        when(inmateAlertRepository.updateAlert(eq(-1L), eq(4L), eq(updateAlert))).thenReturn(Optional.of(alert));
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(inmateAlertRepository.updateAlert(eq("ITAG_USER"), eq(-1L), eq(4L), eq(updateAlert))).thenReturn(Optional.of(alert));
 
         final var updatedAlert = serviceToTest.updateAlert(-1L, 4L, updateAlert);
 
         assertThat(updatedAlert).isEqualTo(alert);
 
-        verify(inmateAlertRepository).updateAlert(-1L, 4L, updateAlert);
+        verify(inmateAlertRepository).updateAlert("ITAG_USER", -1L, 4L, updateAlert);
     }
 
     private Page<Alert> createAlerts() {

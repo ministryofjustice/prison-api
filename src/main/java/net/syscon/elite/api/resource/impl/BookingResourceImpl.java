@@ -259,7 +259,7 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public Response updateAlert(final Long bookingId, final Long alertSeq, final UpdateAlert alert) {
         final var updatedAlert = inmateAlertService.updateAlert(bookingId, alertSeq, alert);
-        return Response.status(201).entity(updatedAlert).build();
+        return Response.status(200).entity(updatedAlert).build();
     }
 
     @Override

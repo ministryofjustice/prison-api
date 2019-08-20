@@ -102,7 +102,7 @@ public class InmateAlertRepositoryTest {
         final var bookingId = -14L;
         final var alertSeq = 1L;
         final var expiryDate = LocalDate.now();
-        repository.updateAlert(bookingId, alertSeq, UpdateAlert
+        repository.updateAlert("ITAG_USER", bookingId, alertSeq, UpdateAlert
                 .builder()
                 .expiryDate(expiryDate)
                 .alertStatus("INACTIVE")

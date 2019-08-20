@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import java.time.LocalDate;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @ApiModel(description = "Update an existing alert")
 @Builder
@@ -12,9 +14,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class UpdateAlert {
-    @ApiModelProperty(value = "Date the alert became inactive", example = "2019-02-13")
+    @ApiModelProperty(value = "Date the alert became inactive", example = "2019-02-13", required = true)
+    @NotNull
     private LocalDate expiryDate;
 
-    @ApiModelProperty(value = "Alert status", example = "ACTIVE")
+    @ApiModelProperty(value = "Alert status", allowableValues="INACTIVE,ACTIVE", example = "ACTIVE", required = true)
+    @NotBlank
     private String alertStatus;
 }

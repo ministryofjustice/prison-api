@@ -126,7 +126,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final UpdateAlert alert) {
+    public Optional<Alert> updateAlert(final String username, final long bookingId, final long alertSeq, final UpdateAlert alert) {
 	    final var sql = getQuery("UPDATE_ALERT");
 
 	    jdbcTemplate.update(
@@ -135,7 +135,8 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "alertSeq", alertSeq,
                         "bookingId", bookingId,
                         "alertStatus", alert.getAlertStatus(),
-                        "expiryDate", alert.getExpiryDate()
+                        "expiryDate", alert.getExpiryDate(),
+                        "modifyUserId", username
                 )
         );
 
