@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.UpdateAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
@@ -93,6 +94,26 @@ public class InmateAlertRepositoryTest {
         assertThat(alert)
                 .extracting( "alertId", "alertType", "alertCode", "comment")
                 .contains( latestAlertSeq, "X", "XX", "Poor behaviour");
+
+    }
+
+    @Test
+    public void testThatAnAlertGetsUpdated() {
+        final var bookingId = -14L;
+        final var alertSeq = 1L;
+        final var expiryDate = LocalDate.now();
+        repository.updateAlert("ITAG_USER", bookingId, alertSeq, UpdateAlert
+                .builder()
+                .expiryDate(expiryDate)
+                .alertStatus("INACTIVE")
+                .build());
+
+
+        final var alert = repository.getInmateAlerts(bookingId, alertSeq).orElse(Alert.builder().build());
+
+        assertThat(alert)
+                .extracting( "alertId", "comment", "dateExpires", "active")
+                .contains( alertSeq, "Test alert for expiry", expiryDate, false);
 
     }
 }

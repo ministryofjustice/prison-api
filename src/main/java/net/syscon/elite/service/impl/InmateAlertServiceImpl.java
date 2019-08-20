@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.UpdateAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
@@ -114,5 +115,18 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         log.info("Created new alert {}", alert);
 
         return alertId;
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
+    public Alert updateAlert(final long bookingId, final long alertSeq, final UpdateAlert updateAlert) {
+        final var username = authenticationFacade.getCurrentUsername();
+        final var alert = inmateAlertRepository.updateAlert(username, bookingId, alertSeq, updateAlert)
+                .orElseThrow(EntityNotFoundException.withId(alertSeq));
+
+        log.info("Updated alert {}", alert);
+
+        return alert;
     }
 }
