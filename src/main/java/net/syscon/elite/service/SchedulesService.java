@@ -20,13 +20,13 @@ public interface SchedulesService {
 
     List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder);
 
-    List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNo, final LocalDate date, final TimeSlot timeSlot);
+    List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot);
 
-    List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNo, final LocalDate date, final TimeSlot timeSlot);
+    List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot);
 
-    List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNumbers, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded);
+    List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded);
 
-    List<PrisonerSchedule> getCourtEvents(final String agencyId, final List<String> offenderNumbers, final LocalDate date, final TimeSlot timeSlot);
+    List<PrisonerSchedule> getCourtEvents(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot);
 
-    List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNumbers, final LocalDate date);
+    List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNos, final LocalDate date);
 }
