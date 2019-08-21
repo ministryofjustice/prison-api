@@ -26,78 +26,83 @@ public class Alert {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
 
-    @ApiModelProperty(required = true, value = "Alert Id")
+    @ApiModelProperty(required = true, value = "Alert Id", example = "1")
     @JsonProperty("alertId")
     @NotNull
     private Long alertId;
 
-    @ApiModelProperty(required = true, value = "Offender booking id.")
+    @ApiModelProperty(required = true, value = "Offender booking id.", example = "14")
     @JsonProperty("bookingId")
     @NotNull
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Offender Unique Reference")
+    @ApiModelProperty(required = true, value = "Offender Unique Reference", example = "G3878UK")
     @JsonProperty("offenderNo")
     @NotBlank
     private String offenderNo;
 
-    @ApiModelProperty(required = true, value = "Alert Type")
+    @ApiModelProperty(required = true, value = "Alert Type", example = "X")
     @JsonProperty("alertType")
     @NotBlank
     private String alertType;
 
-    @ApiModelProperty(required = true, value = "Alert Type Description")
+    @ApiModelProperty(required = true, value = "Alert Type Description", example = "Security")
     @JsonProperty("alertTypeDescription")
     @NotBlank
     private String alertTypeDescription;
 
-    @ApiModelProperty(required = true, value = "Alert Code")
+    @ApiModelProperty(required = true, value = "Alert Code", example = "XC")
     @JsonProperty("alertCode")
     @NotBlank
     private String alertCode;
 
-    @ApiModelProperty(required = true, value = "Alert Code Description")
+    @ApiModelProperty(required = true, value = "Alert Code Description", example = "Risk to females")
     @JsonProperty("alertCodeDescription")
     @NotBlank
     private String alertCodeDescription;
 
-    @ApiModelProperty(required = true, value = "Alert comments")
+    @ApiModelProperty(required = true, value = "Alert comments", example = "has a large poster on cell wall")
     @JsonProperty("comment")
     @NotBlank
     private String comment;
 
-    @ApiModelProperty(required = true, value = "Date Alert created")
+    @ApiModelProperty(required = true, value = "Date the alert was created", example = "2019-08-20")
     @JsonProperty("dateCreated")
     @NotNull
     private LocalDate dateCreated;
 
-    @ApiModelProperty(value = "Date the alert expires")
+    @ApiModelProperty(value = "Date the alert expires", example = "2019-08-20")
     @JsonProperty("dateExpires")
     private LocalDate dateExpires;
 
-    @ApiModelProperty(required = true, value = "True / False indicated expired")
+    @ApiModelProperty(required = true, value = "True / False based on presence of expiry date")
     @JsonProperty("expired")
     @NotNull
     private boolean expired;
 
-    @ApiModelProperty(required = true, value = "Status is active")
+    @ApiModelProperty(required = true, value = "True / False based on alert status")
     @JsonProperty("active")
     @NotNull
     private boolean active;
 
-    @ApiModelProperty(value = "First name of the user who added the alert")
+    @ApiModelProperty(value = "First name of the user who added the alert", example = "John")
     @JsonProperty("addedByFirstName")
     private String addedByFirstName;
 
-    @ApiModelProperty(value = "Last name of the user who added the alert")
+    @ApiModelProperty(value = "Last name of the user who added the alert", example = "Smith")
     @JsonProperty("addedByLastName")
     private String addedByLastName;
 
-    @ApiModelProperty(value = "First name of the user who expired the alert")
+    @ApiModelProperty(value = "First name of the user who expired the alert", example = "John")
     @JsonProperty("expiredByFirstName")
     private String expiredByFirstName;
 
-    @ApiModelProperty(value = "Last name of the user who expired the alert")
+    @ApiModelProperty(value = "Last name of the user who expired the alert", example = "Smith")
     @JsonProperty("expiredByLastName")
     private String expiredByLastName;
+
+    @JsonIgnore
+    public boolean isExpired() {
+        return dateExpires != null && dateExpires.compareTo(LocalDate.now()) <= 0;
+    }
 }
