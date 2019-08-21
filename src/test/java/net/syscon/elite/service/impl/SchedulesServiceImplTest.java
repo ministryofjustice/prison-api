@@ -26,13 +26,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SchedulesServiceImplTest {
@@ -55,10 +55,11 @@ public class SchedulesServiceImplTest {
     private final static LocalDate DATE = LocalDate.of(2018, Month.AUGUST, 31);
     private final static LocalDateTime TIME_1000 = LocalDateTime.of(DATE, LocalTime.of(10, 0));
     private final static LocalDateTime TIME_1040 = LocalDateTime.of(DATE, LocalTime.of(10, 40));
+    private final static int MAX_BATCH_SIZE = 500;
 
     @Before
     public void init() {
-        schedulesService = new SchedulesServiceImpl(locationService, inmateService, bookingService, referenceDomainService, scheduleRepository, authenticationFacade);
+        schedulesService = new SchedulesServiceImpl(locationService, inmateService, bookingService, referenceDomainService, scheduleRepository, authenticationFacade, MAX_BATCH_SIZE);
         when(authenticationFacade.getCurrentUsername()).thenReturn("me");
     }
 
@@ -393,7 +394,46 @@ public class SchedulesServiceImplTest {
         final var activities = schedulesService.getActivitiesAtAllLocations("LEI", today, TimeSlot.AM, null, Order.ASC);
 
         assertThat(activities).hasSize(1);
-
     }
 
+    @Test
+    public void testThatCallsToGetVisits_AreBatched() {
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        schedulesService.getVisits("LEI", offenders, LocalDate.now(), TimeSlot.AM);
+
+        verify(scheduleRepository,times(2)).getVisits(any(), anyList(), any());
+    }
+
+    @Test
+    public void testThatCallsToGetAppointments_AreBatched() {
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        schedulesService.getAppointments("LEI", offenders, LocalDate.now(), TimeSlot.AM);
+
+        verify(scheduleRepository,times(2)).getAppointments(any(), anyList(), any());
+    }
+
+
+    @Test
+    public void testThatCallsToGetActivities_AreBatched() {
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        schedulesService.getActivities("LEI", offenders, LocalDate.now(), TimeSlot.AM, true);
+
+        verify(scheduleRepository,times(2)).getActivities(any(), anyList(), any());
+    }
+
+    @Test
+    public void testThatCallsToGetCourtEvents_AreBatched() {
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        schedulesService.getCourtEvents("LEI", offenders, LocalDate.now(), TimeSlot.AM);
+
+        verify(scheduleRepository,times(2)).getCourtEvents(anyList(), any());
+    }
+
+    @Test
+    public void testThatCallsToGetExternalTransfers_AreBatched() {
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        schedulesService.getExternalTransfers("LEI", offenders, LocalDate.now());
+
+        verify(scheduleRepository,times(2)).getExternalTransfers(any(), anyList(), any());
+    }
 }

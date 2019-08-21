@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.Lists;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.text.WordUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,16 +44,20 @@ public class SchedulesServiceImpl implements SchedulesService {
     private final ReferenceDomainService referenceDomainService;
     private final ScheduleRepository scheduleRepository;
     private final AuthenticationFacade authenticationFacade;
+    private int maxBatchSize;
+
 
     public SchedulesServiceImpl(final LocationService locationService, final InmateService inmateService,
                                 final BookingService bookingService, final ReferenceDomainService referenceDomainService,
-                                final ScheduleRepository scheduleRepository, final AuthenticationFacade authenticationFacade) {
+                                final ScheduleRepository scheduleRepository, final AuthenticationFacade authenticationFacade,
+                                @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.locationService = locationService;
         this.inmateService = inmateService;
         this.bookingService = bookingService;
         this.referenceDomainService = referenceDomainService;
         this.scheduleRepository = scheduleRepository;
         this.authenticationFacade = authenticationFacade;
+        this.maxBatchSize = maxBatchSize;
     }
 
     @Override
@@ -177,39 +183,48 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
-    public List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNo, final LocalDate date, final TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot) {
 
         Validate.notBlank(agencyId, "An agency id is required.");
-        if (offenderNo.isEmpty()) {
+        if (offenderNos.isEmpty()) {
             return Collections.emptyList();
         }
 
-        final var visits = scheduleRepository.getVisits(agencyId, offenderNo, date);
+        final var visits = Lists.partition(offenderNos, maxBatchSize)
+                .stream()
+                .flatMap(offenderNosList -> scheduleRepository.getVisits(agencyId, offenderNosList, date).stream())
+                .collect(Collectors.toList());
 
         return filterByTimeSlot(timeSlot, visits);
     }
 
     @Override
-    public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNo, final LocalDate date, final TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot) {
 
         Validate.notBlank(agencyId, "An agency id is required.");
-        if (offenderNo.isEmpty()) {
+        if (offenderNos.isEmpty()) {
             return Collections.emptyList();
         }
 
-        final var appointments = scheduleRepository.getAppointments(agencyId, offenderNo, date);
+        final var appointments = Lists.partition(offenderNos, maxBatchSize)
+                .stream()
+                .flatMap(offenderNosList -> scheduleRepository.getAppointments(agencyId, offenderNosList, date).stream())
+                .collect(Collectors.toList());
 
         return filterByTimeSlot(timeSlot, appointments);
     }
 
     @Override
-    public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNumbers, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
+    public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
         Validate.notBlank(agencyId, "An agency id is required.");
-        if (offenderNumbers.isEmpty()) {
+        if (offenderNos.isEmpty()) {
             return Collections.emptyList();
         }
 
-        final var activities = scheduleRepository.getActivities(agencyId, offenderNumbers, date);
+        final var activities =  Lists.partition(offenderNos, maxBatchSize)
+                .stream()
+                .flatMap(offenderNosList -> scheduleRepository.getActivities(agencyId, offenderNosList, date).stream())
+                .collect(Collectors.toList());
 
         final var filtered = filterByTimeSlot(timeSlot, activities);
         if (includeExcluded) {
@@ -219,25 +234,33 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
-    public List<PrisonerSchedule> getCourtEvents(final String agencyId, final List<String> offenderNumbers, final LocalDate date, final TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getCourtEvents(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot) {
         Validate.notBlank(agencyId, "An agency id is required.");
-        if (offenderNumbers.isEmpty()) {
+        if (offenderNos.isEmpty()) {
             return Collections.emptyList();
         }
 
-        final var events = scheduleRepository.getCourtEvents(offenderNumbers, date);
+        final var events =
+                Lists.partition(offenderNos, maxBatchSize)
+                .stream()
+                .flatMap(offenderNosList ->  scheduleRepository.getCourtEvents(offenderNosList, date).stream())
+                .collect(Collectors.toList());
+
 
         return filterByTimeSlot(timeSlot, events);
     }
 
     @Override
-    public List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
+    public List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNos, final LocalDate date) {
         Validate.notBlank(agencyId, "An agency id is required.");
-        if (offenderNumbers.isEmpty()) {
+        if (offenderNos.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return scheduleRepository.getExternalTransfers(agencyId, offenderNumbers, date);
+        return Lists.partition(offenderNos, maxBatchSize)
+                .stream()
+                .flatMap(offenderNosList ->  scheduleRepository.getExternalTransfers(agencyId, offenderNosList, date).stream())
+                .collect(Collectors.toList());
     }
 
     private List<PrisonerSchedule> filterByTimeSlot(final TimeSlot timeSlot, final List<PrisonerSchedule> events) {
