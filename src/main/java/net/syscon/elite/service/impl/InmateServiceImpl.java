@@ -243,7 +243,7 @@ public class InmateServiceImpl implements InmateService {
         }
         final Set<String> alertTypes = new HashSet<>();
         final var activeAlertCount = new AtomicInteger(0);
-        items.stream().filter(Alert::getActive).forEach(a -> {
+        items.stream().filter(Alert::isActive).forEach(a -> {
             activeAlertCount.incrementAndGet();
             alertTypes.add(a.getAlertType());
         });
