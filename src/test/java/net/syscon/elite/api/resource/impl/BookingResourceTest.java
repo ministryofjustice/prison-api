@@ -8,6 +8,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -185,5 +186,21 @@ public class BookingResourceTest extends ResourceTest {
 
         assertThat(response.getBody().getAlertId()).isGreaterThan(1);
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
+    }
+
+    @Test
+    public void testGetBasicInmateDetailsForOffendersActiveOnlyFalse() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+
+        final var body = List.of("Z0020ZZ");
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/offenders?activeOnly=false",
+                HttpMethod.POST,
+                createHttpEntity(token , body),
+                new ParameterizedTypeReference<List<InmateBasicDetails>>() {});
+
+        assertThat(response.getBody().get(0).getBookingId()).isEqualTo(-20);
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
     }
 }

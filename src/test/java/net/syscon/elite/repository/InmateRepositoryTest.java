@@ -965,7 +965,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
-        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"), false, Set.of("LEI"));
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"), false, Set.of("LEI"), true);
         assertThat(offenders).hasSize(1);
         assertThat(offenders).extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName", "dateOfBirth", "assignedLivingUnitId").contains(
                 Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", LocalDate.parse("1970-03-01"), -7L)
@@ -974,14 +974,28 @@ public class InmateRepositoryTest {
 
     @Test
     public void testAccessToAllData_whenTrue() {
-        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), true, Collections.emptySet());
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), true, Collections.emptySet(), false);
         assertThat(offenders).containsExactly(new InmateBasicDetails(-9L, "A00119", "A1234AI", "CHESTER", "JAMES", "THOMPSON", "LEI", -7L, LocalDate.parse("1970-03-01")));
     }
 
     @Test
     public void testAccessToAllData_whenFalse() {
-        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), false, Set.of("HLI"));
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), false, Set.of("HLI"), false);
         assertThat(offenders).isEmpty();
+    }
+
+    @Test
+    public void testAccessToAllData_WithActiveOnlyTrue() {
+        //Offender without an an active booking
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("Z0020ZZ"), true, Collections.emptySet(), true);
+        assertThat(offenders).isEmpty();
+    }
+
+    @Test
+    public void testAccessToAllData_WithActiveOnlyFalse() {
+        //Offender without an an active booking
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("Z0020ZZ"), true, Collections.emptySet(), false);
+        assertThat(offenders).hasSize(1);
     }
 
     @Test

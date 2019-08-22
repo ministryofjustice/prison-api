@@ -587,13 +587,14 @@ public interface BookingResource {
     @Path("/offenders")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Offender detail.", notes = "Offender detail for active offenders", nickname = "getBasicInmateDetailsForOffenders")
+    @ApiOperation(value = "Offender detail.", notes = "Offender detail for offenders", nickname = "getBasicInmateDetailsForOffenders")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = InmateBasicDetails.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<InmateBasicDetails> getBasicInmateDetailsForOffenders(@ApiParam(value = "The offenderNo of offender", required = true) Set<String> offenders);
+    List<InmateBasicDetails> getBasicInmateDetailsForOffenders(@ApiParam(value = "The offenderNo of offender", required = true) Set<String> offenders,
+                                                               @ApiParam(value = "Returns only Offender details with an active booking if true, otherwise Offenders without an active booking are included", defaultValue = "true") @QueryParam("activeOnly") Boolean activeOnly);
 
     @POST
     @Path("/offenders/{agencyId}/list")
