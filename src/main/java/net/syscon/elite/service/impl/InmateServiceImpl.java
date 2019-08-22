@@ -142,10 +142,12 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders) {
-        final var caseloads = loadCaseLoadsOrThrow();
-        log.info("getBasicInmateDetailsForOffenders, {} offenders, {} caseloads", offenders.size(), caseloads.size());
+        final var canViewAllOffenders = isViewAllOffenders();
+        final var caseloads = canViewAllOffenders ? Set.<String>of() : loadCaseLoadsOrThrow();
 
-        final var results = repository.getBasicInmateDetailsForOffenders(offenders, false, caseloads)
+        log.info("getBasicInmateDetailsForOffenders, {} offenders, {} caseloads, canViewAllOffenders {}", offenders.size(), caseloads.size(), canViewAllOffenders);
+
+        final var results = repository.getBasicInmateDetailsForOffenders(offenders, canViewAllOffenders, caseloads)
                 .stream()
                 .map(offender -> offender.toBuilder()
                         .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
@@ -156,6 +158,10 @@ public class InmateServiceImpl implements InmateService {
 
         log.info("getBasicInmateDetailsForOffenders, {} records returned", results.size());
         return results;
+    }
+
+    private boolean isViewAllOffenders() {
+        return authenticationFacade.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH");
     }
 
     private Set<String> loadCaseLoadsOrThrow() {

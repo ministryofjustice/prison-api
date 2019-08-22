@@ -4,6 +4,8 @@ import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.repository.v1.NomisV1SQLErrorCodeTranslator;
 import net.syscon.elite.repository.v1.model.AvailableDatesSP;
 import net.syscon.elite.repository.v1.model.ContactPersonSP;
+import net.syscon.elite.repository.v1.model.UnavailabilityReasonSP;
+import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +45,25 @@ public class VisitsProc {
                     .declareParameters(
                             new SqlParameter(P_ROOT_OFFENDER_ID, Types.VARCHAR))
                     .returningResultSet(P_CONTACT_CSR, StandardBeanPropertyRowMapper.newInstance(ContactPersonSP.class));
+            compile();
+        }
+    }
+
+    @Component
+    public static class GetUnavailability extends SimpleJdbcCallWithExceptionTranslater {
+
+        public GetUnavailability(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+            super(dataSource, errorCodeTranslator);
+            withSchemaName(API_OWNER)
+                    .withCatalogName(API_VISIT_PROCS)
+                    .withProcedureName("offender_unavailable_reasons")
+                    .withNamedBinding()
+                    .declareParameters(
+                            new SqlParameter(P_ROOT_OFFENDER_ID, Types.VARCHAR),
+                            new SqlParameter(P_DATES, Types.VARCHAR),
+                            new SqlOutParameter(P_REASON_CSR, Types.REF_CURSOR))
+                    .returningResultSet(P_REASON_CSR,
+                            StandardBeanPropertyRowMapper.newInstance(UnavailabilityReasonSP.class));
             compile();
         }
     }

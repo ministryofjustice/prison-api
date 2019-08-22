@@ -62,4 +62,7 @@ public interface StoreProcMetadata {
     String P_TRANS_CSR = "p_trans_csr";
 
     String P_CONTACT_CSR = "p_contact_csr";
+
+    String P_REASON_CSR = "p_reason_csr";
+    String P_DATES = "p_dates";
 }
