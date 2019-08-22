@@ -372,8 +372,8 @@ public class BookingRepositoryTest {
         final var resultsFuture = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(12, 0)));
 
-        assertThat(resultsFuture.get(-1L)).asList().containsExactly("XA", "HC");
-        assertThat(resultsFuture.get(-2L)).asList().containsExactly("HA");
+        assertThat(resultsFuture.get(-1L)).asList().containsExactly("XA", "HC", "XTACT");
+        assertThat(resultsFuture.get(-2L)).asList().containsExactly("HA", "XTACT");
         assertThat(resultsFuture.get(-16L)).isNull();
     }
 

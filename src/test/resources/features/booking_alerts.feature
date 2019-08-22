@@ -13,8 +13,8 @@ Feature: Booking Alerts
 
     Examples:
        | bookingId | number | alert code list |
-       | -1        | 3      | XA,HC,RSS       |
-       | -2        | 1      | HA              |
+       | -1        | 4      | XA,HC,RSS,XTACT |
+       | -2        | 2      | HA,XTACT        |
 
   Scenario Outline: Retrieve alerts for an offender by Offender No
     When alerts are requested for an offender booking using offender No "<offenderNo>"
@@ -23,8 +23,8 @@ Feature: Booking Alerts
 
     Examples:
       | offenderNo | number | alert code list |
-      | A1234AA    | 3      | XA,HC,RSS       |
-      | A1234AB    | 1      | HA              |
+      | A1234AA    | 4      | XA,HC,RSS,XTACT |
+      | A1234AB    | 2      | HA,XTACT        |
 
   Scenario Outline: Retrieve alert for an offender booking
     When alert is requested for an offender booking "<bookingId>" and alert id "<alertId>"
@@ -59,13 +59,15 @@ Feature: Booking Alerts
 
   Scenario: Alerts are requested for multiple offender numbers
     When alerts are requested for offender nos "A1234AA,A1234AF" and agency "LEI"
-    Then "4" alerts are returned
+    Then "6" alerts are returned
     And alert details are returned as follows:
       | offenderNo | bookingId | alertId | alertType | alertTypeDescription | alertCode | alertCodeDescription    | comment               | dateCreated | dateExpires | expired | active |
       | A1234AF    | -6        | 1       | P         | MAPPP Case           | P1        | MAPPA Level 1 Case      | Alert Text 6          | today       |             | false   | true   |
+      | A1234AF    | -6        | 2       | X         | Security             | XTACT     | XTACT                   | Alert XTACT 6         | today       |             | false   | true   |
       | A1234AA    | -1        | 1       | X         | Security             | XA        | Arsonist                | Alert Text 1-1        | today       |             | false   | true   |
       | A1234AA    | -1        | 2       | H         | Self Harm            | HC        | Self Harm - Custody     | Alert Text 1-2        | today       |             | false   | true   |
       | A1234AA    | -1        | 3       | R         | Risk                 | RSS       | Risk to Staff - Custody | Inactive Alert        | today       | today       | true    | false  |
+      | A1234AA    | -1        | 4       | X         | Security             | XTACT     | XTACT                   | Alert XTACT 1         | today       |             | false   | true   |
 
   Scenario: Alerts are requested for multiple offender numbers without agency nor authorisation
     When alerts are requested for offender nos "A1234AA,A1234AF" and no agency
@@ -74,4 +76,4 @@ Feature: Booking Alerts
   Scenario: Alerts are requested for multiple offender numbers without agency but with system access
     When a user has a token name of "SYSTEM_READ_ONLY"
     And alerts are requested for offender nos "A1234AA,A1234AF" and no agency
-    Then "4" alerts are returned
+    Then "6" alerts are returned
