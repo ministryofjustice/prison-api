@@ -142,7 +142,7 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders) {
-        final boolean canViewAllOffenders = isViewAllOffenders();
+        final var canViewAllOffenders = isViewAllOffenders();
         final var caseloads = canViewAllOffenders ? Set.<String>of() : loadCaseLoadsOrThrow();
 
         log.info("getBasicInmateDetailsForOffenders, {} offenders, {} caseloads, canViewAllOffenders {}", offenders.size(), caseloads.size(), canViewAllOffenders);
