@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -293,11 +294,20 @@ public class InmateServiceImplTest {
     @Test
     public void testThatAnExceptionIsThrown_whenAStandardUserWithNoActiveCaseloadsRequestsInmateDetails() {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+        when(authenticationFacade.isOverrideRole(any())).thenReturn(false);
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
 
         Assertions.assertThatThrownBy(() -> serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123")))
        .isInstanceOf(BadRequestException.class)
        .hasMessageContaining("User has not active caseloads");
+    }
+
+    @Test
+    public void testThatAnExceptionIsNotThrown_whenGlobalSearchUserRequestsInmateDetails() {
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+        when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
+        when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
+        serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
     }
 
     @Test
