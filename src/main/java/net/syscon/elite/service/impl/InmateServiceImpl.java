@@ -145,7 +145,7 @@ public class InmateServiceImpl implements InmateService {
         final var canViewAllOffenders = isViewAllOffenders();
         final var caseloads = canViewAllOffenders ? Set.<String>of() : loadCaseLoadsOrThrow();
 
-        log.info("getBasicInmateDetailsForOffenders, {} offenders, {} caseloads, canViewAllOffenders {}", offenders.size(), caseloads.size(), canViewAllOffenders);
+        log.info("getBasicInmateDetailsForOffenders, {} offenders, {} caseloads, canViewAllOffenders {}.", offenders.size(), caseloads.size(), canViewAllOffenders);
 
         final var results = repository.getBasicInmateDetailsForOffenders(offenders, canViewAllOffenders, caseloads)
                 .stream()
