@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ public class NomisApiV1Service {
     private final EventsV1Repository eventsV1Repository;
     private final PrisonV1Repository prisonV1Repository;
     private final CoreV1Repository coreV1Repository;
+    private final VisitV1Repository visitV1Repository;
 
     public Location getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
@@ -301,6 +303,60 @@ public class NomisApiV1Service {
     public ActiveOffender getActiveOffender(final String nomsId, final LocalDate birthDate) {
         final var id = coreV1Repository.getActiveOffender(nomsId, birthDate);
         return new ActiveOffender(id);
+    }
+
+    public AvailableDates getVisitAvailableDates(final String offenderID, LocalDate fromDate, LocalDate toDate) {
+        final var leadDays = 0;
+        final var cutOffDays = 60;
+        final var now = LocalDate.now();
+
+        if (fromDate.isBefore(now.plusDays(leadDays)) ||
+                fromDate.isAfter(now.plusDays(cutOffDays)) ||
+                toDate.isBefore(fromDate) ||
+                toDate.isAfter(toDate.plusDays(cutOffDays))) {
+            throw new BadRequestException("Invalid start and end date range");
+        }
+
+        final var dates = visitV1Repository.getAvailableDates(offenderID, fromDate, toDate);
+
+        return AvailableDates.builder().dates(dates.stream().map(AvailableDatesSP::getSlotDate).collect(Collectors.toList())).build();
+    }
+
+    public ContactList getVisitContactList(final String offenderID) {
+
+        final Map<ContactPerson, List<ContactPersonSP>> response = visitV1Repository.getContactList(offenderID).stream()
+                .collect(Collectors.groupingBy(this::convertToPerson, LinkedHashMap::new, Collectors.toList()));
+
+        final var contactPersonList = response.entrySet().stream().map(e -> {
+            e.getKey().setRestrictions(addToPerson(e.getValue()));
+            return e.getKey();
+        }).collect(Collectors.toList());
+
+        return new ContactList(contactPersonList);
+    }
+
+    private List<VisitRestriction> addToPerson(List<ContactPersonSP> value) {
+
+        return value.stream().filter(r -> StringUtils.isNotEmpty(r.getRestrictionTypeCode())).map(r ->
+                VisitRestriction.builder()
+                        .restrictionType(CodeDescription.safeNullBuild(r.getRestrictionTypeCode(), r.getRestrictionTypeDesc()))
+                        .effectiveDate(r.getRestrictionEffectiveDate())
+                        .expiryDate(r.getRestrictionExpiryDate())
+                        .commentText(r.getCommentText()).build()).collect(Collectors.toList());
+    }
+
+    private ContactPerson convertToPerson(ContactPersonSP c) {
+        return ContactPerson.builder()
+                .id(c.getPersonId())
+                .firstName(c.getFirstName())
+                .middleName(c.getMiddleName())
+                .lastName(c.getLastName())
+                .dateOfBirth(c.getBirthDate())
+                .gender(CodeDescription.safeNullBuild(c.getSexCode(), c.getSexDesc()))
+                .contactType(CodeDescription.safeNullBuild(c.getContactTypeCode(), c.getContactTypeDesc()))
+                .approvedVisitor("Y".equals(c.getApprovedVisitorFlag()))
+                .active("Y".equals(c.getActiveFlag()))
+                .relationshipType(CodeDescription.safeNullBuild(c.getRelationshipTypeCode(), c.getRelationshipTypeDesc())).build();
     }
 
     private String convertAccountCodeToType(final String accountCode) {

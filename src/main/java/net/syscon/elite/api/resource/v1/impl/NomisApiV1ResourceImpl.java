@@ -155,4 +155,15 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
         return service.getActiveOffender(nomsId, birthDate);
     }
 
+    @Override
+    public AvailableDates getVisitAvailableDates(String offenderId, LocalDate fromDate, LocalDate toDate) {
+
+        return service.getVisitAvailableDates(offenderId, fromDate, toDate);
+    }
+
+    @Override
+    public ContactList getVisitContactList(String offenderId) {
+
+        return service.getVisitContactList(offenderId);
+    }
 }

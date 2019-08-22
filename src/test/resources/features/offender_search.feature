@@ -86,11 +86,11 @@ Feature: Offender Search V2
     And the offender categories match "<categories>"
 
     Examples:
-      | alerts | location | number | last name list | alert lists | categories |
-      | SR     | LEI      | 1      | BATES          | SR          | X          |
-      | V46,P1 | LEI      | 2      | ANDREWS,DUCK   | V46,P1      | C,Z        |
-      | XA     | LEI      | 1      | ANDERSON       | XA,HC       | LOW        |
-      | RSS    | LEI      | 0      |                |             |            |
+      | alerts | location | number | last name list | alert lists       | categories |
+      | SR     | LEI      | 1      | BATES          | SR,XTACT          | X          |
+      | V46,P1 | LEI      | 2      | ANDREWS,DUCK   | V46,P1,XTACT,XTACT| C,Z        |
+      | XA     | LEI      | 1      | ANDERSON       | XA,HC,XTACT       | LOW        |
+      | RSS    | LEI      | 0      |                |                   |            |
 
   Scenario Outline: Search based on date of birth ranges
     When an offender search is made in location "<location>" filtering between DOB between "<fromDob>" and "<toDob>"

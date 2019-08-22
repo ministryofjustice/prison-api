@@ -217,4 +217,57 @@ public class NomisApiV1ResourceImplTest {
         verify(service).getActiveOffender("A4014AE", LocalDate.of(1970, 1, 1));
         verifyNoMoreInteractions(service);
     }
+
+    @Test
+    public void getAvailableDates() {
+
+        final var availableDates = AvailableDates.builder()
+                .dates(List.of(LocalDate.of(2019, 1, 1), LocalDate.of(2019, 1, 2)))
+                .build();
+
+        when(service.getVisitAvailableDates(anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(availableDates);
+
+        final var result = nomisApiV1Resource.getVisitAvailableDates("1111111", LocalDate.of(2019, 1, 1), LocalDate.of(2019, 2, 1));
+
+        assertThat(result).isEqualTo(availableDates);
+
+        verify(service).getVisitAvailableDates("1111111", LocalDate.of(2019, 1, 1), LocalDate.of(2019, 2, 1));
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    public void getContactList() {
+
+        final var contactList =
+                ContactList.builder()
+                        .contacts(List.of(
+                                ContactPerson.builder()
+                                        .id(1234567L)
+                                        .firstName("first")
+                                        .middleName("middle")
+                                        .lastName("last")
+                                        .dateOfBirth(LocalDate.of(1970, 1, 1))
+                                        .gender(CodeDescription.safeNullBuild("M", "Male"))
+                                        .contactType(CodeDescription.safeNullBuild("\"S", "Social Family"))
+                                        .approvedVisitor(true)
+                                        .active(true)
+                                        .relationshipType(CodeDescription.safeNullBuild("COU", "Cousin"))
+                                        .restrictions(List.of(VisitRestriction.builder()
+                                                .restrictionType(CodeDescription.safeNullBuild("", ""))
+                                                .effectiveDate(LocalDate.of(2000, 1, 1))
+                                                .expiryDate(null)
+                                                .commentText("XXXXX")
+                                                .build()))
+                                        .build()))
+                        .build();
+
+        when(service.getVisitContactList(anyString())).thenReturn(contactList);
+
+        final var result = nomisApiV1Resource.getVisitContactList("1111111");
+
+        assertThat(result).isEqualTo(contactList);
+
+        verify(service).getVisitContactList("1111111");
+        verifyNoMoreInteractions(service);
+    }
 }
