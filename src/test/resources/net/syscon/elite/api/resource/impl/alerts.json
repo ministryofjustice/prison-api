@@ -1,0 +1,28 @@
+[
+  {
+    "alertId": 1,
+    "bookingId": -2,
+    "offenderNo": "A1234AB",
+    "alertType": "H",
+    "alertTypeDescription": "Self Harm",
+    "alertCode": "HA",
+    "alertCodeDescription": "ACCT Open (HMPS)",
+    "comment": "Alert Text 2",
+    "dateCreated": "2019-08-22",
+    "expired": false,
+    "active": true
+  },
+  {
+    "alertId": 2,
+    "bookingId": -2,
+    "offenderNo": "A1234AB",
+    "alertType": "X",
+    "alertTypeDescription": "Security",
+    "alertCode": "XTACT",
+    "alertCodeDescription": "XTACT",
+    "comment": "Alert XTACT 2",
+    "dateCreated": "2019-08-22",
+    "expired": false,
+    "active": true
+  }
+]

@@ -713,13 +713,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
-
         final var query = format("offenderNo:eq:'%s'", offenderNo);
-        return bookingRepository.getOffenderSentenceSummary(query, getCaseLoadIdForUserIfRequired(),
-                !isViewAllBookings(), isViewInactiveBookings())
+        return getOffenderSentenceDetails(bookingRepository.getOffenderSentenceSummary(query, getCaseLoadIdForUserIfRequired(),
+                !isViewAllBookings(), isViewInactiveBookings()))
                 .stream()
-                .findFirst()
-                .map(this::mapper);
+                .findFirst();
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
