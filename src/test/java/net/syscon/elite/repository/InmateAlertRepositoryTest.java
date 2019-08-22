@@ -46,14 +46,14 @@ public class InmateAlertRepositoryTest {
     public void testGetInmateAlertsByOffenderNos() {
         final var alerts = repository.getInmateAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), true, null, null, Order.ASC);
 
-        assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertType", "alertCode", "comment", "dateExpires", "active", "expired")
+        assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertType", "alertCode", "comment", "dateExpires", "active")
                 .containsExactly(
-                        Tuple.tuple(-7L, 1L, "A1234AG", "V", "VOP", "Alert Text 7", null, true, false),
-                        Tuple.tuple(-7L, 2L, "A1234AG", "X", "XTACT", "Alert XTACT 7", null, true, false),
-                        Tuple.tuple(-1L, 1L, "A1234AA", "X", "XA", "Alert Text 1-1", null, true, false),
-                        Tuple.tuple(-1L, 2L, "A1234AA", "H", "HC", "Alert Text 1-2", null, true, false),
-                        Tuple.tuple(-1L, 3L, "A1234AA", "R", "RSS", "Inactive Alert", LocalDate.now(), false, true),
-                        Tuple.tuple(-1L, 4L, "A1234AA", "X", "XTACT", "Alert XTACT 1", null, true, false)
+                        Tuple.tuple(-7L, 1L, "A1234AG", "V", "VOP", "Alert Text 7", null, true),
+                        Tuple.tuple(-7L, 2L, "A1234AG", "X", "XTACT", "Alert XTACT 7", null, true),
+                        Tuple.tuple(-1L, 1L, "A1234AA", "X", "XA", "Alert Text 1-1", null, true),
+                        Tuple.tuple(-1L, 2L, "A1234AA", "H", "HC", "Alert Text 1-2", null, true),
+                        Tuple.tuple(-1L, 3L, "A1234AA", "R", "RSS", "Inactive Alert", LocalDate.now(), false),
+                        Tuple.tuple(-1L, 4L, "A1234AA", "X", "XTACT", "Alert XTACT 1", null, true)
                 );
     }
 
@@ -61,24 +61,24 @@ public class InmateAlertRepositoryTest {
     public void testGetInmateAlertsByOffenderNosOrdered() {
         final var alerts = repository.getInmateAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, null, "alertType", Order.ASC);
 
-        assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertType", "expired")
+        assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertType")
                 .containsExactly(
-                        Tuple.tuple(-1L, 2L, "A1234AA", "H", false),
-                        Tuple.tuple(-1L, 3L, "A1234AA", "R", true),
-                        Tuple.tuple(-7L, 1L, "A1234AG", "V", false),
-                        Tuple.tuple(-7L, 2L, "A1234AG", "X", false),
-                        Tuple.tuple(-1L, 1L, "A1234AA", "X", false),
-                        Tuple.tuple(-1L, 4L, "A1234AA", "X", false));
+                        Tuple.tuple(-1L, 2L, "A1234AA", "H"),
+                        Tuple.tuple(-1L, 3L, "A1234AA", "R"),
+                        Tuple.tuple(-7L, 1L, "A1234AG", "V"),
+                        Tuple.tuple(-7L, 2L, "A1234AG", "X"),
+                        Tuple.tuple(-1L, 1L, "A1234AA", "X"),
+                        Tuple.tuple(-1L, 4L, "A1234AA", "X"));
     }
 
     @Test
     public void testGetInmateAlertsByOffenderNosQuery() {
         final var alerts = repository.getInmateAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, "alertCode:eq:'XA',or:alertCode:eq:'RSS'", null, Order.ASC);
 
-        assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertCode", "expired")
+        assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertCode")
                 .containsExactly(
-                        Tuple.tuple(-1L, 1L, "A1234AA", "XA", false),
-                        Tuple.tuple(-1L, 3L, "A1234AA", "RSS", true));
+                        Tuple.tuple(-1L, 1L, "A1234AA", "XA"),
+                        Tuple.tuple(-1L, 3L, "A1234AA", "RSS"));
     }
 
     @Test
@@ -116,8 +116,8 @@ public class InmateAlertRepositoryTest {
         final var alert = repository.getInmateAlerts(bookingId, alertSeq).orElse(Alert.builder().build());
 
         assertThat(alert)
-                .extracting( "alertId", "comment", "dateExpires", "active", "expired")
-                .contains( alertSeq, "Test alert for expiry", expiryDate, false, true);
+                .extracting( "alertId", "comment", "dateExpires", "active")
+                .contains( alertSeq, "Test alert for expiry", expiryDate, false);
 
     }
 }

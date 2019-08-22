@@ -100,9 +100,4 @@ public class Alert {
     @ApiModelProperty(value = "Last name of the user who expired the alert", example = "Smith")
     @JsonProperty("expiredByLastName")
     private String expiredByLastName;
-
-    @JsonIgnore
-    public boolean isExpired() {
-        return dateExpires != null && dateExpires.compareTo(LocalDate.now()) <= 0;
-    }
 }

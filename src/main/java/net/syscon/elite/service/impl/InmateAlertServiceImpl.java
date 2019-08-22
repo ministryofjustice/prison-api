@@ -46,6 +46,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
                 orderByBlank ? Order.DESC : order, //
                 offset, limit);
 
+        alerts.getItems().forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
+
         log.info("Returning {} of {} matching Alerts starting at {} for bookingId {}", alerts.getItems().size(), alerts.getTotalRecords(), alerts.getPageOffset(), bookingId);
         return alerts;
     }
@@ -56,25 +58,31 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         final var alert = inmateAlertRepository.getInmateAlerts(bookingId, alertSeqId)
                 .orElseThrow(EntityNotFoundException.withId(alertSeqId));
 
+        alert.setExpired(isExpiredAlert(alert));
+
         log.info("Returning Alert having alertSeqId {}, for bookingId {}", alertSeqId, bookingId);
         return alert;
     }
 
     @Override
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_READ_ONLY", "SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_READ_ONLY", "SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
 
         final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(agencyId, offenderNos, true, null, "bookingId,alertId", Order.ASC);
+
+        alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
         log.info("Returning {} matching Alerts for Offender Numbers {} in Agency '{}'", alerts.size(), offenderNos, agencyId);
         return alerts;
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION', 'GLOBAL_SEARCH')")
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
 
         final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(null, offenderNos, latestOnly, query, orderByField, order);
+
+        alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
         return alerts;
@@ -109,8 +117,20 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         final var alert = inmateAlertRepository.updateAlert(username, bookingId, alertSeq, updateAlert)
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
+        alert.setExpired(isExpiredAlert(alert));
+
         log.info("Updated alert {}", alert);
 
         return alert;
+    }
+
+    private boolean isExpiredAlert(final Alert alert) {
+        var expiredAlert = false;
+
+        if (alert.getDateExpires() != null) {
+            expiredAlert = alert.getDateExpires().compareTo(LocalDate.now()) <= 0;
+        }
+
+        return expiredAlert;
     }
 }
