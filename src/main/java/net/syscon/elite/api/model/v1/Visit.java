@@ -29,8 +29,8 @@ public class Visit {
     @JsonProperty("slot")
     private String slot;
 
-    public Visit(String id, LocalDateTime startTime, LocalDateTime endTime) {
-        this.id = Long.valueOf(id);
+    public Visit(Long id, LocalDateTime startTime, LocalDateTime endTime) {
+        this.id = id;
         this.slot = startTime.format(DATE_TIME_FORMAT) + "/" + endTime.format(TIME_FORMAT);
     }
 }

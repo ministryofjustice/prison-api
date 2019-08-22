@@ -48,7 +48,7 @@ public class VisitV1Repository extends RepositoryBase {
     }
 
 
-    public List<UnavailabilityReasonSP> getUnavailability(String offenderId, String dates) {
+    public List<UnavailabilityReasonSP> getUnavailability(Long offenderId, String dates) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_ROOT_OFFENDER_ID, offenderId)

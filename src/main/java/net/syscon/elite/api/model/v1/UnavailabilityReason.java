@@ -17,7 +17,7 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 @JsonPropertyOrder({"external_movement", "existing_visits", "out_of_vo", "banned"})
-public class UnavailableDate {
+public class UnavailabilityReason {
 
     @ApiModelProperty(value = "External Movement", name = "external_movement", example = "true", position = 1)
     @JsonProperty("external_movement")
@@ -35,7 +35,7 @@ public class UnavailableDate {
     @JsonProperty("banned")
     private boolean banned;
 
-    public UnavailableDate update(UnavailabilityReasonSP r) {
+    public UnavailabilityReason update(UnavailabilityReasonSP r) {
         switch (r.getReason()) {
             case "COURT": {
                 setExternalMovement(true);

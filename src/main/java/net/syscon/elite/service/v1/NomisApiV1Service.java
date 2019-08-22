@@ -357,22 +357,20 @@ public class NomisApiV1Service {
                 .relationshipType(CodeDescription.safeNullBuild(c.getRelationshipTypeCode(), c.getRelationshipTypeDesc())).build();
     }
 
-    public TreeMap<String, UnavailableDate> getVisitUnavailability(final String offenderId, final String dates) {
+    public SortedMap<String, UnavailabilityReason> getVisitUnavailability(final Long offenderId, final String dates) {
         final var dateArray = validateDates(dates);
 
         return combineResultsIntoMap(dateArray, visitV1Repository.getUnavailability(offenderId, dates));
     }
 
-    private List<LocalDate> validateDates(String dates) {
-        final var dateList = Arrays.stream(dates.split(",")).map(LocalDate::parse).collect(Collectors.toList());
-        dateList.stream().filter(d -> d.isBefore(LocalDate.now())).forEach(d -> {
-            throw new BadRequestException("Dates requested must be in future");
-        });
-        return dateList;
+    private List<LocalDate> validateDates(final String dates) {
+        return Arrays.stream(dates.split(",")).map(LocalDate::parse).peek(localDate -> {
+            if (!localDate.isAfter(LocalDate.now())) throw new BadRequestException("Dates requested must be in future");
+        }).collect(Collectors.toList());
     }
 
-    private TreeMap<String, UnavailableDate> combineResultsIntoMap(final List<LocalDate> dates, List<UnavailabilityReasonSP> response) {
-        TreeMap<String, UnavailableDate> dateMap = dates.stream().collect(Collectors.toMap(String::valueOf, date -> new UnavailableDate(), (a, b) -> b, TreeMap::new));
+    private SortedMap<String, UnavailabilityReason> combineResultsIntoMap(final List<LocalDate> dates, List<UnavailabilityReasonSP> response) {
+        TreeMap<String, UnavailabilityReason> dateMap = dates.stream().collect(Collectors.toMap(String::valueOf, date -> new UnavailabilityReason(), (a, b) -> b, TreeMap::new));
         response.forEach(r -> dateMap.computeIfPresent(r.getEventDateAsString(), (s, unavailableDate) -> unavailableDate.update(r)));
 
         return dateMap;

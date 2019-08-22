@@ -785,7 +785,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
                         .builder()
                         .reason("VISIT")
                         .eventDate(day1)
-                        .visitId("10309199")
+                        .visitId(10309199L)
                         .slotStart(LocalDateTime.of(day1.getYear(), day1.getMonthValue(), day1.getDayOfMonth(), 9, 0))
                         .slotEnd(LocalDateTime.of(day1.getYear(), day1.getMonthValue(), day1.getDayOfMonth(), 12, 0))
                         .build(),
@@ -793,7 +793,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
                         .builder()
                         .reason("VISIT")
                         .eventDate(day1)
-                        .visitId("10309200")
+                        .visitId(10309200L)
                         .slotStart(LocalDateTime.of(day1.getYear(), day1.getMonthValue(), day1.getDayOfMonth(), 13, 0))
                         .slotEnd(LocalDateTime.of(day1.getYear(), day1.getMonthValue(), day1.getDayOfMonth(), 16, 0))
                         .build());

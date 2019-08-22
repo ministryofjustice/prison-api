@@ -14,7 +14,7 @@ public class UnavailabilityReasonSP {
 
     private String reason;
     private LocalDate eventDate;
-    private String visitId;
+    private Long visitId;
     private LocalDateTime slotStart;
     private LocalDateTime slotEnd;
 

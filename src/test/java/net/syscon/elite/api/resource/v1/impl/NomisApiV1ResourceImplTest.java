@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.v1.impl;
 
+import com.google.common.collect.ImmutableSortedMap;
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.repository.v1.model.TransferSP;
 import net.syscon.elite.repository.v1.model.TransferSP.TransactionSP;
@@ -13,7 +14,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -276,17 +276,15 @@ public class NomisApiV1ResourceImplTest {
     public void getUnavailableReasons() {
 
         final var date = "2070-01-01";
-        final var returnMap = new TreeMap<String, UnavailableDate>() {{
-            put(date, new UnavailableDate());
-        }};
+        final var returnMap = ImmutableSortedMap.of(date, new UnavailabilityReason());
 
-        when(service.getVisitUnavailability(anyString(), anyString())).thenReturn(returnMap);
+        when(service.getVisitUnavailability(anyLong(), anyString())).thenReturn(returnMap);
 
-        final var result = nomisApiV1Resource.getVisitUnavailability("1234567", date);
+        final var result = nomisApiV1Resource.getVisitUnavailability(1234567L, date);
 
         assertThat(result).isEqualTo(returnMap);
 
-        verify(service).getVisitUnavailability("1234567", date);
+        verify(service).getVisitUnavailability(1234567L, date);
         verifyNoMoreInteractions(service);
     }
 }

@@ -14,7 +14,7 @@ import javax.ws.rs.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.SortedMap;
 
 @Api(tags = {"/v1"})
 public interface NomisApiV1Resource {
@@ -393,8 +393,8 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 400, message = "Dates requested must be in future", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    TreeMap<String, UnavailableDate> getVisitUnavailability(
-            @ApiParam(name = "offender_id", value = "Offender Id", example = "1234567", required = true) @PathParam("offender_id") @NotNull String offenderId,
+    SortedMap<String, UnavailabilityReason> getVisitUnavailability(
+            @ApiParam(name = "offender_id", value = "Offender Id", example = "1234567", required = true) @PathParam("offender_id") @NotNull Long offenderId,
             @ApiParam(name = "dates", value = "dates", example = "2019-05-01,2019-05-02") @QueryParam("dates") String dates);
 
 
