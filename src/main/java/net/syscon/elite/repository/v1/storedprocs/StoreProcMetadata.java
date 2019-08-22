@@ -9,6 +9,7 @@ public interface StoreProcMetadata {
     String API_BOOKING_PROCS = "api_booking_procs";
     String API_LEGAL_PROCS = "api_legal_procs";
     String API_CORE_PROCS = "api_core_procs";
+    String API_VISIT_PROCS = "api_visit_procs";
 
     // Named parameters for stored procedures - common across different procedures
     String P_NOMS_ID = "p_noms_id";
@@ -52,9 +53,13 @@ public interface StoreProcMetadata {
     String P_SPENDS_BALANCE = "p_spends_balance";
     String P_SAVINGS_BALANCE = "p_savings_balance";
 
+    String P_DATE_CSR = "p_date_csr";
+
     String P_ACCOUNT_TYPE = "p_account_type";
     String P_FROM_DATE = "p_from_date";
     String P_TO_DATE = "p_to_date";
 
     String P_TRANS_CSR = "p_trans_csr";
+
+    String P_CONTACT_CSR = "p_contact_csr";
 }

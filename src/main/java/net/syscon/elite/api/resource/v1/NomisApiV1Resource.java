@@ -347,4 +347,35 @@ public interface NomisApiV1Resource {
     ActiveOffender getActiveOffender(
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @QueryParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(name = "date_of_birth", value = "date of birth", example = "2019-05-01") @NotNull @QueryParam("date_of_birth") LocalDate birthDate);
+
+    @SuppressWarnings("RestParamTypeInspection")
+    @GET
+    @Path("offenders/{offender_id}/visits/available_dates")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Fetch available_dates for offender",
+            notes = "returns list of dates")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = AvailableDates.class),
+            @ApiResponse(code = 400, message = "Invalid start and end date range", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    AvailableDates getVisitAvailableDates(
+            @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1583AE", required = true) @PathParam("offender_id") @NotNull String offenderId,
+            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01") @QueryParam("start_date") LocalDate fromDate,
+            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01") @QueryParam("end_date") LocalDate toDate);
+
+    @GET
+    @Path("offenders/{offender_id}/visits/contact_list")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Fetch contacts list for offender",
+            notes = "returns list of contacts")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = AvailableDates.class),
+            @ApiResponse(code = 400, message = "Invalid start and end date range", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    ContactList getVisitContactList(
+            @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1583AE", required = true) @PathParam("offender_id") @NotNull String offenderId);
 }
