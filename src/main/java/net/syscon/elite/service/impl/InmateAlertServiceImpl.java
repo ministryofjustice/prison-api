@@ -117,7 +117,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         final var alert = inmateAlertRepository.updateAlert(username, bookingId, alertSeq, updateAlert)
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
-        alert.setExpired(isExpiredAlert(alert));;
+        alert.setExpired(isExpiredAlert(alert));
 
         log.info("Updated alert {}", alert);
 
