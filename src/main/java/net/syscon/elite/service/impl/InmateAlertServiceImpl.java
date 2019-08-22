@@ -81,9 +81,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
 
         final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(null, offenderNos, latestOnly, query, orderByField, order);
-
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
-
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
         return alerts;
     }
