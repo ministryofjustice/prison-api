@@ -49,9 +49,11 @@ public class InmateAlertRepositoryTest {
         assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertType", "alertCode", "comment", "dateExpires", "active", "expired")
                 .containsExactly(
                         Tuple.tuple(-7L, 1L, "A1234AG", "V", "VOP", "Alert Text 7", null, true, false),
+                        Tuple.tuple(-7L, 2L, "A1234AG", "X", "XTACT", "Alert XTACT 7", null, true, false),
                         Tuple.tuple(-1L, 1L, "A1234AA", "X", "XA", "Alert Text 1-1", null, true, false),
                         Tuple.tuple(-1L, 2L, "A1234AA", "H", "HC", "Alert Text 1-2", null, true, false),
-                        Tuple.tuple(-1L, 3L, "A1234AA", "R", "RSS", "Inactive Alert", LocalDate.now(), false, true)
+                        Tuple.tuple(-1L, 3L, "A1234AA", "R", "RSS", "Inactive Alert", LocalDate.now(), false, true),
+                        Tuple.tuple(-1L, 4L, "A1234AA", "X", "XTACT", "Alert XTACT 1", null, true, false)
                 );
     }
 
@@ -64,7 +66,9 @@ public class InmateAlertRepositoryTest {
                         Tuple.tuple(-1L, 2L, "A1234AA", "H", false),
                         Tuple.tuple(-1L, 3L, "A1234AA", "R", true),
                         Tuple.tuple(-7L, 1L, "A1234AG", "V", false),
-                        Tuple.tuple(-1L, 1L, "A1234AA", "X", false));
+                        Tuple.tuple(-7L, 2L, "A1234AG", "X", false),
+                        Tuple.tuple(-1L, 1L, "A1234AA", "X", false),
+                        Tuple.tuple(-1L, 4L, "A1234AA", "X", false));
     }
 
     @Test

@@ -249,8 +249,8 @@ Feature: Booking Details
 
     Examples:
       | bookingId | activeAlerts | inactiveAlerts | alertTypes |
-      | -1        | 2            | 1              | H,X        |
-      | -2        | 1            | 0              | H          |
+      | -1        | 3            | 1              | H,X        |
+      | -2        | 2            | 0              | H          |
       | -11       | 0            | 0              |            |
 
   Scenario: Request for assessment data
