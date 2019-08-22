@@ -303,11 +303,10 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void testThatAnExceptionIsNotThrown_whenGlobalSearchUserRequestsInmateDetails() {
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+    public void testThatAnExceptionIsNotThrown_whenGlobalSearchUserWithNoActiveCaseloadsRequestsInmateDetails() {
         when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
-        when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
         serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
+        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), true, Collections.emptySet());
     }
 
     @Test
