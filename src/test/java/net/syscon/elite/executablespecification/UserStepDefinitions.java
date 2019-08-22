@@ -68,6 +68,11 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.authenticateAsClient(ADMIN_TOKEN);
     }
 
+    @Given("^a trusted client with GLOBAL_SEARCH role has authenticated with the API$")
+    public void aTrustedClientThatHasGlobalSearchAuthenticatedWithTheAPI() {
+        user.authenticateAsClient(GLOBAL_SEARCH);
+    }
+
     @When("^a request is made to retrieve user locations$")
     public void aRequestIsMadeToRetrieveUserLocations() {
         user.retrieveUserLocations();
