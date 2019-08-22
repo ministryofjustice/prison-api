@@ -1,0 +1,36 @@
+{
+  "contacts": [
+    {
+      "id": 1111111,
+      "given_name": "first",
+      "middle_names": "mid",
+      "surname": "last",
+      "date_of_birth": "2000-01-01",
+      "gender": {
+        "code": "M",
+        "desc": "Male"
+      },
+      "relationship_type": {
+        "code": "Other",
+        "desc": "Other - Social"
+      },
+      "contact_type": {
+        "code": "S",
+        "desc": "Social/ Family"
+      },
+      "approved_visitor": true,
+      "active": true,
+      "restrictions": [
+        {
+          "type": {
+            "code": "PREINF",
+            "desc": "Previous Info"
+          },
+          "effective_date": "2015-01-01",
+          "expiry_date": "2020-01-01",
+          "comment_text": "xxxxxx"
+        }
+      ]
+    }
+  ]
+}

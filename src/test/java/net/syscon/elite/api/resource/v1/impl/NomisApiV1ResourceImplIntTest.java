@@ -34,6 +34,8 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.syscon.elite.repository.v1.storedprocs.CoreProcs.GetActiveOffender;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
+import static net.syscon.elite.repository.v1.storedprocs.VisitsProc.GetAvailableDates;
+import static net.syscon.elite.repository.v1.storedprocs.VisitsProc.GetContactList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -125,6 +127,18 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         public GetActiveOffender getActiveOffender() {
             return mock(GetActiveOffender.class);
         }
+
+        @Bean
+        @Primary
+        public GetAvailableDates getAvailableDates() {
+            return mock(GetAvailableDates.class);
+        }
+
+        @Bean
+        @Primary
+        public GetContactList getContactList() {
+            return mock(GetContactList.class);
+        }
     }
 
     @Autowired
@@ -165,6 +179,12 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetActiveOffender getActiveOffender;
+
+    @Autowired
+    private GetAvailableDates getAvailableDates;
+
+    @Autowired
+    private GetContactList getContactList;
 
     @Test
     public void transferTransaction() {
@@ -582,6 +602,98 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         assertThatJson(responseEntity.getBody()).isEqualTo("{ \"found\": false }");
     }
 
+    @Test
+    public void getAvailableDates() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var dates = List.of(
+                AvailableDatesSP
+                        .builder()
+                        .slotDate(LocalDate.of(2019, 1, 21))
+                        .build(),
+                AvailableDatesSP
+                        .builder()
+                        .slotDate(LocalDate.of(2019, 1, 22))
+                        .build());
+        when(getAvailableDates.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_DATE_CSR, dates));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/available_dates?start_date=" + LocalDate.now() + "&end_date=" + LocalDate.now().plusDays(10), HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"dates\": [ \"2019-01-21\", \"2019-01-22\" ] }");
+    }
+
+    @Test
+    public void getAvailableDatesInvalidDate() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/available_dates?start_date=2017-01-01&end_date=2017-02-01", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Invalid start and end date range\",\"developerMessage\":\"\"}");
+    }
+
+    @Test
+    public void getContactListWithoutRestrictions() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var contacts = List.of(
+                ContactPersonSP
+                        .builder()
+                        .personId(1111111L)
+                        .firstName("first")
+                        .middleName("mid")
+                        .lastName("last")
+                        .birthDate(LocalDate.of(2000, 1, 1))
+                        .sexCode("M")
+                        .sexDesc("Male")
+                        .relationshipTypeCode("Other")
+                        .relationshipTypeDesc("Other - Social")
+                        .contactTypeCode("S")
+                        .contactTypeDesc("Social/ Family")
+                        .approvedVisitorFlag("Y")
+                        .activeFlag("Y")
+                        .build());
+        when(getContactList.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_CONTACT_CSR, contacts));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/contact_list", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"contacts\":[{\"id\":1111111,\"given_name\":\"first\",\"middle_names\":\"mid\",\"surname\":\"last\",\"date_of_birth\":\"2000-01-01\",\"gender\":{\"code\":\"M\",\"desc\":\"Male\"},\"relationship_type\":{\"code\":\"Other\",\"desc\":\"Other - Social\"},\"contact_type\":{\"code\":\"S\",\"desc\":\"Social/ Family\"},\"approved_visitor\":true,\"active\":true,\"restrictions\":[]}]}\n");
+        assertThat(new JsonContent<ContactList>(getClass(), forType(ContactList.class), responseEntity.getBody())).isEqualToJson("contact-list-without-restrictions.json");
+    }
+
+    @Test
+    public void getContactListWithRestrictions() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var contacts = List.of(
+                ContactPersonSP
+                        .builder()
+                        .personId(1111111L)
+                        .firstName("first")
+                        .middleName("mid")
+                        .lastName("last")
+                        .birthDate(LocalDate.of(2000, 1, 1))
+                        .sexCode("M")
+                        .sexDesc("Male")
+                        .relationshipTypeCode("Other")
+                        .relationshipTypeDesc("Other - Social")
+                        .contactTypeCode("S")
+                        .contactTypeDesc("Social/ Family")
+                        .approvedVisitorFlag("Y")
+                        .activeFlag("Y")
+                        .restrictionTypeCode("PREINF")
+                        .restrictionTypeDesc("Previous Info")
+                        .restrictionEffectiveDate(LocalDate.of(2015, 1, 1))
+                        .restrictionExpiryDate(LocalDate.of(2020, 1, 1))
+                        .commentText("xxxxxx")
+                        .build());
+        when(getContactList.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_CONTACT_CSR, contacts));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/contact_list", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThat(new JsonContent<ContactList>(getClass(), forType(ContactList.class), responseEntity.getBody())).isEqualToJson("contact-list-with-restrictions.json");
+    }
+
     private ResponseEntity getTransactions(final String accountType) {
         final var transactions = List.of(
                 AccountTransactionSP.builder()
@@ -601,4 +713,5 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         return testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts/" + accountType + "/transactions", HttpMethod.GET, requestEntity, String.class);
     }
+
 }
