@@ -93,7 +93,6 @@ public class AdjudicationServiceImplTest {
 
         assertThat(adjudicationService.findAdjudication("OFF-1", -1)).isEqualTo(expectedResult);
 
-        verify(bookingService).verifyCanViewSensitiveBookingInfo("OFF-1");
         verify(adjudicationsRepository).findAdjudicationDetails("OFF-1", -1);
     }
 
@@ -103,7 +102,6 @@ public class AdjudicationServiceImplTest {
         assertThatThrownBy(() -> adjudicationService.findAdjudication("OFF-1", -1))
                 .isInstanceOf(EntityNotFoundException.class);
 
-        verify(bookingService).verifyCanViewSensitiveBookingInfo("OFF-1");
         verify(adjudicationsRepository).findAdjudicationDetails("OFF-1", -1);
     }
 

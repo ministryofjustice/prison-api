@@ -8,10 +8,7 @@ import net.syscon.elite.service.validation.AttendanceTypesValid;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Bookings API service interface.
@@ -44,8 +41,6 @@ public interface BookingService {
 
     ScheduledEvent createBookingAppointment(Long bookingId, String username, @Valid NewAppointment newAppointment);
 
-    void verifyBookingAccess(Long bookingId);
-
     void checkBookingExists(Long bookingId);
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
@@ -57,9 +52,9 @@ public interface BookingService {
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
     List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForAgency(Set<String> agencyIds);
     List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId);
-    List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos);
-    List<OffenderSentenceDetail> getBookingSentencesSummary(String username, List<Long> bookingIds);
-
+    List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, List<String> offenderNos);
+    List<OffenderSentenceDetail> getBookingSentencesSummary(List<Long> bookingIds);
+    Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo);
     Visit getBookingVisitLast(Long bookingId);
     Visit getBookingVisitNext(Long bookingId);
 
@@ -67,11 +62,11 @@ public interface BookingService {
 
     List<OffenderSummary> getBookingsByPersonIdAndType(Long personId, String relationshipType);
 
-    Long getBookingIdByOffenderNo(String offenderNo);
+    Long getBookingIdByOffenderNo(final String offenderNo, final String ... rolesAllowed);
 
-    void verifyCanViewSensitiveBookingInfo(String offenderNo);
+    void verifyBookingAccess(Long bookingId, String ... rolesAllowed);
 
-    void verifyCanViewLatestBooking(String offenderNo);
+    void verifyCanViewSensitiveBookingInfo(String offenderNo, String ... roleAllowed);
 
     /**
      * <<< FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER >>>

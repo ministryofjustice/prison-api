@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.toList;
@@ -59,6 +60,7 @@ public class BookingServiceImpl implements BookingService {
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final TelemetryClient telemetryClient;
     private final AuthenticationFacade securityUtils;
+    private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
     private final int maxBatchSize;
 
@@ -88,6 +90,7 @@ public class BookingServiceImpl implements BookingService {
                               final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                               final TelemetryClient telemetryClient,
                               final AuthenticationFacade securityUtils,
+                              final AuthenticationFacade authenticationFacade,
                               @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                               @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -99,6 +102,7 @@ public class BookingServiceImpl implements BookingService {
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.telemetryClient = telemetryClient;
         this.securityUtils = securityUtils;
+        this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -159,11 +163,11 @@ public class BookingServiceImpl implements BookingService {
     public void addIepLevel(final Long bookingId, final String username, @Valid final IepLevelAndComment iepLevel) {
 
         if (!referenceDomainService.isReferenceCodeActive(IEP_LEVEL_DOMAIN, iepLevel.getIepLevel())) {
-            throw new IllegalArgumentException(String.format("IEP Level '%1$s' is not a valid NOMIS value.", iepLevel.getIepLevel()));
+            throw new IllegalArgumentException(format("IEP Level '%1$s' is not a valid NOMIS value.", iepLevel.getIepLevel()));
         }
 
         if(!activeIepLevelForAgencySelectedByBooking(bookingId, iepLevel.getIepLevel())) {
-            throw new IllegalArgumentException(String.format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId));
+            throw new IllegalArgumentException(format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId));
         }
 
         bookingRepository.addIepLevel(bookingId, username, iepLevel);
@@ -360,24 +364,23 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void verifyCanViewSensitiveBookingInfo(final String offenderNo) {
-        final var bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        verifyBookingAccess(bookingId);
+    public void verifyCanViewSensitiveBookingInfo(final String offenderNo, final String ... rolesAllowed) {
+        getBookingIdByOffenderNo(offenderNo, rolesAllowed);
     }
 
     @Override
-    public void verifyCanViewLatestBooking(final String offenderNo) {
-        getBookingIdByOffenderNo(offenderNo);
-    }
-
-    @Override
-    public Long getBookingIdByOffenderNo(final String offenderNo) {
+    public Long getBookingIdByOffenderNo(final String offenderNo, final String ... rolesAllowed) {
         final var bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
         if (!isViewAllBookings()) {
-            verifyBookingAccess(bookingId);
+            try {
+                verifyBookingAccess(bookingId, rolesAllowed);
+            } catch (EntityNotFoundException e) {
+                throw EntityNotFoundException.withId(offenderNo);
+            }
         }
         return bookingId;
     }
+
 
     @Override
     @VerifyBookingAccess
@@ -576,9 +579,9 @@ public class BookingServiceImpl implements BookingService {
      * @throws EntityNotFoundException if current user does not have access to specified booking.
      */
     @Override
-    public void verifyBookingAccess(final Long bookingId) {
+    public void verifyBookingAccess(final Long bookingId, String ... rolesAllowed) {
         // system user has access to everything
-        if (securityUtils.isOverrideRole()) return;
+        if (securityUtils.isOverrideRole(rolesAllowed)) return;
 
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
@@ -696,61 +699,36 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final String username, final List<String> offenderNos) {
+    public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final List<String> offenderNos) {
 
-        final var offenderSentenceSummary = offenderSentenceSummaries(agencyId, username, offenderNos);
+        final var offenderSentenceSummary = offenderSentenceSummaries(agencyId, offenderNos);
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
     @Override
-    public List<OffenderSentenceDetail> getBookingSentencesSummary(final String username, final List<Long> bookingIds) {
-
-        final var offenderSentenceSummary = bookingSentenceSummaries(username, bookingIds);
+    public List<OffenderSentenceDetail> getBookingSentencesSummary(final List<Long> bookingIds) {
+        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false), !isViewAllBookings());
         return getOffenderSentenceDetails(offenderSentenceSummary);
+    }
+
+    @Override
+    public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
+
+        final var query = format("offenderNo:eq:'%s'", offenderNo);
+        return bookingRepository.getOffenderSentenceSummary(query, getCaseLoadIdForUserIfRequired(),
+                !isViewAllBookings(), isViewInactiveBookings())
+                .stream()
+                .findFirst()
+                .map(this::mapper);
+    }
+
+    private Set<String> getCaseLoadIdForUserIfRequired() {
+        return isViewAllBookings() ? null : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
     }
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
         final var offenderSentenceDetails = offenderSentenceSummary.stream()
-                .map(os -> OffenderSentenceDetail.offenderSentenceDetailBuilder()
-                        .bookingId(os.getBookingId())
-                        .offenderNo(os.getOffenderNo())
-                        .firstName(os.getFirstName())
-                        .lastName(os.getLastName())
-                        .dateOfBirth(os.getDateOfBirth())
-                        .agencyLocationId(os.getAgencyLocationId())
-                        .agencyLocationDesc(os.getAgencyLocationDesc())
-                        .facialImageId(os.getFacialImageId())
-                        .internalLocationDesc(LocationProcessor.stripAgencyId(os.getInternalLocationDesc(), os.getAgencyLocationId()))
-                        .sentenceDetail(SentenceDetail.sentenceDetailBuilder()
-                                .bookingId(os.getBookingId())
-                                .sentenceStartDate(os.getSentenceStartDate())
-                                .additionalDaysAwarded(os.getAdditionalDaysAwarded())
-                                .sentenceExpiryDate(os.getSentenceExpiryDate())
-                                .automaticReleaseDate(os.getAutomaticReleaseDate())
-                                .automaticReleaseOverrideDate(os.getAutomaticReleaseOverrideDate())
-                                .conditionalReleaseDate(os.getConditionalReleaseDate())
-                                .conditionalReleaseOverrideDate(os.getConditionalReleaseOverrideDate())
-                                .nonParoleDate(os.getNonParoleDate())
-                                .nonParoleOverrideDate(os.getNonParoleOverrideDate())
-                                .postRecallReleaseDate(os.getPostRecallReleaseDate())
-                                .postRecallReleaseOverrideDate(os.getPostRecallReleaseOverrideDate())
-                                .nonDtoReleaseDate(os.getNonDtoReleaseDate())
-                                .licenceExpiryDate(os.getLicenceExpiryDate())
-                                .homeDetentionCurfewEligibilityDate(os.getHomeDetentionCurfewEligibilityDate())
-                                .paroleEligibilityDate(os.getParoleEligibilityDate())
-                                .homeDetentionCurfewActualDate(os.getHomeDetentionCurfewActualDate())
-                                .actualParoleDate(os.getActualParoleDate())
-                                .releaseOnTemporaryLicenceDate(os.getReleaseOnTemporaryLicenceDate())
-                                .earlyRemovalSchemeEligibilityDate(os.getEarlyRemovalSchemeEligibilityDate())
-                                .earlyTermDate(os.getEarlyTermDate())
-                                .midTermDate(os.getMidTermDate())
-                                .lateTermDate(os.getLateTermDate())
-                                .topupSupervisionExpiryDate(os.getTopupSupervisionExpiryDate())
-                                .confirmedReleaseDate(os.getConfirmedReleaseDate())
-                                .releaseDate(os.getReleaseDate())
-                                .tariffDate(os.getTariffDate())
-                                .build())
-                        .build())
+                .map(this::mapper)
                 .collect(toList());
 
         offenderSentenceDetails.forEach(s -> deriveSentenceDetail(s.getSentenceDetail()));
@@ -763,28 +741,64 @@ public class BookingServiceImpl implements BookingService {
         return offenderSentenceDetails.stream().sorted(compareDate).collect(toList());
     }
 
+    private OffenderSentenceDetail mapper(final OffenderSentenceDetailDto os) {
+        return OffenderSentenceDetail.offenderSentenceDetailBuilder()
+                .bookingId(os.getBookingId())
+                .offenderNo(os.getOffenderNo())
+                .firstName(os.getFirstName())
+                .lastName(os.getLastName())
+                .dateOfBirth(os.getDateOfBirth())
+                .agencyLocationId(os.getAgencyLocationId())
+                .agencyLocationDesc(os.getAgencyLocationDesc())
+                .facialImageId(os.getFacialImageId())
+                .internalLocationDesc(LocationProcessor.stripAgencyId(os.getInternalLocationDesc(), os.getAgencyLocationId()))
+                .sentenceDetail(SentenceDetail.sentenceDetailBuilder()
+                        .bookingId(os.getBookingId())
+                        .sentenceStartDate(os.getSentenceStartDate())
+                        .additionalDaysAwarded(os.getAdditionalDaysAwarded())
+                        .sentenceExpiryDate(os.getSentenceExpiryDate())
+                        .automaticReleaseDate(os.getAutomaticReleaseDate())
+                        .automaticReleaseOverrideDate(os.getAutomaticReleaseOverrideDate())
+                        .conditionalReleaseDate(os.getConditionalReleaseDate())
+                        .conditionalReleaseOverrideDate(os.getConditionalReleaseOverrideDate())
+                        .nonParoleDate(os.getNonParoleDate())
+                        .nonParoleOverrideDate(os.getNonParoleOverrideDate())
+                        .postRecallReleaseDate(os.getPostRecallReleaseDate())
+                        .postRecallReleaseOverrideDate(os.getPostRecallReleaseOverrideDate())
+                        .nonDtoReleaseDate(os.getNonDtoReleaseDate())
+                        .licenceExpiryDate(os.getLicenceExpiryDate())
+                        .homeDetentionCurfewEligibilityDate(os.getHomeDetentionCurfewEligibilityDate())
+                        .paroleEligibilityDate(os.getParoleEligibilityDate())
+                        .homeDetentionCurfewActualDate(os.getHomeDetentionCurfewActualDate())
+                        .actualParoleDate(os.getActualParoleDate())
+                        .releaseOnTemporaryLicenceDate(os.getReleaseOnTemporaryLicenceDate())
+                        .earlyRemovalSchemeEligibilityDate(os.getEarlyRemovalSchemeEligibilityDate())
+                        .earlyTermDate(os.getEarlyTermDate())
+                        .midTermDate(os.getMidTermDate())
+                        .lateTermDate(os.getLateTermDate())
+                        .topupSupervisionExpiryDate(os.getTopupSupervisionExpiryDate())
+                        .confirmedReleaseDate(os.getConfirmedReleaseDate())
+                        .releaseDate(os.getReleaseDate())
+                        .tariffDate(os.getTariffDate())
+                        .build())
+                .build();
+    }
 
-    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final String username, final List<String> offenderNos) {
+
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final List<String> offenderNos) {
 
         final var viewAllBookings = isViewAllBookings();
-        Set<String> caseLoadIdsForUser = null;
-        if (!viewAllBookings) {
-            caseLoadIdsForUser = caseLoadService.getCaseLoadIdsForUser(username, false);
-        }
+        final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
 
         if (offenderNos.isEmpty()) {
-            return offenderSentenceSummaries(agencyId, username, caseLoadIdsForUser, !viewAllBookings);
+            return offenderSentenceSummaries(agencyId, caseLoadIdsForUser, !viewAllBookings);
         } else {
             return offenderSentenceSummaries(offenderNos, caseLoadIdsForUser, !viewAllBookings);
         }
     }
 
-    private List<OffenderSentenceDetailDto> bookingSentenceSummaries(final String username, final List<Long> bookingIds) {
-        return bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(username, false), !isViewAllBookings());
-    }
-
-    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final String username, final Set<String> caseloads, final boolean filterByCaseloads) {
-        final var query = buildAgencyQuery(agencyId, username);
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final Set<String> caseloads, final boolean filterByCaseloads) {
+        final var query = buildAgencyQuery(agencyId, authenticationFacade.getCurrentUsername());
         if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
             throw new BadRequestException("Request must be restricted to either a caseload, agency or list of offenders");
         }

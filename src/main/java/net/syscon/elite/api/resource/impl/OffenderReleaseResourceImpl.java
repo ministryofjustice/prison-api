@@ -40,9 +40,8 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
 
     @Override
     public GetOffenderSentencesResponse getOffenderSentences(final String agencyId, final List<String> offenderNos) {
-        val sentences = bookingService.getOffenderSentencesSummary(
+        final var sentences = bookingService.getOffenderSentencesSummary(
                 agencyId,
-                authenticationFacade.getCurrentUsername(),
                 offenderNos);
 
         return GetOffenderSentencesResponse.respond200WithApplicationJson(sentences);
@@ -50,7 +49,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
 
     @Override
     public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates( LocalDate minimumChecksPassedDateForAssessedCurfews) {
-        val sentences =
+        final var sentences =
                 offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername(), Optional.ofNullable(minimumChecksPassedDateForAssessedCurfews));
 
         return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
@@ -99,7 +98,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
 
         //no agency id filter required here as offenderNos will always be provided
         val sentences = bookingService.getOffenderSentencesSummary(
-                null, authenticationFacade.getCurrentUsername(), offenderNos);
+                null, offenderNos);
 
         return PostOffenderSentencesResponse.respond200WithApplicationJson(sentences);
     }
@@ -108,8 +107,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     public PostOffenderSentencesBookingsResponse postOffenderSentencesBookings(final List<Long> bookingIds) {
         validateOffenderList(bookingIds);
 
-        val sentences = bookingService.getBookingSentencesSummary(
-                authenticationFacade.getCurrentUsername(), bookingIds);
+        val sentences = bookingService.getBookingSentencesSummary(bookingIds);
 
         return PostOffenderSentencesBookingsResponse.respond200WithApplicationJson(sentences);
     }

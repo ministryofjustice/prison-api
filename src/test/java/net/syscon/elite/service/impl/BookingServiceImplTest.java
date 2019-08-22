@@ -52,6 +52,9 @@ public class BookingServiceImplTest {
     @Mock
     private AuthenticationFacade securityUtils;
 
+    @Mock
+    private AuthenticationFacade authenticationFacade;
+
     private BookingService bookingService;
 
     private void programMocks(final String appointmentType, final long bookingId, final String agencyId,
@@ -83,7 +86,7 @@ public class BookingServiceImplTest {
                 referenceDomainService,
                 null,
                 telemetryClient,
-                securityUtils, "1",
+                securityUtils, authenticationFacade, "1",
                 10);
     }
 
@@ -98,7 +101,6 @@ public class BookingServiceImplTest {
         final var principal = "ME";
         final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
         final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-        final var agency = Agency.builder().agencyId(agencyId).build();
 
         final var newAppointment = NewAppointment.builder()
                 .appointmentType(appointmentType)
@@ -160,7 +162,6 @@ public class BookingServiceImplTest {
         final var principal = "ME";
         final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
         final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-        final var agency = Agency.builder().agencyId(agencyId).build();
 
         final var newAppointment = NewAppointment.builder()
                 .appointmentType(appointmentType)
@@ -194,7 +195,6 @@ public class BookingServiceImplTest {
         final var principal = "ME";
         final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
         final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-        final var agency = Agency.builder().agencyId(agencyId).build();
 
         final var newAppointment = NewAppointment.builder().appointmentType(appointmentType)
                 .startTime(LocalDateTime.now().plusDays(1)).endTime(LocalDateTime.now().plusDays(2)).comment("comment")
@@ -226,7 +226,7 @@ public class BookingServiceImplTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
 
-        bookingService.verifyCanViewLatestBooking("off-1");
+        bookingService.verifyCanViewSensitiveBookingInfo("off-1");
     }
 
     @Test
@@ -240,7 +240,7 @@ public class BookingServiceImplTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-                bookingService.verifyCanViewLatestBooking("off-1"))
+                bookingService.verifyCanViewSensitiveBookingInfo("off-1"))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
@@ -355,9 +355,7 @@ public class BookingServiceImplTest {
 
         val expectedOutcome =  UpdateAttendance.builder().performance("STANDARD").eventOutcome("ATT").build();
 
-        bookingIds.forEach(bookingId -> {
-            verify(bookingRepository).updateAttendance(bookingId, activityId, expectedOutcome, true, false);
-        });
+        bookingIds.forEach(bookingId -> verify(bookingRepository).updateAttendance(bookingId, activityId, expectedOutcome, true, false));
     }
 
     @Test
