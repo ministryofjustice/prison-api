@@ -19,9 +19,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -357,6 +355,27 @@ public class NomisApiV1Service {
                 .approvedVisitor("Y".equals(c.getApprovedVisitorFlag()))
                 .active("Y".equals(c.getActiveFlag()))
                 .relationshipType(CodeDescription.safeNullBuild(c.getRelationshipTypeCode(), c.getRelationshipTypeDesc())).build();
+    }
+
+    public TreeMap<String, UnavailableDate> getVisitUnavailability(final String offenderId, final String dates) {
+        final var dateArray = validateDates(dates);
+
+        return combineResultsIntoMap(dateArray, visitV1Repository.getUnavailability(offenderId, dates));
+    }
+
+    private List<LocalDate> validateDates(String dates) {
+        final var dateList = Arrays.stream(dates.split(",")).map(LocalDate::parse).collect(Collectors.toList());
+        dateList.stream().filter(d -> d.isBefore(LocalDate.now())).forEach(d -> {
+            throw new BadRequestException("Dates requested must be in future");
+        });
+        return dateList;
+    }
+
+    private TreeMap<String, UnavailableDate> combineResultsIntoMap(final List<LocalDate> dates, List<UnavailabilityReasonSP> response) {
+        TreeMap<String, UnavailableDate> dateMap = dates.stream().collect(Collectors.toMap(String::valueOf, date -> new UnavailableDate(), (a, b) -> b, TreeMap::new));
+        response.forEach(r -> dateMap.computeIfPresent(r.getEventDateAsString(), (s, unavailableDate) -> unavailableDate.update(r)));
+
+        return dateMap;
     }
 
     private String convertAccountCodeToType(final String accountCode) {

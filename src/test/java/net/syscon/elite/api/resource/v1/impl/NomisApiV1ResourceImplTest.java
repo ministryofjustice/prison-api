@@ -13,6 +13,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -268,6 +269,24 @@ public class NomisApiV1ResourceImplTest {
         assertThat(result).isEqualTo(contactList);
 
         verify(service).getVisitContactList("1111111");
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    public void getUnavailableReasons() {
+
+        final var date = "2070-01-01";
+        final var returnMap = new TreeMap<String, UnavailableDate>() {{
+            put(date, new UnavailableDate());
+        }};
+
+        when(service.getVisitUnavailability(anyString(), anyString())).thenReturn(returnMap);
+
+        final var result = nomisApiV1Resource.getVisitUnavailability("1234567", date);
+
+        assertThat(result).isEqualTo(returnMap);
+
+        verify(service).getVisitUnavailability("1234567", date);
         verifyNoMoreInteractions(service);
     }
 }

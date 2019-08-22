@@ -34,8 +34,7 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.syscon.elite.repository.v1.storedprocs.CoreProcs.GetActiveOffender;
 import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
-import static net.syscon.elite.repository.v1.storedprocs.VisitsProc.GetAvailableDates;
-import static net.syscon.elite.repository.v1.storedprocs.VisitsProc.GetContactList;
+import static net.syscon.elite.repository.v1.storedprocs.VisitsProc.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -139,6 +138,12 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         public GetContactList getContactList() {
             return mock(GetContactList.class);
         }
+
+        @Bean
+        @Primary
+        public GetUnavailability getUnavailability() {
+            return mock(GetUnavailability.class);
+        }
     }
 
     @Autowired
@@ -185,6 +190,9 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetContactList getContactList;
+
+    @Autowired
+    private GetUnavailability getUnavailability;
 
     @Test
     public void transferTransaction() {
@@ -712,6 +720,121 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         when(getAccountTransactions.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_TRANS_CSR, transactions));
 
         return testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts/" + accountType + "/transactions", HttpMethod.GET, requestEntity, String.class);
+    }
+
+    @Test
+    public void getVisitUnavailabilityFoundCourtforDate() {
+        final var day1 = LocalDate.now().plusDays(1);
+        final var day2 = LocalDate.now().plusDays(2);
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var unavailability = List.of(UnavailabilityReasonSP.builder().reason("COURT").eventDate(day1).build());
+
+        when(getUnavailability.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_REASON_CSR, unavailability));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/unavailability?dates=" + day1 + "," + day2, HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{" +
+                "\"" + day1 + "\":{\"external_movement\":true,\"existing_visits\":[],\"out_of_vo\":false,\"banned\":false}," +
+                "\"" + day2 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":false,\"banned\":false}}");
+    }
+
+    @Test
+    public void getVisitUnavailabilityFoundBannedForDates() {
+        final var day1 = LocalDate.now().plusDays(1);
+        final var day2 = LocalDate.now().plusDays(2);
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var unavailability = List.of(UnavailabilityReasonSP.builder().reason("BAN").eventDate(day1).build(), UnavailabilityReasonSP.builder().reason("BAN").eventDate(day2).build());
+
+        when(getUnavailability.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_REASON_CSR, unavailability));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/unavailability?dates=" + day1 + "," + day2, HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{" +
+                "\"" + day1 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":false,\"banned\":true}," +
+                "\"" + day2 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":false,\"banned\":true}}");
+    }
+
+    @Test
+    public void getVisitUnavailabilityFoundOutOfVOforDates() {
+        final var day1 = LocalDate.now().plusDays(1);
+        final var day2 = LocalDate.now().plusDays(2);
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var unavailability = List.of(UnavailabilityReasonSP.builder().reason("VO").eventDate(day1).build(), UnavailabilityReasonSP.builder().reason("VO").eventDate(day2).build());
+
+        when(getUnavailability.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_REASON_CSR, unavailability));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/unavailability?dates=" + day1 + "," + day2, HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{" +
+                "\"" + day1 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":true,\"banned\":false}," +
+                "\"" + day2 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":true,\"banned\":false}}");
+    }
+
+    @Test
+    public void getVisitUnavailabilityFoundVisitsDates() {
+        final var day1 = LocalDate.now().plusDays(1);
+        final var day2 = LocalDate.now().plusDays(2);
+        final var visitSlot1Json = day1 + "T09:00/12:00";
+        final var visitSlot2Json = day1 + "T13:00/16:00";
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        final var unavailability = List.of(UnavailabilityReasonSP
+                        .builder()
+                        .reason("VISIT")
+                        .eventDate(day1)
+                        .visitId("10309199")
+                        .slotStart(LocalDateTime.of(day1.getYear(), day1.getMonthValue(), day1.getDayOfMonth(), 9, 0))
+                        .slotEnd(LocalDateTime.of(day1.getYear(), day1.getMonthValue(), day1.getDayOfMonth(), 12, 0))
+                        .build(),
+                UnavailabilityReasonSP
+                        .builder()
+                        .reason("VISIT")
+                        .eventDate(day1)
+                        .visitId("10309200")
+                        .slotStart(LocalDateTime.of(day1.getYear(), day1.getMonthValue(), day1.getDayOfMonth(), 13, 0))
+                        .slotEnd(LocalDateTime.of(day1.getYear(), day1.getMonthValue(), day1.getDayOfMonth(), 16, 0))
+                        .build());
+
+        when(getUnavailability.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_REASON_CSR, unavailability));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/unavailability?dates=" + day1 + "," + day2, HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{" +
+                "\"" + day1 + "\":{\"external_movement\":false,\"existing_visits\":[{\"visit_id\":10309199,\"slot\":\"" + visitSlot1Json + "\"},{\"visit_id\":10309200,\"slot\":\"" + visitSlot2Json + "\"}],\"out_of_vo\":false,\"banned\":false}," +
+                "\"" + day2 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":false,\"banned\":false}}");
+    }
+
+    @Test
+    public void getVisitUnavailabilityNonFoundForDates() {
+        final var day1 = LocalDate.now().plusDays(1);
+        final var day2 = LocalDate.now().plusDays(2);
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var unavailability = List.of();
+        when(getUnavailability.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_REASON_CSR, unavailability));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/unavailability?dates=" + day1 + "," + day2, HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{" +
+                "\"" + day1 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":false,\"banned\":false}," +
+                "\"" + day2 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":false,\"banned\":false}}");
+    }
+
+    @Test
+    public void getVisitUnavailabilityInvalidDate() {
+        final var day1 = LocalDate.now().minusDays(1);
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var unavailability = List.of();
+        when(getUnavailability.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_REASON_CSR, unavailability));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/unavailability?dates=" + day1, HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Dates requested must be in future\",\"developerMessage\":\"\"}");
     }
 
 }

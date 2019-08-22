@@ -13,6 +13,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static net.syscon.util.DateTimeConverter.optionalStrToLocalDateTime;
@@ -166,4 +167,11 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
         return service.getVisitContactList(offenderId);
     }
+
+    @Override
+    public TreeMap<String, UnavailableDate> getVisitUnavailability(String offenderId, String dates) {
+
+        return service.getVisitUnavailability(offenderId, dates);
+    }
+
 }

@@ -28,4 +28,5 @@ public class CoreV1Repository extends RepositoryBase {
                 .addValue(P_BIRTH_DATE, birthDate);
         return getActiveOffender.executeFunction(BigDecimal.class, params);
     }
+
 }
