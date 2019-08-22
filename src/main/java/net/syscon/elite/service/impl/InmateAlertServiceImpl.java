@@ -65,7 +65,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     }
 
     @Override
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_READ_ONLY", "SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_READ_ONLY", "SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
 
         final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(agencyId, offenderNos, true, null, "bookingId,alertId", Order.ASC);
@@ -77,7 +77,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION', 'GLOBAL_SEARCH')")
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
 
         final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(null, offenderNos, latestOnly, query, orderByField, order);
