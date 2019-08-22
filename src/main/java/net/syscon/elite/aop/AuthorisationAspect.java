@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.support.AgencyRequest;
@@ -24,6 +25,11 @@ public class AuthorisationAspect {
     public AuthorisationAspect(final BookingService bookingService, final AgencyService agencyService) {
         this.bookingService = bookingService;
         this.agencyService = agencyService;
+    }
+
+    @Pointcut("@annotation(net.syscon.elite.security.VerifyOffenderAccess) && execution(* *(String,..)) && args(offenderNo,..)")
+    public void verifyOffenderAccessPointcut(final String offenderNo) {
+        // no code needed - pointcut definition
     }
 
     @Pointcut("@annotation(net.syscon.elite.security.VerifyBookingAccess) && execution(* *(Long,..)) && args(bookingId,..)")
@@ -53,8 +59,19 @@ public class AuthorisationAspect {
         if (AuthenticationFacade.hasRoles(overrideRoles)) {
             bookingService.checkBookingExists(bookingId);
         } else {
-            bookingService.verifyBookingAccess(bookingId);
+            bookingService.verifyBookingAccess(bookingId, overrideRoles);
         }
+    }
+
+    @Before(value = "verifyOffenderAccessPointcut(offenderNo)", argNames = "jp,offenderNo")
+    public void verifyOffenderAccess(final JoinPoint jp, final String offenderNo) {
+        log.debug("Verifying offender access for offender No [{}]", offenderNo);
+        final var signature = (MethodSignature) jp.getSignature();
+        final var method = signature.getMethod();
+        final var annotation = method.getAnnotation(VerifyOffenderAccess.class);
+        final var overrideRoles = annotation.overrideRoles();
+
+        bookingService.verifyCanViewSensitiveBookingInfo(offenderNo, overrideRoles);
     }
 
     @Before(value = "verifyAgencyAccessPointcut(agencyId)", argNames = "jp,agencyId")

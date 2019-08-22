@@ -11,6 +11,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.impl.IncidentService;
 import org.apache.commons.lang3.StringUtils;
@@ -102,9 +103,10 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "SYSTEM_READ_ONLY", "GLOBAL_SEARCH", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
     public GetAlertsByOffenderNosResponse getAlertsByOffenderNo(@NotNull final String offenderNo, final Boolean latestOnly, final String query, final String sortFields, final Order sortOrder) {
         final List<Alert> inmateAlertsByOffenderNos = alertService.getInmateAlertsByOffenderNos(
-                List.of(offenderNo),
+                offenderNo,
                 nvl(latestOnly, true),
                 query,
                 StringUtils.defaultIfBlank(sortFields, "bookingId,alertId"),
@@ -113,42 +115,68 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
+    @VerifyOffenderAccess
     public Response getOffenderCaseNotes(final String offenderNo, final String from, final String to, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
 
-        final var pagedCaseNotes = caseNoteService.getCaseNotes(
-                latestBookingByOffenderNo.getBookingId(),
-                query,
-                fromISO8601DateString(from),
-                fromISO8601DateString(to),
-                sortFields,
-                sortOrder,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L));
+        try {
+            final var pagedCaseNotes = caseNoteService.getCaseNotes(
+                    latestBookingByOffenderNo.getBookingId(),
+                    query,
+                    fromISO8601DateString(from),
+                    fromISO8601DateString(to),
+                    sortFields,
+                    sortOrder,
+                    nvl(pageOffset, 0L),
+                    nvl(pageLimit, 10L));
 
-        return Response.status(200)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
-                .header("Total-Records", pagedCaseNotes.getTotalRecords())
-                .header("Page-Offset", pagedCaseNotes.getPageOffset())
-                .header("Page-Limit", pagedCaseNotes.getPageLimit())
-                .entity(pagedCaseNotes.getItems()).build();
+            return Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON)
+                    .header("Total-Records", pagedCaseNotes.getTotalRecords())
+                    .header("Page-Offset", pagedCaseNotes.getPageOffset())
+                    .header("Page-Limit", pagedCaseNotes.getPageLimit())
+                    .entity(pagedCaseNotes.getItems()).build();
+        } catch (EntityNotFoundException e) {
+            throw EntityNotFoundException.withId(offenderNo);
+        }
     }
 
     @Override
+    @VerifyOffenderAccess
     public CaseNote getOffenderCaseNote(final String offenderNo, final Long caseNoteId) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        return caseNoteService.getCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId);
+        try {
+            return caseNoteService.getCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId);
+        } catch (EntityNotFoundException e) {
+            throw EntityNotFoundException.withId(offenderNo);
+        }
     }
 
     @Override
+    @VerifyOffenderAccess
     public CaseNote createOffenderCaseNote(final String offenderNo, final NewCaseNote body) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        return caseNoteService.createCaseNote(latestBookingByOffenderNo.getBookingId(), body, authenticationFacade.getCurrentUsername());
+        try {
+            return caseNoteService.createCaseNote(latestBookingByOffenderNo.getBookingId(), body, authenticationFacade.getCurrentUsername());
+        } catch (EntityNotFoundException e) {
+            throw EntityNotFoundException.withId(offenderNo);
+        }
     }
 
     @Override
+    @VerifyOffenderAccess
     public CaseNote updateOffenderCaseNote(final String offenderNo, final Long caseNoteId, final UpdateCaseNote body) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        return caseNoteService.updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
+        try {
+            return caseNoteService.updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
+        } catch (EntityNotFoundException e) {
+            throw EntityNotFoundException.withId(offenderNo);
+        }
+    }
+
+    @Override
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public OffenderSentenceDetail getOffenderSentenceDetail(final String offenderNo) {
+        return bookingService.getOffenderSentenceDetail(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
 }

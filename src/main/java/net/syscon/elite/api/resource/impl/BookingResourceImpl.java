@@ -9,6 +9,7 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.impl.IncidentService;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
@@ -276,6 +277,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public GetOffenderAlertsResponse getOffenderAlertsByOffenderNo(final String offenderNo, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
         return getOffenderAlerts(bookingId, query, pageOffset, pageLimit, sortFields, sortOrder);
@@ -617,6 +619,7 @@ public class BookingResourceImpl implements BookingResource {
 
 
     @Override
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public GetKeyworkerByOffenderNoResponse getKeyworkerByOffenderNo(final String offenderNo) {
         final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
 

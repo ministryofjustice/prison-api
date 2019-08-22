@@ -71,12 +71,17 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION', 'GLOBAL_SEARCH')")
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
 
         final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(null, offenderNos, latestOnly, query, orderByField, order);
-
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
+        return alerts;
+    }
+
+    public List<Alert> getInmateAlertsByOffenderNos(final String offenderNo, final boolean latestOnly, final String query, final String orderByField, final Order order) {
+        final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(null, List.of(offenderNo), latestOnly, query, orderByField, order);
+        log.info("Returning {} matching Alerts for Offender Number {}", alerts.size(), offenderNo);
         return alerts;
     }
 

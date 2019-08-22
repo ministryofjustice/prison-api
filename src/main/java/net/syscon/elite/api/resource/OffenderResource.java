@@ -123,6 +123,14 @@ public interface OffenderResource {
     CaseNote getOffenderCaseNote(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) @PathParam("offenderNo") String offenderNo,
                                                                     @ApiParam(value = "The case note id", required = true) @PathParam("caseNoteId") Long caseNoteId);
 
+    @GET
+    @Path("/{offenderNo}/sentence")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Offender Sentence Details", notes = "Retrieve an single offender sentence details", nickname = "getOffenderSentenceDetails")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "", response = OffenderSentenceDetail.class)})
+    OffenderSentenceDetail getOffenderSentenceDetail(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) @PathParam("offenderNo") String offenderNo);
 
     @POST
     @Path("/{offenderNo}/case-notes")

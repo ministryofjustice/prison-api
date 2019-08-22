@@ -10,6 +10,7 @@ import net.syscon.elite.repository.AdjudicationsRepository;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.AdjudicationSearchCriteria;
 import net.syscon.elite.service.AdjudicationService;
 import net.syscon.elite.service.BookingService;
@@ -45,8 +46,8 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     private int awardCutoffDefault;
 
     @Override
+    @VerifyOffenderAccess
     public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
-        bookingService.verifyCanViewSensitiveBookingInfo(offenderNo);
         return repository.findAdjudicationDetails(offenderNo, adjudicationNo)
                 .map(this::enrich)
                 .orElseThrow(EntityNotFoundException.withId(adjudicationNo));
