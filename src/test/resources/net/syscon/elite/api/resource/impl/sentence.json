@@ -1,0 +1,23 @@
+{
+  "bookingId": -2,
+  "offenderNo": "A1234AB",
+  "firstName": "GILLIAN",
+  "lastName": "ANDERSON",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2019-05-21",
+    "automaticReleaseDate": "2018-05-21",
+    "releaseOnTemporaryLicenceDate": "2018-02-25",
+    "bookingId": -2,
+    "sentenceStartDate": "2017-05-22",
+    "automaticReleaseOverrideDate": "2018-04-21",
+    "nonDtoReleaseDate": "2018-04-21",
+    "nonDtoReleaseDateType": "ARD",
+    "confirmedReleaseDate": "2018-04-19",
+    "releaseDate": "2018-04-19"
+  },
+  "dateOfBirth": "1998-08-28",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1-5",
+  "facialImageId": -2
+}

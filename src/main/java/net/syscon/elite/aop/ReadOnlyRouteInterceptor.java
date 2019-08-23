@@ -35,9 +35,9 @@ public class ReadOnlyRouteInterceptor {
             } else {
                 if (tx.readOnly()) {
                     RoutingDataSource.setReplicaRoute();
-                    log.debug("Routing database call to the replica");
+                    log.trace("Routing database call to the replica");
                 } else {
-                    log.debug("Routing database call to the master");
+                    log.trace("Routing database call to the master");
                 }
             }
             return proceedingJoinPoint.proceed();
