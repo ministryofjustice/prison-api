@@ -124,7 +124,7 @@ public interface OffenderResource {
                                                                     @ApiParam(value = "The case note id", required = true) @PathParam("caseNoteId") Long caseNoteId);
 
     @GET
-    @Path("/{offenderNo}/sentence")
+    @Path("/{offenderNo}/sentences")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Offender Sentence Details", notes = "Retrieve an single offender sentence details", nickname = "getOffenderSentenceDetails")
