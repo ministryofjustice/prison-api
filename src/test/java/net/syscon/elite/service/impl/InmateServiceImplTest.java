@@ -274,14 +274,14 @@ public class InmateServiceImplTest {
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoadsIds);
-        when(repository.getBasicInmateDetailsForOffenders(offenderNumbers, false, caseLoadsIds))
+        when(repository.getBasicInmateDetailsForOffenders(offenderNumbers, false, caseLoadsIds, true))
                  .thenReturn(List.of(InmateBasicDetails.builder()
                          .lastName("LAST NAME")
                          .firstName("FIRST NAME")
                          .middleName("MIDDLE NAME")
                          .build()));
 
-        final var offenders = serviceToTest.getBasicInmateDetailsForOffenders(offenderNumbers);
+        final var offenders = serviceToTest.getBasicInmateDetailsForOffenders(offenderNumbers, true);
 
         assertThat(offenders)
                 .containsExactly(InmateBasicDetails.builder()
@@ -297,7 +297,7 @@ public class InmateServiceImplTest {
         when(authenticationFacade.isOverrideRole(any())).thenReturn(false);
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
 
-        Assertions.assertThatThrownBy(() -> serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123")))
+        Assertions.assertThatThrownBy(() -> serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), true))
        .isInstanceOf(BadRequestException.class)
        .hasMessageContaining("User has not active caseloads");
     }
@@ -305,8 +305,8 @@ public class InmateServiceImplTest {
     @Test
     public void testThatAnExceptionIsNotThrown_whenGlobalSearchUserWithNoActiveCaseloadsRequestsInmateDetails() {
         when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
-        serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
-        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), true, Collections.emptySet());
+        serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), false);
+        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), true, Collections.emptySet(), false);
     }
 
     @Test
@@ -316,9 +316,9 @@ public class InmateServiceImplTest {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoad);
 
-        serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
+        serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), true);
 
-        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), false, caseLoad);
+        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), false, caseLoad, true);
         Mockito.verify(caseLoadService).getCaseLoadIdsForUser("ME", false);
      }
 }

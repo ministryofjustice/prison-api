@@ -45,5 +45,5 @@ public interface InmateService {
 	List<Long> getPersonalOfficerBookings(String username);
 	List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations);
 
-    List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders);
+    List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean active);
 }

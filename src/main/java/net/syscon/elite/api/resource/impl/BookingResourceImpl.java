@@ -180,8 +180,9 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders) {
-        return inmateService.getBasicInmateDetailsForOffenders(offenders);
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final Boolean activeOnly) {
+        var active = activeOnly == null ? true : activeOnly;
+        return inmateService.getBasicInmateDetailsForOffenders(offenders, active);
     }
 
     @Override

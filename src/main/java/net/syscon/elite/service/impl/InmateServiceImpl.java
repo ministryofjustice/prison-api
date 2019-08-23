@@ -141,13 +141,13 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders) {
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, boolean active) {
         final var canViewAllOffenders = isViewAllOffenders();
         final var caseloads = canViewAllOffenders ? Set.<String>of() : loadCaseLoadsOrThrow();
 
         log.info("getBasicInmateDetailsForOffenders, {} offenders, {} caseloads, canViewAllOffenders {}", offenders.size(), caseloads.size(), canViewAllOffenders);
 
-        final var results = repository.getBasicInmateDetailsForOffenders(offenders, canViewAllOffenders, caseloads)
+        final var results = repository.getBasicInmateDetailsForOffenders(offenders, canViewAllOffenders, caseloads, active)
                 .stream()
                 .map(offender -> offender.toBuilder()
                         .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
