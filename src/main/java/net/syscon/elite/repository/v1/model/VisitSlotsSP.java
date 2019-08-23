@@ -13,10 +13,10 @@ public class VisitSlotsSP {
 
     private LocalDateTime slotStart;
     private LocalDateTime slotEnd;
-    private Long max_groups;
-    private Long max_adults;
+    private Long maxGroups;
+    private Long maxAdults;
     private Long capacity;
-    private Long groups_booked;
-    private Long visitors_booked;
-    private Long adults_booked;
+    private Long groupsBooked;
+    private Long visitorsBooked;
+    private Long adultsBooked;
 }

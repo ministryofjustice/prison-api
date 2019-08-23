@@ -27,7 +27,7 @@ public class VisitV1Repository extends RepositoryBase {
     private final GetUnavailability getUnavailability;
     private final GetVisitSlotsWithCapacity getVisitSlotsWithCapacity;
 
-    public List<AvailableDatesSP> getAvailableDates(String offenderId, LocalDate fromDate, LocalDate toDate) {
+    public List<AvailableDatesSP> getAvailableDates(final String offenderId, final LocalDate fromDate, final LocalDate toDate) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_ROOT_OFFENDER_ID, offenderId)
@@ -39,7 +39,7 @@ public class VisitV1Repository extends RepositoryBase {
         return (List<AvailableDatesSP>) result.get(P_DATE_CSR);
     }
 
-    public List<ContactPersonSP> getContactList(String offenderId) {
+    public List<ContactPersonSP> getContactList(final String offenderId) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_ROOT_OFFENDER_ID, offenderId);
@@ -49,7 +49,7 @@ public class VisitV1Repository extends RepositoryBase {
         return (List<ContactPersonSP>) result.get(P_CONTACT_CSR);
     }
 
-    public List<UnavailabilityReasonSP> getUnavailability(Long offenderId, String dates) {
+    public List<UnavailabilityReasonSP> getUnavailability(final Long offenderId, final String dates) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_ROOT_OFFENDER_ID, offenderId)
@@ -60,7 +60,7 @@ public class VisitV1Repository extends RepositoryBase {
         return (List<UnavailabilityReasonSP>) result.get(P_REASON_CSR);
     }
 
-    public List<VisitSlotsSP> getVisitSlotsWithCapacity(String prisonId, LocalDate fromDate, LocalDate toDate) {
+    public List<VisitSlotsSP> getVisitSlotsWithCapacity(final String prisonId, final LocalDate fromDate, final LocalDate toDate) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_AGY_LOC_ID, prisonId)

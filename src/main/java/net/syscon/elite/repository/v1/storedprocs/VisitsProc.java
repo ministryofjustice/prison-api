@@ -79,7 +79,7 @@ public class VisitsProc {
                     .withProcedureName("prison_visit_slotswithcapacity")
                     .withNamedBinding()
                     .declareParameters(
-                            new SqlParameter(P_ROOT_OFFENDER_ID, Types.VARCHAR),
+                            new SqlParameter(P_AGY_LOC_ID, Types.VARCHAR),
                             new SqlParameter(P_FROM_DATE, Types.DATE),
                             new SqlParameter(P_TO_DATE, Types.DATE),
                             new SqlParameter(P_VISITOR_CNT, Types.INTEGER),

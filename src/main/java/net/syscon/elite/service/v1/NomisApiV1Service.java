@@ -306,7 +306,7 @@ public class NomisApiV1Service {
     }
 
     public AvailableDates getVisitAvailableDates(final String offenderID, LocalDate fromDate, LocalDate toDate) {
-        validateStartandEndDateRange(fromDate, toDate);
+        validateStartAndEndDateRange(fromDate, toDate);
 
         final var dates = visitV1Repository.getAvailableDates(offenderID, fromDate, toDate);
 
@@ -333,24 +333,24 @@ public class NomisApiV1Service {
     }
 
     public VisitSlots getVisitSlotsWithCapacity(final String prisonId, LocalDate fromDate, LocalDate toDate) {
-        validateStartandEndDateRange(fromDate, toDate);
+        validateStartAndEndDateRange(fromDate, toDate);
 
         var response = visitV1Repository.getVisitSlotsWithCapacity(prisonId, fromDate, toDate).stream()
                 .map(v -> VisitSlotCapacity.builder()
                         .time(v.getSlotStart().format(ofPattern("yyyy-MM-dd'T'HH:mm")) + "/" + v.getSlotEnd().format(ofPattern("HH:mm")))
                         .capacity(v.getCapacity())
-                        .maxGroups(v.getMax_groups())
-                        .maxAdults(v.getMax_adults())
-                        .groupsBooked(v.getGroups_booked())
-                        .visitorsBooked(v.getVisitors_booked())
-                        .adultsBooked(v.getAdults_booked())
+                        .maxGroups(v.getMaxGroups())
+                        .maxAdults(v.getMaxAdults())
+                        .groupsBooked(v.getGroupsBooked())
+                        .visitorsBooked(v.getVisitorsBooked())
+                        .adultsBooked(v.getAdultsBooked())
                         .build())
                 .collect(Collectors.toList());
 
         return new VisitSlots(response);
     }
 
-    private void validateStartandEndDateRange(LocalDate fromDate, LocalDate toDate) {
+    private void validateStartAndEndDateRange(LocalDate fromDate, LocalDate toDate) {
         final var leadDays = 0;
         final var cutOffDays = 60;
         final var now = LocalDate.now();

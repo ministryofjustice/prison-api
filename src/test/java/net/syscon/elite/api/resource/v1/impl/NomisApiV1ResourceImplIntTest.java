@@ -855,24 +855,24 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
                 VisitSlotsSP
                         .builder()
                         .slotStart(LocalDateTime.now().plusDays(1).withHour(13).withMinute(30))
-                        .slotEnd(LocalDateTime.now().plusDays(1).withHour(16).withMinute(00))
+                        .slotEnd(LocalDateTime.now().plusDays(1).withHour(16).withMinute(0))
                         .capacity(402L)
-                        .max_adults(999L)
-                        .max_adults(999L)
-                        .groups_booked(1L)
-                        .visitors_booked(2L)
-                        .adults_booked(3L)
+                        .maxGroups(999L)
+                        .maxAdults(999L)
+                        .groupsBooked(1L)
+                        .visitorsBooked(2L)
+                        .adultsBooked(3L)
                         .build(),
                 VisitSlotsSP
                         .builder()
                         .slotStart(LocalDateTime.now().plusDays(2).withHour(13).withMinute(30))
-                        .slotEnd(LocalDateTime.now().plusDays(2).withHour(16).withMinute(00))
+                        .slotEnd(LocalDateTime.now().plusDays(2).withHour(16).withMinute(0))
                         .capacity(402L)
-                        .max_adults(999L)
-                        .max_adults(999L)
-                        .groups_booked(4L)
-                        .visitors_booked(5L)
-                        .adults_booked(6L)
+                        .maxGroups(999L)
+                        .maxAdults(999L)
+                        .groupsBooked(4L)
+                        .visitorsBooked(5L)
+                        .adultsBooked(6L)
                         .build()
         );
 
@@ -882,8 +882,8 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
         assertThatJson(responseEntity.getBody()).isEqualTo("{\"slots\":[" +
-                "{\"time\":\"" + visitSlot1Json + "\",\"capacity\":402,\"max_groups\":null,\"max_adults\":999,\"groups_booked\":1,\"visitors_booked\":2,\"adults_booked\":3}," +
-                "{\"time\":\"" + visitSlot2Json + "\",\"capacity\":402,\"max_groups\":null,\"max_adults\":999,\"groups_booked\":4,\"visitors_booked\":5,\"adults_booked\":6}" +
+                "{\"time\":\"" + visitSlot1Json + "\",\"capacity\":402,\"max_groups\":999,\"max_adults\":999,\"groups_booked\":1,\"visitors_booked\":2,\"adults_booked\":3}," +
+                "{\"time\":\"" + visitSlot2Json + "\",\"capacity\":402,\"max_groups\":999,\"max_adults\":999,\"groups_booked\":4,\"visitors_booked\":5,\"adults_booked\":6}" +
                 "]}\n");
     }
 
