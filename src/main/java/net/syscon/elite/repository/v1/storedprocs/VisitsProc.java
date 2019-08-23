@@ -5,6 +5,7 @@ import net.syscon.elite.repository.v1.NomisV1SQLErrorCodeTranslator;
 import net.syscon.elite.repository.v1.model.AvailableDatesSP;
 import net.syscon.elite.repository.v1.model.ContactPersonSP;
 import net.syscon.elite.repository.v1.model.UnavailabilityReasonSP;
+import net.syscon.elite.repository.v1.model.VisitSlotsSP;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.stereotype.Component;
@@ -64,6 +65,28 @@ public class VisitsProc {
                             new SqlOutParameter(P_REASON_CSR, Types.REF_CURSOR))
                     .returningResultSet(P_REASON_CSR,
                             StandardBeanPropertyRowMapper.newInstance(UnavailabilityReasonSP.class));
+            compile();
+        }
+    }
+
+    @Component
+    public static class GetVisitSlotsWithCapacity extends SimpleJdbcCallWithExceptionTranslater {
+
+        public GetVisitSlotsWithCapacity(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+            super(dataSource, errorCodeTranslator);
+            withSchemaName(API_OWNER)
+                    .withCatalogName(API_VISIT_PROCS)
+                    .withProcedureName("prison_visit_slotswithcapacity")
+                    .withNamedBinding()
+                    .declareParameters(
+                            new SqlParameter(P_ROOT_OFFENDER_ID, Types.VARCHAR),
+                            new SqlParameter(P_FROM_DATE, Types.DATE),
+                            new SqlParameter(P_TO_DATE, Types.DATE),
+                            new SqlParameter(P_VISITOR_CNT, Types.INTEGER),
+                            new SqlParameter(P_ADULT_CNT, Types.INTEGER),
+                            new SqlOutParameter(P_DATE_CSR, Types.REF_CURSOR))
+                    .returningResultSet(P_DATE_CSR,
+                            StandardBeanPropertyRowMapper.newInstance(VisitSlotsSP.class));
             compile();
         }
     }

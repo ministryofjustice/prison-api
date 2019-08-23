@@ -287,4 +287,31 @@ public class NomisApiV1ResourceImplTest {
         verify(service).getVisitUnavailability(1234567L, date);
         verifyNoMoreInteractions(service);
     }
+
+    @Test
+    public void getVisitSlotsWithCapacity() {
+
+        final var visitSlots = VisitSlots.builder()
+                .slots(List.of(
+                        VisitSlotCapacity
+                                .builder()
+                                .time("2019-01-01T13:30/16:00")
+                                .capacity(402L)
+                                .maxGroups(999L)
+                                .maxAdults(999L)
+                                .groupsBooked(4L)
+                                .visitorsBooked(5L)
+                                .adultsBooked(6L)
+                                .build()))
+                .build();
+
+        when(service.getVisitSlotsWithCapacity(anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(visitSlots);
+
+        final var result = nomisApiV1Resource.getVisitSlotsWithCapacity("MDI", LocalDate.of(2019, 1, 1), LocalDate.of(2019, 1, 1));
+
+        assertThat(result).isEqualTo(visitSlots);
+
+        verify(service).getVisitSlotsWithCapacity("MDI", LocalDate.of(2019, 1, 1), LocalDate.of(2019, 1, 1));
+        verifyNoMoreInteractions(service);
+    }
 }

@@ -174,4 +174,10 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
         return service.getVisitUnavailability(offenderId, dates);
     }
 
+
+    @Override
+    public VisitSlots getVisitSlotsWithCapacity(String prisonId, LocalDate fromDate, LocalDate toDate) {
+
+        return service.getVisitSlotsWithCapacity(prisonId, fromDate, toDate);
+    }
 }

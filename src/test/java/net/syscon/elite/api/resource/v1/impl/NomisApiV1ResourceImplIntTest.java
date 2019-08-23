@@ -144,6 +144,12 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         public GetUnavailability getUnavailability() {
             return mock(GetUnavailability.class);
         }
+
+        @Bean
+        @Primary
+        public GetVisitSlotsWithCapacity getVisitSlotsWithCapacity() {
+            return mock(GetVisitSlotsWithCapacity.class);
+        }
     }
 
     @Autowired
@@ -193,6 +199,9 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private GetUnavailability getUnavailability;
+
+    @Autowired
+    private GetVisitSlotsWithCapacity getVisitSlotsWithCapacity;
 
     @Test
     public void transferTransaction() {
@@ -723,7 +732,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
     }
 
     @Test
-    public void getVisitUnavailabilityFoundCourtforDate() {
+    public void getVisitUnavailabilityFoundCourtForDate() {
         final var day1 = LocalDate.now().plusDays(1);
         final var day2 = LocalDate.now().plusDays(2);
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
@@ -757,7 +766,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
     }
 
     @Test
-    public void getVisitUnavailabilityFoundOutOfVOforDates() {
+    public void getVisitUnavailabilityFoundOutOfVOForDates() {
         final var day1 = LocalDate.now().plusDays(1);
         final var day2 = LocalDate.now().plusDays(2);
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
@@ -835,6 +844,57 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
         assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Dates requested must be in future\",\"developerMessage\":\"\"}");
+    }
+
+    @Test
+    public void getVisitSlotsWithCapacity() {
+        final var visitSlot1Json = LocalDate.now().plusDays(1) + "T13:30/16:00";
+        final var visitSlot2Json = LocalDate.now().plusDays(2) + "T13:30/16:00";
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+        final var visitSlotsSP = List.of(
+                VisitSlotsSP
+                        .builder()
+                        .slotStart(LocalDateTime.now().plusDays(1).withHour(13).withMinute(30))
+                        .slotEnd(LocalDateTime.now().plusDays(1).withHour(16).withMinute(00))
+                        .capacity(402L)
+                        .max_adults(999L)
+                        .max_adults(999L)
+                        .groups_booked(1L)
+                        .visitors_booked(2L)
+                        .adults_booked(3L)
+                        .build(),
+                VisitSlotsSP
+                        .builder()
+                        .slotStart(LocalDateTime.now().plusDays(2).withHour(13).withMinute(30))
+                        .slotEnd(LocalDateTime.now().plusDays(2).withHour(16).withMinute(00))
+                        .capacity(402L)
+                        .max_adults(999L)
+                        .max_adults(999L)
+                        .groups_booked(4L)
+                        .visitors_booked(5L)
+                        .adults_booked(6L)
+                        .build()
+        );
+
+        when(getVisitSlotsWithCapacity.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_DATE_CSR, visitSlotsSP));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/MDI/slots?start_date=" + LocalDate.now().plusDays(1) + "&end_date=" + LocalDate.now().plusDays(2), HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"slots\":[" +
+                "{\"time\":\"" + visitSlot1Json + "\",\"capacity\":402,\"max_groups\":null,\"max_adults\":999,\"groups_booked\":1,\"visitors_booked\":2,\"adults_booked\":3}," +
+                "{\"time\":\"" + visitSlot2Json + "\",\"capacity\":402,\"max_groups\":null,\"max_adults\":999,\"groups_booked\":4,\"visitors_booked\":5,\"adults_booked\":6}" +
+                "]}\n");
+    }
+
+    @Test
+    public void getVisitSlotsWithCapacityInvalidDate() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/MDI/slots?start_date=2017-01-01&end_date=2017-01-01", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Invalid start and end date range\",\"developerMessage\":\"\"}");
     }
 
 }
