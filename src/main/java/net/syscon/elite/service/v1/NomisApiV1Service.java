@@ -22,6 +22,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.time.format.DateTimeFormatter.ofPattern;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -304,16 +306,7 @@ public class NomisApiV1Service {
     }
 
     public AvailableDates getVisitAvailableDates(final String offenderID, LocalDate fromDate, LocalDate toDate) {
-        final var leadDays = 0;
-        final var cutOffDays = 60;
-        final var now = LocalDate.now();
-
-        if (fromDate.isBefore(now.plusDays(leadDays)) ||
-                fromDate.isAfter(now.plusDays(cutOffDays)) ||
-                toDate.isBefore(fromDate) ||
-                toDate.isAfter(toDate.plusDays(cutOffDays))) {
-            throw new BadRequestException("Invalid start and end date range");
-        }
+        validateStartAndEndDateRange(fromDate, toDate);
 
         final var dates = visitV1Repository.getAvailableDates(offenderID, fromDate, toDate);
 
@@ -331,6 +324,43 @@ public class NomisApiV1Service {
         }).collect(Collectors.toList());
 
         return new ContactList(contactPersonList);
+    }
+
+    public SortedMap<String, UnavailabilityReason> getVisitUnavailability(final Long offenderId, final String dates) {
+        final var dateArray = validateDates(dates);
+
+        return combineResultsIntoMap(dateArray, visitV1Repository.getUnavailability(offenderId, dates));
+    }
+
+    public VisitSlots getVisitSlotsWithCapacity(final String prisonId, LocalDate fromDate, LocalDate toDate) {
+        validateStartAndEndDateRange(fromDate, toDate);
+
+        var response = visitV1Repository.getVisitSlotsWithCapacity(prisonId, fromDate, toDate).stream()
+                .map(v -> VisitSlotCapacity.builder()
+                        .time(v.getSlotStart().format(ofPattern("yyyy-MM-dd'T'HH:mm")) + "/" + v.getSlotEnd().format(ofPattern("HH:mm")))
+                        .capacity(v.getCapacity())
+                        .maxGroups(v.getMaxGroups())
+                        .maxAdults(v.getMaxAdults())
+                        .groupsBooked(v.getGroupsBooked())
+                        .visitorsBooked(v.getVisitorsBooked())
+                        .adultsBooked(v.getAdultsBooked())
+                        .build())
+                .collect(Collectors.toList());
+
+        return new VisitSlots(response);
+    }
+
+    private void validateStartAndEndDateRange(LocalDate fromDate, LocalDate toDate) {
+        final var leadDays = 0;
+        final var cutOffDays = 60;
+        final var now = LocalDate.now();
+
+        if (fromDate.isBefore(now.plusDays(leadDays)) ||
+                fromDate.isAfter(now.plusDays(cutOffDays)) ||
+                toDate.isBefore(fromDate) ||
+                toDate.isAfter(toDate.plusDays(cutOffDays))) {
+            throw new BadRequestException("Invalid start and end date range");
+        }
     }
 
     private List<VisitRestriction> addToPerson(List<ContactPersonSP> value) {
@@ -355,12 +385,6 @@ public class NomisApiV1Service {
                 .approvedVisitor("Y".equals(c.getApprovedVisitorFlag()))
                 .active("Y".equals(c.getActiveFlag()))
                 .relationshipType(CodeDescription.safeNullBuild(c.getRelationshipTypeCode(), c.getRelationshipTypeDesc())).build();
-    }
-
-    public SortedMap<String, UnavailabilityReason> getVisitUnavailability(final Long offenderId, final String dates) {
-        final var dateArray = validateDates(dates);
-
-        return combineResultsIntoMap(dateArray, visitV1Repository.getUnavailability(offenderId, dates));
     }
 
     private List<LocalDate> validateDates(final String dates) {

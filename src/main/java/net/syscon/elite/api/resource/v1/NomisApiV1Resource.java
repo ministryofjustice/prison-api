@@ -397,5 +397,20 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "offender_id", value = "Offender Id", example = "1234567", required = true) @PathParam("offender_id") @NotNull Long offenderId,
             @ApiParam(name = "dates", value = "dates", example = "2019-05-01,2019-05-02") @QueryParam("dates") String dates);
 
-
+    @SuppressWarnings("RestParamTypeInspection")
+    @GET
+    @Path("prison/{prison_id}/slots")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Fetch visit slots with capacity",
+            notes = "returns list slots with capacity details")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = AvailableDates.class),
+            @ApiResponse(code = 400, message = "Invalid start and end date range", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Prison Not Found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    VisitSlots getVisitSlotsWithCapacity(
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") @PathParam("prison_id") @Length(max = 3) String prisonId,
+            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01") @QueryParam("start_date") LocalDate fromDate,
+            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01") @QueryParam("end_date") LocalDate toDate);
 }
