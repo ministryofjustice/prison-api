@@ -113,6 +113,8 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                 sql,
                 createParams(
                         "bookingId", bookingId,
+                        "status", "ACTIVE",
+                        "caseLoadType", "INST",
                         "alertType", alert.getAlertType(),
                         "alertSubType", alert.getAlertCode(),
                         "alertDate", alert.getAlertDate(),

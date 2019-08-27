@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+import static net.syscon.elite.util.Extractors.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -36,6 +38,9 @@ public class InmateAlertRepositoryTest {
 
     @Autowired
     private InmateAlertRepository repository;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     @Before
     public void init() {
@@ -92,12 +97,23 @@ public class InmateAlertRepositoryTest {
                         .comment("Poor behaviour")
                         .build());
 
+        final var results = jdbcTemplate.queryForList("SELECT * FROM  OFFENDER_ALERTS WHERE OFFENDER_BOOK_ID = ? AND ALERT_SEQ = ?",
+                bookingId, latestAlertSeq
+        );
 
-        final var alert = repository.getInmateAlerts(bookingId, latestAlertSeq).orElse(Alert.builder().build());
-
-        assertThat(alert)
-                .extracting( "alertId", "alertType", "alertCode", "comment", "expired")
-                .contains( latestAlertSeq, "X", "XX", "Poor behaviour", false);
+        assertThat(results)
+                .asList()
+                .extracting(
+                        extractLong("OFFENDER_BOOK_ID"),
+                        extractString("ALERT_TYPE"),
+                        extractString("ALERT_CODE"),
+                        extractLong("ALERT_SEQ"),
+                        extractDate("ALERT_DATE"),
+                        extractString("ALERT_STATUS"),
+                        extractString("COMMENT_TEXT"),
+                        extractString("CREATE_USER_ID"),
+                        extractString("CASELOAD_TYPE"))
+                .contains(Tuple.tuple(bookingId, "X", "XX", latestAlertSeq, LocalDate.now(), "ACTIVE", "Poor behaviour", "ITAG_USER", "INST"));
 
     }
 

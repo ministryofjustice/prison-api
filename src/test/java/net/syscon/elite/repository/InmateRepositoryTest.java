@@ -22,15 +22,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
-import java.util.function.Function;
 
 import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVAL;
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
+import static net.syscon.elite.util.Extractors.extractInteger;
+import static net.syscon.elite.util.Extractors.extractString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -953,14 +953,6 @@ public class InmateRepositoryTest {
                 .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", null, null, null, null)
                 );
         assertThat((Timestamp) results.get(1).get("NEXT_REVIEW_DATE")).isCloseTo("2018-06-01T00:00:00.000", 1000);
-    }
-
-    private static Function<Object, String> extractString(String field) {
-        return m -> ((Map<String, String>) m).get(field);
-    }
-
-    private static Function<Object, Integer> extractInteger(String field) {
-        return m -> ((Map<String, BigDecimal>) m).get(field).intValue();
     }
 
     @Test
