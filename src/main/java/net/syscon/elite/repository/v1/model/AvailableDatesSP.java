@@ -1,13 +1,13 @@
 package net.syscon.elite.repository.v1.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 public class AvailableDatesSP {
 
