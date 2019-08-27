@@ -654,7 +654,8 @@ INSERT INTO OFFENDER_ALERTS (
      ALERT_DATE,
      ALERT_STATUS,
      COMMENT_TEXT,
-     CREATE_USER_ID
+     CREATE_USER_ID,
+     CASELOAD_TYPE
 )
 VALUES
      (:bookingId,
@@ -663,9 +664,10 @@ VALUES
      :alertSubType,
      coalesce ((select max(alert_seq) + 1 from offender_alerts where offender_book_id = :bookingId),1),
      :alertDate,
-     'ACTIVE',
+     :status,
      :commentText,
-     :username
+     :username,
+     :caseLoadType
      )
 }
 
