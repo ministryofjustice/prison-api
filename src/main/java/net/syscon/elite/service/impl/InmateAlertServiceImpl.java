@@ -12,6 +12,7 @@ import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateAlertService;
+import net.syscon.elite.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,11 +29,13 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
     private final InmateAlertRepository inmateAlertRepository;
     private final AuthenticationFacade authenticationFacade;
+    private final UserService userService;
 
     @Autowired
-    public InmateAlertServiceImpl(final InmateAlertRepository inmateAlertRepository, final AuthenticationFacade authenticationFacade) {
+    public InmateAlertServiceImpl(final InmateAlertRepository inmateAlertRepository, final AuthenticationFacade authenticationFacade, UserService userService) {
         this.inmateAlertRepository = inmateAlertRepository;
         this.authenticationFacade = authenticationFacade;
+        this.userService = userService;
     }
 
     @Override
@@ -107,7 +110,10 @@ public class InmateAlertServiceImpl implements InmateAlertService {
             throw new IllegalArgumentException("Alert date cannot go back more than seven days.");
 
         final var username = authenticationFacade.getCurrentUsername();
-        final var alertId =  inmateAlertRepository.createNewAlert(username, bookingId, alert);
+        final var userDetails = userService.getUserByUsername(username);
+
+        final var alertId =  inmateAlertRepository.createNewAlert(bookingId, alert, username,
+                userDetails.getActiveCaseLoadId());
 
         log.info("Created new alert {}", alert);
 

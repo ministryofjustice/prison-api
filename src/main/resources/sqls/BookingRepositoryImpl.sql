@@ -679,3 +679,41 @@ UPDATE OFFENDER_ALERTS SET
 WHERE ALERT_SEQ = :alertSeq
 AND OFFENDER_BOOK_ID = :bookingId
 }
+
+INSERT_WORK_FLOW {
+    INSERT INTO WORK_FLOWS (
+        WORK_FLOW_ID,
+        OBJECT_CODE,
+        OBJECT_ID,
+        OBJECT_SEQ
+    )
+    VALUES (
+        COALESCE ((SELECT MAX(WORK_FLOW_ID) + 1  FROM WORK_FLOWS), 1),
+        :objectCode,
+        :bookingId,
+        :alertSeq
+    )
+}
+
+INSERT_WORK_FLOW_LOG {
+  INSERT INTO WORK_FLOW_LOGS (
+        WORK_FLOW_ID,
+        WORK_FLOW_SEQ,
+        WORK_ACTION_CODE,
+        WORK_ACTION_DATE,
+        WORK_FLOW_STATUS,
+        CREATE_DATE,
+        LOCATE_AGY_LOC_ID,
+        CREATE_USER_ID
+    )
+    VALUES (
+        :workFlowId,
+        :workFlowSeq,
+        :actionCode,
+        SYSDATE,
+        :workFlowStatus,
+        SYSDATE,
+        :agencyId,
+        :username
+    )
+}

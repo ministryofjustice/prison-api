@@ -87,21 +87,30 @@ public class InmateAlertRepositoryTest {
     }
 
     @Test
-    public void testThatAnAlertGetsCreated() {
+    public void testThatAnAlertGetsCreatedAlongWithTheRelevantWorkFlowTables() {
+        final var username = "ITAG_USER";
         final var bookingId = -10L;
-        final var latestAlertSeq = repository.createNewAlert("ITAG_USER",bookingId, CreateAlert
-                        .builder()
-                        .alertDate(LocalDate.now())
-                        .alertType("X")
-                        .alertCode("XX")
-                        .comment("Poor behaviour")
-                        .build());
+        final var agencyId = "LEI";
+        final var alert =  CreateAlert
+                .builder()
+                .alertDate(LocalDate.now())
+                .alertType("X")
+                .alertCode("XX")
+                .comment("Poor behaviour")
+                .build();
 
-        final var results = jdbcTemplate.queryForList("SELECT * FROM  OFFENDER_ALERTS WHERE OFFENDER_BOOK_ID = ? AND ALERT_SEQ = ?",
+        final var latestAlertSeq = repository.createNewAlert(bookingId, alert, username, agencyId);
+
+        final var alerts = jdbcTemplate.queryForList("SELECT * FROM  OFFENDER_ALERTS WHERE OFFENDER_BOOK_ID = ? AND ALERT_SEQ = ?",
                 bookingId, latestAlertSeq
         );
+        final var workFlowEntries = jdbcTemplate.queryForList(
+                " SELECT * FROM WORK_FLOWS WF" +
+                        " LEFT JOIN WORK_FLOW_LOGS WFL ON WFL.WORK_FLOW_ID = WF.WORK_FLOW_ID" +
+                        " WHERE WF.OBJECT_ID = ? AND WF.OBJECT_SEQ = ? AND WF.OBJECT_CODE = 'ALERT'",
+                bookingId, latestAlertSeq);
 
-        assertThat(results)
+        assertThat(alerts)
                 .asList()
                 .extracting(
                         extractLong("OFFENDER_BOOK_ID"),
@@ -114,6 +123,17 @@ public class InmateAlertRepositoryTest {
                         extractString("CREATE_USER_ID"),
                         extractString("CASELOAD_TYPE"))
                 .contains(Tuple.tuple(bookingId, "X", "XX", latestAlertSeq, LocalDate.now(), "ACTIVE", "Poor behaviour", "ITAG_USER", "INST"));
+
+        assertThat(workFlowEntries)
+                .asList()
+                .extracting(
+                        extractString("OBJECT_CODE"),
+                        extractString("WORK_ACTION_CODE"),
+                        extractString("LOCATE_AGY_LOC_ID"),
+                        extractString("CREATE_USER_ID"),
+                        extractDate("CREATE_DATE"),
+                        extractString("WORK_FLOW_STATUS"))
+                .contains(Tuple.tuple("ALERT", "ENT", "LEI", "SA", LocalDate.now(), "DONE"));
 
     }
 
@@ -134,6 +154,5 @@ public class InmateAlertRepositoryTest {
         assertThat(alert)
                 .extracting( "alertId", "comment", "dateExpires", "active")
                 .contains( alertSeq, "Test alert for expiry", expiryDate, false);
-
     }
 }

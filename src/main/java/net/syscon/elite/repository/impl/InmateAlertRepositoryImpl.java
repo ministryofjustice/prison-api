@@ -105,12 +105,12 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public long createNewAlert(final String username, final long bookingId, final CreateAlert alert) {
-        final var sql = getQuery("CREATE_ALERT");
+    public long createNewAlert(final long bookingId, final CreateAlert alert, final String username, String agencyId) {
+        final var createAlert = getQuery("CREATE_ALERT");
         final var generatedKeyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
-                sql,
+                createAlert,
                 createParams(
                         "bookingId", bookingId,
                         "status", "ACTIVE",
@@ -124,7 +124,41 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                 generatedKeyHolder,
                 new String[]{"ALERT_SEQ"});
 
-        return Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
+        final long alertSeq = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
+
+        writeWorkFlowEntriesForAlertsRequiredByPNOMIS(bookingId, alertSeq, username, agencyId);
+
+        return alertSeq;
+    }
+
+    private void writeWorkFlowEntriesForAlertsRequiredByPNOMIS(final long bookingId, final long alertSeq, final String username, final String agencyId) {
+        final var insertWorkFlow = getQuery("INSERT_WORK_FLOW");
+        final var insertWorkFlowLog = getQuery("INSERT_WORK_FLOW_LOG");
+
+        final var generatedKeyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(
+                insertWorkFlow,
+                createParams(
+                        "bookingId", bookingId,
+                        "alertSeq", alertSeq,
+                        "objectCode", "ALERT"
+                ),
+                generatedKeyHolder,
+                new String[] { "WORK_FLOW_ID"});
+
+        final long workFlowId = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
+
+        jdbcTemplate.update(
+                insertWorkFlowLog,
+                createParams(
+                        "workFlowId", workFlowId,
+                        "workFlowSeq", 1,
+                        "actionCode", "ENT",
+                        "workFlowStatus", "DONE",
+                        "agencyId", agencyId,
+                        "username", username)
+        );
     }
 
     @Override
