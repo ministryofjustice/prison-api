@@ -3,9 +3,11 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
 import net.syscon.elite.api.model.UpdateAlert;
+import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -30,6 +32,9 @@ public class InmateAlertServiceImplTest {
 
     @Mock
     private AuthenticationFacade authenticationFacade;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private InmateAlertServiceImpl serviceToTest;
@@ -59,7 +64,8 @@ public class InmateAlertServiceImplTest {
     @Test
     public void testThatAlertRepository_CreateAlertIsCalledWithCorrectParams() {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
-        when(inmateAlertRepository.createNewAlert(anyString(),anyLong(), any())).thenReturn(1L);
+        when(userService.getUserByUsername("ITAG_USER")).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
+        when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString(), anyString())).thenReturn(1L);
 
         final var alertId = serviceToTest.createNewAlert(-1L, CreateAlert
                 .builder()
@@ -71,13 +77,13 @@ public class InmateAlertServiceImplTest {
 
         assertThat(alertId).isEqualTo(1L);
 
-        verify(inmateAlertRepository).createNewAlert("ITAG_USER",-1L, CreateAlert
+        verify(inmateAlertRepository).createNewAlert(-1L, CreateAlert
                 .builder()
                 .alertCode("X")
                 .alertType("XX")
                 .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
                 .comment("comment1")
-                .build());
+                .build(), "ITAG_USER", "LEI");
     }
 
     @Test
