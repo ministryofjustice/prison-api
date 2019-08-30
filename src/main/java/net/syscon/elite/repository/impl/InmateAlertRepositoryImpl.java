@@ -126,12 +126,12 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 
         final long alertSeq = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
 
-        insertWorkFlowData(bookingId, alertSeq, username, agencyId);
+        writeWorkFlowEntriesForAlertsRequiredByPNOMIS(bookingId, alertSeq, username, agencyId);
 
         return alertSeq;
     }
 
-    private void insertWorkFlowData(final long bookingId, final long alertSeq, final String username, final String agencyId) {
+    private void writeWorkFlowEntriesForAlertsRequiredByPNOMIS(final long bookingId, final long alertSeq, final String username, final String agencyId) {
         final var insertWorkFlow = getQuery("INSERT_WORK_FLOW");
         final var insertWorkFlowLog = getQuery("INSERT_WORK_FLOW_LOG");
 
