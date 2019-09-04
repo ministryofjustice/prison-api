@@ -688,7 +688,7 @@ INSERT_WORK_FLOW {
         OBJECT_SEQ
     )
     VALUES (
-        COALESCE ((SELECT MAX(WORK_FLOW_ID) + 1  FROM WORK_FLOWS), 1),
+        work_flow_id.NEXTVAL,
         :objectCode,
         :bookingId,
         :alertSeq
