@@ -33,7 +33,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
 
 
     @Override
-    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, List<String> movementTypes) {
+    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
         final var sql = getQuery("GET_RECENT_MOVEMENTS_BY_DATE_FOR_BATCH");
         final var types = (movementTypes == null || movementTypes.isEmpty()) ? Set.of("TRN", "REL", "ADM") : movementTypes;
 
@@ -46,16 +46,16 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<Movement> getRecentMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes) {
-        if (movementTypes.size() != 0) {
-            return jdbcTemplate.query(getQuery("GET_RECENT_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES"), createParams(
-                    "offenderNumbers", offenderNumbers,
-                    "movementTypes", movementTypes),
+    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
+        if (movementTypes.isEmpty()) {
+            return jdbcTemplate.query(getQuery("GET_MOVEMENTS_BY_OFFENDERS"), createParams(
+                    "offenderNumbers", offenderNumbers, "latestOnly", latestOnly),
                     MOVEMENT_MAPPER);
         }
-
-        return jdbcTemplate.query(getQuery("GET_RECENT_MOVEMENTS_BY_OFFENDERS"), createParams(
-                "offenderNumbers", offenderNumbers),
+        return jdbcTemplate.query(getQuery("GET_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES"), createParams(
+                "offenderNumbers", offenderNumbers,
+                "movementTypes", movementTypes,
+                "latestOnly", latestOnly),
                 MOVEMENT_MAPPER);
     }
 
@@ -89,7 +89,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
 
         final var movementsGroupedByDirection = movements.stream().filter(movement ->
                 (movement.getDirectionCode().equals("IN") && movement.getToAgency().equals(agencyId)) ||
-                (movement.getDirectionCode().equals("OUT") && movement.getFromAgency().equals(agencyId)))
+                        (movement.getDirectionCode().equals("OUT") && movement.getFromAgency().equals(agencyId)))
                 .collect(groupingBy(Movement::getDirectionCode));
 
         final var outMovements = movementsGroupedByDirection.containsKey("OUT") ? movementsGroupedByDirection.get("OUT").size() : 0;
@@ -120,8 +120,8 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
         return jdbcTemplate.queryForObject(
                 getQuery("GET_ENROUTE_OFFENDER_COUNT"),
                 createParams(
-                    "agencyId", agencyId,
-                    "movementDate", DateTimeConverter.toDate(date)),
+                        "agencyId", agencyId,
+                        "movementDate", DateTimeConverter.toDate(date)),
                 Integer.class);
     }
 
@@ -129,8 +129,8 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate movementDate) {
         return jdbcTemplate.query(getQuery("GET_OFFENDER_MOVEMENTS_IN"),
                 createParams(
-                    "agencyId", agencyId,
-                    "movementDate", DateTimeConverter.toDate(movementDate)),
+                        "agencyId", agencyId,
+                        "movementDate", DateTimeConverter.toDate(movementDate)),
                 OFFENDER_IN_MAPPER);
     }
 
@@ -166,55 +166,47 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 OFFENDER_OUT_MAPPER);
     }
 
-    public List<MovementSummary> getCompletedMovementsForAgencies(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+    public List<MovementSummary> getCompletedMovementsForAgencies(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
-        final var listOfCompletedMovements = jdbcTemplate.query (
-             getQuery("GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD"),
-             createParams("agencyListFrom", agencies,
-                          "agencyListTo", agencies,
-                          "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
-                          "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
-                          MOVEMENT_SUMMARY_MAPPER);
-
-        return listOfCompletedMovements;
+        return jdbcTemplate.query(
+                getQuery("GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD"),
+                createParams("agencyListFrom", agencies,
+                        "agencyListTo", agencies,
+                        "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
+                        "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
+                MOVEMENT_SUMMARY_MAPPER);
     }
 
-    public List<CourtEvent> getCourtEvents(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+    public List<CourtEvent> getCourtEvents(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
-        final var listOfCourtMovements = jdbcTemplate.query (
+        return jdbcTemplate.query(
                 getQuery("GET_COURT_EVENTS_BY_AGENCY_AND_TIME_PERIOD"),
                 createParams("agencyListFrom", agencies,
                         "agencyListTo", agencies,
                         "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
                         "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
                 COURT_EVENT_MAPPER);
-
-        return listOfCourtMovements;
     }
 
-    public List<TransferEvent> getOffenderTransfers(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+    public List<TransferEvent> getOffenderTransfers(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
-        final var listOfOffenderTransfers = jdbcTemplate.query (
+        return jdbcTemplate.query(
                 getQuery("GET_OFFENDER_TRANSFERS_BY_AGENCY_AND_TIME_PERIOD"),
                 createParams("agencyListFrom", agencies,
                         "agencyListTo", agencies,
                         "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
                         "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
                 OFFENDER_TRANSFER_MAPPER);
-
-        return listOfOffenderTransfers;
     }
 
-    public List<ReleaseEvent> getOffenderReleases(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+    public List<ReleaseEvent> getOffenderReleases(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
-        final var listOfOffenderReleases = jdbcTemplate.query (
+        return jdbcTemplate.query(
                 getQuery("GET_OFFENDER_RELEASES_BY_AGENCY_AND_DATE"),
                 createParams("agencyListFrom", agencies,
-                             "fromDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(from)),
-                             "toDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(to))),
+                        "fromDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(from)),
+                        "toDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(to))),
                 OFFENDER_RELEASE_MAPPER);
-
-        return listOfOffenderReleases;
     }
 
 }
