@@ -9,7 +9,7 @@ plugins {
     id 'groovy'
     id 'org.springframework.boot' version '2.1.7.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-    id 'com.github.ben-manes.versions' version '0.22.0'
+    id 'com.github.ben-manes.versions' version '0.24.0'
 }
 
 project.sourceCompatibility = 11
@@ -97,24 +97,23 @@ dependencies {
     implementation 'com.sun.xml.bind:jaxb-core:2.3.0.1'
     implementation 'javax.activation:activation:1.1.1'
 
-    implementation 'commons-codec:commons-codec:1.12'
-    implementation 'org.apache.commons:commons-text:1.6'
+    implementation 'commons-codec:commons-codec:1.13'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.9'
-    implementation 'com.github.jsqlparser:jsqlparser:2.0'
+    implementation 'com.github.jsqlparser:jsqlparser:3.0'
     implementation 'net.sf.ehcache:ehcache:2.10.6'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'com.zaxxer:HikariCP:3.3.1'
 
-    implementation 'io.swagger:swagger-jersey2-jaxrs:1.5.22'
+    implementation 'io.swagger:swagger-jersey2-jaxrs:1.5.23'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
     implementation 'io.springfox:springfox-swagger2:2.9.2'
-    implementation 'net.logstash.logback:logstash-logback-encoder:5.3'
-    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.5.0-BETA.2'
-    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.5.0-BETA.2'
+    implementation 'net.logstash.logback:logstash-logback-encoder:6.1'
+    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.5.0-BETA.4'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.5.0-BETA.4'
 
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'commons-io:commons-io:2.6'
-    implementation 'org.apache.commons:commons-text:1.7'
+    implementation 'org.apache.commons:commons-text:1.8'
 
     implementation 'com.github.timpeeters:spring-boot-graceful-shutdown:2.1.1'
 
@@ -125,21 +124,21 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
-    testImplementation 'io.rest-assured:rest-assured:3.3.0'
-    testImplementation 'io.rest-assured:json-schema-validator:3.3.0'
-    testImplementation 'io.rest-assured:spring-mock-mvc:3.3.0'
+    testImplementation 'io.rest-assured:rest-assured:4.1.0'
+    testImplementation 'io.rest-assured:json-schema-validator:4.1.0'
+    testImplementation 'io.rest-assured:spring-mock-mvc:4.1.0'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.google.code.gson:gson:2.8.5'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
 
     testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.7.0'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.8.0'
 
-    testImplementation 'net.serenity-bdd:serenity-core:2.0.55'
-    testImplementation 'net.serenity-bdd:serenity-junit:2.0.55'
-    testImplementation 'net.serenity-bdd:serenity-spring:2.0.55'
-    testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.37'
+    testImplementation 'net.serenity-bdd:serenity-core:2.0.70'
+    testImplementation 'net.serenity-bdd:serenity-junit:2.0.70'
+    testImplementation 'net.serenity-bdd:serenity-spring:2.0.70'
+    testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.45'
     testImplementation 'org.slf4j:slf4j-api:1.7.25'
     testCompileOnly 'org.projectlombok:lombok:1.18.8'
 }

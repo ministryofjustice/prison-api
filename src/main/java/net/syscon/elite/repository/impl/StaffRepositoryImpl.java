@@ -1,7 +1,6 @@
 package net.syscon.elite.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.model.StaffRole;
@@ -162,7 +161,7 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
         var nameFilterQuery = baseSql;
 
         if (StringUtils.isNotBlank(nameFilter)) {
-            final var upperNameFilter = StringEscapeUtils.escapeSql(nameFilter.toUpperCase());
+            final var upperNameFilter = StringUtils.replace(nameFilter.toUpperCase(), "'", "''");
 
             nameFilterQuery += String.format(NAME_FILTER_QUERY_TEMPLATE, upperNameFilter, upperNameFilter);
         }
