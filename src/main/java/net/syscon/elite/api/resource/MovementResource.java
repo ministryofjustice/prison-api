@@ -12,6 +12,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface MovementResource {
 
+    @SuppressWarnings("RestParamTypeInspection")
     @GET
     @Path("/")
     @Consumes({"application/json"})
@@ -42,6 +43,7 @@ public interface MovementResource {
             @ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
             @ApiParam(value = "If false return data for prisoners in cell locations, if true return unassigned prisoners, i.e. those in non-cell locations.", defaultValue = "false") @QueryParam("unassigned") boolean unassigned);
 
+    @SuppressWarnings("RestParamTypeInspection")
     @GET
     @Path("/rollcount/{agencyId}/movements")
     @Consumes({"application/json"})
@@ -60,13 +62,15 @@ public interface MovementResource {
     @Path("/offenders")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "", nickname = "getRecentMovementsByOffenders")
+    @ApiOperation(value = "", nickname = "getMovementsByOffenders")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = Movement.class, responseContainer = "List")})
-    List<Movement> getRecentMovementsByOffenders(
+    List<Movement> getMovementsByOffenders(
             @ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body,
-            @ApiParam(value = "movement type codes to filter by") @QueryParam("movementTypes") List<String> movementTypes);
+            @ApiParam(value = "movement type codes to filter by") @QueryParam("movementTypes") List<String> movementTypes,
+            @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") boolean latestOnly);
 
+    @SuppressWarnings("RestParamTypeInspection")
     @GET
     @Path("/{agencyId}/enroute")
     @Consumes({"application/json"})
@@ -80,6 +84,7 @@ public interface MovementResource {
             @ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
             @ApiParam(value = "Optional filter on date of movement") @QueryParam("movementDate") LocalDate movementDate);
 
+    @SuppressWarnings("RestParamTypeInspection")
     @GET
     @Path("/rollcount/{agencyId}/enroute")
     @Consumes({"application/json"})
@@ -92,7 +97,7 @@ public interface MovementResource {
     int getEnrouteOffenderMovementCount(
             @ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId, @ApiParam(value = "Optional filter on date of movement.", required = true) @QueryParam("movementDate") LocalDate movementDate);
 
-
+    @SuppressWarnings("RestParamTypeInspection")
     @GET
     @Path("/{agencyId}/in/{isoDate}")
     @Consumes({"application/json"})
@@ -133,6 +138,7 @@ public interface MovementResource {
     List<OffenderOut> getOffendersCurrentlyOut(
             @ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId);
 
+    @SuppressWarnings("RestParamTypeInspection")
     @GET
     @Path("/{agencyId}/out/{isoDate}")
     @Consumes({"application/json"})
@@ -159,13 +165,14 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderInReception> getOffendersInReception(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId);
 
+    @SuppressWarnings("RestParamTypeInspection")
     @GET
     @Path("/transfers")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Information on scheduled court, transfer and release events, and confirmed movements between two dates/times for a specified number of agencies.",
-                  notes = "Planned movements are recorded as events of type court, release or transfers/appointments. When these events are started they are actualised as external movements.",
-                  nickname = "getTransfers")
+            notes = "Planned movements are recorded as events of type court, release or transfers/appointments. When these events are started they are actualised as external movements.",
+            nickname = "getTransfers")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = TransferSummary.class),
             @ApiResponse(code = 400, message = "Invalid agency identifiers, or from time after the to time, or a time period greater than 24 hours specified, or parameter format not correct.", response = ErrorResponse.class),

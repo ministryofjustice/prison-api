@@ -10,7 +10,7 @@ public interface MovementsService {
 
     List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate, List<String> movementTypes);
 
-    List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes);
+    List<Movement> getMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes, boolean latestOnly);
 
     List<RollCount> getRollCount(String agencyId, boolean unassigned);
 
@@ -31,5 +31,5 @@ public interface MovementsService {
     List<OffenderOut> getOffendersCurrentlyOut(String agencyId);
 
     TransferSummary getTransferMovementsForAgencies(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime,
-                                                          boolean courtEvents, boolean releaseEvents, boolean transferEvents, boolean movements);
+                                                    boolean courtEvents, boolean releaseEvents, boolean transferEvents, boolean movements);
 }

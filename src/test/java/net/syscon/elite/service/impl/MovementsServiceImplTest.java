@@ -39,28 +39,42 @@ public class MovementsServiceImplTest {
         final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).fromAgencyDescription("LEEDS").toAgencyDescription("BLACKBURN").build());
         final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
 
-        when(movementsRepository.getRecentMovementsByOffenders(offenderNoList, null)).thenReturn(movements);
+        when(movementsRepository.getMovementsByOffenders(offenderNoList, null, true)).thenReturn(movements);
 
-        final var processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
+        final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, true);
         assertThat(processedMovements).extracting("toAgencyDescription").containsExactly("Blackburn");
         assertThat(processedMovements).extracting("fromAgencyDescription").containsExactly("Leeds");
 
-        verify(movementsRepository).getRecentMovementsByOffenders(offenderNoList, null);
+        verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, true);
     }
 
     @Test
-    public void testGetRecentMovements_ByOffendersNullDescriptions() {
+    public void testGetMovements_ByOffenders() {
+        final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).fromAgencyDescription("LEEDS").toAgencyDescription("BLACKBURN").build());
+        final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
+
+        when(movementsRepository.getMovementsByOffenders(offenderNoList, null, false)).thenReturn(movements);
+
+        final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, false);
+        assertThat(processedMovements).extracting("toAgencyDescription").containsExactly("Blackburn");
+        assertThat(processedMovements).extracting("fromAgencyDescription").containsExactly("Leeds");
+
+        verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, false);
+    }
+
+    @Test
+    public void testGetMovements_ByOffendersNullDescriptions() {
         final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).build());
         final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
 
-        when(movementsRepository.getRecentMovementsByOffenders(offenderNoList, null)).thenReturn(movements);
+        when(movementsRepository.getMovementsByOffenders(offenderNoList, null, true)).thenReturn(movements);
 
-        final var processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
+        final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, true);
 
-        assertThat(processedMovements.size()).isEqualTo(1);
+        assertThat(processedMovements).hasSize(1);
         assertThat(processedMovements.get(0).getFromAgencyDescription()).isEmpty();
 
-        verify(movementsRepository).getRecentMovementsByOffenders(offenderNoList, null);
+        verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, true);
     }
 
     @Test
@@ -210,44 +224,44 @@ public class MovementsServiceImplTest {
                 .movementReason("COURT")
                 .build();
 
-        when(movementsRepository.getRecentMovementsByOffenders(List.of("offender1"), Collections.emptyList()))
+        when(movementsRepository.getMovementsByOffenders(List.of("offender1"), Collections.emptyList(), true))
                 .thenReturn(List.of(movement1));
 
-        when(movementsRepository.getRecentMovementsByOffenders(List.of("offender2"), Collections.emptyList()))
+        when(movementsRepository.getMovementsByOffenders(List.of("offender2"), Collections.emptyList(), true))
                 .thenReturn(List.of(movement2));
 
-        final var movements = movementsService.getRecentMovementsByOffenders(offenders, Collections.emptyList());
+        final var movements = movementsService.getMovementsByOffenders(offenders, Collections.emptyList(), true);
 
         assertThat(movements).containsSequence(List.of(movement1, movement2));
 
-        verify(movementsRepository).getRecentMovementsByOffenders(List.of("offender1"), Collections.emptyList());
-        verify(movementsRepository).getRecentMovementsByOffenders(List.of("offender2"), Collections.emptyList());
+        verify(movementsRepository).getMovementsByOffenders(List.of("offender1"), Collections.emptyList(), true);
+        verify(movementsRepository).getMovementsByOffenders(List.of("offender2"), Collections.emptyList(), true);
     }
 
 
     @Test
     public void testMovementsForAgenciesBetweenTwoTimes() {
 
-        List<MovementSummary> listOfMovements = List.of(
+        final var listOfMovements = List.of(
                 MovementSummary.builder().offenderNo("1111").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("LEI").fromAgencyDescription("Leicester").toAgency("MDI").toAgencyDescription("Midlands").movementReason("Court").build(),
                 MovementSummary.builder().offenderNo("2222").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("LEI").toAgencyDescription("Leicester").movementReason("Transfer").build(),
                 MovementSummary.builder().offenderNo("4333").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("HOW").toAgencyDescription("Howden").movementReason("Transfer").build()
         );
 
-        List<CourtEvent> listOfCourtEvents = List.of(
+        final var listOfCourtEvents = List.of(
                 CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(LocalDateTime.now()).build()
         );
 
-        List<ReleaseEvent> listOfReleaseEvents = List.of(
+        final var listOfReleaseEvents = List.of(
                 ReleaseEvent.builder().offenderNo("6666").movementTypeCode("REL").createDateTime(LocalDateTime.now()).build()
         );
 
-        List<TransferEvent> listOfTransferEvents = List.of(
+        final var listOfTransferEvents = List.of(
                 TransferEvent.builder().offenderNo("7777").eventClass("TRN").createDateTime(LocalDateTime.now()).build()
         );
 
-        LocalDateTime from = LocalDateTime.parse("2019-05-01T11:00:00");
-        LocalDateTime to = LocalDateTime.parse("2019-05-01T17:00:00");
+        final var from = LocalDateTime.parse("2019-05-01T11:00:00");
+        final var to = LocalDateTime.parse("2019-05-01T17:00:00");
         final var agencyList = List.of("LEI", "MDI");
 
         when(movementsRepository.getCompletedMovementsForAgencies(agencyList, from, to)).thenReturn(listOfMovements);
@@ -255,7 +269,10 @@ public class MovementsServiceImplTest {
         when(movementsRepository.getOffenderReleases(agencyList, from, to)).thenReturn(listOfReleaseEvents);
         when(movementsRepository.getOffenderTransfers(agencyList, from, to)).thenReturn(listOfTransferEvents);
 
-        boolean courtEvents = true, releaseEvents = true, transferEvents = true, movements = true;
+        final var courtEvents = true;
+        final var releaseEvents = true;
+        final var transferEvents = true;
+        final var movements = true;
 
         final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
 
@@ -278,11 +295,14 @@ public class MovementsServiceImplTest {
     public void testMovementsForAgenciesNoAgencyCodes() {
 
         // No agency identifiers provided
-        LocalDateTime from = LocalDateTime.parse("2019-05-01T11:00:00");
-        LocalDateTime to = LocalDateTime.parse("2019-05-01T17:00:00");
+        final var from = LocalDateTime.parse("2019-05-01T11:00:00");
+        final var to = LocalDateTime.parse("2019-05-01T17:00:00");
         final var agencyList = Collections.<String> emptyList();
 
-        boolean courtEvents = true, releaseEvents = true, transferEvents = true, movements = true;
+        final var courtEvents = true;
+        final var releaseEvents = true;
+        final var transferEvents = true;
+        final var movements = true;
 
         assertThatThrownBy(() -> {
             final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
@@ -295,11 +315,14 @@ public class MovementsServiceImplTest {
     public void testAgencyEventsInvalidDateRange() {
 
         // From time is AFTER the to time
-        LocalDateTime from = LocalDateTime.parse("2019-05-01T17:00:00");
-        LocalDateTime to = LocalDateTime.parse("2019-05-01T11:00:00");
+        final var from = LocalDateTime.parse("2019-05-01T17:00:00");
+        final var to = LocalDateTime.parse("2019-05-01T11:00:00");
         final var agencyList = List.of("LEI", "MDI");
 
-        boolean courtEvents = true, releaseEvents = true, transferEvents = true, movements = true;
+        final var courtEvents = true;
+        final var releaseEvents = true;
+        final var transferEvents = true;
+        final var movements = true;
 
         assertThatThrownBy(() -> {
             final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
@@ -312,12 +335,15 @@ public class MovementsServiceImplTest {
     public void testAgencyEventsNoQueryParameters() {
 
         // Valid date range
-        LocalDateTime from = LocalDateTime.parse("2019-05-01T11:00:00");
-        LocalDateTime to = LocalDateTime.parse("2019-05-01T17:00:00");
+        final var from = LocalDateTime.parse("2019-05-01T11:00:00");
+        final var to = LocalDateTime.parse("2019-05-01T17:00:00");
         final var agencyList = List.of("LEI", "MDI");
 
         // All false - no data is being requested
-        boolean courtEvents = false, releaseEvents = false, transferEvents = false, movements = false;
+        final var courtEvents = false;
+        final var releaseEvents = false;
+        final var transferEvents = false;
+        final var movements = false;
 
         assertThatThrownBy(() -> {
             final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
@@ -329,19 +355,22 @@ public class MovementsServiceImplTest {
     @Test
     public void testAgencyEventsCombinationQuery() {
 
-        List<CourtEvent> listOfCourtEvents = List.of(
+        final var listOfCourtEvents = List.of(
                 CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(LocalDateTime.now()).build()
         );
 
-        List<TransferEvent> listOfTransferEvents = List.of(
+        final var listOfTransferEvents = List.of(
                 TransferEvent.builder().offenderNo("7777").eventClass("TRN").createDateTime(LocalDateTime.now()).build()
         );
 
-        LocalDateTime from = LocalDateTime.parse("2019-05-01T11:00:00");
-        LocalDateTime to = LocalDateTime.parse("2019-05-01T17:00:00");
+        final var from = LocalDateTime.parse("2019-05-01T11:00:00");
+        final var to = LocalDateTime.parse("2019-05-01T17:00:00");
         final var agencyList = List.of("LEI", "MDI");
 
-        boolean courtEvents = true, releaseEvents = false, transferEvents = true, movements = false;
+        final var courtEvents = true;
+        final var releaseEvents = false;
+        final var transferEvents = true;
+        final var movements = false;
 
         when(movementsRepository.getCourtEvents(agencyList, from, to)).thenReturn(listOfCourtEvents);
         when(movementsRepository.getOffenderTransfers(agencyList, from, to)).thenReturn(listOfTransferEvents);

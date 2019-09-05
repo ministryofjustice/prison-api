@@ -38,16 +38,16 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, List<String> movementTypes) {
+    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
         return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY', 'GLOBAL_SEARCH')")
-    public List<Movement> getRecentMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes) {
+    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
         final var movements = Lists.partition(offenderNumbers, maxBatchSize)
                 .stream()
-                .map(offenders -> movementsRepository.getRecentMovementsByOffenders(offenders, movementTypes))
+                .map(offenders -> movementsRepository.getMovementsByOffenders(offenders, movementTypes, latestOnly))
                 .flatMap(List::stream);
 
         return movements.map(movement -> movement.toBuilder()
@@ -171,8 +171,8 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public TransferSummary getTransferMovementsForAgencies(List<String> agencyIds,
-                                                           LocalDateTime fromDateTime, LocalDateTime toDateTime,
+    public TransferSummary getTransferMovementsForAgencies(final List<String> agencyIds,
+                                                           final LocalDateTime fromDateTime, final LocalDateTime toDateTime,
                                                            final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents, final boolean movements) {
 
         final var badRequestMsg = checkTransferParameters(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
@@ -181,28 +181,28 @@ public class MovementsServiceImpl implements MovementsService {
             throw new BadRequestException(badRequestMsg);
         }
 
-        List<CourtEvent> listOfCourtEvents;
+        final List<CourtEvent> listOfCourtEvents;
         if (courtEvents) {
             listOfCourtEvents = movementsRepository.getCourtEvents(agencyIds, fromDateTime, toDateTime);
         } else {
             listOfCourtEvents = List.of();
         }
 
-        List<ReleaseEvent> listOfReleaseEvents;
+        final List<ReleaseEvent> listOfReleaseEvents;
         if (releaseEvents) {
             listOfReleaseEvents = movementsRepository.getOffenderReleases(agencyIds, fromDateTime, toDateTime);
         } else {
             listOfReleaseEvents = List.of();
         }
 
-        List<TransferEvent> listOfTransferEvents;
+        final List<TransferEvent> listOfTransferEvents;
         if (transferEvents) {
             listOfTransferEvents = movementsRepository.getOffenderTransfers(agencyIds, fromDateTime, toDateTime);
         } else {
             listOfTransferEvents = List.of();
         }
 
-        List<MovementSummary> listOfMovements;
+        final List<MovementSummary> listOfMovements;
         if (movements) {
             listOfMovements = movementsRepository.getCompletedMovementsForAgencies(agencyIds, fromDateTime, toDateTime);
         } else {
@@ -217,9 +217,9 @@ public class MovementsServiceImpl implements MovementsService {
                 .build();
     }
 
-    private final String checkTransferParameters(List<String> agencyIds, LocalDateTime fromDateTime, LocalDateTime toDateTime,
-                                                final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents,
-                                                final boolean movements) {
+    private final String checkTransferParameters(final List<String> agencyIds, final LocalDateTime fromDateTime, final LocalDateTime toDateTime,
+                                                 final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents,
+                                                 final boolean movements) {
 
         // Needs at least one agency ID specified
         if (CollectionUtils.isEmpty(agencyIds)) {
