@@ -175,7 +175,7 @@ public class BookingResourceTest extends ResourceTest {
     public void testCreateNewAlert() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.UPDATE_ALERT);
 
-        final var body = CreateAlert.builder().alertCode("X").alertType("XX").comment("Attacked staff")
+        final var body = CreateAlert.builder().alertType("L").alertCode("LPQAA").comment("comments")
                 .alertDate(LocalDate.now()).build();
 
         final var response = testRestTemplate.exchange(

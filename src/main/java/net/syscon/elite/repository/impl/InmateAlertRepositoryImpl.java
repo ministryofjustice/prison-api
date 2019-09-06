@@ -41,8 +41,23 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
         .put("UPDATE_LAST_NAME", new FieldMapper("expiredByLastName"))
         .build();
 
+    @Override
+    public List<Alert> getActiveAlerts(final long bookingId) {
+        final var sql = getQuery("FIND_INMATE_ALERTS");
+
+        final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+
+        return jdbcTemplate.query(
+                sql,
+                createParams(
+                        "bookingId", bookingId,
+                        "alertStatus", "ACTIVE"
+                ),
+                alertMapper);
+    }
+
 	@Override
-    public Page<Alert> getInmateAlerts(final long bookingId, final String query, final String orderByField, final Order order, final long offset, final long limit) {
+    public Page<Alert> getAlerts(final long bookingId, final String query, final String orderByField, final Order order, final long offset, final long limit) {
         final var initialSql = getQuery("FIND_INMATE_ALERTS");
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
 
@@ -58,14 +73,14 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 
         final var results = jdbcTemplate.query(
                 sql,
-                createParams("bookingId", bookingId, "offset", offset, "limit", limit),
+                createParams("bookingId", bookingId, "offset", offset, "limit", limit, "alertStatus", null),
                 paRowMapper);
 
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
 	@Override
-    public Optional<Alert> getInmateAlerts(final long bookingId, final long alertSeqId) {
+    public Optional<Alert> getAlert(final long bookingId, final long alertSeqId) {
         final var initialSql = getQuery("FIND_INMATE_ALERT");
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
         final var sql = builder.build();
@@ -86,7 +101,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	}
 
     @Override
-    public List<Alert> getInmateAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
+    public List<Alert> getAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
         final var basicSql = getQuery("FIND_INMATE_OFFENDERS_ALERTS");
         final var initialSql = latestOnly ? basicSql + " AND B.BOOKING_SEQ=1" : basicSql;
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
@@ -105,9 +120,27 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
+    public Optional<Alert> updateAlert(final String username, final long bookingId, final long alertSeq, final UpdateAlert alert) {
+        final var sql = getQuery("UPDATE_ALERT");
+
+        jdbcTemplate.update(
+                sql,
+                createParams(
+                        "alertSeq", alertSeq,
+                        "bookingId", bookingId,
+                        "alertStatus", alert.getAlertStatus(),
+                        "expiryDate", DateTimeConverter.toDate(alert.getExpiryDate()),
+                        "modifyUserId", username
+                )
+        );
+
+        return getAlert(bookingId, alertSeq);
+    }
+
+    @Override
     public long createNewAlert(final long bookingId, final CreateAlert alert, final String username, String agencyId) {
         final var createAlert = getQuery("CREATE_ALERT");
-        final var generatedKeyHolder = new GeneratedKeyHolder();
+        final var newAlertsSeqHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
                 createAlert,
@@ -117,14 +150,14 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "caseLoadType", "INST",
                         "alertType", alert.getAlertType(),
                         "alertSubType", alert.getAlertCode(),
-                        "alertDate", alert.getAlertDate(),
+                        "alertDate", DateTimeConverter.toDate(alert.getAlertDate()),
                         "commentText", alert.getComment(),
                         "username", username
                 ),
-                generatedKeyHolder,
+                newAlertsSeqHolder,
                 new String[]{"ALERT_SEQ"});
 
-        final long alertSeq = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
+        final long alertSeq = Objects.requireNonNull(newAlertsSeqHolder.getKey()).longValue();
 
         writeWorkFlowEntriesForAlertsRequiredByPNOMIS(bookingId, alertSeq, username, agencyId);
 
@@ -161,21 +194,4 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
         );
     }
 
-    @Override
-    public Optional<Alert> updateAlert(final String username, final long bookingId, final long alertSeq, final UpdateAlert alert) {
-	    final var sql = getQuery("UPDATE_ALERT");
-
-	    jdbcTemplate.update(
-	            sql,
-                createParams(
-                        "alertSeq", alertSeq,
-                        "bookingId", bookingId,
-                        "alertStatus", alert.getAlertStatus(),
-                        "expiryDate", alert.getExpiryDate(),
-                        "modifyUserId", username
-                )
-        );
-
-        return getInmateAlerts(bookingId, alertSeq);
-    }
 }
