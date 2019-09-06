@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.CaseNoteUsageByBookingId;
 import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.web.config.CacheConfig;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -23,7 +24,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -44,10 +44,9 @@ public class CaseNoteRepositoryTest {
     public void testGetCaseNoteTypesByCaseLoadType() {
         final var types = repository.getCaseNoteTypesByCaseLoadType("COMM");
 
-        assertNotNull(types);
-        assertFalse(types.isEmpty());
-
-        types.forEach(type -> assertThat(type.getSubCodes()).isEmpty());
+        assertThat(types).isNotEmpty();
+        //noinspection unchecked
+        assertThat(types).extracting(ReferenceCode::getSubCodes).containsOnly(List.of());
     }
 
     @Test
@@ -56,15 +55,11 @@ public class CaseNoteRepositoryTest {
 
         // Spot check
         final var type = types.stream().filter(x -> x.getCode().equals("DRR")).findFirst();
+        assertThat(type).isPresent();
 
-        assertTrue(type.isPresent());
+        final var subTypes = type.orElseThrow().getSubCodes();
 
-        final var subTypes = type.get().getSubCodes();
-
-        assertNotNull(subTypes);
-        assertFalse(subTypes.isEmpty());
-
-        assertTrue(subTypes.stream().anyMatch(x -> x.getCode().equals("DTEST")));
+        assertThat(subTypes).extracting(ReferenceCode::getCode).contains("DTEST");
     }
 
     @Test
@@ -101,7 +96,7 @@ public class CaseNoteRepositoryTest {
         final long staffId = -2;
         final long caseNoteId = repository.createCaseNote(bookingId, newCaseNote, sourceCode, username, staffId);
 
-        final var caseNote = repository.getCaseNote(-4, caseNoteId).get();
+        final var caseNote = repository.getCaseNote(-4, caseNoteId).orElseThrow();
 
         final var contactDateTime = caseNote.getOccurrenceDateTime();
         final var createDateTime = caseNote.getCreationDateTime();
