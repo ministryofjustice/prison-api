@@ -148,8 +148,8 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "bookingId", bookingId,
                         "status", "ACTIVE",
                         "caseLoadType", "INST",
-                        "alertType", alert.getAlertType(),
-                        "alertSubType", alert.getAlertCode(),
+                        "alertType", alert.getAlertType().toUpperCase(),
+                        "alertSubType", alert.getAlertCode().toUpperCase(),
                         "alertDate", DateTimeConverter.toDate(alert.getAlertDate()),
                         "commentText", alert.getComment(),
                         "username", username

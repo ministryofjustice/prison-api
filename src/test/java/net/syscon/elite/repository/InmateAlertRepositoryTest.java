@@ -161,4 +161,22 @@ public class InmateAlertRepositoryTest {
         assertThat(repository.getActiveAlerts(-13)).hasSize(0);
         assertThat(repository.getActiveAlerts(-5)).hasSize(2);
     }
+
+    @Test
+    public void testThatAlertCodeAndType_AreInsertedInUpperCase() {
+        final var alert =  CreateAlert
+                .builder()
+                .alertDate(LocalDate.now())
+                .alertType("x")
+                .alertCode("xx")
+                .comment("Poor behaviour")
+                .build();
+
+        final var latestAlertSeq = repository.createNewAlert(-10L, alert, "ITAG_USER", "LEI");
+
+        final var savedAlert = repository.getAlert(-10L, latestAlertSeq).orElseThrow();
+
+        assertThat(savedAlert.getAlertType()).isEqualTo("X");
+        assertThat(savedAlert.getAlertType()).isEqualTo("XX");
+    }
 }
