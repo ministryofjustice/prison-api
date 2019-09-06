@@ -148,7 +148,7 @@ public class InmateAlertServiceImplTest {
                 .alertType("XX")
                 .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
                 .comment("comment1")
-                .build())).as("Alert already active.").isInstanceOf(IllegalArgumentException.class);
+                .build())).as("Alert already exists for this offender.").isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

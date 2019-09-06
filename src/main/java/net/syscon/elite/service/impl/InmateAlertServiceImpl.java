@@ -124,7 +124,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
                         al.getAlertType().equalsIgnoreCase(alert.getAlertType()) &&
                                 al.getAlertCode().equalsIgnoreCase(alert.getAlertCode()));
 
-        if (matches) throw new IllegalArgumentException("Alert already active.");
+        if (matches) throw new IllegalArgumentException("Alert already exists for this offender.");
 
         final var username = authenticationFacade.getCurrentUsername();
         final var userDetails = userService.getUserByUsername(username);
