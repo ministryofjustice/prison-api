@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InmateAlertRepository {
-	Page<Alert> getAlerts(final long bookingId, final String query, final String orderByField, final Order order, final long offset, final long limit);
-	List<Alert> getActiveAlerts(final long bookingId);
-	Optional<Alert> getAlert(final long bookingId, final long alertSeqId);
-	List<Alert> getAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order);
+	Page<Alert> getAlerts(long bookingId, String query, String orderByField, Order order, long offset, long limit);
+	List<Alert> getActiveAlerts(long bookingId);
+	Optional<Alert> getAlert(long bookingId, long alertSeqId);
+	List<Alert> getAlertsByOffenderNos(String agencyId, List<String> offenderNos, boolean latestOnly, String query, String orderByField, Order order);
 
-    long createNewAlert(final long bookingId, final CreateAlert alert, final String username, String agencyId);
-    Optional<Alert> updateAlert(final String username, long bookingId, long alertSeq, final UpdateAlert alert);
+    long createNewAlert(long bookingId, CreateAlert alert, String username, String agencyId);
+    Optional<Alert> updateAlert(String username, long bookingId, long alertSeq, UpdateAlert alert);
 }
