@@ -177,6 +177,6 @@ public class InmateAlertRepositoryTest {
         final var savedAlert = repository.getAlert(-10L, latestAlertSeq).orElseThrow();
 
         assertThat(savedAlert.getAlertType()).isEqualTo("X");
-        assertThat(savedAlert.getAlertType()).isEqualTo("XX");
+        assertThat(savedAlert.getAlertCode()).isEqualTo("XX");
     }
 }
