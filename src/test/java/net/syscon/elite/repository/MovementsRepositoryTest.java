@@ -1,8 +1,6 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.OffenderIn;
-import net.syscon.elite.api.model.OffenderInReception;
-import net.syscon.elite.api.model.OffenderOut;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,6 +37,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveAListOfMovementDetails1() {
+
         final var threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), Collections.emptyList());
         assertThat(recentMovements).hasSize(1); // TAP is excluded
@@ -105,27 +102,37 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRecentMovementsByOffendersAndMovementTypes() {
-        final var movements = repository.getRecentMovementsByOffenders(Arrays.asList("A6676RS"), Arrays.asList("TRN"));
+        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of("TRN"), true);
 
-        assertThat(movements).hasSize(1);
-        assertThat(movements.get(0).getToAgency()).isEqualTo("MDI");
+        assertThat(movements).extracting(Movement::getToAgency).containsExactly("MDI");
+    }
+
+    @Test
+    public void canRetrieveMovementsByOffendersAndMovementTypes() {
+        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of("TRN"), false);
+
+        assertThat(movements).extracting(Movement::getToAgency).containsOnly("BMI", "MDI");
     }
 
     @Test
     public void canRetrieveRecentMovementsByOffenders() {
-        final var movements = repository.getRecentMovementsByOffenders(Arrays.asList("A6676RS"), new ArrayList<>());
+        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of(), true);
 
-        assertThat(movements).hasSize(1);
-        assertThat(movements.get(0).getToCity()).isEqualTo("Wadhurst");
+        assertThat(movements).extracting(Movement::getToCity).containsExactly("Wadhurst");
+    }
+
+    @Test
+    public void canRetrieveMovementsByOffenders() {
+        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of(), false);
+
+        assertThat(movements).extracting(Movement::getFromAgency).containsOnly("BMI", "LEI");
     }
 
     @Test
     public void canRetrieveEnrouteOffenderMovements() {
         final var movements = repository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2017, 10, 12));
 
-        assertThat(movements).hasSize(2);
-        assertThat(movements.get(0).getOffenderNo()).isEqualTo("A1183SH");
-        assertThat(movements.get(1).getOffenderNo()).isEqualTo("A1183AD");
+        assertThat(movements).extracting(OffenderMovement::getOffenderNo).containsOnly("A1183SH", "A1183AD");
     }
 
     @Test
@@ -192,7 +199,7 @@ public class MovementsRepositoryTest {
     @Test
     public void canRetrieveRecentMoves_byMovementTypes() {
         final var threshold = LocalDateTime.of(2000, Month.JANUARY, 1, 0, 0, 0);
-        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), Collections.singletonList("TAP"));
+        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), List.of("TAP"));
         assertThat(recentMovements).hasSize(1);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
