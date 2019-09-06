@@ -136,9 +136,9 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         telemetryClient.trackEvent("Alert created", Map.of(
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertId),
-                "alertDate", String.valueOf(alert.getAlertDate()),
-                "alertCode", String. valueOf(alert.getAlertCode()),
-                "alertType", String.valueOf(alert.getAlertType()),
+                "alertDate", alert.getAlertDate().toString(),
+                "alertCode", alert.getAlertCode(),
+                "alertType", alert.getAlertType(),
                 "created_by", username
         ), null);
 
