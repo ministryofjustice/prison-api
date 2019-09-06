@@ -249,16 +249,17 @@ public class BookingResourceImpl implements BookingResource {
         return new IncidentsResource.IncidentListResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(),
                 incidentService.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles));
-
     }
 
     @Override
+    @ProxyUser
     public Response postAlert(final Long bookingId, final CreateAlert alert) {
         final var alertId = inmateAlertService.createNewAlert(bookingId, alert);
         return Response.status(201).entity(new AlertCreated(alertId)).build();
     }
 
     @Override
+    @ProxyUser
     public Response updateAlert(final Long bookingId, final Long alertSeq, final UpdateAlert alert) {
         final var updatedAlert = inmateAlertService.updateAlert(bookingId, alertSeq, alert);
         return Response.status(200).entity(updatedAlert).build();

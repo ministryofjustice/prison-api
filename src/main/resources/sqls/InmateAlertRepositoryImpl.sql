@@ -23,7 +23,7 @@ FIND_INMATE_ALERTS {
               LEFT JOIN STAFF_USER_ACCOUNTS SUAU on SUAU.USERNAME = OA.MODIFY_USER_ID
               left join STAFF_MEMBERS SMU on SUAU.STAFF_ID = SMU.STAFF_ID
 
-       where OFFENDER_BOOK_ID = :bookingId
+       WHERE OA.OFFENDER_BOOK_ID = :bookingId and (:alertStatus IS NULL OR OA.ALERT_STATUS = :alertStatus)
 }
 
 FIND_INMATE_ALERT {

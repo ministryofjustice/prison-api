@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
 import net.syscon.elite.api.model.UpdateAlert;
@@ -16,11 +17,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +38,9 @@ public class InmateAlertServiceImplTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private TelemetryClient telemetryClient;
+
     @InjectMocks
     private InmateAlertServiceImpl serviceToTest;
 
@@ -43,7 +48,7 @@ public class InmateAlertServiceImplTest {
     public void testCorrectNumberAlertReturned() {
         final var alerts = createAlerts();
 
-        when(inmateAlertRepository.getInmateAlerts(eq(-1L), any(), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
+        when(inmateAlertRepository.getAlerts(eq(-1L), any(), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
 
         final var returnedAlerts = serviceToTest.getInmateAlerts(-1L, null, null, null, 0, 10);
 
@@ -54,7 +59,7 @@ public class InmateAlertServiceImplTest {
     public void testCorrectExpiredAlerts() {
         final var alerts = createAlerts();
 
-        when(inmateAlertRepository.getInmateAlerts(eq(-1L), isNull(), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
+        when(inmateAlertRepository.getAlerts(eq(-1L), isNull(), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
 
         final var returnedAlerts = serviceToTest.getInmateAlerts(-1L, null, null, null, 0, 10);
 
@@ -129,6 +134,65 @@ public class InmateAlertServiceImplTest {
         assertThat(updatedAlert).isEqualTo(alert);
 
         verify(inmateAlertRepository).updateAlert("ITAG_USER", -1L, 4L, updateAlert);
+    }
+
+    @Test
+    public void testThatYouCannotCreateDuplicateAlerts() {
+        final var originalAlert = Alert.builder().alertCode("X").alertType("XX").build();
+
+        when(inmateAlertRepository.getActiveAlerts(anyLong())).thenReturn(List.of(originalAlert));
+
+        assertThatThrownBy(() -> serviceToTest.createNewAlert(-1L, CreateAlert
+                .builder()
+                .alertCode("X")
+                .alertType("XX")
+                .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
+                .comment("comment1")
+                .build())).as("Alert already active.").isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testThatTelemetryEventHasBeenRaised_OnAlertCreation() {
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(userService.getUserByUsername("ITAG_USER")).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
+        when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString(), anyString())).thenReturn(1L);
+
+        final var alertId = serviceToTest.createNewAlert(-1L, CreateAlert
+                .builder()
+                .alertCode("X")
+                .alertType("XX")
+                .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
+                .comment("comment1")
+                .build());
+
+        verify(telemetryClient).trackEvent("Alert created", Map.of(
+                "alertSeq", String.valueOf(alertId),
+                "alertDate",  LocalDate.now().atStartOfDay().toLocalDate().toString(),
+                "alertCode", "X",
+                "alertType", "XX",
+                "bookingId", "-1",
+                "created_by", "ITAG_USER"
+        ), null);
+    }
+
+    @Test
+    public void testThatTelemetryEventHasBeenRaised_OnAlertUpdate() {
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(inmateAlertRepository.updateAlert(anyString(), anyLong(), anyLong(), any()))
+                .thenReturn(Optional.of(Alert.builder().build()));
+
+        serviceToTest.updateAlert(-1L,-2L,  UpdateAlert
+                .builder()
+                .alertStatus("INACTIVE")
+                .expiryDate(LocalDate.now())
+                .build());
+
+        verify(telemetryClient).trackEvent("Alert updated", Map.of(
+                "bookingId", "-1",
+                "alertSeq", "-2",
+                "expiryDate",  LocalDate.now().atStartOfDay().toLocalDate().toString(),
+                "updated_by", "ITAG_USER"
+        ), null);
     }
 
     private Page<Alert> createAlerts() {

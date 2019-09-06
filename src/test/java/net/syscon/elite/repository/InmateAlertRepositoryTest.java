@@ -49,7 +49,7 @@ public class InmateAlertRepositoryTest {
 
     @Test
     public void testGetInmateAlertsByOffenderNos() {
-        final var alerts = repository.getInmateAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), true, null, null, Order.ASC);
+        final var alerts = repository.getAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), true, null, null, Order.ASC);
 
         assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertType", "alertCode", "comment", "dateExpires", "active")
                 .containsExactly(
@@ -64,7 +64,7 @@ public class InmateAlertRepositoryTest {
 
     @Test
     public void testGetInmateAlertsByOffenderNosOrdered() {
-        final var alerts = repository.getInmateAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, null, "alertType", Order.ASC);
+        final var alerts = repository.getAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, null, "alertType", Order.ASC);
 
         assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertType")
                 .containsExactly(
@@ -78,7 +78,7 @@ public class InmateAlertRepositoryTest {
 
     @Test
     public void testGetInmateAlertsByOffenderNosQuery() {
-        final var alerts = repository.getInmateAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, "alertCode:eq:'XA',or:alertCode:eq:'RSS'", null, Order.ASC);
+        final var alerts = repository.getAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, "alertCode:eq:'XA',or:alertCode:eq:'RSS'", null, Order.ASC);
 
         assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertCode")
                 .containsExactly(
@@ -149,10 +149,16 @@ public class InmateAlertRepositoryTest {
                 .build());
 
 
-        final var alert = repository.getInmateAlerts(bookingId, alertSeq).orElse(Alert.builder().build());
+        final var alert = repository.getAlert(bookingId, alertSeq).orElse(Alert.builder().build());
 
         assertThat(alert)
                 .extracting( "alertId", "comment", "dateExpires", "active")
                 .contains( alertSeq, "Test alert for expiry", expiryDate, false);
+    }
+
+    @Test
+    public void testThatOnlyActiveAlertsAreReturned() {
+        assertThat(repository.getActiveAlerts(-13)).hasSize(0);
+        assertThat(repository.getActiveAlerts(-5)).hasSize(2);
     }
 }
