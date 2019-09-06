@@ -220,7 +220,7 @@ public class InmateAlertServiceImplTest {
         assertThatThrownBy(() ->
                 serviceToTest.createNewAlert(-1L, CreateAlert.builder().alertType("X").build()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Alert type does not exists.");
+                .hasMessage("Alert type does not exist.");
     }
 
     @Test
