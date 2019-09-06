@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -36,4 +37,12 @@ public class CreateAlert {
     @ApiModelProperty(value = "Date the alert became effective", position = 2, example = "2019-02-13", required = true)
     @NotNull
     private LocalDate alertDate;
+
+    public String getAlertType() {
+        return StringUtils.isNotBlank(alertType) ? alertType.toUpperCase() : alertType;
+    }
+
+    public String getAlertCode() {
+        return StringUtils.isNotBlank(alertCode) ? alertCode.toUpperCase() : alertCode;
+    }
 }

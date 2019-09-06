@@ -123,10 +123,10 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         final var isValidAlertCode = existingAlertCode
                 .getSubCodes()
                 .stream()
-                .anyMatch(subCode -> subCode.getCode().compareToIgnoreCase(alert.getAlertCode()) == 0);
+                .anyMatch(subCode -> subCode.getCode().equals(alert.getAlertCode()));
 
         if (!isValidAlertCode)
-            throw new IllegalArgumentException("Alert code does not exists.");
+            throw new IllegalArgumentException("Alert code does not exist.");
 
         if (alert.getAlertDate().isAfter(today))
             throw new IllegalArgumentException("Alert date cannot be in the future.");
@@ -136,8 +136,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
         final var existingActiveAlerts = inmateAlertRepository.getActiveAlerts(bookingId);
         final var matches = existingActiveAlerts
-                .stream().anyMatch(al -> al.getAlertType().equalsIgnoreCase(alert.getAlertType()) &&
-                        al.getAlertCode().equalsIgnoreCase(alert.getAlertCode()));
+                .stream().anyMatch(al -> al.getAlertType().equals(alert.getAlertType()) &&
+                        al.getAlertCode().equals(alert.getAlertCode()));
 
         if (matches) throw new IllegalArgumentException("Alert already exists for this offender.");
 
