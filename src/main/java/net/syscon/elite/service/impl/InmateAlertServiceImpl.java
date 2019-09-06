@@ -137,8 +137,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertId),
                 "alertDate", alert.getAlertDate().toString(),
-                "alertCode", alert.getAlertCode().toUpperCase(),
-                "alertType", alert.getAlertType().toUpperCase(),
+                "alertCode", alert.getAlertCode(),
+                "alertType", alert.getAlertType(),
                 "created_by", username
         ), null);
 
