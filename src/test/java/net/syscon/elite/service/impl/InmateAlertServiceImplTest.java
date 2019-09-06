@@ -1,14 +1,13 @@
 package net.syscon.elite.service.impl;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.Alert;
-import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.UpdateAlert;
-import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.UserService;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -41,6 +40,9 @@ public class InmateAlertServiceImplTest {
     @Mock
     private TelemetryClient telemetryClient;
 
+    @Mock
+    private ReferenceDomainService referenceDomainService;
+
     @InjectMocks
     private InmateAlertServiceImpl serviceToTest;
 
@@ -68,6 +70,11 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testThatAlertRepository_CreateAlertIsCalledWithCorrectParams() {
+        final ReferenceCode alertType = getAlertReferenceCode();
+
+        when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
+                .thenReturn(Optional.of(alertType));
+
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
         when(userService.getUserByUsername("ITAG_USER")).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
         when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString(), anyString())).thenReturn(1L);
@@ -90,7 +97,6 @@ public class InmateAlertServiceImplTest {
                 .comment("comment1")
                 .build(), "ITAG_USER", "LEI");
     }
-
     @Test
     public void testThatAlertDate_SevenDaysInThePastThrowsException() {
         assertThat(catchThrowable(() -> {
@@ -138,7 +144,11 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testThatYouCannotCreateDuplicateAlerts() {
+        final ReferenceCode alertType = getAlertReferenceCode();
         final var originalAlert = Alert.builder().alertCode("X").alertType("XX").build();
+
+        when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
+                .thenReturn(Optional.of(alertType));
 
         when(inmateAlertRepository.getActiveAlerts(anyLong())).thenReturn(List.of(originalAlert));
 
@@ -148,11 +158,18 @@ public class InmateAlertServiceImplTest {
                 .alertType("XX")
                 .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
                 .comment("comment1")
-                .build())).as("Alert already exists for this offender.").isInstanceOf(IllegalArgumentException.class);
+                .build()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Alert already exists for this offender.");
     }
 
     @Test
     public void testThatTelemetryEventHasBeenRaised_OnAlertCreation() {
+        final ReferenceCode alertType = getAlertReferenceCode();
+
+        when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
+                .thenReturn(Optional.of(alertType));
+
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
         when(userService.getUserByUsername("ITAG_USER")).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
         when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString(), anyString())).thenReturn(1L);
@@ -195,6 +212,33 @@ public class InmateAlertServiceImplTest {
         ), null);
     }
 
+    @Test
+    public void testThatAlertTypeIsCorrect_BeforeCreating() {
+        when(referenceDomainService.getReferenceCodeByDomainAndCode("ALERT", "X", true))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                serviceToTest.createNewAlert(-1L, CreateAlert.builder().alertType("X").build()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Alert type does not exists.");
+    }
+
+    @Test
+    public void testThatAlertCodeIsCorrect_BeforeCreating() {
+        final var alertType = new ReferenceCode();
+        final var alertCode = new ReferenceCode();
+        alertCode.setCode("A134");
+        alertType.setSubCodes(List.of(alertCode));
+
+        when(referenceDomainService.getReferenceCodeByDomainAndCode("ALERT", "X", true))
+                .thenReturn(Optional.of(alertType));
+
+        assertThatThrownBy(() ->
+                serviceToTest.createNewAlert(-1L, CreateAlert.builder().alertType("X").alertCode("XX").build()))
+               .isInstanceOf(IllegalArgumentException.class)
+               .hasMessage("Alert code does not exists.");
+    }
+
     private Page<Alert> createAlerts() {
         final var now = LocalDate.now();
 
@@ -218,5 +262,16 @@ public class InmateAlertServiceImplTest {
                 .dateCreated(dateCreated)
                 .dateExpires(dateExpires)
                 .build();
+    }
+
+
+    @NotNull
+    private ReferenceCode getAlertReferenceCode() {
+        final var alertType = new ReferenceCode();
+        alertType.setCode("XX");
+        final var alertCode = new ReferenceCode();
+        alertCode.setCode("X");
+        alertType.setSubCodes(List.of(alertCode));
+        return alertType;
     }
 }

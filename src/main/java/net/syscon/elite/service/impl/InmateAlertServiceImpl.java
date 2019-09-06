@@ -13,7 +13,9 @@ import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateAlertService;
+import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.UserService;
+import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,18 +35,20 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     private final AuthenticationFacade authenticationFacade;
     private final UserService userService;
     private final TelemetryClient telemetryClient;
+    private final ReferenceDomainService referenceDomainService;
 
     @Autowired
     public InmateAlertServiceImpl(
             final InmateAlertRepository inmateAlertRepository,
             final AuthenticationFacade authenticationFacade,
             final UserService userService,
-            final TelemetryClient telemetryClient) {
+            final TelemetryClient telemetryClient, ReferenceDomainService referenceDomainService) {
 
         this.inmateAlertRepository = inmateAlertRepository;
         this.authenticationFacade = authenticationFacade;
         this.userService = userService;
         this.telemetryClient = telemetryClient;
+        this.referenceDomainService = referenceDomainService;
     }
 
     @Override
@@ -112,6 +116,18 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         final var today = LocalDate.now();
         final var sevenDaysAgo = LocalDate.now().minusDays(7);
 
+        final var existingAlertCode = referenceDomainService
+                .getReferenceCodeByDomainAndCode(ReferenceDomain.ALERT.getDomain(), alert.getAlertType(), true)
+                .orElseThrow(() -> new IllegalArgumentException("Alert type does not exists."));
+
+        final var isValidAlertCode = existingAlertCode
+                .getSubCodes()
+                .stream()
+                .anyMatch(subCode -> subCode.getCode().compareToIgnoreCase(alert.getAlertCode()) == 0);
+
+        if (!isValidAlertCode)
+            throw new IllegalArgumentException("Alert code does not exists.");
+
         if (alert.getAlertDate().isAfter(today))
             throw new IllegalArgumentException("Alert date cannot be in the future.");
 
@@ -120,9 +136,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
         final var existingActiveAlerts = inmateAlertRepository.getActiveAlerts(bookingId);
         final var matches = existingActiveAlerts
-                .stream().anyMatch(al ->
-                        al.getAlertType().equalsIgnoreCase(alert.getAlertType()) &&
-                                al.getAlertCode().equalsIgnoreCase(alert.getAlertCode()));
+                .stream().anyMatch(al -> al.getAlertType().equalsIgnoreCase(alert.getAlertType()) &&
+                        al.getAlertCode().equalsIgnoreCase(alert.getAlertCode()));
 
         if (matches) throw new IllegalArgumentException("Alert already exists for this offender.");
 
