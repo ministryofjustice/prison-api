@@ -118,7 +118,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
         final var existingAlertCode = referenceDomainService
                 .getReferenceCodeByDomainAndCode(ReferenceDomain.ALERT.getDomain(), alert.getAlertType(), true)
-                .orElseThrow(() -> new IllegalArgumentException("Alert type does not exists."));
+                .orElseThrow(() -> new IllegalArgumentException("Alert type does not exist."));
 
         final var isValidAlertCode = existingAlertCode
                 .getSubCodes()
