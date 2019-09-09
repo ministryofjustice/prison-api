@@ -152,7 +152,10 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     @Override
     public long createNewAlert(final long bookingId, final CreateAlert alert, String agencyId) {
         final var createAlert = getQuery("CREATE_ALERT");
+        final var insertWorkFlow = getQuery("INSERT_WORK_FLOW");
+        final var insertWorkFlowLog = getQuery("INSERT_WORK_FLOW_LOG");
         final var newAlertsSeqHolder = new GeneratedKeyHolder();
+        final var generatedKeyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
                 createAlert,
@@ -169,17 +172,6 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                 new String[]{"ALERT_SEQ"});
 
         final long alertSeq = Objects.requireNonNull(newAlertsSeqHolder.getKey()).longValue();
-
-        writeWorkFlowEntriesForAlertsRequiredByPNOMIS(bookingId, alertSeq, agencyId);
-
-        return alertSeq;
-    }
-
-    private void writeWorkFlowEntriesForAlertsRequiredByPNOMIS(final long bookingId, final long alertSeq, final String agencyId) {
-        final var insertWorkFlow = getQuery("INSERT_WORK_FLOW");
-        final var insertWorkFlowLog = getQuery("INSERT_WORK_FLOW_LOG");
-
-        final var generatedKeyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
                 insertWorkFlow,
@@ -203,6 +195,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "agencyId", agencyId
                 )
         );
-    }
 
+        return alertSeq;
+    }
 }
