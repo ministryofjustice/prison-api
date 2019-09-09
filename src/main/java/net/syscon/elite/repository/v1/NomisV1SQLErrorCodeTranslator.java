@@ -1,5 +1,6 @@
 package net.syscon.elite.repository.v1;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -8,8 +9,7 @@ import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class NomisV1SQLErrorCodeTranslator extends SQLErrorCodeSQLExceptionTranslator {
@@ -57,63 +57,61 @@ public class NomisV1SQLErrorCodeTranslator extends SQLErrorCodeSQLExceptionTrans
     private static final String OFFENDER_STILL_IN_SPECIFIED_PRISON = "Offender still in specified prison";
 
     // Map user defined database exceptions to DAOExceptions
-    private static final Map<Integer, DataAccessException> SQL_EXCEPTION_MAP = new HashMap<>();
+    private static final ImmutableMap<Integer, String> SQL_EXCEPTION_MAP = ImmutableMap.<Integer, String>builder()
+            .put(20002, IDENTIFIER_INCONSISTANCY)
+            .put(20003, NO_OFFENDER_IDENTIFIER)
+            .put(20004, VISITOR_ISSUE)
+            .put(20005, OUT_OR_IN_TRANSIT)
+            .put(20006, LOCKED)
+            .put(20007, LEAD_VISITOR_ISSUE)
+            .put(20009, INSUFFICIENT_FUNDS)
+            .put(20010, NOT_DIGITAL_PRISON)
+            .put(20011, NO_TRUST_ACCOUNT)
+            .put(20013, FINANCE_EXCEPTION)
+            .put(20014, SLOT_NOT_AVAIILABLE)
+            .put(20015, OVERLAPPING_VISIT)
+            .put(20016, NO_VO_PVO_BALANCE)
+            .put(20017, NOT_IN_SPECIFIED_PRISON)
+            .put(20018, INVALID_TRANSACTION_TYPE)
+            .put(20020, SUB_ACCNT_NOT_EXIST)
+            .put(20021, NO_SUB_ACCT_BALANCE)
+            .put(20022, HOLD_AMOUNT_NOT_EXCEED)
+            .put(20023, HOLD_DATE_IN_PAST)
+            .put(20024, HOLD_NOT_FOUND)
+            .put(20025, VISIT_CANCELLED)
+            .put(20026, VISIT_COMPLETED)
+            .put(20027, VISIT_NOT_FOUND)
+            .put(20028, INVALID_CANC_CODE)
+            .put(20029, CLOSED_VISITS)
+            .put(20030, INVALID_RELATIONSHIP_TYPE)
+            .put(20031, INVALID_CONTACT_ID)
+            .put(20032, INVALID_CITY_CODE)
+            .put(20033, INVALID_COUNTY_CODE)
+            .put(20034, INVALID_COUNTRY_CODE)
+            .put(20035, DUPLICATE_CONTACT)
+            .put(20036, OFFENDER_STILL_IN_SPECIFIED_PRISON)
+            .put(20037, OFFENDER_NEVER_AT_PRISON)
+            .put(20038, OFFENDER_TRANSFERRED)
+            .put(20039, FINANCIAL_SETUP_ERROR)
+            .put(20040, SUB_ACCOUNT_NOT_EQUAL_TO_CURRENT_BALANCE)
+            .put(20041, DISBURSEMENT_ONLY)
+            .put(20042, RECEIPT_ONLY).build();
 
-    static {
-        SQL_EXCEPTION_MAP.put(20001, new EmptyResultDataAccessException(OFFENDER_NOT_FOUND, 1));
-        SQL_EXCEPTION_MAP.put(20002, new InvalidDataAccessApiUsageException(IDENTIFIER_INCONSISTANCY));
-        SQL_EXCEPTION_MAP.put(20003, new InvalidDataAccessApiUsageException(NO_OFFENDER_IDENTIFIER));
-        SQL_EXCEPTION_MAP.put(20004, new InvalidDataAccessApiUsageException(VISITOR_ISSUE));
-        SQL_EXCEPTION_MAP.put(20005, new InvalidDataAccessApiUsageException(OUT_OR_IN_TRANSIT));
-        SQL_EXCEPTION_MAP.put(20006, new InvalidDataAccessApiUsageException(LOCKED));
-        SQL_EXCEPTION_MAP.put(20007, new InvalidDataAccessApiUsageException(LEAD_VISITOR_ISSUE));
-        SQL_EXCEPTION_MAP.put(20009, new InvalidDataAccessApiUsageException(INSUFFICIENT_FUNDS));
-        SQL_EXCEPTION_MAP.put(20010, new InvalidDataAccessApiUsageException(NOT_DIGITAL_PRISON));
-        SQL_EXCEPTION_MAP.put(20011, new InvalidDataAccessApiUsageException(NO_TRUST_ACCOUNT));
-        SQL_EXCEPTION_MAP.put(20012, new InvalidDataAccessApiUsageException(PRISON_NOT_FOUND));
-        SQL_EXCEPTION_MAP.put(20013, new InvalidDataAccessApiUsageException(FINANCE_EXCEPTION));
-        SQL_EXCEPTION_MAP.put(20014, new InvalidDataAccessApiUsageException(SLOT_NOT_AVAIILABLE));
-        SQL_EXCEPTION_MAP.put(20015, new InvalidDataAccessApiUsageException(OVERLAPPING_VISIT));
-        SQL_EXCEPTION_MAP.put(20016, new InvalidDataAccessApiUsageException(NO_VO_PVO_BALANCE));
-        SQL_EXCEPTION_MAP.put(20017, new InvalidDataAccessApiUsageException(NOT_IN_SPECIFIED_PRISON));
-        SQL_EXCEPTION_MAP.put(20018, new InvalidDataAccessApiUsageException(INVALID_TRANSACTION_TYPE));
-        SQL_EXCEPTION_MAP.put(20019, new DuplicateKeyException(DUPLICATE_POST));
-        SQL_EXCEPTION_MAP.put(20020, new InvalidDataAccessApiUsageException(SUB_ACCNT_NOT_EXIST));
-        SQL_EXCEPTION_MAP.put(20021, new InvalidDataAccessApiUsageException(NO_SUB_ACCT_BALANCE));
-        SQL_EXCEPTION_MAP.put(20022, new InvalidDataAccessApiUsageException(HOLD_AMOUNT_NOT_EXCEED));
-        SQL_EXCEPTION_MAP.put(20023, new InvalidDataAccessApiUsageException(HOLD_DATE_IN_PAST));
-        SQL_EXCEPTION_MAP.put(20024, new InvalidDataAccessApiUsageException(HOLD_NOT_FOUND));
-        SQL_EXCEPTION_MAP.put(20025, new InvalidDataAccessApiUsageException(VISIT_CANCELLED));
-        SQL_EXCEPTION_MAP.put(20026, new InvalidDataAccessApiUsageException(VISIT_COMPLETED));
-        SQL_EXCEPTION_MAP.put(20027, new InvalidDataAccessApiUsageException(VISIT_NOT_FOUND));
-        SQL_EXCEPTION_MAP.put(20028, new InvalidDataAccessApiUsageException(INVALID_CANC_CODE));
-        SQL_EXCEPTION_MAP.put(20029, new InvalidDataAccessApiUsageException(CLOSED_VISITS));
-        SQL_EXCEPTION_MAP.put(20030, new InvalidDataAccessApiUsageException(INVALID_RELATIONSHIP_TYPE));
-        SQL_EXCEPTION_MAP.put(20031, new InvalidDataAccessApiUsageException(INVALID_CONTACT_ID));
-        SQL_EXCEPTION_MAP.put(20032, new InvalidDataAccessApiUsageException(INVALID_CITY_CODE));
-        SQL_EXCEPTION_MAP.put(20033, new InvalidDataAccessApiUsageException(INVALID_COUNTY_CODE));
-        SQL_EXCEPTION_MAP.put(20034, new InvalidDataAccessApiUsageException(INVALID_COUNTRY_CODE));
-        SQL_EXCEPTION_MAP.put(20035, new InvalidDataAccessApiUsageException(DUPLICATE_CONTACT));
-        SQL_EXCEPTION_MAP.put(20036, new InvalidDataAccessApiUsageException(OFFENDER_STILL_IN_SPECIFIED_PRISON));
-        SQL_EXCEPTION_MAP.put(20037, new InvalidDataAccessApiUsageException(OFFENDER_NEVER_AT_PRISON));
-        SQL_EXCEPTION_MAP.put(20038, new InvalidDataAccessApiUsageException(OFFENDER_TRANSFERRED));
-        SQL_EXCEPTION_MAP.put(20039, new InvalidDataAccessApiUsageException(FINANCIAL_SETUP_ERROR));
-        SQL_EXCEPTION_MAP.put(20040, new InvalidDataAccessApiUsageException(SUB_ACCOUNT_NOT_EQUAL_TO_CURRENT_BALANCE));
-        SQL_EXCEPTION_MAP.put(20041, new InvalidDataAccessApiUsageException(DISBURSEMENT_ONLY));
-        SQL_EXCEPTION_MAP.put(20042, new InvalidDataAccessApiUsageException(RECEIPT_ONLY));
-
-    }
 
     @Override
     protected DataAccessException customTranslate(final String task, final String sql, final SQLException sqlEx) {
         final var errorCode = sqlEx.getErrorCode();
 
-        var dataAccessException = SQL_EXCEPTION_MAP.get(errorCode);
-        if (dataAccessException != null) {
-            dataAccessException.initCause(sqlEx);
-            throw dataAccessException;
-        }
+        final var dataAccessException = translate(errorCode, sqlEx);
+        return dataAccessException.orElseGet(() -> customTranslate(task, sql, sqlEx));
+    }
 
-        return super.customTranslate(task, sql, sqlEx);
+    private Optional<DataAccessException> translate(final int errorCode, final SQLException sqlEx) {
+        if (errorCode == 20001) throw new EmptyResultDataAccessException(OFFENDER_NOT_FOUND, 1, sqlEx);
+        if (errorCode == 20012) throw new EmptyResultDataAccessException(PRISON_NOT_FOUND, 1, sqlEx);
+        if (errorCode == 20019) throw new DuplicateKeyException(DUPLICATE_POST, sqlEx);
+
+        final var msg = SQL_EXCEPTION_MAP.get(errorCode);
+        return Optional.ofNullable(msg).map(m -> new InvalidDataAccessApiUsageException(m, sqlEx));
     }
 }
