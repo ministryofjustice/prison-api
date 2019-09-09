@@ -15,6 +15,6 @@ public interface InmateAlertRepository {
 	Optional<Alert> getAlert(long bookingId, long alertSeqId);
 	List<Alert> getAlertsByOffenderNos(String agencyId, List<String> offenderNos, boolean latestOnly, String query, String orderByField, Order order);
 
-    long createNewAlert(long bookingId, CreateAlert alert, String username, String agencyId);
-    Optional<Alert> updateAlert(String username, long bookingId, long alertSeq, UpdateAlert alert);
+    long createNewAlert(long bookingId, CreateAlert alert, String agencyId);
+    Optional<Alert> updateAlert(long bookingId, long alertSeq, UpdateAlert alert, String agencyId);
 }

@@ -77,7 +77,7 @@ public class InmateAlertServiceImplTest {
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
         when(userService.getUserByUsername("ITAG_USER")).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
-        when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString(), anyString())).thenReturn(1L);
+        when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString())).thenReturn(1L);
 
         final var alertId = serviceToTest.createNewAlert(-1L, CreateAlert
                 .builder()
@@ -95,7 +95,7 @@ public class InmateAlertServiceImplTest {
                 .alertType("XX")
                 .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
                 .comment("comment1")
-                .build(), "ITAG_USER", "LEI");
+                .build(),  "LEI");
     }
     @Test
     public void testThatAlertDate_SevenDaysInThePastThrowsException() {
@@ -133,13 +133,14 @@ public class InmateAlertServiceImplTest {
                 .build();
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
-        when(inmateAlertRepository.updateAlert(eq("ITAG_USER"), eq(-1L), eq(4L), eq(updateAlert))).thenReturn(Optional.of(alert));
+        when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
+        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any(), anyString())).thenReturn(Optional.of(alert));
 
         final var updatedAlert = serviceToTest.updateAlert(-1L, 4L, updateAlert);
 
         assertThat(updatedAlert).isEqualTo(alert);
 
-        verify(inmateAlertRepository).updateAlert("ITAG_USER", -1L, 4L, updateAlert);
+        verify(inmateAlertRepository).updateAlert(-1L, 4L, updateAlert,  "LEI");
     }
 
     @Test
@@ -172,7 +173,7 @@ public class InmateAlertServiceImplTest {
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
         when(userService.getUserByUsername("ITAG_USER")).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
-        when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString(), anyString())).thenReturn(1L);
+        when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString())).thenReturn(1L);
 
         final var alertId = serviceToTest.createNewAlert(-1L, CreateAlert
                 .builder()
@@ -194,8 +195,10 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testThatTelemetryEventHasBeenRaised_OnAlertUpdate() {
+
+        when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
-        when(inmateAlertRepository.updateAlert(anyString(), anyLong(), anyLong(), any()))
+        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any(), anyString()))
                 .thenReturn(Optional.of(Alert.builder().build()));
 
         serviceToTest.updateAlert(-1L,-2L,  UpdateAlert
