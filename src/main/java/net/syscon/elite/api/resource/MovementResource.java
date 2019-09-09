@@ -68,7 +68,7 @@ public interface MovementResource {
     List<Movement> getMovementsByOffenders(
             @ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body,
             @ApiParam(value = "movement type codes to filter by") @QueryParam("movementTypes") List<String> movementTypes,
-            @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") boolean latestOnly);
+            @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly);
 
     @SuppressWarnings("RestParamTypeInspection")
     @GET
