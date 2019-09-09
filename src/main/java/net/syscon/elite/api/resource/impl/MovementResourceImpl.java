@@ -41,8 +41,8 @@ public class MovementResourceImpl implements MovementResource {
     }
 
     @Override
-    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
-        return movementsService.getMovementsByOffenders(offenderNumbers, movementTypes, latestOnly);
+    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final Boolean latestOnly) {
+        return movementsService.getMovementsByOffenders(offenderNumbers, movementTypes, latestOnly == null ? true : latestOnly);
     }
 
     @Override
