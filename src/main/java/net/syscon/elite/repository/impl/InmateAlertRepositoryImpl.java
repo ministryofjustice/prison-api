@@ -120,17 +120,29 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public Optional<Alert> updateAlert(final String username, final long bookingId, final long alertSeq, final UpdateAlert alert) {
-        final var sql = getQuery("UPDATE_ALERT");
+    public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final UpdateAlert alert, final String agencyId) {
+        final var updateAlertSql = getQuery("UPDATE_ALERT");
+        final var insertNextWorkFlowLogEntry = getQuery("INSERT_NEXT_WORK_FLOW_LOG");
 
         jdbcTemplate.update(
-                sql,
+                updateAlertSql,
                 createParams(
                         "alertSeq", alertSeq,
                         "bookingId", bookingId,
                         "alertStatus", alert.getAlertStatus(),
-                        "expiryDate", DateTimeConverter.toDate(alert.getExpiryDate()),
-                        "modifyUserId", username
+                        "expiryDate", DateTimeConverter.toDate(alert.getExpiryDate())
+                )
+        );
+
+        jdbcTemplate.update(
+                insertNextWorkFlowLogEntry,
+                createParams(
+                        "bookingId", bookingId,
+                        "alertSeq", alertSeq,
+                        "agencyId", agencyId,
+                        "actionCode", "MOD",
+                        "workFlowStatus", "DONE",
+                        "alertCode", "ALERT"
                 )
         );
 
@@ -138,7 +150,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public long createNewAlert(final long bookingId, final CreateAlert alert, final String username, String agencyId) {
+    public long createNewAlert(final long bookingId, final CreateAlert alert, String agencyId) {
         final var createAlert = getQuery("CREATE_ALERT");
         final var newAlertsSeqHolder = new GeneratedKeyHolder();
 
@@ -151,20 +163,19 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "alertType", alert.getAlertType(),
                         "alertSubType", alert.getAlertCode(),
                         "alertDate", DateTimeConverter.toDate(alert.getAlertDate()),
-                        "commentText", alert.getComment(),
-                        "username", username
+                        "commentText", alert.getComment()
                 ),
                 newAlertsSeqHolder,
                 new String[]{"ALERT_SEQ"});
 
         final long alertSeq = Objects.requireNonNull(newAlertsSeqHolder.getKey()).longValue();
 
-        writeWorkFlowEntriesForAlertsRequiredByPNOMIS(bookingId, alertSeq, username, agencyId);
+        writeWorkFlowEntriesForAlertsRequiredByPNOMIS(bookingId, alertSeq, agencyId);
 
         return alertSeq;
     }
 
-    private void writeWorkFlowEntriesForAlertsRequiredByPNOMIS(final long bookingId, final long alertSeq, final String username, final String agencyId) {
+    private void writeWorkFlowEntriesForAlertsRequiredByPNOMIS(final long bookingId, final long alertSeq, final String agencyId) {
         final var insertWorkFlow = getQuery("INSERT_WORK_FLOW");
         final var insertWorkFlowLog = getQuery("INSERT_WORK_FLOW_LOG");
 
@@ -189,8 +200,8 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "workFlowSeq", 1,
                         "actionCode", "ENT",
                         "workFlowStatus", "DONE",
-                        "agencyId", agencyId,
-                        "username", username)
+                        "agencyId", agencyId
+                )
         );
     }
 

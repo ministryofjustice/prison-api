@@ -144,7 +144,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         final var username = authenticationFacade.getCurrentUsername();
         final var userDetails = userService.getUserByUsername(username);
 
-        final var alertId =  inmateAlertRepository.createNewAlert(bookingId, alert, username,
+        final var alertId =  inmateAlertRepository.createNewAlert(bookingId, alert,
                 userDetails.getActiveCaseLoadId());
 
         log.info("Created new alert {}", alert);
@@ -165,7 +165,10 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     public Alert updateAlert(final long bookingId, final long alertSeq, final UpdateAlert updateAlert) {
         final var username = authenticationFacade.getCurrentUsername();
-        final var alert = inmateAlertRepository.updateAlert(username, bookingId, alertSeq, updateAlert)
+        final var userDetails = userService.getUserByUsername(username);
+
+        final var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, updateAlert,
+                userDetails.getActiveCaseLoadId())
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
         alert.setExpired(isExpiredAlert(alert));

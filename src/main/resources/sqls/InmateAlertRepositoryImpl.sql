@@ -34,10 +34,20 @@ FIND_INMATE_ALERT {
               ALERT_CODE,
               COALESCE(alCode.DESCRIPTION, ALERT_CODE) as ALERT_CODE_DESC,
               EXPIRY_DATE,
-              COMMENT_TEXT
+              COMMENT_TEXT,
+              SMC.FIRST_NAME                              ADD_FIRST_NAME,
+              SMC.LAST_NAME                               ADD_LAST_NAME,
+              SMU.FIRST_NAME                              UPDATE_FIRST_NAME,
+              SMU.LAST_NAME                               UPDATE_LAST_NAME
        from offender_alerts
               LEFT JOIN REFERENCE_CODES altype ON altype.DOMAIN = 'ALERT' and altype.CODE = ALERT_TYPE
               LEFT JOIN REFERENCE_CODES alCode ON alCode.DOMAIN = 'ALERT_CODE' and alCode.CODE = ALERT_CODE
+
+              LEFT JOIN STAFF_USER_ACCOUNTS SUAC ON SUAC.USERNAME = offender_alerts.CREATE_USER_ID
+              LEFT JOIN STAFF_MEMBERS SMC on SUAC.STAFF_ID = SMC.STAFF_ID
+
+              LEFT JOIN STAFF_USER_ACCOUNTS SUAU on SUAU.USERNAME = offender_alerts.MODIFY_USER_ID
+              left join STAFF_MEMBERS SMU on SUAU.STAFF_ID = SMU.STAFF_ID
        where OFFENDER_BOOK_ID = :bookingId
          and ALERT_SEQ = :alertSeqId
 }
@@ -60,4 +70,104 @@ FROM OFFENDER_ALERTS OA
        LEFT JOIN REFERENCE_CODES ALTYPE ON ALTYPE.DOMAIN = 'ALERT' AND ALTYPE.CODE = OA.ALERT_TYPE
        LEFT JOIN REFERENCE_CODES ALCODE ON ALCODE.DOMAIN = 'ALERT_CODE' AND ALCODE.CODE = OA.ALERT_CODE
 WHERE O.OFFENDER_ID_DISPLAY IN (:offenderNos) AND (:agencyId IS NULL OR B.AGY_LOC_ID = :agencyId)
+}
+
+
+CREATE_ALERT {
+INSERT INTO OFFENDER_ALERTS (
+     OFFENDER_BOOK_ID,
+     ROOT_OFFENDER_ID,
+     ALERT_TYPE,
+     ALERT_CODE,
+     ALERT_SEQ,
+     ALERT_DATE,
+     ALERT_STATUS,
+     COMMENT_TEXT,
+     CREATE_USER_ID,
+     CASELOAD_TYPE
+)
+VALUES
+     (:bookingId,
+     (SELECT O.ROOT_OFFENDER_ID FROM OFFENDER_BOOKINGS O WHERE O.OFFENDER_BOOK_ID = :bookingId),
+     :alertType,
+     :alertSubType,
+     COALESCE ((SELECT MAX(ALERT_SEQ) + 1 FROM OFFENDER_ALERTS WHERE OFFENDER_BOOK_ID = :bookingId),1),
+     :alertDate,
+     :status,
+     :commentText,
+     USER,
+     :caseLoadType
+     )
+}
+
+UPDATE_ALERT {
+UPDATE OFFENDER_ALERTS SET
+    EXPIRY_DATE = :expiryDate,
+    ALERT_STATUS = :alertStatus,
+    MODIFY_USER_ID = USER
+WHERE ALERT_SEQ = :alertSeq
+AND OFFENDER_BOOK_ID = :bookingId
+}
+
+INSERT_WORK_FLOW {
+    INSERT INTO WORK_FLOWS (
+        WORK_FLOW_ID,
+        OBJECT_CODE,
+        OBJECT_ID,
+        OBJECT_SEQ
+    )
+    VALUES (
+        work_flow_id.NEXTVAL,
+        :objectCode,
+        :bookingId,
+        :alertSeq
+    )
+}
+
+INSERT_WORK_FLOW_LOG {
+  INSERT INTO WORK_FLOW_LOGS (
+        WORK_FLOW_ID,
+        WORK_FLOW_SEQ,
+        WORK_ACTION_CODE,
+        WORK_ACTION_DATE,
+        WORK_FLOW_STATUS,
+        CREATE_DATE,
+        LOCATE_AGY_LOC_ID,
+        CREATE_USER_ID
+    )
+    VALUES (
+        :workFlowId,
+        :workFlowSeq,
+        :actionCode,
+        SYSDATE,
+        :workFlowStatus,
+        SYSDATE,
+        :agencyId,
+        USER
+    )
+}
+
+INSERT_NEXT_WORK_FLOW_LOG {
+    INSERT INTO WORK_FLOW_LOGS
+                 (WORK_FLOW_ID,
+                  WORK_FLOW_SEQ,
+                  WORK_ACTION_CODE,
+                  WORK_ACTION_DATE,
+                  WORK_FLOW_STATUS,
+                  CREATE_DATE,
+                  LOCATE_AGY_LOC_ID,
+                  CREATE_USER_ID)
+                 SELECT
+                    WF.WORK_FLOW_ID,
+                    (SELECT NVL (MAX (WORK_FLOW_SEQ), 0) + 1 FROM WORK_FLOW_LOGS WHERE WORK_FLOW_ID = WF.WORK_FLOW_ID),
+                    :actionCode,
+                    SYSDATE,
+                    :workFlowStatus,
+                    SYSDATE,
+                    :agencyId,
+                    USER
+                FROM WORK_FLOWS WF
+          WHERE WF.OBJECT_ID = :bookingId
+           AND WF.OBJECT_SEQ = :alertSeq
+           AND WF.OBJECT_CODE = :alertCode
 }

@@ -88,7 +88,6 @@ public class InmateAlertRepositoryTest {
 
     @Test
     public void testThatAnAlertGetsCreatedAlongWithTheRelevantWorkFlowTables() {
-        final var username = "ITAG_USER";
         final var bookingId = -10L;
         final var agencyId = "LEI";
         final var alert =  CreateAlert
@@ -99,7 +98,7 @@ public class InmateAlertRepositoryTest {
                 .comment("Poor behaviour")
                 .build();
 
-        final var latestAlertSeq = repository.createNewAlert(bookingId, alert, username, agencyId);
+        final var latestAlertSeq = repository.createNewAlert(bookingId, alert, agencyId);
 
         final var alerts = jdbcTemplate.queryForList("SELECT * FROM  OFFENDER_ALERTS WHERE OFFENDER_BOOK_ID = ? AND ALERT_SEQ = ?",
                 bookingId, latestAlertSeq
@@ -122,7 +121,7 @@ public class InmateAlertRepositoryTest {
                         extractString("COMMENT_TEXT"),
                         extractString("CREATE_USER_ID"),
                         extractString("CASELOAD_TYPE"))
-                .contains(Tuple.tuple(bookingId, "X", "XX", latestAlertSeq, LocalDate.now(), "ACTIVE", "Poor behaviour", "ITAG_USER", "INST"));
+                .contains(Tuple.tuple(bookingId, "X", "XX", latestAlertSeq, LocalDate.now(), "ACTIVE", "Poor behaviour", "SA", "INST"));
 
         assertThat(workFlowEntries)
                 .asList()
@@ -142,11 +141,12 @@ public class InmateAlertRepositoryTest {
         final var bookingId = -14L;
         final var alertSeq = 1L;
         final var expiryDate = LocalDate.now();
-        repository.updateAlert("ITAG_USER", bookingId, alertSeq, UpdateAlert
+
+        repository.updateAlert(bookingId, alertSeq, UpdateAlert
                 .builder()
                 .expiryDate(expiryDate)
                 .alertStatus("INACTIVE")
-                .build());
+                .build(),  "LEI");
 
 
         final var alert = repository.getAlert(bookingId, alertSeq).orElse(Alert.builder().build());
@@ -172,11 +172,53 @@ public class InmateAlertRepositoryTest {
                 .comment("Poor behaviour")
                 .build();
 
-        final var latestAlertSeq = repository.createNewAlert(-10L, alert, "ITAG_USER", "LEI");
+        final var latestAlertSeq = repository.createNewAlert(-10L, alert, "LEI");
 
         final var savedAlert = repository.getAlert(-10L, latestAlertSeq).orElseThrow();
 
         assertThat(savedAlert.getAlertType()).isEqualTo("X");
         assertThat(savedAlert.getAlertCode()).isEqualTo("XX");
+    }
+
+    @Test
+    public void testThatCreatedByComesBack() {
+        final var alert = repository.getAlert(-15L, 1).orElseThrow();
+
+        assertThat(alert.getAddedByFirstName()).isEqualTo("API");
+        assertThat(alert.getAddedByLastName()).isEqualTo("User");
+    }
+
+    @Test
+    public void testThatAWorkFlowLogEntryIsWritten_OnUpdateAlert() {
+
+        final var alertSeq = repository.createNewAlert(-17L,
+                CreateAlert.builder()
+                        .alertType("L")
+                        .alertCode("LPQAA")
+                        .alertDate(LocalDate.now())
+                        .build(),  "MDI");
+
+        repository.updateAlert(-17L, alertSeq,
+                UpdateAlert.builder()
+                        .alertStatus("INACTIVE")
+                        .expiryDate(LocalDate.now())
+                        .build(),  "LEI");
+
+        final var workFlogLogEntry = jdbcTemplate.queryForList(
+                    " SELECT * FROM WORK_FLOW_LOGS WFL " +
+                        " LEFT JOIN WORK_FLOWS WF ON WF.WORK_FLOW_ID = WFL.WORK_FLOW_ID AND WF.OBJECT_ID = ? AND WF.OBJECT_SEQ = ? AND WF.OBJECT_CODE = 'ALERT'" +
+                        " WHERE WFL.WORK_FLOW_SEQ = 2 ",
+                -17L, alertSeq
+        );
+
+        assertThat(workFlogLogEntry)
+                .asList()
+                .extracting(
+                        extractString("WORK_ACTION_CODE"),
+                        extractString("WORK_FLOW_STATUS"),
+                        extractString("CREATE_USER_ID"),
+                        extractDate("WORK_ACTION_DATE"))
+                .contains(Tuple.tuple("MOD", "DONE", "SA", LocalDate.now(   )));
+
     }
 }
