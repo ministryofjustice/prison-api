@@ -28,7 +28,7 @@ public class MovementResourceImplTest {
     public void getMovementsByOffenders_defaultLatestOnly() {
         movementResource.getMovementsByOffenders(List.of(), List.of(), null);
 
-        verify(movementsService).getMovementsByOffenders(List.of(), List.of(), false);
+        verify(movementsService).getMovementsByOffenders(List.of(), List.of(), true);
     }
 
     @Test
@@ -36,5 +36,12 @@ public class MovementResourceImplTest {
         movementResource.getMovementsByOffenders(List.of(), List.of(), true);
 
         verify(movementsService).getMovementsByOffenders(List.of(), List.of(), true);
+    }
+
+    @Test
+    public void getMovementsByOffenders_falseLatestOnly() {
+        movementResource.getMovementsByOffenders(List.of(), List.of(), false);
+
+        verify(movementsService).getMovementsByOffenders(List.of(), List.of(), false);
     }
 }
