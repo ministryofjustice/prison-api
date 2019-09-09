@@ -813,7 +813,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
         assertThatJson(responseEntity.getBody()).isEqualTo("{" +
-                "\"" + day1 + "\":{\"external_movement\":false,\"existing_visits\":[{\"visit_id\":10309199,\"slot\":\"" + visitSlot1Json + "\"},{\"visit_id\":10309200,\"slot\":\"" + visitSlot2Json + "\"}],\"out_of_vo\":false,\"banned\":false}," +
+                "\"" + day1 + "\":{\"external_movement\":false,\"existing_visits\":[{\"id\":10309199,\"slot\":\"" + visitSlot1Json + "\"},{\"id\":10309200,\"slot\":\"" + visitSlot2Json + "\"}],\"out_of_vo\":false,\"banned\":false}," +
                 "\"" + day2 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":false,\"banned\":false}}");
     }
 
