@@ -48,26 +48,26 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     @Override
-    public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates( LocalDate minimumChecksPassedDateForAssessedCurfews) {
-        final var sentences =
-                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername(), Optional.ofNullable(minimumChecksPassedDateForAssessedCurfews));
-
-        return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
+    public Response getOffenderSentencesHomeDetentionCurfewCandidates() {
+        return Response.ok(
+                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername()),
+                MediaType.APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @Override
     public Response getLatestHomeDetentionCurfew(Long bookingId) {
         return Response.ok(
-                        offenderCurfewService.getLatestHomeDetentionCurfew(bookingId),
-                        MediaType.APPLICATION_JSON_TYPE)
+                offenderCurfewService.getLatestHomeDetentionCurfew(bookingId),
+                MediaType.APPLICATION_JSON_TYPE)
                 .build();
     }
 
     @Override
     @ProxyUser
     public Response setCurfewChecks(final Long bookingId, final HdcChecks hdcChecks) {
-            offenderCurfewService.setHdcChecks(bookingId, hdcChecks);
-            return Response.noContent().build();
+        offenderCurfewService.setHdcChecks(bookingId, hdcChecks);
+        return Response.noContent().build();
     }
 
     @Override
@@ -81,8 +81,8 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     @ProxyUser
     public Response setApprovalStatus(final Long bookingId, final ApprovalStatus approvalStatus) {
 
-            offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
-            return Response.noContent().build();
+        offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
+        return Response.noContent().build();
     }
 
     @Override
