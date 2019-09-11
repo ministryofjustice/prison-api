@@ -4,11 +4,15 @@ import net.syscon.elite.api.model.Contact;
 import net.syscon.elite.api.model.Person;
 import net.syscon.elite.repository.ContactRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.util.DateTimeConverter;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Types;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +33,15 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
             .relationship(rs.getString("RELATIONSHIP_TYPE"))
             .relationshipDescription(rs.getString("RELATIONSHIP_DESCRIPTION"))
             .emergencyContact("Y".equals(rs.getString("EMERGENCY_CONTACT_FLAG")))
+            .activeFlag("Y".equals(rs.getString("ACTIVE_FLAG")))
+            .approvedVisitorFlag("Y".equals(rs.getString("APPROVED_VISITOR_FLAG")))
+            .canBeContactedFlag("Y".equals(rs.getString("CAN_BE_CONTACTED_FLAG")))
+            .awareOfChargesFlag("Y".equals(rs.getString("AWARE_OF_CHARGES_FLAG")))
             .nextOfKin("Y".equals(rs.getString("NEXT_OF_KIN_FLAG")))
+            .expiryDate(DateTimeConverter.toISO8601LocalDate(rs.getObject("EXPIRY_DATE")))
+            .commentText(rs.getString("COMMENT_TEXT"))
+            .bookingId(rs.getLong("OFFENDER_BOOK_ID"))
+            .contactRootOffenderId(rs.getLong("CONTACT_ROOT_OFFENDER_ID"))
             .build();
 
     @Override
@@ -86,7 +98,6 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
         jdbcTemplate.update(
                 sql,
                 createParams("personId", personId,
-                        "seqNo", getIdentifierSequenceNumber(personId, identifierType)+1,
                         "identifierType", identifierType,
                         "identifier", externalRef));
     }
@@ -99,6 +110,15 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
                 createParams("bookingId", bookingId,
                         "relationshipType", relationshipType),
                 CONTACT_ROW_MAPPER);
+    }
+
+    @Override
+    public Optional<Contact> getOffenderRelationship(final Long relationshipId) {
+        final var sql = getQuery("RELATIONSHIP_TO_OFFENDER_BY_ID");
+
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sql,
+                createParams("relationshipId", relationshipId),
+                CONTACT_ROW_MAPPER));
     }
 
     @Override
@@ -122,22 +142,18 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public void updateRelationship(final Long personId, final Long bookingContactPersonId) {
+    public void updateRelationship(final Long id, final Long personId, boolean active) {
         final var sql = getQuery("UPDATE_OFFENDER_CONTACT_PERSONS_SAME_REL_TYPE");
 
         jdbcTemplate.update(
                 sql,
-                createParams("bookingContactPersonId", bookingContactPersonId,
-                        "personId", personId));
-
-    }
-
-    private long getIdentifierSequenceNumber(final Long personId, final String identifierType) {
-        final var sql = getQuery("GET_MAX_IDENTIFIER_SEQ");
-        return jdbcTemplate.queryForObject(
-                sql,
-                createParams("personId", personId,
-                        "identifierType", identifierType), Long.class);
+                createParams(
+                        "bookingContactPersonId", id,
+                        "personId", personId,
+                        "activeFlag", active ? "Y" : "N",
+                        "expiryDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(active ? null : LocalDate.now()))
+                )
+        );
 
     }
 }

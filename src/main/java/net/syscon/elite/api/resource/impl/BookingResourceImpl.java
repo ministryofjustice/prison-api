@@ -516,13 +516,13 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public BookingResource.GetRelationshipsResponse getRelationships(final Long bookingId, final String relationshipType) {
-        final var relationships = contactService.getRelationships(bookingId, relationshipType);
+        final var relationships = contactService.getRelationships(bookingId, relationshipType, true);
         return BookingResource.GetRelationshipsResponse.respond200WithApplicationJson(relationships);
     }
 
     @Override
     public GetRelationshipsByOffenderNoResponse getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
-        final var relationships = contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType);
+        final var relationships = contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType, true);
         return GetRelationshipsByOffenderNoResponse.respond200WithApplicationJson(relationships);
     }
 
