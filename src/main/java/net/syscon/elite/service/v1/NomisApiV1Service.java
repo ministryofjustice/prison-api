@@ -388,6 +388,9 @@ public class NomisApiV1Service {
     }
 
     private List<LocalDate> validateDates(final String dates) {
+        if (dates == null) {
+            throw new BadRequestException("Missing date selection");
+        }
         return Arrays.stream(dates.split(",")).map(LocalDate::parse).peek(localDate -> {
             if (!localDate.isAfter(LocalDate.now())) throw new BadRequestException("Dates requested must be in future");
         }).collect(Collectors.toList());

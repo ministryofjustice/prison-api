@@ -36,7 +36,7 @@ public interface OffenderSentenceResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates(@ApiParam(value = "Include HD curfews having a checks passed date >= this date, when they have an assessment status. ISO-8601 date format. The default value is infinitely far in to the past") @QueryParam("minimumChecksPassedDateForAssessedCurfews") LocalDate minimumChecksPassedDateForAssessedCurfews);
+    Response getOffenderSentencesHomeDetentionCurfewCandidates();
 
     @GET
     @Path("/booking/{bookingId}/home-detention-curfews/latest")
@@ -153,45 +153,6 @@ public interface OffenderSentenceResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetOffenderSentencesHomeDetentionCurfewCandidatesResponse extends ResponseDelegate {
-
-        private GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(final Response response) {
-            super(response);
-        }
-
-        private GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond200WithApplicationJson(final List<OffenderSentenceCalc> entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond400WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(400)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond404WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(404)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond500WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(500)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(responseBuilder.build(), entity);
         }
     }
 

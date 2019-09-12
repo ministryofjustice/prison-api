@@ -364,8 +364,8 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     AvailableDates getVisitAvailableDates(
             @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1583AE", required = true) @PathParam("offender_id") @NotNull String offenderId,
-            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01") @QueryParam("start_date") LocalDate fromDate,
-            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01") @QueryParam("end_date") LocalDate toDate);
+            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) @NotNull @QueryParam("start_date") LocalDate fromDate,
+            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01", required = true) @NotNull @QueryParam("end_date") LocalDate toDate);
 
     @GET
     @Path("offenders/{offender_id}/visits/contact_list")
@@ -394,8 +394,8 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     SortedMap<String, UnavailabilityReason> getVisitUnavailability(
-            @ApiParam(name = "offender_id", value = "Offender Id", example = "1234567", required = true) @PathParam("offender_id") @NotNull Long offenderId,
-            @ApiParam(name = "dates", value = "dates", example = "2019-05-01,2019-05-02") @QueryParam("dates") String dates);
+            @ApiParam(name = "offender_id", value = "Offender Id", example = "1234567", required = true) @NotNull @PathParam("offender_id") Long offenderId,
+            @ApiParam(name = "dates", value = "dates", example = "2019-05-01,2019-05-02", required = true) @QueryParam("dates") String dates);
 
     @SuppressWarnings("RestParamTypeInspection")
     @GET
@@ -411,6 +411,6 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     VisitSlots getVisitSlotsWithCapacity(
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") @PathParam("prison_id") @Length(max = 3) String prisonId,
-            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01") @QueryParam("start_date") LocalDate fromDate,
-            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01") @QueryParam("end_date") LocalDate toDate);
+            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) @NotNull @QueryParam("start_date") LocalDate fromDate,
+            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01", required = true) @NotNull @QueryParam("end_date") LocalDate toDate);
 }

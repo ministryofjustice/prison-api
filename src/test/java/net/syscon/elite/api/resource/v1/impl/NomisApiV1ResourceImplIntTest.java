@@ -11,11 +11,8 @@ import net.syscon.elite.repository.v1.storedprocs.OffenderProcs.GetOffenderPssDe
 import net.syscon.elite.repository.v1.storedprocs.PrisonProcs.GetLiveRoll;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.json.JsonContent;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -26,7 +23,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -36,171 +32,62 @@ import static net.syscon.elite.repository.v1.storedprocs.EventProcs.*;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static net.syscon.elite.repository.v1.storedprocs.VisitsProc.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
 
 
 public class NomisApiV1ResourceImplIntTest extends ResourceTest {
-
-    @TestConfiguration
-    static class Config {
-
-        @Bean
-        @Primary
-        public PostTransaction postTransaction() {
-            return mock(PostTransaction.class);
-        }
-
-        @Bean
-        @Primary
-        public PostTransfer postTransfer() {
-            return mock(PostTransfer.class);
-        }
-
-        @Bean
-        @Primary
-        public GetOffenderPssDetail getOffenderPssDetail() {
-            return mock(GetOffenderPssDetail.class);
-        }
-
-        @Bean
-        @Primary
-        public GetOffenderDetails getOffenderDetails() {
-            return mock(GetOffenderDetails.class);
-        }
-
-        @Bean
-        @Primary
-        public GetOffenderImage getOffenderImage() {
-            return mock(GetOffenderImage.class);
-        }
-
-        @Bean
-        @Primary
-        public GetHolds getHolds() {
-            return mock(GetHolds.class);
-        }
-
-        @Bean
-        @Primary
-        public GetEvents getEvents() {
-            return mock(GetEvents.class);
-        }
-
-        @Bean
-        @Primary
-        public GetLiveRoll getLiveRoll() {
-            return mock(GetLiveRoll.class);
-        }
-
-        @Bean
-        @Primary
-        public PostStorePayment postStorePayment() {
-            return mock(PostStorePayment.class);
-        }
-
-        @Bean
-        @Primary
-        public GetAccountBalances getAccountBalances() {
-            return mock(GetAccountBalances.class);
-        }
-
-        @Bean
-        @Primary
-        public GetAccountTransactions getAccountTransactions() {
-            return mock(GetAccountTransactions.class);
-        }
-
-        @Bean
-        @Primary
-        public GetTransactionByClientUniqueRef getTransactionByClientUniqueRef() {
-            return mock(GetTransactionByClientUniqueRef.class);
-        }
-
-        @Bean
-        @Primary
-        public GetActiveOffender getActiveOffender() {
-            return mock(GetActiveOffender.class);
-        }
-
-        @Bean
-        @Primary
-        public GetAvailableDates getAvailableDates() {
-            return mock(GetAvailableDates.class);
-        }
-
-        @Bean
-        @Primary
-        public GetContactList getContactList() {
-            return mock(GetContactList.class);
-        }
-
-        @Bean
-        @Primary
-        public GetUnavailability getUnavailability() {
-            return mock(GetUnavailability.class);
-        }
-
-        @Bean
-        @Primary
-        public GetVisitSlotsWithCapacity getVisitSlotsWithCapacity() {
-            return mock(GetVisitSlotsWithCapacity.class);
-        }
-    }
-
-    @Autowired
+    @MockBean
     private PostTransaction postTransaction;
 
-    @Autowired
+    @MockBean
     private PostTransfer postTransfer;
 
-    @Autowired
+    @MockBean
     private GetOffenderPssDetail offenderPssDetail;
 
-    @Autowired
+    @MockBean
     private GetOffenderDetails offenderDetails;
 
-    @Autowired
+    @MockBean
     private GetOffenderImage offenderImage;
 
-    @Autowired
+    @MockBean
     private GetHolds getHolds;
 
-    @Autowired
+    @MockBean
     private GetEvents getEvents;
 
-    @Autowired
+    @MockBean
     private GetLiveRoll getLiveRoll;
 
-    @Autowired
+    @MockBean
     private PostStorePayment postStorePayment;
 
-    @Autowired
+    @MockBean
     private GetAccountBalances getAccountBalances;
 
-    @Autowired
+    @MockBean
     private GetAccountTransactions getAccountTransactions;
 
-    @Autowired
+    @MockBean
     private GetTransactionByClientUniqueRef getTransactionByClientUniqueRef;
 
-    @Autowired
+    @MockBean
     private GetActiveOffender getActiveOffender;
 
-    @Autowired
+    @MockBean
     private GetAvailableDates getAvailableDates;
 
-    @Autowired
+    @MockBean
     private GetContactList getContactList;
 
-    @Autowired
+    @MockBean
     private GetUnavailability getUnavailability;
 
-    @Autowired
+    @MockBean
     private GetVisitSlotsWithCapacity getVisitSlotsWithCapacity;
 
     @Test
@@ -336,15 +223,8 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         when(offenderPssDetail.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/G7806VO/pss_detail", HttpMethod.GET, requestEntity, String.class);
-        if (responseEntity.getStatusCodeValue() != 200) {
-            fail("PSS detail call failed. Response body : " + responseEntity.getBody());
-            return;
-        }
 
-        // noinspection ConstantConditions
-        final var json = new JsonContent<Event>(getClass(), forType(Event.class), responseEntity.getBody());
-
-        assertThat(json).isEqualToJson("pss-detail.json");
+        assertThatJsonFileAndStatus(responseEntity, 200, "pss-detail.json");
     }
 
     @Test
@@ -361,10 +241,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE", HttpMethod.GET, requestEntity, Offender.class);
 
-        if (responseEntity.getStatusCodeValue() != 200) {
-            fail("Offender detail failed. Response body : " + responseEntity.getBody());
-            return;
-        }
+        assertThatStatus(responseEntity, 200);
 
         final var offenderActual = (Offender) responseEntity.getBody();
 
@@ -379,17 +256,14 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
 
-        byte[] imageBytes = "XXX".getBytes();
-        Blob blob = new javax.sql.rowset.serial.SerialBlob(imageBytes);
+        final var imageBytes = "XXX".getBytes();
+        final Blob blob = new javax.sql.rowset.serial.SerialBlob(imageBytes);
         final var procedureResponse = Map.of(P_IMAGE, (Object) blob);
 
         when(offenderImage.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/A1404AE/image", HttpMethod.GET, requestEntity, String.class);
-        if (responseEntity.getStatusCodeValue() != 200) {
-            fail("offenderImage failed. Response body : " + responseEntity.getBody());
-            return;
-        }
+        assertThatStatus(responseEntity, 200);
 
         // Encoded image returns this value for the test XXX value used
         final var actualJson = responseEntity.getBody();
@@ -498,7 +372,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), request);
 
         // No response parameters for this method so return an emtpy map to satisfy Mockito stub
-        when(postStorePayment.execute(any(SqlParameterSource.class))).thenReturn(Collections.EMPTY_MAP);
+        when(postStorePayment.execute(any(SqlParameterSource.class))).thenReturn(Map.of());
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/payment", HttpMethod.POST, requestEntity, String.class);
 
@@ -513,11 +387,10 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), request);
 
         // No response parameters for this method so return an emtpy map to satisfy Mockito stub
-        when(postStorePayment.execute(any(SqlParameterSource.class))).thenReturn(Collections.EMPTY_MAP);
+        when(postStorePayment.execute(any(SqlParameterSource.class))).thenReturn(Map.of());
 
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/payment", HttpMethod.POST, requestEntity, String.class);
-
-        assertThatJson(responseEntity.getBody()).toString().contains("400");
+        assertThatStatus(responseEntity, 400);
     }
 
     @Test
@@ -813,7 +686,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(200);
         assertThatJson(responseEntity.getBody()).isEqualTo("{" +
-                "\"" + day1 + "\":{\"external_movement\":false,\"existing_visits\":[{\"visit_id\":10309199,\"slot\":\"" + visitSlot1Json + "\"},{\"visit_id\":10309200,\"slot\":\"" + visitSlot2Json + "\"}],\"out_of_vo\":false,\"banned\":false}," +
+                "\"" + day1 + "\":{\"external_movement\":false,\"existing_visits\":[{\"id\":10309199,\"slot\":\"" + visitSlot1Json + "\"},{\"id\":10309200,\"slot\":\"" + visitSlot2Json + "\"}],\"out_of_vo\":false,\"banned\":false}," +
                 "\"" + day2 + "\":{\"external_movement\":false,\"existing_visits\":[],\"out_of_vo\":false,\"banned\":false}}");
     }
 

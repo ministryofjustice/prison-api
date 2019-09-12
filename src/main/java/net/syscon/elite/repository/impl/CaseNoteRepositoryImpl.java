@@ -62,6 +62,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
     private static final RowMapper<CaseNoteStaffUsage> CASE_NOTE_STAFF_USAGE_MAPPER =
             new StandardBeanPropertyRowMapper<>(CaseNoteStaffUsage.class);
 
+    private static final RowMapper<CaseNoteEvent> CASE_NOTE_EVENT_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(CaseNoteEvent.class);
+
     @Override
     public Page<CaseNote> getCaseNotes(final long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderByField,
                                        final Order order, final long offset, final long limit) {
@@ -157,6 +160,13 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
                         "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                         "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER);
+    }
+
+    @Override
+    public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate) {
+        return jdbcTemplate.query(getQuery("RECENT_CASE_NOTE_EVENTS"),
+                createParams("fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate)),
+                CASE_NOTE_EVENT_ROW_MAPPER);
     }
 
     @Override
