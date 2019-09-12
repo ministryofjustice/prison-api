@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,4 +34,6 @@ public interface CaseNoteRepository {
     List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, List<Integer> staffIds, LocalDate fromDate, LocalDate toDate);
 
     List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(String type, String subType, List<Integer> bookingIds, LocalDate fromDateToUse, LocalDate toDateToUse);
+
+    List<CaseNoteEvent> getCaseNoteEvents(LocalDateTime fromDate);
 }

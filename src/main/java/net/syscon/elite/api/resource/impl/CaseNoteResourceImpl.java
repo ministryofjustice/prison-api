@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.CaseNoteResource;
 import net.syscon.elite.core.RestResource;
@@ -8,18 +9,16 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import javax.ws.rs.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestResource
 @Path("/case-notes")
+@AllArgsConstructor
 public class CaseNoteResourceImpl implements CaseNoteResource {
 
     private final CaseNoteService caseNoteService;
-
-    public CaseNoteResourceImpl(final CaseNoteService caseNoteService) {
-        this.caseNoteService = caseNoteService;
-    }
 
     @Override
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsageSummary(final List<String> staffIds, final Integer numMonths, final LocalDate fromDate, final LocalDate toDate, final String type, final String subType) {
@@ -40,6 +39,11 @@ public class CaseNoteResourceImpl implements CaseNoteResource {
     @Override
     public List<CaseNoteUsage> getCaseNoteUsageSummaryByPost(final CaseNoteUsageRequest request) {
         return caseNoteService.getCaseNoteUsage(request.getType(), request.getSubType(), request.getOffenderNos(), request.getStaffId(), request.getAgencyId(), request.getFromDate(), request.getToDate(), ObjectUtils.defaultIfNull(request.getNumMonths(), 1));
+    }
+
+    @Override
+    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, final LocalDateTime createdDate) {
+        return caseNoteService.getCaseNotesEvents(noteTypes, createdDate);
     }
 
     @Override

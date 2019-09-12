@@ -5,9 +5,11 @@ import net.syscon.elite.util.JwtParameters;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.json.JsonContent;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -16,8 +18,11 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.core.ResolvableType.forType;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @RunWith(SpringRunner.class)
@@ -64,5 +69,19 @@ public abstract class ResourceTest {
                 .scope(List.of("read", "write"))
                 .expiryTime(Duration.ofDays(1))
                 .build());
+    }
+
+    protected <T> void assertThatStatus(final ResponseEntity<T> response, final int status) {
+        assertThat(response.getStatusCodeValue()).withFailMessage("Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s", response.getStatusCodeValue(), status, response.getBody()).isEqualTo(status);
+    }
+
+    protected void assertThatJsonFileAndStatus(final ResponseEntity<String> response, final int status, final String jsonFile) {
+        assertThat(response.getStatusCodeValue()).withFailMessage("Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s", response.getStatusCodeValue(), status, response.getBody()).isEqualTo(status);
+
+        assertThat(getBodyAsJsonContent(response)).isEqualToJson(jsonFile);
+    }
+
+    private <T> JsonContent<T> getBodyAsJsonContent(final ResponseEntity<String> response) {
+        return new JsonContent<>(getClass(), forType(String.class), Objects.requireNonNull(response.getBody()));
     }
 }

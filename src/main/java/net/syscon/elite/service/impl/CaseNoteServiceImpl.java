@@ -17,6 +17,7 @@ import net.syscon.elite.service.validation.CaseNoteTypeSubTypeValid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -225,11 +226,25 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         return caseNoteStaffUsage;
     }
 
+    @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','CASE_NOTE_EVENTS')")
+    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, final LocalDateTime createdDate) {
+        final var noteTypesMap = noteTypes.stream().collect(Collectors.toMap((n) -> StringUtils.substringBefore(n, "+"), (n) -> StringUtils.substringAfter(n, "+")));
+        final var events = caseNoteRepository.getCaseNoteEvents(createdDate);
+
+        // now filter out notes based on required note types
+        return events.stream().filter((event) -> {
+            final var subTypes = noteTypesMap.get(event.getMainNoteType());
+            // will be null if not in map, otherwise will be empty if type in map with no sub type set
+            return subTypes != null && (subTypes.isEmpty() || subTypes.equals(event.getSubNoteType()));
+        }).collect(Collectors.toList());
+    }
+
     private static class DeriveDates {
         private LocalDate fromDateToUse;
         private LocalDate toDateToUse;
 
-        public DeriveDates(final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
+        DeriveDates(final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
             final var now = LocalDate.now();
             fromDateToUse = now.minusMonths(numMonths);
             toDateToUse = now;
@@ -248,13 +263,12 @@ public class CaseNoteServiceImpl implements CaseNoteService {
             toDateToUse = toDateToUse.plusDays(1);
         }
 
-        public LocalDate getFromDateToUse() {
+        LocalDate getFromDateToUse() {
             return fromDateToUse;
         }
 
-        public LocalDate getToDateToUse() {
+        LocalDate getToDateToUse() {
             return toDateToUse;
         }
-
     }
 }
