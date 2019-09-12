@@ -133,7 +133,7 @@ public class InmateAlertServiceImplTest {
     }
 
     @Test
-    public void testAlertRepository_UpdateAlertIsCalledWithCorrectParams() {
+    public void testAlertRepository_ExpireAlertIsCalledWithCorrectParams() {
         final var expireAlert = ExpireAlert
                 .builder()
                 .expiryDate(LocalDate.now())
