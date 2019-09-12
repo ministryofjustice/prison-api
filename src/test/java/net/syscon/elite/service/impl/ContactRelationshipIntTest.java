@@ -31,8 +31,8 @@ public class ContactRelationshipIntTest {
     @Test
     @WithMockUser(username= "ITAG_USER", roles = { "CONTACT_CREATE" })
     public void testCreateRelationshipWithMultipleOffendersAndLinkedRelationships() {
-        var contactList = contactService.getRelationships(BOOKING1_ID, "COM", true);
-        assertThat(contactList).isEmpty();
+        var contactList = contactService.getRelationships(BOOKING1_ID, "COM", false);
+        assertThat(contactList).hasSize(4);
 
         final var relationship = contactService.createRelationship(BOOKING1_ID,
                 OffenderRelationship.builder()
@@ -45,6 +45,9 @@ public class ContactRelationshipIntTest {
         assertThat(relationship).isNotNull();
         assertThat(relationship.getRelationshipId()).isNotNull();
         assertThat(relationship.getPersonId()).isNotNull();
+
+        contactList = contactService.getRelationships(BOOKING1_ID, "COM", false);
+        assertThat(contactList).hasSize(5);
 
         contactList = contactService.getRelationships(BOOKING1_ID, "COM", true);
 
