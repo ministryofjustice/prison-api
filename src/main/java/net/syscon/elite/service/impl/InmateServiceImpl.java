@@ -464,6 +464,16 @@ public class InmateServiceImpl implements InmateService {
         telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);
     }
 
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public void updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate) {
+        repository.updateActiveCategoryNextReviewDate(bookingId, nextReviewDate);
+
+        // Log event
+        telemetryClient.trackEvent("CategorisationNextReviewDateUpdated", ImmutableMap.of("bookingId", bookingId.toString()), null);
+    }
+
     private void validate(final CategoryApprovalDetail detail) {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);

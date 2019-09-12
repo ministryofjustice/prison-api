@@ -100,6 +100,16 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
                 .build();
     }
 
+    @Override
+    @ProxyUser
+    public Response updateCategorisationNextReviewDate(final Long bookingId,  final LocalDate nextReviewDate) {
+        inmateService.updateCategorisationNextReviewDate(bookingId, nextReviewDate);
+        return Response.ok()
+                .status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .build();
+    }
+
     private void validateOffenderList(final List offenderList) {
         if (Collections.isEmpty(offenderList)) {
             throw new BadRequestException("List of Offender Ids must be provided.");

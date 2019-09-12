@@ -25,6 +25,7 @@ public interface InmateService {
 
     Map<String, Long> createCategorisation(Long bookingId, CategorisationDetail detail);
 	void approveCategorisation(Long bookingId, CategoryApprovalDetail detail);
+	void updateCategorisationNextReviewDate(Long bookingId, LocalDate nextReviewDate);
 
     Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
 
