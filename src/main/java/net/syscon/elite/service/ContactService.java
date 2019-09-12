@@ -11,9 +11,9 @@ public interface ContactService {
 
     ContactDetail getContacts(Long bookingId);
 
-    List<Contact> getRelationships(Long bookingId, String relationshipType);
+    List<Contact> getRelationships(Long bookingId, String relationshipType, boolean activeOnly);
 
-    List<Contact> getRelationshipsByOffenderNo(String offenderNo, String relationshipType);
+    List<Contact> getRelationshipsByOffenderNo(String offenderNo, String relationshipType, final boolean activeOnly);
 
     Contact createRelationship(Long bookingId, OffenderRelationship relationshipDetail);
 

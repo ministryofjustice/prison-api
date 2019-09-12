@@ -58,7 +58,7 @@ public class ContactSteps extends CommonSteps {
             assertEqualsBlankIsNull(expectedThis.getContactTypeDescription(), actualThis.getContactTypeDescription());
             assertEqualsBlankIsNull(expectedThis.getRelationship(), actualThis.getRelationship());
             assertEqualsBlankIsNull(expectedThis.getRelationshipDescription(), actualThis.getRelationshipDescription());
-            assertEquals(expectedThis.getEmergencyContact(), actualThis.getEmergencyContact());
+            assertEquals(expectedThis.isEmergencyContact(), actualThis.isEmergencyContact());
         }
         assertFalse("Too many actual results", awardsIterator.hasNext());
     }
