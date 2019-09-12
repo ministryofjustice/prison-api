@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.Clock;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,17 +22,17 @@ import static java.util.stream.Collectors.*;
 @Validated
 public class OffenderCurfewServiceImpl implements OffenderCurfewService {
 
-    private static final int DAYS_TO_ADD = 28;
-
     private static final String HDC_APPROVE_DOMAIN = "HDC_APPROVE";
     private static final String HDC_REJECT_REASON_DOMAIN = "HDC_REJ_RSN";
     /**
-     * Comparator for sorting OffenderCurfew instances by HDCED (HomeDetentionCurfewEligibilityDate). Nulls sort high.
+     * Comparator for sorting OffenderSentenceCalc instances by HDCED (HomeDetentionCurfewEligibilityDate). Nulls sort high.
      */
-    private static final Comparator<OffenderSentenceCalculation> HDCED_COMPARATOR =
+    static final Comparator<OffenderSentenceCalc<? extends BaseSentenceDetail>> OSC_BY_HDCED_COMPARATOR =
             comparing(
-                    OffenderSentenceCalculation::getHomeDetCurfEligibilityDate,
-                    nullsLast(naturalOrder())
+                    OffenderSentenceCalc::getSentenceDetail,
+                    comparing(bsd -> bsd == null ? null : bsd.getHomeDetentionCurfewEligibilityDate(),
+                            nullsLast(naturalOrder())
+                    )
             );
 
     /**
@@ -51,34 +48,32 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final BookingService bookingService;
     private final ReferenceDomainService referenceDomainService;
-    private final Clock clock;
 
     public OffenderCurfewServiceImpl(
             final OffenderCurfewRepository offenderCurfewRepository,
             final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
             final BookingService bookingService,
-            final ReferenceDomainService referenceDomainService,
-            final Clock clock) {
+            final ReferenceDomainService referenceDomainService) {
         this.offenderCurfewRepository = offenderCurfewRepository;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.bookingService = bookingService;
         this.referenceDomainService = referenceDomainService;
-        this.clock = clock;
     }
 
     @Override
-    public List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(final String username, Optional<LocalDate> minimumChecksPassedDateForAssessedCurfews) {
+    public List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(final String username) {
 
-        final var earliestArdOrCrd = LocalDate.now(clock).plusDays(DAYS_TO_ADD);
         final var agencyIds = agencyIdsFor(username);
 
-        final var homeDetentionCurfewCandidates = getHomeDetentionCurfewCandidates(
-                        offenderCurfewRepository.offenderCurfews(agencyIds),
-                        earliestArdOrCrd,
-                        bookingService.getOffenderSentenceCalculationsForAgency(agencyIds),
-                minimumChecksPassedDateForAssessedCurfews);
+        final var offenderBookingIdsForNewHDCProcess =
+                curfewBookingIds(
+                        currentOffenderCurfews(
+                                offenderCurfewRepository.offenderCurfews(agencyIds)));
 
-        return homeDetentionCurfewCandidates.stream()
+        return bookingService.getOffenderSentenceCalculationsForAgency(agencyIds)
+                .stream()
+                .filter(offenderSentenceCalculation -> (offenderSentenceCalculation.getHomeDetCurfEligibilityDate() != null) &&
+                        offenderBookingIdsForNewHDCProcess.contains(offenderSentenceCalculation.getBookingId()))
                 .map(os -> OffenderSentenceCalc.builder()
                         .bookingId(os.getBookingId())
                         .offenderNo(os.getOffenderNo())
@@ -105,7 +100,12 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
                                 .tariffDate(os.getTariffDate())
                                 .build())
                         .build())
+                .sorted(OSC_BY_HDCED_COMPARATOR)
                 .collect(Collectors.toList());
+    }
+
+    private Set<Long> curfewBookingIds(Stream<OffenderCurfew> ocs) {
+        return ocs.map(OffenderCurfew::getOffenderBookId).collect(toSet());
     }
 
     @Override
@@ -170,21 +170,6 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
                 .collect(toSet());
     }
 
-    static List<OffenderSentenceCalculation> getHomeDetentionCurfewCandidates(
-            final Collection<OffenderCurfew> curfews,
-            final LocalDate earliestArdOrCrd,
-            final List<OffenderSentenceCalculation> offenderSentences,
-            final Optional<LocalDate> minimumChecksPassedDateForAssessedCurfews) {
-
-        final var offenderBookingIdsForNewHDCProcess = offenderBookingIdsForNewHDCProcess(currentOffenderCurfews(curfews), minimumChecksPassedDateForAssessedCurfews);
-
-        return offenderSentences
-                .stream()
-                .filter(offenderIsEligibleForHomeCurfew(offenderBookingIdsForNewHDCProcess, earliestArdOrCrd))
-                .sorted(HDCED_COMPARATOR)
-                .collect(toList());
-    }
-
     /**
      * Given a Collection of OffenderCurfew where there may be more than one per offenderBookId, select, for each
      * offenderBookId the 'current' OffenderCurfew.  This is the instance that sorts highest by OFFENDER_CURFEW_COMPARATOR.
@@ -206,47 +191,5 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
                 .values()
                 .stream()
                 .map(opt -> opt.orElseThrow(() -> new NullPointerException("Impossible")));
-    }
-
-    static Set<Long> offenderBookingIdsForNewHDCProcess(
-            final Stream<OffenderCurfew> currentOffenderCurfews,
-            final Optional<LocalDate> minimumChecksPassedDateForAssessedCurfews) {
-
-        return currentOffenderCurfews.filter(oc ->
-                        oc.getApprovalStatus() == null ||
-                        minimumDateFilter(oc.getAssessmentDate(), minimumChecksPassedDateForAssessedCurfews))
-                .map(OffenderCurfew::getOffenderBookId)
-                .collect(toSet());
-    }
-
-
-    private static boolean minimumDateFilter(LocalDate assessmentDate, Optional<LocalDate> minimumDate) {
-        return Optional
-                .ofNullable(assessmentDate)
-                .map( ad ->
-                        minimumDate
-                        .map(md -> ad.isEqual(md) || ad.isAfter(md))
-                        .orElse(Boolean.TRUE))
-                .orElse(Boolean.FALSE);
-    }
-
-    static Predicate<OffenderSentenceCalculation> offenderIsEligibleForHomeCurfew(
-            final Set<Long> offendersWithoutCurfewApprovalStatus,
-            final LocalDate earliestArdOrCrd) {
-
-        return (OffenderSentenceCalculation os) -> (os.getHomeDetCurfEligibilityDate() != null) &&
-        offendersWithoutCurfewApprovalStatus.contains(os.getBookingId()) &&
-        (
-            isBeforeOrEqual(earliestArdOrCrd, os.getAutomaticReleaseDate()) || isBeforeOrEqual(earliestArdOrCrd, os.getConditionalReleaseDate())
-        );
-    }
-
-    private static boolean isBeforeOrEqual(final LocalDate d1, final LocalDate d2) {
-        return
-            d2 != null &&
-            (
-                d1.isBefore(d2) ||
-                d1.isEqual(d2)
-            );
     }
 }
