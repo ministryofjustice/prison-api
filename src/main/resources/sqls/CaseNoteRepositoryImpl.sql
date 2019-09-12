@@ -62,6 +62,26 @@ GROUP_BY_TYPES_AND_STAFF {
   GROUP BY STAFF_ID, CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE
 }
 
+RECENT_CASE_NOTE_EVENTS {
+  SELECT O.OFFENDER_ID_DISPLAY       noms_id,
+         OC.CASE_NOTE_ID             id,
+         OB.AGY_LOC_ID               establishment_code,
+         TO_DATE(TO_CHAR(OC.CONTACT_DATE, 'YYYYMMDD') || TO_CHAR(OC.CONTACT_TIME, 'HH24MISS'),
+                'YYYYMMDDHH24MISS') contact_timestamp,
+         OC.CASE_NOTE_TYPE           main_note_type,
+         OC.CASE_NOTE_SUB_TYPE       sub_note_type,
+         SM.LAST_NAME,
+         SM.FIRST_NAME,
+         OC.CASE_NOTE_TEXT           content,
+         OC.AUDIT_TIMESTAMP          notification_timestamp
+  FROM OFFENDER_CASE_NOTES OC
+         JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OC.OFFENDER_BOOK_ID
+         JOIN OFFENDERS O ON O.OFFENDER_ID = OB.OFFENDER_ID
+         JOIN STAFF_MEMBERS SM ON SM.STAFF_ID = OC.STAFF_ID
+  WHERE OC.AUDIT_TIMESTAMP >= :fromDate
+  ORDER BY OC.AUDIT_TIMESTAMP
+}
+
 INSERT_CASE_NOTE {
   INSERT INTO OFFENDER_CASE_NOTES (
         CASE_NOTE_ID,
