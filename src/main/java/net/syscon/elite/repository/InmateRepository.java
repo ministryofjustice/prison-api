@@ -88,6 +88,8 @@ public interface InmateRepository {
 	Map<String, Long> insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId);
 	void approveCategory(CategoryApprovalDetail detail);
 
+    void updateActiveCategoryNextReviewDate(long bookingId, LocalDate date);
+
     List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData, Set<String> caseloads, boolean active);
     List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(String caseload, List<Long> bookingIds);
 

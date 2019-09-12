@@ -474,6 +474,7 @@ GET_OFFENDER_CATEGORISATIONS {
     o.last_name,
     o.first_name,
     off_ass.assessment_seq,
+    off_ass.next_review_date,
     off_ass.assessment_date,
     off_ass.evaluation_date as approval_date,
     COALESCE(off_ass.review_sup_level_type, off_ass.overrided_sup_level_type, off_ass.calc_sup_level_type) as category,
@@ -558,6 +559,16 @@ APPROVE_CATEGORY_SET_STATUS {
     ASSESS_STATUS=:assessStatus
   where OFFENDER_BOOK_ID=:bookingId
     and ASSESSMENT_SEQ in (:seq)
+}
+
+UPDATE_CATEORY_NEXT_REVIEW_DATE {
+  update OFFENDER_ASSESSMENTS
+  set
+    NEXT_REVIEW_DATE=:nextReviewDate
+  where OFFENDER_BOOK_ID=:bookingId
+  and ASSESSMENT_SEQ = (SELECT MAX (OA.ASSESSMENT_SEQ) FROM OFFENDER_ASSESSMENTS OA
+                        WHERE OA.OFFENDER_BOOK_ID = :bookingId and OA.ASSESS_STATUS = 'A' and OA.ASSESSMENT_TYPE_ID=:assessmentTypeId)
+
 }
 
 OFFENDER_ASSESSMENTS_SEQ_MAX {

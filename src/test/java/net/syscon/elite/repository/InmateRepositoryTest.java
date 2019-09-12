@@ -956,6 +956,20 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    @Transactional
+    public void testUpdateCategoryNextReviewDate() {
+
+        final var newNextReviewDate = LocalDate.of(2019, 2, 27);
+        final var existingNextReviewDate = LocalDate.of(2018, 6, 1);
+        repository.updateActiveCategoryNextReviewDate(-1L, newNextReviewDate);
+
+        final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-1L), "LEI", false);
+        assertThat(catList.get(1).getNextReviewDate()).isEqualTo(newNextReviewDate);
+        //should not have updated the later pending record
+        assertThat(catList.get(0).getNextReviewDate()).isEqualTo(existingNextReviewDate);
+    }
+
+    @Test
     public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"), false, Set.of("LEI"), true);
         assertThat(offenders).hasSize(1);

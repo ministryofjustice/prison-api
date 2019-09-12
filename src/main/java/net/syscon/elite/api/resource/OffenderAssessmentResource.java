@@ -3,6 +3,7 @@ package net.syscon.elite.api.resource;
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.ResponseDelegate;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -102,6 +103,18 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to approve the categorisation.", response = ErrorResponse.class) })
     Response approveCategorisation(@ApiParam(value = "Approval details", required = true) @Valid CategoryApprovalDetail body);
+
+    @PUT
+    @Path("/category/{bookingId}/nextReviewDate/{nextReviewDate}")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Update the next review date on the latest active categorisation", notes = "Update categorisation record with new next review date.", nickname="updateCategorisationNextReviewDate")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 400, message = "Invalid request - e.g. nextReviewDate not valid.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to approve the categorisation.", response = ErrorResponse.class) })
+    Response updateCategorisationNextReviewDate(@ApiParam(value = "The booking id of offender", required = true) @PathParam("bookingId") Long bookingId,
+                                                @ApiParam(value = "The new next review date (in YYYY-MM-DD format)", required = true) @PathParam("nextReviewDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate nextReviewDate);
 
     class GetOffenderAssessmentsAssessmentCodeResponse extends ResponseDelegate {
 
