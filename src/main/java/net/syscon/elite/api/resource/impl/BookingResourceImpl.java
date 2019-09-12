@@ -261,7 +261,7 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     @ProxyUser
     public Response setAlertExpiry(final Long bookingId, final Long alertSeq, final ExpireAlert alert) {
-        final var expiredAlert = inmateAlertService.setAlertExpiry(bookingId, alertSeq, alert);
+        final var expiredAlert = inmateAlertService.expireAlert(bookingId, alertSeq, alert);
         return Response.status(200).entity(expiredAlert).build();
     }
 
