@@ -2,7 +2,7 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.UpdateAlert;
+import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
@@ -19,5 +19,5 @@ public interface InmateAlertService {
 
     long createNewAlert(final long bookingId, final CreateAlert alert);
 
-    Alert updateAlert(final long bookingId, final long alertSeq, UpdateAlert alert);
+    Alert setAlertExpiry(final long bookingId, final long alertSeq, ExpireAlert alert);
 }

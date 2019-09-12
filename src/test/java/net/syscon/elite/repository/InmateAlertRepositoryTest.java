@@ -2,7 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.UpdateAlert;
+import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
@@ -142,10 +142,9 @@ public class InmateAlertRepositoryTest {
         final var alertSeq = 1L;
         final var expiryDate = LocalDate.now();
 
-        repository.updateAlert(bookingId, alertSeq, UpdateAlert
+        repository.updateAlert(bookingId, alertSeq, ExpireAlert
                 .builder()
                 .expiryDate(expiryDate)
-                .alertStatus("INACTIVE")
                 .build(),  "LEI");
 
 
@@ -199,8 +198,7 @@ public class InmateAlertRepositoryTest {
                         .build(),  "MDI");
 
         repository.updateAlert(-17L, alertSeq,
-                UpdateAlert.builder()
-                        .alertStatus("INACTIVE")
+                ExpireAlert.builder()
                         .expiryDate(LocalDate.now())
                         .build(),  "LEI");
 

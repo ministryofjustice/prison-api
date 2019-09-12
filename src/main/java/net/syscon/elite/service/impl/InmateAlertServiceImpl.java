@@ -2,11 +2,10 @@ package net.syscon.elite.service.impl;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.Alert;
-import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.UpdateAlert;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
@@ -22,7 +21,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -36,19 +37,26 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     private final UserService userService;
     private final TelemetryClient telemetryClient;
     private final ReferenceDomainService referenceDomainService;
+    private final CaseNoteRepository caseNoteRepository;
+    private final Clock clock;
 
     @Autowired
     public InmateAlertServiceImpl(
             final InmateAlertRepository inmateAlertRepository,
             final AuthenticationFacade authenticationFacade,
             final UserService userService,
-            final TelemetryClient telemetryClient, ReferenceDomainService referenceDomainService) {
+            final TelemetryClient telemetryClient,
+            final ReferenceDomainService referenceDomainService,
+            final CaseNoteRepository caseNoteRepository,
+            final Clock clock) {
 
         this.inmateAlertRepository = inmateAlertRepository;
         this.authenticationFacade = authenticationFacade;
         this.userService = userService;
         this.telemetryClient = telemetryClient;
         this.referenceDomainService = referenceDomainService;
+        this.caseNoteRepository = caseNoteRepository;
+        this.clock = clock;
     }
 
     @Override
@@ -147,6 +155,20 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         final var alertId =  inmateAlertRepository.createNewAlert(bookingId, alert,
                 userDetails.getActiveCaseLoadId());
 
+        final var alertDetails = inmateAlertRepository.getAlert(bookingId, alertId).orElseThrow();
+
+        caseNoteRepository.createCaseNote(bookingId,NewCaseNote.builder()
+                .type("ALERT")
+                .subType("ACTIVE")
+                .occurrenceDateTime(LocalDateTime.now(clock))
+                .text(String.format("%s and %s made active.", alertDetails.getAlertTypeDescription(), alertDetails.getAlertCodeDescription()))
+                .build(), "INST", userDetails.getUsername(), userDetails.getStaffId());
+
+        telemetryClient.trackEvent(
+                "CaseNoteCreated",
+                Map.of("type", "ALERT",
+                        "subType", "ACTIVE"), null);
+
         log.info("Created new alert {}", alert);
         telemetryClient.trackEvent("Alert created", Map.of(
                 "bookingId", String.valueOf(bookingId),
@@ -163,23 +185,39 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
-    public Alert updateAlert(final long bookingId, final long alertSeq, final UpdateAlert updateAlert) {
+    public Alert setAlertExpiry(final long bookingId, final long alertSeq, final ExpireAlert expireAlert) {
         final var username = authenticationFacade.getCurrentUsername();
         final var userDetails = userService.getUserByUsername(username);
 
-        final var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, updateAlert,
+        final var existingAlert = inmateAlertRepository.getAlert(bookingId, alertSeq)
+                .orElseThrow(EntityNotFoundException.withId(alertSeq));
+
+        if (!existingAlert.isActive())
+            throw new IllegalArgumentException("Alert is already inactive.");
+
+        final var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, expireAlert,
                 userDetails.getActiveCaseLoadId())
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
-        alert.setExpired(isExpiredAlert(alert));
-
-        log.info("Updated alert {}", alert);
+        log.info("Updated updated {}", alert);
         telemetryClient.trackEvent("Alert updated", Map.of(
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
-                "expiryDate", updateAlert.getExpiryDate().toString(),
+                "expiryDate", expireAlert.getExpiryDate().toString(),
                 "updated_by", username
         ), null);
+
+        caseNoteRepository.createCaseNote(bookingId, NewCaseNote.builder()
+                .type("ALERT")
+                .subType("INACTIVE")
+                .occurrenceDateTime(LocalDateTime.now(clock))
+                .text(String.format("%s and %s made inactive.", alert.getAlertTypeDescription(), alert.getAlertCodeDescription()))
+                .build(), "INST", userDetails.getUsername(), userDetails.getStaffId());
+
+        telemetryClient.trackEvent(
+                "CaseNoteCreated",
+                Map.of("type", "ALERT",
+                        "subType", "INACTIVE"), null);
 
         return alert;
     }
