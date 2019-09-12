@@ -110,9 +110,9 @@ public interface OffenderAssessmentResource {
     @Produces({ "application/json" })
     @ApiOperation(value = "Update the next review date on the latest active categorisation", notes = "Update categorisation record with new next review date.", nickname="updateCategorisationNextReviewDate")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = ""),
-            @ApiResponse(code = 400, message = "Invalid request - e.g. nextReviewDate not valid.", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden - user not authorised to approve the categorisation.", response = ErrorResponse.class) })
+            @ApiResponse(code = 200, message = ""),
+            @ApiResponse(code = 404, message = "Active categorisation not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to update the categorisation.", response = ErrorResponse.class) })
     Response updateCategorisationNextReviewDate(@ApiParam(value = "The booking id of offender", required = true) @PathParam("bookingId") Long bookingId,
                                                 @ApiParam(value = "The new next review date (in YYYY-MM-DD format)", required = true) @PathParam("nextReviewDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate nextReviewDate);
 
