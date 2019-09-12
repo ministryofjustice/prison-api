@@ -18,7 +18,9 @@ public interface ContactRepository {
 
     List<Contact> getOffenderRelationships(Long bookingId, String relationshipType);
 
+    Optional<Contact> getOffenderRelationship(final Long relationshipId);
+
     Long createRelationship(Long personId, Long bookingId, String relationshipType, String contactType);
 
-    void updateRelationship(Long personId, Long bookingContactPersonId);
+    void updateRelationship(Long id, Long personId, boolean active);
 }
