@@ -30,6 +30,7 @@ FIND_INMATE_ALERT {
        select ALERT_SEQ,
               ALERT_DATE,
               ALERT_TYPE,
+              ALERT_STATUS,
               COALESCE(alType.DESCRIPTION, ALERT_TYPE) as ALERT_TYPE_DESC,
               ALERT_CODE,
               COALESCE(alCode.DESCRIPTION, ALERT_CODE) as ALERT_CODE_DESC,

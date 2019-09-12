@@ -98,7 +98,7 @@ public class BookingResourceTest extends ResourceTest {
     public void testUpdateAlert_UnAuthorised() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
-        final var body = UpdateAlert.builder().expiryDate(LocalDate.now()).alertStatus("INACTIVE").build();
+        final var body = ExpireAlert.builder().expiryDate(LocalDate.now()).build();
 
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert/{alertSeq}",
@@ -113,13 +113,25 @@ public class BookingResourceTest extends ResourceTest {
     public void testUpdateAlert() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.UPDATE_ALERT);
 
-        final var body = UpdateAlert.builder().expiryDate(LocalDate.now()).alertStatus("INACTIVE").build();
+        final var createdAlert = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert",
+                HttpMethod.POST,
+                createHttpEntity(token ,
+                        CreateAlert.builder()
+                                .alertType("L")
+                                .alertCode("LPQAA")
+                                .comment("XXX")
+                                .alertDate(LocalDate.now())
+                                .build()),
+                new ParameterizedTypeReference<Alert>() {}, -14L).getBody();
+
+        final var body = ExpireAlert.builder().expiryDate(LocalDate.now()).build();
 
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert/{alertSeq}",
                 HttpMethod.PUT,
                 createHttpEntity(token , body),
-                new ParameterizedTypeReference<AlertCreated>() {}, -14L, 1);
+                new ParameterizedTypeReference<AlertCreated>() {}, -14L, createdAlert.getAlertId());
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
     }

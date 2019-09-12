@@ -3,7 +3,7 @@ package net.syscon.elite.repository.impl;
 import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.UpdateAlert;
+import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
@@ -120,7 +120,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final UpdateAlert alert, final String agencyId) {
+    public Optional<Alert> expireAlert(final long bookingId, final long alertSeq, final ExpireAlert alert, final String agencyId) {
         final var updateAlertSql = getQuery("UPDATE_ALERT");
         final var insertNextWorkFlowLogEntry = getQuery("INSERT_NEXT_WORK_FLOW_LOG");
 
