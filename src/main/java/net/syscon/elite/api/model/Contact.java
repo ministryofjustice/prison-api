@@ -1,17 +1,13 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
 
 /**
  * Contact
@@ -23,211 +19,69 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@Data
 public class Contact {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-    
+    @ApiModelProperty(required = true, value = "Last name of the contact", example = "SMITH", position = 1)
     @NotBlank
     private String lastName;
 
+    @ApiModelProperty(required = true, value = "First Name", example = "JOHN", position = 2)
     @NotBlank
     private String firstName;
 
+    @ApiModelProperty(value = "Middle Names", example = "MARK", position = 3)
     private String middleName;
 
+    @ApiModelProperty(required = true, value = "Contact type", example = "O", position = 4)
     @NotBlank
     private String contactType;
 
+    @ApiModelProperty(value = "Contact type text", example = "Official", position = 5)
     private String contactTypeDescription;
 
+    @ApiModelProperty(required = true, value = "Relationship to prisoner", example = "RO", position = 6)
     @NotBlank
     private String relationship;
 
+    @ApiModelProperty(value = "Relationship text", example = "Responsible Officer", position = 7)
     private String relationshipDescription;
 
+    @ApiModelProperty(value = "Comments", example = "Some additional information", position = 8)
+    private String commentText;
+
+    @ApiModelProperty(required = true, value = "Is an emergency contact", example = "true", position = 9)
     @NotNull
     private boolean emergencyContact;
 
+    @ApiModelProperty(required = true, value = "Indicates that the contact is Next of Kin Type", example = "false", position = 10)
     @NotNull
     private boolean nextOfKin;
 
+    @ApiModelProperty(value = "ID of the relationship (internal)", example = "10466277", position = 11)
     private Long relationshipId;
 
+    @ApiModelProperty(value = "id of the person contact", example = "5871791", position = 12)
     private Long personId;
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
+    @ApiModelProperty(required = true, value = "Active indicator flag.", example = "true", allowableValues = "true,false", position = 12)
+    private boolean activeFlag;
 
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
+    @ApiModelProperty(value = "Date made inactive", example = "2019-01-31", position = 13)
+    private LocalDate expiryDate;
 
-    /**
-      * Surname
-      */
-    @ApiModelProperty(required = true, value = "Surname")
-    @JsonProperty("lastName")
-    public String getLastName() {
-        return lastName;
-    }
+    @ApiModelProperty(required = true, value = "Approved Visitor", example = "true", allowableValues = "true,false", position = 14)
+    private boolean approvedVisitorFlag;
 
-    public void setLastName(final String lastName) {
-        this.lastName = lastName;
-    }
+    @ApiModelProperty(required = true, value = "Can be contacted", example = "false", allowableValues = "true,false", position = 15)
+    private boolean canBeContactedFlag;
 
-    /**
-      * First Name
-      */
-    @ApiModelProperty(required = true, value = "First Name")
-    @JsonProperty("firstName")
-    public String getFirstName() {
-        return firstName;
-    }
+    @ApiModelProperty(required = true, value = "Aware of charges against prisoner", example = "true", allowableValues = "true,false", position = 16)
+    private boolean awareOfChargesFlag;
 
-    public void setFirstName(final String firstName) {
-        this.firstName = firstName;
-    }
+    @ApiModelProperty(value = "Link to root offender ID", example = "5871791", position = 17)
+    private Long contactRootOffenderId;
 
-    /**
-      * Middle Names
-      */
-    @ApiModelProperty(value = "Middle Names")
-    @JsonProperty("middleName")
-    public String getMiddleName() {
-        return middleName;
-    }
+    @ApiModelProperty(required = true, value = "Offender Booking Id for this contact", example = "2468081", position = 18)
+    private Long bookingId;
 
-    public void setMiddleName(final String middleName) {
-        this.middleName = middleName;
-    }
-
-    /**
-      * Contact type
-      */
-    @ApiModelProperty(required = true, value = "Contact type")
-    @JsonProperty("contactType")
-    public String getContactType() {
-        return contactType;
-    }
-
-    public void setContactType(final String contactType) {
-        this.contactType = contactType;
-    }
-
-    /**
-      * Contact type text
-      */
-    @ApiModelProperty(value = "Contact type text")
-    @JsonProperty("contactTypeDescription")
-    public String getContactTypeDescription() {
-        return contactTypeDescription;
-    }
-
-    public void setContactTypeDescription(final String contactTypeDescription) {
-        this.contactTypeDescription = contactTypeDescription;
-    }
-
-    /**
-      * Relationship to inmate
-      */
-    @ApiModelProperty(required = true, value = "Relationship to inmate")
-    @JsonProperty("relationship")
-    public String getRelationship() {
-        return relationship;
-    }
-
-    public void setRelationship(final String relationship) {
-        this.relationship = relationship;
-    }
-
-    /**
-      * Relationship text
-      */
-    @ApiModelProperty(value = "Relationship text")
-    @JsonProperty("relationshipDescription")
-    public String getRelationshipDescription() {
-        return relationshipDescription;
-    }
-
-    public void setRelationshipDescription(final String relationshipDescription) {
-        this.relationshipDescription = relationshipDescription;
-    }
-
-    /**
-      * Is an emergency contact
-      */
-    @ApiModelProperty(required = true, value = "Is an emergency contact")
-    @JsonProperty("emergencyContact")
-    public boolean getEmergencyContact() {
-        return emergencyContact;
-    }
-
-    public void setEmergencyContact(final boolean emergencyContact) {
-        this.emergencyContact = emergencyContact;
-    }
-
-    /**
-      * Indicates that the contact is Next of Kin Type
-      */
-    @ApiModelProperty(required = true, value = "Indicates that the contact is Next of Kin Type")
-    @JsonProperty("nextOfKin")
-    public boolean getNextOfKin() {
-        return nextOfKin;
-    }
-
-    public void setNextOfKin(final boolean nextOfKin) {
-        this.nextOfKin = nextOfKin;
-    }
-
-    /**
-      * id of the relationship (internal)
-      */
-    @ApiModelProperty(value = "id of the relationship (internal)")
-    @JsonProperty("relationshipId")
-    public Long getRelationshipId() {
-        return relationshipId;
-    }
-
-    public void setRelationshipId(final Long relationshipId) {
-        this.relationshipId = relationshipId;
-    }
-
-    /**
-      * id of the person contact
-      */
-    @ApiModelProperty(value = "id of the person contact")
-    @JsonProperty("personId")
-    public Long getPersonId() {
-        return personId;
-    }
-
-    public void setPersonId(final Long personId) {
-        this.personId = personId;
-    }
-
-    @Override
-    public String toString()  {
-        final var sb = new StringBuilder();
-
-        sb.append("class Contact {\n");
-        
-        sb.append("  lastName: ").append(lastName).append("\n");
-        sb.append("  firstName: ").append(firstName).append("\n");
-        sb.append("  middleName: ").append(middleName).append("\n");
-        sb.append("  contactType: ").append(contactType).append("\n");
-        sb.append("  contactTypeDescription: ").append(contactTypeDescription).append("\n");
-        sb.append("  relationship: ").append(relationship).append("\n");
-        sb.append("  relationshipDescription: ").append(relationshipDescription).append("\n");
-        sb.append("  emergencyContact: ").append(emergencyContact).append("\n");
-        sb.append("  nextOfKin: ").append(nextOfKin).append("\n");
-        sb.append("  relationshipId: ").append(relationshipId).append("\n");
-        sb.append("  personId: ").append(personId).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
-    }
 }
