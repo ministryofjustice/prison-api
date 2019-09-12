@@ -133,7 +133,6 @@ INSERT_WORK_FLOW_LOG {
         WORK_ACTION_DATE,
         WORK_FLOW_STATUS,
         CREATE_DATE,
-        LOCATE_AGY_LOC_ID,
         CREATE_USER_ID
     )
     VALUES (
@@ -143,7 +142,6 @@ INSERT_WORK_FLOW_LOG {
         SYSDATE,
         :workFlowStatus,
         SYSDATE,
-        :agencyId,
         USER
     )
 }
@@ -156,7 +154,6 @@ INSERT_NEXT_WORK_FLOW_LOG {
                   WORK_ACTION_DATE,
                   WORK_FLOW_STATUS,
                   CREATE_DATE,
-                  LOCATE_AGY_LOC_ID,
                   CREATE_USER_ID)
                  SELECT
                     WF.WORK_FLOW_ID,
@@ -165,7 +162,6 @@ INSERT_NEXT_WORK_FLOW_LOG {
                     SYSDATE,
                     :workFlowStatus,
                     SYSDATE,
-                    :agencyId,
                     USER
                 FROM WORK_FLOWS WF
           WHERE WF.OBJECT_ID = :bookingId

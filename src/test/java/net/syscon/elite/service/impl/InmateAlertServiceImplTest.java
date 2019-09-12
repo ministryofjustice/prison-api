@@ -1,14 +1,14 @@
 package net.syscon.elite.service.impl;
 
-import com.google.common.collect.ImmutableMap;
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.ExpireAlert;
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Page;
-import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.ReferenceDomainService;
-import net.syscon.elite.service.UserService;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.*;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +30,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InmateAlertServiceImplTest {
-    private static final Clock clock = Clock.fixed(Instant.parse("2017-06-15T00:00:00Z"), ZoneId.of("UTC"));
-
     @Mock
     private InmateAlertRepository inmateAlertRepository;
 
@@ -39,16 +37,10 @@ public class InmateAlertServiceImplTest {
     private AuthenticationFacade authenticationFacade;
 
     @Mock
-    private UserService userService;
-
-    @Mock
     private TelemetryClient telemetryClient;
 
     @Mock
     private ReferenceDomainService referenceDomainService;
-
-    @Mock
-    private CaseNoteRepository caseNoteRepository;
 
     private InmateAlertServiceImpl service;
 
@@ -57,11 +49,8 @@ public class InmateAlertServiceImplTest {
         service = new InmateAlertServiceImpl(
                 inmateAlertRepository,
                 authenticationFacade,
-                userService,
                 telemetryClient,
-                referenceDomainService,
-                caseNoteRepository,
-                clock);
+                referenceDomainService);
     }
 
     @Test
@@ -94,9 +83,7 @@ public class InmateAlertServiceImplTest {
                 .thenReturn(Optional.of(alertType));
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
-        when(userService.getUserByUsername("ITAG_USER")).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
-        when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString())).thenReturn(1L);
-        when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().build()));
+        when(inmateAlertRepository.createNewAlert(anyLong(), any())).thenReturn(1L);
 
         final var alertId = service.createNewAlert(-1L, CreateAlert
                 .builder()
@@ -114,7 +101,7 @@ public class InmateAlertServiceImplTest {
                 .alertType("XX")
                 .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
                 .comment("comment1")
-                .build(),  "LEI");
+                .build());
     }
     @Test
     public void testAlertDate_SevenDaysInThePastThrowsException() {
@@ -150,16 +137,15 @@ public class InmateAlertServiceImplTest {
                 .build();
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
-        when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
 
-        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any(), anyString())).thenReturn(Optional.of(alert));
+        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(alert));
         when(inmateAlertRepository.getAlert(anyLong(),anyLong())).thenReturn(Optional.of(alert));
 
-        final var updatedAlert = service.setAlertExpiry(-1L, 4L, expireAlert);
+        final var updatedAlert = service.expireAlert(-1L, 4L, expireAlert);
 
         assertThat(updatedAlert).isEqualTo(alert);
 
-        verify(inmateAlertRepository).expireAlert(-1L, 4L, expireAlert,  "LEI");
+        verify(inmateAlertRepository).expireAlert(-1L, 4L, expireAlert);
     }
 
     @Test
@@ -191,9 +177,7 @@ public class InmateAlertServiceImplTest {
                 .thenReturn(Optional.of(alertType));
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
-        when(userService.getUserByUsername("ITAG_USER")).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
-        when(inmateAlertRepository.createNewAlert(anyLong(), any(), anyString())).thenReturn(1L);
-        when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().build()));
+        when(inmateAlertRepository.createNewAlert(anyLong(), any())).thenReturn(1L);
 
         final var alertId = service.createNewAlert(-1L, CreateAlert
                 .builder()
@@ -216,13 +200,12 @@ public class InmateAlertServiceImplTest {
     @Test
     public void testTelemetryEventHasBeenRaised_OnAlertExpire() {
 
-        when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(true).build()));
-        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any(), anyString()))
+        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().build()));
 
-        service.setAlertExpiry(-1L,-2L,  ExpireAlert
+        service.expireAlert(-1L,-2L,  ExpireAlert
                 .builder()
                 .expiryDate(LocalDate.now())
                 .build());
@@ -262,84 +245,15 @@ public class InmateAlertServiceImplTest {
                .hasMessage("Alert code does not exist.");
     }
 
-    @Test
-    public void testCaseNoteGetCreated_OnAlertCreation() {
-        when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
-                .thenReturn(Optional.of(getAlertReferenceCode()));
 
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
-        when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().username("ITAG_USER").staffId(-1L).build());
-        when(inmateAlertRepository.getAlert(anyLong(), anyLong()))
-                .thenReturn(Optional.of(Alert.builder()
-                        .alertTypeDescription("Alert Security")
-                        .alertCodeDescription("Arsonist")
-                        .build()));
-
-        service.createNewAlert(-14L, CreateAlert.builder()
-                .alertType("XX")
-                .alertCode("X")
-                .alertDate(LocalDate.now())
-                .comment("test")
-                .build());
-
-        verify(caseNoteRepository).createCaseNote(-14L, NewCaseNote
-                .builder()
-                .type("ALERT")
-                .subType("ACTIVE")
-                .occurrenceDateTime(LocalDateTime.now(clock))
-                .text("Alert Security and Arsonist made active.")
-                .build(),"INST", "ITAG_USER", -1L);
-
-        verify(telemetryClient).trackEvent(
-                "CaseNoteCreated",
-                ImmutableMap.of("type", "ALERT",
-                        "subType", "ACTIVE"), null);
-    }
-
-    @Test
-    public void testCaseNoteGetCreated_OnAlertExpire() {
-        final var alert = Alert.builder()
-                .alertTypeDescription("Alert Security")
-                .alertCodeDescription("Arsonist")
-                .active(true)
-                .build();
-
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
-        when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().username("ITAG_USER").staffId(-1L).build());
-        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(),any(), any()))
-                .thenReturn(Optional.of(alert));
-        when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
-
-        when(caseNoteRepository.createCaseNote(anyLong(),any(), anyString(), anyString(), anyLong())).thenReturn(1L);
-
-        service.setAlertExpiry(-14L, 1,
-                ExpireAlert.builder()
-                        .expiryDate(LocalDate.now(clock))
-                        .build());
-
-        verify(caseNoteRepository).createCaseNote(-14L, NewCaseNote
-                .builder()
-                .type("ALERT")
-                .subType("INACTIVE")
-                .occurrenceDateTime(LocalDateTime.now(clock))
-                .text("Alert Security and Arsonist made inactive.")
-                .build(),"INST", "ITAG_USER", -1L);
-
-
-        verify(telemetryClient).trackEvent(
-                "CaseNoteCreated",
-                ImmutableMap.of("type", "ALERT",
-                        "subType", "INACTIVE"), null);
-    }
 
     @Test
     public void testAlertCanNotBeMadeInactiveIfAlreadyInactive() {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
-        when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().username("ITAG_USER").staffId(-1L).build());
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(false).build()));
 
         assertThatThrownBy(() ->
-                service.setAlertExpiry(-14, 1, ExpireAlert.builder().expiryDate(LocalDate.now()).build()))
+                service.expireAlert(-14, 1, ExpireAlert.builder().expiryDate(LocalDate.now()).build()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Alert is already inactive.");
     }
