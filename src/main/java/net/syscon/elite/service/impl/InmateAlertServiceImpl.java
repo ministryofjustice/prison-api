@@ -195,7 +195,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         if (!existingAlert.isActive())
             throw new IllegalArgumentException("Alert is already inactive.");
 
-        final var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, expireAlert,
+        final var alert = inmateAlertRepository.expireAlert(bookingId, alertSeq, expireAlert,
                 userDetails.getActiveCaseLoadId())
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 

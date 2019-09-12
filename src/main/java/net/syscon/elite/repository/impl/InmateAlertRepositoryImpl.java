@@ -120,7 +120,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final ExpireAlert alert, final String agencyId) {
+    public Optional<Alert> expireAlert(final long bookingId, final long alertSeq, final ExpireAlert alert, final String agencyId) {
         final var updateAlertSql = getQuery("UPDATE_ALERT");
         final var insertNextWorkFlowLogEntry = getQuery("INSERT_NEXT_WORK_FLOW_LOG");
 

@@ -142,7 +142,7 @@ public class InmateAlertRepositoryTest {
         final var alertSeq = 1L;
         final var expiryDate = LocalDate.now();
 
-        repository.updateAlert(bookingId, alertSeq, ExpireAlert
+        repository.expireAlert(bookingId, alertSeq, ExpireAlert
                 .builder()
                 .expiryDate(expiryDate)
                 .build(),  "LEI");
@@ -188,7 +188,7 @@ public class InmateAlertRepositoryTest {
     }
 
     @Test
-    public void testThatAWorkFlowLogEntryIsWritten_OnUpdateAlert() {
+    public void testThatAWorkFlowLogEntryIsWritten_OnExpireAlert() {
 
         final var alertSeq = repository.createNewAlert(-17L,
                 CreateAlert.builder()
@@ -197,7 +197,7 @@ public class InmateAlertRepositoryTest {
                         .alertDate(LocalDate.now())
                         .build(),  "MDI");
 
-        repository.updateAlert(-17L, alertSeq,
+        repository.expireAlert(-17L, alertSeq,
                 ExpireAlert.builder()
                         .expiryDate(LocalDate.now())
                         .build(),  "LEI");

@@ -152,14 +152,14 @@ public class InmateAlertServiceImplTest {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
         when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
 
-        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any(), anyString())).thenReturn(Optional.of(alert));
+        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any(), anyString())).thenReturn(Optional.of(alert));
         when(inmateAlertRepository.getAlert(anyLong(),anyLong())).thenReturn(Optional.of(alert));
 
         final var updatedAlert = service.setAlertExpiry(-1L, 4L, expireAlert);
 
         assertThat(updatedAlert).isEqualTo(alert);
 
-        verify(inmateAlertRepository).updateAlert(-1L, 4L, expireAlert,  "LEI");
+        verify(inmateAlertRepository).expireAlert(-1L, 4L, expireAlert,  "LEI");
     }
 
     @Test
@@ -219,7 +219,7 @@ public class InmateAlertServiceImplTest {
         when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().activeCaseLoadId("LEI").build());
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(true).build()));
-        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any(), anyString()))
+        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any(), anyString()))
                 .thenReturn(Optional.of(Alert.builder().build()));
 
         service.setAlertExpiry(-1L,-2L,  ExpireAlert
@@ -306,7 +306,7 @@ public class InmateAlertServiceImplTest {
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
         when(userService.getUserByUsername(anyString())).thenReturn(UserDetail.builder().username("ITAG_USER").staffId(-1L).build());
-        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(),any(), any()))
+        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(),any(), any()))
                 .thenReturn(Optional.of(alert));
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
 
