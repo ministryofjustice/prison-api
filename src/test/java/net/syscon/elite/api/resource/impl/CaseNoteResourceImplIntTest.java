@@ -28,8 +28,9 @@ public class CaseNoteResourceImplIntTest extends ResourceTest {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_CASE_NOTE_EVENTS"), Map.of());
 
-        final var responseEntity = testRestTemplate.exchange("/api/case-notes/events?typeBOB+JOE&type=FRED&createdDate=" + fromDate.toString(), HttpMethod.GET, requestEntity, String.class);
+        final var responseEntity = testRestTemplate.exchange("/api/case-notes/events?type=BOB+JOE&type=FRED&createdDate=" + fromDate.toString(), HttpMethod.GET, requestEntity, String.class);
 
+        System.out.println(responseEntity.getBody());
         assertThatJsonFileAndStatus(responseEntity, 200, "casenoteevents.json");
 
         verify(caseNoteRepository).getCaseNoteEvents(fromDate);

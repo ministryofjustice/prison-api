@@ -115,6 +115,16 @@ public class CaseNoteServiceImplTest {
         assertThat(events).containsExactly(bobJoeEvent, fredEvent);
     }
 
+    @Test
+    public void getCaseNotesEvents_testTrimAndSeparation() {
+        final var fromDate = LocalDateTime.now();
+        final var fredEvent = createEvent("FRED", "JOE");
+        final var bobJoeEvent = createEvent("BOB", "JOE");
+        when(repository.getCaseNoteEvents(any())).thenReturn(List.of(bobJoeEvent, fredEvent));
+        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "   FRED JOE  "), fromDate);
+        assertThat(events).containsExactly(bobJoeEvent, fredEvent);
+    }
+
     private CaseNoteEvent createEvent(final String type, final String subType) {
         return CaseNoteEvent.builder().mainNoteType(type).subNoteType(subType).build();
     }
