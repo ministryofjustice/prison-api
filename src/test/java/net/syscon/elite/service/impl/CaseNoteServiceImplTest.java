@@ -106,13 +106,27 @@ public class CaseNoteServiceImplTest {
     }
 
     @Test
+    public void getCaseNotesEvents_noLimit() {
+        final var fromDate = LocalDateTime.now();
+        final var fredEvent = createEvent("FRED", "JOE");
+        final var bobJoeEvent = createEvent("BOB", "JOE");
+        when(repository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "FRED"), fromDate);
+
+        assertThat(events).containsExactly(bobJoeEvent, fredEvent);
+        verify(repository).getCaseNoteEvents(fromDate, Long.MAX_VALUE);
+    }
+
+    @Test
     public void getCaseNotesEvents() {
         final var fromDate = LocalDateTime.now();
         final var fredEvent = createEvent("FRED", "JOE");
         final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(repository.getCaseNoteEvents(any())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
-        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "FRED"), fromDate);
+        when(repository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "FRED"), fromDate, 10L);
+
         assertThat(events).containsExactly(bobJoeEvent, fredEvent);
+        verify(repository).getCaseNoteEvents(fromDate, 10L);
     }
 
     @Test
@@ -120,8 +134,8 @@ public class CaseNoteServiceImplTest {
         final var fromDate = LocalDateTime.now();
         final var fredEvent = createEvent("FRED", "JOE");
         final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(repository.getCaseNoteEvents(any())).thenReturn(List.of(bobJoeEvent, fredEvent));
-        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "   FRED JOE  "), fromDate);
+        when(repository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent));
+        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "   FRED JOE  "), fromDate, 20L);
         assertThat(events).containsExactly(bobJoeEvent, fredEvent);
     }
 

@@ -74,8 +74,8 @@ dependencyManagement {
 dependencies {
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok:1.18.8'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.10'
 
     implementation files("${rootDir}/lib/ojdbc8-18.3.jar")
 
@@ -117,7 +117,7 @@ dependencies {
 
     implementation 'com.github.timpeeters:spring-boot-graceful-shutdown:2.1.1'
 
-    compileOnly 'org.projectlombok:lombok:1.18.8'
+    compileOnly 'org.projectlombok:lombok:1.18.10'
 
     runtime 'org.hsqldb:hsqldb:2.4.1'
     runtime 'org.flywaydb:flyway-core:5.2.4'
@@ -140,7 +140,7 @@ dependencies {
     testImplementation 'net.serenity-bdd:serenity-spring:2.0.70'
     testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.45'
     testImplementation 'org.slf4j:slf4j-api:1.7.25'
-    testCompileOnly 'org.projectlombok:lombok:1.18.8'
+    testCompileOnly 'org.projectlombok:lombok:1.18.10'
 }
 
 task testIntegration(type: Test) {

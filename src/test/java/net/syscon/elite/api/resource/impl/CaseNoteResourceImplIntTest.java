@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,20 +21,42 @@ public class CaseNoteResourceImplIntTest extends ResourceTest {
     private CaseNoteRepository caseNoteRepository;
 
     @Test
-    public void transferTransaction() {
+    public void getCaseNoteEvents_noLimit() {
         final var fromDate = LocalDateTime.now();
         final var fredEvent = createEvent("FRED", "JOE");
         final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(caseNoteRepository.getCaseNoteEvents(any())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+        when(caseNoteRepository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_CASE_NOTE_EVENTS"), Map.of());
 
-        final var responseEntity = testRestTemplate.exchange("/api/case-notes/events?type=BOB+JOE&type=FRED&createdDate=" + fromDate.toString(), HttpMethod.GET, requestEntity, String.class);
+        final var responseEntity = testRestTemplate.exchange("/api/case-notes/events_no_limit?type=BOB+JOE&type=FRED&createdDate=" + fromDate, HttpMethod.GET, requestEntity, String.class);
 
-        System.out.println(responseEntity.getBody());
         assertThatJsonFileAndStatus(responseEntity, 200, "casenoteevents.json");
 
-        verify(caseNoteRepository).getCaseNoteEvents(fromDate);
+        verify(caseNoteRepository).getCaseNoteEvents(fromDate, Long.MAX_VALUE);
+    }
+
+    @Test
+    public void getCaseNoteEvents() {
+        final var fromDate = LocalDateTime.now();
+        final var fredEvent = createEvent("FRED", "JOE");
+        final var bobJoeEvent = createEvent("BOB", "JOE");
+        when(caseNoteRepository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_CASE_NOTE_EVENTS"), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/case-notes/events?limit=10&type=BOB+JOE&type=FRED&createdDate=" + fromDate, HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "casenoteevents.json");
+
+        verify(caseNoteRepository).getCaseNoteEvents(fromDate, 10);
+    }
+
+    @Test
+    public void getCaseNoteEvents_missingLimit() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_CASE_NOTE_EVENTS"), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/case-notes/events?&type=BOB+JOE&type=FRED&createdDate=" + LocalDateTime.now(), HttpMethod.GET, requestEntity, String.class);
+        assertThatJsonFileAndStatus(responseEntity, 400, "casenoteevents_validation.json");
     }
 
     private CaseNoteEvent createEvent(final String type, final String subType) {

@@ -35,5 +35,5 @@ public interface CaseNoteRepository {
 
     List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(String type, String subType, List<Integer> bookingIds, LocalDate fromDateToUse, LocalDate toDateToUse);
 
-    List<CaseNoteEvent> getCaseNoteEvents(LocalDateTime fromDate);
+    List<CaseNoteEvent> getCaseNoteEvents(LocalDateTime fromDate, final long limit);
 }

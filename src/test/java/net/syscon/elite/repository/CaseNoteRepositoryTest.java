@@ -28,6 +28,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
+@SuppressWarnings("SqlResolve")
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -46,7 +47,6 @@ public class CaseNoteRepositoryTest {
     public void testGetCaseNoteTypesByCaseLoadType() {
         final var types = repository.getCaseNoteTypesByCaseLoadType("COMM");
 
-        assertThat(types).isNotEmpty();
         //noinspection unchecked
         assertThat(types).extracting(ReferenceCode::getSubCodes).containsOnly(List.of());
     }
@@ -138,7 +138,7 @@ public class CaseNoteRepositoryTest {
         caseNote.setText("Testing of events");
         final var id = repository.createCaseNote(-4, caseNote, "source", "user", -2L);
 
-        final var caseNoteEvents = repository.getCaseNoteEvents(start);
+        final var caseNoteEvents = repository.getCaseNoteEvents(start, 1000);
         assertThat(caseNoteEvents).extracting(
                 CaseNoteEvent::getNomsId,
                 CaseNoteEvent::getId,
@@ -157,6 +157,18 @@ public class CaseNoteRepositoryTest {
         final var event = caseNoteEvents.stream().filter((e) -> e.getContent().equals("Testing of events")).findFirst().orElseThrow();
         assertThat(event.getContactTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));
         assertThat(event.getNotificationTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));
+    }
+
+    @Test
+    public void getCaseNoteEvents_Limit() {
+        final var start = LocalDateTime.now();
+        final var caseNote = newCaseNote();
+        caseNote.setText("Testing of events");
+        repository.createCaseNote(-4, caseNote, "source", "user", -2L);
+        repository.createCaseNote(-4, caseNote, "source", "user", -2L);
+
+        final var caseNoteEvents = repository.getCaseNoteEvents(start, 1);
+        assertThat(caseNoteEvents).hasSize(1);
     }
 
     private NewCaseNote newCaseNote() {

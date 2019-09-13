@@ -42,8 +42,13 @@ public class CaseNoteResourceImpl implements CaseNoteResource {
     }
 
     @Override
-    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, final LocalDateTime createdDate) {
+    public List<CaseNoteEvent> getCaseNotesEventsNoLimit(final List<String> noteTypes, final LocalDateTime createdDate) {
         return caseNoteService.getCaseNotesEvents(noteTypes, createdDate);
+    }
+
+    @Override
+    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, final LocalDateTime createdDate, final Long limit) {
+        return caseNoteService.getCaseNotesEvents(noteTypes, createdDate, limit);
     }
 
     @Override

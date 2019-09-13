@@ -14,56 +14,39 @@ import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import org.slf4j.Logger;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
-import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import javax.ws.rs.ext.ExceptionMapper;
 
-
 @Configuration
 @EnableWebMvc
 @EnableScheduling
 @EnableCaching(proxyTargetClass = true)
 @EnableAsync(proxyTargetClass = true)
-public class ServletContextConfigs extends ResourceConfig implements BeanFactoryAware  {
+public class ServletContextConfigs extends ResourceConfig {
 
     @Value("${server.servlet.context-path:}")
     private String contextPath;
     @Value("${spring.jersey.application-path:/api}")
     private String apiPath;
 
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private BuildProperties buildProperties;
 
     @Value("${api.resource.packages}")
     private String[] apiResourcePackages;
-
-    private BeanFactory beanFactory;
-    private SpringConstraintValidatorFactory constraintValidatorFactory;
-    private LocalValidatorFactoryBean localValidatorFactoryBean;
-
-    @Override
-    public void setBeanFactory(final BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-    }
 
     @Autowired
     public void setEnv(final ConfigurableEnvironment env) {
@@ -86,28 +69,6 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         });
     }
 
-    @Bean(name = "SpringWebConstraintValidatorFactory")
-    public SpringConstraintValidatorFactory validatorFactory() {
-        constraintValidatorFactory = new SpringConstraintValidatorFactory((AutowireCapableBeanFactory) beanFactory);
-        return constraintValidatorFactory;
-    }
-
-    @Bean(name = "LocalValidatorFactoryBean")
-    @DependsOn(value = "SpringWebConstraintValidatorFactory")
-    public LocalValidatorFactoryBean validator() {
-        localValidatorFactoryBean = new LocalValidatorFactoryBean();
-        localValidatorFactoryBean.setConstraintValidatorFactory(constraintValidatorFactory);
-        return localValidatorFactoryBean;
-    }
-
-    @Bean
-    @DependsOn(value = "LocalValidatorFactoryBean")
-    public MethodValidationPostProcessor methodPostProcessor() {
-        final var methodValidationPostProcessor = new MethodValidationPostProcessor();
-        methodValidationPostProcessor.setValidator(localValidatorFactoryBean);
-        return methodValidationPostProcessor;
-    }
-
     @PostConstruct
     public void init() {
         configureSwagger();
@@ -126,19 +87,19 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         config.setTitle("HMPPS Nomis API Documentation");
         config.setVersion(getVersion());
         config.setContact("HMPPS Sheffield Studio Development Team");
-        config.setSchemes(new String[] { "https" });
+        config.setSchemes(new String[]{"https"});
         config.setBasePath(contextPath + apiPath);
         config.setResourcePackage("net.syscon.elite.api");
         config.setPrettyPrint(true);
         config.setScan(true);
     }
 
-    private String getVersion(){
+    private String getVersion() {
         return buildProperties == null ? "version not available" : buildProperties.getVersion();
     }
 
     @Bean
-    public  Logger getLogger() {
+    public Logger getLogger() {
         return org.slf4j.LoggerFactory.getLogger("net.syscon.elite");
     }
 }
