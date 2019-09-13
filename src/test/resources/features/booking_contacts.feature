@@ -35,7 +35,7 @@ Feature: Booking Contacts
     When contact details with booking id -10 is requested
     Then the next of kin results are:
       | lastName  | firstName | middleName | contactType | contactTypeDescription | relationship | relationshipDescription | emergencyContact |
-      | SMITH13   | JESSY     |            | L           |                        | AT           |                         |      true        |
+      | SMITH13   | JESSY     |            | S           | Social/Family          | SDAU         | Stepdaughter            |      true        |
       | ROBERTSON | ELLY      |            | S           | Social/Family          | FRI          | Friend                  |      false       |
 
   Scenario: Offender does not exist or different caseload
