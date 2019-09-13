@@ -1,5 +1,5 @@
 {
   "status": 400,
-  "userMessage": "getCaseNotesEvents.arg2: must not be null",
-  "developerMessage": "javax.validation.ConstraintViolationException: getCaseNotesEvents.arg2: must not be null"
+  "userMessage": "getCaseNotesEvents.limit: must not be null",
+  "developerMessage": "javax.validation.ConstraintViolationException: getCaseNotesEvents.limit: must not be null"
 }
