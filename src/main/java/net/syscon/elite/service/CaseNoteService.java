@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.validation.CaseNoteTypeSubTypeValid;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -37,4 +38,6 @@ public interface CaseNoteService {
     List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, @NotEmpty List<Integer> staffIds, LocalDate fromDate, LocalDate toDate, int numMonths);
 
     List<CaseNoteEvent> getCaseNotesEvents(@NotEmpty final List<String> noteTypes, @NotNull final LocalDateTime createdDate);
+
+    List<CaseNoteEvent> getCaseNotesEvents(@NotEmpty List<String> noteTypes, @NotNull LocalDateTime createdDate, @NotNull @Max(value = 5000) Long limit);
 }

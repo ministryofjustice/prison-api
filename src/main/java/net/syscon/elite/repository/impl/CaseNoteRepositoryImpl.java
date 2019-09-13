@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
@@ -163,9 +164,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
     }
 
     @Override
-    public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate) {
-        return jdbcTemplate.query(getQuery("RECENT_CASE_NOTE_EVENTS"),
-                createParams("fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate)),
+    public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate, final long limit) {
+        return jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(getQuery("RECENT_CASE_NOTE_EVENTS"), Map.of()).addPagination().build(),
+                createParamSource(new PageRequest(0L, limit), "fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate)),
                 CASE_NOTE_EVENT_ROW_MAPPER);
     }
 
