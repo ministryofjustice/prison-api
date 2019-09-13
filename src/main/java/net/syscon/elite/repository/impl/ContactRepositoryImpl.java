@@ -40,7 +40,7 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
             .nextOfKin("Y".equals(rs.getString("NEXT_OF_KIN_FLAG")))
             .expiryDate(DateTimeConverter.toISO8601LocalDate(rs.getObject("EXPIRY_DATE")))
             .commentText(rs.getString("COMMENT_TEXT"))
-            .bookingId(rs.getLong("OFFENDER_BOOK_ID"))
+            .bookingId(rs.getLong("BOOKING_ID"))
             .contactRootOffenderId(rs.getLong("CONTACT_ROOT_OFFENDER_ID"))
             .build();
 
