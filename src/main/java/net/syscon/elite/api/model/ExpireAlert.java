@@ -1,24 +1,29 @@
 package net.syscon.elite.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
-import java.time.LocalDate;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
-@ApiModel(description = "Update an existing alert")
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+
+@ApiModel(description = "Expire an alert")
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class UpdateAlert {
+public class ExpireAlert {
     @ApiModelProperty(value = "Date the alert became inactive", example = "2019-02-13", required = true)
     @NotNull
     private LocalDate expiryDate;
 
-    @ApiModelProperty(value = "Alert status", allowableValues="INACTIVE,ACTIVE", example = "ACTIVE", required = true)
-    @NotBlank
-    private String alertStatus;
+    @JsonIgnore
+    public String getAlertStatus() {
+        if (expiryDate == null)
+            throw new IllegalArgumentException("Expiry date is null");
+
+        return expiryDate.compareTo(LocalDate.now()) <= 0  ? "INACTIVE" : "ACTIVE";
+    }
 }

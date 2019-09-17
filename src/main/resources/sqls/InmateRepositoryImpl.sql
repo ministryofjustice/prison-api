@@ -308,6 +308,34 @@ FIND_PHYSICAL_MARKS_BY_BOOKING {
     AND M.BODY_PART_CODE != 'CONV'
 }
 
+FIND_PERSONAL_CARE_NEEDS_BY_BOOKING {
+SELECT OHP.PROBLEM_TYPE,
+       OHP.PROBLEM_CODE,
+       OHP.PROBLEM_STATUS,
+       ref.DESCRIPTION as PROBLEM_DESCRIPTION,
+       OHP.START_DATE,
+       OHP.END_DATE
+FROM OFFENDER_HEALTH_PROBLEMS OHP
+         LEFT JOIN REFERENCE_CODES ref
+                   ON ref.CODE = OHP.PROBLEM_CODE
+                       AND ref.DOMAIN = 'HEALTH_PBLM'
+WHERE OHP.START_DATE <= sysdate
+  AND (OHP.END_DATE >= sysdate or OHP.END_DATE is null)
+  AND OHP.OFFENDER_BOOK_ID = :bookingId }
+
+FIND_REASONABLE_ADJUSTMENTS_BY_BOOKING{
+SELECT OHP.OFFENDER_BOOK_ID, OMT.TREATMENT_CODE, OMT.COMMENT_TEXT, OMT.DESCRIPTION, OMT.START_DATE, OMT.END_DATE
+FROM OFFENDER_MEDICAL_TREATMENTS OMT
+         JOIN OFFENDER_HEALTH_PROBLEMS OHP
+              ON OHP.OFFENDER_HEALTH_PROBLEM_ID = OMT.OFFENDER_HEALTH_PROBLEM_ID
+                  AND OHP.START_DATE <= sysdate
+                  AND (OHP.END_DATE >= sysdate or OHP.END_DATE is null)
+         JOIN OFFENDER_BOOKINGS OBT
+              ON OBT.OFFENDER_BOOK_ID = OHP.OFFENDER_BOOK_ID
+WHERE OMT.TREATMENT_CODE in (:treatmentCodes)
+  AND OHP.OFFENDER_BOOK_ID = :bookingId;
+}
+
 FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING {
     SELECT O.SEX_CODE,
            O.RACE_CODE,
@@ -474,6 +502,7 @@ GET_OFFENDER_CATEGORISATIONS {
     o.last_name,
     o.first_name,
     off_ass.assessment_seq,
+    off_ass.next_review_date,
     off_ass.assessment_date,
     off_ass.evaluation_date as approval_date,
     COALESCE(off_ass.review_sup_level_type, off_ass.overrided_sup_level_type, off_ass.calc_sup_level_type) as category,
@@ -558,6 +587,16 @@ APPROVE_CATEGORY_SET_STATUS {
     ASSESS_STATUS=:assessStatus
   where OFFENDER_BOOK_ID=:bookingId
     and ASSESSMENT_SEQ in (:seq)
+}
+
+UPDATE_CATEORY_NEXT_REVIEW_DATE {
+  update OFFENDER_ASSESSMENTS
+  set
+    NEXT_REVIEW_DATE=:nextReviewDate
+  where OFFENDER_BOOK_ID=:bookingId
+  and ASSESSMENT_SEQ = (SELECT MAX (OA.ASSESSMENT_SEQ) FROM OFFENDER_ASSESSMENTS OA
+                        WHERE OA.OFFENDER_BOOK_ID = :bookingId and OA.ASSESS_STATUS = 'A' and OA.ASSESSMENT_TYPE_ID=:assessmentTypeId)
+
 }
 
 OFFENDER_ASSESSMENTS_SEQ_MAX {

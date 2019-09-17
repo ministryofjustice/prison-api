@@ -4,7 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.UpdateAlert;
+import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
@@ -14,7 +14,6 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateAlertService;
 import net.syscon.elite.service.ReferenceDomainService;
-import net.syscon.elite.service.UserService;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,6 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
     private final InmateAlertRepository inmateAlertRepository;
     private final AuthenticationFacade authenticationFacade;
-    private final UserService userService;
     private final TelemetryClient telemetryClient;
     private final ReferenceDomainService referenceDomainService;
 
@@ -41,12 +39,11 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     public InmateAlertServiceImpl(
             final InmateAlertRepository inmateAlertRepository,
             final AuthenticationFacade authenticationFacade,
-            final UserService userService,
-            final TelemetryClient telemetryClient, ReferenceDomainService referenceDomainService) {
+            final TelemetryClient telemetryClient,
+            final ReferenceDomainService referenceDomainService) {
 
         this.inmateAlertRepository = inmateAlertRepository;
         this.authenticationFacade = authenticationFacade;
-        this.userService = userService;
         this.telemetryClient = telemetryClient;
         this.referenceDomainService = referenceDomainService;
     }
@@ -142,10 +139,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         if (matches) throw new IllegalArgumentException("Alert already exists for this offender.");
 
         final var username = authenticationFacade.getCurrentUsername();
-        final var userDetails = userService.getUserByUsername(username);
-
-        final var alertId =  inmateAlertRepository.createNewAlert(bookingId, alert,
-                userDetails.getActiveCaseLoadId());
+        final var alertId =  inmateAlertRepository.createNewAlert(bookingId, alert);
 
         log.info("Created new alert {}", alert);
         telemetryClient.trackEvent("Alert created", Map.of(
@@ -163,23 +157,26 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
-    public Alert updateAlert(final long bookingId, final long alertSeq, final UpdateAlert updateAlert) {
+    public Alert expireAlert(final long bookingId, final long alertSeq, final ExpireAlert expireAlert) {
         final var username = authenticationFacade.getCurrentUsername();
-        final var userDetails = userService.getUserByUsername(username);
 
-        final var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, updateAlert,
-                userDetails.getActiveCaseLoadId())
+        final var existingAlert = inmateAlertRepository.getAlert(bookingId, alertSeq)
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
-        alert.setExpired(isExpiredAlert(alert));
+        if (!existingAlert.isActive())
+            throw new IllegalArgumentException("Alert is already inactive.");
 
-        log.info("Updated alert {}", alert);
+        final var alert = inmateAlertRepository.expireAlert(bookingId, alertSeq, expireAlert)
+                .orElseThrow(EntityNotFoundException.withId(alertSeq));
+
+        log.info("Updated updated {}", alert);
         telemetryClient.trackEvent("Alert updated", Map.of(
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
-                "expiryDate", updateAlert.getExpiryDate().toString(),
+                "expiryDate", expireAlert.getExpiryDate().toString(),
                 "updated_by", username
         ), null);
+
 
         return alert;
     }

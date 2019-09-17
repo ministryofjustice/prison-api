@@ -2,7 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.UpdateAlert;
+import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
@@ -89,7 +89,6 @@ public class InmateAlertRepositoryTest {
     @Test
     public void testThatAnAlertGetsCreatedAlongWithTheRelevantWorkFlowTables() {
         final var bookingId = -10L;
-        final var agencyId = "LEI";
         final var alert =  CreateAlert
                 .builder()
                 .alertDate(LocalDate.now())
@@ -98,7 +97,7 @@ public class InmateAlertRepositoryTest {
                 .comment("Poor behaviour")
                 .build();
 
-        final var latestAlertSeq = repository.createNewAlert(bookingId, alert, agencyId);
+        final var latestAlertSeq = repository.createNewAlert(bookingId, alert);
 
         final var alerts = jdbcTemplate.queryForList("SELECT * FROM  OFFENDER_ALERTS WHERE OFFENDER_BOOK_ID = ? AND ALERT_SEQ = ?",
                 bookingId, latestAlertSeq
@@ -128,11 +127,10 @@ public class InmateAlertRepositoryTest {
                 .extracting(
                         extractString("OBJECT_CODE"),
                         extractString("WORK_ACTION_CODE"),
-                        extractString("LOCATE_AGY_LOC_ID"),
                         extractString("CREATE_USER_ID"),
                         extractDate("CREATE_DATE"),
                         extractString("WORK_FLOW_STATUS"))
-                .contains(Tuple.tuple("ALERT", "ENT", "LEI", "SA", LocalDate.now(), "DONE"));
+                .contains(Tuple.tuple("ALERT", "ENT", "SA", LocalDate.now(), "DONE"));
 
     }
 
@@ -142,12 +140,10 @@ public class InmateAlertRepositoryTest {
         final var alertSeq = 1L;
         final var expiryDate = LocalDate.now();
 
-        repository.updateAlert(bookingId, alertSeq, UpdateAlert
+        repository.expireAlert(bookingId, alertSeq, ExpireAlert
                 .builder()
                 .expiryDate(expiryDate)
-                .alertStatus("INACTIVE")
-                .build(),  "LEI");
-
+                .build());
 
         final var alert = repository.getAlert(bookingId, alertSeq).orElse(Alert.builder().build());
 
@@ -172,7 +168,7 @@ public class InmateAlertRepositoryTest {
                 .comment("Poor behaviour")
                 .build();
 
-        final var latestAlertSeq = repository.createNewAlert(-10L, alert, "LEI");
+        final var latestAlertSeq = repository.createNewAlert(-10L, alert);
 
         final var savedAlert = repository.getAlert(-10L, latestAlertSeq).orElseThrow();
 
@@ -189,20 +185,19 @@ public class InmateAlertRepositoryTest {
     }
 
     @Test
-    public void testThatAWorkFlowLogEntryIsWritten_OnUpdateAlert() {
+    public void testThatAWorkFlowLogEntryIsWritten_OnExpireAlert() {
 
         final var alertSeq = repository.createNewAlert(-17L,
                 CreateAlert.builder()
                         .alertType("L")
                         .alertCode("LPQAA")
                         .alertDate(LocalDate.now())
-                        .build(),  "MDI");
+                        .build());
 
-        repository.updateAlert(-17L, alertSeq,
-                UpdateAlert.builder()
-                        .alertStatus("INACTIVE")
+        repository.expireAlert(-17L, alertSeq,
+                ExpireAlert.builder()
                         .expiryDate(LocalDate.now())
-                        .build(),  "LEI");
+                        .build());
 
         final var workFlogLogEntry = jdbcTemplate.queryForList(
                     " SELECT * FROM WORK_FLOW_LOGS WFL " +

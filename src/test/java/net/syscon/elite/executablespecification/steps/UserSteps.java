@@ -13,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -245,10 +246,12 @@ public class UserSteps extends CommonSteps {
                 url += String.format("?=%s", queryParameters);
         }
 
+        applyPagination(0L, 100L);
+
         final var response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
-                createEntity(),
+                createEntity(null, addPaginationHeaders()),
                 new ParameterizedTypeReference<List<UserDetail>>() {
                 },
                 caseload);

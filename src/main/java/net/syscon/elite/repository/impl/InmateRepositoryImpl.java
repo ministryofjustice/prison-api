@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -96,6 +97,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final Map<String, FieldMapper> physicalMarkMapping = new ImmutableMap.Builder<String, FieldMapper>()
             .put("COMMENT_TEXT", new FieldMapper("comment"))
             .build();
+
+    private final StandardBeanPropertyRowMapper<PersonalCareNeed> PERSONAL_CARE_NEEDS_MAPPER = new StandardBeanPropertyRowMapper<>(PersonalCareNeed.class);
+    private final StandardBeanPropertyRowMapper<ReasonableAdjustment> REASONABLE_ADJUSTMENTS_MAPPER = new StandardBeanPropertyRowMapper<>(ReasonableAdjustment.class);
 
     private final StandardBeanPropertyRowMapper<AssessmentDto> ASSESSMENT_MAPPER = new StandardBeanPropertyRowMapper<>(AssessmentDto.class);
     private final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
@@ -344,6 +348,28 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 sql,
                 createParams("bookingId", bookingId),
                 physicalMarkRowMapper);
+    }
+
+    @Override
+    @Cacheable("bookingPersonalCareNeeds")
+    public List<PersonalCareNeed> findPersonalCareNeeds(final long bookingId) {
+        final var sql = getQuery("FIND_PERSONAL_CARE_NEEDS_BY_BOOKING");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId),
+                PERSONAL_CARE_NEEDS_MAPPER);
+    }
+
+    @Override
+    @Cacheable("bookingReasonableAdjustments")
+    public List<ReasonableAdjustment> findReasonableAdjustments(final long bookingId, final List<String> treatmentCodes) {
+        final var sql = getQuery("FIND_REASONABLE_ADJUSTMENTS_BY_BOOKING");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId, "treatmentCodes", treatmentCodes),
+                REASONABLE_ADJUSTMENTS_MAPPER);
     }
 
     @Override
@@ -733,6 +759,26 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             }
         }
     }
+
+    @Override
+    public void updateActiveCategoryNextReviewDate(final long bookingId, final LocalDate date) {
+        log.debug("Updating categorisation next Review date for booking id {} with value {}", bookingId, date);
+        final var assessmentId = getCategoryAssessmentId();
+
+        final var result = jdbcTemplate.update(
+                getQuery("UPDATE_CATEORY_NEXT_REVIEW_DATE"),
+                createParams("bookingId", bookingId,
+                        "assessmentTypeId", assessmentId,
+                        "nextReviewDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))
+                )
+        );
+
+        if (result != 1) {
+            log.error("Unable to update next review date, could not find latest, active categorisation for booking id {}", bookingId);
+            throw new NotFoundException(String.format("Unable to update next review date, could not find latest, active categorisation for booking id %d", bookingId));
+        }
+    }
+
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final boolean accessToAllData, final Set<String> caseloads, boolean active) {

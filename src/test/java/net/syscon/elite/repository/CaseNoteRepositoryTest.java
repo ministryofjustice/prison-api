@@ -1,10 +1,12 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.CaseNoteEvent;
 import net.syscon.elite.api.model.CaseNoteUsageByBookingId;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.web.config.CacheConfig;
 import net.syscon.elite.web.config.PersistenceConfigs;
+import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
+@SuppressWarnings("SqlResolve")
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -44,7 +47,6 @@ public class CaseNoteRepositoryTest {
     public void testGetCaseNoteTypesByCaseLoadType() {
         final var types = repository.getCaseNoteTypesByCaseLoadType("COMM");
 
-        assertThat(types).isNotEmpty();
         //noinspection unchecked
         assertThat(types).extracting(ReferenceCode::getSubCodes).containsOnly(List.of());
     }
@@ -127,6 +129,46 @@ public class CaseNoteRepositoryTest {
         assertThat(notes).containsOnly(
                 new CaseNoteUsageByBookingId(-3, "OBSERVE", "OBS_GEN", 6, LocalDateTime.parse("2017-07-31T12:00")),
                 new CaseNoteUsageByBookingId(-16, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
+    }
+
+    @Test
+    public void getCaseNoteEvents() {
+        final var start = LocalDateTime.now();
+        final var caseNote = newCaseNote();
+        caseNote.setText("Testing of events");
+        final var id = repository.createCaseNote(-4, caseNote, "source", "user", -2L);
+
+        final var caseNoteEvents = repository.getCaseNoteEvents(start, 1000);
+        assertThat(caseNoteEvents).extracting(
+                CaseNoteEvent::getNomsId,
+                CaseNoteEvent::getId,
+                CaseNoteEvent::getContent,
+                CaseNoteEvent::getEstablishmentCode,
+                CaseNoteEvent::getNoteType,
+                CaseNoteEvent::getStaffName
+        ).contains(Tuple.tuple(
+                "A1234AD",
+                id,
+                "Testing of events",
+                "LEI",
+                "GEN HIS",
+                "User, Api"
+        ));
+        final var event = caseNoteEvents.stream().filter((e) -> e.getContent().equals("Testing of events")).findFirst().orElseThrow();
+        assertThat(event.getContactTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));
+        assertThat(event.getNotificationTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));
+    }
+
+    @Test
+    public void getCaseNoteEvents_Limit() {
+        final var start = LocalDateTime.now();
+        final var caseNote = newCaseNote();
+        caseNote.setText("Testing of events");
+        repository.createCaseNote(-4, caseNote, "source", "user", -2L);
+        repository.createCaseNote(-4, caseNote, "source", "user", -2L);
+
+        final var caseNoteEvents = repository.getCaseNoteEvents(start, 1);
+        assertThat(caseNoteEvents).hasSize(1);
     }
 
     private NewCaseNote newCaseNote() {

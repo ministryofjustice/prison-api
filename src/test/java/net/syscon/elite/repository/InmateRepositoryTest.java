@@ -956,6 +956,20 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    @Transactional
+    public void testUpdateCategoryNextReviewDate() {
+
+        final var newNextReviewDate = LocalDate.of(2019, 2, 27);
+        final var existingNextReviewDate = LocalDate.of(2018, 6, 1);
+        repository.updateActiveCategoryNextReviewDate(-1L, newNextReviewDate);
+
+        final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-1L), "LEI", false);
+        assertThat(catList.get(1).getNextReviewDate()).isEqualTo(newNextReviewDate);
+        //should not have updated the later pending record
+        assertThat(catList.get(0).getNextReviewDate()).isEqualTo(existingNextReviewDate);
+    }
+
+    @Test
     public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"), false, Set.of("LEI"), true);
         assertThat(offenders).hasSize(1);
@@ -1020,6 +1034,36 @@ public class InmateRepositoryTest {
         assertThat(physicalAttributes).get().isEqualToIgnoringGivenFields(
                 new PhysicalAttributes(Collections.emptyMap(), "Male", "W1", "White: British", 5, 6, null, 168, 165, 75),
                 "additionalProperties");
+    }
+
+    @Test
+    public void getPersonalCareNeeds() {
+        final var expectedInfo = List.of(
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON").problemDescription("No Disability").startDate(LocalDate.of(2010, 6, 21)).build(),
+                PersonalCareNeed.builder().problemType("PHY").problemCode("ASTH").problemStatus("ON").problemDescription("Asthmatic").startDate(LocalDate.of(2010, 6, 21)).build(),
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").startDate(LocalDate.of(2010, 6, 21)).build());
+        final var info = repository.findPersonalCareNeeds(-1);
+        assertThat(info).isEqualTo(expectedInfo);
+    }
+
+    @Test
+    public void getReasonableAdjustment() {
+        final var expectedInfo = List.of(
+                ReasonableAdjustment.builder()
+                        .treatmentCode("WHEELCHR_ACC")
+                        .commentText("abcd")
+                        .description(null)
+                        .startDate(LocalDate.of(2010, 6, 21))
+                        .build(),
+                ReasonableAdjustment.builder()
+                        .treatmentCode("PEEP")
+                        .commentText("EFGH")
+                        .description(null)
+                        .startDate(LocalDate.of(2010, 6, 21))
+                        .build());
+        final var treatmentCodes = List.of("WHEELCHR_ACC", "PEEP");
+        final var info = repository.findReasonableAdjustments(-1, treatmentCodes);
+        assertThat(info).isEqualTo(expectedInfo);
     }
 
     /*****************************************************************************************/

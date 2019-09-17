@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -46,12 +48,13 @@ public class ContactServiceImpl implements ContactService {
         final var contacts = repository.getOffenderRelationships(bookingId, null);
 
         Comparator<Contact> sortCriteria = (c1, c2) -> Boolean.compare(
-                c2.getEmergencyContact(), c1.getEmergencyContact());
+                c2.isEmergencyContact(), c1.isEmergencyContact());
 
         sortCriteria = sortCriteria.thenComparing(Contact::getLastName);
 
         final var list = contacts.stream()
-                .filter(Contact::getNextOfKin)
+                .filter(Contact::isActiveFlag)
+                .filter(Contact::isNextOfKin)
                 .sorted(sortCriteria)
                 .collect(toList());
         return ContactDetail.builder().nextOfKin(list).build();
@@ -59,14 +62,17 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public List<Contact> getRelationships(final Long bookingId, final String relationshipType) {
-        return repository.getOffenderRelationships(bookingId, relationshipType);
+    public List<Contact> getRelationships(final Long bookingId, final String relationshipType, final boolean activeOnly) {
+        return repository.getOffenderRelationships(bookingId, relationshipType)
+                .stream()
+                .filter(r -> !activeOnly || r.isActiveFlag())
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
+    public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType, final boolean activeOnly) {
         final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-        return getRelationships(bookingId, relationshipType);
+        return getRelationships(bookingId, relationshipType, true);
     }
 
     @Override
@@ -87,32 +93,31 @@ public class ContactServiceImpl implements ContactService {
 
         final var person = createPersonAndRef(relationshipDetail, relationshipDetail.getPersonId());
 
-        // now check the relationship exists already
-        final var offenderRelationships = getOffenderRelationships(bookingId, relationshipDetail);
+        final var activeRel = new AtomicLong();
 
-        // should only be one of this type
-        final var existingRelationship = offenderRelationships.stream()
-                .filter(r -> r.getPersonId().equals(person.getPersonId()))
-                .findFirst();
+        // now check the relationship exists already and mark active and turn others inactive.
+        getRelationships(bookingId, relationshipDetail.getRelationshipType(), false)
+                .forEach(rel -> {
+                    if (rel.getPersonId().equals(person.getPersonId()) && activeRel.get() == 0) {
+                        // set the contact with same person to active.
+                        if (!rel.isActiveFlag()) {
+                            repository.updateRelationship(rel.getRelationshipId(), rel.getPersonId(), true);
+                        }
+                        activeRel.set(rel.getRelationshipId());
+                    } else {
+                        // set all the others to inactive
+                        repository.updateRelationship(rel.getRelationshipId(), rel.getPersonId(), false);
+                    }
+                });
 
-        if (existingRelationship.isPresent()) {
-            return existingRelationship.get();
+        // if we didn't find a relationship for that person, all others are now inactive, create a new record with this person/offender relationship
+        if (activeRel.get() == 0) {
+            activeRel.set(repository.createRelationship(person.getPersonId(), bookingId, relationshipDetail.getRelationshipType(), OFFICIAL_CONTACT_TYPE));
         }
 
-        if (offenderRelationships.isEmpty()) {
-            repository.createRelationship(person.getPersonId(), bookingId, relationshipDetail.getRelationshipType(), OFFICIAL_CONTACT_TYPE);
-        } else {
-            repository.updateRelationship(person.getPersonId(), offenderRelationships.get(0).getRelationshipId());
-        }
-        // reload
-        return getOffenderRelationships(bookingId, relationshipDetail).stream()
-                .filter(r -> r.getPersonId().equals(person.getPersonId()))
-                .findFirst().orElseThrow(EntityNotFoundException.withId(bookingId));
+        return repository.getOffenderRelationship(activeRel.get()).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
-    private List<Contact> getOffenderRelationships(final Long bookingId, final OffenderRelationship relationshipDetail) {
-        return repository.getOffenderRelationships(bookingId, relationshipDetail.getRelationshipType());
-    }
 
     private Person createPersonAndRef(final OffenderRelationship relationshipDetail, final Long personId) {
         var foundRef = false;

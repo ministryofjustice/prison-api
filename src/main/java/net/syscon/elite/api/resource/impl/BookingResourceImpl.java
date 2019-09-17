@@ -260,9 +260,9 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @ProxyUser
-    public Response updateAlert(final Long bookingId, final Long alertSeq, final UpdateAlert alert) {
-        final var updatedAlert = inmateAlertService.updateAlert(bookingId, alertSeq, alert);
-        return Response.status(200).entity(updatedAlert).build();
+    public Response setAlertExpiry(final Long bookingId, final Long alertSeq, final ExpireAlert alert) {
+        final var expiredAlert = inmateAlertService.expireAlert(bookingId, alertSeq, alert);
+        return Response.status(200).entity(expiredAlert).build();
     }
 
     @Override
@@ -510,19 +510,29 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public PersonalCareNeeds getPersonalCareNeeds(final Long bookingId, final List<String> problemTypes) {
+        return inmateService.getPersonalCareNeeds(bookingId, problemTypes);
+    }
+
+    @Override
+    public ReasonableAdjustments getReasonableAdjustments(final Long bookingId, final List<String> treatmentCodes) {
+        return inmateService.getReasonableAdjustments(bookingId, treatmentCodes);
+    }
+
+    @Override
     public GetProfileInformationResponse getProfileInformation(final Long bookingId) {
         return GetProfileInformationResponse.respond200WithApplicationJson(inmateService.getProfileInformation(bookingId));
     }
 
     @Override
     public BookingResource.GetRelationshipsResponse getRelationships(final Long bookingId, final String relationshipType) {
-        final var relationships = contactService.getRelationships(bookingId, relationshipType);
+        final var relationships = contactService.getRelationships(bookingId, relationshipType, true);
         return BookingResource.GetRelationshipsResponse.respond200WithApplicationJson(relationships);
     }
 
     @Override
     public GetRelationshipsByOffenderNoResponse getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
-        final var relationships = contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType);
+        final var relationships = contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType, true);
         return GetRelationshipsByOffenderNoResponse.respond200WithApplicationJson(relationships);
     }
 

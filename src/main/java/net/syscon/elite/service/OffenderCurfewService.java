@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface OffenderCurfewService {
 
-    List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(String username, Optional<LocalDate> minimumChecksPassedDateForAssessedCurfews);
+    List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(String username);
 
     void setHdcChecks(long bookingId, @Valid HdcChecks hdcChecks);
 

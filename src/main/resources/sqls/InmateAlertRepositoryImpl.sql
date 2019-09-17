@@ -30,6 +30,7 @@ FIND_INMATE_ALERT {
        select ALERT_SEQ,
               ALERT_DATE,
               ALERT_TYPE,
+              ALERT_STATUS,
               COALESCE(alType.DESCRIPTION, ALERT_TYPE) as ALERT_TYPE_DESC,
               ALERT_CODE,
               COALESCE(alCode.DESCRIPTION, ALERT_CODE) as ALERT_CODE_DESC,
@@ -132,7 +133,6 @@ INSERT_WORK_FLOW_LOG {
         WORK_ACTION_DATE,
         WORK_FLOW_STATUS,
         CREATE_DATE,
-        LOCATE_AGY_LOC_ID,
         CREATE_USER_ID
     )
     VALUES (
@@ -142,7 +142,6 @@ INSERT_WORK_FLOW_LOG {
         SYSDATE,
         :workFlowStatus,
         SYSDATE,
-        :agencyId,
         USER
     )
 }
@@ -155,7 +154,6 @@ INSERT_NEXT_WORK_FLOW_LOG {
                   WORK_ACTION_DATE,
                   WORK_FLOW_STATUS,
                   CREATE_DATE,
-                  LOCATE_AGY_LOC_ID,
                   CREATE_USER_ID)
                  SELECT
                     WF.WORK_FLOW_ID,
@@ -164,7 +162,6 @@ INSERT_NEXT_WORK_FLOW_LOG {
                     SYSDATE,
                     :workFlowStatus,
                     SYSDATE,
-                    :agencyId,
                     USER
                 FROM WORK_FLOWS WF
           WHERE WF.OBJECT_ID = :bookingId

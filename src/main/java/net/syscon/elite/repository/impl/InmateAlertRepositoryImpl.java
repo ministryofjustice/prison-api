@@ -3,7 +3,7 @@ package net.syscon.elite.repository.impl;
 import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.UpdateAlert;
+import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
@@ -120,7 +120,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final UpdateAlert alert, final String agencyId) {
+    public Optional<Alert> expireAlert(final long bookingId, final long alertSeq, final ExpireAlert alert) {
         final var updateAlertSql = getQuery("UPDATE_ALERT");
         final var insertNextWorkFlowLogEntry = getQuery("INSERT_NEXT_WORK_FLOW_LOG");
 
@@ -139,7 +139,6 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                 createParams(
                         "bookingId", bookingId,
                         "alertSeq", alertSeq,
-                        "agencyId", agencyId,
                         "actionCode", "MOD",
                         "workFlowStatus", "DONE",
                         "alertCode", "ALERT"
@@ -150,7 +149,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public long createNewAlert(final long bookingId, final CreateAlert alert, String agencyId) {
+    public long createNewAlert(final long bookingId, final CreateAlert alert) {
         final var createAlert = getQuery("CREATE_ALERT");
         final var insertWorkFlow = getQuery("INSERT_WORK_FLOW");
         final var insertWorkFlowLog = getQuery("INSERT_WORK_FLOW_LOG");
@@ -191,8 +190,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "workFlowId", workFlowId,
                         "workFlowSeq", 1,
                         "actionCode", "ENT",
-                        "workFlowStatus", "DONE",
-                        "agencyId", agencyId
+                        "workFlowStatus", "DONE"
                 )
         );
 

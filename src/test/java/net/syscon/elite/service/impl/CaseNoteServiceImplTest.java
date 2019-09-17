@@ -1,13 +1,13 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.CaseNoteEvent;
 import net.syscon.elite.api.model.CaseNoteUsageByBookingId;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.UserService;
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +58,7 @@ public class CaseNoteServiceImplTest {
     }
 
     @Test
-    public void testCaseNoteAmendmentRestriction () {
+    public void testCaseNoteAmendmentRestriction() {
         when(repository.getCaseNote(1L, 1L))
                 .thenReturn(Optional.of(CaseNote
                         .builder()
@@ -81,7 +81,7 @@ public class CaseNoteServiceImplTest {
     }
 
     @Test
-    public void testThatTheCaseNoteAmendmentRestrictions_AreIgnoredGivenTheCorrectRole () {
+    public void testThatTheCaseNoteAmendmentRestrictions_AreIgnoredGivenTheCorrectRole() {
         when(repository.getCaseNote(1L, 1L))
                 .thenReturn(Optional.of(CaseNote
                         .builder()
@@ -103,5 +103,43 @@ public class CaseNoteServiceImplTest {
         caseNoteService.updateCaseNote(1L, 1L, "staff2", "update text");
 
         verify(repository).updateCaseNote(anyLong(), anyLong(), anyString(), anyString());
+    }
+
+    @Test
+    public void getCaseNotesEvents_noLimit() {
+        final var fromDate = LocalDateTime.now();
+        final var fredEvent = createEvent("FRED", "JOE");
+        final var bobJoeEvent = createEvent("BOB", "JOE");
+        when(repository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "FRED"), fromDate);
+
+        assertThat(events).containsExactly(bobJoeEvent, fredEvent);
+        verify(repository).getCaseNoteEvents(fromDate, Long.MAX_VALUE);
+    }
+
+    @Test
+    public void getCaseNotesEvents() {
+        final var fromDate = LocalDateTime.now();
+        final var fredEvent = createEvent("FRED", "JOE");
+        final var bobJoeEvent = createEvent("BOB", "JOE");
+        when(repository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "FRED"), fromDate, 10L);
+
+        assertThat(events).containsExactly(bobJoeEvent, fredEvent);
+        verify(repository).getCaseNoteEvents(fromDate, 10L);
+    }
+
+    @Test
+    public void getCaseNotesEvents_testTrimAndSeparation() {
+        final var fromDate = LocalDateTime.now();
+        final var fredEvent = createEvent("FRED", "JOE");
+        final var bobJoeEvent = createEvent("BOB", "JOE");
+        when(repository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent));
+        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "   FRED JOE  "), fromDate, 20L);
+        assertThat(events).containsExactly(bobJoeEvent, fredEvent);
+    }
+
+    private CaseNoteEvent createEvent(final String type, final String subType) {
+        return CaseNoteEvent.builder().mainNoteType(type).subNoteType(subType).build();
     }
 }

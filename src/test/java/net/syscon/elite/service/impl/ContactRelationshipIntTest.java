@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.Contact;
 import net.syscon.elite.api.model.OffenderRelationship;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.ContactService;
@@ -30,8 +31,8 @@ public class ContactRelationshipIntTest {
     @Test
     @WithMockUser(username= "ITAG_USER", roles = { "CONTACT_CREATE" })
     public void testCreateRelationshipWithMultipleOffendersAndLinkedRelationships() {
-        var contactList = contactService.getRelationships(BOOKING1_ID, "COM");
-        assertThat(contactList).isEmpty();
+        var contactList = contactService.getRelationships(BOOKING1_ID, "COM", false);
+        assertThat(contactList).hasSize(4);
 
         final var relationship = contactService.createRelationship(BOOKING1_ID,
                 OffenderRelationship.builder()
@@ -45,7 +46,10 @@ public class ContactRelationshipIntTest {
         assertThat(relationship.getRelationshipId()).isNotNull();
         assertThat(relationship.getPersonId()).isNotNull();
 
-        contactList = contactService.getRelationships(BOOKING1_ID, "COM");
+        contactList = contactService.getRelationships(BOOKING1_ID, "COM", false);
+        assertThat(contactList).hasSize(5);
+
+        contactList = contactService.getRelationships(BOOKING1_ID, "COM", true);
 
         assertThat(contactList).isNotEmpty();
         assertThat(contactList).hasSize(1);
@@ -73,7 +77,7 @@ public class ContactRelationshipIntTest {
         assertThat(updatedRelationship.getPersonId()).isEqualTo(relationship.getPersonId());
         assertThat(updatedRelationship.getRelationshipId()).isEqualTo(relationship.getRelationshipId());
 
-        contactList = contactService.getRelationships(BOOKING1_ID, "COM");
+        contactList = contactService.getRelationships(BOOKING1_ID, "COM", true);
         assertThat(contactList.get(0).getFirstName()).isEqualTo("NewFirstName");
         assertThat(contactList.get(0).getLastName()).isEqualTo("NewLastName");
 
@@ -91,12 +95,12 @@ public class ContactRelationshipIntTest {
                         .relationshipType("COM")
                         .build());
 
-        contactList = contactService.getRelationships(BOOKING2_ID, "COM");
+        contactList = contactService.getRelationships(BOOKING2_ID, "COM", true);
         assertThat(contactList.get(0).getFirstName()).isEqualTo("AnotherFirstName");
         assertThat(contactList.get(0).getLastName()).isEqualTo("AnotherLastName");
 
         assertThat(updatedSecondRelationship.getPersonId()).isNotEqualTo(secondRelationship.getPersonId());
-        assertThat(updatedSecondRelationship.getRelationshipId()).isEqualTo(secondRelationship.getRelationshipId());
+        assertThat(updatedSecondRelationship.getRelationshipId()).isNotEqualTo(secondRelationship.getRelationshipId());
 
         final var newUpdatedSecondRelationship = contactService.createRelationship(BOOKING2_ID,
                 OffenderRelationship.builder()
@@ -108,13 +112,26 @@ public class ContactRelationshipIntTest {
                         .build());
 
         assertThat(newUpdatedSecondRelationship.getPersonId()).isEqualTo(relationship.getPersonId());
-        assertThat(newUpdatedSecondRelationship.getRelationshipId()).isEqualTo(updatedSecondRelationship.getRelationshipId());
+        assertThat(newUpdatedSecondRelationship.getRelationshipId()).isNotEqualTo(updatedSecondRelationship.getRelationshipId());
 
-        contactList = contactService.getRelationships(BOOKING2_ID, "COM");
+        contactList = contactService.getRelationships(BOOKING2_ID, "COM", true);
         assertThat(contactList.get(0).getFirstName()).isEqualTo("MoreAnotherFirstName");
         assertThat(contactList.get(0).getLastName()).isEqualTo("MoreAnotherLastName");
 
         offenders = bookingService.getBookingsByExternalRefAndType("EX123", "COM");
         assertThat(offenders).hasSize(2);
+
+        final var makeInactiveActiveRel = contactService.createRelationship(BOOKING2_ID,
+                OffenderRelationship.builder()
+                        .firstName("AnotherFirstName")
+                        .lastName("AnotherLastName")
+                        .personId(updatedSecondRelationship.getPersonId())
+                        .relationshipType("COM")
+                        .build());
+
+        final var allRelationships = contactService.getRelationships(BOOKING2_ID, "COM", false);
+        assertThat(allRelationships).hasSize(3);
+        assertThat(allRelationships.stream().filter(Contact::isActiveFlag).count()).isEqualTo(1);
+        assertThat(allRelationships.stream().filter(c -> c.getRelationshipId().equals(makeInactiveActiveRel.getRelationshipId())).count()).isEqualTo(1);
     }
 }

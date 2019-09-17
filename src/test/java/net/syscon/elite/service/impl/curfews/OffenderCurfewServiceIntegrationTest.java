@@ -1,6 +1,9 @@
 package net.syscon.elite.service.impl.curfews;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.val;
 import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.model.HomeDetentionCurfew;
@@ -23,7 +26,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -76,8 +78,7 @@ public class OffenderCurfewServiceIntegrationTest {
                 offenderCurfewRepository,
                 caseloadToAgencyMappingService,
                 bookingService,
-                referenceDomainService,
-                Clock.systemUTC());
+                referenceDomainService);
 
         when(referenceDomainService.isReferenceCodeActive(anyString(), anyString())).thenReturn(true);
 

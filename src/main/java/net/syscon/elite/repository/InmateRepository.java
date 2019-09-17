@@ -71,6 +71,10 @@ public interface InmateRepository {
 
 	List<PhysicalMark> findPhysicalMarks(long inmateId);
 
+	List<PersonalCareNeed> findPersonalCareNeeds(long bookingId);
+
+	List<ReasonableAdjustment> findReasonableAdjustments(long bookingId, List<String> treatmentCodes);
+
     List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadIdsForUser);
     List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean latestOnly, boolean activeOnly);
 	List<OffenderCategorise> getUncategorised(String agencyId);
@@ -87,6 +91,8 @@ public interface InmateRepository {
 	List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue);
 	Map<String, Long> insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId);
 	void approveCategory(CategoryApprovalDetail detail);
+
+    void updateActiveCategoryNextReviewDate(long bookingId, LocalDate date);
 
     List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData, Set<String> caseloads, boolean active);
     List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(String caseload, List<Long> bookingIds);
