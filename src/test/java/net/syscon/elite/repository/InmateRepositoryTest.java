@@ -1036,6 +1036,36 @@ public class InmateRepositoryTest {
                 "additionalProperties");
     }
 
+    @Test
+    public void getPersonalCareNeeds() {
+        final var expectedInfo = List.of(
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON").problemDescription("No Disability").startDate(LocalDate.of(2010, 6, 21)).build(),
+                PersonalCareNeed.builder().problemType("PHY").problemCode("ASTH").problemStatus("ON").problemDescription("Asthmatic").startDate(LocalDate.of(2010, 6, 21)).build(),
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").startDate(LocalDate.of(2010, 6, 21)).build());
+        final var info = repository.findPersonalCareNeeds(-1);
+        assertThat(info).isEqualTo(expectedInfo);
+    }
+
+    @Test
+    public void getReasonableAdjustment() {
+        final var expectedInfo = List.of(
+                ReasonableAdjustment.builder()
+                        .treatmentCode("WHEELCHR_ACC")
+                        .commentText("abcd")
+                        .description(null)
+                        .startDate(LocalDate.of(2010, 6, 21))
+                        .build(),
+                ReasonableAdjustment.builder()
+                        .treatmentCode("PEEP")
+                        .commentText("EFGH")
+                        .description(null)
+                        .startDate(LocalDate.of(2010, 6, 21))
+                        .build());
+        final var treatmentCodes = List.of("WHEELCHR_ACC", "PEEP");
+        final var info = repository.findReasonableAdjustments(-1, treatmentCodes);
+        assertThat(info).isEqualTo(expectedInfo);
+    }
+
     /*****************************************************************************************/
 
     private PrisonerDetailSearchCriteria criteriaForOffenderNo(final String offenderNo) {
