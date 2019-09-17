@@ -98,6 +98,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("COMMENT_TEXT", new FieldMapper("comment"))
             .build();
 
+    private final StandardBeanPropertyRowMapper<PersonalCareNeed> PERSONAL_CARE_NEEDS_MAPPER = new StandardBeanPropertyRowMapper<>(PersonalCareNeed.class);
+    private final StandardBeanPropertyRowMapper<ReasonableAdjustment> REASONABLE_ADJUSTMENTS_MAPPER = new StandardBeanPropertyRowMapper<>(ReasonableAdjustment.class);
+
     private final StandardBeanPropertyRowMapper<AssessmentDto> ASSESSMENT_MAPPER = new StandardBeanPropertyRowMapper<>(AssessmentDto.class);
     private final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
     private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
@@ -345,6 +348,28 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 sql,
                 createParams("bookingId", bookingId),
                 physicalMarkRowMapper);
+    }
+
+    @Override
+    @Cacheable("bookingPersonalCareNeeds")
+    public List<PersonalCareNeed> findPersonalCareNeeds(final long bookingId) {
+        final var sql = getQuery("FIND_PERSONAL_CARE_NEEDS_BY_BOOKING");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId),
+                PERSONAL_CARE_NEEDS_MAPPER);
+    }
+
+    @Override
+    @Cacheable("bookingReasonableAdjustments")
+    public List<ReasonableAdjustment> findReasonableAdjustments(final long bookingId, final List<String> treatmentCodes) {
+        final var sql = getQuery("FIND_REASONABLE_ADJUSTMENTS_BY_BOOKING");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId, "treatmentCodes", treatmentCodes),
+                REASONABLE_ADJUSTMENTS_MAPPER);
     }
 
     @Override

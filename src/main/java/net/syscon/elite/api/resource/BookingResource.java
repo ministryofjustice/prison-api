@@ -478,6 +478,30 @@ public interface BookingResource {
     GetPhysicalMarksResponse getPhysicalMarks(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
 
     @GET
+    @Path("/{bookingId}/personal-care-needs")
+    @Produces({"application/json"})
+    @ApiOperation(value = "Personal Care Needs", notes = "Personal Care Need", nickname = "getPersonalCareNeeds")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PersonalCareNeed.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    PersonalCareNeeds getPersonalCareNeeds(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
+                                           @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @QueryParam("type") List<String> problemTypes);
+
+    @GET
+    @Path("/{bookingId}/reasonable-adjustments")
+    @Produces({"application/json"})
+    @ApiOperation(value = "Reasonable Adjustment Information", notes = "Reasonable Adjustment Information", nickname = "getReasonableAdjustment")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ReasonableAdjustment.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    ReasonableAdjustments getReasonableAdjustments(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
+                                                   @ApiParam(value = "a list of treatment codes to search.", example = "PEEP", required = true) @QueryParam("type") List<String> treatmentCodes);
+
+    @GET
     @Path("/{bookingId}/profileInformation")
     @Consumes({"application/json"})
     @Produces({"application/json"})

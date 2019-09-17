@@ -1,0 +1,5 @@
+{
+  "status": 400,
+  "userMessage": "getPersonalCareNeeds.problemTypes: must not be empty",
+  "developerMessage": "javax.validation.ConstraintViolationException: getPersonalCareNeeds.problemTypes: must not be empty"
+}
