@@ -510,6 +510,16 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public PersonalCareNeeds getPersonalCareNeeds(final Long bookingId, final List<String> problemTypes) {
+        return inmateService.getPersonalCareNeeds(bookingId, problemTypes);
+    }
+
+    @Override
+    public ReasonableAdjustments getReasonableAdjustments(final Long bookingId, final List<String> treatmentCodes) {
+        return inmateService.getReasonableAdjustments(bookingId, treatmentCodes);
+    }
+
+    @Override
     public GetProfileInformationResponse getProfileInformation(final Long bookingId) {
         return GetProfileInformationResponse.respond200WithApplicationJson(inmateService.getProfileInformation(bookingId));
     }

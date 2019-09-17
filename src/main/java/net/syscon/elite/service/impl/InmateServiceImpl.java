@@ -37,6 +37,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.syscon.elite.service.SearchOffenderService.DEFAULT_OFFENDER_SORT;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassification;
@@ -285,6 +286,34 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     @VerifyBookingAccess
+    public PersonalCareNeeds getPersonalCareNeeds(final Long bookingId, final List<String> problemTypes) {
+        final Map<String, List<String>> problemTypesMap = problemTypes.stream()
+                .map(t -> t.trim().replace(' ', '+'))
+                .collect(Collectors.toMap((n) -> StringUtils.substringBefore(n, "+"),
+                        (n) -> {
+                            final var subtype = StringUtils.substringAfter(n, "+");
+                            return subtype.isEmpty() ? List.of() : List.of(subtype);
+                        },
+                        (v1, v2) -> Stream.of(v1, v2).flatMap(Collection::stream).collect(Collectors.toList())));
+
+
+        final var personalCareNeeds = repository.findPersonalCareNeeds(bookingId);
+        final var returnList = personalCareNeeds.stream().filter((personalCareNeed) -> {
+            final var subTypes = problemTypesMap.get(personalCareNeed.getProblemType());
+            // will be null if not in map, otherwise will be empty if type in map with no sub type set
+            return subTypes != null && (subTypes.isEmpty() || subTypes.contains(personalCareNeed.getProblemCode()));
+        }).collect(Collectors.toList());
+        return new PersonalCareNeeds(returnList);
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public ReasonableAdjustments getReasonableAdjustments(final Long bookingId, final List<String> treatmentCodes) {
+        return new ReasonableAdjustments(repository.findReasonableAdjustments(bookingId, treatmentCodes));
+    }
+
+    @Override
+    @VerifyBookingAccess
     public List<ProfileInformation> getProfileInformation(final Long bookingId) {
         return repository.getProfileInformation(bookingId);
     }
@@ -342,7 +371,7 @@ public class InmateServiceImpl implements InmateService {
         }
         return results;
     }
-    
+
     /**
      * @param bookingId tacit
      * @param assessmentCode tacit
