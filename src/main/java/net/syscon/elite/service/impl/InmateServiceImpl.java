@@ -297,7 +297,7 @@ public class InmateServiceImpl implements InmateService {
                         (v1, v2) -> Stream.of(v1, v2).flatMap(Collection::stream).collect(Collectors.toList())));
 
 
-        final var personalCareNeeds = repository.findPersonalCareNeeds(bookingId);
+        final var personalCareNeeds = repository.findPersonalCareNeeds(bookingId, problemTypesMap.keySet());
         final var returnList = personalCareNeeds.stream().filter((personalCareNeed) -> {
             final var subTypes = problemTypesMap.get(personalCareNeed.getProblemType());
             // will be null if not in map, otherwise will be empty if type in map with no sub type set
