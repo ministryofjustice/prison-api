@@ -6,7 +6,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-@ApiModel(description = "Personal Care Needs")
+@ApiModel(description = "Personal Care Need")
 @Data
 @Builder
 @AllArgsConstructor

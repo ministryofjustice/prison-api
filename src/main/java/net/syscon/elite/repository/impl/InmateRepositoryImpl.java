@@ -352,12 +352,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     @Override
     @Cacheable("bookingPersonalCareNeeds")
-    public List<PersonalCareNeed> findPersonalCareNeeds(final long bookingId) {
+    public List<PersonalCareNeed> findPersonalCareNeeds(final long bookingId, final Set<String> problemCodes) {
         final var sql = getQuery("FIND_PERSONAL_CARE_NEEDS_BY_BOOKING");
 
         return jdbcTemplate.query(
                 sql,
-                createParams("bookingId", bookingId),
+                createParams("bookingId", bookingId, "problemCodes", problemCodes),
                 PERSONAL_CARE_NEEDS_MAPPER);
     }
 

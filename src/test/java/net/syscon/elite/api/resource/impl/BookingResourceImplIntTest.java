@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,7 +24,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
     public void getPersonalCaseNeeds() {
         final var bookingId = -1;
 
-        when(inmateRepository.findPersonalCareNeeds(bookingId)).thenReturn(List.of(createPersonalCareNeeds()));
+        when(inmateRepository.findPersonalCareNeeds(bookingId, Set.of("DISAB", "MATSTAT"))).thenReturn(List.of(createPersonalCareNeeds()));
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
 
@@ -31,7 +32,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(responseEntity, 200, "personalcareneeds.json");
 
-        verify(inmateRepository).findPersonalCareNeeds(bookingId);
+        verify(inmateRepository).findPersonalCareNeeds(bookingId, Set.of("DISAB", "MATSTAT"));
     }
 
     @Test
