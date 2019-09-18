@@ -32,8 +32,7 @@ import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVA
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static net.syscon.elite.util.Extractors.extractInteger;
 import static net.syscon.elite.util.Extractors.extractString;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -979,6 +978,7 @@ public class InmateRepositoryTest {
 
         try{
             repository.updateActiveCategoryNextReviewDate(-15655L, newNextReviewDate);
+            fail("Should have thrown an EntityNotFoundException");
         } catch (final EntityNotFoundException e) {
             assertThat(e.getMessage()).isEqualTo("Unable to update next review date, could not find latest, active categorisation for booking id -15655, result count = 0");
         }
