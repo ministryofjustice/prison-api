@@ -980,7 +980,7 @@ public class InmateRepositoryTest {
         try{
             repository.updateActiveCategoryNextReviewDate(-15655L, newNextReviewDate);
         } catch (final EntityNotFoundException e) {
-            assertThat(e.getMessage()).isEqualTo("Unable to update next review date, could not find latest, active categorisation for booking id -15655");
+            assertThat(e.getMessage()).isEqualTo("Unable to update next review date, could not find latest, active categorisation for booking id -15655, result count = 0");
         }
     }
 

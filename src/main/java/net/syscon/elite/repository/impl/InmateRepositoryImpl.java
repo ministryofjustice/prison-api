@@ -774,8 +774,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         );
 
         if (result != 1) {
-            log.error("Unable to update next review date, could not find latest, active categorisation for booking id {}", bookingId);
-            throw new EntityNotFoundException(String.format("Unable to update next review date, could not find latest, active categorisation for booking id %d", bookingId));
+            log.error("Unable to update next review date, could not find latest, active categorisation for booking id {}, result count = {}", bookingId, result);
+            throw new EntityNotFoundException(String.format("Unable to update next review date, could not find latest, active categorisation for booking id %d, result count = %d", bookingId, result));
         }
     }
 
