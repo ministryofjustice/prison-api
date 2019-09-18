@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.Language;
@@ -31,8 +32,7 @@ import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVA
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static net.syscon.elite.util.Extractors.extractInteger;
 import static net.syscon.elite.util.Extractors.extractString;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -967,6 +967,21 @@ public class InmateRepositoryTest {
         assertThat(catList.get(1).getNextReviewDate()).isEqualTo(newNextReviewDate);
         //should not have updated the later pending record
         assertThat(catList.get(0).getNextReviewDate()).isEqualTo(existingNextReviewDate);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateCategoryNextReviewDateForUnknownOffender() {
+
+        final var newNextReviewDate = LocalDate.of(2019, 2, 27);
+        final var existingNextReviewDate = LocalDate.of(2018, 6, 1);
+
+        try{
+            repository.updateActiveCategoryNextReviewDate(-15655L, newNextReviewDate);
+            fail("Should have thrown an EntityNotFoundException");
+        } catch (final EntityNotFoundException e) {
+            assertThat(e.getMessage()).isEqualTo("Unable to update next review date, could not find latest, active categorisation for booking id -15655, result count = 0");
+        }
     }
 
     @Test

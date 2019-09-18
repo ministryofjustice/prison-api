@@ -12,6 +12,7 @@ import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.Language;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -774,8 +774,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         );
 
         if (result != 1) {
-            log.error("Unable to update next review date, could not find latest, active categorisation for booking id {}", bookingId);
-            throw new NotFoundException(String.format("Unable to update next review date, could not find latest, active categorisation for booking id %d", bookingId));
+            var message = String.format("Unable to update next review date, could not find latest, active categorisation for booking id %d, result count = %d", bookingId, result);
+            log.error(message);
+            throw new EntityNotFoundException(String.format(message));
         }
     }
 
