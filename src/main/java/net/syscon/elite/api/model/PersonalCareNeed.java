@@ -27,9 +27,12 @@ public class PersonalCareNeed {
     @ApiModelProperty(value = "Problem Description", position = 4, example = "Preg, acc under 9mths")
     private String problemDescription;
 
-    @ApiModelProperty(value = "Start Date", position = 5, example = "2010-06-21")
+    @ApiModelProperty(value = "Comment Text", position = 5, example = "a comment")
+    private String commentText;
+
+    @ApiModelProperty(value = "Start Date", position = 6, example = "2010-06-21")
     private LocalDate startDate;
 
-    @ApiModelProperty(value = "End Date", position = 6, example = "2010-06-21")
+    @ApiModelProperty(value = "End Date", position = 7, example = "2010-06-21")
     private LocalDate endDate;
 }
