@@ -20,12 +20,9 @@ public class ReasonableAdjustment {
     @ApiModelProperty(value = "Comment Text", position = 2, example = "abcd")
     private String commentText;
 
-    @ApiModelProperty(value = "Description", position = 3, example = "ABCD")
-    private String description;
-
-    @ApiModelProperty(value = "Start Date", position = 4, example = "2010-06-21")
+    @ApiModelProperty(value = "Start Date", position = 3, example = "2010-06-21")
     private LocalDate startDate;
 
-    @ApiModelProperty(value = "End Date", position = 5, example = "2010-06-21")
+    @ApiModelProperty(value = "End Date", position = 4, example = "2010-06-21")
     private LocalDate endDate;
 }

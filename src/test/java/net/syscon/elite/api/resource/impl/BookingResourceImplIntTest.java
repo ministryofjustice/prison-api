@@ -48,8 +48,8 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var treatmentCodes = List.of("WHEELCHR_ACC", "PEEP");
         when(inmateRepository.findReasonableAdjustments(bookingId, treatmentCodes)).thenReturn(
                 List.of(
-                        new ReasonableAdjustment("WHEELCHR_ACC", "abcd", null, LocalDate.of(2010, 6, 21), null),
-                        new ReasonableAdjustment("PEEP", "efgh", null, LocalDate.of(2010, 6, 21), null))
+                        new ReasonableAdjustment("WHEELCHR_ACC", "abcd",  LocalDate.of(2010, 6, 21), null),
+                        new ReasonableAdjustment("PEEP", "efgh",  LocalDate.of(2010, 6, 21), null))
         );
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());

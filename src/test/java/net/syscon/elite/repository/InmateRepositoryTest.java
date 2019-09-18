@@ -1066,13 +1066,11 @@ public class InmateRepositoryTest {
                 ReasonableAdjustment.builder()
                         .treatmentCode("WHEELCHR_ACC")
                         .commentText("abcd")
-                        .description(null)
                         .startDate(LocalDate.of(2010, 6, 21))
                         .build(),
                 ReasonableAdjustment.builder()
                         .treatmentCode("PEEP")
                         .commentText("EFGH")
-                        .description(null)
                         .startDate(LocalDate.of(2010, 6, 21))
                         .build());
         final var treatmentCodes = List.of("WHEELCHR_ACC", "PEEP");
