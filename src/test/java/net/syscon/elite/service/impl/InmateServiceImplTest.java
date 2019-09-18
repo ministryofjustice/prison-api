@@ -320,5 +320,43 @@ public class InmateServiceImplTest {
 
         Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), false, caseLoad, true);
         Mockito.verify(caseLoadService).getCaseLoadIdsForUser("ME", false);
-     }
+    }
+
+    @Test
+    public void testGetPersonalCareNeedsByProblemTypeAndSubtype() {
+        final var problemTypes = List.of("DISAB+RM", "DISAB+RC", "MATSTAT");
+        final var personalCareNeedsAll = List.of(
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("MI").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build(),
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build()
+        );
+        final var personalCareNeeds = new PersonalCareNeeds(
+                List.of(
+                        PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build(),
+                        PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build()
+                )
+        );
+
+        when(repository.findPersonalCareNeeds(1l, Set.of("DISAB", "MATSTAT"))).thenReturn(personalCareNeedsAll);
+
+        final var response = serviceToTest.getPersonalCareNeeds(1l, problemTypes);
+
+        Mockito.verify(repository).findPersonalCareNeeds(1l, Set.of("DISAB", "MATSTAT"));
+        assertThat(response).isEqualTo(personalCareNeeds);
+    }
+
+    @Test
+    public void testGetReasonableAdjustmentsByType() {
+        final var types = List.of("PEEP", "WHEELCHR_ACC");
+        final var reasonableAdjustments = List.of(
+                ReasonableAdjustment.builder().treatmentCode("WHEELCHR_ACC").commentText("abcd").startDate(LocalDate.of(2019, 1, 2)).build()
+        );
+
+        when(repository.findReasonableAdjustments(1l, types)).thenReturn(reasonableAdjustments);
+
+        serviceToTest.getReasonableAdjustments(1l, types);
+
+        Mockito.verify(repository).findReasonableAdjustments(1l, types);
+    }
+
 }
