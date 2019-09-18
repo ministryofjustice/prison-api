@@ -487,7 +487,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     PersonalCareNeeds getPersonalCareNeeds(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
-                                           @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @QueryParam("type") List<String> problemTypes);
+                                           @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @QueryParam("type") List<String> type);
 
     @GET
     @Path("/{bookingId}/reasonable-adjustments")
@@ -499,7 +499,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     ReasonableAdjustments getReasonableAdjustments(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
-                                                   @ApiParam(value = "a list of treatment codes to search.", example = "PEEP", required = true) @QueryParam("type") List<String> treatmentCodes);
+                                                   @ApiParam(value = "a list of treatment codes to search.", example = "PEEP", required = true) @QueryParam("type") List<String> type);
 
     @GET
     @Path("/{bookingId}/profileInformation")

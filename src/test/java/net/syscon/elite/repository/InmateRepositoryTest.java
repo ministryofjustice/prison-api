@@ -1054,8 +1054,8 @@ public class InmateRepositoryTest {
     @Test
     public void getPersonalCareNeeds() {
         final var expectedInfo = List.of(
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON").problemDescription("No Disability").startDate(LocalDate.of(2010, 6, 21)).build(),
-                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").startDate(LocalDate.of(2010, 6, 21)).build());
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON").problemDescription("No Disability").commentText("description 1").startDate(LocalDate.of(2010, 6, 21)).build(),
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").commentText("P1").startDate(LocalDate.of(2010, 6, 21)).build());
         final var info = repository.findPersonalCareNeeds(-1, Set.of("DISAB", "MATSTAT"));
         assertThat(info).isEqualTo(expectedInfo);
     }
