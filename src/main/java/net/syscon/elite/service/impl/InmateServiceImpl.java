@@ -37,7 +37,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static net.syscon.elite.service.SearchOffenderService.DEFAULT_OFFENDER_SORT;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassification;
@@ -142,7 +141,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, boolean active) {
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final boolean active) {
         final var canViewAllOffenders = isViewAllOffenders();
         final var caseloads = canViewAllOffenders ? Set.<String>of() : loadCaseLoadsOrThrow();
 
@@ -197,7 +196,7 @@ public class InmateServiceImpl implements InmateService {
         return inmate;
     }
 
-    private Optional<String> getFirstPreferredSpokenLanguage(Long bookingId) {
+    private Optional<String> getFirstPreferredSpokenLanguage(final Long bookingId) {
         return repository
                 .getLanguages(bookingId)
                 .stream()
@@ -287,15 +286,7 @@ public class InmateServiceImpl implements InmateService {
     @Override
     @VerifyBookingAccess
     public PersonalCareNeeds getPersonalCareNeeds(final Long bookingId, final List<String> problemTypes) {
-        final Map<String, List<String>> problemTypesMap = problemTypes.stream()
-                .map(t -> t.trim().replace(' ', '+'))
-                .collect(Collectors.toMap((n) -> StringUtils.substringBefore(n, "+"),
-                        (n) -> {
-                            final var subtype = StringUtils.substringAfter(n, "+");
-                            return subtype.isEmpty() ? List.of() : List.of(subtype);
-                        },
-                        (v1, v2) -> Stream.of(v1, v2).flatMap(Collection::stream).collect(Collectors.toList())));
-
+        final var problemTypesMap = QueryParamHelper.splitTypes(problemTypes);
 
         final var personalCareNeeds = repository.findPersonalCareNeeds(bookingId, problemTypesMap.keySet());
         final var returnList = personalCareNeeds.stream().filter((personalCareNeed) -> {
@@ -392,7 +383,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, boolean activeOnly) {
+    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, final boolean activeOnly) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
             final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")

@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -83,7 +84,7 @@ public class CaseNoteRepositoryTest {
 
         assertThat(timeCreation).isBetween(startTime, startTime.plusSeconds(5));
 
-        assertThat(timeCreation).isBetween(createDateTime.minusSeconds(1), createDateTime.plusSeconds(1));
+        assertThat(timeCreation).isBetween(createDateTime.minusSeconds(2), createDateTime.plusSeconds(2));
 
 
         jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
@@ -138,7 +139,7 @@ public class CaseNoteRepositoryTest {
         caseNote.setText("Testing of events");
         final var id = repository.createCaseNote(-4, caseNote, "source", "user", -2L);
 
-        final var caseNoteEvents = repository.getCaseNoteEvents(start, 1000);
+        final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("GEN", "BOB"), 1000);
         assertThat(caseNoteEvents).extracting(
                 CaseNoteEvent::getNomsId,
                 CaseNoteEvent::getId,
@@ -167,8 +168,20 @@ public class CaseNoteRepositoryTest {
         repository.createCaseNote(-4, caseNote, "source", "user", -2L);
         repository.createCaseNote(-4, caseNote, "source", "user", -2L);
 
-        final var caseNoteEvents = repository.getCaseNoteEvents(start, 1);
+        final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("GEN", "BOB"), 1);
         assertThat(caseNoteEvents).hasSize(1);
+    }
+
+    @Test
+    public void getCaseNoteEvents_Types() {
+        final var start = LocalDateTime.now();
+        final var caseNote = newCaseNote();
+        caseNote.setText("Testing of events");
+        repository.createCaseNote(-4, caseNote, "source", "user", -2L);
+        repository.createCaseNote(-4, caseNote, "source", "user", -2L);
+
+        final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("BOB"), 1);
+        assertThat(caseNoteEvents).hasSize(0);
     }
 
     private NewCaseNote newCaseNote() {

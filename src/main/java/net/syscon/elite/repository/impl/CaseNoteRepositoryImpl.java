@@ -105,7 +105,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
                 .build();
 
         final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
-        final var paRowMapper = new PageAwareRowMapper<CaseNote>(caseNoteRowMapper);
+        final var paRowMapper = new PageAwareRowMapper<>(caseNoteRowMapper);
 
         final var caseNotes = jdbcTemplate.query(
                 sql,
@@ -164,9 +164,11 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
     }
 
     @Override
-    public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate, final long limit) {
+    public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate, final Set<String> events, final long limit) {
         return jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(getQuery("RECENT_CASE_NOTE_EVENTS"), Map.of()).addPagination().build(),
-                createParamSource(new PageRequest(0L, limit), "fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate)),
+                createParamSource(new PageRequest(0L, limit),
+                        "fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate),
+                        "types", events),
                 CASE_NOTE_EVENT_ROW_MAPPER);
     }
 
