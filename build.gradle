@@ -135,9 +135,9 @@ dependencies {
     testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.8.1'
 
-    testImplementation 'net.serenity-bdd:serenity-core:2.0.71'
-    testImplementation 'net.serenity-bdd:serenity-junit:2.0.71'
-    testImplementation 'net.serenity-bdd:serenity-spring:2.0.71'
+    testImplementation 'net.serenity-bdd:serenity-core:2.0.70'
+    testImplementation 'net.serenity-bdd:serenity-junit:2.0.70'
+    testImplementation 'net.serenity-bdd:serenity-spring:2.0.70'
     testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.45'
     testImplementation 'org.slf4j:slf4j-api:1.7.25'
     testCompileOnly 'org.projectlombok:lombok:1.18.10'
