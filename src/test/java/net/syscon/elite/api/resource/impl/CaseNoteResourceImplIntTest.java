@@ -9,9 +9,9 @@ import org.springframework.http.HttpMethod;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,7 +25,7 @@ public class CaseNoteResourceImplIntTest extends ResourceTest {
         final var fromDate = LocalDateTime.now();
         final var fredEvent = createEvent("FRED", "JOE");
         final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(caseNoteRepository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+        when(caseNoteRepository.getCaseNoteEvents(any(), anySet(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_CASE_NOTE_EVENTS"), Map.of());
 
@@ -33,7 +33,7 @@ public class CaseNoteResourceImplIntTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(responseEntity, 200, "casenoteevents.json");
 
-        verify(caseNoteRepository).getCaseNoteEvents(fromDate, Long.MAX_VALUE);
+        verify(caseNoteRepository).getCaseNoteEvents(fromDate, Set.of("BOB", "FRED"), Long.MAX_VALUE);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class CaseNoteResourceImplIntTest extends ResourceTest {
         final var fromDate = LocalDateTime.now();
         final var fredEvent = createEvent("FRED", "JOE");
         final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(caseNoteRepository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+        when(caseNoteRepository.getCaseNoteEvents(any(), anySet(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_CASE_NOTE_EVENTS"), Map.of());
 
@@ -49,7 +49,7 @@ public class CaseNoteResourceImplIntTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(responseEntity, 200, "casenoteevents.json");
 
-        verify(caseNoteRepository).getCaseNoteEvents(fromDate, 10);
+        verify(caseNoteRepository).getCaseNoteEvents(fromDate, Set.of("BOB", "FRED"), 10);
     }
 
     @Test

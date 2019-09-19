@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -110,11 +111,11 @@ public class CaseNoteServiceImplTest {
         final var fromDate = LocalDateTime.now();
         final var fredEvent = createEvent("FRED", "JOE");
         final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(repository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
-        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "FRED"), fromDate);
+        when(repository.getCaseNoteEvents(any(), anySet(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "BOB+HARRY", "FRED"), fromDate);
 
         assertThat(events).containsExactly(bobJoeEvent, fredEvent);
-        verify(repository).getCaseNoteEvents(fromDate, Long.MAX_VALUE);
+        verify(repository).getCaseNoteEvents(fromDate, Set.of("BOB", "FRED"), Long.MAX_VALUE);
     }
 
     @Test
@@ -122,11 +123,12 @@ public class CaseNoteServiceImplTest {
         final var fromDate = LocalDateTime.now();
         final var fredEvent = createEvent("FRED", "JOE");
         final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(repository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
-        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "FRED"), fromDate, 10L);
+        final var bobHarryEvent = createEvent("BOB", "HARRY");
+        when(repository.getCaseNoteEvents(any(), anySet(), anyLong())).thenReturn(List.of(bobJoeEvent, bobHarryEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
+        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "BOB+HARRY", "FRED"), fromDate, 10L);
 
-        assertThat(events).containsExactly(bobJoeEvent, fredEvent);
-        verify(repository).getCaseNoteEvents(fromDate, 10L);
+        assertThat(events).containsExactly(bobJoeEvent, bobHarryEvent, fredEvent);
+        verify(repository).getCaseNoteEvents(fromDate, Set.of("BOB", "FRED"), 10L);
     }
 
     @Test
@@ -134,7 +136,7 @@ public class CaseNoteServiceImplTest {
         final var fromDate = LocalDateTime.now();
         final var fredEvent = createEvent("FRED", "JOE");
         final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(repository.getCaseNoteEvents(any(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent));
+        when(repository.getCaseNoteEvents(any(), anySet(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent));
         final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "   FRED JOE  "), fromDate, 20L);
         assertThat(events).containsExactly(bobJoeEvent, fredEvent);
     }

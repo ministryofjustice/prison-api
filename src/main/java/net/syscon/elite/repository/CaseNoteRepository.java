@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface CaseNoteRepository {
 
@@ -35,5 +36,5 @@ public interface CaseNoteRepository {
 
     List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(String type, String subType, List<Integer> bookingIds, LocalDate fromDateToUse, LocalDate toDateToUse);
 
-    List<CaseNoteEvent> getCaseNoteEvents(LocalDateTime fromDate, final long limit);
+    List<CaseNoteEvent> getCaseNoteEvents(LocalDateTime fromDate, final Set<String> events, final long limit);
 }
