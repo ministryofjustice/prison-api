@@ -187,6 +187,7 @@ Feature: Case Note Creation, Update and Count
       | A1234AC    | OBSERVE | OBS_GEN | 2016-01-01 | 2017-07-31 | LEI      | 4     |          1   | 2017-07-31T12:00 |
       | A1234AC    | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 |          | 2     |          1   | 2017-08-13T12:00 |
       | A1234AC    |         |         | 2016-01-01 | 2019-01-01 | LEI      | 6     |          1   | 2017-08-13T12:00 |
+      |            |         |         | 2016-01-01 | 2019-01-01 | LEI      | 8     |          18  | 2017-05-13T12:00 |
 
   Scenario Outline: Get case note usage for a prison and date ranges
     When case note usage between "<fromDate>" and "<toDate>" is requested for case note type "<type>" and sub-type "<subType>" and agencyId "<agencyId>"
