@@ -15,7 +15,7 @@ jobs:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
           key: gradle-cache-{{ checksum "build.gradle" }}
-      - run: ./gradlew build
+      - run: ./gradlew -i build
       - save_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
