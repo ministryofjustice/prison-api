@@ -66,7 +66,7 @@ Feature: Agencies
 
   Scenario: Retrieve all locations for an agency
     When a request is submitted to retrieve location codes for agency "LEI"
-    Then "40" location records are returned for agency
+    Then "137" location records are returned for agency
 
   Scenario: Retrieve locations, for an agency, that can be used for appointments
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP"

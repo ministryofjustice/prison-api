@@ -15,6 +15,6 @@ Feature: User Locations
     And user location prefixes are "<prefix>"
 
     Examples:
-      | token         | number | agency id           | description             | prefix              |
-      | NORMAL_USER   | 3      | LEI,LEI,LEI         | Leeds,Block A,H         | LEI,LEI-A,LEI-H     |
-      | API_TEST_USER | 4      | BXI,LEI,LEI,LEI     | Brixton,Leeds,Block A,H | BXI,LEI,LEI-A,LEI-H |
+      | token         | number | agency id                                   | description                               | prefix                                                            |
+      | NORMAL_USER   | 10     | LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI     | Block A,C,Cswap,D,E,F,H,I,Leeds,S         | LEI,LEI-A,LEI-C,LEI-CSWAP,LEI-D,LEI-E,LEI-F,LEI-H,LEI-I,LEI-S     |
+      | API_TEST_USER | 11     | BXI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI | Block A,Brixton,C,Cswap,D,E,F,H,I,Leeds,S | BXI,LEI,LEI-A,LEI-C,LEI-CSWAP,LEI-D,LEI-E,LEI-F,LEI-H,LEI-I,LEI-S |
