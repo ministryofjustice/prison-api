@@ -77,7 +77,7 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetAgencyLocations() {
-        final var locations = repository.getAgencyLocations("LEI", Arrays.asList("APP", "VISIT"), null, null);
+        final var locations = repository.getAgencyLocations("LEI", List.of("APP", "VISIT"), null, null);
         assertThat(locations).extracting("locationType").contains("AREA", "AREA", "CLAS", "WSHP");
     }
 
@@ -100,20 +100,20 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetAgencyLocationsNoResults1() {
-        final var locations = repository.getAgencyLocations("LEI", Arrays.asList("OTHER"), null, null);
+        final var locations = repository.getAgencyLocations("LEI", List.of("OTHER"), null, null);
         assertThat(locations).isEmpty();
     }
 
     @Test
     public void testGetAgencyLocationsNoResults2() {
-        final var locations = repository.getAgencyLocations("doesnotexist", Arrays.asList("APP"), null, null);
+        final var locations = repository.getAgencyLocations("doesnotexist", List.of("APP"), null, null);
         assertThat(locations).isEmpty();
     }
 
     @Test
     public void testGetAgencyLocationsAll() {
-        final var locations = repository.getAgencyLocations("LEI", Collections.emptyList(), null, null);
-        assertThat(locations).hasSize(40);
+        final var locations = repository.getAgencyLocations("LEI", List.of(), null, null);
+        assertThat(locations).hasSize(137);
     }
 
     @Test
