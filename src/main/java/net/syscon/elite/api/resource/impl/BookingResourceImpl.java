@@ -629,6 +629,13 @@ public class BookingResourceImpl implements BookingResource {
         return GetBookingVisitsForTodayResponse.respond200WithApplicationJson(visits);
     }
 
+    @Override
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public VisitBalances getBookingVisitBalances(final String offenderNo){
+        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+
+        return bookingService.getBookingVisitBalances(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+    }
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})

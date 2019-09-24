@@ -87,6 +87,10 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Visit.class);
 
+    private final StandardBeanPropertyRowMapper<VisitBalances> VISIT_BALANCES_MAPPER =
+            new StandardBeanPropertyRowMapper<>(VisitBalances.class);
+
+
     private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
@@ -427,6 +431,22 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                         "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                         "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public Optional<VisitBalances> getBookingVisitBalances(final Long bookingId){
+        Objects.requireNonNull(bookingId, "bookingIds is a required parameter");
+        final var sql = getQuery("FIND_REMAINING_VO_PVO");
+
+        VisitBalances visitBalances;
+        try{ visitBalances = jdbcTemplate.queryForObject(
+                sql,
+                createParams("bookingId", bookingId),
+                VISIT_BALANCES_MAPPER);
+        } catch (final EmptyResultDataAccessException ex) {
+            visitBalances = null;
+        }
+        return Optional.ofNullable(visitBalances);
     }
 
     @Override

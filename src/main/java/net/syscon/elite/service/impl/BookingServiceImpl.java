@@ -332,6 +332,12 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
+    @Override
+    @VerifyBookingAccess
+    public Optional<VisitBalances> getBookingVisitBalances(final Long bookingId){
+        return bookingRepository.getBookingVisitBalances(bookingId);
+    };
+
     private List<ScheduledEvent> getBookingVisits(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
