@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.AccessRole;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.AccessRoleRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -63,7 +64,7 @@ public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRo
             query += EXCLUDE_ADMIN_ROLES_QUERY_TEMPLATE;
         }
         final var builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_ROW_MAPPER);
-        final var sql = builder.build();
+		final var sql = builder.addOrderBy(Order.ASC, "roleName").build();
 
 		return jdbcTemplate.query(sql, ACCESS_ROLE_ROW_MAPPER);
     }
