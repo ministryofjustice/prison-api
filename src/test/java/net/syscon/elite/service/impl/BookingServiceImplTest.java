@@ -416,4 +416,14 @@ public class BookingServiceImplTest {
 
         assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).containsKeys(-5L);
     }
+
+    @Test
+    public void getBookingVisitBalances(){
+        final var bookingId = -1L;
+        when(bookingRepository.getBookingVisitBalances(bookingId)).thenReturn(Optional.of(new VisitBalances(25,2)));
+
+        bookingService.getBookingVisitBalances(bookingId);
+
+        verify(bookingRepository).getBookingVisitBalances(bookingId);
+    }
 }

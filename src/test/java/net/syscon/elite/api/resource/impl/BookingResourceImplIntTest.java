@@ -48,8 +48,8 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var treatmentCodes = List.of("WHEELCHR_ACC", "PEEP");
         when(inmateRepository.findReasonableAdjustments(bookingId, treatmentCodes)).thenReturn(
                 List.of(
-                        new ReasonableAdjustment("WHEELCHR_ACC", "abcd",  LocalDate.of(2010, 6, 21), null),
-                        new ReasonableAdjustment("PEEP", "efgh",  LocalDate.of(2010, 6, 21), null))
+                        new ReasonableAdjustment("WHEELCHR_ACC", "abcd", LocalDate.of(2010, 6, 21), null),
+                        new ReasonableAdjustment("PEEP", "efgh", LocalDate.of(2010, 6, 21), null))
         );
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
@@ -70,5 +70,27 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
         final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/reasonable-adjustments", HttpMethod.GET, requestEntity, String.class);
         assertThatJsonFileAndStatus(responseEntity, 400, "reasonableadjustment_validation.json");
+    }
+
+    @Test
+    public void getVisitBalances() {
+
+        final var offenderNo = "A1234AA";
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/"+offenderNo+"/visit/balances", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "visitbalances.json");
+    }
+
+    @Test
+    public void getVisitBalances_invalidBookingId() {
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/-3/visit/balances", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 404, "visitbalancesinvalidbookingid.json");
     }
 }

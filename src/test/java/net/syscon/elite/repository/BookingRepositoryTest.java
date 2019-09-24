@@ -161,6 +161,13 @@ public class BookingRepositoryTest {
     }
 
     @Test
+    public void findBalancesForVisitOrdersAndPrivilageVisitOrders() {
+        final var visitBalances = repository.getBookingVisitBalances(-1L);
+
+        assertThat(visitBalances).get().isEqualToIgnoringGivenFields(new VisitBalances(25,2));
+    }
+
+    @Test
     public void testGetBookingActivities() {
         final var results = repository.getBookingActivities(-2L, LocalDate.parse("2011-12-11"), LocalDate.now(), null, null);
 
