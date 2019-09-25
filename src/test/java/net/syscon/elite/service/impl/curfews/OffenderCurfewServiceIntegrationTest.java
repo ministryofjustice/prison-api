@@ -69,7 +69,7 @@ public class OffenderCurfewServiceIntegrationTest {
     private long curfewId;
 
     private static final LocalDate date1 = LocalDate.of(2019, 1, 2);
-    private static final LocalDate date2 = LocalDate.of(2019, 3,4);
+    private static final LocalDate date2 = LocalDate.of(2019, 3, 4);
     private static final LocalDate date3 = LocalDate.of(2019, 5, 6);
 
     @Before
@@ -379,7 +379,7 @@ public class OffenderCurfewServiceIntegrationTest {
         setApprovalStatus("PRES UNSUIT", "OUTSTANDING", date2);
         setHdcCheck(true, date1);
 
-        assertOffenderCurfew(true, date1, "PRES UNSUIT",  date2);
+        assertOffenderCurfew(true, date1, "PRES UNSUIT", date2);
         assertStatusAndReasons(
                 statusAndReason("MAN_CK_PASS", "MAN_CK"),
                 statusAndReason("ELIGIBLE", "PASS_ALL_CK"),
@@ -615,6 +615,7 @@ public class OffenderCurfewServiceIntegrationTest {
     private void setApprovedStatus(LocalDate date) {
         offenderCurfewService.setApprovalStatus(OFFENDER_BOOKING_ID, ApprovalStatus.builder().approvalStatus("APPROVED").date(date).build());
     }
+
     private void setApprovalStatus(String approvalStatus, String refusedReason, LocalDate date) {
         offenderCurfewService.setApprovalStatus(OFFENDER_BOOKING_ID, ApprovalStatus.builder().approvalStatus(approvalStatus).refusedReason(refusedReason).date(date).build());
     }
@@ -637,7 +638,7 @@ public class OffenderCurfewServiceIntegrationTest {
     }
 
     private void assertHomeDetentionCurfew(Boolean passed, LocalDate checksPassedDate, String approvalStatus, LocalDate approvalStatusDate, String refusedReason) {
-        val  actual = offenderCurfewService.getLatestHomeDetentionCurfew(OFFENDER_BOOKING_ID);
+        val actual = offenderCurfewService.getLatestHomeDetentionCurfew(OFFENDER_BOOKING_ID);
         assertThat(actual).isEqualTo(HomeDetentionCurfew
                 .builder()
                 .id(curfewId)

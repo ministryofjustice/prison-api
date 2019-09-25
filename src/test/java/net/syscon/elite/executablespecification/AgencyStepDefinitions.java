@@ -5,8 +5,8 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.IepLevel;
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.executablespecification.steps.AgencySteps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
     public void aRequestIsSubmittedToRetrieveLocationCodesForAgency(final String agencyId) throws Throwable {
         agencySteps.getLocations(agencyId, null, null, null);
     }
-    
+
     @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" for any events$")
     public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyForAnyEvents(final String agencyId) throws Throwable {
         agencySteps.getLocationsForAnyEvents(agencyId);

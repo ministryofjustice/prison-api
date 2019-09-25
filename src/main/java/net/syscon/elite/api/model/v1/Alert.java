@@ -22,30 +22,30 @@ import java.time.LocalDate;
 @JsonPropertyOrder({"alert_type", "alert_sub_type", "alert_date", "expiry_date", "status", "comment"})
 public class Alert {
 
-   @ApiModelProperty(value = "Code and description identifying the type of alert", required = true, example = "{ code: 'X', desc: 'Security' }")
-   @JsonProperty("alert_type")
-   private CodeDescription type;
+    @ApiModelProperty(value = "Code and description identifying the type of alert", required = true, example = "{ code: 'X', desc: 'Security' }")
+    @JsonProperty("alert_type")
+    private CodeDescription type;
 
-   @ApiModelProperty(value = "Code and description identifying the sub type of alert", position = 1, required = true, example = "{ code: 'XEL', desc: 'Escape List' }")
-   @JsonProperty("alert_sub_type")
-   private CodeDescription subType;
+    @ApiModelProperty(value = "Code and description identifying the sub type of alert", position = 1, required = true, example = "{ code: 'XEL', desc: 'Escape List' }")
+    @JsonProperty("alert_sub_type")
+    private CodeDescription subType;
 
-   @ApiModelProperty(value = "Date the alert became effective", position = 2, example = "2019-02-13", required = true)
-   @JsonProperty("alert_date")
-   private LocalDate date;
+    @ApiModelProperty(value = "Date the alert became effective", position = 2, example = "2019-02-13", required = true)
+    @JsonProperty("alert_date")
+    private LocalDate date;
 
-   @ApiModelProperty(value = "Alert Type", position = 3, example = "2019-04-15")
-   @JsonProperty("expiry_date")
-   private LocalDate expiryDate;
+    @ApiModelProperty(value = "Alert Type", position = 3, example = "2019-04-15")
+    @JsonProperty("expiry_date")
+    private LocalDate expiryDate;
 
-   @ApiModelProperty(value = "ACTIVE or INACTIVE (Inactive alerts will have a expiry date of today or earlier", position = 4, example = "ACTIVE", allowableValues = "ACTIVE,INACTIVE")
-   private String status;
+    @ApiModelProperty(value = "ACTIVE or INACTIVE (Inactive alerts will have a expiry date of today or earlier", position = 4, example = "ACTIVE", allowableValues = "ACTIVE,INACTIVE")
+    private String status;
 
-   @ApiModelProperty(value = "Free Text Comment", position = 5, example = "has a large poster on cell wall")
-   private String comment;
+    @ApiModelProperty(value = "Free Text Comment", position = 5, example = "has a large poster on cell wall")
+    private String comment;
 
-   @JsonIgnore
-   private int seq;
+    @JsonIgnore
+    private int seq;
 
 
 }

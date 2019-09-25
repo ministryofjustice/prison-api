@@ -12,9 +12,9 @@ import javax.ws.rs.core.Response;
 public interface AppointmentsResource {
     @POST
     @Path("/")
-    @Consumes({ "application/json" })
-    @ApiOperation(value = "Create multiple appointments", notes = "Create multiple appointments", nickname="createAppointments")
+    @Consumes({"application/json"})
+    @ApiOperation(value = "Create multiple appointments", notes = "Create multiple appointments", nickname = "createAppointments")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The appointments have been created.") })
+            @ApiResponse(code = 200, message = "The appointments have been created.")})
     Response createAppointments(@ApiParam(required = true) AppointmentsToCreate body);
 }

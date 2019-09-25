@@ -46,7 +46,7 @@ public class OffenderProcs {
     @Component
     public static class GetOffenderImage extends SimpleJdbcCallWithExceptionTranslater {
 
-        public GetOffenderImage(final DataSource dataSource ,final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+        public GetOffenderImage(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
             super(dataSource, errorCodeTranslator);
             withSchemaName(API_OWNER)
                     .withCatalogName(API_OFFENDER_PROCS)

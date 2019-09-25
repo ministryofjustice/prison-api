@@ -20,9 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
-import static net.syscon.elite.repository.support.StatusFilter.ALL;
-import static net.syscon.elite.repository.support.StatusFilter.INACTIVE_ONLY;
+import static net.syscon.elite.repository.support.StatusFilter.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -81,8 +79,8 @@ public class LocationRepositoryTest {
         assertThat(subLocationGroupData)
                 .contains(
                         Location.builder().locationId(-14L).locationType("LAND").description("LEI-H-1").parentLocationId(-13L).userDescription("Landing H/1").internalLocationCode("1").build(),
-                        Location.builder().locationId( -2L).locationType("LAND").description("LEI-A-1").parentLocationId( -1L).userDescription("Landing A/1").internalLocationCode("1").build(),
-                        Location.builder().locationId(-32L).locationType("LAND").description("LEI-A-2").parentLocationId( -1L).userDescription("Landing A/2").internalLocationCode("2").build()
+                        Location.builder().locationId(-2L).locationType("LAND").description("LEI-A-1").parentLocationId(-1L).userDescription("Landing A/1").internalLocationCode("1").build(),
+                        Location.builder().locationId(-32L).locationType("LAND").description("LEI-A-2").parentLocationId(-1L).userDescription("Landing A/2").internalLocationCode("2").build()
                 );
     }
 }

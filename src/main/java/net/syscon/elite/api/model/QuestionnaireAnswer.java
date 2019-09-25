@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = { "questionnaireAnsId" })
+@EqualsAndHashCode(of = {"questionnaireAnsId"})
 @Data
-public class QuestionnaireAnswer implements Comparable<QuestionnaireAnswer>{
+public class QuestionnaireAnswer implements Comparable<QuestionnaireAnswer> {
 
     @ApiModelProperty(required = true, value = "ID for this Answer")
     private Long questionnaireAnsId;

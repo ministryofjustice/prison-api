@@ -67,10 +67,10 @@ public class SentenceRepositoryTest {
         final var offenceDetails = repository.getOffenceHistory("A1234AA");
 
         assertThat(offenceDetails).asList().extracting("bookingId", "offenceDate", "offenceRangeDate", "offenceDescription", "mostSerious").containsExactly(
-                Tuple.tuple(-1L, LocalDate.of(2017,12,24), null,
+                Tuple.tuple(-1L, LocalDate.of(2017, 12, 24), null,
                         "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)",
                         true),
-                Tuple.tuple(-1L, LocalDate.of(2018,9,1), LocalDate.of(2018,9,15),
+                Tuple.tuple(-1L, LocalDate.of(2018, 9, 1), LocalDate.of(2018, 9, 15),
                         "Cause another to use a vehicle where the seat belt buckle/other fastening was not maintained so that the belt could be readily fastened or unfastened/kept free from temporary or permanent obstruction/readily accessible to a person sitting in the seat.",
                         false)
         );

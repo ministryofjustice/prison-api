@@ -53,7 +53,7 @@ public class ConnectionProxyAopConfiguration {
         return new RolePasswordSupplier(
                 sqlProvider,
                 new NamedParameterJdbcTemplate(
-                    new DriverManagerDataSource(jdbcUrl, username, password)
+                        new DriverManagerDataSource(jdbcUrl, username, password)
                 ),
                 defaultSchema);
     }

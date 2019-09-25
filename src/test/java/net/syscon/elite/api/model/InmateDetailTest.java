@@ -22,7 +22,7 @@ public class InmateDetailTest {
                         ProfileInformation.builder().type("ERIC").resultValue("A").build()))
                 .build()
                 .getReligion())
-        .isNull();
+                .isNull();
     }
 
     @Test

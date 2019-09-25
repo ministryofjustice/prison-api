@@ -2,11 +2,7 @@ package net.syscon.elite.service.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.IepLevel;
-import net.syscon.elite.api.model.PrisonContactDetail;
-import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
@@ -25,11 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
@@ -75,7 +67,7 @@ public class AgencyServiceImpl implements AgencyService {
     public void checkAgencyExists(final String agencyId) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
-        if(agencyRepository.findAgency(agencyId, ACTIVE_ONLY).isEmpty()) {
+        if (agencyRepository.findAgency(agencyId, ACTIVE_ONLY).isEmpty()) {
             throw EntityNotFoundException.withId(agencyId);
         }
     }
@@ -101,9 +93,9 @@ public class AgencyServiceImpl implements AgencyService {
     @Override
     public Set<String> getAgencyIds() {
         return findAgenciesByUsername(authenticationFacade.getCurrentUsername())
-              .stream()
-              .map(Agency::getAgencyId)
-              .collect(Collectors.toSet());
+                .stream()
+                .map(Agency::getAgencyId)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -171,7 +163,7 @@ public class AgencyServiceImpl implements AgencyService {
         Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
 
         final var locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
-        final var processedLocations =  LocationProcessor.processLocations(locations, true);
+        final var processedLocations = LocationProcessor.processLocations(locations, true);
         processedLocations.sort(LOCATION_DESCRIPTION_COMPARATOR);
         return processedLocations;
     }
@@ -190,7 +182,7 @@ public class AgencyServiceImpl implements AgencyService {
     public PrisonContactDetail getPrisonContactDetail(final String agencyId) {
 
         final var prisonContactDetailList = removeBlankAddresses(agencyRepository.getPrisonContactDetails(agencyId));
-        if(prisonContactDetailList.isEmpty()) {
+        if (prisonContactDetailList.isEmpty()) {
             throw EntityNotFoundException.withMessage(String.format("Contact details not found for Prison %s", agencyId));
         }
         return prisonContactDetailList.get(0);

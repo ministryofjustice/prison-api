@@ -26,7 +26,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = { PersistenceConfigs.class, CacheConfig.class })
+@ContextConfiguration(classes = {PersistenceConfigs.class, CacheConfig.class})
 public class ReferenceCodeRepositoryTest {
 
     @Autowired
@@ -73,7 +73,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes1() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", false,"code", Order.ASC, 0, 10);
+                repository.getReferenceCodesByDomain("TASK_TYPE", false, "code", Order.ASC, 0, 10);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
@@ -97,7 +97,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes2() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", false,"code", Order.DESC, 15, 15);
+                repository.getReferenceCodesByDomain("TASK_TYPE", false, "code", Order.DESC, 15, 15);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
@@ -122,7 +122,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes1() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", true,"code", Order.ASC, 0, 10);
+                repository.getReferenceCodesByDomain("TASK_TYPE", true, "code", Order.ASC, 0, 10);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
@@ -158,7 +158,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes2() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", true,"code", Order.DESC, 15, 16);
+                repository.getReferenceCodesByDomain("TASK_TYPE", true, "code", Order.DESC, 15, 16);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
@@ -196,7 +196,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes3() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", false,"code", Order.ASC, 0, 1000);
+                repository.getReferenceCodesByDomain("TASK_TYPE", false, "code", Order.ASC, 0, 1000);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
@@ -221,7 +221,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes3() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", true,"code", Order.ASC, 0, 1000);
+                repository.getReferenceCodesByDomain("TASK_TYPE", true, "code", Order.ASC, 0, 1000);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
@@ -260,7 +260,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes4() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", false,"description", Order.ASC, 0, 10);
+                repository.getReferenceCodesByDomain("TASK_TYPE", false, "description", Order.ASC, 0, 10);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
@@ -286,7 +286,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes5() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", false,"description", Order.DESC, 15, 15);
+                repository.getReferenceCodesByDomain("TASK_TYPE", false, "description", Order.DESC, 15, 15);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
@@ -314,7 +314,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes4() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", true,"description", Order.ASC, 0, 10);
+                repository.getReferenceCodesByDomain("TASK_TYPE", true, "description", Order.ASC, 0, 10);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
@@ -355,7 +355,7 @@ public class ReferenceCodeRepositoryTest {
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes6() {
         final var refCodes =
-                repository.getReferenceCodesByDomain("TASK_TYPE", true,"description", Order.DESC, 15, 16);
+                repository.getReferenceCodesByDomain("TASK_TYPE", true, "description", Order.DESC, 15, 16);
 
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();

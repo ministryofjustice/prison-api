@@ -28,24 +28,32 @@ public class NewBooking {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
 
-    @Length(max=35) @NotBlank
+    @Length(max = 35)
+    @NotBlank
     private String lastName;
 
-    @Length(max=35) @NotBlank
+    @Length(max = 35)
+    @NotBlank
     private String firstName;
 
-    @Length(max=35) private String middleName1;
+    @Length(max = 35)
+    private String middleName1;
 
-    @Length(max=35) private String middleName2;
+    @Length(max = 35)
+    private String middleName2;
 
-    @Length(max=12) private String title;
+    @Length(max = 12)
+    private String title;
 
-    @Length(max=12) private String suffix;
+    @Length(max = 12)
+    private String suffix;
 
-    @Pattern(regexp="^([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))$") @NotBlank
+    @Pattern(regexp = "^([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))$")
+    @NotBlank
     private String dateOfBirth;
 
-    @Length(max=12) @NotBlank
+    @Length(max = 12)
+    @NotBlank
     private String gender;
 
     @NotBlank
@@ -53,19 +61,27 @@ public class NewBooking {
 
     private boolean youthOffender;
 
-    @Length(max=12) private String ethnicity;
+    @Length(max = 12)
+    private String ethnicity;
 
-    @Length(max=10) @Pattern(regexp="^[A-Z]\\d{4}[A-Z]{2}$") private String offenderNo;
+    @Length(max = 10)
+    @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$")
+    private String offenderNo;
 
-    @Length(max=20) private String pncNumber;
+    @Length(max = 20)
+    private String pncNumber;
 
-    @Length(max=20) private String croNumber;
+    @Length(max = 20)
+    private String croNumber;
 
-    @Length(max=20) private String externalIdentifier;
+    @Length(max = 20)
+    private String externalIdentifier;
 
-    @Length(max=12) private String externalIdentifierType;
+    @Length(max = 12)
+    private String externalIdentifierType;
 
-    @Length(max=36) private String correlationId;
+    @Length(max = 36)
+    private String correlationId;
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
@@ -79,8 +95,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's first name.
-      */
+     * The offender's first name.
+     */
     @ApiModelProperty(required = true, value = "The offender's first name.")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -92,8 +108,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's last name.
-      */
+     * The offender's last name.
+     */
     @ApiModelProperty(required = true, value = "The offender's last name.")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -105,8 +121,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's middle name.
-      */
+     * The offender's middle name.
+     */
     @ApiModelProperty(value = "The offender's middle name.")
     @JsonProperty("middleName1")
     public String getMiddleName1() {
@@ -118,8 +134,8 @@ public class NewBooking {
     }
 
     /**
-      * An additional middle name for the offender.
-      */
+     * An additional middle name for the offender.
+     */
     @ApiModelProperty(value = "An additional middle name for the offender.")
     @JsonProperty("middleName2")
     public String getMiddleName2() {
@@ -131,8 +147,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the offender's title (from TITLE reference domain).
-      */
+     * A code representing the offender's title (from TITLE reference domain).
+     */
     @ApiModelProperty(value = "A code representing the offender's title (from TITLE reference domain).")
     @JsonProperty("title")
     public String getTitle() {
@@ -144,8 +160,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing a suffix to apply to offender's name (from SUFFIX reference domain).
-      */
+     * A code representing a suffix to apply to offender's name (from SUFFIX reference domain).
+     */
     @ApiModelProperty(value = "A code representing a suffix to apply to offender's name (from SUFFIX reference domain).")
     @JsonProperty("suffix")
     public String getSuffix() {
@@ -157,8 +173,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's date of birth. Must be specified in YYYY-MM-DD format.
-      */
+     * The offender's date of birth. Must be specified in YYYY-MM-DD format.
+     */
     @ApiModelProperty(required = true, value = "The offender's date of birth. Must be specified in YYYY-MM-DD format.")
     @JsonProperty("dateOfBirth")
     public String getDateOfBirth() {
@@ -170,8 +186,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the offender's gender (from the SEX reference domain).
-      */
+     * A code representing the offender's gender (from the SEX reference domain).
+     */
     @ApiModelProperty(required = true, value = "A code representing the offender's gender (from the SEX reference domain).")
     @JsonProperty("gender")
     public String getGender() {
@@ -183,8 +199,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the reason for the offender's admission.
-      */
+     * A code representing the reason for the offender's admission.
+     */
     @ApiModelProperty(required = true, value = "A code representing the reason for the offender's admission.")
     @JsonProperty("reason")
     public String getReason() {
@@ -196,8 +212,8 @@ public class NewBooking {
     }
 
     /**
-      * A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.
-      */
+     * A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.
+     */
     @ApiModelProperty(value = "A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.")
     @JsonProperty("youthOffender")
     public boolean getYouthOffender() {
@@ -209,8 +225,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the offender's ethnicity (from the ETHNICITY reference domain).
-      */
+     * A code representing the offender's ethnicity (from the ETHNICITY reference domain).
+     */
     @ApiModelProperty(value = "A code representing the offender's ethnicity (from the ETHNICITY reference domain).")
     @JsonProperty("ethnicity")
     public String getEthnicity() {
@@ -222,8 +238,8 @@ public class NewBooking {
     }
 
     /**
-      * A unique offender number. If set, a new booking will be created for an existing offender. If not set, a new offender and new offender booking will be created (subject to de-duplication checks).
-      */
+     * A unique offender number. If set, a new booking will be created for an existing offender. If not set, a new offender and new offender booking will be created (subject to de-duplication checks).
+     */
     @ApiModelProperty(value = "A unique offender number. If set, a new booking will be created for an existing offender. If not set, a new offender and new offender booking will be created (subject to de-duplication checks).")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
@@ -235,8 +251,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's PNC (Police National Computer) number.
-      */
+     * The offender's PNC (Police National Computer) number.
+     */
     @ApiModelProperty(value = "The offender's PNC (Police National Computer) number.")
     @JsonProperty("pncNumber")
     public String getPncNumber() {
@@ -248,8 +264,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's CRO (Criminal Records Office) number.
-      */
+     * The offender's CRO (Criminal Records Office) number.
+     */
     @ApiModelProperty(value = "The offender's CRO (Criminal Records Office) number.")
     @JsonProperty("croNumber")
     public String getCroNumber() {
@@ -261,8 +277,8 @@ public class NewBooking {
     }
 
     /**
-      * An external system identifier for the offender or offender booking. This may be useful if the booking is being created by an external system.
-      */
+     * An external system identifier for the offender or offender booking. This may be useful if the booking is being created by an external system.
+     */
     @ApiModelProperty(value = "An external system identifier for the offender or offender booking. This may be useful if the booking is being created by an external system.")
     @JsonProperty("externalIdentifier")
     public String getExternalIdentifier() {
@@ -300,7 +316,7 @@ public class NewBooking {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class NewBooking {\n");

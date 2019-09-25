@@ -16,27 +16,27 @@ public class AuthTokenHelper {
     private String currentToken;
 
     public enum AuthToken {
-            ELITE2_API_USER,
-            API_TEST_USER,
-            RENEGADE_USER,
-            NO_CASELOAD_USER,
-            NORMAL_USER,
-            GLOBAL_SEARCH,
-            SYSTEM_READ_ONLY,
-            LOCAL_ADMIN,
-            ADMIN_TOKEN,
-            SUPER_ADMIN,
-            INACTIVE_BOOKING_USER,
-            SYSTEM_USER_READ_WRITE,
-            CATEGORISATION_CREATE,
-            CATEGORISATION_APPROVE,
-            LAA_USER,
-            BULK_APPOINTMENTS_USER,
-            // ITAG_USER with ROLE_MAINTAIN_IEP and scope ['read','write]
-            MAINTAIN_IEP,
-            PAY,
-            UPDATE_ALERT;
-        }
+        ELITE2_API_USER,
+        API_TEST_USER,
+        RENEGADE_USER,
+        NO_CASELOAD_USER,
+        NORMAL_USER,
+        GLOBAL_SEARCH,
+        SYSTEM_READ_ONLY,
+        LOCAL_ADMIN,
+        ADMIN_TOKEN,
+        SUPER_ADMIN,
+        INACTIVE_BOOKING_USER,
+        SYSTEM_USER_READ_WRITE,
+        CATEGORISATION_CREATE,
+        CATEGORISATION_APPROVE,
+        LAA_USER,
+        BULK_APPOINTMENTS_USER,
+        // ITAG_USER with ROLE_MAINTAIN_IEP and scope ['read','write]
+        MAINTAIN_IEP,
+        PAY,
+        UPDATE_ALERT;
+    }
 
 
     public AuthTokenHelper(final JwtAuthenticationHelper jwtAuthenticationHelper) {
@@ -61,12 +61,12 @@ public class AuthTokenHelper {
 
         tokens.put(String.valueOf(AuthToken.PAY),
                 jwtAuthenticationHelper.createJwt(JwtParameters
-                .builder()
-                .username("ITAG_USER")
-                .roles(List.of("ROLE_PAY"))
-                .scope(List.of("read", "write"))
+                        .builder()
+                        .username("ITAG_USER")
+                        .roles(List.of("ROLE_PAY"))
+                        .scope(List.of("read", "write"))
                         .expiryTime(Duration.ofDays(1))
-                .build()));
+                        .build()));
 
         tokens.put(String.valueOf(AuthToken.UPDATE_ALERT),
                 jwtAuthenticationHelper.createJwt(JwtParameters

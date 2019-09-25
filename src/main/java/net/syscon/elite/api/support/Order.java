@@ -1,8 +1,8 @@
 package net.syscon.elite.api.support;
 
 /**
-* Represents ordering of resources.
-*/
+ * Represents ordering of resources.
+ */
 public enum Order {
     ASC,
     DESC;

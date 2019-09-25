@@ -25,7 +25,7 @@ import java.util.Map;
 public class OffenderRelationship {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     private Long personId;
 
     private String externalRef;
@@ -51,8 +51,8 @@ public class OffenderRelationship {
     }
 
     /**
-      * id of the person contact
-      */
+     * id of the person contact
+     */
     @ApiModelProperty(value = "id of the person contact")
     @JsonProperty("personId")
     public Long getPersonId() {
@@ -64,8 +64,8 @@ public class OffenderRelationship {
     }
 
     /**
-      * unique external Id
-      */
+     * unique external Id
+     */
     @ApiModelProperty(value = "unique external Id")
     @JsonProperty("externalRef")
     public String getExternalRef() {
@@ -77,8 +77,8 @@ public class OffenderRelationship {
     }
 
     /**
-      * Surname
-      */
+     * Surname
+     */
     @ApiModelProperty(required = true, value = "Surname")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -90,8 +90,8 @@ public class OffenderRelationship {
     }
 
     /**
-      * First Name
-      */
+     * First Name
+     */
     @ApiModelProperty(required = true, value = "First Name")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -103,8 +103,8 @@ public class OffenderRelationship {
     }
 
     /**
-      * Relationship to inmate (e.g. COM or POM, etc.)
-      */
+     * Relationship to inmate (e.g. COM or POM, etc.)
+     */
     @ApiModelProperty(required = true, value = "Relationship to inmate (e.g. COM or POM, etc.)")
     @JsonProperty("relationshipType")
     public String getRelationshipType() {
@@ -116,11 +116,11 @@ public class OffenderRelationship {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class OffenderRelationship {\n");
-        
+
         sb.append("  personId: ").append(personId).append("\n");
         sb.append("  externalRef: ").append(externalRef).append("\n");
         sb.append("  lastName: ").append(lastName).append("\n");

@@ -26,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
@@ -182,15 +180,15 @@ public class AgencyRepositoryTest {
         val results = repository.getPrisonIepReview(criteria);
 
         assertThat(results.getItems()).containsExactly(OFFENDER_1_IEP_REVIEW,
-                                                        OFFENDER_2_IEP_REVIEW,
-                                                        OFFENDER_3_IEP_REVIEW,
-                                                        OFFENDER_4_IEP_REVIEW,
-                                                        OFFENDER_5_IEP_REVIEW,
-                                                        OFFENDER_6_IEP_REVIEW,
-                                                        OFFENDER_7_IEP_REVIEW,
-                                                        OFFENDER_8_IEP_REVIEW,
-                                                        OFFENDER_9_IEP_REVIEW,
-                                                        OFFENDER_10_IEP_REVIEW);
+                OFFENDER_2_IEP_REVIEW,
+                OFFENDER_3_IEP_REVIEW,
+                OFFENDER_4_IEP_REVIEW,
+                OFFENDER_5_IEP_REVIEW,
+                OFFENDER_6_IEP_REVIEW,
+                OFFENDER_7_IEP_REVIEW,
+                OFFENDER_8_IEP_REVIEW,
+                OFFENDER_9_IEP_REVIEW,
+                OFFENDER_10_IEP_REVIEW);
     }
 
     @Test

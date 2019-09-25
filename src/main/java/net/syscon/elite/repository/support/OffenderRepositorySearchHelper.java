@@ -11,7 +11,8 @@ public final class OffenderRepositorySearchHelper {
     private static final String QUERY_OPERATOR_AND = " AND ";
     private static final String QUERY_OPERATOR_OR = " OR ";
 
-    private OffenderRepositorySearchHelper() {}
+    private OffenderRepositorySearchHelper() {
+    }
 
     public static String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria, final Map<String, String> columnMapping) {
         final var eqTemplate = "%s = '%s'";

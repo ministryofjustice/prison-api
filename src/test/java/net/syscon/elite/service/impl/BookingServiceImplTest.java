@@ -335,7 +335,7 @@ public class BookingServiceImplTest {
         when(bookingRepository.verifyBookingAccess(anyLong(), anySet())).thenReturn(true);
 
         when(bookingRepository.getAttendanceEventDate(anyLong())).thenReturn(LocalDate.now());
-        when( bookingRepository.getPayableAttendanceOutcome(anyString(), anyString()))
+        when(bookingRepository.getPayableAttendanceOutcome(anyString(), anyString()))
                 .thenReturn(PayableAttendanceOutcomeDto
                         .builder()
                         .paid(true)
@@ -353,7 +353,7 @@ public class BookingServiceImplTest {
 
         bookingService.updateAttendanceForMultipleBookingIds(bookingActivities, updateAttendance);
 
-        val expectedOutcome =  UpdateAttendance.builder().performance("STANDARD").eventOutcome("ATT").build();
+        val expectedOutcome = UpdateAttendance.builder().performance("STANDARD").eventOutcome("ATT").build();
 
         bookingIds.forEach(bookingId -> verify(bookingRepository).updateAttendance(bookingId, activityId, expectedOutcome, true, false));
     }
@@ -418,9 +418,9 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    public void getBookingVisitBalances(){
+    public void getBookingVisitBalances() {
         final var bookingId = -1L;
-        when(bookingRepository.getBookingVisitBalances(bookingId)).thenReturn(Optional.of(new VisitBalances(25,2)));
+        when(bookingRepository.getBookingVisitBalances(bookingId)).thenReturn(Optional.of(new VisitBalances(25, 2)));
 
         bookingService.getBookingVisitBalances(bookingId);
 

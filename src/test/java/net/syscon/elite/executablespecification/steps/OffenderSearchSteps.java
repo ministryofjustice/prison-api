@@ -24,7 +24,7 @@ public class OffenderSearchSteps extends CommonSteps {
 
     @Step("Perform offender search without any criteria")
     public void findAll(final String locationPrefix) {
-        search(locationPrefix, null, true, false, false,null, null, null);
+        search(locationPrefix, null, true, false, false, null, null, null);
     }
 
     @Step("Verify first names of offender returned by search")

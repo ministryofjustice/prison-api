@@ -26,7 +26,7 @@ import java.util.Map;
 public class RollCount {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long livingUnitId;
 
@@ -69,8 +69,8 @@ public class RollCount {
     }
 
     /**
-      * Id of location
-      */
+     * Id of location
+     */
     @ApiModelProperty(required = true, value = "Id of location")
     @JsonProperty("livingUnitId")
     public Long getLivingUnitId() {
@@ -82,8 +82,8 @@ public class RollCount {
     }
 
     /**
-      * Wing, houseblock etc. name
-      */
+     * Wing, houseblock etc. name
+     */
     @ApiModelProperty(required = true, value = "Wing, houseblock etc. name")
     @JsonProperty("livingUnitDesc")
     public String getLivingUnitDesc() {
@@ -95,8 +95,8 @@ public class RollCount {
     }
 
     /**
-      * No of residential prisoners
-      */
+     * No of residential prisoners
+     */
     @ApiModelProperty(required = true, value = "No of residential prisoners")
     @JsonProperty("bedsInUse")
     public Integer getBedsInUse() {
@@ -108,8 +108,8 @@ public class RollCount {
     }
 
     /**
-      * No of residential prisoners actually in
-      */
+     * No of residential prisoners actually in
+     */
     @ApiModelProperty(required = true, value = "No of residential prisoners actually in")
     @JsonProperty("currentlyInCell")
     public Integer getCurrentlyInCell() {
@@ -121,8 +121,8 @@ public class RollCount {
     }
 
     /**
-      * No of residential prisoners out
-      */
+     * No of residential prisoners out
+     */
     @ApiModelProperty(required = true, value = "No of residential prisoners out")
     @JsonProperty("currentlyOut")
     public Integer getCurrentlyOut() {
@@ -134,8 +134,8 @@ public class RollCount {
     }
 
     /**
-      * Total capacity not including unavailable cells
-      */
+     * Total capacity not including unavailable cells
+     */
     @ApiModelProperty(required = true, value = "Total capacity not including unavailable cells")
     @JsonProperty("operationalCapacity")
     public Integer getOperationalCapacity() {
@@ -147,8 +147,8 @@ public class RollCount {
     }
 
     /**
-      * Available empty beds
-      */
+     * Available empty beds
+     */
     @ApiModelProperty(required = true, value = "Available empty beds")
     @JsonProperty("netVacancies")
     public Integer getNetVacancies() {
@@ -160,8 +160,8 @@ public class RollCount {
     }
 
     /**
-      * Total capacity including unavailable cells
-      */
+     * Total capacity including unavailable cells
+     */
     @ApiModelProperty(required = true, value = "Total capacity including unavailable cells")
     @JsonProperty("maximumCapacity")
     public Integer getMaximumCapacity() {
@@ -173,8 +173,8 @@ public class RollCount {
     }
 
     /**
-      * All empty beds
-      */
+     * All empty beds
+     */
     @ApiModelProperty(required = true, value = "All empty beds")
     @JsonProperty("availablePhysical")
     public Integer getAvailablePhysical() {
@@ -186,8 +186,8 @@ public class RollCount {
     }
 
     /**
-      * No of unavailable cells
-      */
+     * No of unavailable cells
+     */
     @ApiModelProperty(required = true, value = "No of unavailable cells")
     @JsonProperty("outOfOrder")
     public Integer getOutOfOrder() {
@@ -199,11 +199,11 @@ public class RollCount {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class RollCount {\n");
-        
+
         sb.append("  livingUnitId: ").append(livingUnitId).append("\n");
         sb.append("  livingUnitDesc: ").append(livingUnitDesc).append("\n");
         sb.append("  bedsInUse: ").append(bedsInUse).append("\n");

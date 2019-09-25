@@ -166,7 +166,7 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalArgumentException(format("IEP Level '%1$s' is not a valid NOMIS value.", iepLevel.getIepLevel()));
         }
 
-        if(!activeIepLevelForAgencySelectedByBooking(bookingId, iepLevel.getIepLevel())) {
+        if (!activeIepLevelForAgencySelectedByBooking(bookingId, iepLevel.getIepLevel())) {
             throw new IllegalArgumentException(format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId));
         }
 
@@ -186,7 +186,7 @@ public class BookingServiceImpl implements BookingService {
         final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
 
         final var bookingIdBatches = Lists.partition(bookingIds, maxBatchSize);
-        bookingIdBatches.forEach(bookingIdBatch ->  {
+        bookingIdBatches.forEach(bookingIdBatch -> {
             final var mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIdBatch);
             mapOfIEPResults.forEach((key, iepDetails) -> {
 
@@ -211,11 +211,11 @@ public class BookingServiceImpl implements BookingService {
         bookingIds.stream()
                 .filter(bookingId -> !mapOfEip.containsKey(bookingId))
                 .collect(toList())
-                .forEach( bookingId -> mapOfEip.put(bookingId, PrivilegeSummary.builder()
-                                        .bookingId(bookingId)
-                                        .iepLevel(defaultIepLevel)
-                                        .iepDetails(Collections.emptyList())
-                                        .build()));
+                .forEach(bookingId -> mapOfEip.put(bookingId, PrivilegeSummary.builder()
+                        .bookingId(bookingId)
+                        .iepLevel(defaultIepLevel)
+                        .iepDetails(Collections.emptyList())
+                        .build()));
 
         return mapOfEip;
     }
@@ -334,9 +334,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @VerifyBookingAccess
-    public Optional<VisitBalances> getBookingVisitBalances(final Long bookingId){
+    public Optional<VisitBalances> getBookingVisitBalances(final Long bookingId) {
         return bookingRepository.getBookingVisitBalances(bookingId);
-    };
+    }
+
+    ;
 
     private List<ScheduledEvent> getBookingVisits(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
@@ -370,12 +372,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void verifyCanViewSensitiveBookingInfo(final String offenderNo, final String ... rolesAllowed) {
+    public void verifyCanViewSensitiveBookingInfo(final String offenderNo, final String... rolesAllowed) {
         getBookingIdByOffenderNo(offenderNo, rolesAllowed);
     }
 
     @Override
-    public Long getBookingIdByOffenderNo(final String offenderNo, final String ... rolesAllowed) {
+    public Long getBookingIdByOffenderNo(final String offenderNo, final String... rolesAllowed) {
         final var bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
         if (!isViewAllBookings()) {
             try {
@@ -473,7 +475,7 @@ public class BookingServiceImpl implements BookingService {
 
         try {
             result = referenceDomainService.getReferenceCodeByDomainAndCode(
-                    ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(),false);
+                    ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false);
         } catch (final EntityNotFoundException ex) {
             result = Optional.empty();
         }
@@ -503,7 +505,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return agencyId.orElseThrow(() ->
-            new BadRequestException("Location does not exist or is not in your caseload."));
+                new BadRequestException("Location does not exist or is not in your caseload."));
     }
 
     private void validateScheduledEventsRequest(final LocalDate fromDate, final LocalDate toDate) {
@@ -585,7 +587,7 @@ public class BookingServiceImpl implements BookingService {
      * @throws EntityNotFoundException if current user does not have access to specified booking.
      */
     @Override
-    public void verifyBookingAccess(final Long bookingId, String ... rolesAllowed) {
+    public void verifyBookingAccess(final Long bookingId, String... rolesAllowed) {
         // system user has access to everything
         if (securityUtils.isOverrideRole(rolesAllowed)) return;
 
@@ -694,7 +696,7 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.groupingBy(OffenderSentenceCalculation::getBookingId,
                         Collectors.maxBy(Comparator.comparing(OffenderSentenceCalculation::getOffenderSentCalculationId))));
 
-       return identifyLatest.values().stream().filter(Optional::isPresent).map(Optional::get).collect(toList());
+        return identifyLatest.values().stream().filter(Optional::isPresent).map(Optional::get).collect(toList());
     }
 
     @Override
@@ -847,7 +849,7 @@ public class BookingServiceImpl implements BookingService {
 
 
     private static String quotedAndPipeDelimited(final Stream<String> values) {
-        return values.collect(Collectors.joining("'|'","'", "'"));
+        return values.collect(Collectors.joining("'|'", "'", "'"));
     }
 
     private String buildAgencyQuery(final String agencyId, final String username) {
@@ -863,8 +865,8 @@ public class BookingServiceImpl implements BookingService {
         return agencies.isEmpty() ? "" : AGENCY_LOCATION_ID_KEY + ":in:" +
                 quotedAndPipeDelimited(
                         agencies
-                        .stream()
-                        .map(Agency::getAgencyId));
+                                .stream()
+                                .map(Agency::getAgencyId));
     }
 
     private static String forAgency(final String agencyId) {

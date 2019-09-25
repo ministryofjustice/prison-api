@@ -7,8 +7,6 @@ import org.junit.Test;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-import java.util.stream.IntStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IepLevelAndCommentTest {
@@ -34,11 +32,11 @@ public class IepLevelAndCommentTest {
     public void missingLevel() {
         assertThat(validator.validate(
                 IepLevelAndComment
-                .builder()
-                .comment("Comment")
-                .build()))
-            .hasSize(1)
-            .extracting("message").containsExactly("The IEP level must not be blank");
+                        .builder()
+                        .comment("Comment")
+                        .build()))
+                .hasSize(1)
+                .extracting("message").containsExactly("The IEP level must not be blank");
     }
 
     @Test

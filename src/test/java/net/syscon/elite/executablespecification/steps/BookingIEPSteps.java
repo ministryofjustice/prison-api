@@ -70,9 +70,9 @@ public class BookingIEPSteps extends CommonSteps {
                 .stream()
                 .filter(
                         privilegeSummary -> privilegeSummary.getBookingId().equals(bookingId) &&
-                        privilegeSummary.getIepLevel().equals(iepLevel) &&
-                        privilegeSummary.getIepDetails().size() == iepDetailCount &&
-                        privilegeSummary.getIepDate().equals(iepDate))
+                                privilegeSummary.getIepLevel().equals(iepLevel) &&
+                                privilegeSummary.getIepDetails().size() == iepDetailCount &&
+                                privilegeSummary.getIepDate().equals(iepDate))
                 .count();
 
         assertThat(count).isEqualTo(1);
@@ -94,7 +94,8 @@ public class BookingIEPSteps extends CommonSteps {
                             BOOKING_IEP_SUMMARY_API_FOR_OFFENDERS_URL + queryParameters,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<PrivilegeSummary>>() {},
+                            new ParameterizedTypeReference<List<PrivilegeSummary>>() {
+                            },
                             bookings);
 
             privilegeSummaries = response.getBody();

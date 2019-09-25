@@ -81,8 +81,8 @@ public class ApprovalStatusTest {
                         .approvalStatus("APPROVED")
                         .build())
         )
-        .hasSize(1)
-        .extracting("propertyPath").hasToString("[date]");
+                .hasSize(1)
+                .extracting("propertyPath").hasToString("[date]");
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ApprovalStatusTest {
                         .date(LocalDate.EPOCH)
                         .build())
         ).hasSize(1)
-        .extracting("message").contains("A refusedReason is required when approval status is not 'APPROVED'.");
+                .extracting("message").contains("A refusedReason is required when approval status is not 'APPROVED'.");
     }
 
     @Test

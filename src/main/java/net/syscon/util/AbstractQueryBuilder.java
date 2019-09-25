@@ -98,9 +98,9 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
 
             if (fullQuery.startsWith("AND ")) {
                 extraWhere.append(fullQuery.substring(4));
-		    } else if (fullQuery.startsWith("OR ")) {
+            } else if (fullQuery.startsWith("OR ")) {
                 extraWhere.append(fullQuery.substring(3));
-		    }
+            }
         }
 
         return this;
@@ -154,7 +154,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
 
     protected String removeSpecialCharacters(final String sql) {
         if (sql == null) return null;
-        final String stmts[] = { sql, sql.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ') };
+        final String stmts[] = {sql, sql.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')};
         while (!stmts[0].equals(stmts[1])) {
             stmts[0] = stmts[1];
             stmts[1] = stmts[1].replace('\n', ' ').replace('\r', ' ').replace('\t', ' ');

@@ -25,7 +25,7 @@ import java.util.Map;
 public class Telephone {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String number;
 
@@ -46,8 +46,8 @@ public class Telephone {
     }
 
     /**
-      * Telephone number
-      */
+     * Telephone number
+     */
     @ApiModelProperty(required = true, value = "Telephone number")
     @JsonProperty("number")
     public String getNumber() {
@@ -59,8 +59,8 @@ public class Telephone {
     }
 
     /**
-      * Telephone type
-      */
+     * Telephone type
+     */
     @ApiModelProperty(required = true, value = "Telephone type")
     @JsonProperty("type")
     public String getType() {
@@ -72,8 +72,8 @@ public class Telephone {
     }
 
     /**
-      * Telephone extention number
-      */
+     * Telephone extention number
+     */
     @ApiModelProperty(value = "Telephone extention number")
     @JsonProperty("ext")
     public String getExt() {
@@ -85,11 +85,11 @@ public class Telephone {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class Telephone {\n");
-        
+
         sb.append("  number: ").append(number).append("\n");
         sb.append("  type: ").append(type).append("\n");
         sb.append("  ext: ").append(ext).append("\n");

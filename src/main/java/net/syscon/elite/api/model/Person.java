@@ -26,7 +26,7 @@ import java.util.Map;
 public class Person {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long personId;
 
@@ -48,8 +48,8 @@ public class Person {
     }
 
     /**
-      * id of the person
-      */
+     * id of the person
+     */
     @ApiModelProperty(required = true, value = "id of the person")
     @JsonProperty("personId")
     public Long getPersonId() {
@@ -61,8 +61,8 @@ public class Person {
     }
 
     /**
-      * Surname
-      */
+     * Surname
+     */
     @ApiModelProperty(required = true, value = "Surname")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -74,8 +74,8 @@ public class Person {
     }
 
     /**
-      * First Name
-      */
+     * First Name
+     */
     @ApiModelProperty(required = true, value = "First Name")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -87,11 +87,11 @@ public class Person {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class Person {\n");
-        
+
         sb.append("  personId: ").append(personId).append("\n");
         sb.append("  lastName: ").append(lastName).append("\n");
         sb.append("  firstName: ").append(firstName).append("\n");

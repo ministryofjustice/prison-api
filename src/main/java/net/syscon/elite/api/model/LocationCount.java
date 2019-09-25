@@ -25,7 +25,7 @@ import java.util.Map;
 public class LocationCount {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long physicalCountId;
 
@@ -40,8 +40,10 @@ public class LocationCount {
     private LocationCountDetail recount;
 
     public enum CountStatusCode {
-         I,  R,  C, 
-    };
+        I, R, C,
+    }
+
+    ;
 
     private CountStatusCode countStatusCode;
 
@@ -57,8 +59,8 @@ public class LocationCount {
     }
 
     /**
-      * Phyical Count Id
-      */
+     * Phyical Count Id
+     */
     @ApiModelProperty(required = true, value = "Phyical Count Id")
     @JsonProperty("physicalCountId")
     public Long getPhysicalCountId() {
@@ -70,8 +72,8 @@ public class LocationCount {
     }
 
     /**
-      * Location Id
-      */
+     * Location Id
+     */
     @ApiModelProperty(required = true, value = "Location Id")
     @JsonProperty("locationId")
     public Long getLocationId() {
@@ -83,8 +85,8 @@ public class LocationCount {
     }
 
     /**
-      * Staff Id
-      */
+     * Staff Id
+     */
     @ApiModelProperty(value = "Staff Id")
     @JsonProperty("enteredByUserId")
     public Long getEnteredByUserId() {
@@ -96,8 +98,8 @@ public class LocationCount {
     }
 
     /**
-      * Initial Count Details
-      */
+     * Initial Count Details
+     */
     @ApiModelProperty(required = true, value = "Initial Count Details")
     @JsonProperty("initialCount")
     public LocationCountDetail getInitialCount() {
@@ -109,8 +111,8 @@ public class LocationCount {
     }
 
     /**
-      * Recount Details
-      */
+     * Recount Details
+     */
     @ApiModelProperty(value = "Recount Details")
     @JsonProperty("recount")
     public LocationCountDetail getRecount() {
@@ -122,8 +124,8 @@ public class LocationCount {
     }
 
     /**
-      * Status of count
-      */
+     * Status of count
+     */
     @ApiModelProperty(value = "Status of count")
     @JsonProperty("countStatusCode")
     public CountStatusCode getCountStatusCode() {
@@ -135,11 +137,11 @@ public class LocationCount {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class LocationCount {\n");
-        
+
         sb.append("  physicalCountId: ").append(physicalCountId).append("\n");
         sb.append("  locationId: ").append(locationId).append("\n");
         sb.append("  enteredByUserId: ").append(enteredByUserId).append("\n");

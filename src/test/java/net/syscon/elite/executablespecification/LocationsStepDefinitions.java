@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  *     <li>/locations/groups/{agencyId}/{name}</li>
  *     <li>/locations/description/{agencyId}/inmates</li>
  * </ul>
- *
  */
 public class LocationsStepDefinitions extends AbstractStepDefinitions {
     @Autowired
@@ -59,12 +58,12 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     public void locationsAre(final String list) throws Throwable {
         location.verifyLocationList(list);
     }
-    
+
     @Then("^location ids are \"([^\"]*)\"$")
     public void locationIdsAre(final String list) throws Throwable {
         location.verifyLocationIdList(list);
     }
-    
+
     @When("^a request is made at agency \"([^\"]*)\" to retrieve all the groups$")
     public void aRequestIsMadeToRetrieveAllGroups(final String agencyId) throws Throwable {
         location.aRequestIsMadeToRetrieveAllGroups(agencyId);
@@ -87,7 +86,7 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^there are \"([^\"]*)\" offenders returned with the convicted status \"([^\"]*)\"$")
     public void checkConvictedOffenderCountByStatus(final String countOffenders, final String convictedStatus) {
-       location.checkOffenderCountByConvictedStatus(Integer.parseInt(countOffenders), convictedStatus);
+        location.checkOffenderCountByConvictedStatus(Integer.parseInt(countOffenders), convictedStatus);
     }
 
     @When("^a request is made at agency \"([^\"]*)\" to retrieve a list of inmates with a convicted status of \"([^\"]*)\"$")

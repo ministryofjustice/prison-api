@@ -4,8 +4,6 @@ import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.model.HomeDetentionCurfew;
 
-import javax.ws.rs.NotFoundException;
-
 class ChecksPassedState extends CurfewState {
 
     ChecksPassedState(HomeDetentionCurfew curfew) {

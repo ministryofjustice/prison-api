@@ -26,7 +26,7 @@ import java.util.Map;
 public class Keyworker {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long staffId;
 
@@ -56,8 +56,8 @@ public class Keyworker {
     }
 
     /**
-      * Unique identifier for staff member.
-      */
+     * Unique identifier for staff member.
+     */
     @ApiModelProperty(required = true, value = "Unique identifier for staff member.")
     @JsonProperty("staffId")
     public Long getStaffId() {
@@ -69,8 +69,8 @@ public class Keyworker {
     }
 
     /**
-      * Staff member's first name.
-      */
+     * Staff member's first name.
+     */
     @ApiModelProperty(required = true, value = "Staff member's first name.")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -82,8 +82,8 @@ public class Keyworker {
     }
 
     /**
-      * Staff member's last name.
-      */
+     * Staff member's last name.
+     */
     @ApiModelProperty(required = true, value = "Staff member's last name.")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -95,8 +95,8 @@ public class Keyworker {
     }
 
     /**
-      * Status of staff member.
-      */
+     * Status of staff member.
+     */
     @ApiModelProperty(required = true, value = "Status of staff member.")
     @JsonProperty("status")
     public String getStatus() {
@@ -108,8 +108,8 @@ public class Keyworker {
     }
 
     /**
-      * Identifier for staff member image.
-      */
+     * Identifier for staff member image.
+     */
     @ApiModelProperty(value = "Identifier for staff member image.")
     @JsonProperty("thumbnailId")
     public Long getThumbnailId() {
@@ -121,8 +121,8 @@ public class Keyworker {
     }
 
     /**
-      * Current number allocated
-      */
+     * Current number allocated
+     */
     @ApiModelProperty(required = true, value = "Current number allocated")
     @JsonProperty("numberAllocated")
     public Integer getNumberAllocated() {
@@ -134,11 +134,11 @@ public class Keyworker {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class Keyworker {\n");
-        
+
         sb.append("  staffId: ").append(staffId).append("\n");
         sb.append("  firstName: ").append(firstName).append("\n");
         sb.append("  lastName: ").append(lastName).append("\n");

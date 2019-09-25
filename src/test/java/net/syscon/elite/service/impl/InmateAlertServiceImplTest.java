@@ -103,6 +103,7 @@ public class InmateAlertServiceImplTest {
                 .comment("comment1")
                 .build());
     }
+
     @Test
     public void testAlertDate_SevenDaysInThePastThrowsException() {
         assertThat(catchThrowable(() -> {
@@ -139,7 +140,7 @@ public class InmateAlertServiceImplTest {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(alert));
-        when(inmateAlertRepository.getAlert(anyLong(),anyLong())).thenReturn(Optional.of(alert));
+        when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
 
         final var updatedAlert = service.expireAlert(-1L, 4L, expireAlert);
 
@@ -189,7 +190,7 @@ public class InmateAlertServiceImplTest {
 
         verify(telemetryClient).trackEvent("Alert created", Map.of(
                 "alertSeq", String.valueOf(alertId),
-                "alertDate",  LocalDate.now().atStartOfDay().toLocalDate().toString(),
+                "alertDate", LocalDate.now().atStartOfDay().toLocalDate().toString(),
                 "alertCode", "X",
                 "alertType", "XX",
                 "bookingId", "-1",
@@ -205,7 +206,7 @@ public class InmateAlertServiceImplTest {
         when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().build()));
 
-        service.expireAlert(-1L,-2L,  ExpireAlert
+        service.expireAlert(-1L, -2L, ExpireAlert
                 .builder()
                 .expiryDate(LocalDate.now())
                 .build());
@@ -213,7 +214,7 @@ public class InmateAlertServiceImplTest {
         verify(telemetryClient).trackEvent("Alert updated", Map.of(
                 "bookingId", "-1",
                 "alertSeq", "-2",
-                "expiryDate",  LocalDate.now().atStartOfDay().toLocalDate().toString(),
+                "expiryDate", LocalDate.now().atStartOfDay().toLocalDate().toString(),
                 "updated_by", "ITAG_USER"
         ), null);
     }
@@ -241,10 +242,9 @@ public class InmateAlertServiceImplTest {
 
         assertThatThrownBy(() ->
                 service.createNewAlert(-1L, CreateAlert.builder().alertType("X").alertCode("XX").build()))
-               .isInstanceOf(IllegalArgumentException.class)
-               .hasMessage("Alert code does not exist.");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Alert code does not exist.");
     }
-
 
 
     @Test
@@ -267,7 +267,7 @@ public class InmateAlertServiceImplTest {
                 buildAlert(-3L, now.minusMonths(3), now),
                 buildAlert(-4L, now.minusMonths(4), now.minusDays(1)),
                 buildAlert(-5L, now.minusMonths(5), null)
-            );
+        );
 
         return new Page<>(alerts, 5, 0, 10);
     }

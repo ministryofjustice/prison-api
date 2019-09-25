@@ -24,6 +24,6 @@ public class ExpireAlert {
         if (expiryDate == null)
             throw new IllegalArgumentException("Expiry date is null");
 
-        return expiryDate.compareTo(LocalDate.now()) <= 0  ? "INACTIVE" : "ACTIVE";
+        return expiryDate.compareTo(LocalDate.now()) <= 0 ? "INACTIVE" : "ACTIVE";
     }
 }

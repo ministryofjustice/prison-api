@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 public class StandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
-    private Map<String,FieldMapper> fieldMap;
+    private Map<String, FieldMapper> fieldMap;
 
     /**
      * Create a new {@code StandardBeanPropertyRowMapper}, accepting unpopulated
@@ -26,12 +26,13 @@ public class StandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
         super(mappedClass);
     }
 
-    public Map<String,FieldMapper> getFieldMap() {
+    public Map<String, FieldMapper> getFieldMap() {
         return fieldMap;
     }
 
     /**
      * Initialize the mapping metadata for the given class.
+     *
      * @param mappedClass the mapped class
      */
     @Override

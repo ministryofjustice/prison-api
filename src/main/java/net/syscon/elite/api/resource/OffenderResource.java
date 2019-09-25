@@ -62,7 +62,7 @@ public interface OffenderResource {
                                           @ApiParam(value = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") LocalDate toDate,
                                           @ApiParam(value = "Requested offset of first record in returned collection of adjudications.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
                                           @ApiParam(value = "Requested limit to number of adjudications returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit);
-    
+
     @GET
     @Path("/{offenderNo}/adjudications/{adjudicationNo}")
     @Consumes({"application/json"})
@@ -74,7 +74,7 @@ public interface OffenderResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     AdjudicationDetail getAdjudication(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathParam("offenderNo") @NotNull String offenderNo,
-                             @ApiParam(value = "adjudicationNo", required = true) @PathParam("adjudicationNo") @NotNull long adjudicationNo);
+                                       @ApiParam(value = "adjudicationNo", required = true) @PathParam("adjudicationNo") @NotNull long adjudicationNo);
 
     @GET
     @Path("/{offenderNo}/alerts")
@@ -104,14 +104,14 @@ public interface OffenderResource {
     @ApiOperation(value = "Offender case notes", notes = "Retrieve an offenders case notes for latest booking", nickname = "getOffenderCaseNotes")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = CaseNote.class, responseContainer = "List")})
-    Response getOffenderCaseNotes(  @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") @PathParam("offenderNo") String offenderNo,
-                                    @ApiParam(value = "start contact date to search from", required = true) @QueryParam("from") String from,
-                                    @ApiParam(value = "end contact date to search up to (including this date)", required = true) @QueryParam("to") String to,
-                                    @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - creationDateTime, type, subType, source</p> ", required = true) @QueryParam("query") String query,
-                                    @ApiParam(value = "Requested offset of first record in returned collection of caseNote records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
-                                    @ApiParam(value = "Requested limit to number of caseNote records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
-                                    @ApiParam(value = "Comma separated list of one or more of the following fields - <b>creationDateTime, type, subType, source</b>") @HeaderParam("Sort-Fields") String sortFields,
-                                    @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+    Response getOffenderCaseNotes(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") @PathParam("offenderNo") String offenderNo,
+                                  @ApiParam(value = "start contact date to search from", required = true) @QueryParam("from") String from,
+                                  @ApiParam(value = "end contact date to search up to (including this date)", required = true) @QueryParam("to") String to,
+                                  @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - creationDateTime, type, subType, source</p> ", required = true) @QueryParam("query") String query,
+                                  @ApiParam(value = "Requested offset of first record in returned collection of caseNote records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                  @ApiParam(value = "Requested limit to number of caseNote records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
+                                  @ApiParam(value = "Comma separated list of one or more of the following fields - <b>creationDateTime, type, subType, source</b>") @HeaderParam("Sort-Fields") String sortFields,
+                                  @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
 
     @GET
     @Path("/{offenderNo}/case-notes/{caseNoteId}")
@@ -121,7 +121,7 @@ public interface OffenderResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = CaseNote.class)})
     CaseNote getOffenderCaseNote(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) @PathParam("offenderNo") String offenderNo,
-                                                                    @ApiParam(value = "The case note id", required = true) @PathParam("caseNoteId") Long caseNoteId);
+                                 @ApiParam(value = "The case note id", required = true) @PathParam("caseNoteId") Long caseNoteId);
 
     @GET
     @Path("/{offenderNo}/sentences")
@@ -141,7 +141,7 @@ public interface OffenderResource {
             @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
             @ApiResponse(code = 409, message = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", response = ErrorResponse.class)})
     CaseNote createOffenderCaseNote(@ApiParam(value = "The offenderNo of offender", required = true, example = "A1234AA") @PathParam("offenderNo") String offenderNo,
-                                                                          @ApiParam(value = "", required = true) NewCaseNote body);
+                                    @ApiParam(value = "", required = true) NewCaseNote body);
 
     @PUT
     @Path("/{offenderNo}/case-notes/{caseNoteId}")
@@ -155,6 +155,6 @@ public interface OffenderResource {
             @ApiResponse(code = 404, message = "Resource not found - offender or case note does not exist or is not accessible to user.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
     CaseNote updateOffenderCaseNote(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") @PathParam("offenderNo") String offenderNo,
-                                                                          @ApiParam(value = "The case note id", required = true, example = "1212134") @PathParam("caseNoteId") Long caseNoteId,
-                                                                          @ApiParam(value = "", required = true) UpdateCaseNote body);
+                                    @ApiParam(value = "The case note id", required = true, example = "1212134") @PathParam("caseNoteId") Long caseNoteId,
+                                    @ApiParam(value = "", required = true) UpdateCaseNote body);
 }

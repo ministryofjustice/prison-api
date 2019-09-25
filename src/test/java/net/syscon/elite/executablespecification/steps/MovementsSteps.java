@@ -26,7 +26,7 @@ public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
     private static final String API_REQUEST_OUT_TODAY = API_PREFIX + "movements/{agencyId}/out/{isoDate}";
     private static final String API_REQUEST_MOVEMENT_ENROUTE_URL = API_PREFIX + "movements/{agencyId}/enroute?movementDate={date}";
-    private static final String API_REQUEST_OFFENDERS_IN =  API_PREFIX + "movements/{agencyId}/in/{isoDate}";
+    private static final String API_REQUEST_OFFENDERS_IN = API_PREFIX + "movements/{agencyId}/in/{isoDate}";
     private static final String API_REQUEST_OFFENDERS_IN_RECEPTION = API_PREFIX + "movements/rollcount/{agencyId}/in-reception";
     private static final String API_REQUEST_TRANSFERS_BY_AGENCY_AND_TIME = API_PREFIX + "movements/transfers?fromDateTime={fromTime}&toDateTime={toTime}";
 
@@ -105,7 +105,8 @@ public class MovementsSteps extends CommonSteps {
                     includeMovementTypes ? API_REQUEST_RECENT_MOVEMENTS + "?movementTypes=TRN&movementTypes=REL" :
                             API_REQUEST_RECENT_MOVEMENTS,
                     HttpMethod.POST, createEntity(offenderNumbers),
-                    new ParameterizedTypeReference<List<Movement>>() {});
+                    new ParameterizedTypeReference<List<Movement>>() {
+                    });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -130,17 +131,17 @@ public class MovementsSteps extends CommonSteps {
 
     public void verifyMovements(final String movementType, final String fromDescription, final String toDescription, final String movementReason, final String movementTime) {
         final var matched = movements
-              .stream()
-              .filter(m -> m.getMovementType().equals(movementType) &&
-                      m.getFromAgencyDescription().equals(fromDescription) &&
-                      m.getToAgencyDescription().equals(toDescription) &&
-                      m.getMovementReason().equals(movementReason) &&
-                      m.getMovementTime().equals(LocalTime.parse(movementTime)))
-              .toArray()
-              .length != 0;
+                .stream()
+                .filter(m -> m.getMovementType().equals(movementType) &&
+                        m.getFromAgencyDescription().equals(fromDescription) &&
+                        m.getToAgencyDescription().equals(toDescription) &&
+                        m.getMovementReason().equals(movementReason) &&
+                        m.getMovementTime().equals(LocalTime.parse(movementTime)))
+                .toArray()
+                .length != 0;
 
 
-      assertThat(matched).isTrue();
+        assertThat(matched).isTrue();
     }
 
     public void verifyOutToday(final List<OffenderOutTodayDto> offenders) {
@@ -229,7 +230,8 @@ public class MovementsSteps extends CommonSteps {
             final var response = restTemplate.exchange(
                     API_REQUEST_OUT_TODAY,
                     HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<OffenderOutTodayDto>>() {},
+                    new ParameterizedTypeReference<List<OffenderOutTodayDto>>() {
+                    },
                     agencyId,
                     movementDate);
 
@@ -268,7 +270,8 @@ public class MovementsSteps extends CommonSteps {
                     API_REQUEST_OFFENDERS_IN,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<List<OffenderIn>>() {},
+                    new ParameterizedTypeReference<List<OffenderIn>>() {
+                    },
                     agencyId,
                     movementsDate
             );
@@ -289,7 +292,8 @@ public class MovementsSteps extends CommonSteps {
                     API_REQUEST_OFFENDERS_IN_RECEPTION,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<List<OffenderInReception>>() {},
+                    new ParameterizedTypeReference<List<OffenderInReception>>() {
+                    },
                     agencyId
             );
             offendersInReception = response.getBody();

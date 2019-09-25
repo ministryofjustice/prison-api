@@ -17,15 +17,15 @@ public interface SearchOffenderResource {
 
     @GET
     @Path("/{locationPrefix}/{keywords}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
     @Deprecated
-    @ApiOperation(value = "List offenders by location (matching keywords).", notes = "Deprecated: Use <b>/locations/description/{locationPrefix}/inmates</b> instead. This API will be removed in a future release.", nickname="searchForOffendersLocationAndKeyword")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    @ApiOperation(value = "List offenders by location (matching keywords).", notes = "Deprecated: Use <b>/locations/description/{locationPrefix}/inmates</b> instead. This API will be removed in a future release.", nickname = "searchForOffendersLocationAndKeyword")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     SearchForOffendersLocationAndKeywordResponse searchForOffendersLocationAndKeyword(@ApiParam(value = "", required = true) @PathParam("locationPrefix") String locationPrefix,
                                                                                       @ApiParam(value = "", required = true) @PathParam("keywords") String keywords,
                                                                                       @ApiParam(value = "return IEP data", defaultValue = "false") @QueryParam("returnIep") boolean returnIep,

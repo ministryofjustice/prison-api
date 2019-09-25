@@ -26,7 +26,7 @@ import java.util.Map;
 public class AssignedLivingUnit {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String agencyId;
 
@@ -51,8 +51,8 @@ public class AssignedLivingUnit {
     }
 
     /**
-      * Agency Id
-      */
+     * Agency Id
+     */
     @ApiModelProperty(required = true, value = "Agency Id")
     @JsonProperty("agencyId")
     public String getAgencyId() {
@@ -64,8 +64,8 @@ public class AssignedLivingUnit {
     }
 
     /**
-      * location Id
-      */
+     * location Id
+     */
     @ApiModelProperty(required = true, value = "location Id")
     @JsonProperty("locationId")
     public Long getLocationId() {
@@ -77,8 +77,8 @@ public class AssignedLivingUnit {
     }
 
     /**
-      * Living Unit Desc
-      */
+     * Living Unit Desc
+     */
     @ApiModelProperty(required = true, value = "Living Unit Desc")
     @JsonProperty("description")
     public String getDescription() {
@@ -90,8 +90,8 @@ public class AssignedLivingUnit {
     }
 
     /**
-      * Name of the agency where this living unit resides
-      */
+     * Name of the agency where this living unit resides
+     */
     @ApiModelProperty(required = true, value = "Name of the agency where this living unit resides")
     @JsonProperty("agencyName")
     public String getAgencyName() {
@@ -103,11 +103,11 @@ public class AssignedLivingUnit {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class AssignedLivingUnit {\n");
-        
+
         sb.append("  agencyId: ").append(agencyId).append("\n");
         sb.append("  locationId: ").append(locationId).append("\n");
         sb.append("  description: ").append(description).append("\n");

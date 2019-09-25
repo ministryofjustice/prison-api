@@ -4,11 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Singular;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +40,7 @@ public class AdjudicationDetail {
     @ApiModelProperty(value = "Incident Details", example = "Whilst conducting an intelligence cell search...")
     private String incidentDetails;
 
-    @ApiModelProperty(value = "Report Number" ,example = "1234567")
+    @ApiModelProperty(value = "Report Number", example = "1234567")
     private Long reportNumber;
 
     @ApiModelProperty(value = "Report Type", example = "Governor's Report")

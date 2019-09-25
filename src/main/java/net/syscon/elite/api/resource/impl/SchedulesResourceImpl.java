@@ -33,7 +33,7 @@ public class SchedulesResourceImpl implements ScheduleResource {
 
     @Override
     public List<PrisonerSchedule> getLocationEvents(final String agencyId, final Long locationId, final String usage,
-                                                       final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
+                                                    final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
         return schedulesService.getLocationEvents(agencyId, locationId, usage,
                 date, timeSlot, sortFields, sortOrder);
@@ -42,7 +42,7 @@ public class SchedulesResourceImpl implements ScheduleResource {
 
     @Override
     public List<PrisonerSchedule> getActivitiesAtAllLocations(String agencyId, LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder) {
-       return schedulesService.getActivitiesAtAllLocations(agencyId, date, timeSlot, sortFields, sortOrder);
+        return schedulesService.getActivitiesAtAllLocations(agencyId, date, timeSlot, sortFields, sortOrder);
     }
 
     @Override

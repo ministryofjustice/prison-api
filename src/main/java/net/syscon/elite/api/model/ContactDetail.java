@@ -27,7 +27,7 @@ import java.util.Map;
 public class ContactDetail {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long bookingId;
 
@@ -47,8 +47,8 @@ public class ContactDetail {
     }
 
     /**
-      * Offender Booking Id
-      */
+     * Offender Booking Id
+     */
     @ApiModelProperty(required = true, value = "Offender Booking Id")
     @JsonProperty("bookingId")
     public Long getBookingId() {
@@ -60,8 +60,8 @@ public class ContactDetail {
     }
 
     /**
-      * List of next of kin
-      */
+     * List of next of kin
+     */
     @ApiModelProperty(required = true, value = "List of next of kin")
     @JsonProperty("nextOfKin")
     public List<Contact> getNextOfKin() {
@@ -73,11 +73,11 @@ public class ContactDetail {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class ContactDetail {\n");
-        
+
         sb.append("  bookingId: ").append(bookingId).append("\n");
         sb.append("  nextOfKin: ").append(nextOfKin).append("\n");
         sb.append("}\n");

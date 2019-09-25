@@ -32,6 +32,7 @@ public class RequestLogFilter implements Filter {
     public RequestLogFilter(@Value("${logging.uris.exclude.regex}") final String excludeUris) {
         excludeUriRegex = Pattern.compile(excludeUris);
     }
+
     @Override
     public void init(final FilterConfig filterConfig) {
 

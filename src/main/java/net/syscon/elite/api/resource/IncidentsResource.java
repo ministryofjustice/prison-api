@@ -18,7 +18,7 @@ public interface IncidentsResource {
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Return an Incident for a given incident ID", notes = "System access only",
-            authorizations = { @Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY") })
+            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = IncidentCase.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),

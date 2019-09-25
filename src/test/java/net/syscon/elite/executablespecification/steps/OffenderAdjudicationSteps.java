@@ -4,12 +4,7 @@ import cucumber.api.Format;
 import lombok.Builder;
 import lombok.Data;
 import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.adjudications.Adjudication;
-import net.syscon.elite.api.model.adjudications.AdjudicationCharge;
-import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
-import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
-import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
-import net.syscon.elite.api.model.adjudications.Hearing;
+import net.syscon.elite.api.model.adjudications.*;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,9 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

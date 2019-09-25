@@ -20,7 +20,7 @@ import java.util.Optional;
  * <ul>
  *     <li>/v2/prisoners</li>
  * </ul>
- *
+ * <p>
  * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {

@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @Data
 public class SentenceDetail extends BaseSentenceDetail {
     public enum NonDtoReleaseDateType {
-        ARD,  CRD,  NPD,  PRRD,
+        ARD, CRD, NPD, PRRD,
     }
 
     @ApiModelProperty(required = true, value = "Offender booking id.", position = 0)

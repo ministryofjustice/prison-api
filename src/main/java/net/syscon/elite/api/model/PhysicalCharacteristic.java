@@ -25,7 +25,7 @@ import java.util.Map;
 public class PhysicalCharacteristic {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String type;
 
@@ -49,8 +49,8 @@ public class PhysicalCharacteristic {
     }
 
     /**
-      * Type code of physical characteristic
-      */
+     * Type code of physical characteristic
+     */
     @ApiModelProperty(required = true, value = "Type code of physical characteristic")
     @JsonProperty("type")
     public String getType() {
@@ -62,8 +62,8 @@ public class PhysicalCharacteristic {
     }
 
     /**
-      * Type of physical characteristic
-      */
+     * Type of physical characteristic
+     */
     @ApiModelProperty(required = true, value = "Type of physical characteristic")
     @JsonProperty("characteristic")
     public String getCharacteristic() {
@@ -75,8 +75,8 @@ public class PhysicalCharacteristic {
     }
 
     /**
-      * Detailed information about the physical characteristic
-      */
+     * Detailed information about the physical characteristic
+     */
     @ApiModelProperty(required = true, value = "Detailed information about the physical characteristic")
     @JsonProperty("detail")
     public String getDetail() {
@@ -88,8 +88,8 @@ public class PhysicalCharacteristic {
     }
 
     /**
-      * Image Id Ref
-      */
+     * Image Id Ref
+     */
     @ApiModelProperty(value = "Image Id Ref")
     @JsonProperty("imageId")
     public Long getImageId() {
@@ -101,11 +101,11 @@ public class PhysicalCharacteristic {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class PhysicalCharacteristic {\n");
-        
+
         sb.append("  type: ").append(type).append("\n");
         sb.append("  characteristic: ").append(characteristic).append("\n");
         sb.append("  detail: ").append(detail).append("\n");

@@ -37,7 +37,7 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
         final var paRowMapper = new PageAwareRowMapper<PrisonerDetail>(PRISONER_DETAIL_MAPPER);
 
         final var params =
-                createParams( "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
+                createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
         final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
 

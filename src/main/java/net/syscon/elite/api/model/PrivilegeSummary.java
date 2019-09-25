@@ -29,7 +29,7 @@ import java.util.Map;
 public class PrivilegeSummary {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long bookingId;
 
@@ -58,8 +58,8 @@ public class PrivilegeSummary {
     }
 
     /**
-      * Offender booking identifier.
-      */
+     * Offender booking identifier.
+     */
     @ApiModelProperty(required = true, value = "Offender booking identifier.")
     @JsonProperty("bookingId")
     public Long getBookingId() {
@@ -71,8 +71,8 @@ public class PrivilegeSummary {
     }
 
     /**
-      * Effective date of current IEP level.
-      */
+     * Effective date of current IEP level.
+     */
     @ApiModelProperty(required = true, value = "Effective date of current IEP level.")
     @JsonProperty("iepDate")
     public LocalDate getIepDate() {
@@ -84,8 +84,8 @@ public class PrivilegeSummary {
     }
 
     /**
-      * Effective date & time of current IEP level.
-      */
+     * Effective date & time of current IEP level.
+     */
     @ApiModelProperty(value = "Effective date & time of current IEP level.")
     @JsonProperty("iepTime")
     public LocalDateTime getIepTime() {
@@ -97,8 +97,8 @@ public class PrivilegeSummary {
     }
 
     /**
-      * The current IEP level (e.g. Basic, Standard or Enhanced).
-      */
+     * The current IEP level (e.g. Basic, Standard or Enhanced).
+     */
     @ApiModelProperty(required = true, value = "The current IEP level (e.g. Basic, Standard or Enhanced).")
     @JsonProperty("iepLevel")
     public String getIepLevel() {
@@ -110,8 +110,8 @@ public class PrivilegeSummary {
     }
 
     /**
-      * The number of days since last review.
-      */
+     * The number of days since last review.
+     */
     @ApiModelProperty(required = true, value = "The number of days since last review.")
     @JsonProperty("daysSinceReview")
     public Integer getDaysSinceReview() {
@@ -123,8 +123,8 @@ public class PrivilegeSummary {
     }
 
     /**
-      * All IEP detail entries for the offender (most recent first).
-      */
+     * All IEP detail entries for the offender (most recent first).
+     */
     @ApiModelProperty(value = "All IEP detail entries for the offender (most recent first).")
     @JsonProperty("iepDetails")
     public List<PrivilegeDetail> getIepDetails() {
@@ -136,11 +136,11 @@ public class PrivilegeSummary {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class PrivilegeSummary {\n");
-        
+
         sb.append("  bookingId: ").append(bookingId).append("\n");
         sb.append("  iepDate: ").append(iepDate).append("\n");
         sb.append("  iepTime: ").append(iepTime).append("\n");

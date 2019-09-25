@@ -1,10 +1,10 @@
 package net.syscon.elite.service;
 
+import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.adjudications.Adjudication;
 import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
-import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
-import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.support.Page;
 
 import java.time.LocalDate;

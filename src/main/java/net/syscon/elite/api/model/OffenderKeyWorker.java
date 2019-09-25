@@ -27,7 +27,7 @@ import java.util.Map;
 public class OffenderKeyWorker {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String offenderNo;
 
@@ -70,8 +70,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Offender Unique Reference
-      */
+     * Offender Unique Reference
+     */
     @ApiModelProperty(required = true, value = "Offender Unique Reference")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
@@ -83,8 +83,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * The key worker's Staff Id
-      */
+     * The key worker's Staff Id
+     */
     @ApiModelProperty(required = true, value = "The key worker's Staff Id")
     @JsonProperty("staffId")
     public Long getStaffId() {
@@ -96,8 +96,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Agency Id
-      */
+     * Agency Id
+     */
     @ApiModelProperty(required = true, value = "Agency Id")
     @JsonProperty("agencyId")
     public String getAgencyId() {
@@ -109,8 +109,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Date and time allocation was assigned
-      */
+     * Date and time allocation was assigned
+     */
     @ApiModelProperty(required = true, value = "Date and time allocation was assigned")
     @JsonProperty("assigned")
     public LocalDateTime getAssigned() {
@@ -122,8 +122,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Date and time allocation expired
-      */
+     * Date and time allocation expired
+     */
     @ApiModelProperty(value = "Date and time allocation expired")
     @JsonProperty("expired")
     public LocalDateTime getExpired() {
@@ -135,8 +135,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Username of user who processed allocation
-      */
+     * Username of user who processed allocation
+     */
     @ApiModelProperty(required = true, value = "Username of user who processed allocation")
     @JsonProperty("userId")
     public String getUserId() {
@@ -148,8 +148,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Y
-      */
+     * Y
+     */
     @ApiModelProperty(required = true, value = "Y")
     @JsonProperty("active")
     public String getActive() {
@@ -161,8 +161,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Date and time allocation record was created
-      */
+     * Date and time allocation record was created
+     */
     @ApiModelProperty(required = true, value = "Date and time allocation record was created")
     @JsonProperty("created")
     public LocalDateTime getCreated() {
@@ -174,8 +174,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Username of user who created allocation record
-      */
+     * Username of user who created allocation record
+     */
     @ApiModelProperty(required = true, value = "Username of user who created allocation record")
     @JsonProperty("createdBy")
     public String getCreatedBy() {
@@ -187,8 +187,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Date and time allocation record was last modified
-      */
+     * Date and time allocation record was last modified
+     */
     @ApiModelProperty(value = "Date and time allocation record was last modified")
     @JsonProperty("modified")
     public LocalDateTime getModified() {
@@ -200,8 +200,8 @@ public class OffenderKeyWorker {
     }
 
     /**
-      * Username of user who last modified allocation record
-      */
+     * Username of user who last modified allocation record
+     */
     @ApiModelProperty(value = "Username of user who last modified allocation record")
     @JsonProperty("modifiedBy")
     public String getModifiedBy() {
@@ -213,11 +213,11 @@ public class OffenderKeyWorker {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class OffenderKeyWorker {\n");
-        
+
         sb.append("  offenderNo: ").append(offenderNo).append("\n");
         sb.append("  staffId: ").append(staffId).append("\n");
         sb.append("  agencyId: ").append(agencyId).append("\n");

@@ -27,7 +27,7 @@ import java.util.Map;
 public class ImageDetail {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long imageId;
 
@@ -59,8 +59,8 @@ public class ImageDetail {
     }
 
     /**
-      * Image ID
-      */
+     * Image ID
+     */
     @ApiModelProperty(required = true, value = "Image ID")
     @JsonProperty("imageId")
     public Long getImageId() {
@@ -72,8 +72,8 @@ public class ImageDetail {
     }
 
     /**
-      * Date of image capture
-      */
+     * Date of image capture
+     */
     @ApiModelProperty(required = true, value = "Date of image capture")
     @JsonProperty("captureDate")
     public LocalDate getCaptureDate() {
@@ -85,8 +85,8 @@ public class ImageDetail {
     }
 
     /**
-      * Image view information
-      */
+     * Image view information
+     */
     @ApiModelProperty(required = true, value = "Image view information")
     @JsonProperty("imageView")
     public String getImageView() {
@@ -98,8 +98,8 @@ public class ImageDetail {
     }
 
     /**
-      * Orientation of the image
-      */
+     * Orientation of the image
+     */
     @ApiModelProperty(required = true, value = "Orientation of the image")
     @JsonProperty("imageOrientation")
     public String getImageOrientation() {
@@ -111,8 +111,8 @@ public class ImageDetail {
     }
 
     /**
-      * Image Type
-      */
+     * Image Type
+     */
     @ApiModelProperty(required = true, value = "Image Type")
     @JsonProperty("imageType")
     public String getImageType() {
@@ -124,8 +124,8 @@ public class ImageDetail {
     }
 
     /**
-      * Object ID
-      */
+     * Object ID
+     */
     @ApiModelProperty(value = "Object ID")
     @JsonProperty("objectId")
     public Long getObjectId() {
@@ -137,8 +137,8 @@ public class ImageDetail {
     }
 
     /**
-      * Bytes of Image
-      */
+     * Bytes of Image
+     */
     @ApiModelProperty(value = "Bytes of Image")
     @JsonProperty("imageData")
     public String getImageData() {
@@ -150,11 +150,11 @@ public class ImageDetail {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class ImageDetail {\n");
-        
+
         sb.append("  imageId: ").append(imageId).append("\n");
         sb.append("  captureDate: ").append(captureDate).append("\n");
         sb.append("  imageView: ").append(imageView).append("\n");

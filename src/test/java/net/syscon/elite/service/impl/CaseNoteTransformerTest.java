@@ -46,13 +46,13 @@ public class CaseNoteTransformerTest {
         final var firstAmendment = returnedCaseNote.getAmendments().get(0);
         assertThat(firstAmendment.getAdditionalNoteText()).isEqualTo("hi there");
         assertThat(firstAmendment.getAuthorName()).isEqualTo("Willis, Michael");
-        assertThat(firstAmendment.getCreationDateTime()).isEqualTo(LocalDateTime.of(2017, 10, 4, 11,59, 18));
+        assertThat(firstAmendment.getCreationDateTime()).isEqualTo(LocalDateTime.of(2017, 10, 4, 11, 59, 18));
 
 
         final var secondAmendment = returnedCaseNote.getAmendments().get(1);
         assertThat(secondAmendment.getAdditionalNoteText()).isEqualTo("hi again");
         assertThat(secondAmendment.getAuthorName()).isEqualTo("Mc'rendell, Steven");
-        assertThat(secondAmendment.getCreationDateTime()).isEqualTo(LocalDateTime.of(2017, 10, 4, 12,0, 6));
+        assertThat(secondAmendment.getCreationDateTime()).isEqualTo(LocalDateTime.of(2017, 10, 4, 12, 0, 6));
     }
 
     @Test

@@ -20,7 +20,7 @@ public class KeyWorkerAllocatedOffendersStepDefinitions extends AbstractStepDefi
 
     @When("^an allocated offender request is made with agency id \"([^\"]*)\"$")
     public void anUnallocatedOffenderRequestIsMadeWithAgencyId(final String agencyId) throws Throwable {
-        doRequestWithParams(agencyId,null,null,null);
+        doRequestWithParams(agencyId, null, null, null);
     }
 
     @Then("^a list of \"([^\"]*)\" allocated offenders are returned$")
@@ -41,7 +41,7 @@ public class KeyWorkerAllocatedOffendersStepDefinitions extends AbstractStepDefi
 
     @When("^an allocated offender request is made with from date \"([^\"]*)\"$")
     public void anAllocatedOffenderRequestIsMadeWithFromDate(final String date) throws Throwable {
-        doRequestWithParams( null, null, date, null);
+        doRequestWithParams(null, null, date, null);
     }
 
     @When("^an allocated offender request is made with agency \"([^\"]*)\", type \"([^\"]*)\", from date \"([^\"]*)\" and to date \"([^\"]*)\"$")
@@ -51,7 +51,7 @@ public class KeyWorkerAllocatedOffendersStepDefinitions extends AbstractStepDefi
 
     @When("^I look at allocated response row \"([^\"]*)\"$")
     public void iLookAtRow(final String index) {
-        allocatedSteps.putARowFromListInContext(Integer.valueOf(index)-1);
+        allocatedSteps.putARowFromListInContext(Integer.valueOf(index) - 1);
     }
 
     @Then("^allocated first name matches \"([^\"]*)\"$")

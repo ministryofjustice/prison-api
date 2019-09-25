@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"questionnaireQueId", "questionnaireAnsId"})
 @Data
-public class IncidentResponse implements Comparable<IncidentResponse>  {
+public class IncidentResponse implements Comparable<IncidentResponse> {
 
     @ApiModelProperty(required = true, value = "The Question", example = "Was it a violent assault?")
     private String question;

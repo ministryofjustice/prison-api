@@ -14,8 +14,6 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,7 +82,7 @@ public class OffenderV1Repository extends RepositoryBase {
                 .nomsId((String) result.get(P_NOMS_ID))
                 .agyLocId((String) result.get(P_AGY_LOC_ID))
                 .eventType(OFFENDER_DETAILS_REQUEST_TYPE)
-                .eventData_1(clobToString((Clob)result.get(P_DETAILS_CLOB)))
+                .eventData_1(clobToString((Clob) result.get(P_DETAILS_CLOB)))
                 .build();
 
         return Optional.ofNullable(pssDetail);
@@ -97,9 +95,8 @@ public class OffenderV1Repository extends RepositoryBase {
             // Free resources associated with this Clob field - may cause write to temporary tablespace.
             clobField.free();
             return response;
-        }
-        catch(final SQLException | IOException e) {
-            log.error("Exception in PSS detail response clobToString {}",e.getClass().getName(),e);
+        } catch (final SQLException | IOException e) {
+            log.error("Exception in PSS detail response clobToString {}", e.getClass().getName(), e);
             throw new RuntimeException(e.getMessage());
         }
     }

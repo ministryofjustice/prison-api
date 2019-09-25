@@ -99,7 +99,6 @@ public class MovementsServiceImplTest {
     }
 
 
-
     @Test
     public void testGetEnrouteOffender_NoDateFilter() {
         /* call service with no specified date */
@@ -154,25 +153,25 @@ public class MovementsServiceImplTest {
         final var agency = "LEI";
 
         when(movementsRepository.getOffendersInReception(agency))
-              .thenReturn(
-                      Collections.singletonList(OffenderInReception.builder()
-                              .firstName("FIRST")
-                              .lastName("LASTNAME")
-                              .dateOfBirth(LocalDate.of(1950,10,10))
-                              .offenderNo("1234A")
-                              .build()
-                      )
-              );
+                .thenReturn(
+                        Collections.singletonList(OffenderInReception.builder()
+                                .firstName("FIRST")
+                                .lastName("LASTNAME")
+                                .dateOfBirth(LocalDate.of(1950, 10, 10))
+                                .offenderNo("1234A")
+                                .build()
+                        )
+                );
 
         final var offenders = movementsService.getOffendersInReception(agency);
 
         assertThat(offenders)
                 .containsExactly(OffenderInReception.builder()
-                .firstName("First")
-                .lastName("Lastname")
-                .dateOfBirth(LocalDate.of(1950,10,10))
-                .offenderNo("1234A")
-                .build());
+                        .firstName("First")
+                        .lastName("Lastname")
+                        .dateOfBirth(LocalDate.of(1950, 10, 10))
+                        .offenderNo("1234A")
+                        .build());
     }
 
     @Test
@@ -196,7 +195,7 @@ public class MovementsServiceImplTest {
                 .containsExactly(OffenderOut.builder()
                         .firstName("First")
                         .lastName("Lastname")
-                        .dateOfBirth(LocalDate.of(1950,10,10))
+                        .dateOfBirth(LocalDate.of(1950, 10, 10))
                         .offenderNo("1234A")
                         .location("x-1-1")
                         .build());
@@ -297,7 +296,7 @@ public class MovementsServiceImplTest {
         // No agency identifiers provided
         final var from = LocalDateTime.parse("2019-05-01T11:00:00");
         final var to = LocalDateTime.parse("2019-05-01T17:00:00");
-        final var agencyList = Collections.<String> emptyList();
+        final var agencyList = Collections.<String>emptyList();
 
         final var courtEvents = true;
         final var releaseEvents = true;

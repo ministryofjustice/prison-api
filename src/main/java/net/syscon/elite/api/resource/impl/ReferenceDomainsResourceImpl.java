@@ -20,65 +20,65 @@ import static net.syscon.util.ResourceUtils.nvl;
 @Path("/reference-domains")
 @Validated
 public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
-	private final ReferenceDomainService referenceDomainService;
-	private final CaseNoteService caseNoteService;
+    private final ReferenceDomainService referenceDomainService;
+    private final CaseNoteService caseNoteService;
 
     public ReferenceDomainsResourceImpl(final ReferenceDomainService referenceDomainService, final CaseNoteService caseNoteService) {
-		this.referenceDomainService = referenceDomainService;
+        this.referenceDomainService = referenceDomainService;
         this.caseNoteService = caseNoteService;
     }
 
-	@Override
+    @Override
     public GetAlertTypesResponse getAlertTypes(final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var referenceCodes =
-				referenceDomainService.getAlertTypes(
-						sortFields,
-						sortOrder,
-						nvl(pageOffset, 0L),
-						nvl(pageLimit, 10L));
+                referenceDomainService.getAlertTypes(
+                        sortFields,
+                        sortOrder,
+                        nvl(pageOffset, 0L),
+                        nvl(pageLimit, 10L));
 
-		return GetAlertTypesResponse.respond200WithApplicationJson(referenceCodes);
-	}
+        return GetAlertTypesResponse.respond200WithApplicationJson(referenceCodes);
+    }
 
-	@Override
+    @Override
     public GetCaseNoteSourcesResponse getCaseNoteSources(final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var caseNoteSources =
-				referenceDomainService.getCaseNoteSources(
-						sortFields,
-						sortOrder,
-						nvl(pageOffset, 0L),
-						nvl(pageLimit, 10L));
+                referenceDomainService.getCaseNoteSources(
+                        sortFields,
+                        sortOrder,
+                        nvl(pageOffset, 0L),
+                        nvl(pageLimit, 10L));
 
-		return GetCaseNoteSourcesResponse.respond200WithApplicationJson(caseNoteSources);
-	}
+        return GetCaseNoteSourcesResponse.respond200WithApplicationJson(caseNoteSources);
+    }
 
-	@Override
-	public GetCaseNoteTypesResponse getCaseNoteTypes() {
+    @Override
+    public GetCaseNoteTypesResponse getCaseNoteTypes() {
         final var caseNoteTypes = caseNoteService.getUsedCaseNoteTypesWithSubTypes();
 
-		return GetCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes);
-	}
+        return GetCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes);
+    }
 
-	@Override
+    @Override
     public GetReferenceCodesByDomainResponse getReferenceCodesByDomain(final String domain, final boolean withSubCodes, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var referenceCodes =
-				referenceDomainService.getReferenceCodesByDomain(
-						domain,
-						withSubCodes,
-						sortFields,
-						sortOrder,
-						nvl(pageOffset, 0L),
-						nvl(pageLimit, 10L));
+                referenceDomainService.getReferenceCodesByDomain(
+                        domain,
+                        withSubCodes,
+                        sortFields,
+                        sortOrder,
+                        nvl(pageOffset, 0L),
+                        nvl(pageLimit, 10L));
 
-		return GetReferenceCodesByDomainResponse.respond200WithApplicationJson(referenceCodes);
-	}
+        return GetReferenceCodesByDomainResponse.respond200WithApplicationJson(referenceCodes);
+    }
 
-	@Override
+    @Override
     public GetReferenceCodeByDomainAndCodeResponse getReferenceCodeByDomainAndCode(final String domain, final String code, final boolean withSubCodes) {
         final var referenceCode = referenceDomainService
-				.getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
+                .getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
 
-		// If no exception thrown in service layer, we know that reference code exists for specified domain and code.
+        // If no exception thrown in service layer, we know that reference code exists for specified domain and code.
         // However, if sub-codes were requested but reference code does not have any sub-codes, response from service
         // layer will be empty - this is a bad request.
         if (referenceCode.isEmpty()) {
@@ -87,24 +87,24 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
             throw new BadRequestException(message);
         }
 
-		return GetReferenceCodeByDomainAndCodeResponse.respond200WithApplicationJson(referenceCode.get());
-	}
+        return GetReferenceCodeByDomainAndCodeResponse.respond200WithApplicationJson(referenceCode.get());
+    }
 
-	@Override
-	@PreAuthorize("#oauth2.hasScope('write') && hasAnyRole('MAINTAIN_REF_DATA', 'SYSTEM_USER')")
-	@ProxyUser
-	public ReferenceCode createReferenceCode(final String domain,final String code, final ReferenceCodeInfo referenceData) {
-		return referenceDomainService.createReferenceCode(domain, code, referenceData);
-	}
+    @Override
+    @PreAuthorize("#oauth2.hasScope('write') && hasAnyRole('MAINTAIN_REF_DATA', 'SYSTEM_USER')")
+    @ProxyUser
+    public ReferenceCode createReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
+        return referenceDomainService.createReferenceCode(domain, code, referenceData);
+    }
 
-	@Override
-	@PreAuthorize("#oauth2.hasScope('write') && hasAnyRole('MAINTAIN_REF_DATA', 'SYSTEM_USER')")
-	@ProxyUser
-	public ReferenceCode updateReferenceCode(final String domain,final String code, final ReferenceCodeInfo referenceData) {
-		return referenceDomainService.updateReferenceCode(domain, code, referenceData);
-	}
+    @Override
+    @PreAuthorize("#oauth2.hasScope('write') && hasAnyRole('MAINTAIN_REF_DATA', 'SYSTEM_USER')")
+    @ProxyUser
+    public ReferenceCode updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
+        return referenceDomainService.updateReferenceCode(domain, code, referenceData);
+    }
 
-	@Override
+    @Override
     public GetScheduleReasonsResponse getScheduleReasons(final String eventType) {
         final var result = referenceDomainService.getScheduleReasons(eventType);
 

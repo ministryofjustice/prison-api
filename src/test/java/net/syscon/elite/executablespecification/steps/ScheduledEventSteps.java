@@ -176,7 +176,8 @@ public abstract class ScheduledEventSteps extends CommonSteps {
                             url,
                             HttpMethod.GET,
                             createEntity(null, headers),
-                            new ParameterizedTypeReference<List<ScheduledEvent>>() {},
+                            new ParameterizedTypeReference<List<ScheduledEvent>>() {
+                            },
                             bookingId);
 
             scheduledEvents = response.getBody();
@@ -186,7 +187,7 @@ public abstract class ScheduledEventSteps extends CommonSteps {
             setErrorResponse(ex.getErrorResponse());
         }
     }
-    
+
     enum ScheduledEventPeriod {
         TODAY("/today"),
         THISWEEK("/thisWeek"),

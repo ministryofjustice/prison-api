@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *     <li>/booking/{bookingId}/caseNotes</li>
  *     <li>/booking/{bookingId}/caseNotes/{caseNoteId}</li>
  * </ul>
- *
+ * <p>
  * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class CaseNoteStepDefinitions extends AbstractStepDefinitions {

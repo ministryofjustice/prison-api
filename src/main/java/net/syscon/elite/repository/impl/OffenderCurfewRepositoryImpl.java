@@ -44,7 +44,7 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
     }
 
     private static final RowMapper<OffenderCurfew> OFFENDER_CURFEW_ROW_MAPPER = new AlmostStandardBeanPropertyRowMapper<>(OffenderCurfew.class);
-    private static final RowMapper<HomeDetentionCurfew> HOME_DETENTION_CURFEW_ROW_MAPPER = new AlmostStandardBeanPropertyRowMapper<>(HomeDetentionCurfew.class){
+    private static final RowMapper<HomeDetentionCurfew> HOME_DETENTION_CURFEW_ROW_MAPPER = new AlmostStandardBeanPropertyRowMapper<>(HomeDetentionCurfew.class) {
     };
 
     @Override
@@ -127,8 +127,8 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
                 createParams(
                         "curfewId", curfewId,
                         "codes", statusTrackingCodesToMatch
-                    )
-                );
+                )
+        );
     }
 
     @Override

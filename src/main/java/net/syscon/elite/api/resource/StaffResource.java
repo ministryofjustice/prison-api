@@ -17,38 +17,38 @@ public interface StaffResource {
 
     @DELETE
     @Path("/{staffId}/access-roles/caseload/{caseload}/access-role/{roleCode}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "remove access roles from user and specific caseload", notes = "remove access roles from user and specific caseload", nickname="removeStaffAccessRole")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "The access role has been removed", response = String.class) })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "remove access roles from user and specific caseload", notes = "remove access roles from user and specific caseload", nickname = "removeStaffAccessRole")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The access role has been removed", response = String.class)})
     RemoveStaffAccessRoleResponse removeStaffAccessRole(@ApiParam(value = "The staff id of the staff member.", required = true) @PathParam("staffId") Long staffId,
                                                         @ApiParam(value = "Caseload Id", required = true) @PathParam("caseload") String caseload,
                                                         @ApiParam(value = "access role code", required = true) @PathParam("roleCode") String roleCode);
 
     @GET
     @Path("/access-roles/caseload/{caseload}/access-role/{roleCode}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List access roles for staff by type and caseload", notes = "List access roles for staff by type and caseload", nickname="getAllStaffAccessRolesForCaseload")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List access roles for staff by type and caseload", notes = "List access roles for staff by type and caseload", nickname = "getAllStaffAccessRolesForCaseload")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetAllStaffAccessRolesForCaseloadResponse getAllStaffAccessRolesForCaseload(@ApiParam(value = "Caseload Id", required = true) @PathParam("caseload") String caseload,
                                                                                 @ApiParam(value = "access role code", required = true) @PathParam("roleCode") String roleCode);
 
     @GET
     @Path("/roles/{agencyId}/position/{position}/role/{role}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Get staff members within agency who are currently assigned the specified position and/or role.", notes = "Get staff members within agency who are currently assigned the specified position and/or role.", nickname="getStaffByAgencyPositionRole")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get staff members within agency who are currently assigned the specified position and/or role.", notes = "Get staff members within agency who are currently assigned the specified position and/or role.", nickname = "getStaffByAgencyPositionRole")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = StaffLocationRole.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = StaffLocationRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetStaffByAgencyPositionRoleResponse getStaffByAgencyPositionRole(@ApiParam(value = "The agency (prison) id.", required = true) @PathParam("agencyId") String agencyId,
                                                                       @ApiParam(value = "The staff position.", required = true) @PathParam("position") String position,
                                                                       @ApiParam(value = "The staff role.", required = true) @PathParam("role") String role,
@@ -62,14 +62,14 @@ public interface StaffResource {
 
     @GET
     @Path("/roles/{agencyId}/role/{role}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Get staff members within agency who are currently assigned the specified role.", notes = "Get staff members within agency who are currently assigned the specified role.", nickname="getStaffByAgencyRole")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get staff members within agency who are currently assigned the specified role.", notes = "Get staff members within agency who are currently assigned the specified role.", nickname = "getStaffByAgencyRole")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = StaffLocationRole.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = StaffLocationRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetStaffByAgencyRoleResponse getStaffByAgencyRole(@ApiParam(value = "The agency (prison) id.", required = true) @PathParam("agencyId") String agencyId,
                                                       @ApiParam(value = "The staff role.", required = true) @PathParam("role") String role,
                                                       @ApiParam(value = "Filter results by first name and/or last name of staff member. Supplied filter term is matched to start of staff member's first and last name.") @QueryParam("nameFilter") String nameFilter,
@@ -82,96 +82,96 @@ public interface StaffResource {
 
     @GET
     @Path("/{staffId}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Staff detail.", notes = "Staff detail.", nickname="getStaffDetail")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Staff detail.", notes = "Staff detail.", nickname = "getStaffDetail")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = StaffDetail.class),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+            @ApiResponse(code = 200, message = "OK", response = StaffDetail.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetStaffDetailResponse getStaffDetail(@ApiParam(value = "The staff id of the staff member.", required = true) @PathParam("staffId") Long staffId);
 
     @GET
     @Path("/{staffId}/emails")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Returns a list of email addresses associated with this staff user", notes = "List of email addresses for a specified staff user", nickname="getStaffEmailAddresses")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Returns a list of email addresses associated with this staff user", notes = "List of email addresses for a specified staff user", nickname = "getStaffEmailAddresses")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "The staffId supplied was not valid.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 204, message = "No email addresses were found for this staff member."),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetStaffEmailResponse getStaffEmailAddresses(@ApiParam(value = "The staff id of the staff user.", required = true) @PathParam("staffId") Long staffId);
 
     @GET
     @Path("/{staffId}/caseloads")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Returns a list of caseloads associated with this staff user", notes = "List of caseloads for a specified staff user", nickname="getStaffCaseloads")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Returns a list of caseloads associated with this staff user", notes = "List of caseloads for a specified staff user", nickname = "getStaffCaseloads")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = CaseLoad.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "The staffId supplied was not valid or not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 204, message = "No caseloads were found for this staff member."),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<CaseLoad> getStaffCaseloads(@ApiParam(value = "The staff id of the staff user.", required = true, example = "123123") @PathParam("staffId") Long staffId);
 
 
     @GET
     @Path("/{staffId}/access-roles")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of access roles for specified staff user and caseload", notes = "List of access roles for specified staff user and caseload", nickname="getStaffAccessRoles")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of access roles for specified staff user and caseload", notes = "List of access roles for specified staff user and caseload", nickname = "getStaffAccessRoles")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetStaffAccessRolesResponse getStaffAccessRoles(@ApiParam(value = "The staff id of the staff user.", required = true) @PathParam("staffId") Long staffId);
 
     @GET
     @Path("/{staffId}/access-roles/caseload/{caseload}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of access roles for specified staff user and caseload", notes = "List of access roles for specified staff user and caseload", nickname="getAccessRolesByCaseload")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of access roles for specified staff user and caseload", notes = "List of access roles for specified staff user and caseload", nickname = "getAccessRolesByCaseload")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetAccessRolesByCaseloadResponse getAccessRolesByCaseload(@ApiParam(value = "The staff id of the staff member.", required = true) @PathParam("staffId") Long staffId,
                                                               @ApiParam(value = "Caseload Id", required = true) @PathParam("caseload") String caseload);
 
     @GET
     @Path("/{staffId}/{agencyId}/roles")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of job roles for specified staff and agency Id", notes = "List of job roles for specified staff and agency Id", nickname="getAllRolesForAgency")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of job roles for specified staff and agency Id", notes = "List of job roles for specified staff and agency Id", nickname = "getAllRolesForAgency")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = StaffRole.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = StaffRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetAllRolesForAgencyResponse getAllRolesForAgency(@ApiParam(value = "The staff id of the staff member.", required = true) @PathParam("staffId") Long staffId,
                                                       @ApiParam(value = "Agency Id.", required = true) @PathParam("agencyId") String agencyId);
 
     @POST
     @Path("/{staffId}/access-roles")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "add access role to staff user for API caseload", notes = "add access role to staff user for API caseload", nickname="addStaffAccessRoleForApiCaseload")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "add access role to staff user for API caseload", notes = "add access role to staff user for API caseload", nickname = "addStaffAccessRoleForApiCaseload")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "The access role has been created.", response = StaffUserRole.class) })
+            @ApiResponse(code = 201, message = "The access role has been created.", response = StaffUserRole.class)})
     AddStaffAccessRoleForApiCaseloadResponse addStaffAccessRoleForApiCaseload(@ApiParam(value = "The staff id of the staff user.", required = true) @PathParam("staffId") Long staffId,
                                                                               @ApiParam(value = "new access role code required", required = true) String body);
 
     @POST
     @Path("/{staffId}/access-roles/caseload/{caseload}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "add access role to staff user", notes = "add access role to staff user", nickname="addStaffAccessRole")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "add access role to staff user", notes = "add access role to staff user", nickname = "addStaffAccessRole")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "The access role has been created.", response = StaffUserRole.class) })
+            @ApiResponse(code = 201, message = "The access role has been created.", response = StaffUserRole.class)})
     AddStaffAccessRoleResponse addStaffAccessRole(@ApiParam(value = "The staff id of the staff member.", required = true) @PathParam("staffId") Long staffId,
                                                   @ApiParam(value = "Caseload Id", required = true) @PathParam("caseload") String caseload,
                                                   @ApiParam(value = "new access role code required", required = true) String body);

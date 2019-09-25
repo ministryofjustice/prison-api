@@ -121,7 +121,7 @@ public class UserServiceImplTest {
     public void testaddAccessRoleForApiCaseloadWithUserAccessibleCaseloadEntry() {
         final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
         when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
+        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)).thenReturn(false);
 
         when(userRepository.isUserAssessibleCaseloadAvailable(API_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
 
@@ -136,7 +136,7 @@ public class UserServiceImplTest {
     public void testaddAccessRoleForApiCaseloadWithoutUserAccessibleCaseloadEntry() {
         final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
         when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
+        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)).thenReturn(false);
 
         when(userRepository.isUserAssessibleCaseloadAvailable(API_CASELOAD_ID, USERNAME_GEN)).thenReturn(true);
 
@@ -150,7 +150,7 @@ public class UserServiceImplTest {
     public void testaddAccessRoleForCaseloadWithUserAccessibleCaseloadEntry() {
         final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
         when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
+        when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)).thenReturn(false);
 
         when(userRepository.isUserAssessibleCaseloadAvailable(LEEDS_CASELOAD_ID, USERNAME_GEN)).thenReturn(true);
 
@@ -164,7 +164,7 @@ public class UserServiceImplTest {
     public void testaddAccessRoleForCaseloadWithoutUserAccessibleCaseloadEntry() {
         final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
         when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
+        when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)).thenReturn(false);
 
         when(userRepository.isUserAssessibleCaseloadAvailable(LEEDS_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
 
@@ -178,7 +178,7 @@ public class UserServiceImplTest {
         when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
 
         userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID);
-        verify(securityUtils.isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN"),times(1));
+        verify(securityUtils.isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN"), times(1));
     }
 
     @Test

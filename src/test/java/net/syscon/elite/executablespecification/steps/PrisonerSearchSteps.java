@@ -99,7 +99,7 @@ public class PrisonerSearchSteps extends CommonSteps {
             return queryUrl;
         }
         if (queryUrl.contains("?")) {
-            return queryUrl + "&includeAliases=true" ;
+            return queryUrl + "&includeAliases=true";
         } else {
             return queryUrl + "?includeAliases=true";
         }

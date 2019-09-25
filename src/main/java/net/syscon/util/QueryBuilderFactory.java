@@ -30,7 +30,7 @@ public class QueryBuilderFactory {
     public IQueryBuilder getQueryBuilder(final String initialSql, final Map<String, FieldMapper> fieldMap) {
         final IQueryBuilder queryBuilder;
 
-        switch(dialect) {
+        switch (dialect) {
             case HSQLDB:
                 queryBuilder = new HSQLDBQueryBuilder(initialSql, fieldMap, dialect);
 

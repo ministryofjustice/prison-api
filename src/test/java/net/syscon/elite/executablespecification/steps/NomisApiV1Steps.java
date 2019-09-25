@@ -35,7 +35,8 @@ public class NomisApiV1Steps extends CommonSteps {
                             API_REQUEST_BASE_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<Map>() {},
+                            new ParameterizedTypeReference<Map>() {
+                            },
                             nomsId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

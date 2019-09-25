@@ -57,8 +57,8 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
     @Override
     @Transactional
     public ReferenceCode createReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
-        referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code,false).ifPresent( p -> {
-            throw new EntityAlreadyExistsException(domain+"/"+code);
+        referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false).ifPresent(p -> {
+            throw new EntityAlreadyExistsException(domain + "/" + code);
         });
 
         final var data = referenceData.toBuilder()
@@ -75,20 +75,20 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
         }
 
         if (data.getParentCode() != null || data.getParentDomain() != null) {
-            referenceCodeRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(),false).orElseThrow(new EntityNotFoundException(data.getParentDomain()+"/"+data.getParentCode()));
+            referenceCodeRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(), false).orElseThrow(new EntityNotFoundException(data.getParentDomain() + "/" + data.getParentCode()));
         }
 
         referenceCodeRepository.insertReferenceCode(domain, code, data);
 
-        return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code,false)
-                .orElseThrow(new EntityNotFoundException(domain+"/"+code));
+        return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false)
+                .orElseThrow(new EntityNotFoundException(domain + "/" + code));
     }
 
     @Override
     @Transactional
     public ReferenceCode updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
 
-        final var previousRef = referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code,false).orElseThrow(new EntityNotFoundException(domain+"/"+code));
+        final var previousRef = referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false).orElseThrow(new EntityNotFoundException(domain + "/" + code));
 
         final var data = referenceData.toBuilder()
                 .activeFlag(referenceData.getActiveFlag() == null ? previousRef.getActiveFlag() : referenceData.getActiveFlag())
@@ -106,13 +106,13 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
         }
 
         if (data.getParentCode() != null || data.getParentDomain() != null) {
-            referenceCodeRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(),false).orElseThrow(new EntityNotFoundException(data.getParentDomain()+"/"+data.getParentCode()));
+            referenceCodeRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(), false).orElseThrow(new EntityNotFoundException(data.getParentDomain() + "/" + data.getParentCode()));
         }
 
         referenceCodeRepository.updateReferenceCode(domain, code, data);
 
-        return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code,false)
-                .orElseThrow(new EntityNotFoundException(domain+"/"+code));
+        return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false)
+                .orElseThrow(new EntityNotFoundException(domain + "/" + code));
     }
 
     @Override

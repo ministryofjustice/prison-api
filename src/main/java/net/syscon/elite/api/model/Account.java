@@ -27,7 +27,7 @@ import java.util.Map;
 public class Account {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private BigDecimal spends;
 
@@ -52,8 +52,8 @@ public class Account {
     }
 
     /**
-      * Spends sub account balance.
-      */
+     * Spends sub account balance.
+     */
     @ApiModelProperty(required = true, value = "Spends sub account balance.")
     @JsonProperty("spends")
     public BigDecimal getSpends() {
@@ -65,8 +65,8 @@ public class Account {
     }
 
     /**
-      * Cash sub account balance.
-      */
+     * Cash sub account balance.
+     */
     @ApiModelProperty(required = true, value = "Cash sub account balance.")
     @JsonProperty("cash")
     public BigDecimal getCash() {
@@ -78,8 +78,8 @@ public class Account {
     }
 
     /**
-      * Saves sub account balance.
-      */
+     * Saves sub account balance.
+     */
     @ApiModelProperty(required = true, value = "Saves sub account balance.")
     @JsonProperty("savings")
     public BigDecimal getSavings() {
@@ -91,8 +91,8 @@ public class Account {
     }
 
     /**
-      * Currency of these balances.
-      */
+     * Currency of these balances.
+     */
     @ApiModelProperty(required = true, value = "Currency of these balances.")
     @JsonProperty("currency")
     public String getCurrency() {
@@ -104,11 +104,11 @@ public class Account {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class Account {\n");
-        
+
         sb.append("  spends: ").append(spends).append("\n");
         sb.append("  cash: ").append(cash).append("\n");
         sb.append("  savings: ").append(savings).append("\n");

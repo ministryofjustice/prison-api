@@ -7,7 +7,6 @@ import net.syscon.elite.api.support.ResponseDelegate;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDate;
 import java.util.List;
 
 @Api(tags = {"/offender-sentences"})

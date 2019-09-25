@@ -81,7 +81,8 @@ public class AccessRoleSteps extends CommonSteps {
         }
         try {
             final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
-                    new ParameterizedTypeReference<List<AccessRole>>() {});
+                    new ParameterizedTypeReference<List<AccessRole>>() {
+                    });
             accessRoles = response.getBody();
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());

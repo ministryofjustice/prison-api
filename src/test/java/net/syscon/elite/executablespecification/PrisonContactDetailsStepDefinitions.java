@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * <li>/agencies/prisons</li>
  * <li>/agencies/{agencyId}</li>
  * </ul>
- *
+ * <p>
  * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class PrisonContactDetailsStepDefinitions extends AbstractStepDefinitions {
@@ -40,7 +40,9 @@ public class PrisonContactDetailsStepDefinitions extends AbstractStepDefinitions
     }
 
     @Then("^a list of prison contact details are returned$")
-    public void aListOfPrisonContactDetailsAreReturned() { agencySteps.verifyAListOfPrisonContactDetailsIsReturned(); }
+    public void aListOfPrisonContactDetailsAreReturned() {
+        agencySteps.verifyAListOfPrisonContactDetailsIsReturned();
+    }
 
     @Then("^a dummy list of prison contact details are returned$")
     public void aDummyListOfPrisonContactDetailsAreReturned() throws Throwable {

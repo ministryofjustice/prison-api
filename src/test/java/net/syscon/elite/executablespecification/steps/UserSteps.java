@@ -13,7 +13,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -159,7 +158,7 @@ public class UserSteps extends CommonSteps {
     }
 
     public void verifyAccessRoleAssignment(final String username, final String role, final String caseload) {
-        dispatchUsernamesHavingRoleAtCaseloadRequest(role,caseload);
+        dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
         assertThat(username).isIn(usernames);
     }
 
@@ -205,7 +204,7 @@ public class UserSteps extends CommonSteps {
 
     private void dispatchAssignAccessRoleToUserForCaseload(final String role, final String username, final String caseloadId) {
         init();
-        try{
+        try {
 
             restTemplate.exchange(
                     API_ASSIGN_ACCESS_ROLE_TO_USER_FOR_CASELOAD,
@@ -240,9 +239,9 @@ public class UserSteps extends CommonSteps {
         init();
         var url = localAdministratorUsers ? API_LOCAL_ADMINISTRATOR_USERS : API_USERS_AT_CASELOAD;
 
-        if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
+        if (StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
             final var queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role, "nameFilter", nameFilter));
-            if(StringUtils.isNotBlank(queryParameters))
+            if (StringUtils.isNotBlank(queryParameters))
                 url += String.format("?=%s", queryParameters);
         }
 
@@ -263,9 +262,9 @@ public class UserSteps extends CommonSteps {
         init();
         var url = API_USERS;
 
-        if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
+        if (StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
             final var queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role, "nameFilter", nameFilter));
-            if(StringUtils.isNotBlank(queryParameters))
+            if (StringUtils.isNotBlank(queryParameters))
                 url += String.format("?=%", queryParameters);
         }
 
@@ -276,7 +275,8 @@ public class UserSteps extends CommonSteps {
                 url,
                 HttpMethod.GET,
                 httpEntity,
-                new ParameterizedTypeReference<List<UserDetail>>() { });
+                new ParameterizedTypeReference<List<UserDetail>>() {
+                });
 
         userDetails = response.getBody();
     }
@@ -289,7 +289,8 @@ public class UserSteps extends CommonSteps {
                 url,
                 HttpMethod.POST,
                 createEntity(usernames),
-                new ParameterizedTypeReference<List<UserDetail>>() { });
+                new ParameterizedTypeReference<List<UserDetail>>() {
+                });
 
         userDetails = response.getBody();
     }

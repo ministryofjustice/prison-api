@@ -15,13 +15,13 @@ public class NomisApiV1StepDefinitions extends AbstractStepDefinitions {
     private NomisApiV1Steps steps;
 
     @And("^v1 alerts are requested for noms Id \"([^\"]*)\"$")
-    public void alertsAreRequestedForOffenderNos(String nomsId)  {
+    public void alertsAreRequestedForOffenderNos(String nomsId) {
         steps.getAlerts(nomsId);
 
     }
 
     @Then("^(\\d+) v1 alerts are returned$")
     public void alertsAreReturned(int size) {
-        assertThat(((List)(steps.getAlerts().get("alerts")))).hasSize(size);
+        assertThat(((List) (steps.getAlerts().get("alerts")))).hasSize(size);
     }
 }

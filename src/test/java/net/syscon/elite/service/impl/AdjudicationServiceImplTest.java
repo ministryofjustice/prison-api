@@ -35,10 +35,14 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AdjudicationServiceImplTest {
 
-    @Mock private AdjudicationsRepository adjudicationsRepository;
-    @Mock private LocationRepository locationRepository;
-    @Mock private AgencyRepository agencyRepository;
-    @Mock private BookingService bookingService;
+    @Mock
+    private AdjudicationsRepository adjudicationsRepository;
+    @Mock
+    private LocationRepository locationRepository;
+    @Mock
+    private AgencyRepository agencyRepository;
+    @Mock
+    private BookingService bookingService;
     private AdjudicationService adjudicationService;
 
     @Before

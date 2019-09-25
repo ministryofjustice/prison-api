@@ -57,10 +57,10 @@ public class StaffSteps extends CommonSteps {
         try {
             final var response = restTemplate.exchange(
                     API_STAFF_DETAIL_REQUEST_URL,
-                            HttpMethod.GET,
-                            createEntity(),
-                            StaffDetail.class,
-                            staffId);
+                    HttpMethod.GET,
+                    createEntity(),
+                    StaffDetail.class,
+                    staffId);
 
             staffDetail = response.getBody();
         } catch (final EliteClientException ex) {
@@ -78,7 +78,7 @@ public class StaffSteps extends CommonSteps {
         if (staffId != null) {
             builder = builder.queryParam(QUERY_PARAM_STAFF_ID_FILTER, staffId);
         }
-        if (activeOnly !=null){
+        if (activeOnly != null) {
             builder = builder.queryParam(QUERY_PARAM_ACTIVE_ONLY_FILTER, activeOnly);
         }
 
@@ -151,7 +151,8 @@ public class StaffSteps extends CommonSteps {
                             uri,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<StaffRole>>() {});
+                            new ParameterizedTypeReference<List<StaffRole>>() {
+                            });
 
             roles = response.getBody();
 
@@ -171,7 +172,8 @@ public class StaffSteps extends CommonSteps {
                             uri,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<StaffLocationRole>>() {});
+                            new ParameterizedTypeReference<List<StaffLocationRole>>() {
+                            });
 
             staffDetails = response.getBody();
 

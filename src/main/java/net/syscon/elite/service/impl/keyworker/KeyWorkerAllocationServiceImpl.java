@@ -59,7 +59,7 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
 
         final var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
         final var agencyIds = agencyRepository.findAgenciesByCaseload(userDetail.getActiveCaseLoadId())
-                                        .stream().map(Agency::getAgencyId).collect(Collectors.toList());
+                .stream().map(Agency::getAgencyId).collect(Collectors.toList());
         final var allocations = repository.getAllocationDetailsForKeyworker(userDetail.getStaffId(), agencyIds);
         allocations.forEach(a -> a.setInternalLocationDesc(LocationProcessor.stripAgencyId(a.getInternalLocationDesc(), a.getAgencyId())));
 
@@ -82,9 +82,9 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
 
         return allocations.stream()
                 .sorted(Comparator
-                .comparing(KeyWorkerAllocationDetail::getStaffId)
-                .thenComparing(KeyWorkerAllocationDetail::getBookingId)
-                .thenComparing(KeyWorkerAllocationDetail::getAssigned).reversed())
+                        .comparing(KeyWorkerAllocationDetail::getStaffId)
+                        .thenComparing(KeyWorkerAllocationDetail::getBookingId)
+                        .thenComparing(KeyWorkerAllocationDetail::getAssigned).reversed())
                 .collect(Collectors.toList());
     }
 

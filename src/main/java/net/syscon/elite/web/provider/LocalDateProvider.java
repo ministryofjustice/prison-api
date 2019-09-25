@@ -11,10 +11,9 @@ import java.time.format.DateTimeFormatter;
 /**
  * This provider allows rest endpoints to have LocalDate query parameters,
  * date-only in raml.
- * 
+ * <p>
  * Apparently when Jersey 3.0 comes out, java 8 types such as this should be
  * catered for natively, so this class can be removed then.
- *
  */
 @Provider
 public class LocalDateProvider implements ParamConverterProvider {

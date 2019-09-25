@@ -2,11 +2,7 @@ package net.syscon.elite.api.model.adjudications;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.syscon.elite.api.model.Agency;
 
 import java.util.List;

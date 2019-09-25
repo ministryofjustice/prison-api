@@ -66,7 +66,7 @@ public class MovementsRepositoryTest {
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
                         tuple("Block A", 11, 11, 0, 13, 2, 14, 3, 3),
-                        tuple("H",       14, 12, 2, 20, 6, 20, 6, 0));
+                        tuple("H", 14, 12, 2, 20, 6, 20, 6, 0));
     }
 
     @Test
@@ -157,7 +157,7 @@ public class MovementsRepositoryTest {
                         .toAgencyDescription("LEEDS")
                         .fromAgencyId("BMI")
                         .toAgencyId("LEI")
-                        .movementTime(LocalTime.of(10,  45, 0))
+                        .movementTime(LocalTime.of(10, 45, 0))
                         .location("Landing H/1")
                         .build()
         );
@@ -182,9 +182,9 @@ public class MovementsRepositoryTest {
     public void canRetriveOffendersCurrentlyOut() {
         final var offenders = repository.getOffendersCurrentlyOut(-13);
         assertThat(offenders).containsExactlyInAnyOrder(
-                        OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),
-                        OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("Landing H/1").build()
-                );
+                OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),
+                OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("Landing H/1").build()
+        );
     }
 
     @Test
@@ -211,7 +211,7 @@ public class MovementsRepositoryTest {
 
         final var fromTime = LocalDateTime.of(2019, Month.MAY, 1, 11, 0, 0);
         final var toTime = LocalDateTime.of(2019, Month.MAY, 1, 17, 0, 0);
-        final var agencies = List.of("LEI","MDI");
+        final var agencies = List.of("LEI", "MDI");
 
         final var movements = repository.getCompletedMovementsForAgencies(agencies, fromTime, toTime);
 
@@ -229,7 +229,7 @@ public class MovementsRepositoryTest {
         final var toTime = LocalDateTime.of(2019, Month.MAY, 1, 17, 0, 0);
 
         // Agencies not present in seeded data
-        final var agencies = List.of("XXX","YYY");
+        final var agencies = List.of("XXX", "YYY");
         final var movements = repository.getCompletedMovementsForAgencies(agencies, fromTime, toTime);
         assertThat(movements).asList().isEmpty();
     }
@@ -254,14 +254,14 @@ public class MovementsRepositoryTest {
 
         final var fromTime = LocalDateTime.of(2022, Month.FEBRUARY, 2, 0, 0, 0);
         final var toTime = LocalDateTime.of(2022, Month.FEBRUARY, 2, 23, 59, 59);
-        final var agencies = List.of("LEI","MDI");
+        final var agencies = List.of("LEI", "MDI");
 
         final var releaseEvents = repository.getOffenderReleases(agencies, fromTime, toTime);
 
         assertThat(releaseEvents).isNotEmpty();
         assertThat(releaseEvents).asList()
                 .extracting("eventClass", "eventStatus", "movementTypeCode", "movementTypeDescription", "offenderNo", "movementReasonCode")
-                .contains(tuple("EXT_MOV","SCH","REL","Release","Z0024ZZ","DD"));
+                .contains(tuple("EXT_MOV", "SCH", "REL", "Release", "Z0024ZZ", "DD"));
     }
 
     @Test
@@ -270,7 +270,7 @@ public class MovementsRepositoryTest {
         // Match with specific rows loaded in the seeded data
         final var fromTime = LocalDateTime.now().minusHours(1);
         final var toTime = LocalDateTime.now().plusHours(23);
-        final var agencies = List.of("LEI","MDI");
+        final var agencies = List.of("LEI", "MDI");
 
         final var transferEvents = repository.getOffenderTransfers(agencies, fromTime, toTime);
 

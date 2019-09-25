@@ -17,7 +17,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-public class KeyWorkerSteps extends CommonSteps{
+public class KeyWorkerSteps extends CommonSteps {
     private static final String ALLOCATION_HISTORY_URL_FOR_STAFF = API_PREFIX + "key-worker/staff/allocationHistory";
     private static final String ALLOCATION_HISTORY_URL_FOR_OFFENDERS = API_PREFIX + "key-worker/offenders/allocationHistory";
     private static final String KEY_WORKER_API_URL_WITH_AGENCY_PARAM = API_PREFIX + "key-worker/%s/available";
@@ -50,7 +50,8 @@ public class KeyWorkerSteps extends CommonSteps{
                             queryUrl,
                             HttpMethod.GET,
                             createEntity(null),
-                            new ParameterizedTypeReference<List<Keyworker>>() {});
+                            new ParameterizedTypeReference<List<Keyworker>>() {
+                            });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -69,7 +70,8 @@ public class KeyWorkerSteps extends CommonSteps{
                             KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {}, staffId, agencyId);
+                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {
+                            }, staffId, agencyId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -107,7 +109,8 @@ public class KeyWorkerSteps extends CommonSteps{
                             url,
                             HttpMethod.POST,
                             createEntity(lists, null),
-                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {}, agencyId);
+                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {
+                            }, agencyId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -125,11 +128,12 @@ public class KeyWorkerSteps extends CommonSteps{
                             url,
                             HttpMethod.POST,
                             createEntity(lists, null),
-                            new ParameterizedTypeReference<List<OffenderKeyWorker>>() {});
+                            new ParameterizedTypeReference<List<OffenderKeyWorker>>() {
+                            });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-            allocationHistoryList= response.getBody();
+            allocationHistoryList = response.getBody();
 
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -202,10 +206,10 @@ public class KeyWorkerSteps extends CommonSteps{
 
     public void verifyKeyWorkerAllocations() {
         assertThat(allocationsList).asList()
-        .extracting("bookingId", "offenderNo", "staffId", "firstName", "lastName", "internalLocationDesc", "agencyId", "assigned")
-        .contains(
-            tuple(-28L, "A9876RS", -5L, "RODERICK", "STEWART", "H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14)),
-            tuple(-31L, "A5576RS", -5L, "HARRY", "SARLY", "H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1,11,14)),
-            tuple(-32L, "A1176RS", -5L, "FRED", "JAMES", "H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1,12,14)));
+                .extracting("bookingId", "offenderNo", "staffId", "firstName", "lastName", "internalLocationDesc", "agencyId", "assigned")
+                .contains(
+                        tuple(-28L, "A9876RS", -5L, "RODERICK", "STEWART", "H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1, 11, 14)),
+                        tuple(-31L, "A5576RS", -5L, "HARRY", "SARLY", "H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1, 11, 14)),
+                        tuple(-32L, "A1176RS", -5L, "FRED", "JAMES", "H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1, 12, 14)));
     }
 }

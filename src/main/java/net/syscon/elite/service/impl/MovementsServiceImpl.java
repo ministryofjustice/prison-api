@@ -75,7 +75,7 @@ public class MovementsServiceImpl implements MovementsService {
     @VerifyAgencyAccess
     public List<OffenderOutTodayDto> getOffendersOut(final String agencyId, final LocalDate movementDate) {
 
-       final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate);
+        final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate);
 
         return offenders
                 .stream()
@@ -102,10 +102,10 @@ public class MovementsServiceImpl implements MovementsService {
         final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
 
         return movements.stream().map(movement -> movement.toBuilder()
-            .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
-            .toAgencyDescription(LocationProcessor.formatLocation(movement.getToAgencyDescription()))
-            .build())
-            .collect(Collectors.toList());
+                .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
+                .toAgencyDescription(LocationProcessor.formatLocation(movement.getToAgencyDescription()))
+                .build())
+                .collect(Collectors.toList());
 
     }
 
@@ -123,12 +123,12 @@ public class MovementsServiceImpl implements MovementsService {
         return offendersIn
                 .stream()
                 .map(offender -> offender.toBuilder()
-                            .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
-                            .lastName(WordUtils.capitalizeFully(offender.getLastName()))
-                            .middleName(WordUtils.capitalizeFully(StringUtils.trimToEmpty(offender.getMiddleName())))
-                            .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
-                            .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
-                            .location(StringUtils.trimToEmpty(offender.getLocation()))
+                        .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                        .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                        .middleName(WordUtils.capitalizeFully(StringUtils.trimToEmpty(offender.getMiddleName())))
+                        .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
+                        .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
+                        .location(StringUtils.trimToEmpty(offender.getLocation()))
                         .build())
                 .collect(Collectors.toList());
     }

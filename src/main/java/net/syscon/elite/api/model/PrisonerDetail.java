@@ -27,7 +27,7 @@ import java.util.Map;
 public class PrisonerDetail {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String offenderNo;
 
@@ -104,8 +104,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's unique offender number (aka NOMS Number in the UK).
-      */
+     * The prisoner's unique offender number (aka NOMS Number in the UK).
+     */
     @ApiModelProperty(required = true, value = "The prisoner's unique offender number (aka NOMS Number in the UK).")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
@@ -117,8 +117,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's title.
-      */
+     * The prisoner's title.
+     */
     @ApiModelProperty(value = "The prisoner's title.")
     @JsonProperty("title")
     public String getTitle() {
@@ -130,8 +130,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's name suffix.
-      */
+     * The prisoner's name suffix.
+     */
     @ApiModelProperty(value = "The prisoner's name suffix.")
     @JsonProperty("suffix")
     public String getSuffix() {
@@ -143,8 +143,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's first name.
-      */
+     * The prisoner's first name.
+     */
     @ApiModelProperty(required = true, value = "The prisoner's first name.")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -156,8 +156,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's middle name(s).
-      */
+     * The prisoner's middle name(s).
+     */
     @ApiModelProperty(value = "The prisoner's middle name(s).")
     @JsonProperty("middleNames")
     public String getMiddleNames() {
@@ -169,8 +169,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's last name.
-      */
+     * The prisoner's last name.
+     */
     @ApiModelProperty(required = true, value = "The prisoner's last name.")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -182,8 +182,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's date of birth (in YYYY-MM-DD format).
-      */
+     * The prisoner's date of birth (in YYYY-MM-DD format).
+     */
     @ApiModelProperty(required = true, value = "The prisoner's date of birth (in YYYY-MM-DD format).")
     @JsonProperty("dateOfBirth")
     public LocalDate getDateOfBirth() {
@@ -195,8 +195,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's sex code.
-      */
+     * The prisoner's sex code.
+     */
     @ApiModelProperty(required = true, value = "The prisoner's gender code.")
     @JsonProperty("sexCode")
     public String getSexCode() {
@@ -221,8 +221,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's nationality.
-      */
+     * The prisoner's nationality.
+     */
     @ApiModelProperty(value = "The prisoner's nationality.")
     @JsonProperty("nationalities")
     public String getNationalities() {
@@ -234,8 +234,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * Flag (Y or N) to indicate if prisoner is currently in prison.
-      */
+     * Flag (Y or N) to indicate if prisoner is currently in prison.
+     */
     @ApiModelProperty(required = true, value = "Flag (Y or N) to indicate if prisoner is currently in prison.")
     @JsonProperty("currentlyInPrison")
     public String getCurrentlyInPrison() {
@@ -247,8 +247,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * ID of prisoner's latest booking.
-      */
+     * ID of prisoner's latest booking.
+     */
     @ApiModelProperty(value = "ID of prisoner's latest booking.")
     @JsonProperty("latestBookingId")
     public Long getLatestBookingId() {
@@ -260,8 +260,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * Latest location ID of a prisoner (if in prison).
-      */
+     * Latest location ID of a prisoner (if in prison).
+     */
     @ApiModelProperty(value = "Latest location ID of a prisoner (if in prison).")
     @JsonProperty("latestLocationId")
     public String getLatestLocationId() {
@@ -273,8 +273,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * Name of the prison where the prisoner resides (if in prison).
-      */
+     * Name of the prison where the prisoner resides (if in prison).
+     */
     @ApiModelProperty(value = "Name of the prison where the prisoner resides (if in prison).")
     @JsonProperty("latestLocation")
     public String getLatestLocation() {
@@ -286,8 +286,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * Name of the location where the prisoner resides (if in prison)
-      */
+     * Name of the location where the prisoner resides (if in prison)
+     */
     @ApiModelProperty(value = "Name of the location where the prisoner resides (if in prison)")
     @JsonProperty("internalLocation")
     public String getInternalLocation() {
@@ -299,8 +299,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's PNC (Police National Computer) number.
-      */
+     * The prisoner's PNC (Police National Computer) number.
+     */
     @ApiModelProperty(value = "The prisoner's PNC (Police National Computer) number.")
     @JsonProperty("pncNumber")
     public String getPncNumber() {
@@ -312,8 +312,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's CRO (Criminal Records Office) number.
-      */
+     * The prisoner's CRO (Criminal Records Office) number.
+     */
     @ApiModelProperty(value = "The prisoner's CRO (Criminal Records Office) number.")
     @JsonProperty("croNumber")
     public String getCroNumber() {
@@ -325,8 +325,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's ethnicity.
-      */
+     * The prisoner's ethnicity.
+     */
     @ApiModelProperty(value = "The prisoner's ethnicity.")
     @JsonProperty("ethnicity")
     public String getEthnicity() {
@@ -338,8 +338,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's country of birth.
-      */
+     * The prisoner's country of birth.
+     */
     @ApiModelProperty(value = "The prisoner's country of birth.")
     @JsonProperty("birthCountry")
     public String getBirthCountry() {
@@ -351,8 +351,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's religion.
-      */
+     * The prisoner's religion.
+     */
     @ApiModelProperty(value = "The prisoner's religion.")
     @JsonProperty("religion")
     public String getReligion() {
@@ -364,8 +364,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * Status code of prisoner's latest conviction.
-      */
+     * Status code of prisoner's latest conviction.
+     */
     @ApiModelProperty(value = "Status code of prisoner's latest conviction.")
     @JsonProperty("convictedStatus")
     public String getConvictedStatus() {
@@ -377,8 +377,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's imprisonment status.
-      */
+     * The prisoner's imprisonment status.
+     */
     @ApiModelProperty(value = "The prisoner's imprisonment status.")
     @JsonProperty("imprisonmentStatus")
     public String getImprisonmentStatus() {
@@ -390,8 +390,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * Date prisoner was received into the prison.
-      */
+     * Date prisoner was received into the prison.
+     */
     @ApiModelProperty(value = "Date prisoner was received into the prison.")
     @JsonProperty("receptionDate")
     public LocalDate getReceptionDate() {
@@ -403,8 +403,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's marital status.
-      */
+     * The prisoner's marital status.
+     */
     @ApiModelProperty(value = "The prisoner's marital status.")
     @JsonProperty("maritalStatus")
     public String getMaritalStatus() {
@@ -416,8 +416,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's current working first name.
-      */
+     * The prisoner's current working first name.
+     */
     @ApiModelProperty(required = true, value = "The prisoner's current working first name.")
     @JsonProperty("currentWorkingFirstName")
     public String getCurrentWorkingFirstName() {
@@ -429,8 +429,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's current working last name.
-      */
+     * The prisoner's current working last name.
+     */
     @ApiModelProperty(required = true, value = "The prisoner's current working last name.")
     @JsonProperty("currentWorkingLastName")
     public String getCurrentWorkingLastName() {
@@ -442,8 +442,8 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's current working date of birth (in YYYY-MM-DD format).
-      */
+     * The prisoner's current working date of birth (in YYYY-MM-DD format).
+     */
     @ApiModelProperty(required = true, value = "The prisoner's current working date of birth (in YYYY-MM-DD format).")
     @JsonProperty("currentWorkingBirthDate")
     public LocalDate getCurrentWorkingBirthDate() {
@@ -455,11 +455,11 @@ public class PrisonerDetail {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class PrisonerDetail {\n");
-        
+
         sb.append("  offenderNo: ").append(offenderNo).append("\n");
         sb.append("  title: ").append(title).append("\n");
         sb.append("  suffix: ").append(suffix).append("\n");

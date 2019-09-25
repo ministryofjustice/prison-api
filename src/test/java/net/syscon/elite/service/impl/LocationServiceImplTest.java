@@ -31,10 +31,14 @@ public class LocationServiceImplTest {
 
     private static Function<String, Predicate<Location>> filterFactory = (String s) -> (Location l) -> s.equals(l.getLocationPrefix());
 
-    @Mock private LocationRepository locationRepository;
-    @Mock private AgencyRepository agencyRepository;
-    @Mock private LocationGroupService locationGroupService;
-    @Mock private CaseLoadService caseLoadService;
+    @Mock
+    private LocationRepository locationRepository;
+    @Mock
+    private AgencyRepository agencyRepository;
+    @Mock
+    private LocationGroupService locationGroupService;
+    @Mock
+    private CaseLoadService caseLoadService;
 
     private LocationService locationService;
     private Location cell1 = Location.builder().locationPrefix("cell1").build();
@@ -51,13 +55,13 @@ public class LocationServiceImplTest {
     public void getUserLocations() {
 
         final var agencies = Collections.singletonList(Agency.builder().agencyId("LEI").build());
- 
+
         when(agencyRepository.findAgenciesForCurrentCaseloadByUsername("me")).thenReturn(agencies);
 
         final List<Location> locations = new ArrayList<>();
         final var location = createTestLocation();
         locations.add(location);
-        when(locationRepository.findLocationsByAgencyAndType("LEI","WING", true)).thenReturn(locations);
+        when(locationRepository.findLocationsByAgencyAndType("LEI", "WING", true)).thenReturn(locations);
         when(caseLoadService.getWorkingCaseLoadForUser("me")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("LEI").type("INST").build()));
         final var returnedLocations = locationService.getUserLocations("me");
 
@@ -104,7 +108,7 @@ public class LocationServiceImplTest {
     public void testGetCellLocationsForGroup() {
 
         when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
-            .thenReturn(Arrays.asList(cell1, cell2, cell3, cell4));
+                .thenReturn(Arrays.asList(cell1, cell2, cell3, cell4));
 
         when(locationGroupService.locationGroupFilter("LEI", "mylist"))
                 .thenReturn(Stream.of("cell4", "cell1", "cell3").map(filterFactory).reduce(Predicate::or).get());
@@ -132,10 +136,10 @@ public class LocationServiceImplTest {
         locationService.getCellLocationsForGroup("LEI", "mylist");
     }
 
-    @Test(expected=ConfigException.class)
+    @Test(expected = ConfigException.class)
     public void testGetGroupNoCells() {
         when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
-            .thenReturn(Arrays.asList( cell1, cell2, cell3, cell4));
+                .thenReturn(Arrays.asList(cell1, cell2, cell3, cell4));
 
         when(locationGroupService.locationGroupFilter("LEI", "mylist")).thenReturn(l -> false);
 

@@ -65,9 +65,9 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     @Override
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final String type, final LocalDate date) {
         CategoryInformationType enumType;
-        try{
+        try {
             enumType = CategoryInformationType.valueOf(type);
-        } catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new BadRequestException("Categorisation type is invalid: " + type);
         }
         return inmateService.getCategory(agencyId, enumType, date);
@@ -102,7 +102,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     @ProxyUser
-    public Response updateCategorisationNextReviewDate(final Long bookingId,  final LocalDate nextReviewDate) {
+    public Response updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate) {
         inmateService.updateCategorisationNextReviewDate(bookingId, nextReviewDate);
         return Response.ok()
                 .status(200)

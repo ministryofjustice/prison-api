@@ -95,7 +95,7 @@ public class StaffServiceImplTest {
         when(staffRepository.findByStaffId(ID_BAD)).thenThrow(EntityNotFoundException.withId(ID_BAD));
 
         assertThatThrownBy(() -> {
-           final var addresses = staffService.getStaffEmailAddresses(ID_BAD);
+            final var addresses = staffService.getStaffEmailAddresses(ID_BAD);
         }).isInstanceOf(EntityNotFoundException.class);
 
         verify(staffRepository, times(1)).findByStaffId(ID_BAD);

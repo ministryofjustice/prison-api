@@ -72,6 +72,7 @@ public class IncidentCaseRepositoryTest {
         assertThat(incidentCase1.getResponses()).hasSize(19);
         assertThat(incidentCase1.getParties()).hasSize(6);
     }
+
     @Test
     public void testGetQuestionnaire() {
         final var questionnaire = repository.getQuestionnaire("IR_TYPE", "ASSAULT").orElse(null);
