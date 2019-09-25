@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
+
 @ApiModel(description = "Summary of an offender counted as Establishment Roll - In")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)

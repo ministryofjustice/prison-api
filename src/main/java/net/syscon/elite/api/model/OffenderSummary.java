@@ -26,7 +26,7 @@ import java.util.Map;
 public class OffenderSummary {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long bookingId;
 
@@ -67,8 +67,8 @@ public class OffenderSummary {
     }
 
     /**
-      * A unique booking id.
-      */
+     * A unique booking id.
+     */
     @ApiModelProperty(required = true, value = "A unique booking id.")
     @JsonProperty("bookingId")
     public Long getBookingId() {
@@ -80,8 +80,8 @@ public class OffenderSummary {
     }
 
     /**
-      * The offender's unique offender number (aka NOMS Number in the UK).
-      */
+     * The offender's unique offender number (aka NOMS Number in the UK).
+     */
     @ApiModelProperty(required = true, value = "The offender's unique offender number (aka NOMS Number in the UK).")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
@@ -93,8 +93,8 @@ public class OffenderSummary {
     }
 
     /**
-      * A code representing the offender's title (from TITLE reference domain).
-      */
+     * A code representing the offender's title (from TITLE reference domain).
+     */
     @ApiModelProperty(value = "A code representing the offender's title (from TITLE reference domain).")
     @JsonProperty("title")
     public String getTitle() {
@@ -106,8 +106,8 @@ public class OffenderSummary {
     }
 
     /**
-      * A code representing a suffix that is applied to offender's name (from SUFFIX reference domain).
-      */
+     * A code representing a suffix that is applied to offender's name (from SUFFIX reference domain).
+     */
     @ApiModelProperty(value = "A code representing a suffix that is applied to offender's name (from SUFFIX reference domain).")
     @JsonProperty("suffix")
     public String getSuffix() {
@@ -119,8 +119,8 @@ public class OffenderSummary {
     }
 
     /**
-      * The offender's first name.
-      */
+     * The offender's first name.
+     */
     @ApiModelProperty(required = true, value = "The offender's first name.")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -132,8 +132,8 @@ public class OffenderSummary {
     }
 
     /**
-      * The offender's middle name(s).
-      */
+     * The offender's middle name(s).
+     */
     @ApiModelProperty(value = "The offender's middle name(s).")
     @JsonProperty("middleNames")
     public String getMiddleNames() {
@@ -145,8 +145,8 @@ public class OffenderSummary {
     }
 
     /**
-      * The offender's last name.
-      */
+     * The offender's last name.
+     */
     @ApiModelProperty(required = true, value = "The offender's last name.")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -158,8 +158,8 @@ public class OffenderSummary {
     }
 
     /**
-      * Set to Y or N to indicate if the person is currently in prison. If not set, status is not known.
-      */
+     * Set to Y or N to indicate if the person is currently in prison. If not set, status is not known.
+     */
     @ApiModelProperty(value = "Set to Y or N to indicate if the person is currently in prison. If not set, status is not known.")
     @JsonProperty("currentlyInPrison")
     public String getCurrentlyInPrison() {
@@ -171,8 +171,8 @@ public class OffenderSummary {
     }
 
     /**
-      * Agency Id (if known)
-      */
+     * Agency Id (if known)
+     */
     @ApiModelProperty(value = "Agency Id (if known)")
     @JsonProperty("agencyLocationId")
     public String getAgencyLocationId() {
@@ -184,8 +184,8 @@ public class OffenderSummary {
     }
 
     /**
-      * Agency description (if known)
-      */
+     * Agency description (if known)
+     */
     @ApiModelProperty(value = "Agency description (if known)")
     @JsonProperty("agencyLocationDesc")
     public String getAgencyLocationDesc() {
@@ -197,8 +197,8 @@ public class OffenderSummary {
     }
 
     /**
-      * Internal location id (if known)
-      */
+     * Internal location id (if known)
+     */
     @ApiModelProperty(value = "Internal location id (if known)")
     @JsonProperty("internalLocationId")
     public String getInternalLocationId() {
@@ -210,8 +210,8 @@ public class OffenderSummary {
     }
 
     /**
-      * Internal location description (if known)
-      */
+     * Internal location description (if known)
+     */
     @ApiModelProperty(value = "Internal location description (if known)")
     @JsonProperty("internalLocationDesc")
     public String getInternalLocationDesc() {
@@ -223,11 +223,11 @@ public class OffenderSummary {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class OffenderSummary {\n");
-        
+
         sb.append("  bookingId: ").append(bookingId).append("\n");
         sb.append("  offenderNo: ").append(offenderNo).append("\n");
         sb.append("  title: ").append(title).append("\n");

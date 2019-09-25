@@ -23,11 +23,11 @@ public class CaseloadToAgencyMappingServiceImpl implements CaseloadToAgencyMappi
 
     @Override
     public List<Agency> agenciesForUsersWorkingCaseload(final String username) {
-            return caseLoadService
-                    .getWorkingCaseLoadForUser(username)
-                    .map(CaseLoad::getCaseLoadId)
-                    .map(agencyService::getAgenciesByCaseload)
-                    .orElse(Collections.emptyList());
+        return caseLoadService
+                .getWorkingCaseLoadForUser(username)
+                .map(CaseLoad::getCaseLoadId)
+                .map(agencyService::getAgenciesByCaseload)
+                .orElse(Collections.emptyList());
     }
 }
 

@@ -32,7 +32,8 @@ public class BookingResourceTest extends ResourceTest {
                 "/api/bookings/{bookingId}/activities/{activityId}/attendance",
                 HttpMethod.PUT,
                 httpEntity,
-                new ParameterizedTypeReference<String>() {},
+                new ParameterizedTypeReference<String>() {
+                },
                 -2, -11);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
@@ -73,7 +74,8 @@ public class BookingResourceTest extends ResourceTest {
                 "/api/bookings/activities/attendance",
                 HttpMethod.PUT,
                 httpEntity,
-                new ParameterizedTypeReference<String>() {});
+                new ParameterizedTypeReference<String>() {
+                });
 
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
     }
@@ -88,8 +90,9 @@ public class BookingResourceTest extends ResourceTest {
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert",
                 HttpMethod.POST,
-                createHttpEntity(token , body),
-                new ParameterizedTypeReference<ErrorResponse>() {}, -10L);
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<ErrorResponse>() {
+                }, -10L);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
@@ -103,8 +106,9 @@ public class BookingResourceTest extends ResourceTest {
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert/{alertSeq}",
                 HttpMethod.PUT,
-                createHttpEntity(token , body),
-                new ParameterizedTypeReference<ErrorResponse>() {}, -1L, 4);
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<ErrorResponse>() {
+                }, -1L, 4);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
@@ -116,22 +120,24 @@ public class BookingResourceTest extends ResourceTest {
         final var createdAlert = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert",
                 HttpMethod.POST,
-                createHttpEntity(token ,
+                createHttpEntity(token,
                         CreateAlert.builder()
                                 .alertType("L")
                                 .alertCode("LPQAA")
                                 .comment("XXX")
                                 .alertDate(LocalDate.now())
                                 .build()),
-                new ParameterizedTypeReference<Alert>() {}, -14L).getBody();
+                new ParameterizedTypeReference<Alert>() {
+                }, -14L).getBody();
 
         final var body = ExpireAlert.builder().expiryDate(LocalDate.now()).build();
 
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert/{alertSeq}",
                 HttpMethod.PUT,
-                createHttpEntity(token , body),
-                new ParameterizedTypeReference<AlertCreated>() {}, -14L, createdAlert.getAlertId());
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<AlertCreated>() {
+                }, -14L, createdAlert.getAlertId());
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
     }
@@ -145,8 +151,9 @@ public class BookingResourceTest extends ResourceTest {
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert",
                 HttpMethod.POST,
-                createHttpEntity(token , body),
-                new ParameterizedTypeReference<ErrorResponse>() {}, -10L);
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<ErrorResponse>() {
+                }, -10L);
 
         final var validationMessages = response.getBody().getUserMessage();
 
@@ -171,8 +178,9 @@ public class BookingResourceTest extends ResourceTest {
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert",
                 HttpMethod.POST,
-                createHttpEntity(token , body),
-                new ParameterizedTypeReference<ErrorResponse>() {}, -10L);
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<ErrorResponse>() {
+                }, -10L);
 
         final var validationMessages = response.getBody().getUserMessage();
 
@@ -193,8 +201,9 @@ public class BookingResourceTest extends ResourceTest {
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert",
                 HttpMethod.POST,
-                createHttpEntity(token , body),
-                new ParameterizedTypeReference<AlertCreated>() {}, -10L);
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<AlertCreated>() {
+                }, -10L);
 
         assertThat(response.getBody().getAlertId()).isGreaterThan(1);
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
@@ -209,8 +218,9 @@ public class BookingResourceTest extends ResourceTest {
         final var response = testRestTemplate.exchange(
                 "/api/bookings/offenders?activeOnly=false",
                 HttpMethod.POST,
-                createHttpEntity(token , body),
-                new ParameterizedTypeReference<List<InmateBasicDetails>>() {});
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<List<InmateBasicDetails>>() {
+                });
 
         assertThat(response.getBody().get(0).getBookingId()).isEqualTo(-20);
         assertThat(response.getStatusCodeValue()).isEqualTo(200);

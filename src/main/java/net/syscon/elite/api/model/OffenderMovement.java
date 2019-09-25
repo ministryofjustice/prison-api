@@ -25,7 +25,7 @@ import java.util.Map;
 public class OffenderMovement {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     @ApiModelProperty(required = true, value = "Display Prisoner Number (UK is NOMS ID)")
     private String offenderNo;

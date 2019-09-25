@@ -81,13 +81,13 @@ public class BookingResourceImpl implements BookingResource {
     public GetOffenderBookingsResponse getOffenderBookings(final String query, final List<Long> bookingId, final List<String> offenderNo, final boolean iepLevel, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var allInmates = inmateService.findAllInmates(
                 InmateSearchCriteria.builder()
-                    .username(authenticationFacade.getCurrentUsername())
-                    .query(query)
-                    .iepLevel(iepLevel)
-                    .offenderNos(offenderNo)
-                    .bookingIds(bookingId)
-                    .pageRequest(new PageRequest(sortFields, sortOrder, pageOffset, pageLimit))
-                .build());
+                        .username(authenticationFacade.getCurrentUsername())
+                        .query(query)
+                        .iepLevel(iepLevel)
+                        .offenderNos(offenderNo)
+                        .bookingIds(bookingId)
+                        .pageRequest(new PageRequest(sortFields, sortOrder, pageOffset, pageLimit))
+                        .build());
 
         return GetOffenderBookingsResponse.respond200WithApplicationJson(allInmates);
     }
@@ -161,7 +161,7 @@ public class BookingResourceImpl implements BookingResource {
     public GetOffenderBookingResponse getOffenderBooking(final Long bookingId, final boolean basicInfo) {
 
         final var inmate = basicInfo ?
-                  inmateService.getBasicInmateDetail(bookingId)
+                inmateService.getBasicInmateDetail(bookingId)
                 : inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername());
 
         return GetOffenderBookingResponse.respond200WithApplicationJson(inmate);
@@ -367,7 +367,7 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('MAINTAIN_IEP')")
     @ProxyUser
-    public void addIepLevel(final Long bookingId, final IepLevelAndComment iepLevel){
+    public void addIepLevel(final Long bookingId, final IepLevelAndComment iepLevel) {
         bookingService.addIepLevel(bookingId, authenticationFacade.getCurrentUsername(), iepLevel);
     }
 
@@ -396,14 +396,14 @@ public class BookingResourceImpl implements BookingResource {
             } catch (final IOException e) {
                 final var errorResponse = ErrorResponse.builder()
                         .errorCode(500)
-                        .userMessage("An error occurred loading the image for offender No "+ offenderNo)
+                        .userMessage("An error occurred loading the image for offender No " + offenderNo)
                         .build();
                 return GetMainBookingImageDataByNoResponse.respond500WithApplicationJson(errorResponse);
             }
         } else {
             final var errorResponse = ErrorResponse.builder()
                     .errorCode(404)
-                    .userMessage("No image was found for offender No "+ offenderNo)
+                    .userMessage("No image was found for offender No " + offenderNo)
                     .build();
             return GetMainBookingImageDataByNoResponse.respond404WithApplicationJson(errorResponse);
         }
@@ -422,14 +422,14 @@ public class BookingResourceImpl implements BookingResource {
             } catch (final IOException e) {
                 final var errorResponse = ErrorResponse.builder()
                         .errorCode(500)
-                        .userMessage("An error occurred loading the image ID "+ imageId)
+                        .userMessage("An error occurred loading the image ID " + imageId)
                         .build();
                 return GetMainBookingImageDataResponse.respond500WithApplicationJson(errorResponse);
             }
         } else {
             final var errorResponse = ErrorResponse.builder()
                     .errorCode(404)
-                    .userMessage("No image was found with ID "+ imageId)
+                    .userMessage("No image was found with ID " + imageId)
                     .build();
             return GetMainBookingImageDataResponse.respond404WithApplicationJson(errorResponse);
         }
@@ -597,7 +597,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final String awardCutoffDate, final String adjudicationCutoffDate) {
-        return  adjudicationService.getAdjudicationSummary(bookingId,
+        return adjudicationService.getAdjudicationSummary(bookingId,
                 fromISO8601DateString(awardCutoffDate), fromISO8601DateString(adjudicationCutoffDate));
     }
 
@@ -631,7 +631,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public VisitBalances getBookingVisitBalances(final String offenderNo){
+    public VisitBalances getBookingVisitBalances(final String offenderNo) {
         final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
 
         return bookingService.getBookingVisitBalances(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));

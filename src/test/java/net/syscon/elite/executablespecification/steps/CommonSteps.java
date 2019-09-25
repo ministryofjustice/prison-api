@@ -191,7 +191,7 @@ public abstract class CommonSteps {
         final var headers = new HttpHeaders();
 
         if (auth.getToken() != null) {
-            headers.add("Authorization", "bearer "+auth.getToken());
+            headers.add("Authorization", "bearer " + auth.getToken());
         }
 
         if (extraHeaders != null) {
@@ -210,7 +210,7 @@ public abstract class CommonSteps {
             out = Pattern.compile("\\s*,\\s*")
                     .splitAsStream(commaSeparatedList.trim())
                     .map(s -> s.split("=", 2))
-                    .collect(Collectors.toMap(a -> a[0], a -> a.length > 1 ? a[1]: ""));
+                    .collect(Collectors.toMap(a -> a[0], a -> a.length > 1 ? a[1] : ""));
         }
 
         return out;
@@ -494,7 +494,7 @@ public abstract class CommonSteps {
                 .collect(Collectors.joining("&"));
     }
 
-    protected Map<String,String> addPaginationHeaders() {
+    protected Map<String, String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
     }
 
@@ -541,7 +541,7 @@ public abstract class CommonSteps {
      * Equality assertion where blank and null are treated as equal
      */
     static void assertEqualsBlankIsNull(final String expected, final String actual) {
-        if (StringUtils.isBlank(actual) && StringUtils.isBlank(expected) ) {
+        if (StringUtils.isBlank(actual) && StringUtils.isBlank(expected)) {
             return;
         }
         assertThat(actual).isEqualTo(expected);

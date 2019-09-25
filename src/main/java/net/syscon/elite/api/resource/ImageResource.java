@@ -16,28 +16,28 @@ public interface ImageResource {
 
     @GET
     @Path("/{imageId}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Image detail (with image data).", notes = "Image detail (with image data).", nickname="getImage")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = ImageDetail.class),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Image detail (with image data).", notes = "Image detail (with image data).", nickname = "getImage")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ImageDetail.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetImageResponse getImage(@ApiParam(value = "The image id of offender", required = true) @PathParam("imageId") Long imageId);
 
     @GET
     @Path("/{imageId}/data")
-    @Consumes({ "application/json" })
-    @Produces({ "image/jpeg" })
-    @ApiOperation(value = "Image data (as bytes).", notes = "Image data (as bytes).", nickname="getImageData")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = File.class),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    @Consumes({"application/json"})
+    @Produces({"image/jpeg"})
+    @ApiOperation(value = "Image data (as bytes).", notes = "Image data (as bytes).", nickname = "getImageData")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = File.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetImageDataResponse getImageData(@ApiParam(value = "The image id of offender", required = true) @PathParam("imageId") Long imageId,
-                                      @ApiParam(value = "Return full size image", defaultValue = "false") @QueryParam("fullSizeImage") @DefaultValue("false") boolean fullSizeImage );
+                                      @ApiParam(value = "Return full size image", defaultValue = "false") @QueryParam("fullSizeImage") @DefaultValue("false") boolean fullSizeImage);
 
     class GetImageResponse extends ResponseDelegate {
 

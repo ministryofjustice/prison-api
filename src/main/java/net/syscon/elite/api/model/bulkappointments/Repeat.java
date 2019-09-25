@@ -28,6 +28,7 @@ public class Repeat {
 
     /**
      * Given an initial LocalDateTime to start from build a Stream of LocalDateTime which corresponds to this Repeat.
+     *
      * @param startDateTime The starting LocalDateTime
      * @return a Stream of (count) instances of LocalDateTime, starting with startDateTime according to the values in this Repeat instance.
      */

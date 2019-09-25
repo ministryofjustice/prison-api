@@ -26,7 +26,7 @@ import java.util.Map;
 public class OffenceDetail {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long bookingId;
 
@@ -45,8 +45,8 @@ public class OffenceDetail {
     }
 
     /**
-      * Offender booking id.
-      */
+     * Offender booking id.
+     */
     @ApiModelProperty(required = true, value = "Offender booking id.")
     @JsonProperty("bookingId")
     public Long getBookingId() {
@@ -58,8 +58,8 @@ public class OffenceDetail {
     }
 
     /**
-      * Description of offence.
-      */
+     * Description of offence.
+     */
     @ApiModelProperty(required = true, value = "Description of offence.")
     @JsonProperty("offenceDescription")
     public String getOffenceDescription() {
@@ -71,11 +71,11 @@ public class OffenceDetail {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class OffenceDetail {\n");
-        
+
         sb.append("  bookingId: ").append(bookingId).append("\n");
         sb.append("  offenceDescription: ").append(offenceDescription).append("\n");
         sb.append("}\n");

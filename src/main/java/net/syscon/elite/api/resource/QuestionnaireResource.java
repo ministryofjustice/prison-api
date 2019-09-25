@@ -23,7 +23,7 @@ public interface QuestionnaireResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     QuestionnaireResponse getQuestionnaire(@ApiParam(value = "Category", example = "IR_TYPE", required = true) @PathParam("category") @NotNull String category,
-                                 @ApiParam(value = "Code", example = "ASSAULT", required = true) @PathParam("code") @NotNull String code);
+                                           @ApiParam(value = "Code", example = "ASSAULT", required = true) @PathParam("code") @NotNull String code);
 
     class QuestionnaireResponse extends ResponseDelegate {
         public QuestionnaireResponse(final Response response, final Questionnaire questionnaire) {

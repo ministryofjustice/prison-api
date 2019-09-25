@@ -79,7 +79,8 @@ public class PrisonerSchedule {
     private String eventStatus;
 
     @ApiModelProperty(required = true, value = "Date and time at which event starts")
-    @Length(max=4000) private String comment;
+    @Length(max = 4000)
+    private String comment;
 
     @ApiModelProperty(required = true, value = "Date and time at which event starts")
     @NotNull

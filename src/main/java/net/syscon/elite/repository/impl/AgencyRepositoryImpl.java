@@ -2,11 +2,7 @@ package net.syscon.elite.repository.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.val;
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.IepLevel;
-import net.syscon.elite.api.model.PrisonContactDetail;
-import net.syscon.elite.api.model.Telephone;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
@@ -26,11 +22,9 @@ import org.springframework.stereotype.Repository;
 import javax.ws.rs.BadRequestException;
 import java.sql.Types;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
@@ -262,7 +256,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                 "agencyId", new SqlParameterValue(Types.VARCHAR, criteria.getAgencyId()),
                 "bookingSeq", new SqlParameterValue(Types.INTEGER, 1),
                 "hearingFinding", new SqlParameterValue(Types.VARCHAR, "PROVED"),
-                "threeMonthsAgo",  new SqlParameterValue(Types.DATE, LocalDate.now().minus(Period.ofMonths(3))),
+                "threeMonthsAgo", new SqlParameterValue(Types.DATE, LocalDate.now().minus(Period.ofMonths(3))),
                 "iepLevel", new SqlParameterValue(Types.VARCHAR, criteria.getIepLevel()),
                 "location", new SqlParameterValue(Types.VARCHAR, criteria.getLocation()));
 

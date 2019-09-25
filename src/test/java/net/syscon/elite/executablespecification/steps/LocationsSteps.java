@@ -73,7 +73,8 @@ public class LocationsSteps extends CommonSteps {
 
         try {
             final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
-                    new ParameterizedTypeReference<List<Location>>() {}, agencyId, name);
+                    new ParameterizedTypeReference<List<Location>>() {
+                    }, agencyId, name);
             locationList = response.getBody();
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -84,7 +85,8 @@ public class LocationsSteps extends CommonSteps {
         init();
         try {
             final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
-                    new ParameterizedTypeReference<List<LocationGroup>>() {}, agencyId);
+                    new ParameterizedTypeReference<List<LocationGroup>>() {
+                    }, agencyId);
             groupList = response.getBody();
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -126,7 +128,7 @@ public class LocationsSteps extends CommonSteps {
                         Stream.of(group.getName()),
                         group.getChildren().stream().map(subGroup -> group.getName() + '_' + subGroup.getName())))
                 .collect(Collectors.toList());
-        assertThat(actual).asList().containsExactly((Object[])commaDelimitedListToStringArray(expectedList));
+        assertThat(actual).asList().containsExactly((Object[]) commaDelimitedListToStringArray(expectedList));
     }
 
     public void retrieveListOfInmates(final String agency) {
@@ -141,14 +143,15 @@ public class LocationsSteps extends CommonSteps {
 
         init();
 
-        applyPagination(0L,10L);
+        applyPagination(0L, 10L);
 
         try {
             final var response = restTemplate.exchange(
                     queryUrl,
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
-                    new ParameterizedTypeReference<List<OffenderSearchSteps.OffenderBookingResponse>>() {});
+                    new ParameterizedTypeReference<List<OffenderSearchSteps.OffenderBookingResponse>>() {
+                    });
 
             assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
             bookingList = response.getBody();
@@ -164,10 +167,10 @@ public class LocationsSteps extends CommonSteps {
 
     public void checkOffenderCountByConvictedStatus(int offenderCount, final String convictedStatus) {
         final var filteredList = bookingList
-                    .stream()
-                    .filter(offender -> offender.getConvictedStatus() != null)
-                    .filter(offender -> offender.getConvictedStatus().contentEquals(convictedStatus))
-                    .collect(Collectors.toList());
+                .stream()
+                .filter(offender -> offender.getConvictedStatus() != null)
+                .filter(offender -> offender.getConvictedStatus().contentEquals(convictedStatus))
+                .collect(Collectors.toList());
 
         assertThat(filteredList).hasSize(offenderCount);
     }

@@ -746,15 +746,15 @@ public class InmateRepositoryTest {
         assertThat(list1).hasSize(2);
 
         // -38 and -39 within the cutoff
-        assertThat(list1).extracting("bookingId","assessmentSeq", "nextReviewDate","assessStatus"
-        ).containsExactlyInAnyOrder (Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"),
+        assertThat(list1).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus"
+        ).containsExactlyInAnyOrder(Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"),
                 Tuple.tuple(-39L, 2, LocalDate.of(2019, 6, 8), "A"));
 
         // The latest seq of booking id -38 is now after the cutoff but is pending - so should be selected, -39 is active and after cutoff:
         final var list2 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 1));
 
-        assertThat(list2).extracting("bookingId","assessmentSeq", "nextReviewDate","assessStatus"
-        ).containsExactly (Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"));
+        assertThat(list2).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus"
+        ).containsExactly(Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"));
     }
 
     @Test
@@ -769,8 +769,8 @@ public class InmateRepositoryTest {
                 "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
 
         ).containsExactlyInAnyOrder(
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D",  "B", "Cat B", false, "A"),
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D", "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B", "B", "Cat B", false, "A"),
                 Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, null, null, false, "A")
         );
     }
@@ -787,8 +787,8 @@ public class InmateRepositoryTest {
                 "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
 
         ).containsExactlyInAnyOrder(
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D",  "B", "Cat B", false, "A"),
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D", "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B", "B", "Cat B", false, "A"),
                 Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 3, 4), 1, LocalDate.of(2016, 3, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 3, 9), "B", "Cat B", "B", "Cat B", false, "I"),
                 Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, null, null, false, "A")
         );
@@ -897,7 +897,7 @@ public class InmateRepositoryTest {
         // after making the pending cat active should make any earlier categorisation inactive (regardless of order)
         assertThat(results).asList()
                 .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
-                .contains(Tuple.tuple(1, "I"),Tuple.tuple(2, "I"),Tuple.tuple(3, "I"),Tuple.tuple(4, "A")
+                .contains(Tuple.tuple(1, "I"), Tuple.tuple(2, "I"), Tuple.tuple(3, "I"), Tuple.tuple(4, "A")
                 );
         assertThat((Timestamp) results.get(3).get("EVALUATION_DATE")).isCloseTo("2019-02-27", 1000L);
     }
@@ -976,7 +976,7 @@ public class InmateRepositoryTest {
         final var newNextReviewDate = LocalDate.of(2019, 2, 27);
         final var existingNextReviewDate = LocalDate.of(2018, 6, 1);
 
-        try{
+        try {
             repository.updateActiveCategoryNextReviewDate(-15655L, newNextReviewDate);
             fail("Should have thrown an EntityNotFoundException");
         } catch (final EntityNotFoundException e) {

@@ -55,7 +55,8 @@ public class BookingSentenceSteps extends CommonSteps {
                             BOOKING_MAIN_OFFENCE_API_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<OffenceDetail>>() {},
+                            new ParameterizedTypeReference<List<OffenceDetail>>() {
+                            },
                             bookingId);
 
             offenceDetails = response.getBody();
@@ -74,7 +75,8 @@ public class BookingSentenceSteps extends CommonSteps {
                             BOOKING_OFFENCE_HISTORY_API_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<OffenceHistoryDetail>>() {},
+                            new ParameterizedTypeReference<List<OffenceHistoryDetail>>() {
+                            },
                             offenderNo);
 
             offenceHistory = response.getBody();

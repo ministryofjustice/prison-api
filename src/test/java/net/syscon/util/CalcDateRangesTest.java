@@ -16,7 +16,7 @@ public class CalcDateRangesTest {
 
     @Test
     public void testDateRangeIsNullForNoDates() {
-        testClass = new CalcDateRanges(null, null,null, TEN_YEARS);
+        testClass = new CalcDateRanges(null, null, null, TEN_YEARS);
         assertThat(testClass.getDateFrom()).isNull();
         assertThat(testClass.getDateTo()).isNull();
     }
@@ -24,7 +24,7 @@ public class CalcDateRangesTest {
     @Test
     public void testFromAndToDateSetForDobOnly() {
         final var dob = LocalDate.now().atStartOfDay().toLocalDate();
-        testClass = new CalcDateRanges(dob, null,null, TEN_YEARS);
+        testClass = new CalcDateRanges(dob, null, null, TEN_YEARS);
         assertThat(testClass.getDateFrom()).isEqualTo(dob);
         assertThat(testClass.getDateTo()).isEqualTo(dob);
     }
@@ -82,35 +82,35 @@ public class CalcDateRangesTest {
     @Test
     public void testStartTimeToTimeSlot() {
         final var dummy = LocalDate.of(2018, 10, 5);
-        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(0,0)))).isEqualTo(TimeSlot.AM);
-        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(11,59)))).isEqualTo(TimeSlot.AM);
-        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(12,0)))).isEqualTo(TimeSlot.PM);
-        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(16,59)))).isEqualTo(TimeSlot.PM);
-        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(17,0)))).isEqualTo(TimeSlot.ED);
-        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(23,59)))).isEqualTo(TimeSlot.ED);
+        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(0, 0)))).isEqualTo(TimeSlot.AM);
+        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(11, 59)))).isEqualTo(TimeSlot.AM);
+        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(12, 0)))).isEqualTo(TimeSlot.PM);
+        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(16, 59)))).isEqualTo(TimeSlot.PM);
+        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(17, 0)))).isEqualTo(TimeSlot.ED);
+        assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(23, 59)))).isEqualTo(TimeSlot.ED);
     }
 
     @Test
     public void testEventStartsInTimeslot() {
         final var dummy = LocalDate.of(2018, 10, 5);
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0,0)), TimeSlot.AM)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11,59)), TimeSlot.AM)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12,0)), TimeSlot.PM)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(16,59)), TimeSlot.PM)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(17,0)), TimeSlot.ED)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(23,59)), TimeSlot.ED)).isTrue();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0, 0)), TimeSlot.AM)).isTrue();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11, 59)), TimeSlot.AM)).isTrue();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12, 0)), TimeSlot.PM)).isTrue();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(16, 59)), TimeSlot.PM)).isTrue();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(17, 0)), TimeSlot.ED)).isTrue();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(23, 59)), TimeSlot.ED)).isTrue();
 
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0,0)), TimeSlot.PM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0,0)), TimeSlot.ED)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11,59)), TimeSlot.PM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11,59)), TimeSlot.ED)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12,0)), TimeSlot.ED)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12,0)), TimeSlot.AM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(16,59)), TimeSlot.ED)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(16,59)), TimeSlot.AM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(17,0)), TimeSlot.PM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(17,0)), TimeSlot.AM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(23,59)), TimeSlot.PM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(23,59)), TimeSlot.AM)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0, 0)), TimeSlot.PM)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0, 0)), TimeSlot.ED)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11, 59)), TimeSlot.PM)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11, 59)), TimeSlot.ED)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12, 0)), TimeSlot.ED)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12, 0)), TimeSlot.AM)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(16, 59)), TimeSlot.ED)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(16, 59)), TimeSlot.AM)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(17, 0)), TimeSlot.PM)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(17, 0)), TimeSlot.AM)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(23, 59)), TimeSlot.PM)).isFalse();
+        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(23, 59)), TimeSlot.AM)).isFalse();
     }
 }

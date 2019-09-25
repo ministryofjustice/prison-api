@@ -35,7 +35,7 @@ public class BookingActivitySteps extends ScheduledEventSteps {
     private void dispatchUpdateRequest(final String offenderNo, final Long eventId, final UpdateAttendance updateAttendance) {
         init();
         try {
-             restTemplate.exchange(API_REQUEST_FOR_UPDATE, HttpMethod.PUT,
+            restTemplate.exchange(API_REQUEST_FOR_UPDATE, HttpMethod.PUT,
                     createEntity(updateAttendance), Object.class, offenderNo, eventId);
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());

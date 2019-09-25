@@ -40,7 +40,8 @@ public class KeyWorkerAllocatedOffendersSteps extends CommonSteps {
                             query,
                             HttpMethod.GET,
                             createEntity(null, addPaginationHeaders()),
-                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {},
+                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {
+                            },
                             agencyId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

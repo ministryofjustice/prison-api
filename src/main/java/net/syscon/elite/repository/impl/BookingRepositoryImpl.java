@@ -246,10 +246,10 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Set<String> getIepLevelsForAgencySelectedByBooking(long bookingId){
+    public Set<String> getIepLevelsForAgencySelectedByBooking(long bookingId) {
         final List<String> iepLevels = jdbcTemplate.queryForList(
                 getQuery("IEP_LEVELS_FOR_AGENCY_SELECTED_BY_BOOKING"),
-                Map.of("bookingId", bookingId ),
+                Map.of("bookingId", bookingId),
                 String.class
         );
         return java.util.Set.copyOf(iepLevels);
@@ -434,15 +434,16 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Optional<VisitBalances> getBookingVisitBalances(final Long bookingId){
+    public Optional<VisitBalances> getBookingVisitBalances(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingIds is a required parameter");
         final var sql = getQuery("FIND_REMAINING_VO_PVO");
 
         VisitBalances visitBalances;
-        try{ visitBalances = jdbcTemplate.queryForObject(
-                sql,
-                createParams("bookingId", bookingId),
-                VISIT_BALANCES_MAPPER);
+        try {
+            visitBalances = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("bookingId", bookingId),
+                    VISIT_BALANCES_MAPPER);
         } catch (final EmptyResultDataAccessException ex) {
             visitBalances = null;
         }
@@ -627,14 +628,14 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         final var startTime = newAppointment.getStartTime();
         jdbcTemplate.update(
                 sql,
-                    createParams("bookingId", bookingId,
-                            "eventSubType", newAppointment.getAppointmentType(),
-                            "eventDate", DateTimeConverter.toDate(startTime.toLocalDate()),
-                            "startTime", DateTimeConverter.fromLocalDateTime(startTime),
-                            "endTime", DateTimeConverter.fromLocalDateTime(newAppointment.getEndTime()),
-                            "comment", newAppointment.getComment(),
-                            "locationId", newAppointment.getLocationId(),
-                            "agencyId", agencyId),
+                createParams("bookingId", bookingId,
+                        "eventSubType", newAppointment.getAppointmentType(),
+                        "eventDate", DateTimeConverter.toDate(startTime.toLocalDate()),
+                        "startTime", DateTimeConverter.fromLocalDateTime(startTime),
+                        "endTime", DateTimeConverter.fromLocalDateTime(newAppointment.getEndTime()),
+                        "comment", newAppointment.getComment(),
+                        "locationId", newAppointment.getLocationId(),
+                        "agencyId", agencyId),
                 generatedKeyHolder,
                 new String[]{"EVENT_ID"});
         return generatedKeyHolder.getKey().longValue();

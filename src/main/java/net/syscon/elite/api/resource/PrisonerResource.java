@@ -18,14 +18,14 @@ public interface PrisonerResource {
 
     @GET
     @Path("/")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of offenders matching specified criteria.", notes = "<b>(BETA)</b> List of offenders matching specified criteria.", nickname="getPrisoners")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = PrisonerDetail.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of offenders matching specified criteria.", notes = "<b>(BETA)</b> List of offenders matching specified criteria.", nickname = "getPrisoners")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PrisonerDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetPrisonersResponse getPrisoners(@ApiParam(value = "If true the result set should include a row for every matched alias.  If the request includes some combination of firstName, lastName and dateOfBirth then this will be a subset of the OFFENDERS records for one or more offenders. Otherwise it will be every OFFENDERS record for each match on the other search criteria. Default is false.") @QueryParam("includeAliases") boolean includeAliases,
                                       @ApiParam(value = "The offender's NOMS number. NOMS numbers have the format:<b> ANNNNAA</b>") @QueryParam("offenderNo") String offenderNo,
                                       @ApiParam(value = "The offender's PNC (Police National Computer) number.") @QueryParam("pncNumber") String pncNumber,
@@ -48,14 +48,14 @@ public interface PrisonerResource {
 
     @GET
     @Path("/{offenderNo}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of offenders globally matching the offenderNo.", notes = "List of offenders globally matching the offenderNo.", nickname="getPrisonersOffenderNo")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of offenders globally matching the offenderNo.", notes = "List of offenders globally matching the offenderNo.", nickname = "getPrisonersOffenderNo")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = PrisonerDetail.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = PrisonerDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetPrisonersOffenderNoResponse getPrisonersOffenderNo(@ApiParam(value = "The offenderNo to search for", required = true) @PathParam("offenderNo") String offenderNo);
 
     class GetPrisonersResponse extends ResponseDelegate {

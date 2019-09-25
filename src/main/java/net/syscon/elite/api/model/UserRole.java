@@ -26,7 +26,7 @@ import java.util.Map;
 public class UserRole {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long roleId;
 
@@ -52,8 +52,8 @@ public class UserRole {
     }
 
     /**
-      * Role Id
-      */
+     * Role Id
+     */
     @ApiModelProperty(required = true, value = "Role Id")
     @JsonProperty("roleId")
     public Long getRoleId() {
@@ -65,8 +65,8 @@ public class UserRole {
     }
 
     /**
-      * code for this role
-      */
+     * code for this role
+     */
     @ApiModelProperty(required = true, value = "code for this role")
     @JsonProperty("roleCode")
     public String getRoleCode() {
@@ -78,8 +78,8 @@ public class UserRole {
     }
 
     /**
-      * Full text description of the role type
-      */
+     * Full text description of the role type
+     */
     @ApiModelProperty(required = true, value = "Full text description of the role type")
     @JsonProperty("roleName")
     public String getRoleName() {
@@ -91,8 +91,8 @@ public class UserRole {
     }
 
     /**
-      * role code of the parent role
-      */
+     * role code of the parent role
+     */
     @ApiModelProperty(value = "role code of the parent role")
     @JsonProperty("parentRoleCode")
     public String getParentRoleCode() {
@@ -104,8 +104,8 @@ public class UserRole {
     }
 
     /**
-      * caseload that this role belongs to, (NOMIS only)
-      */
+     * caseload that this role belongs to, (NOMIS only)
+     */
     @ApiModelProperty(value = "caseload that this role belongs to, (NOMIS only)")
     @JsonProperty("caseloadId")
     public String getCaseloadId() {
@@ -117,11 +117,11 @@ public class UserRole {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class UserRole {\n");
-        
+
         sb.append("  roleId: ").append(roleId).append("\n");
         sb.append("  roleCode: ").append(roleCode).append("\n");
         sb.append("  roleName: ").append(roleName).append("\n");

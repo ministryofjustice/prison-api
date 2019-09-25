@@ -27,7 +27,7 @@ import java.util.Map;
 public class Assessment {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     @ApiModelProperty(value = "Booking number", position = 1, example = "123456")
     private Long bookingId;

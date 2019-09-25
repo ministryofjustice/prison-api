@@ -3,12 +3,7 @@ package net.syscon.elite.api.model.adjudications;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.Singular;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,5 +28,6 @@ public class Adjudication {
     @ApiModelProperty(value = "Party Sequence", example = "1")
     private long partySeq;
     @ApiModelProperty("Charges made as part of the adjudication")
-    @Singular private List<AdjudicationCharge> adjudicationCharges;
+    @Singular
+    private List<AdjudicationCharge> adjudicationCharges;
 }

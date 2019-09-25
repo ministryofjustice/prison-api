@@ -24,7 +24,7 @@ public interface IdentifiersResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     IdentifiersListResponse getOffenderIdentifiersByTypeAndValue(@ApiParam(value = "Identifier Type", example = "PNC", required = true) @PathParam("type") @NotNull String type,
-                                                                        @ApiParam(value = "Identifier Value", example = "1234/XX", required = true) @PathParam("value") @NotNull String value);
+                                                                 @ApiParam(value = "Identifier Value", example = "1234/XX", required = true) @PathParam("value") @NotNull String value);
 
     class IdentifiersListResponse extends ResponseDelegate {
         public IdentifiersListResponse(final Response response, final List<OffenderIdentifier> offenderIdentifiers) {

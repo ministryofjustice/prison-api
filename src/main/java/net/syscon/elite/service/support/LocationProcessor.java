@@ -18,7 +18,7 @@ public class LocationProcessor {
      * id are {@code null}, agency id is not stripped and unaltered description is returned.
      *
      * @param description the location description.
-     * @param agencyId the location agency id.
+     * @param agencyId    the location agency id.
      * @return description with agency id removed (or unaltered description if description is not prefixed with agency
      * id or agency id is {@code null}.
      */
@@ -27,7 +27,7 @@ public class LocationProcessor {
             return description;
         }
 
-        return RegExUtils.replaceFirst(description,StringUtils.trimToEmpty(agencyId) + "-", "");
+        return RegExUtils.replaceFirst(description, StringUtils.trimToEmpty(agencyId) + "-", "");
     }
 
     /**
@@ -54,7 +54,7 @@ public class LocationProcessor {
      *     <li>strips location agency id from location description if location agency id is used as prefix for description</li>
      * </ul>
      *
-     * @param locations locations to process.
+     * @param locations             locations to process.
      * @param preferUserDescription if {@code true}, the location's user description will be used as the location's
      *                              description if it is set. Stripping of agency id from location description will not
      *                              occur if this is {@code true} and user description has been set.
@@ -89,7 +89,7 @@ public class LocationProcessor {
      *     <li>strips location agency id from location description if location agency id is used as prefix for description</li>
      * </ul>
      *
-     * @param location location to process.
+     * @param location              location to process.
      * @param preferUserDescription if {@code true}, the location's user description will be used as the location's
      *                              description if it is set. Stripping of agency id from location description will not
      *                              occur if this is {@code true} and user description has been set.

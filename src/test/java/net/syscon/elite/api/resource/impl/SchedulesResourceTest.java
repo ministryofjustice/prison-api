@@ -24,7 +24,8 @@ public class SchedulesResourceTest extends ResourceTest {
                 "/api/schedules/LEI/activities?timeSlot=PM&date=2017-09-11",
                 HttpMethod.GET,
                 createHttpEntity(token, ""),
-                new ParameterizedTypeReference<List<PrisonerSchedule>>() {});
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                });
 
         final var activities = response.getBody();
 

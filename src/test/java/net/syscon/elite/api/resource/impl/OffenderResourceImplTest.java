@@ -31,7 +31,7 @@ public class OffenderResourceImplTest {
 
     @Test()
     public void getOffenderCategorisations() {
-        offenderAssessmentResource.getOffenderCategorisations("LEI", CategoryInformationType.CATEGORISED.name(),  null);
+        offenderAssessmentResource.getOffenderCategorisations("LEI", CategoryInformationType.CATEGORISED.name(), null);
         verify(inmateService).getCategory("LEI", CategoryInformationType.CATEGORISED, null);
     }
 }

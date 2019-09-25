@@ -21,7 +21,7 @@ public class ActivityCacheScheduler {
         this.whereaboutsEnabledService = whereaboutsEnabledService;
     }
 
-//    @Scheduled(fixedRate = 10 * 60 * 1000, initialDelay = 30000)
+    //    @Scheduled(fixedRate = 10 * 60 * 1000, initialDelay = 30000)
     // Removed schedule as no long needed, but left in for now just in case...
     public void cacheActivityLocations() {
 

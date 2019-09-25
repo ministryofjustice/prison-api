@@ -168,13 +168,13 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
 
 
     private void validateLocationFilter(final String location) {
-        if (StringUtils.isNotBlank(location) && !VALID_LOCATION_FILTER_VALUES.contains(location)){
+        if (StringUtils.isNotBlank(location) && !VALID_LOCATION_FILTER_VALUES.contains(location)) {
             throw new BadRequestException(String.format("Location filter value %s not recognised.", location));
         }
     }
 
     private void validateGenderFilter(final String gender) {
-        if (StringUtils.isNotBlank(gender) && !VALID_GENDER_FILTER_VALUES.contains(gender)){
+        if (StringUtils.isNotBlank(gender) && !VALID_GENDER_FILTER_VALUES.contains(gender)) {
             throw new BadRequestException(String.format("Gender filter value %s not recognised.", gender));
         }
     }

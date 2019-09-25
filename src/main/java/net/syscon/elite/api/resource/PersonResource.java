@@ -16,14 +16,14 @@ public interface PersonResource {
 
     @GET
     @Path("/{personId}/identifiers")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "The most recent value of each type of person identifier", notes = "The most recent value of each type of person identifier", nickname="getPersonIdentifiers")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = PersonIdentifier.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "The most recent value of each type of person identifier", notes = "The most recent value of each type of person identifier", nickname = "getPersonIdentifiers")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PersonIdentifier.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetPersonIdentifiersResponse getPersonIdentifiers(@ApiParam(value = "The persons NOMIS identifier (personId).", required = true) @PathParam("personId") Long personId);
 
     class GetPersonIdentifiersResponse extends ResponseDelegate {

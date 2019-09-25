@@ -16,7 +16,7 @@ public enum RepeatPeriod {
         public LocalDateTime endDateTime(final LocalDateTime start, final long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
             final var dayOfWeek = start.getDayOfWeek().getValue(); // Monday == 1, Sunday == 7.
             if (dayOfWeek > 5) {
-                throw new BadRequestException("Weekend starts not allowed for WEEKDAY repeat period, but "+ start + " is a Saturday or Sunday");
+                throw new BadRequestException("Weekend starts not allowed for WEEKDAY repeat period, but " + start + " is a Saturday or Sunday");
             }
             final var weeks = offsetEndDateTimeByThisNumberOfPeriodsFromStart / 5;
             final var remainder = offsetEndDateTimeByThisNumberOfPeriodsFromStart % 5;

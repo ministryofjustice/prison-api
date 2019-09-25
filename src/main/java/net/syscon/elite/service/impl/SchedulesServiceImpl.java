@@ -164,7 +164,7 @@ public class SchedulesServiceImpl implements SchedulesService {
         final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
-        final var activities =  scheduleRepository.getAllActivitiesAtAgency(agencyId, day, day, orderByFields, order);
+        final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, day, day, orderByFields, order);
 
         return filterByTimeSlot(timeSlot, activities);
     }
@@ -221,7 +221,7 @@ public class SchedulesServiceImpl implements SchedulesService {
             return Collections.emptyList();
         }
 
-        final var activities =  Lists.partition(offenderNos, maxBatchSize)
+        final var activities = Lists.partition(offenderNos, maxBatchSize)
                 .stream()
                 .flatMap(offenderNosList -> scheduleRepository.getActivities(agencyId, offenderNosList, date).stream())
                 .collect(Collectors.toList());
@@ -242,9 +242,9 @@ public class SchedulesServiceImpl implements SchedulesService {
 
         final var events =
                 Lists.partition(offenderNos, maxBatchSize)
-                .stream()
-                .flatMap(offenderNosList ->  scheduleRepository.getCourtEvents(offenderNosList, date).stream())
-                .collect(Collectors.toList());
+                        .stream()
+                        .flatMap(offenderNosList -> scheduleRepository.getCourtEvents(offenderNosList, date).stream())
+                        .collect(Collectors.toList());
 
 
         return filterByTimeSlot(timeSlot, events);
@@ -259,7 +259,7 @@ public class SchedulesServiceImpl implements SchedulesService {
 
         return Lists.partition(offenderNos, maxBatchSize)
                 .stream()
-                .flatMap(offenderNosList ->  scheduleRepository.getExternalTransfers(agencyId, offenderNosList, date).stream())
+                .flatMap(offenderNosList -> scheduleRepository.getExternalTransfers(agencyId, offenderNosList, date).stream())
                 .collect(Collectors.toList());
     }
 

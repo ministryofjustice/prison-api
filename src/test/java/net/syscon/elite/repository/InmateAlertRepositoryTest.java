@@ -89,7 +89,7 @@ public class InmateAlertRepositoryTest {
     @Test
     public void testThatAnAlertGetsCreatedAlongWithTheRelevantWorkFlowTables() {
         final var bookingId = -10L;
-        final var alert =  CreateAlert
+        final var alert = CreateAlert
                 .builder()
                 .alertDate(LocalDate.now())
                 .alertType("X")
@@ -148,8 +148,8 @@ public class InmateAlertRepositoryTest {
         final var alert = repository.getAlert(bookingId, alertSeq).orElse(Alert.builder().build());
 
         assertThat(alert)
-                .extracting( "alertId", "comment", "dateExpires", "active")
-                .contains( alertSeq, "Test alert for expiry", expiryDate, false);
+                .extracting("alertId", "comment", "dateExpires", "active")
+                .contains(alertSeq, "Test alert for expiry", expiryDate, false);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class InmateAlertRepositoryTest {
 
     @Test
     public void testThatAlertCodeAndType_AreInsertedInUpperCase() {
-        final var alert =  CreateAlert
+        final var alert = CreateAlert
                 .builder()
                 .alertDate(LocalDate.now())
                 .alertType("x")
@@ -200,7 +200,7 @@ public class InmateAlertRepositoryTest {
                         .build());
 
         final var workFlogLogEntry = jdbcTemplate.queryForList(
-                    " SELECT * FROM WORK_FLOW_LOGS WFL " +
+                " SELECT * FROM WORK_FLOW_LOGS WFL " +
                         " LEFT JOIN WORK_FLOWS WF ON WF.WORK_FLOW_ID = WFL.WORK_FLOW_ID AND WF.OBJECT_ID = ? AND WF.OBJECT_SEQ = ? AND WF.OBJECT_CODE = 'ALERT'" +
                         " WHERE WFL.WORK_FLOW_SEQ = 2 ",
                 -17L, alertSeq
@@ -213,7 +213,7 @@ public class InmateAlertRepositoryTest {
                         extractString("WORK_FLOW_STATUS"),
                         extractString("CREATE_USER_ID"),
                         extractDate("WORK_ACTION_DATE"))
-                .contains(Tuple.tuple("MOD", "DONE", "SA", LocalDate.now(   )));
+                .contains(Tuple.tuple("MOD", "DONE", "SA", LocalDate.now()));
 
     }
 }

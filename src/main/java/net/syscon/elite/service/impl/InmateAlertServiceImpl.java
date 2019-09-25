@@ -139,7 +139,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         if (matches) throw new IllegalArgumentException("Alert already exists for this offender.");
 
         final var username = authenticationFacade.getCurrentUsername();
-        final var alertId =  inmateAlertRepository.createNewAlert(bookingId, alert);
+        final var alertId = inmateAlertRepository.createNewAlert(bookingId, alert);
 
         log.info("Created new alert {}", alert);
         telemetryClient.trackEvent("Alert created", Map.of(

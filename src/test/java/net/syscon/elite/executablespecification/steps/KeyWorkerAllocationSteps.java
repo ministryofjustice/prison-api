@@ -35,7 +35,8 @@ public class KeyWorkerAllocationSteps extends CommonSteps {
                             KEY_WORKER_API_URL,
                             HttpMethod.GET,
                             createEntity(null, addPaginationHeaders()),
-                            new ParameterizedTypeReference<List<OffenderSummary>>() {},
+                            new ParameterizedTypeReference<List<OffenderSummary>>() {
+                            },
                             agencyId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

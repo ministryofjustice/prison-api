@@ -18,23 +18,23 @@ class CurfewActions {
         this.repository = repository;
     }
 
-    void setHdcChecks(HdcChecks hdcChecks){
+    void setHdcChecks(HdcChecks hdcChecks) {
         log.debug("Set {}", hdcChecks);
         repository.setHDCChecksPassed(curfewId, hdcChecks);
     }
 
-    void setHdcChecksPassedDate(LocalDate date){
+    void setHdcChecksPassedDate(LocalDate date) {
         log.debug("Set HDC checks passed date to {}.", date);
         repository.setHdcChecksPassedDate(curfewId, date);
     }
 
-    void deleteTrackings(Set<String> hdcStatusTrackingCodes){
+    void deleteTrackings(Set<String> hdcStatusTrackingCodes) {
         log.debug("Delete HDC Status Trackings having codes matching {}.", hdcStatusTrackingCodes);
         repository.deleteStatusReasons(curfewId, hdcStatusTrackingCodes);
         repository.deleteStatusTrackings(curfewId, hdcStatusTrackingCodes);
     }
 
-    void setApprovalStatus(ApprovalStatus approvalStatus){
+    void setApprovalStatus(ApprovalStatus approvalStatus) {
         log.debug("Set {}", approvalStatus);
         repository.setApprovalStatus(curfewId, approvalStatus);
     }
@@ -44,13 +44,13 @@ class CurfewActions {
         repository.setApprovalStatusDate(curfewId, date);
     }
 
-    void setChecksPassedRefusedReason(String refusedReason){
+    void setChecksPassedRefusedReason(String refusedReason) {
         log.debug("HDC Checks Passed. Set Approval status refused reason to {}.", refusedReason);
         long hdcStatusTrackingId = repository.createHdcStatusTracking(curfewId, StatusTrackingCodes.REFUSED);
         repository.createHdcStatusReason(hdcStatusTrackingId, refusedReason);
     }
 
-    void setChecksFailedRefusedReason(String refusedReason){
+    void setChecksFailedRefusedReason(String refusedReason) {
         log.debug("HDC Checks Failed. Set Approval Status refused reason to  {}.", refusedReason);
         repository
                 .findHdcStatusTracking(curfewId, StatusTrackingCodes.MAN_CK_FAIL)

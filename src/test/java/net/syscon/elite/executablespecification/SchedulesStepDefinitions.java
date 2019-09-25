@@ -198,7 +198,7 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
 
     @Given("^an agency which does not exists has been set")
     public void anAgencyWhichDoesNotExists() throws Throwable {
-       schedulesSteps.givenNonExistentAgency();
+        schedulesSteps.givenNonExistentAgency();
     }
 
     @When("^activities are requested with a valid agency for date \"([^\"]*)\" with a time slot \"([^\"]*)\" and offender numbers \"([^\"]*)\"$")
@@ -223,7 +223,7 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the following visits should be returned \"([^\"]*)\"$")
     public void theFollowingVisitsShouldBeReturned(final String expected) throws Throwable {
-       this.schedulesSteps.verifyEventComments(expected);
+        this.schedulesSteps.verifyEventComments(expected);
     }
 
     @Given("^an offender with scheduled appointments$")

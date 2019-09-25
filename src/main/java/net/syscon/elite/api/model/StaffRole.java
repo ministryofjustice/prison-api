@@ -25,7 +25,7 @@ import java.util.Map;
 public class StaffRole {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String role;
 
@@ -43,8 +43,8 @@ public class StaffRole {
     }
 
     /**
-      * A code that defines staff member's role at agency.
-      */
+     * A code that defines staff member's role at agency.
+     */
     @ApiModelProperty(required = true, value = "A code that defines staff member's role at agency.")
     @JsonProperty("role")
     public String getRole() {
@@ -56,8 +56,8 @@ public class StaffRole {
     }
 
     /**
-      * Description of staff member's role at agency.
-      */
+     * Description of staff member's role at agency.
+     */
     @ApiModelProperty(value = "Description of staff member's role at agency.")
     @JsonProperty("roleDescription")
     public String getRoleDescription() {
@@ -69,11 +69,11 @@ public class StaffRole {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class StaffRole {\n");
-        
+
         sb.append("  role: ").append(role).append("\n");
         sb.append("  roleDescription: ").append(roleDescription).append("\n");
         sb.append("}\n");

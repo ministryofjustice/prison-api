@@ -48,19 +48,19 @@ public class OffenderCategorise {
     private String assessStatus;
 
     @ApiModelProperty(value = "Categoriser First Name")
-    private String  categoriserFirstName;
+    private String categoriserFirstName;
 
     @ApiModelProperty(value = "Categoriser Last Name")
-    private String  categoriserLastName;
+    private String categoriserLastName;
 
     @ApiModelProperty(value = "Approver First Name if any")
-    private String  approverFirstName;
+    private String approverFirstName;
 
     @ApiModelProperty(value = "Approver Last Name if any")
-    private String  approverLastName;
+    private String approverLastName;
 
     @ApiModelProperty(value = "Categorisation")
-    private String  category;
+    private String category;
 
     @ApiModelProperty(value = "Next Review Date - for recategorisations")
     private LocalDate nextReviewDate;

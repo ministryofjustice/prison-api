@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = { "bookingId" })
+@EqualsAndHashCode(of = {"bookingId"})
 public class InmateDto {
     private Long bookingId;
     private String offenderNo;

@@ -26,7 +26,7 @@ import java.util.Map;
 public class StaffUserRole {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long roleId;
 
@@ -58,8 +58,8 @@ public class StaffUserRole {
     }
 
     /**
-      * Role Id
-      */
+     * Role Id
+     */
     @ApiModelProperty(required = true, value = "Role Id")
     @JsonProperty("roleId")
     public Long getRoleId() {
@@ -71,8 +71,8 @@ public class StaffUserRole {
     }
 
     /**
-      * code for this role
-      */
+     * code for this role
+     */
     @ApiModelProperty(required = true, value = "code for this role")
     @JsonProperty("roleCode")
     public String getRoleCode() {
@@ -84,8 +84,8 @@ public class StaffUserRole {
     }
 
     /**
-      * Full text description of the role type
-      */
+     * Full text description of the role type
+     */
     @ApiModelProperty(required = true, value = "Full text description of the role type")
     @JsonProperty("roleName")
     public String getRoleName() {
@@ -97,8 +97,8 @@ public class StaffUserRole {
     }
 
     /**
-      * role code of the parent role
-      */
+     * role code of the parent role
+     */
     @ApiModelProperty(value = "role code of the parent role")
     @JsonProperty("parentRoleCode")
     public String getParentRoleCode() {
@@ -110,8 +110,8 @@ public class StaffUserRole {
     }
 
     /**
-      * caseload that this role belongs to, (NOMIS only)
-      */
+     * caseload that this role belongs to, (NOMIS only)
+     */
     @ApiModelProperty(value = "caseload that this role belongs to, (NOMIS only)")
     @JsonProperty("caseloadId")
     public String getCaseloadId() {
@@ -123,8 +123,8 @@ public class StaffUserRole {
     }
 
     /**
-      * Staff username
-      */
+     * Staff username
+     */
     @ApiModelProperty(required = true, value = "Staff username")
     @JsonProperty("username")
     public String getUsername() {
@@ -136,8 +136,8 @@ public class StaffUserRole {
     }
 
     /**
-      * Staff Id
-      */
+     * Staff Id
+     */
     @ApiModelProperty(required = true, value = "Staff Id")
     @JsonProperty("staffId")
     public Long getStaffId() {
@@ -149,11 +149,11 @@ public class StaffUserRole {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class StaffUserRole {\n");
-        
+
         sb.append("  roleId: ").append(roleId).append("\n");
         sb.append("  roleCode: ").append(roleCode).append("\n");
         sb.append("  roleName: ").append(roleName).append("\n");

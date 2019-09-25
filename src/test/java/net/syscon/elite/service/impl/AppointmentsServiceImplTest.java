@@ -98,16 +98,16 @@ public class AppointmentsServiceImplTest {
     @Test
     public void createTooManyAppointments() {
         assertThatThrownBy(() ->
-        appointmentsService.createAppointments(AppointmentsToCreate
-                .builder()
-                .appointmentDefaults(
-                        AppointmentDefaults
-                                .builder()
-                                .build())
-                .appointments(Arrays.asList(new AppointmentDetails[1001]))
-                .build()))
-        .isInstanceOf(BadRequestException.class)
-        .hasMessage("Request to create 1001 appointments exceeds limit of 1000");
+                appointmentsService.createAppointments(AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(
+                                AppointmentDefaults
+                                        .builder()
+                                        .build())
+                        .appointments(Arrays.asList(new AppointmentDetails[1001]))
+                        .build()))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Request to create 1001 appointments exceeds limit of 1000");
 
         verifyNoMoreInteractions(telemetryClient);
     }
@@ -121,18 +121,18 @@ public class AppointmentsServiceImplTest {
         stubLocation(LOCATION_C);
 
         assertThatThrownBy(() ->
-        appointmentsService.createAppointments(
-                AppointmentsToCreate
-                        .builder()
-                        .appointmentDefaults(
-                                AppointmentDefaults
-                                        .builder()
-                                        .locationId(LOCATION_C.getLocationId())
-                                        .build())
-                        .appointments(List.of())
-                        .build()))
-        .isInstanceOf(BadRequestException.class)
-        .hasMessage("Location does not exist or is not in your caseload.");
+                appointmentsService.createAppointments(
+                        AppointmentsToCreate
+                                .builder()
+                                .appointmentDefaults(
+                                        AppointmentDefaults
+                                                .builder()
+                                                .locationId(LOCATION_C.getLocationId())
+                                                .build())
+                                .appointments(List.of())
+                                .build()))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Location does not exist or is not in your caseload.");
 
         verifyNoMoreInteractions(telemetryClient);
     }
@@ -154,8 +154,8 @@ public class AppointmentsServiceImplTest {
                                                 .build())
                                 .appointments(List.of())
                                 .build()))
-        .isInstanceOf(BadRequestException.class)
-        .hasMessage("Event type not recognised.");
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Event type not recognised.");
 
         verifyNoMoreInteractions(telemetryClient);
     }

@@ -61,7 +61,7 @@ public class UserMdcFilter implements Filter {
         // Destroy - no functionality
     }
 
-    private String getVersion(){
+    private String getVersion() {
         return buildProperties == null ? "N/A" : buildProperties.getVersion();
     }
 

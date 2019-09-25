@@ -11,7 +11,9 @@ public interface ContactRepository {
     Long createPerson(String firstName, String lastName);
 
     void updatePerson(Long personId, String firstName, String lastName);
+
     Optional<Person> getPersonById(Long personId);
+
     Optional<Person> getPersonByRef(String externalRef, String identifierType);
 
     void createExternalReference(Long personId, String externalRef, String identifierType);

@@ -37,6 +37,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     public void aUserHasLoggedInWithUsernameAndPassword(final String username, final String password) {
         user.authenticateAsClient(NORMAL_USER);
     }
+
     @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
     public void userWithPasswordHasAuthenticatedWithTheAPI(final String username, final String password) {
         user.authenticateAsClient(NORMAL_USER);
@@ -170,7 +171,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^user \"([^\"]*)\" does not have role \"([^\"]*)\" at caseload \"([^\"]*)\"$")
     public void userDoesNotHaveRoleAtCaseload(final String username, final String role, final String caseload) {
-        user.userDoesNotHaveRoleAtCaseload( username,  role,  caseload);
+        user.userDoesNotHaveRoleAtCaseload(username, role, caseload);
     }
 
     @When("^a request for users with caseload \"([^\"]*)\" is made$")

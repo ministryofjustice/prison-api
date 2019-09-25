@@ -20,7 +20,8 @@ public class MyAssignmentsSteps extends CommonSteps {
     public void getMyAssignments() {
         init();
         final var response = restTemplate.exchange(API_MY_ASSIGNMENTS_URL,
-                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});
+                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {
+                });
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         buildResourceData(response);

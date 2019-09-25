@@ -1,7 +1,8 @@
 package net.syscon.elite.api.resource.impl;
 
 import lombok.val;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.IepLevel;
+import net.syscon.elite.api.model.WhereaboutsConfig;
 import net.syscon.elite.api.resource.AgencyResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
@@ -13,15 +14,13 @@ import net.syscon.elite.service.OffenderIepReviewSearchCriteria;
 import net.syscon.elite.service.WhereaboutsEnabledService;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Path;
 import java.time.LocalDate;
+import java.util.List;
 
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
 import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static net.syscon.util.ResourceUtils.nvl;
-
-import java.util.List;
 
 @RestResource
 @Path("/agencies")

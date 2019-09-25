@@ -30,8 +30,8 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
         return jdbcTemplate.query(
                 sql,
                 createParams("agencyId", agencyId,
-                             "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                             "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -39,7 +39,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     public List<PrisonerSchedule> getLocationActivities(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         final var initialSql = getQuery("GET_ACTIVITIES_AT_ALL_OR_ONE_LOCATION");
 
-        return getScheduledEvents(initialSql, locationId, fromDate,toDate,orderByFields, order);
+        return getScheduledEvents(initialSql, locationId, fromDate, toDate, orderByFields, order);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
 
         final var initialSql = getQuery("GET_APPOINTMENTS_AT_LOCATION");
 
-        return getScheduledEvents(initialSql, locationId, fromDate,toDate,orderByFields, order);
+        return getScheduledEvents(initialSql, locationId, fromDate, toDate, orderByFields, order);
     }
 
     @Override
@@ -57,10 +57,10 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
 
         final var initialSql = getQuery("GET_VISITS_AT_LOCATION");
 
-        return getScheduledEvents(initialSql, locationId, fromDate,toDate,orderByFields, order);
+        return getScheduledEvents(initialSql, locationId, fromDate, toDate, orderByFields, order);
     }
 
-    private List<PrisonerSchedule> getScheduledEvents(final String initialSql,final Long locationId, final LocalDate fromDate, final LocalDate toDate,  final String orderByFields, final Order order) {
+    private List<PrisonerSchedule> getScheduledEvents(final String initialSql, final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
         final var sql = builder
@@ -81,7 +81,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                 getQuery("GET_VISITS") + AND_OFFENDER_NUMBERS,
                 createParams(
                         "offenderNos", offenderNo,
-                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                        "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -91,7 +91,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                 getQuery("GET_APPOINTMENTS") + AND_OFFENDER_NUMBERS,
                 createParams(
                         "offenderNos", offenderNo,
-                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                        "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -101,7 +101,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                 getQuery("GET_ACTIVITIES") + AND_OFFENDER_NUMBERS,
                 createParams(
                         "offenderNos", offenderNumbers,
-                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                        "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -111,7 +111,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                 getQuery("GET_COURT_EVENTS"),
                 createParams(
                         "offenderNos", offenderNumbers,
-                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                        "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -122,7 +122,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                 createParams(
                         "offenderNos", offenderNumbers,
                         "agencyId", agencyId,
-                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                        "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
     }
 }

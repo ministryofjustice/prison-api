@@ -181,11 +181,11 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     public TransferSummary getTransfers(
             @ApiParam(value = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) @QueryParam("agencyId") List<String> agencyIds,
-            @ApiParam(value = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true)   @QueryParam("fromDateTime")LocalDateTime fromDateTime,
-            @ApiParam(value = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true)  @QueryParam("toDateTime") LocalDateTime toDateTime,
-            @ApiParam(value = "Set to true to include planned court events", required=false, defaultValue = "false") @QueryParam("courtEvents")  boolean courtEvents,
-            @ApiParam(value = "Set to true to include planned release events", required=false, defaultValue = "false") @QueryParam("releaseEvents") boolean releaseEvents,
-            @ApiParam(value = "Set to true to include planned transfer/appointment events", required=false, defaultValue = "false") @QueryParam("transferEvents") boolean transferEvents,
-            @ApiParam(value = "Set to true to include confirmed movements", required=false, defaultValue = "false") @QueryParam("movements") boolean movements);
+            @ApiParam(value = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) @QueryParam("fromDateTime") LocalDateTime fromDateTime,
+            @ApiParam(value = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) @QueryParam("toDateTime") LocalDateTime toDateTime,
+            @ApiParam(value = "Set to true to include planned court events", required = false, defaultValue = "false") @QueryParam("courtEvents") boolean courtEvents,
+            @ApiParam(value = "Set to true to include planned release events", required = false, defaultValue = "false") @QueryParam("releaseEvents") boolean releaseEvents,
+            @ApiParam(value = "Set to true to include planned transfer/appointment events", required = false, defaultValue = "false") @QueryParam("transferEvents") boolean transferEvents,
+            @ApiParam(value = "Set to true to include confirmed movements", required = false, defaultValue = "false") @QueryParam("movements") boolean movements);
 
 }

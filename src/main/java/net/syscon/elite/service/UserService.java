@@ -32,6 +32,7 @@ public interface UserService {
 
     /**
      * Add an 'access' role - using the 'API Caseload'.
+     *
      * @param username The user to whom the role is being assigned
      * @param roleCode The role to assign
      * @return true if the role was added, false if the role assignment already exists (no change).
@@ -43,6 +44,7 @@ public interface UserService {
 
     /**
      * add all active users with a specified caseload to the default API caseload
+     *
      * @param caseloadId the id for the caseload
      * @return number of users added to the api caseload
      */

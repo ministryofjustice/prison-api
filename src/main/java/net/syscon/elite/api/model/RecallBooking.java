@@ -27,23 +27,30 @@ import java.util.Map;
 public class RecallBooking {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
-    @Length(max=10) @Pattern(regexp="^[A-Z]\\d{4}[A-Z]{2}$") @NotBlank
+
+    @Length(max = 10)
+    @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$")
+    @NotBlank
     private String offenderNo;
 
-    @Length(max=35) @NotBlank
+    @Length(max = 35)
+    @NotBlank
     private String lastName;
 
-    @Length(max=35) @NotBlank
+    @Length(max = 35)
+    @NotBlank
     private String firstName;
 
-    @Pattern(regexp="^([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))$") @NotBlank
+    @Pattern(regexp = "^([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))$")
+    @NotBlank
     private String dateOfBirth;
 
-    @Length(max=12) @NotBlank
+    @Length(max = 12)
+    @NotBlank
     private String gender;
 
-    @Pattern(regexp="^[BY]$") @NotBlank
+    @Pattern(regexp = "^[BY]$")
+    @NotBlank
     private String reason;
 
     private boolean youthOffender;
@@ -60,8 +67,8 @@ public class RecallBooking {
     }
 
     /**
-      * A unique offender number.
-      */
+     * A unique offender number.
+     */
     @ApiModelProperty(required = true, value = "A unique offender number.")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
@@ -73,8 +80,8 @@ public class RecallBooking {
     }
 
     /**
-      * The offender's first name.
-      */
+     * The offender's first name.
+     */
     @ApiModelProperty(required = true, value = "The offender's first name.")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -86,8 +93,8 @@ public class RecallBooking {
     }
 
     /**
-      * The offender's lsst name.
-      */
+     * The offender's lsst name.
+     */
     @ApiModelProperty(required = true, value = "The offender's lsst name.")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -99,8 +106,8 @@ public class RecallBooking {
     }
 
     /**
-      * The offender's date of birth. Must be specified in YYYY-MM-DD format.
-      */
+     * The offender's date of birth. Must be specified in YYYY-MM-DD format.
+     */
     @ApiModelProperty(required = true, value = "The offender's date of birth. Must be specified in YYYY-MM-DD format.")
     @JsonProperty("dateOfBirth")
     public String getDateOfBirth() {
@@ -112,8 +119,8 @@ public class RecallBooking {
     }
 
     /**
-      * A code representing the offender's gender (from the SEX reference domain).
-      */
+     * A code representing the offender's gender (from the SEX reference domain).
+     */
     @ApiModelProperty(required = true, value = "A code representing the offender's gender (from the SEX reference domain).")
     @JsonProperty("gender")
     public String getGender() {
@@ -125,8 +132,8 @@ public class RecallBooking {
     }
 
     /**
-      * A code representing the reason for the offender's recall. 'B' = Recall from HDC. 'Y' = Recall from DTO.
-      */
+     * A code representing the reason for the offender's recall. 'B' = Recall from HDC. 'Y' = Recall from DTO.
+     */
     @ApiModelProperty(required = true, value = "A code representing the reason for the offender's recall. 'B' = Recall from HDC. 'Y' = Recall from DTO.")
     @JsonProperty("reason")
     public String getReason() {
@@ -138,8 +145,8 @@ public class RecallBooking {
     }
 
     /**
-      * A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.
-      */
+     * A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.
+     */
     @ApiModelProperty(value = "A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.")
     @JsonProperty("youthOffender")
     public boolean getYouthOffender() {
@@ -151,11 +158,11 @@ public class RecallBooking {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class RecallBooking {\n");
-        
+
         sb.append("  offenderNo: ").append(offenderNo).append("\n");
         sb.append("  lastName: ").append(lastName).append("\n");
         sb.append("  firstName: ").append(firstName).append("\n");

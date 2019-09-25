@@ -20,10 +20,10 @@ import java.util.Map;
 public class SQLProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Map<String, String> statements = new HashMap<>();
+    private final Map<String, String> statements = new HashMap<>();
 
-	private final ApplicationContext applicationContext;
-	private final String schemaType;
+    private final ApplicationContext applicationContext;
+    private final String schemaType;
 
     @Autowired
     public SQLProvider(final ApplicationContext applicationContext, @Value("${schema.type}") final String schemaType) {
@@ -36,7 +36,7 @@ public class SQLProvider {
         loadSqlResource("classpath:sqls/" + className + ".sql");
         final var schemas = StringUtils.split(schemaType, ",");
         if (schemas != null) {
-            Arrays.asList(schemas).forEach(schema -> loadSqlResource("classpath:sqls/" + schema + "/"  + className + ".sql"));
+            Arrays.asList(schemas).forEach(schema -> loadSqlResource("classpath:sqls/" + schema + "/" + className + ".sql"));
         }
     }
 
@@ -69,12 +69,12 @@ public class SQLProvider {
     }
 
     private int getNext(final char[] content, final int offset, final char searchFor) {
-    	if (offset >= 0) {
+        if (offset >= 0) {
             for (var i = offset; i < content.length; i++) {
-	    		if (content[i] == searchFor) return i;
-	    	}
-    	}
-    	return -1;
+                if (content[i] == searchFor) return i;
+            }
+        }
+        return -1;
     }
 
 
@@ -92,18 +92,18 @@ public class SQLProvider {
         while (i < content.length) {
             final var startIndex = getNext(content, i, '{');
             final var endIndex = getNext(content, startIndex, '}');
-        	if (startIndex > -1 && endIndex > -1) {
+            if (startIndex > -1 && endIndex > -1) {
                 final var key = removeSpecialChars(makeString(content, i, startIndex).trim(), ' ', '\t', '\n', '\r');
                 final var value = removeSpecialChars(makeString(content, startIndex + 1, endIndex), '\r', '\n');
-        		newStatements.put(key, value);
+                newStatements.put(key, value);
                 i = endIndex + 1;
-        	} else {
-        	    if (startIndex < 0 && endIndex < 0) {
+            } else {
+                if (startIndex < 0 && endIndex < 0) {
                     i = content.length;
                 } else {
                     throw new ParseException("Missing end brace + ", startIndex);
                 }
-        	}
+            }
         }
         statements.putAll(newStatements);
     }

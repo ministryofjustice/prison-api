@@ -25,7 +25,7 @@ import java.util.Map;
 public class PersonIdentifier {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String identifierType;
 
@@ -44,8 +44,8 @@ public class PersonIdentifier {
     }
 
     /**
-      * The identifier type
-      */
+     * The identifier type
+     */
     @ApiModelProperty(required = true, value = "The identifier type")
     @JsonProperty("identifierType")
     public String getIdentifierType() {
@@ -57,8 +57,8 @@ public class PersonIdentifier {
     }
 
     /**
-      * The most recent identifier value of that type.
-      */
+     * The most recent identifier value of that type.
+     */
     @ApiModelProperty(required = true, value = "The most recent identifier value of that type.")
     @JsonProperty("identifierValue")
     public String getIdentifierValue() {
@@ -70,11 +70,11 @@ public class PersonIdentifier {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class PersonIdentifier {\n");
-        
+
         sb.append("  identifierType: ").append(identifierType).append("\n");
         sb.append("  identifierValue: ").append(identifierValue).append("\n");
         sb.append("}\n");

@@ -21,7 +21,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SuppressWarnings("SpringJavaAutowiringInspection")
 @ContextConfiguration
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@TestPropertySource({ "/application-test.properties" })
+@TestPropertySource({"/application-test.properties"})
 abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {
@@ -208,7 +208,9 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public CurfewSteps curfewSteps() { return new CurfewSteps(); }
+        public CurfewSteps curfewSteps() {
+            return new CurfewSteps();
+        }
 
         @Bean
         public BulkAppointmentSteps bulkAppointmentSteps() {
@@ -216,10 +218,14 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public AddIepLevelSteps addIepLevelSteps() { return new AddIepLevelSteps(); }
+        public AddIepLevelSteps addIepLevelSteps() {
+            return new AddIepLevelSteps();
+        }
 
         @Bean
-        public NomisApiV1Steps nomisApiV1Steps() { return new NomisApiV1Steps(); }
+        public NomisApiV1Steps nomisApiV1Steps() {
+            return new NomisApiV1Steps();
+        }
     }
 
     int ord2idx(final String ordinal) {

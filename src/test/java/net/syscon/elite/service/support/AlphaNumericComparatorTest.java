@@ -1,4 +1,5 @@
 package net.syscon.elite.service.support;
+
 import org.junit.Test;
 
 import java.util.Arrays;

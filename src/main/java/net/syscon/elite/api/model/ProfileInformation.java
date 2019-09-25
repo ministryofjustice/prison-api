@@ -25,7 +25,7 @@ import java.util.Map;
 public class ProfileInformation {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String type;
 
@@ -47,8 +47,8 @@ public class ProfileInformation {
     }
 
     /**
-      * Type of profile information
-      */
+     * Type of profile information
+     */
     @ApiModelProperty(required = true, value = "Type of profile information")
     @JsonProperty("type")
     public String getType() {
@@ -60,8 +60,8 @@ public class ProfileInformation {
     }
 
     /**
-      * Profile Question
-      */
+     * Profile Question
+     */
     @ApiModelProperty(required = true, value = "Profile Question")
     @JsonProperty("question")
     public String getQuestion() {
@@ -73,8 +73,8 @@ public class ProfileInformation {
     }
 
     /**
-      * Profile Result Answer
-      */
+     * Profile Result Answer
+     */
     @ApiModelProperty(required = true, value = "Profile Result Answer")
     @JsonProperty("resultValue")
     public String getResultValue() {
@@ -86,11 +86,11 @@ public class ProfileInformation {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class ProfileInformation {\n");
-        
+
         sb.append("  type: ").append(type).append("\n");
         sb.append("  question: ").append(question).append("\n");
         sb.append("  resultValue: ").append(resultValue).append("\n");

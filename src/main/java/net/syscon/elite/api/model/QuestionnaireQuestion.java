@@ -15,9 +15,9 @@ import java.util.SortedSet;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = { "questionnaireQueId" })
+@EqualsAndHashCode(of = {"questionnaireQueId"})
 @Data
-public class QuestionnaireQuestion implements Comparable<QuestionnaireQuestion>{
+public class QuestionnaireQuestion implements Comparable<QuestionnaireQuestion> {
 
     @ApiModelProperty(required = true, value = "")
     private Long questionnaireQueId;

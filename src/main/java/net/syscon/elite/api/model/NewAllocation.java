@@ -28,17 +28,21 @@ import java.util.Map;
 public class NewAllocation {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long bookingId;
 
     @NotNull
     private Long staffId;
 
-    @Length(max=1) @Pattern(regexp="[AM]") @NotBlank
+    @Length(max = 1)
+    @Pattern(regexp = "[AM]")
+    @NotBlank
     private String type;
 
-    @Length(max=12) @Pattern(regexp="\\w*") private String reason;
+    @Length(max = 12)
+    @Pattern(regexp = "\\w*")
+    private String reason;
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
@@ -52,8 +56,8 @@ public class NewAllocation {
     }
 
     /**
-      * Offender Booking Id
-      */
+     * Offender Booking Id
+     */
     @ApiModelProperty(required = true, value = "Offender Booking Id")
     @JsonProperty("bookingId")
     public Long getBookingId() {
@@ -65,8 +69,8 @@ public class NewAllocation {
     }
 
     /**
-      * Keyworker's staff Id
-      */
+     * Keyworker's staff Id
+     */
     @ApiModelProperty(required = true, value = "Keyworker's staff Id")
     @JsonProperty("staffId")
     public Long getStaffId() {
@@ -78,8 +82,8 @@ public class NewAllocation {
     }
 
     /**
-      * Whether auto or manual
-      */
+     * Whether auto or manual
+     */
     @ApiModelProperty(required = true, value = "Whether auto or manual")
     @JsonProperty("type")
     public String getType() {
@@ -91,8 +95,8 @@ public class NewAllocation {
     }
 
     /**
-      * Allocation reason
-      */
+     * Allocation reason
+     */
     @ApiModelProperty(value = "Allocation reason")
     @JsonProperty("reason")
     public String getReason() {
@@ -104,11 +108,11 @@ public class NewAllocation {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class NewAllocation {\n");
-        
+
         sb.append("  bookingId: ").append(bookingId).append("\n");
         sb.append("  staffId: ").append(staffId).append("\n");
         sb.append("  type: ").append(type).append("\n");

@@ -27,7 +27,7 @@ import java.util.Map;
 public class Alias {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String firstName;
 
@@ -65,8 +65,8 @@ public class Alias {
     }
 
     /**
-      * First name of offender alias
-      */
+     * First name of offender alias
+     */
     @ApiModelProperty(required = true, value = "First name of offender alias")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -78,8 +78,8 @@ public class Alias {
     }
 
     /**
-      * Middle names of offender alias
-      */
+     * Middle names of offender alias
+     */
     @ApiModelProperty(value = "Middle names of offender alias")
     @JsonProperty("middleName")
     public String getMiddleName() {
@@ -91,8 +91,8 @@ public class Alias {
     }
 
     /**
-      * Last name of offender alias
-      */
+     * Last name of offender alias
+     */
     @ApiModelProperty(required = true, value = "Last name of offender alias")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -104,8 +104,8 @@ public class Alias {
     }
 
     /**
-      * Age of Offender
-      */
+     * Age of Offender
+     */
     @ApiModelProperty(required = true, value = "Age of Offender")
     @JsonProperty("age")
     public Integer getAge() {
@@ -117,8 +117,8 @@ public class Alias {
     }
 
     /**
-      * Date of Birth of Offender
-      */
+     * Date of Birth of Offender
+     */
     @ApiModelProperty(required = true, value = "Date of Birth of Offender")
     @JsonProperty("dob")
     public LocalDate getDob() {
@@ -130,8 +130,8 @@ public class Alias {
     }
 
     /**
-      * Gender
-      */
+     * Gender
+     */
     @ApiModelProperty(required = true, value = "Gender")
     @JsonProperty("gender")
     public String getGender() {
@@ -143,8 +143,8 @@ public class Alias {
     }
 
     /**
-      * Ethnicity
-      */
+     * Ethnicity
+     */
     @ApiModelProperty(value = "Ethnicity")
     @JsonProperty("ethnicity")
     public String getEthnicity() {
@@ -156,8 +156,8 @@ public class Alias {
     }
 
     /**
-      * Type of Alias
-      */
+     * Type of Alias
+     */
     @ApiModelProperty(required = true, value = "Type of Alias")
     @JsonProperty("nameType")
     public String getNameType() {
@@ -169,8 +169,8 @@ public class Alias {
     }
 
     /**
-      * Date of creation
-      */
+     * Date of creation
+     */
     @ApiModelProperty(required = true, value = "Date of creation")
     @JsonProperty("createDate")
     public LocalDate getCreateDate() {
@@ -182,11 +182,11 @@ public class Alias {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class Alias {\n");
-        
+
         sb.append("  firstName: ").append(firstName).append("\n");
         sb.append("  middleName: ").append(middleName).append("\n");
         sb.append("  lastName: ").append(lastName).append("\n");

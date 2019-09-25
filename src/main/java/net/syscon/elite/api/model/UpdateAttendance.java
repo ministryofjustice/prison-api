@@ -22,14 +22,17 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class UpdateAttendance {
 
-    @ApiModelProperty(required = true, position = 0, value = "Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.", example="ATT", allowableValues = "ABS,ACCAB,ATT,CANC,NREQ,SUS,UNACAB,REST")
-    @Length(max=12) @NotBlank
+    @ApiModelProperty(required = true, position = 0, value = "Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.", example = "ATT", allowableValues = "ABS,ACCAB,ATT,CANC,NREQ,SUS,UNACAB,REST")
+    @Length(max = 12)
+    @NotBlank
     private String eventOutcome;
 
     @ApiModelProperty(value = "Possible values are the codes in the 'PERFORMANCE' reference domain, mandatory for eventOutcome 'ATT'.", position = 1, example = "ACCEPT", allowableValues = "ACCEPT,GOOD,POOR,STANDARD,UNACCEPT")
-    @Length(max=12) private String performance;
+    @Length(max = 12)
+    private String performance;
 
     @ApiModelProperty(value = "Free text comment, maximum length 240 characters.", position = 2, example = "Turned up very late")
-    @Length(max=240) private String outcomeComment;
+    @Length(max = 240)
+    private String outcomeComment;
 
 }

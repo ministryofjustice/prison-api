@@ -232,7 +232,8 @@ public class ReferenceDomainsSteps extends CommonSteps {
                     url,
                     HttpMethod.GET,
                     httpEntity,
-                    new ParameterizedTypeReference<List<ReferenceCode>>() {},
+                    new ParameterizedTypeReference<List<ReferenceCode>>() {
+                    },
                     domain);
 
             referenceCodes = response.getBody();
@@ -259,7 +260,8 @@ public class ReferenceDomainsSteps extends CommonSteps {
                     url,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<ReferenceCode>() {},
+                    new ParameterizedTypeReference<ReferenceCode>() {
+                    },
                     domain,
                     code);
 
@@ -279,7 +281,8 @@ public class ReferenceDomainsSteps extends CommonSteps {
                     url,
                     HttpMethod.GET,
                     httpEntity,
-                    new ParameterizedTypeReference<List<ReferenceCode>>() {});
+                    new ParameterizedTypeReference<List<ReferenceCode>>() {
+                    });
 
             scheduleReasons = response.getBody();
             buildResourceData(response);
@@ -287,7 +290,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
             setErrorResponse(ex.getErrorResponse());
         }
     }
-    
+
     @Override
     protected void init() {
         super.init();

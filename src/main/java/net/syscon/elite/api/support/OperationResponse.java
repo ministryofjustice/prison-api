@@ -70,7 +70,7 @@ public class OperationResponse extends ResponseDelegate {
     }
 
     public static OperationResponse respondErrorWithApplicationJson(final ErrorResponse errorResponse) {
-        switch(Status.fromStatusCode(errorResponse.getStatus().intValue())) {
+        switch (Status.fromStatusCode(errorResponse.getStatus().intValue())) {
 
             case NO_CONTENT:
                 return respond204WithNoResponseBody();

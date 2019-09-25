@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(of = { "assessmentCode", "assessmentSeq", "assessmentDate", "bookingId", "offenderNo"})
+@EqualsAndHashCode(of = {"assessmentCode", "assessmentSeq", "assessmentDate", "bookingId", "offenderNo"})
 public class AssessmentDto {
     private Long bookingId;
     private String offenderNo;

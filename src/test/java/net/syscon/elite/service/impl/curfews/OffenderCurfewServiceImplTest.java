@@ -15,7 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -110,18 +112,20 @@ public class OffenderCurfewServiceImplTest {
         final var d1 = LocalDate.of(2019, 1, 1);
         final var d2 = LocalDate.of(2019, 1, 2);
 
-        assertOscComparison(offenderSentenceCalc(),   offenderSentenceCalc(), 0);
-        assertOscComparison(offenderSentenceCalc(),   offenderSentenceCalc(d1),1);
-        assertOscComparison(offenderSentenceCalc(d1), offenderSentenceCalc(),-1);
-        assertOscComparison(offenderSentenceCalc(d1), offenderSentenceCalc(d1),0);
-        assertOscComparison(offenderSentenceCalc(d1), offenderSentenceCalc(d2),-1);
-        assertOscComparison(offenderSentenceCalc(d2), offenderSentenceCalc(d1),1);
-        assertOscComparison(offenderSentenceCalc(null), offenderSentenceCalc(),0);
+        assertOscComparison(offenderSentenceCalc(), offenderSentenceCalc(), 0);
+        assertOscComparison(offenderSentenceCalc(), offenderSentenceCalc(d1), 1);
+        assertOscComparison(offenderSentenceCalc(d1), offenderSentenceCalc(), -1);
+        assertOscComparison(offenderSentenceCalc(d1), offenderSentenceCalc(d1), 0);
+        assertOscComparison(offenderSentenceCalc(d1), offenderSentenceCalc(d2), -1);
+        assertOscComparison(offenderSentenceCalc(d2), offenderSentenceCalc(d1), 1);
+        assertOscComparison(offenderSentenceCalc(null), offenderSentenceCalc(), 0);
     }
 
-    private static int compare(OffenderCurfew a, OffenderCurfew b) { return OffenderCurfewServiceImpl.OFFENDER_CURFEW_COMPARATOR.compare(a,b); }
+    private static int compare(OffenderCurfew a, OffenderCurfew b) {
+        return OffenderCurfewServiceImpl.OFFENDER_CURFEW_COMPARATOR.compare(a, b);
+    }
 
-    private void assertOscComparison(OffenderSentenceCalc<? extends BaseSentenceDetail>a, OffenderSentenceCalc<? extends BaseSentenceDetail>b, int expected) {
+    private void assertOscComparison(OffenderSentenceCalc<? extends BaseSentenceDetail> a, OffenderSentenceCalc<? extends BaseSentenceDetail> b, int expected) {
         assertThat(OffenderCurfewServiceImpl.OSC_BY_HDCED_COMPARATOR.compare(a, b)).isEqualTo(expected);
     }
 
@@ -318,6 +322,7 @@ public class OffenderCurfewServiceImplTest {
     private OffenderSentenceCalc<? extends BaseSentenceDetail> offenderSentenceCalc() {
         return OffenderSentenceCalc.builder().build();
     }
+
     private OffenderSentenceCalc<? extends BaseSentenceDetail> offenderSentenceCalc(LocalDate hdced) {
 
         return OffenderSentenceCalc

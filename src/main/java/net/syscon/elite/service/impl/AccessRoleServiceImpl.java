@@ -29,20 +29,20 @@ public class AccessRoleServiceImpl implements AccessRoleService {
     @Transactional
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
     public void createAccessRole(@Valid final AccessRole accessRole) {
-        if(accessRole.getParentRoleCode() != null) {
+        if (accessRole.getParentRoleCode() != null) {
             final var roleOptional = accessRoleRepository.getAccessRole(accessRole.getParentRoleCode());
-            if(!roleOptional.isPresent()) {
-                throw  EntityNotFoundException.withMessage("Parent Access role with code [%s] not found", accessRole.getParentRoleCode());
+            if (!roleOptional.isPresent()) {
+                throw EntityNotFoundException.withMessage("Parent Access role with code [%s] not found", accessRole.getParentRoleCode());
             }
         }
 
         final var roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
 
-        if(roleOptional.isPresent()) {
-            throw  EntityAlreadyExistsException.withMessage("Access role with code [%s] already exists: [%s]", accessRole.getRoleCode(), roleOptional.get().getRoleName());
+        if (roleOptional.isPresent()) {
+            throw EntityAlreadyExistsException.withMessage("Access role with code [%s] already exists: [%s]", accessRole.getRoleCode(), roleOptional.get().getRoleName());
         }
 
-        if(accessRole.getRoleFunction()==null) accessRole.setRoleFunction("GENERAL");
+        if (accessRole.getRoleFunction() == null) accessRole.setRoleFunction("GENERAL");
 
         accessRoleRepository.createAccessRole(accessRole);
         log.info("Created Access Role: {}", accessRole.toString());
@@ -58,8 +58,8 @@ public class AccessRoleServiceImpl implements AccessRoleService {
         final var roleBeforeUpdate = roleOptional.orElseThrow(EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode()));
 
         /* fill in optional parameters for mandatory fields */
-        if (accessRole.getRoleName() == null ) accessRole.setRoleName(roleBeforeUpdate.getRoleName());
-        if (accessRole.getRoleFunction() == null ) accessRole.setRoleFunction(roleBeforeUpdate.getRoleFunction());
+        if (accessRole.getRoleName() == null) accessRole.setRoleName(roleBeforeUpdate.getRoleName());
+        if (accessRole.getRoleFunction() == null) accessRole.setRoleFunction(roleBeforeUpdate.getRoleFunction());
 
         accessRoleRepository.updateAccessRole(accessRole);
         log.info("Updated Access Role from {} to {}", roleBeforeUpdate.toString(), accessRole.toString());

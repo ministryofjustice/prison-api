@@ -261,6 +261,7 @@ public class InmateServiceImpl implements InmateService {
 
     /**
      * Get assessments, latest per code, order not important.
+     *
      * @param bookingId tacit
      * @return latest assessment of each code for the offender
      */
@@ -364,7 +365,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     /**
-     * @param bookingId tacit
+     * @param bookingId      tacit
      * @param assessmentCode tacit
      * @return Latest assessment of given code if any
      */
@@ -392,14 +393,14 @@ public class InmateServiceImpl implements InmateService {
 
             final var batch = Lists.partition(offenderNos, maxBatchSize);
             batch.forEach(offenderBatch -> {
-                final var assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly, activeOnly );
+                final var assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly, activeOnly);
 
                 for (final var assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
 
-                    if(latestOnly){
+                    if (latestOnly) {
                         // The first is the most recent date / seq for each booking where cellSharingAlertFlag = Y
                         results.add(createAssessment(assessmentForBooking.get(0)));
-                    }else {
+                    } else {
                         assessmentForBooking.forEach(assessment -> results.add(createAssessment(assessment)));
                     }
                 }

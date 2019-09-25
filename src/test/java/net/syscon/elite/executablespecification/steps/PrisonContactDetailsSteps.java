@@ -44,7 +44,8 @@ public class PrisonContactDetailsSteps extends CommonSteps {
                             PRISON_CONTACT_DETAILS_LIST_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<PrisonContactDetail>>() {});
+                            new ParameterizedTypeReference<List<PrisonContactDetail>>() {
+                            });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 

@@ -41,7 +41,7 @@ public class AccessRoleStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^access role is successfully updated$")
-    public void accessRoleIsSuccessfullyUpdated(){
+    public void accessRoleIsSuccessfullyUpdated() {
         steps.verifyUpdated();
     }
 

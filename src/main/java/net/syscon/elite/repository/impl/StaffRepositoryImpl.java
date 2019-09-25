@@ -87,7 +87,7 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
     public List<String> findEmailAddressesForStaffId(final Long staffId) {
 
         return jdbcTemplate.query(getQuery("GET_STAFF_EMAIL_ADDRESSES"), createParams("staffId", staffId, "ownerClass", "STF", "addressClass", "EMAIL"), (rs, rowNum) -> rs.getString(1));
-   }
+    }
 
     @Override
     public Page<StaffLocationRole> findStaffByAgencyPositionRole(final String agencyId, final String position, final String role, final String nameFilter, final Long staffId, final Boolean activeOnly, final PageRequest pageRequest) {

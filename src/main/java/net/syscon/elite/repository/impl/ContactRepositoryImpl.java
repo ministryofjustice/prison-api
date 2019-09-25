@@ -54,7 +54,7 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
                 sql,
                 createParams("firstName", firstName, "lastName", lastName),
                 generatedKeyHolder,
-                new String[] {"PERSON_ID"});
+                new String[]{"PERSON_ID"});
 
         return generatedKeyHolder.getKey().longValue();
     }
@@ -87,7 +87,7 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
         final var sql = getQuery("GET_PERSON_BY_REF");
         final var persons = jdbcTemplate.query(sql,
                 createParams("identifierType", identifierType,
-                        "identifier", externalRef),  PERSON_ROW_MAPPER);
+                        "identifier", externalRef), PERSON_ROW_MAPPER);
 
         return persons.stream().min(Comparator.comparing(Person::getPersonId));
     }
@@ -136,7 +136,7 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
                         "nextOfKinFlag", "N",
                         "activeFlag", "Y"),
                 generatedKeyHolder,
-                new String[] {"OFFENDER_CONTACT_PERSON_ID"});
+                new String[]{"OFFENDER_CONTACT_PERSON_ID"});
 
         return generatedKeyHolder.getKey().longValue();
     }

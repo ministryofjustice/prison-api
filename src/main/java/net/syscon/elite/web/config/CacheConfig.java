@@ -46,7 +46,7 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.activity:3600}")
     private int activityTimeoutSeconds;
 
-    @Bean(destroyMethod="shutdown")
+    @Bean(destroyMethod = "shutdown")
     public net.sf.ehcache.CacheManager ehCacheManager() {
         final var config = new net.sf.ehcache.config.Configuration();
         config.sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(20000));
@@ -119,7 +119,7 @@ public class CacheConfig implements CachingConfigurer {
 
     @Bean
     @Override
-    public CacheResolver cacheResolver()    {
+    public CacheResolver cacheResolver() {
         return new SimpleCacheResolver(cacheManager());
     }
 

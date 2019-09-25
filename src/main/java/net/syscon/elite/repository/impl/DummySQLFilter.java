@@ -5,8 +5,8 @@ import net.syscon.util.SQLFilter;
 
 public class DummySQLFilter implements SQLFilter {
 
-	@Override
+    @Override
     public String apply(final Object o) {
-		return "";
-	}
+        return "";
+    }
 }

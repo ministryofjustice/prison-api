@@ -29,9 +29,12 @@ import static org.mockito.Mockito.when;
 public class AgencyServiceImplTest {
     private AgencyServiceImpl service;
 
-    @Mock private AuthenticationFacade authenticationFacade;
-    @Mock private AgencyRepository agencyRepo;
-    @Mock private ReferenceDomainService referenceDomainService;
+    @Mock
+    private AuthenticationFacade authenticationFacade;
+    @Mock
+    private AgencyRepository agencyRepo;
+    @Mock
+    private ReferenceDomainService referenceDomainService;
 
     @Before
     public void setUp() {
@@ -50,7 +53,7 @@ public class AgencyServiceImplTest {
     }
 
     @Test
-    public void shouldCallCollaboratorsForFullPrisonList () throws Exception {
+    public void shouldCallCollaboratorsForFullPrisonList() throws Exception {
         service.getPrisonContactDetail();
         verify(agencyRepo, Mockito.times(1)).getPrisonContactDetails(null);
     }

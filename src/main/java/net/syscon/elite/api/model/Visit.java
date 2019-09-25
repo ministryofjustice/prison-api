@@ -27,7 +27,7 @@ import java.util.Map;
 public class Visit {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String eventStatus;
 
@@ -72,8 +72,8 @@ public class Visit {
     }
 
     /**
-      * Status of event
-      */
+     * Status of event
+     */
     @ApiModelProperty(required = true, value = "Status of event")
     @JsonProperty("eventStatus")
     public String getEventStatus() {
@@ -85,8 +85,8 @@ public class Visit {
     }
 
     /**
-      * Description of eventStatus code
-      */
+     * Description of eventStatus code
+     */
     @ApiModelProperty(value = "Description of eventStatus code")
     @JsonProperty("eventStatusDescription")
     public String getEventStatusDescription() {
@@ -98,8 +98,8 @@ public class Visit {
     }
 
     /**
-      * Social or official
-      */
+     * Social or official
+     */
     @ApiModelProperty(required = true, value = "Social or official")
     @JsonProperty("visitType")
     public String getVisitType() {
@@ -111,8 +111,8 @@ public class Visit {
     }
 
     /**
-      * Description of visitType code
-      */
+     * Description of visitType code
+     */
     @ApiModelProperty(value = "Description of visitType code")
     @JsonProperty("visitTypeDescription")
     public String getVisitTypeDescription() {
@@ -124,8 +124,8 @@ public class Visit {
     }
 
     /**
-      * Name of main visitor
-      */
+     * Name of main visitor
+     */
     @ApiModelProperty(value = "Name of main visitor")
     @JsonProperty("leadVisitor")
     public String getLeadVisitor() {
@@ -137,8 +137,8 @@ public class Visit {
     }
 
     /**
-      * Relationship of main visitor to offender
-      */
+     * Relationship of main visitor to offender
+     */
     @ApiModelProperty(value = "Relationship of main visitor to offender")
     @JsonProperty("relationship")
     public String getRelationship() {
@@ -150,8 +150,8 @@ public class Visit {
     }
 
     /**
-      * Description of relationship code
-      */
+     * Description of relationship code
+     */
     @ApiModelProperty(value = "Description of relationship code")
     @JsonProperty("relationshipDescription")
     public String getRelationshipDescription() {
@@ -163,8 +163,8 @@ public class Visit {
     }
 
     /**
-      * Date and time at which event starts
-      */
+     * Date and time at which event starts
+     */
     @ApiModelProperty(required = true, value = "Date and time at which event starts")
     @JsonProperty("startTime")
     public LocalDateTime getStartTime() {
@@ -176,8 +176,8 @@ public class Visit {
     }
 
     /**
-      * Date and time at which event ends
-      */
+     * Date and time at which event ends
+     */
     @ApiModelProperty(value = "Date and time at which event ends")
     @JsonProperty("endTime")
     public LocalDateTime getEndTime() {
@@ -189,8 +189,8 @@ public class Visit {
     }
 
     /**
-      * Location at which event takes place (could be an internal location, agency or external address).
-      */
+     * Location at which event takes place (could be an internal location, agency or external address).
+     */
     @ApiModelProperty(value = "Location at which event takes place (could be an internal location, agency or external address).")
     @JsonProperty("location")
     public String getLocation() {
@@ -202,8 +202,8 @@ public class Visit {
     }
 
     /**
-      * Whether attended or not
-      */
+     * Whether attended or not
+     */
     @ApiModelProperty(required = true, value = "Whether attended or not")
     @JsonProperty("eventOutcome")
     public String getEventOutcome() {
@@ -215,8 +215,8 @@ public class Visit {
     }
 
     /**
-      * Description of eventOutcome code
-      */
+     * Description of eventOutcome code
+     */
     @ApiModelProperty(value = "Description of eventOutcome code")
     @JsonProperty("eventOutcomeDescription")
     public String getEventOutcomeDescription() {
@@ -228,8 +228,8 @@ public class Visit {
     }
 
     /**
-      * Reason if not attended
-      */
+     * Reason if not attended
+     */
     @ApiModelProperty(value = "Reason if not attended")
     @JsonProperty("cancellationReason")
     public String getCancellationReason() {
@@ -241,8 +241,8 @@ public class Visit {
     }
 
     /**
-      * Description of cancellationReason code
-      */
+     * Description of cancellationReason code
+     */
     @ApiModelProperty(value = "Description of cancellationReason code")
     @JsonProperty("cancelReasonDescription")
     public String getCancelReasonDescription() {
@@ -254,11 +254,11 @@ public class Visit {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class Visit {\n");
-        
+
         sb.append("  eventStatus: ").append(eventStatus).append("\n");
         sb.append("  eventStatusDescription: ").append(eventStatusDescription).append("\n");
         sb.append("  visitType: ").append(visitType).append("\n");

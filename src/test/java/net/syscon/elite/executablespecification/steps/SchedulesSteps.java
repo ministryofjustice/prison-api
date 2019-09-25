@@ -116,7 +116,7 @@ public class SchedulesSteps extends CommonSteps {
     public void verifySchedulesAreOrdered() {
         // Check donald duck is at the end, cell 10, so
         // just ensure cell A-1-1 comes before A-1-10
-        assertThat(results).isSortedAccordingTo((o1,o2) -> o1.getCellLocation().compareTo(o2.getCellLocation()));
+        assertThat(results).isSortedAccordingTo((o1, o2) -> o1.getCellLocation().compareTo(o2.getCellLocation()));
     }
 
     public void verifyOffendersAreLocatedInALocationThatBelongsToRequestedAgencyAndLocationGroup(final String locations) {
@@ -183,7 +183,7 @@ public class SchedulesSteps extends CommonSteps {
 
 
     public void verifySchedulesAreOrderedAlphabetically() {
-        assertThat(results).isSortedAccordingTo((o1,o2) -> o1.getLastName().compareTo(o2.getLastName()));
+        assertThat(results).isSortedAccordingTo((o1, o2) -> o1.getLastName().compareTo(o2.getLastName()));
     }
 
     public void schedulesAreOnlyForOffendersOnCurrentDay() {
@@ -205,7 +205,7 @@ public class SchedulesSteps extends CommonSteps {
 
     public void verifyEventComments(final String expectedList) {
         final var actual = results.stream()
-                 .map(PrisonerSchedule::getComment)
+                .map(PrisonerSchedule::getComment)
                 .collect(Collectors.joining(","));
 
         assertThat(actual).isEqualTo(expectedList);
@@ -221,7 +221,7 @@ public class SchedulesSteps extends CommonSteps {
     }
 
     private String parseLocation(final PrisonerSchedule event) {
-        return  event.getEventLocation() == null ? "" : " (" + event.getEventLocation() + ")";
+        return event.getEventLocation() == null ? "" : " (" + event.getEventLocation() + ")";
     }
 
     public void verifyEventDescriptionAndLocation(final String eventDescription, final String eventLocation) {
@@ -256,16 +256,16 @@ public class SchedulesSteps extends CommonSteps {
     public void verifyTransfer(final String firstName, final String lastName, final String transferDescription) {
         final var match = results.stream().anyMatch(result ->
                 result.getFirstName().equalsIgnoreCase(firstName) &&
-                result.getLastName().equalsIgnoreCase(lastName)  &&
-                result.getEventDescription().equalsIgnoreCase(transferDescription));
+                        result.getLastName().equalsIgnoreCase(lastName) &&
+                        result.getEventDescription().equalsIgnoreCase(transferDescription));
 
         assertThat(match).isTrue();
     }
 
     public void getActivities(final String offenderNo, final String date, final String timeSlot) {
-      agency = "LEI";
+        agency = "LEI";
 
-      results = dispatchScheduleRequest(API_ACTIVITIES, agency, offenderNo, timeSlot, date);
+        results = dispatchScheduleRequest(API_ACTIVITIES, agency, offenderNo, timeSlot, date);
     }
 
     public void getVisits(final String offenderNo, final String timeSlot) {
@@ -311,7 +311,8 @@ public class SchedulesSteps extends CommonSteps {
                             SchedulesSteps.API_EXTERNAL_TRANSFERS + urlModifier,
                             HttpMethod.POST,
                             httpEntity,
-                            new ParameterizedTypeReference<List<PrisonerSchedule>>() {},
+                            new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                            },
                             agencyId);
 
             buildResourceData(response);

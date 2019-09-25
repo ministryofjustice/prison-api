@@ -35,7 +35,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = { PersistenceConfigs.class, CacheConfig.class })
+@ContextConfiguration(classes = {PersistenceConfigs.class, CacheConfig.class})
 public class CaseNoteRepositoryTest {
 
     @Autowired

@@ -1,12 +1,7 @@
 package net.syscon.elite.repository;
 
 import lombok.val;
-import net.syscon.elite.api.model.adjudications.Adjudication;
-import net.syscon.elite.api.model.adjudications.AdjudicationCharge;
-import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
-import net.syscon.elite.api.model.adjudications.Hearing;
-import net.syscon.elite.api.model.adjudications.HearingResult;
-import net.syscon.elite.api.model.adjudications.Sanction;
+import net.syscon.elite.api.model.adjudications.*;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.AdjudicationSearchCriteria;
 import net.syscon.elite.web.config.PersistenceConfigs;
