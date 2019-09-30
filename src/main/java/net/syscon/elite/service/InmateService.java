@@ -30,6 +30,8 @@ public interface InmateService {
 
     void updateCategorisationNextReviewDate(Long bookingId, LocalDate nextReviewDate);
 
+    void setCategorisationInactive(Long bookingId);
+
     Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
 
     List<PhysicalMark> getPhysicalMarks(Long bookingId);
