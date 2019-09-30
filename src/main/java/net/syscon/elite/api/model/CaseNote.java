@@ -1,6 +1,5 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,7 +10,6 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Case Note
@@ -24,6 +22,7 @@ import java.util.Map;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Data
+@ToString(of = {"caseNoteId", "bookingId", "type", "subType", "source", "authorName", "agencyId", "occurrenceDateTime"})
 public class CaseNote {
 
     @ApiModelProperty(required = true, value = "Case Note Id (unique)", example = "12311312")
@@ -82,8 +81,6 @@ public class CaseNote {
     @ApiModelProperty(required = true, value = "Ordered list of amendments to the case note (oldest first)", position = 14)
     @NotNull
     @Builder.Default
-    private List<CaseNoteAmendment> amendments = new ArrayList<CaseNoteAmendment>();
+    private List<CaseNoteAmendment> amendments = new ArrayList<>();
 
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
 }

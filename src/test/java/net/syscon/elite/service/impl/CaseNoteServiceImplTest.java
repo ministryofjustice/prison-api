@@ -1,11 +1,10 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.CaseNoteEvent;
-import net.syscon.elite.api.model.CaseNoteUsageByBookingId;
-import net.syscon.elite.api.model.UserDetail;
+import com.microsoft.applicationinsights.TelemetryClient;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.UserService;
 import org.junit.Before;
@@ -35,13 +34,19 @@ public class CaseNoteServiceImplTest {
     private UserService userService;
 
     @Mock
+    private BookingService bookingService;
+
+    @Mock
     private AuthenticationFacade authenticationFacade;
+
+    @Mock
+    private TelemetryClient telemetryClient;
 
     private CaseNoteService caseNoteService;
 
     @Before
     public void setUp() {
-        caseNoteService = new CaseNoteServiceImpl(repository, new CaseNoteTransformer(userService, null), userService, null, authenticationFacade, 10);
+        caseNoteService = new CaseNoteServiceImpl(repository, new CaseNoteTransformer(userService, null), userService, bookingService, telemetryClient, authenticationFacade, 10);
     }
 
     @Test
@@ -90,6 +95,10 @@ public class CaseNoteServiceImplTest {
                         .bookingId(1L)
                         .caseNoteId(1L)
                         .originalNoteText("Hello")
+                        .text("Hello")
+                        .type("KA")
+                        .subType("KS")
+                        .authorName("Mr Black")
                         .staffId(1L)
                         .build()));
 
@@ -99,7 +108,27 @@ public class CaseNoteServiceImplTest {
                         .staffId(2L)
                         .build());
 
+        when(bookingService.getLatestBookingByBookingId(1L)).thenReturn(OffenderSummary.builder().offenderNo("A1223AA").build());
+
         when(authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
+
+        when(userService.getUserByUsername(any())).thenReturn(UserDetail.builder().username("TEST_USER").build());
+        when(repository.getCaseNote(1L, 1L))
+                .thenReturn(Optional.of(CaseNote
+                        .builder()
+                        .agencyId("LEI")
+                        .bookingId(1L)
+                        .caseNoteId(1L)
+                        .originalNoteText("Hello")
+                        .text("Hello")
+                        .amendments(List.of(CaseNoteAmendment.builder().additionalNoteText("update text").build()))
+                        .type("KA")
+                        .subType("KS")
+                        .authorName("Mr Black")
+                        .staffId(1L)
+                        .build()));
+
+        telemetryClient.trackEvent(eq("CaseNoteUpdated"), anyMap(), isNull());
 
         caseNoteService.updateCaseNote(1L, 1L, "staff2", "update text");
 
