@@ -1,6 +1,5 @@
 package net.syscon.elite.service.impl;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +9,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.UserService;
@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -51,17 +52,21 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     private final CaseNoteRepository caseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final UserService userService;
+    private final BookingService bookingService;
     private final TelemetryClient telemetryClient;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
 
     public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
-                               final UserService userService, final TelemetryClient telemetryClient,
+                               final UserService userService,
+                               final BookingService bookingService,
+                               final TelemetryClient telemetryClient,
                                final AuthenticationFacade authenticationFacade,
                                @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
+        this.bookingService = bookingService;
         this.telemetryClient = telemetryClient;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
@@ -96,7 +101,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
                 .orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
-        log.info("Returning casenote {} for bookingId {}", caseNoteId, bookingId);
+        log.info("Returning case note {}", caseNote);
 
         return transformer.transform(caseNote);
     }
@@ -112,7 +117,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         final var caseNoteCreated = getCaseNote(bookingId, caseNoteId);
 
         // Log event
-        telemetryClient.trackEvent("CaseNoteCreated", ImmutableMap.of("type", caseNoteCreated.getType(), "subType", caseNoteCreated.getSubType()), null);
+        telemetryClient.trackEvent("CaseNoteCreated", createEventProperties(userDetail.getUsername(), caseNoteCreated), null);
 
         return caseNoteCreated;
     }
@@ -150,8 +155,12 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         }
 
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
+        final var updatedCaseNote = getCaseNote(bookingId, caseNoteId);
 
-        return getCaseNote(bookingId, caseNoteId);
+        // Log event
+        telemetryClient.trackEvent("CaseNoteUpdated", createEventProperties(userDetail.getUsername(), updatedCaseNote), null);
+
+        return updatedCaseNote;
     }
 
     @Override
@@ -277,5 +286,16 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         LocalDate getToDateToUse() {
             return toDateToUse;
         }
+    }
+
+    private Map<String, String> createEventProperties(final String authorUsername, final CaseNote caseNote) {
+        final var offenderData = bookingService.getLatestBookingByBookingId(caseNote.getBookingId());
+        final var offenderIdentifier = offenderData != null ? offenderData.getOffenderNo() : String.valueOf(caseNote.getBookingId());
+        return Map.of(
+                "type", caseNote.getType(),
+                "subType", caseNote.getSubType(),
+                "offenderIdentifier", offenderIdentifier,
+                "authorUsername", authorUsername
+        );
     }
 }
