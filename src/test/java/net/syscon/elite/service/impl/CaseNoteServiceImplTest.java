@@ -106,13 +106,13 @@ public class CaseNoteServiceImplTest {
                 .thenReturn(UserDetail
                         .builder()
                         .staffId(2L)
+                        .username("TEST_USER")
                         .build());
 
         when(bookingService.getLatestBookingByBookingId(1L)).thenReturn(OffenderSummary.builder().offenderNo("A1223AA").build());
 
         when(authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
 
-        when(userService.getUserByUsername(any())).thenReturn(UserDetail.builder().username("TEST_USER").build());
         when(repository.getCaseNote(1L, 1L))
                 .thenReturn(Optional.of(CaseNote
                         .builder()
