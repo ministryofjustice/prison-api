@@ -1,7 +1,6 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.Lists;
-import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
@@ -9,7 +8,6 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
-import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.UserService;
@@ -32,7 +30,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -52,22 +49,16 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     private final CaseNoteRepository caseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final UserService userService;
-    private final BookingService bookingService;
-    private final TelemetryClient telemetryClient;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
 
     public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
                                final UserService userService,
-                               final BookingService bookingService,
-                               final TelemetryClient telemetryClient,
                                final AuthenticationFacade authenticationFacade,
                                @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
-        this.bookingService = bookingService;
-        this.telemetryClient = telemetryClient;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
     }
@@ -114,12 +105,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         // TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
         final var caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
 
-        final var caseNoteCreated = getCaseNote(bookingId, caseNoteId);
-
-        // Log event
-        telemetryClient.trackEvent("CaseNoteCreated", createEventProperties(userDetail.getUsername(), caseNoteCreated), null);
-
-        return caseNoteCreated;
+        return getCaseNote(bookingId, caseNoteId);
     }
 
     @Override
@@ -155,12 +141,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         }
 
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
-        final var updatedCaseNote = getCaseNote(bookingId, caseNoteId);
-
-        // Log event
-        telemetryClient.trackEvent("CaseNoteUpdated", createEventProperties(userDetail.getUsername(), updatedCaseNote), null);
-
-        return updatedCaseNote;
+        return getCaseNote(bookingId, caseNoteId);
     }
 
     @Override
@@ -286,16 +267,5 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         LocalDate getToDateToUse() {
             return toDateToUse;
         }
-    }
-
-    private Map<String, String> createEventProperties(final String authorUsername, final CaseNote caseNote) {
-        final var offenderData = bookingService.getLatestBookingByBookingId(caseNote.getBookingId());
-        final var offenderIdentifier = offenderData != null ? offenderData.getOffenderNo() : String.valueOf(caseNote.getBookingId());
-        return Map.of(
-                "type", caseNote.getType(),
-                "subType", caseNote.getSubType(),
-                "offenderIdentifier", offenderIdentifier,
-                "authorUsername", authorUsername
-        );
     }
 }
