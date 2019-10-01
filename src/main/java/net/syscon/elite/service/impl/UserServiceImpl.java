@@ -69,7 +69,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @VerifyAgencyAccess
     public List<UserDetail> getUserListByUsernames(final Set<String> usernames) {
         final List<UserDetail> results = new ArrayList<>();
         if (!usernames.isEmpty()) {

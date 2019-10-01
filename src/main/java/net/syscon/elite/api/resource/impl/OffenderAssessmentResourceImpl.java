@@ -102,6 +102,16 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     @ProxyUser
+    public Response setCategorisationInactive(final Long bookingId){
+        inmateService.setCategorisationInactive(bookingId);
+        return Response.ok()
+                .status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @Override
+    @ProxyUser
     public Response updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate) {
         inmateService.updateCategorisationNextReviewDate(bookingId, nextReviewDate);
         return Response.ok()
