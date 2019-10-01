@@ -100,6 +100,8 @@ public interface InmateRepository {
 
     void approveCategory(CategoryApprovalDetail detail);
 
+    int setCategorisationInactive(long bookingId);
+
     void updateActiveCategoryNextReviewDate(long bookingId, LocalDate date);
 
     List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData, Set<String> caseloads, boolean active);

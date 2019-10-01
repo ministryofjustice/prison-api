@@ -488,6 +488,17 @@ public class InmateServiceImpl implements InmateService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('SYSTEM_USER')")
+    public void setCategorisationInactive(final Long bookingId) {
+        var count = repository.setCategorisationInactive(bookingId);
+
+        // Log event
+        telemetryClient.trackEvent("CategorisationSetInactive", ImmutableMap.of(
+                "bookingId", bookingId.toString(), "count", String.valueOf(count)), null);
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('SYSTEM_USER')")
     public void updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate) {
         repository.updateActiveCategoryNextReviewDate(bookingId, nextReviewDate);
 

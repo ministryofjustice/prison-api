@@ -957,6 +957,17 @@ public class InmateRepositoryTest {
 
     @Test
     @Transactional
+    public void testUpdateCategorySetInactive() {
+
+        repository.setCategorisationInactive(-38L);
+
+        final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-38L), "BMI", false);
+        // should not have updated the pending record
+        assertThat(catList).extracting("assessStatus").containsExactlyInAnyOrder("I", "I", "P");
+    }
+
+    @Test
+    @Transactional
     public void testUpdateCategoryNextReviewDate() {
 
         final var newNextReviewDate = LocalDate.of(2019, 2, 27);
@@ -974,7 +985,6 @@ public class InmateRepositoryTest {
     public void testUpdateCategoryNextReviewDateForUnknownOffender() {
 
         final var newNextReviewDate = LocalDate.of(2019, 2, 27);
-        final var existingNextReviewDate = LocalDate.of(2018, 6, 1);
 
         try {
             repository.updateActiveCategoryNextReviewDate(-15655L, newNextReviewDate);

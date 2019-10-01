@@ -712,7 +712,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var sequences = jdbcTemplate.query(
                 getQuery("GET_ACTIVE_OFFENDER_CATEGORY_SEQUENCES"),
                 createParams("bookingId", detail.getBookingId(),
-                        "assessmentTypeId", assessmentId),
+                        "assessmentTypeId", assessmentId,
+                        "statuses", Arrays.asList("A", "P")),
                 mapper);
         if (CollectionUtils.isEmpty(sequences)) {
             throw new BadRequestException(String.format("No category assessment found, category %.10s, booking %d",
@@ -746,7 +747,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             final var previousSequences = sequences.stream().skip(1)
                     .collect(Collectors.toList());
             final var updatePreviousResult = jdbcTemplate.update(
-                    getQuery("APPROVE_CATEGORY_SET_STATUS"),
+                    getQuery("CATEGORY_SET_STATUS"),
                     createParams("bookingId", detail.getBookingId(),
                             "seq", previousSequences,
                             "assessStatus", "I"
@@ -758,6 +759,34 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         previousSequences));
             }
         }
+    }
+
+    @Override
+    public int setCategorisationInactive(final long bookingId) {
+        final var assessmentId = getCategoryAssessmentId();
+        final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
+        // get all active categorisation sequences
+        final var sequences = jdbcTemplate.query(
+                getQuery("GET_ACTIVE_OFFENDER_CATEGORY_SEQUENCES"),
+                createParams("bookingId", bookingId,
+                        "assessmentTypeId", assessmentId,
+                        "statuses", Arrays.asList("A")),
+                mapper);
+        if (CollectionUtils.isEmpty(sequences)) {
+            log.warn(String.format("No active category assessments found for booking id %d", bookingId));
+            return 0;
+        }
+        final var updateResult = jdbcTemplate.update(
+                getQuery("CATEGORY_SET_STATUS"),
+                createParams("bookingId", bookingId,
+                        "seq", sequences,
+                        "assessStatus", "I"
+                )
+        );
+        if (updateResult != 1) {
+            log.warn(String.format("Expected one row to be updated, got %d for booking id %d", updateResult, bookingId));
+        }
+        return updateResult;
     }
 
     @Override
@@ -779,7 +808,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             throw new EntityNotFoundException(String.format(message));
         }
     }
-
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final boolean accessToAllData, final Set<String> caseloads, boolean active) {
