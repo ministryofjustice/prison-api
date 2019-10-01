@@ -1,12 +1,12 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.service.GlobalSearchService;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +37,7 @@ public class GlobalSearchServiceImplTest {
     private GlobalSearchService service;
 
     private PageRequest pageRequest = new PageRequest();
-    private static final String TEST_OFFENDER_NO = "AA1234B";
+    private static final List<String> TEST_OFFENDER_NO = List.of("AA1234B");
     private static final String TEST_PNC_NUMBER = "2002/713491N";
     private static final String TEST_CRO_NUMBER = "CRO987654";
     private static final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
@@ -65,7 +65,7 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersByOffenderNo() {
-        criteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        criteria = PrisonerDetailSearchCriteria.builder().offenderNos(TEST_OFFENDER_NO).build();
 
         when(InmateRepository.generateFindOffendersQuery(criteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
         Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
@@ -79,11 +79,11 @@ public class GlobalSearchServiceImplTest {
     public void testFindOffendersPrioritisedMatchWithOffenderNoMatch() {
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
-                .offenderNo(TEST_OFFENDER_NO)
+                .offenderNos(TEST_OFFENDER_NO)
                 .pncNumber(TEST_PNC_NUMBER)
                 .build();
 
-        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNos(TEST_OFFENDER_NO).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
 
@@ -101,11 +101,11 @@ public class GlobalSearchServiceImplTest {
     public void testFindOffendersPrioritisedMatchWithPncNumberMatch() {
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
-                .offenderNo(TEST_OFFENDER_NO)
+                .offenderNos(TEST_OFFENDER_NO)
                 .pncNumber(TEST_PNC_NUMBER)
                 .build();
 
-        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNos(TEST_OFFENDER_NO).build();
         final var pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
@@ -144,12 +144,12 @@ public class GlobalSearchServiceImplTest {
     public void testFindOffendersPrioritisedMatchWithCroNumberMatch() {
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
-                .offenderNo(TEST_OFFENDER_NO)
+                .offenderNos(TEST_OFFENDER_NO)
                 .pncNumber(TEST_PNC_NUMBER)
                 .croNumber(TEST_CRO_NUMBER)
                 .build();
 
-        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNos(TEST_OFFENDER_NO).build();
         final var pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
         final var croNumberCriteria = PrisonerDetailSearchCriteria.builder().croNumber(TEST_CRO_NUMBER).build();
 
@@ -195,11 +195,11 @@ public class GlobalSearchServiceImplTest {
 
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
-                .offenderNo(TEST_OFFENDER_NO)
+                .offenderNos(TEST_OFFENDER_NO)
                 .lastName(TEST_LAST_NAME)
                 .build();
 
-        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNos(TEST_OFFENDER_NO).build();
         final var personalAttrsCriteria = PrisonerDetailSearchCriteria.builder().lastName(TEST_LAST_NAME).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
@@ -219,7 +219,7 @@ public class GlobalSearchServiceImplTest {
     @Test
     public void testFindOffendersAliasSearchLocationFilter() {
         criteria = PrisonerDetailSearchCriteria.builder()
-                .latestLocationId(LOCATION_FILTER_OUT)
+                .location(LOCATION_FILTER_OUT)
                 .includeAliases(true)
                 .build();
 
@@ -236,7 +236,7 @@ public class GlobalSearchServiceImplTest {
     @Test(expected = BadRequestException.class)
     public void testFindOffendersAliasSearchInvalidLocationFilter() {
         criteria = PrisonerDetailSearchCriteria.builder()
-                .latestLocationId("ABC")
+                .location("ABC")
                 .includeAliases(true)
                 .build();
 
@@ -253,13 +253,13 @@ public class GlobalSearchServiceImplTest {
 
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
-                .offenderNo(TEST_OFFENDER_NO)
+                .offenderNos(TEST_OFFENDER_NO)
                 .lastName(TEST_LAST_NAME)
                 .dobFrom(TEST_DOB_FROM)
                 .dobTo(TEST_DOB_TO)
                 .build();
 
-        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNos(TEST_OFFENDER_NO).build();
         final var personalAttrsCriteria = PrisonerDetailSearchCriteria.builder().lastName(TEST_LAST_NAME).build();
 
         final var dobRangeCriteria = PrisonerDetailSearchCriteria.builder()
@@ -288,10 +288,10 @@ public class GlobalSearchServiceImplTest {
     public void testFindOffendersLocationFormatting() {
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
-                .offenderNo(TEST_OFFENDER_NO)
+                .offenderNos(TEST_OFFENDER_NO)
                 .build();
 
-        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNos(TEST_OFFENDER_NO).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
 

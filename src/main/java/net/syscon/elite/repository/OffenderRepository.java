@@ -1,9 +1,9 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.util.DatabaseDialect;
 
 import java.util.Collections;

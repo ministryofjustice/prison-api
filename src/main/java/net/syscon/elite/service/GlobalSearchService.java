@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 

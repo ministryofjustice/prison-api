@@ -2,13 +2,13 @@ package net.syscon.elite.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.repository.support.OffenderRepositorySearchHelper;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import org.springframework.stereotype.Repository;
 
 @Repository

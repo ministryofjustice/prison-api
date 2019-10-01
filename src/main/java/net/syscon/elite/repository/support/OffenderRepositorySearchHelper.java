@@ -1,6 +1,6 @@
 package net.syscon.elite.repository.support;
 
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;

@@ -1,8 +1,8 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;

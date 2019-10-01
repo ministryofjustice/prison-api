@@ -3,7 +3,6 @@ package net.syscon.elite.repository;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.Language;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -181,7 +180,7 @@ public class InmateRepositoryTest {
     public void testFindOffendersWithValidOffenderNoOnly() {
         final var TEST_OFFENDER_NO = "A1234AP";
 
-        final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
+        final var query = buildQuery(criteriaForOffenderNo(List.of(TEST_OFFENDER_NO)));
 
         final var offender = findOffender(query);
 
@@ -241,7 +240,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testFindOffendersWithInvalidOffenderNoOnly() {
-        final var TEST_OFFENDER_NO = "X9999XX";
+        final var TEST_OFFENDER_NO = List.of("X9999XX");
 
         final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
 
@@ -433,7 +432,7 @@ public class InmateRepositoryTest {
     public void testfindOffenderAliasesWithValidOffenderNoOnly() {
         final var TEST_OFFENDER_NO = "A1234AP";
 
-        final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
+        final var query = buildQuery(criteriaForOffenderNo(List.of(TEST_OFFENDER_NO)));
 
         final var offender = findOffenderWithAliases(query);
 
@@ -443,7 +442,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testfindOffenderAliasesWithInvalidOffenderNoOnly() {
-        final var TEST_OFFENDER_NO = "X9999XX";
+        final var TEST_OFFENDER_NO = List.of("X9999XX");
 
         final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
 
@@ -1090,9 +1089,9 @@ public class InmateRepositoryTest {
 
     /*****************************************************************************************/
 
-    private PrisonerDetailSearchCriteria criteriaForOffenderNo(final String offenderNo) {
+    private PrisonerDetailSearchCriteria criteriaForOffenderNo(final List<String> offenderNos) {
         return PrisonerDetailSearchCriteria.builder()
-                .offenderNo(offenderNo)
+                .offenderNos(offenderNos)
                 .build();
     }
 
@@ -1108,26 +1107,26 @@ public class InmateRepositoryTest {
                 .build();
     }
 
-    private PrisonerDetailSearchCriteria criteriaForPersonalAttrs(final String offenderNo, final String lastName, final String firstName) {
+    private PrisonerDetailSearchCriteria criteriaForPersonalAttrs(final List<String> offenderNos, final String lastName, final String firstName) {
         return PrisonerDetailSearchCriteria.builder()
-                .offenderNo(offenderNo)
+                .offenderNos(offenderNos)
                 .lastName(lastName)
                 .firstName(firstName)
                 .build();
     }
 
-    private PrisonerDetailSearchCriteria criteriaForPartialPersonalAttrs(final String offenderNo, final String lastName, final String firstName) {
+    private PrisonerDetailSearchCriteria criteriaForPartialPersonalAttrs(final List<String> offenderNos, final String lastName, final String firstName) {
         return PrisonerDetailSearchCriteria.builder()
-                .offenderNo(offenderNo)
+                .offenderNos(offenderNos)
                 .lastName(lastName)
                 .firstName(firstName)
                 .partialNameMatch(true)
                 .build();
     }
 
-    private PrisonerDetailSearchCriteria criteriaForAnyPersonalAttrs(final String offenderNo, final String lastName, final String firstName) {
+    private PrisonerDetailSearchCriteria criteriaForAnyPersonalAttrs(final List<String> offenderNos, final String lastName, final String firstName) {
         return PrisonerDetailSearchCriteria.builder()
-                .offenderNo(offenderNo)
+                .offenderNos(offenderNos)
                 .lastName(lastName)
                 .firstName(firstName)
                 .anyMatch(true)
@@ -1145,13 +1144,13 @@ public class InmateRepositoryTest {
 
     private PrisonerDetailSearchCriteria criteriaForLocationFilter(final String location) {
         return PrisonerDetailSearchCriteria.builder()
-                .latestLocationId(location)
+                .location(location)
                 .build();
     }
 
     private PrisonerDetailSearchCriteria criteriaForGenderFilter(final String gender) {
         return PrisonerDetailSearchCriteria.builder()
-                .sexCode(gender)
+                .gender(gender)
                 .build();
     }
 
