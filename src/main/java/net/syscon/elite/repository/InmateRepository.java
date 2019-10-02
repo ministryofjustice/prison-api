@@ -4,7 +4,6 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.Language;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -111,6 +111,7 @@ public interface InmateRepository {
     static String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria) {
         final var likeTemplate = "%s:like:'%s%%'";
         final var eqTemplate = "%s:eq:'%s'";
+        final var inTemplate = "%s:in:%s";
         final var dateRangeTemplate = "(%s%s:gteq:'%s':'YYYY-MM-DD',and:%s:lteq:'%s':'YYYY-MM-DD')";
 
         final var nameMatchingTemplate = criteria.isPartialNameMatch() ? likeTemplate : eqTemplate;
@@ -118,14 +119,21 @@ public interface InmateRepository {
 
         final var query = new StringBuilder();
 
-        final var sexCode = "ALL".equals(criteria.getSexCode()) ? null : criteria.getSexCode();
+        final var sexCode = "ALL".equals(criteria.getGender()) ? null : criteria.getGender();
 
-        appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNo(), eqTemplate, logicOperator);
+        if (criteria.getOffenderNos() != null && !criteria.getOffenderNos().isEmpty()) {
+            if (criteria.getOffenderNos().size() == 1) {
+                appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNos().get(0), eqTemplate, logicOperator);
+            } else {
+                appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNos().stream().collect(Collectors.joining("'|'", "'", "'")), inTemplate, logicOperator);
+            }
+        }
+
         appendNonBlankNameCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
         appendNonBlankNameCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
         appendNonBlankNameCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
         appendNonBlankNameCriteria(query, "sexCode", sexCode, nameMatchingTemplate, logicOperator);
-        appendLocationCriteria(query, criteria.getLatestLocationId(), nameMatchingTemplate, logicOperator);
+        appendLocationCriteria(query, criteria.getLocation(), nameMatchingTemplate, logicOperator);
         appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
         appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
 

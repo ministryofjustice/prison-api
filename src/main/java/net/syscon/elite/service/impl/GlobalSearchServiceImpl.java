@@ -2,18 +2,20 @@ package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.service.GlobalSearchService;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import java.util.Collections;
 
@@ -21,6 +23,7 @@ import java.util.Collections;
  * Implementation of global search service.
  */
 @Service
+@Validated
 @Transactional(readOnly = true)
 public class GlobalSearchServiceImpl implements GlobalSearchService {
     private static final ImmutableList<String> VALID_LOCATION_FILTER_VALUES = ImmutableList.of("ALL", "IN", "OUT");
@@ -28,30 +31,26 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     private final InmateRepository inmateRepository;
     private final OffenderRepository offenderRepository;
 
-    @Value("${offender.dob.max.range.years:10}")
-    private int maxYears;
-
     public GlobalSearchServiceImpl(final InmateRepository inmateRepository, final OffenderRepository offenderRepository) {
         this.inmateRepository = inmateRepository;
         this.offenderRepository = offenderRepository;
     }
 
     @Override
-    public Page<PrisonerDetail> findOffenders(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
-        validateGenderFilter(criteria.getSexCode());
-        validateLocationFilter(criteria.getLatestLocationId());
+    public Page<PrisonerDetail> findOffenders(@NotNull @Valid final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
+        validateGenderFilter(criteria.getGender());
+        validateLocationFilter(criteria.getLocation());
 
-        final var decoratedCriteria = criteria.withMaxYearsRange(maxYears);
         final var adjustedPageRequest = pageRequest.withDefaultOrderBy(DEFAULT_GLOBAL_SEARCH_OFFENDER_SORT);
 
         final Page<PrisonerDetail> prisonersPage;
 
         try {
             // Always force the use of streamlined SQL when searching by PNC or CRO for performance reasons
-            if (decoratedCriteria.isPrioritisedMatch() || StringUtils.isNotBlank(criteria.getPncNumber()) || StringUtils.isNotBlank(criteria.getCroNumber())) {
-                prisonersPage = executePrioritisedQuery(decoratedCriteria, adjustedPageRequest);
+            if (criteria.isPrioritisedMatch() || StringUtils.isNotBlank(criteria.getPncNumber()) || StringUtils.isNotBlank(criteria.getCroNumber())) {
+                prisonersPage = executePrioritisedQuery(criteria, adjustedPageRequest);
             } else {
-                prisonersPage = executeQuery(decoratedCriteria, adjustedPageRequest);
+                prisonersPage = executeQuery(criteria, adjustedPageRequest);
             }
             prisonersPage.getItems().forEach(p -> p.setLatestLocation(LocationProcessor.formatLocation(p.getLatestLocation())));
         } catch (final IllegalArgumentException iaex) {
@@ -78,11 +77,11 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     private Page<PrisonerDetail> executeOffenderNoQuery(final PrisonerDetailSearchCriteria originalCriteria, final PageRequest pageRequest) {
         Page<PrisonerDetail> response;
 
-        final var offenderNoCriteria = originalCriteria.getOffenderNo();
+        final var offenderNoCriteria = originalCriteria.getOffenderNos();
 
-        if (StringUtils.isNotBlank(offenderNoCriteria)) {
+        if (offenderNoCriteria != null && !offenderNoCriteria.isEmpty()) {
             final var criteria = PrisonerDetailSearchCriteria.builder()
-                    .offenderNo(offenderNoCriteria).build();
+                    .offenderNos(offenderNoCriteria).build();
 
             response = executeQuery(criteria, pageRequest);
 
