@@ -12,7 +12,10 @@ import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import java.util.Collections;
 
@@ -20,6 +23,7 @@ import java.util.Collections;
  * Implementation of global search service.
  */
 @Service
+@Validated
 @Transactional(readOnly = true)
 public class GlobalSearchServiceImpl implements GlobalSearchService {
     private static final ImmutableList<String> VALID_LOCATION_FILTER_VALUES = ImmutableList.of("ALL", "IN", "OUT");
@@ -33,7 +37,7 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     }
 
     @Override
-    public Page<PrisonerDetail> findOffenders(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
+    public Page<PrisonerDetail> findOffenders(@NotNull @Valid final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
         validateGenderFilter(criteria.getGender());
         validateLocationFilter(criteria.getLocation());
 
