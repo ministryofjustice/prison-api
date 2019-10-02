@@ -665,9 +665,13 @@ FIND_OFFENDERS {
     AL.DESCRIPTION                    LATEST_LOCATION,
     AIL.DESCRIPTION                   INTERNAL_LOCATION,
     CASE WHEN CAST(IST.BAND_CODE AS int) <= 8
-           THEN 'Convicted'
-         WHEN CAST(IST.BAND_CODE AS int) > 8
-           THEN 'Remand'
+             THEN 'Convicted'
+         WHEN CAST(IST.BAND_CODE AS int) > 8 AND CAST(IST.BAND_CODE AS int) < 11
+             THEN 'Remand'
+         WHEN CAST(IST.BAND_CODE AS int) = 11
+             THEN 'Convicted'
+         WHEN CAST(IST.BAND_CODE AS int) > 11
+             THEN 'Remand'
          ELSE NULL END                     CONVICTED_STATUS,
     CASE WHEN OPD2.PROFILE_CODE IS NOT NULL
            THEN OPD2.PROFILE_CODE
@@ -733,9 +737,13 @@ FIND_OFFENDERS_WITH_ALIASES {
     AL.DESCRIPTION                    LATEST_LOCATION,
     AIL.DESCRIPTION                   INTERNAL_LOCATION,
     CASE WHEN CAST(IST.BAND_CODE AS int) <= 8
-           THEN 'Convicted'
-         WHEN CAST(IST.BAND_CODE AS int) > 8
-           THEN 'Remand'
+             THEN 'Convicted'
+         WHEN CAST(IST.BAND_CODE AS int) > 8 AND CAST(IST.BAND_CODE AS int) < 11
+             THEN 'Remand'
+         WHEN CAST(IST.BAND_CODE AS int) = 11
+             THEN 'Convicted'
+         WHEN CAST(IST.BAND_CODE AS int) > 11
+             THEN 'Remand'
          ELSE NULL END                     CONVICTED_STATUS,
     CASE WHEN OPD2.PROFILE_CODE IS NOT NULL
            THEN OPD2.PROFILE_CODE

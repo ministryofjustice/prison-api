@@ -236,9 +236,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         if (request.getConvictedStatus() != null && !StringUtils.equalsIgnoreCase(request.getConvictedStatus(), "all")) {
             if (StringUtils.equalsIgnoreCase(request.getConvictedStatus(), "convicted")) {
-                initialSql += " AND CAST(IST.BAND_CODE AS int) <= 8 ";
+                initialSql += " AND (CAST(IST.BAND_CODE AS int) <= 8 OR CAST(IST.BAND_CODE AS int) = 11) ";
             } else if (StringUtils.equalsIgnoreCase(request.getConvictedStatus(), "remand")) {
-                initialSql += " AND CAST(IST.BAND_CODE AS int) > 8 ";
+                initialSql += " AND ((CAST(IST.BAND_CODE AS int) > 8 AND CAST(IST.BAND_CODE AS int) < 11) OR CAST(IST.BAND_CODE AS int) > 11)";
             } else {
                 log.info("Ignoring unrecognised value requested for convictionStatus [" + request.getConvictedStatus() + "]");
             }

@@ -110,9 +110,9 @@ public class InmateRepositoryTest {
 
         final var results = foundInmates.getItems();
 
-        assertThat(results).hasSize(7);
+        assertThat(results).hasSize(8);
         assertThat(results).extracting("convictedStatus").containsOnlyElementsOf(List.of("Convicted"));
-        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("SENT"));
+        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("SENT","DEPORT"));
     }
 
     @Test

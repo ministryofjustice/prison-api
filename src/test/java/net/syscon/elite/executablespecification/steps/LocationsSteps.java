@@ -143,7 +143,7 @@ public class LocationsSteps extends CommonSteps {
 
         init();
 
-        applyPagination(0L, 10L);
+        applyPagination(0L, 100L);
 
         try {
             final var response = restTemplate.exchange(
