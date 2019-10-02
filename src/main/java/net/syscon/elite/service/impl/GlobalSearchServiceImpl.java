@@ -75,7 +75,7 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
 
         final var offenderNoCriteria = originalCriteria.getOffenderNos();
 
-        if (!offenderNoCriteria.isEmpty()) {
+        if (offenderNoCriteria != null && !offenderNoCriteria.isEmpty()) {
             final var criteria = PrisonerDetailSearchCriteria.builder()
                     .offenderNos(offenderNoCriteria).build();
 
