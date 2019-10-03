@@ -21,7 +21,7 @@ public interface PrisonerResource {
     @Path("/")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "List of offenders matching specified criteria.", notes = "<b>(BETA)</b> List of offenders matching specified criteria.", nickname = "getPrisoners")
+    @ApiOperation(value = "List of offenders matching specified criteria.", notes = "List of offenders matching specified criteria.", nickname = "getPrisoners")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = PrisonerDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
@@ -64,7 +64,7 @@ public interface PrisonerResource {
     @Path("/")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "List of offenders globally matching the offenderNo.", notes = "List of offenders globally matching the offenderNo.", nickname = "getPrisonersOffenderNo")
+    @ApiOperation(value = "List of offenders matching specified criteria. (POST version)", notes = "List of offenders matching specified criteria.", nickname = "getPrisoners")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = PrisonerDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
