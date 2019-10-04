@@ -221,7 +221,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         if (StringUtils.isNotBlank(request.getSearchTerm1()) && StringUtils.isNotBlank(request.getSearchTerm2())) {
             initialSql += " AND ((O.LAST_NAME like :searchTerm1 and O.FIRST_NAME like :searchTerm2) " +
-                    "OR (O.FIRST_NAME like :searchTerm1 and O.LAST_NAME like :searchTerm2) ) ";
+                    "OR (O.FIRST_NAME like :searchTerm1 and O.LAST_NAME like :searchTerm2) " +
+                    "OR (O.FIRST_NAME like :searchTermCombined) " +
+                    "OR (O.LAST_NAME like :searchTermCombined)) ";
         } else if (StringUtils.isNotBlank(request.getSearchTerm1())) {
             initialSql += " AND (O.FIRST_NAME like :searchTerm1 OR O.LAST_NAME like :searchTerm1) ";
         } else if (StringUtils.isNotBlank(request.getSearchTerm2())) {
@@ -267,12 +269,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         final var paRowMapper = new PageAwareRowMapper<>(offenderBookingRowMapper);
 
+        final var trimmedSearch1 = StringUtils.trimToEmpty(request.getSearchTerm1());
+        final var trimmedSearch2 = StringUtils.trimToEmpty(request.getSearchTerm2());
         final var offenderBookings = jdbcTemplate.query(
                 sql,
                 createParams(
                         "offenderNo", request.getOffenderNo(),
-                        "searchTerm1", StringUtils.trimToEmpty(request.getSearchTerm1()) + "%",
-                        "searchTerm2", StringUtils.trimToEmpty(request.getSearchTerm2()) + "%",
+                        "searchTerm1", trimmedSearch1 + "%",
+                        "searchTerm2", trimmedSearch2 + "%",
+                        "searchTermCombined", trimmedSearch1 + "%" + trimmedSearch2 + "%",
                         "locationPrefix", StringUtils.trimToEmpty(request.getLocationPrefix()) + "-%",
                         "caseLoadId", request.getCaseloads(),
                         "fromDob", request.getFromDob(),

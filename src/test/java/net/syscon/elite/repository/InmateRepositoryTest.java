@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
 
+import static java.time.LocalDate.parse;
 import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVAL;
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static net.syscon.elite.util.Extractors.extractInteger;
@@ -90,9 +91,38 @@ public class InmateRepositoryTest {
                 .build());
 
         final var results = foundInmates.getItems();
-        assertThat(results).hasSize(1);
-        assertThat(results).extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc").contains(
+        assertThat(results).extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc").containsExactly(
                 Tuple.tuple(-1L, "A1234AA", LocalDate.of(1969, Month.DECEMBER, 30), "A-1-1"));
+    }
+
+    @Test
+    public void testSearchForOffenderBookingsSpaceInSurname() {
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(Set.of("LEI", "MDI"))
+                .searchTerm1("HAR")
+                .searchTerm2("JO")
+                .locationPrefix("MDI")
+                .pageRequest(new PageRequest("lastName, firstName"))
+                .build());
+
+        assertThat(foundInmates.getItems())
+                .extracting(OffenderBooking::getBookingId, OffenderBooking::getOffenderNo, OffenderBooking::getDateOfBirth, OffenderBooking::getAssignedLivingUnitDesc)
+                .containsExactly(Tuple.tuple(-55L, "A1180HL", parse("1980-05-21"), "1-2-014"));
+    }
+
+    @Test
+    public void testSearchForOffenderBookingsSpaceInForename() {
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(Set.of("LEI", "MDI"))
+                .searchTerm1("JO")
+                .searchTerm2("JAM")
+                .locationPrefix("MDI")
+                .pageRequest(new PageRequest("lastName, firstName"))
+                .build());
+
+        assertThat(foundInmates.getItems())
+                .extracting(OffenderBooking::getBookingId, OffenderBooking::getOffenderNo, OffenderBooking::getDateOfBirth, OffenderBooking::getAssignedLivingUnitDesc)
+                .containsExactly(Tuple.tuple(-55L, "A1180HL", parse("1980-05-21"), "1-2-014"));
     }
 
     @Test
@@ -112,7 +142,7 @@ public class InmateRepositoryTest {
 
         assertThat(results).hasSize(8);
         assertThat(results).extracting("convictedStatus").containsOnlyElementsOf(List.of("Convicted"));
-        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("SENT","DEPORT"));
+        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("SENT", "DEPORT"));
     }
 
     @Test
@@ -195,7 +225,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(47);
+        assertThat(offenders).hasSize(48);
     }
 
     @Test
@@ -215,7 +245,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(52);
+        assertThat(offenders).hasSize(53);
     }
 
     @Test
@@ -235,7 +265,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(52);
+        assertThat(offenders).hasSize(53);
     }
 
     @Test
@@ -684,7 +714,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testGetOffenderCategorisationsNoApprover() {
-        final var list = repository.getOffenderCategorisations(Arrays.asList(-41L), "SYI", false);
+        final var list = repository.getOffenderCategorisations(List.of(-41L), "SYI", false);
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "lastName", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
                 .containsExactlyInAnyOrder(
@@ -998,14 +1028,14 @@ public class InmateRepositoryTest {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"), false, Set.of("LEI"), true);
         assertThat(offenders).hasSize(1);
         assertThat(offenders).extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName", "dateOfBirth", "assignedLivingUnitId").contains(
-                Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", LocalDate.parse("1970-03-01"), -7L)
+                Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", parse("1970-03-01"), -7L)
         );
     }
 
     @Test
     public void testAccessToAllData_whenTrue() {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), true, Collections.emptySet(), false);
-        assertThat(offenders).containsExactly(new InmateBasicDetails(-9L, "A00119", "A1234AI", "CHESTER", "JAMES", "THOMPSON", "LEI", -7L, LocalDate.parse("1970-03-01")));
+        assertThat(offenders).containsExactly(new InmateBasicDetails(-9L, "A00119", "A1234AI", "CHESTER", "JAMES", "THOMPSON", "LEI", -7L, parse("1970-03-01")));
     }
 
     @Test
@@ -1031,8 +1061,8 @@ public class InmateRepositoryTest {
     @Test
     public void testGetBasicInmateDetailsByBookingIds() {
         final var offenders = repository.getBasicInmateDetailsByBookingIds("LEI", List.of(-3L, -4L, -35L));  //-35L ignored as it is MDI agency
-        assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, LocalDate.parse("1999-10-27"))
-                , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, LocalDate.parse("1970-01-01")));
+        assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, parse("1999-10-27"))
+                , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, parse("1970-01-01")));
     }
 
     @Test
