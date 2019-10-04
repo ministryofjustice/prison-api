@@ -16,8 +16,7 @@
     "ethnicity": "White: British",
     "religion": "Church of England",
     "convictedStatus": "Convicted",
-    "imprisonmentStatus": "SENT",
-    "receptionDate": "2019-10-02"
+    "imprisonmentStatus": "SENT"
   },
   {
     "offenderNo": "A1234AC",
@@ -36,8 +35,7 @@
     "ethnicity": "White: British",
     "religion": "Anglican",
     "convictedStatus": "Convicted",
-    "imprisonmentStatus": "SENT",
-    "receptionDate": "2019-10-02"
+    "imprisonmentStatus": "SENT"
   },
   {
     "offenderNo": "A1181MV",
@@ -50,7 +48,6 @@
     "latestBookingId": -37,
     "latestLocationId": "WAI",
     "latestLocation": "The Weare",
-    "ethnicity": "White: British",
-    "receptionDate": "2019-10-02"
+    "ethnicity": "White: British"
   }
 ]

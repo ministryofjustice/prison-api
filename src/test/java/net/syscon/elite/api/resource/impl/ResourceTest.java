@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import net.syscon.elite.util.JwtAuthenticationHelper;
 import net.syscon.elite.util.JwtParameters;
 import org.junit.runner.RunWith;
@@ -35,6 +36,9 @@ public abstract class ResourceTest {
 
     @Autowired
     protected JwtAuthenticationHelper jwtAuthenticationHelper;
+
+    @Autowired
+    protected AuthTokenHelper authTokenHelper;
 
     protected HttpEntity<?> createHttpEntity(final String bearerToken, final Object body) {
         return createHttpEntity(bearerToken, body, Collections.emptyMap());

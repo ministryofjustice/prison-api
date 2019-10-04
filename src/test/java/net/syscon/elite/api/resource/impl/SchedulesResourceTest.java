@@ -13,9 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SchedulesResourceTest extends ResourceTest {
 
-    @Autowired
-    private AuthTokenHelper authTokenHelper;
-
     @Test
     public void testThatScheduleActivities_IsReturnForAllActivityLocations() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);

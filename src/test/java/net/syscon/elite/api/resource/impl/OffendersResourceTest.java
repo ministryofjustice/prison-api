@@ -1,24 +1,13 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.Alert;
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.OffenderSentenceDetail;
-import net.syscon.elite.api.model.v1.Events;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.json.JsonContent;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.core.ResolvableType.forType;
 
 public class OffendersResourceTest extends ResourceTest {
-
-    @Autowired
-    private AuthTokenHelper authTokenHelper;
-
     @Test
     public void testCanRetrieveSentenceDetailsForOffender() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
@@ -33,9 +22,7 @@ public class OffendersResourceTest extends ResourceTest {
                 },
                 "A1234AB");
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-
-        assertThat(new JsonContent<Events>(getClass(), forType(OffenderSentenceDetail.class), response.getBody())).isEqualToJson("sentence.json");
+        assertThatJsonFileAndStatus(response, 200, "sentence.json");
     }
 
     @Test
@@ -52,9 +39,7 @@ public class OffendersResourceTest extends ResourceTest {
                 },
                 "A1234AB");
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-
-        assertThat(new JsonContent<Events>(getClass(), forType(OffenderSentenceDetail.class), response.getBody())).isEqualToJson("sentence.json");
+        assertThatJsonFileAndStatus(response, 200, "sentence.json");
     }
 
     @Test
@@ -71,9 +56,7 @@ public class OffendersResourceTest extends ResourceTest {
                 },
                 "A1234AB");
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-
-        assertThat(new JsonContent<Events>(getClass(), forType(Alert.class), response.getBody())).isEqualToJson("alerts.json");
+        assertThatJsonFileAndStatus(response, 200, "alerts.json");
     }
 
     @Test
@@ -90,9 +73,7 @@ public class OffendersResourceTest extends ResourceTest {
                 },
                 "A1234AB");
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-
-        assertThat(new JsonContent<Events>(getClass(), forType(CaseNote.class), response.getBody())).isEqualToJson("casenotes.json");
+        assertThatJsonFileAndStatus(response, 200, "casenotes.json");
     }
 
     @Test
