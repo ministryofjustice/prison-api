@@ -10,10 +10,6 @@ import org.springframework.http.HttpStatus;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderAssessmentResourceTest extends ResourceTest {
-
-    @Autowired
-    private AuthTokenHelper authTokenHelper;
-
     @Test
     public void testSystemUserCanUpdateCategoryNextReviewDate() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);

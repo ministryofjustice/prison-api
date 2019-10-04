@@ -17,10 +17,6 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BookingResourceTest extends ResourceTest {
-
-    @Autowired
-    private AuthTokenHelper authTokenHelper;
-
     @Test
     public void testThatUpdateAttendanceIsLockedDown_WhenPayRoleIsMissing() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
