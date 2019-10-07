@@ -22,7 +22,7 @@ public interface OffenderAssessmentResource {
     @Path("/{assessmentCode}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Offender assessment detail for multiple offenders.", notes = "Offender assessment detail for multiple offenders.", nickname = "getOffenderAssessmentsAssessmentCode")
+    @ApiOperation(value = "Offender assessment detail for multiple offenders.", nickname = "getOffenderAssessmentsAssessmentCode")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = Assessment.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
@@ -30,19 +30,19 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(@ApiParam(value = "Assessment Type Code", required = true) @PathParam("assessmentCode") String assessmentCode,
                                                                                       @ApiParam(value = "The required offender numbers", required = true) @QueryParam("offenderNo") List<String> offenderNo,
-                                                                                      @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly,
+                                                                                      @ApiParam(value = "Returns only the latest assessment for the current sentence if true, otherwise all assessments for all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly,
                                                                                       @ApiParam(value = "Returns only active assessments if true, otherwise assessments with any status are included", defaultValue = "true") @QueryParam("activeOnly") Boolean activeOnly);
 
     @POST
     @Path("/{assessmentCode}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Retrieves Offender assessment details for multiple offenders - POST version to allow large offender lists.", notes = "Retrieves Offender assessment details for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsAssessmentCode")
+    @ApiOperation(value = "Retrieves Offender assessment details for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsAssessmentCode")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The assessment list is returned.", response = Assessment.class, responseContainer = "List")})
     PostOffenderAssessmentsAssessmentCodeResponse postOffenderAssessmentsAssessmentCode(@ApiParam(value = "Assessment Type Code", required = true) @PathParam("assessmentCode") String assessmentCode,
                                                                                         @ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body,
-                                                                                        @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly,
+                                                                                        @ApiParam(value = "Returns only the latest assessment for the current sentence if true, otherwise all assessments for all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly,
                                                                                         @ApiParam(value = "Returns only active assessments if true, otherwise assessments with any status are included", defaultValue = "true") @QueryParam("activeOnly") Boolean activeOnly);
 
 
@@ -50,7 +50,7 @@ public interface OffenderAssessmentResource {
     @Path("/csra/list")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.", notes = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsCsraList")
+    @ApiOperation(value = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsCsraList")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The CSRA assessment list is returned, 1 per offender.", response = Assessment.class, responseContainer = "List")})
     PostOffenderAssessmentsCsraListResponse postOffenderAssessmentsCsraList(@ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body);
