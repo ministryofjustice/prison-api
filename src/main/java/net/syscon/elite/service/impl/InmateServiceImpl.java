@@ -398,7 +398,7 @@ public class InmateServiceImpl implements InmateService {
                 for (final var assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
 
                     if (latestOnly) {
-                        // The first is the most recent date / seq for each booking where cellSharingAlertFlag = Y
+                        // The first is the most recent date / seq for each booking (where cellSharingAlertFlag = Y if CSR)
                         results.add(createAssessment(assessmentForBooking.get(0)));
                     } else {
                         assessmentForBooking.forEach(assessment -> results.add(createAssessment(assessment)));
