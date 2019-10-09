@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.Offence;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -60,6 +62,18 @@ public class SentenceRepositoryTest {
         final var offenceDetails = repository.getMainOffenceDetails(1001L);
         assertNotNull(offenceDetails);
         assertTrue(offenceDetails.isEmpty());
+    }
+
+    @Test
+    public final void testGetMainOffenceDetailsMultipleBookings() {
+        final var offences = repository.getMainOffenceDetails(Arrays.asList(-1L, -7L));
+        assertNotNull(offences);
+        assertEquals(3, offences.size());
+        assertThat(offences).asList().containsExactlyInAnyOrder(
+                new Offence(-1L, "RV98011", "RV98"),
+                new Offence(-7L, "RC86360", "RC86"),
+                new Offence(-7L, "RC86355", "RC86")
+        );
     }
 
     @Test

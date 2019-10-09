@@ -479,10 +479,15 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetMainOffenceResponse getMainOffence(final Long bookingId) {
+    public List<OffenceDetail> getMainOffence(final Long bookingId) {
         final var offenceDetails = bookingService.getMainOffenceDetails(bookingId);
+        return offenceDetails;
+    }
 
-        return GetMainOffenceResponse.respond200WithApplicationJson(offenceDetails);
+    @Override
+    public List<Offence> getMainOffence(final Set<Long> bookingIds) {
+        final var offences = bookingService.getMainOffenceDetails(bookingIds);
+        return offences;
     }
 
     @Override
