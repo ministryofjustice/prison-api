@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -618,6 +619,21 @@ public class BookingServiceImpl implements BookingService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<OffenceDetail> getMainOffenceDetails(final Long bookingId) {
         return sentenceRepository.getMainOffenceDetails(bookingId);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY')")
+    public List<Offence> getMainOffenceDetails(final Set<Long> bookingIds) {
+
+        final List<Offence> results = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(bookingIds)) {
+            final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
+            batch.forEach(bookingBatch -> {
+                final var offences = sentenceRepository.getMainOffenceDetails(bookingBatch);
+                results.addAll(offences);
+            });
+        }
+        return results;
     }
 
     @Override

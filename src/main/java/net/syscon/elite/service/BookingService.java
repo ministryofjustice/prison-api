@@ -49,6 +49,8 @@ public interface BookingService {
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
 
+    List<Offence> getMainOffenceDetails(Set<Long> bookingIds);
+
     List<OffenceHistoryDetail> getOffenceHistory(String offenderNo);
 
     List<ScheduledEvent> getEventsToday(Long bookingId);

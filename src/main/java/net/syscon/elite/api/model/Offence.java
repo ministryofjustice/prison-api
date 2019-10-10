@@ -15,13 +15,17 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class OffenceDetail {
+public class Offence {
 
     @ApiModelProperty(required = true, value = "Prisoner booking id", example = "1123456", position = 1)
     @NotNull
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Description of offence", position = 2)
+    @ApiModelProperty(required = true, value = "Reference Code", example = "RR84070", position = 2)
     @NotBlank
-    private String offenceDescription;
+    private String offenceCode;
+
+    @ApiModelProperty(required = true, value = "Statute code", example = "RR84", position = 3)
+    @NotBlank
+    private String statuteCode;
 }

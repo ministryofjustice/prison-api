@@ -365,6 +365,17 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentence.verifyOffenceDescription(ord2idx(ordinal), expectedDescription);
     }
 
+    @When("^a sentence with booking ids ([0-9,-]+) is requested using POST$")
+    public void sentenceWithBookingId(final String bookings) {
+        final var bookingIds = Arrays.asList(bookings.split(","));
+        bookingSentence.getMainOffenceDetails(bookingIds);
+    }
+
+    @And("^for \"([^\"]*)\" offence record, offence code is \"([^\"]*)\", statute code is \"([^\"]*)\"$")
+    public void offenceDescriptionOfOffenceDetailRecordIs(final String ordinal, final String offenceCode, final String statuteCode) {
+        bookingSentence.verifyOffenceCodes(ord2idx(ordinal), offenceCode, statuteCode);
+    }
+
     @Then("resource not found response is received from sentence API")
     public void resourceNotFoundResponse() {
         bookingSentence.verifyResourceNotFound();

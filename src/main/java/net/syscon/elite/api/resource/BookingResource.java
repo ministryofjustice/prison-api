@@ -421,13 +421,25 @@ public interface BookingResource {
     @Path("/{bookingId}/mainOffence")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Offender main offence detail.", notes = "Offender main offence detail.", nickname = "getMainOffence")
+    @ApiOperation(value = "Get Offender main offence detail.", notes = "Offender main offence detail.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenceDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<OffenceDetail> getMainOffence(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+
+    @POST
+    @Path("/mainOffence")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get Offender main offence detail.", notes = "Post version to allow specifying a large number of bookingIds.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenceDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    GetMainOffenceResponse getMainOffence(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+    List<Offence> getMainOffence(@ApiParam(value = "The bookingIds to identify the offenders", required = true) Set<Long> body);
 
     @GET
     @Path("/offenderNo/{offenderNo}/offenceHistory")
@@ -1379,24 +1391,6 @@ public interface BookingResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMainBookingImageDataResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetMainOffenceResponse extends ResponseDelegate {
-
-        private GetMainOffenceResponse(final Response response) {
-            super(response);
-        }
-
-        private GetMainOffenceResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetMainOffenceResponse respond200WithApplicationJson(final List<OffenceDetail> entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetMainOffenceResponse(responseBuilder.build(), entity);
         }
     }
 

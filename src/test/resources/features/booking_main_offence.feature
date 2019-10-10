@@ -1,3 +1,4 @@
+@sdar
 Feature: Booking Offences
 
   Acceptence Criteria
@@ -27,6 +28,19 @@ Feature: Booking Offences
 
   Scenario: Request main offence details for offender that does not yet have any on record
     When a sentence with booking id -9 is requested
+    Then 0 offence records are returned
+
+  Scenario: Retrieve multiple main offences using POST
+    Given a user has a token name of "SYSTEM_USER_READ_WRITE"
+    When a sentence with booking ids -1,-7 is requested using POST
+    Then 3 offence records are returned
+    And for "1st" offence record, offence code is "RC86355", statute code is "RC86"
+    And for "2nd" offence record, offence code is "RC86360", statute code is "RC86"
+    And for "3rd" offence record, offence code is "RV98011", statute code is "RV98"
+
+  Scenario: Retrieve multiple main offences using POST with no results
+    Given a user has a token name of "SYSTEM_USER_READ_WRITE"
+    When a sentence with booking ids -98,-99 is requested using POST
     Then 0 offence records are returned
 
   Scenario: Request offence history for offender
