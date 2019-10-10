@@ -7,9 +7,9 @@ import java.time.format.DateTimeFormatter
 plugins {
     id 'java'
     id 'groovy'
-    id 'org.springframework.boot' version '2.1.8.RELEASE'
+    id 'org.springframework.boot' version '2.1.9.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-    id 'com.github.ben-manes.versions' version '0.24.0'
+    id 'com.github.ben-manes.versions' version '0.25.0'
 }
 
 project.sourceCompatibility = 11
@@ -98,7 +98,7 @@ dependencies {
     implementation 'javax.activation:activation:1.1.1'
 
     implementation 'commons-codec:commons-codec:1.13'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.9'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.0'
     implementation 'com.github.jsqlparser:jsqlparser:3.0'
     implementation 'net.sf.ehcache:ehcache:2.10.6'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
@@ -108,8 +108,8 @@ dependencies {
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.2'
-    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.5.0-BETA.5'
-    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.5.0-BETA.5'
+    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.5.0'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.5.0'
 
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'commons-io:commons-io:2.6'
@@ -124,20 +124,20 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
-    testImplementation 'io.rest-assured:rest-assured:4.1.1'
-    testImplementation 'io.rest-assured:json-schema-validator:4.1.1'
-    testImplementation 'io.rest-assured:spring-mock-mvc:4.1.1'
+    testImplementation 'io.rest-assured:rest-assured:4.1.2'
+    testImplementation 'io.rest-assured:json-schema-validator:4.1.2'
+    testImplementation 'io.rest-assured:spring-mock-mvc:4.1.2'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.google.code.gson:gson:2.8.5'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
 
     testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.8.0'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.9.0'
 
-    testImplementation 'net.serenity-bdd:serenity-core:2.0.70'
-    testImplementation 'net.serenity-bdd:serenity-junit:2.0.70'
-    testImplementation 'net.serenity-bdd:serenity-spring:2.0.70'
+    testImplementation 'net.serenity-bdd:serenity-core:2.0.76'
+    testImplementation 'net.serenity-bdd:serenity-junit:2.0.76'
+    testImplementation 'net.serenity-bdd:serenity-spring:2.0.76'
     testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.45'
     testImplementation 'org.slf4j:slf4j-api:1.7.25'
     testCompileOnly 'org.projectlombok:lombok:1.18.10'

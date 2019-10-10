@@ -27,13 +27,13 @@ public class AccessRoleMaintenanceIntTest {
         final var allRolesInCaseload = staffService.getAllStaffRolesForCaseload("NWEB", "KW_ADMIN");
         assertThat(allRolesInCaseload).containsExactly(
                 StaffUserRole.builder()
-                    .roleId(-201L)
-                    .roleCode("KW_ADMIN")
-                    .roleName("Keyworker Admin")
-                    .caseloadId("NWEB")
-                    .username("API_TEST_USER")
-                    .staffId(-4L)
-                    .build(),
+                        .roleId(-201L)
+                        .roleCode("KW_ADMIN")
+                        .roleName("Keyworker Admin")
+                        .caseloadId("NWEB")
+                        .username("API_TEST_USER")
+                        .staffId(-4L)
+                        .build(),
                 StaffUserRole.builder()
                         .roleId(-201L)
                         .roleCode("KW_ADMIN")
@@ -112,11 +112,11 @@ public class AccessRoleMaintenanceIntTest {
                         .username("RO_USER")
                         .staffId(-5L)
                         .build()
-                );
+        );
     }
 
     @Test
-    @WithMockUser(username="ITAG_USER",roles={"MAINTAIN_ACCESS_ROLES"})
+    @WithMockUser(username = "ITAG_USER", roles = {"MAINTAIN_ACCESS_ROLES"})
     public void addAndRemoveRoleFromStaffMember() {
         var roles = staffService.getStaffRoles(-4L);
         assertThat(roles).hasSize(3);

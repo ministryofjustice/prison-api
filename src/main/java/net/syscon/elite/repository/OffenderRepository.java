@@ -1,9 +1,9 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.util.DatabaseDialect;
 
 import java.util.Collections;
@@ -18,7 +18,7 @@ public interface OffenderRepository {
     /**
      * Finds offenders matching specified search criteria.
      *
-     * @param criteria search criteria.
+     * @param criteria    search criteria.
      * @param pageRequest pagination and sorting criteria.
      * @return page of offender detail records.
      */
@@ -40,7 +40,7 @@ public interface OffenderRepository {
         public static Map<String, String> getColumnMappingsForDialect(final DatabaseDialect databaseDialect) {
             final Map<String, String> mappings;
 
-            switch(databaseDialect) {
+            switch (databaseDialect) {
                 case ORACLE_11:
                     mappings = ORACLE_11.columnMappings;
                     break;

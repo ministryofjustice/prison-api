@@ -3,14 +3,7 @@ package net.syscon.elite.repository.impl;
 import com.google.common.collect.Lists;
 import lombok.val;
 import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.adjudications.Adjudication;
-import net.syscon.elite.api.model.adjudications.AdjudicationCharge;
-import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
-import net.syscon.elite.api.model.adjudications.AdjudicationOffence;
-import net.syscon.elite.api.model.adjudications.Award;
-import net.syscon.elite.api.model.adjudications.Hearing;
-import net.syscon.elite.api.model.adjudications.HearingResult;
-import net.syscon.elite.api.model.adjudications.Sanction;
+import net.syscon.elite.api.model.adjudications.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
@@ -110,7 +103,7 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
     private Map<Long, List<Sanction>> getSanctions(List<Long> hearingIds) {
         return hearingIds.isEmpty()
                 ? Map.of()
-                :jdbcTemplate.query(getQuery("FIND_SANCTIONS"), createParams("hearingIds", hearingIds), sanctionMapper)
+                : jdbcTemplate.query(getQuery("FIND_SANCTIONS"), createParams("hearingIds", hearingIds), sanctionMapper)
                 .stream()
                 .collect(groupingBy(Sanction::getOicHearingId));
     }

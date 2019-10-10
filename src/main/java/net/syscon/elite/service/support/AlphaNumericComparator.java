@@ -17,7 +17,7 @@ public class AlphaNumericComparator implements Comparator<String> {
         if (shouldApplyAlphaNumericSorting(left, right)) {
 
             final var sortIndex = compareAlpha(left, right);
-            if(sortIndex != 0)
+            if (sortIndex != 0)
                 return sortIndex;
 
             return compareAlphaNumbers(left, right);
@@ -32,12 +32,12 @@ public class AlphaNumericComparator implements Comparator<String> {
 
     private Boolean lastValueIsANumber(final String value) {
 
-        if(value.isEmpty())
+        if (value.isEmpty())
             return false;
 
         final var data = value.toCharArray();
 
-        return !Character.isAlphabetic(data[data.length-1]);
+        return !Character.isAlphabetic(data[data.length - 1]);
     }
 
     private int compareAlpha(final String left, final String right) {

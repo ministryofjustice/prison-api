@@ -27,7 +27,7 @@ import java.util.Map;
 public class CaseNoteCount {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long bookingId;
 
@@ -56,8 +56,8 @@ public class CaseNoteCount {
     }
 
     /**
-      * Offender booking id
-      */
+     * Offender booking id
+     */
     @ApiModelProperty(required = true, value = "Offender booking id")
     @JsonProperty("bookingId")
     public Long getBookingId() {
@@ -69,8 +69,8 @@ public class CaseNoteCount {
     }
 
     /**
-      * Case note type.
-      */
+     * Case note type.
+     */
     @ApiModelProperty(required = true, value = "Case note type.")
     @JsonProperty("type")
     public String getType() {
@@ -82,8 +82,8 @@ public class CaseNoteCount {
     }
 
     /**
-      * Case note sub-type.
-      */
+     * Case note sub-type.
+     */
     @ApiModelProperty(required = true, value = "Case note sub-type.")
     @JsonProperty("subType")
     public String getSubType() {
@@ -95,8 +95,8 @@ public class CaseNoteCount {
     }
 
     /**
-      * Number of case notes of defined type and subType for offender.
-      */
+     * Number of case notes of defined type and subType for offender.
+     */
     @ApiModelProperty(required = true, value = "Number of case notes of defined type and subType for offender.")
     @JsonProperty("count")
     public Long getCount() {
@@ -108,8 +108,8 @@ public class CaseNoteCount {
     }
 
     /**
-      * Count includes case notes occurring on or after this date (in YYYY-MM-DD format).
-      */
+     * Count includes case notes occurring on or after this date (in YYYY-MM-DD format).
+     */
     @ApiModelProperty(value = "Count includes case notes occurring on or after this date (in YYYY-MM-DD format).")
     @JsonProperty("fromDate")
     public LocalDate getFromDate() {
@@ -121,8 +121,8 @@ public class CaseNoteCount {
     }
 
     /**
-      * Count includes case notes occurring on or before this date (in YYYY-MM-DD format).
-      */
+     * Count includes case notes occurring on or before this date (in YYYY-MM-DD format).
+     */
     @ApiModelProperty(value = "Count includes case notes occurring on or before this date (in YYYY-MM-DD format).")
     @JsonProperty("toDate")
     public LocalDate getToDate() {
@@ -134,11 +134,11 @@ public class CaseNoteCount {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class CaseNoteCount {\n");
-        
+
         sb.append("  bookingId: ").append(bookingId).append("\n");
         sb.append("  type: ").append(type).append("\n");
         sb.append("  subType: ").append(subType).append("\n");

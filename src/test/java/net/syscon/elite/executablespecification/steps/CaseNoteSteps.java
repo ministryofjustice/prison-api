@@ -357,7 +357,8 @@ public class CaseNoteSteps extends CommonSteps {
                     url,
                     HttpMethod.GET,
                     createEntity(),
-                        new ParameterizedTypeReference<List<CaseNoteUsage>>() {});
+                    new ParameterizedTypeReference<List<CaseNoteUsage>>() {
+                    });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 

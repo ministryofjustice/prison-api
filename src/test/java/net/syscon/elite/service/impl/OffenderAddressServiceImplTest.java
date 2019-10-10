@@ -18,8 +18,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class OffenderAddressServiceImplTest {
 
-    @Mock private OffenderAddressRepository offenderAddressRepository;
-    @Mock private BookingService bookingService;
+    @Mock
+    private OffenderAddressRepository offenderAddressRepository;
+    @Mock
+    private BookingService bookingService;
     private OffenderAddressServiceImpl offenderAddressService;
 
     @Before

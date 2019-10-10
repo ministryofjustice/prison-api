@@ -13,7 +13,7 @@ public class PersonIdentifierSteps extends CommonSteps {
 
     public void requestPersonIdentifiers(final long personId) {
         final var response = restTemplate.exchange(
-                API_PREFIX +"/persons/{personId}/identifiers",
+                API_PREFIX + "/persons/{personId}/identifiers",
                 HttpMethod.GET,
                 createEntity(),
                 new ParameterizedTypeReference<List<PersonIdentifier>>() {

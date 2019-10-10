@@ -60,7 +60,7 @@ Feature: Locations
 
     Examples:
     | agencyCode | countInmates |
-    | LEI        |  10          |
+    | LEI        |  26          |
     | BMI        |  0           |
 
   Scenario Outline: Retrieve a list of inmates at specific agency to check convicted status
@@ -69,7 +69,7 @@ Feature: Locations
 
     Examples:
       | agencyCode | countInmates | convictedStatus |
-      | LEI        | 6            | Convicted       |
+      | LEI        | 8            | Convicted       |
       | LEI        | 3            | Remand          |
 
     Scenario Outline: Retrieve a list of inmates queried by convicted status
@@ -78,5 +78,5 @@ Feature: Locations
 
       Examples:
       | agencyCode | convictedStatus | countInmates |
-      |LEI         | Convicted       | 7            |
-      |LEI         | Remand          | 3            |
+      | LEI        | Convicted       | 8            |
+      | LEI        | Remand          | 3            |

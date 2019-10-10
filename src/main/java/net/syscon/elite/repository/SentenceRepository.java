@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.Offence;
 import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.api.model.OffenceHistoryDetail;
 
@@ -9,6 +10,9 @@ import java.util.Optional;
 
 public interface SentenceRepository {
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
+
+    List<Offence> getMainOffenceDetails(List<Long> bookingIds);
+
     List<OffenceHistoryDetail> getOffenceHistory(String offenderNo);
 
     Optional<LocalDate> getConfirmedReleaseDate(Long bookingId);

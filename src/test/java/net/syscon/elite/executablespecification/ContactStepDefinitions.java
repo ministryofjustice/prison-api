@@ -13,7 +13,7 @@ import java.util.List;
  * <ul>
  * <li>/booking/{bookingId}/contacts</li>
  * </ul>
- *
+ * <p>
  * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class ContactStepDefinitions extends AbstractStepDefinitions {

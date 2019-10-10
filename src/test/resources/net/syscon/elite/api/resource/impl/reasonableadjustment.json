@@ -1,0 +1,16 @@
+{
+  "reasonableAdjustments": [
+    {
+      "treatmentCode": "WHEELCHR_ACC",
+      "commentText": "abcd",
+      "startDate": "2010-06-21",
+      "endDate": null
+    },
+    {
+      "treatmentCode": "PEEP",
+      "commentText": "efgh",
+      "startDate": "2010-06-21",
+      "endDate": null
+    }
+  ]
+}

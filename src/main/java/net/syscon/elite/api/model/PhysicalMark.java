@@ -25,7 +25,7 @@ import java.util.Map;
 public class PhysicalMark {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String type;
 
@@ -55,8 +55,8 @@ public class PhysicalMark {
     }
 
     /**
-      * Type of Mark
-      */
+     * Type of Mark
+     */
     @ApiModelProperty(required = true, value = "Type of Mark")
     @JsonProperty("type")
     public String getType() {
@@ -68,8 +68,8 @@ public class PhysicalMark {
     }
 
     /**
-      * Left or Right Side
-      */
+     * Left or Right Side
+     */
     @ApiModelProperty(required = true, value = "Left or Right Side")
     @JsonProperty("side")
     public String getSide() {
@@ -81,8 +81,8 @@ public class PhysicalMark {
     }
 
     /**
-      * Where on the body
-      */
+     * Where on the body
+     */
     @ApiModelProperty(required = true, value = "Where on the body")
     @JsonProperty("bodyPart")
     public String getBodyPart() {
@@ -94,8 +94,8 @@ public class PhysicalMark {
     }
 
     /**
-      * Image orientation
-      */
+     * Image orientation
+     */
     @ApiModelProperty(required = true, value = "Image orientation")
     @JsonProperty("orientation")
     public String getOrientation() {
@@ -107,8 +107,8 @@ public class PhysicalMark {
     }
 
     /**
-      * More information
-      */
+     * More information
+     */
     @ApiModelProperty(required = true, value = "More information")
     @JsonProperty("comment")
     public String getComment() {
@@ -120,8 +120,8 @@ public class PhysicalMark {
     }
 
     /**
-      * Image Id Ref
-      */
+     * Image Id Ref
+     */
     @ApiModelProperty(value = "Image Id Ref")
     @JsonProperty("imageId")
     public Long getImageId() {
@@ -133,11 +133,11 @@ public class PhysicalMark {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class PhysicalMark {\n");
-        
+
         sb.append("  type: ").append(type).append("\n");
         sb.append("  side: ").append(side).append("\n");
         sb.append("  bodyPart: ").append(bodyPart).append("\n");

@@ -24,14 +24,14 @@ public interface ReferenceDomainResource {
 
     @GET
     @Path("/alertTypes")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of alert types (with alert codes).", notes = "List of alert types (with alert codes).", nickname="getAlertTypes")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of alert types (with alert codes).", notes = "List of alert types (with alert codes).", nickname = "getAlertTypes")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetAlertTypesResponse getAlertTypes(@ApiParam(value = "Requested offset of first record in returned collection of alertType records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
                                         @ApiParam(value = "Requested limit to number of alertType records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
                                         @ApiParam(value = "Comma separated list of one or more of the following fields - <b>code, description</b>") @HeaderParam("Sort-Fields") String sortFields,
@@ -39,14 +39,14 @@ public interface ReferenceDomainResource {
 
     @GET
     @Path("/caseNoteSources")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of case note source codes.", notes = "List of case note source codes.", nickname="getCaseNoteSources")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of case note source codes.", notes = "List of case note source codes.", nickname = "getCaseNoteSources")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetCaseNoteSourcesResponse getCaseNoteSources(@ApiParam(value = "Requested offset of first record in returned collection of caseNoteSource records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
                                                   @ApiParam(value = "Requested limit to number of caseNoteSource records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
                                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>code, description</b>") @HeaderParam("Sort-Fields") String sortFields,
@@ -54,26 +54,26 @@ public interface ReferenceDomainResource {
 
     @GET
     @Path("/caseNoteTypes")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of all used case note types (with sub-types).", notes = "List of all used case note types (with sub-types).", nickname="getCaseNoteTypes")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of all used case note types (with sub-types).", notes = "List of all used case note types (with sub-types).", nickname = "getCaseNoteTypes")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetCaseNoteTypesResponse getCaseNoteTypes();
 
     @GET
     @Path("/domains/{domain}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of reference codes for reference domain.", notes = "List of reference codes for reference domain.", nickname="getReferenceCodesByDomain")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of reference codes for reference domain.", notes = "List of reference codes for reference domain.", nickname = "getReferenceCodesByDomain")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetReferenceCodesByDomainResponse getReferenceCodesByDomain(@ApiParam(value = "The domain identifier/name.", required = true) @PathParam("domain") String domain,
                                                                 @ApiParam(value = "Specify whether or not to return reference codes with their associated sub-codes.", defaultValue = "false") @QueryParam("withSubCodes") boolean withSubCodes,
                                                                 @ApiParam(value = "Requested offset of first record in returned collection of domain records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
@@ -83,14 +83,14 @@ public interface ReferenceDomainResource {
 
     @GET
     @Path("/domains/{domain}/codes/{code}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Reference code detail for reference domain and code (with sub-codes).", notes = "Reference code detail for reference domain and code (with sub-codes).", nickname="getReferenceCodeByDomainAndCode")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Reference code detail for reference domain and code (with sub-codes).", notes = "Reference code detail for reference domain and code (with sub-codes).", nickname = "getReferenceCodeByDomainAndCode")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetReferenceCodeByDomainAndCodeResponse getReferenceCodeByDomainAndCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathParam("domain") String domain,
                                                                             @ApiParam(value = "The reference code.", required = true) @PathParam("code") String code,
                                                                             @ApiParam(value = "Specify whether or not to return the reference code with its associated sub-codes.", defaultValue = "false") @QueryParam("withSubCodes") boolean withSubCodes);
@@ -98,44 +98,44 @@ public interface ReferenceDomainResource {
 
     @POST
     @Path("/domains/{domain}/codes/{code}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
     @ResponseStatus(value = HttpStatus.CREATED, reason = "Reference Code Created")
     @ApiOperation(value = "Creates a reference code")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Created", response = ReferenceCode.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ReferenceCode createReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathParam("domain") @NotNull @Length(max = 12) String domain,
-                                 @ApiParam(value = "The reference code.", required = true) @PathParam("code") @NotNull @Length(max = 12) String code,
-                                 @ApiParam(value = "Reference Information", required = true) @NotNull @Valid ReferenceCodeInfo referenceData);
+                                      @ApiParam(value = "The reference code.", required = true) @PathParam("code") @NotNull @Length(max = 12) String code,
+                                      @ApiParam(value = "Reference Information", required = true) @NotNull @Valid ReferenceCodeInfo referenceData);
 
     @PUT
     @Path("/domains/{domain}/codes/{code}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
     @ResponseStatus(value = HttpStatus.OK, reason = "Reference Code Updated")
     @ApiOperation(value = "Updates a reference code")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Updated", response = ReferenceCode.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ReferenceCode updateReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathParam("domain") @NotNull @Length(max = 12) String domain,
-                                 @ApiParam(value = "The reference code.", required = true) @PathParam("code") @NotNull @Length(max = 12) String code,
-                                 @ApiParam(value = "Reference Information", required = true) @NotNull @Valid ReferenceCodeInfo referenceData);
+                                      @ApiParam(value = "The reference code.", required = true) @PathParam("code") @NotNull @Length(max = 12) String code,
+                                      @ApiParam(value = "Reference Information", required = true) @NotNull @Valid ReferenceCodeInfo referenceData);
 
     @GET
     @Path("/scheduleReasons")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Get possible reason codes for created event.", notes = "Get possible reason codes for created event.", nickname="getScheduleReasons")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get possible reason codes for created event.", notes = "Get possible reason codes for created event.", nickname = "getScheduleReasons")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetScheduleReasonsResponse getScheduleReasons(@ApiParam(value = "Specify event type.", required = true) @QueryParam("eventType") String eventType);
 
     class GetAlertTypesResponse extends ResponseDelegate {

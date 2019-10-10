@@ -29,7 +29,7 @@ public class AppointmentsToCreate {
     @NotNull
     private List<@Valid AppointmentDetails> appointments;
 
-    @ApiModelProperty( value = "If present specifies the number of times to repeat the appointments and the period of the repeat", position = 2)
+    @ApiModelProperty(value = "If present specifies the number of times to repeat the appointments and the period of the repeat", position = 2)
     @Valid
     private Repeat repeat;
 

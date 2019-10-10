@@ -12,6 +12,7 @@ import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.Language;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -97,6 +97,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final Map<String, FieldMapper> physicalMarkMapping = new ImmutableMap.Builder<String, FieldMapper>()
             .put("COMMENT_TEXT", new FieldMapper("comment"))
             .build();
+
+    private final StandardBeanPropertyRowMapper<PersonalCareNeed> PERSONAL_CARE_NEEDS_MAPPER = new StandardBeanPropertyRowMapper<>(PersonalCareNeed.class);
+    private final StandardBeanPropertyRowMapper<ReasonableAdjustment> REASONABLE_ADJUSTMENTS_MAPPER = new StandardBeanPropertyRowMapper<>(ReasonableAdjustment.class);
 
     private final StandardBeanPropertyRowMapper<AssessmentDto> ASSESSMENT_MAPPER = new StandardBeanPropertyRowMapper<>(AssessmentDto.class);
     private final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
@@ -218,7 +221,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         if (StringUtils.isNotBlank(request.getSearchTerm1()) && StringUtils.isNotBlank(request.getSearchTerm2())) {
             initialSql += " AND ((O.LAST_NAME like :searchTerm1 and O.FIRST_NAME like :searchTerm2) " +
-                    "OR (O.FIRST_NAME like :searchTerm1 and O.LAST_NAME like :searchTerm2) ) ";
+                    "OR (O.FIRST_NAME like :searchTerm1 and O.LAST_NAME like :searchTerm2) " +
+                    "OR (O.FIRST_NAME like :searchTermCombined) " +
+                    "OR (O.LAST_NAME like :searchTermCombined)) ";
         } else if (StringUtils.isNotBlank(request.getSearchTerm1())) {
             initialSql += " AND (O.FIRST_NAME like :searchTerm1 OR O.LAST_NAME like :searchTerm1) ";
         } else if (StringUtils.isNotBlank(request.getSearchTerm2())) {
@@ -233,9 +238,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         if (request.getConvictedStatus() != null && !StringUtils.equalsIgnoreCase(request.getConvictedStatus(), "all")) {
             if (StringUtils.equalsIgnoreCase(request.getConvictedStatus(), "convicted")) {
-                initialSql += " AND CAST(IST.BAND_CODE AS int) <= 8 ";
+                initialSql += " AND (CAST(IST.BAND_CODE AS int) <= 8 OR CAST(IST.BAND_CODE AS int) = 11) ";
             } else if (StringUtils.equalsIgnoreCase(request.getConvictedStatus(), "remand")) {
-                initialSql += " AND CAST(IST.BAND_CODE AS int) > 8 ";
+                initialSql += " AND ((CAST(IST.BAND_CODE AS int) > 8 AND CAST(IST.BAND_CODE AS int) < 11) OR CAST(IST.BAND_CODE AS int) > 11)";
             } else {
                 log.info("Ignoring unrecognised value requested for convictionStatus [" + request.getConvictedStatus() + "]");
             }
@@ -264,12 +269,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         final var paRowMapper = new PageAwareRowMapper<>(offenderBookingRowMapper);
 
+        final var trimmedSearch1 = StringUtils.trimToEmpty(request.getSearchTerm1());
+        final var trimmedSearch2 = StringUtils.trimToEmpty(request.getSearchTerm2());
         final var offenderBookings = jdbcTemplate.query(
                 sql,
                 createParams(
                         "offenderNo", request.getOffenderNo(),
-                        "searchTerm1", StringUtils.trimToEmpty(request.getSearchTerm1()) + "%",
-                        "searchTerm2", StringUtils.trimToEmpty(request.getSearchTerm2()) + "%",
+                        "searchTerm1", trimmedSearch1 + "%",
+                        "searchTerm2", trimmedSearch2 + "%",
+                        "searchTermCombined", trimmedSearch1 + "%" + trimmedSearch2 + "%",
                         "locationPrefix", StringUtils.trimToEmpty(request.getLocationPrefix()) + "-%",
                         "caseLoadId", request.getCaseloads(),
                         "fromDob", request.getFromDob(),
@@ -345,6 +353,28 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 sql,
                 createParams("bookingId", bookingId),
                 physicalMarkRowMapper);
+    }
+
+    @Override
+    @Cacheable("bookingPersonalCareNeeds")
+    public List<PersonalCareNeed> findPersonalCareNeeds(final long bookingId, final Set<String> problemCodes) {
+        final var sql = getQuery("FIND_PERSONAL_CARE_NEEDS_BY_BOOKING");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId, "problemCodes", problemCodes),
+                PERSONAL_CARE_NEEDS_MAPPER);
+    }
+
+    @Override
+    @Cacheable("bookingReasonableAdjustments")
+    public List<ReasonableAdjustment> findReasonableAdjustments(final long bookingId, final List<String> treatmentCodes) {
+        final var sql = getQuery("FIND_REASONABLE_ADJUSTMENTS_BY_BOOKING");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId, "treatmentCodes", treatmentCodes),
+                REASONABLE_ADJUSTMENTS_MAPPER);
     }
 
     @Override
@@ -687,7 +717,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var sequences = jdbcTemplate.query(
                 getQuery("GET_ACTIVE_OFFENDER_CATEGORY_SEQUENCES"),
                 createParams("bookingId", detail.getBookingId(),
-                        "assessmentTypeId", assessmentId),
+                        "assessmentTypeId", assessmentId,
+                        "statuses", Arrays.asList("A", "P")),
                 mapper);
         if (CollectionUtils.isEmpty(sequences)) {
             throw new BadRequestException(String.format("No category assessment found, category %.10s, booking %d",
@@ -721,7 +752,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             final var previousSequences = sequences.stream().skip(1)
                     .collect(Collectors.toList());
             final var updatePreviousResult = jdbcTemplate.update(
-                    getQuery("APPROVE_CATEGORY_SET_STATUS"),
+                    getQuery("CATEGORY_SET_STATUS"),
                     createParams("bookingId", detail.getBookingId(),
                             "seq", previousSequences,
                             "assessStatus", "I"
@@ -733,6 +764,34 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         previousSequences));
             }
         }
+    }
+
+    @Override
+    public int setCategorisationInactive(final long bookingId) {
+        final var assessmentId = getCategoryAssessmentId();
+        final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
+        // get all active categorisation sequences
+        final var sequences = jdbcTemplate.query(
+                getQuery("GET_ACTIVE_OFFENDER_CATEGORY_SEQUENCES"),
+                createParams("bookingId", bookingId,
+                        "assessmentTypeId", assessmentId,
+                        "statuses", Arrays.asList("A")),
+                mapper);
+        if (CollectionUtils.isEmpty(sequences)) {
+            log.warn(String.format("No active category assessments found for booking id %d", bookingId));
+            return 0;
+        }
+        final var updateResult = jdbcTemplate.update(
+                getQuery("CATEGORY_SET_STATUS"),
+                createParams("bookingId", bookingId,
+                        "seq", sequences,
+                        "assessStatus", "I"
+                )
+        );
+        if (updateResult != 1) {
+            log.warn(String.format("Expected one row to be updated, got %d for booking id %d", updateResult, bookingId));
+        }
+        return updateResult;
     }
 
     @Override
@@ -749,11 +808,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         );
 
         if (result != 1) {
-            log.error("Unable to update next review date, could not find latest, active categorisation for booking id {}", bookingId);
-            throw new NotFoundException(String.format("Unable to update next review date, could not find latest, active categorisation for booking id %d", bookingId));
+            var message = String.format("Unable to update next review date, could not find latest, active categorisation for booking id %d, result count = %d", bookingId, result);
+            log.error(message);
+            throw new EntityNotFoundException(String.format(message));
         }
     }
-
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final boolean accessToAllData, final Set<String> caseloads, boolean active) {

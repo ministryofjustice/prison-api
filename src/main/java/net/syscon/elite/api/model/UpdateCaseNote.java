@@ -25,7 +25,7 @@ import java.util.Map;
 public class UpdateCaseNote {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String text;
 
@@ -41,8 +41,8 @@ public class UpdateCaseNote {
     }
 
     /**
-      * Updated Case Note Text
-      */
+     * Updated Case Note Text
+     */
     @ApiModelProperty(required = true, value = "Updated Case Note Text")
     @JsonProperty("text")
     public String getText() {
@@ -54,11 +54,11 @@ public class UpdateCaseNote {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class UpdateCaseNote {\n");
-        
+
         sb.append("  text: ").append(text).append("\n");
         sb.append("}\n");
 

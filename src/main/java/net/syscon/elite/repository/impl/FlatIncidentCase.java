@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = { "incidentCaseId", "questionnaireQueId" })
+@EqualsAndHashCode(of = {"incidentCaseId", "questionnaireQueId"})
 @Data
 class FlatIncidentCase {
 

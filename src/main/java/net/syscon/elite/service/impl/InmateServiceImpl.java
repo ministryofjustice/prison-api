@@ -141,7 +141,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, boolean active) {
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final boolean active) {
         final var canViewAllOffenders = isViewAllOffenders();
         final var caseloads = canViewAllOffenders ? Set.<String>of() : loadCaseLoadsOrThrow();
 
@@ -196,7 +196,7 @@ public class InmateServiceImpl implements InmateService {
         return inmate;
     }
 
-    private Optional<String> getFirstPreferredSpokenLanguage(Long bookingId) {
+    private Optional<String> getFirstPreferredSpokenLanguage(final Long bookingId) {
         return repository
                 .getLanguages(bookingId)
                 .stream()
@@ -261,6 +261,7 @@ public class InmateServiceImpl implements InmateService {
 
     /**
      * Get assessments, latest per code, order not important.
+     *
      * @param bookingId tacit
      * @return latest assessment of each code for the offender
      */
@@ -281,6 +282,26 @@ public class InmateServiceImpl implements InmateService {
     @VerifyBookingAccess
     public List<PhysicalMark> getPhysicalMarks(final Long bookingId) {
         return repository.findPhysicalMarks(bookingId);
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public PersonalCareNeeds getPersonalCareNeeds(final Long bookingId, final List<String> problemTypes) {
+        final var problemTypesMap = QueryParamHelper.splitTypes(problemTypes);
+
+        final var personalCareNeeds = repository.findPersonalCareNeeds(bookingId, problemTypesMap.keySet());
+        final var returnList = personalCareNeeds.stream().filter((personalCareNeed) -> {
+            final var subTypes = problemTypesMap.get(personalCareNeed.getProblemType());
+            // will be null if not in map, otherwise will be empty if type in map with no sub type set
+            return subTypes != null && (subTypes.isEmpty() || subTypes.contains(personalCareNeed.getProblemCode()));
+        }).collect(Collectors.toList());
+        return new PersonalCareNeeds(returnList);
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public ReasonableAdjustments getReasonableAdjustments(final Long bookingId, final List<String> treatmentCodes) {
+        return new ReasonableAdjustments(repository.findReasonableAdjustments(bookingId, treatmentCodes));
     }
 
     @Override
@@ -342,9 +363,9 @@ public class InmateServiceImpl implements InmateService {
         }
         return results;
     }
-    
+
     /**
-     * @param bookingId tacit
+     * @param bookingId      tacit
      * @param assessmentCode tacit
      * @return Latest assessment of given code if any
      */
@@ -363,7 +384,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, boolean activeOnly) {
+    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, final boolean activeOnly) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
             final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
@@ -372,14 +393,14 @@ public class InmateServiceImpl implements InmateService {
 
             final var batch = Lists.partition(offenderNos, maxBatchSize);
             batch.forEach(offenderBatch -> {
-                final var assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly, activeOnly );
+                final var assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly, activeOnly);
 
                 for (final var assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
 
-                    if(latestOnly){
-                        // The first is the most recent date / seq for each booking where cellSharingAlertFlag = Y
+                    if (latestOnly) {
+                        // The first is the most recent date / seq for each booking (where cellSharingAlertFlag = Y if CSR)
                         results.add(createAssessment(assessmentForBooking.get(0)));
-                    }else {
+                    } else {
                         assessmentForBooking.forEach(assessment -> results.add(createAssessment(assessment)));
                     }
                 }
@@ -462,6 +483,17 @@ public class InmateServiceImpl implements InmateService {
 
         // Log event
         telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public void setCategorisationInactive(final Long bookingId) {
+        var count = repository.setCategorisationInactive(bookingId);
+
+        // Log event
+        telemetryClient.trackEvent("CategorisationSetInactive", ImmutableMap.of(
+                "bookingId", bookingId.toString(), "count", String.valueOf(count)), null);
     }
 
     @Override

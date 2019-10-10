@@ -73,10 +73,10 @@ public class InmateServiceImplTest {
                 // Order.DESC, "cellSharingAlertFlag"
                 // Order.DESC, "assessmentDate"
                 //	Order.DESC, "assessmentSeq"
-                AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE4").assessmentDate(LocalDate.of(2018, Month.MAY,   7)).cellSharingAlertFlag(true).build(),
-                AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE4").assessmentDate(LocalDate.of(2018, Month.MAY,   6)).cellSharingAlertFlag(true).build(),
-                AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE3").assessmentDate(LocalDate.of(2018, Month.MAY,   2)).cellSharingAlertFlag(true).build(),
-                AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE3").assessmentDate(LocalDate.of(2018, Month.MAY,   1)).cellSharingAlertFlag(true).build(),
+                AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE4").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).build(),
+                AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE4").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).build(),
+                AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE3").assessmentDate(LocalDate.of(2018, Month.MAY, 2)).cellSharingAlertFlag(true).build(),
+                AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE3").assessmentDate(LocalDate.of(2018, Month.MAY, 1)).cellSharingAlertFlag(true).build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE2").assessmentDate(LocalDate.of(2018, Month.APRIL, 8)).cellSharingAlertFlag(true).build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE2").assessmentDate(LocalDate.of(2018, Month.APRIL, 7)).cellSharingAlertFlag(true).build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE1").assessmentDate(LocalDate.of(2018, Month.APRIL, 5)).cellSharingAlertFlag(true).build(),
@@ -87,12 +87,12 @@ public class InmateServiceImplTest {
         final var assessments = serviceToTest.getAssessments(10L);
 
         assertThat(assessments).hasSize(4); // 1 per code
-        assertThat(assessments).extracting("bookingId","assessmentCode","assessmentDate").contains(
+        assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate").contains(
                 Tuple.tuple(10L, "CODE1", LocalDate.of(2018, Month.APRIL, 5)),
                 Tuple.tuple(10L, "CODE2", LocalDate.of(2018, Month.APRIL, 8)),
-                Tuple.tuple(10L, "CODE3", LocalDate.of(2018, Month.MAY,   2)),
-                Tuple.tuple(10L, "CODE4", LocalDate.of(2018, Month.MAY,   7))
-                );
+                Tuple.tuple(10L, "CODE3", LocalDate.of(2018, Month.MAY, 2)),
+                Tuple.tuple(10L, "CODE4", LocalDate.of(2018, Month.MAY, 7))
+        );
     }
 
     @Test
@@ -102,17 +102,17 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 5)).cellSharingAlertFlag(false).assessmentCreateLocation("MDI").approvalDate(LocalDate.of(2018, Month.MAY, 5)).assessmentSeq(3).build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 4)).cellSharingAlertFlag(true).assessmentCreateLocation("LEI").approvalDate(LocalDate.of(2018, Month.JUNE, 5)).assessmentSeq(2).build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 1)).cellSharingAlertFlag(true).assessmentCreateLocation("LPI").approvalDate(LocalDate.of(2018, Month.OCTOBER, 5)).assessmentSeq(1).build(),
-                AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY,   7)).cellSharingAlertFlag(true).assessmentCreateLocation("EXI").assessmentSeq(2).build(),
-                AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY,   6)).cellSharingAlertFlag(true).assessmentSeq(1).build()
+                AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).assessmentCreateLocation("EXI").assessmentSeq(2).build(),
+                AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).assessmentSeq(1).build()
         );
-        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", Collections.emptySet(), true, true)).thenReturn(data);
+        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", Collections.emptySet(), true, true)).thenReturn(data);
 
         final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", true, true);
 
         assertThat(assessments).hasSize(2); // 1 per offender
-        assertThat(assessments).extracting("bookingId","assessmentCode","assessmentDate", "assessmentAgencyId", "approvalDate", "assessmentSeq").containsExactly(
-                Tuple.tuple(10L, "THECODE", LocalDate.of(2018, Month.APRIL, 5), "MDI", LocalDate.of(2018, Month.MAY,   5), 3),
-                Tuple.tuple(11L, "THECODE", LocalDate.of(2018, Month.MAY,   7), "EXI", null, 2)
+        assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate", "assessmentAgencyId", "approvalDate", "assessmentSeq").containsExactly(
+                Tuple.tuple(10L, "THECODE", LocalDate.of(2018, Month.APRIL, 5), "MDI", LocalDate.of(2018, Month.MAY, 5), 3),
+                Tuple.tuple(11L, "THECODE", LocalDate.of(2018, Month.MAY, 7), "EXI", null, 2)
         );
     }
 
@@ -124,21 +124,21 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 4)).cellSharingAlertFlag(true).assessmentCreateLocation("LEI").approvalDate(LocalDate.of(2018, Month.JUNE, 5)).build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 1)).cellSharingAlertFlag(true).assessmentCreateLocation("LPI").approvalDate(LocalDate.of(2018, Month.OCTOBER, 5)).build(),
                 AssessmentDto.builder().bookingId(9L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2016, Month.APRIL, 1)).cellSharingAlertFlag(true).assessmentCreateLocation("LPI").approvalDate(LocalDate.of(2016, Month.OCTOBER, 5)).build(),
-                AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY,   7)).cellSharingAlertFlag(true).build(),
-                AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY,   6)).cellSharingAlertFlag(true).build()
+                AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).build(),
+                AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).build()
         );
-        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", Collections.emptySet(), false, true)).thenReturn(data);
+        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", Collections.emptySet(), false, true)).thenReturn(data);
 
         final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", false, true);
 
         assertThat(assessments).hasSize(6);
-        assertThat(assessments).extracting("bookingId","assessmentCode","assessmentDate").containsExactly(
+        assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate").containsExactly(
                 Tuple.tuple(9L, "THECODE", LocalDate.of(2016, Month.APRIL, 1)),
                 Tuple.tuple(10L, "THECODE", LocalDate.of(2018, Month.APRIL, 5)),
                 Tuple.tuple(10L, "THECODE", LocalDate.of(2018, Month.APRIL, 4)),
                 Tuple.tuple(10L, "THECODE", LocalDate.of(2018, Month.APRIL, 1)),
-                Tuple.tuple(11L, "THECODE", LocalDate.of(2018, Month.MAY,   7)),
-                Tuple.tuple(11L, "THECODE", LocalDate.of(2018, Month.MAY,   6))
+                Tuple.tuple(11L, "THECODE", LocalDate.of(2018, Month.MAY, 7)),
+                Tuple.tuple(11L, "THECODE", LocalDate.of(2018, Month.MAY, 6))
         );
     }
 
@@ -275,11 +275,11 @@ public class InmateServiceImplTest {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoadsIds);
         when(repository.getBasicInmateDetailsForOffenders(offenderNumbers, false, caseLoadsIds, true))
-                 .thenReturn(List.of(InmateBasicDetails.builder()
-                         .lastName("LAST NAME")
-                         .firstName("FIRST NAME")
-                         .middleName("MIDDLE NAME")
-                         .build()));
+                .thenReturn(List.of(InmateBasicDetails.builder()
+                        .lastName("LAST NAME")
+                        .firstName("FIRST NAME")
+                        .middleName("MIDDLE NAME")
+                        .build()));
 
         final var offenders = serviceToTest.getBasicInmateDetailsForOffenders(offenderNumbers, true);
 
@@ -298,8 +298,8 @@ public class InmateServiceImplTest {
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
 
         Assertions.assertThatThrownBy(() -> serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), true))
-       .isInstanceOf(BadRequestException.class)
-       .hasMessageContaining("User has not active caseloads");
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("User has not active caseloads");
     }
 
     @Test
@@ -320,5 +320,43 @@ public class InmateServiceImplTest {
 
         Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), false, caseLoad, true);
         Mockito.verify(caseLoadService).getCaseLoadIdsForUser("ME", false);
-     }
+    }
+
+    @Test
+    public void testGetPersonalCareNeedsByProblemTypeAndSubtype() {
+        final var problemTypes = List.of("DISAB+RM", "DISAB+RC", "MATSTAT");
+        final var personalCareNeedsAll = List.of(
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("MI").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build(),
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build()
+        );
+        final var personalCareNeeds = new PersonalCareNeeds(
+                List.of(
+                        PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build(),
+                        PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build()
+                )
+        );
+
+        when(repository.findPersonalCareNeeds(1l, Set.of("DISAB", "MATSTAT"))).thenReturn(personalCareNeedsAll);
+
+        final var response = serviceToTest.getPersonalCareNeeds(1l, problemTypes);
+
+        Mockito.verify(repository).findPersonalCareNeeds(1l, Set.of("DISAB", "MATSTAT"));
+        assertThat(response).isEqualTo(personalCareNeeds);
+    }
+
+    @Test
+    public void testGetReasonableAdjustmentsByType() {
+        final var types = List.of("PEEP", "WHEELCHR_ACC");
+        final var reasonableAdjustments = List.of(
+                ReasonableAdjustment.builder().treatmentCode("WHEELCHR_ACC").commentText("abcd").startDate(LocalDate.of(2019, 1, 2)).build()
+        );
+
+        when(repository.findReasonableAdjustments(1l, types)).thenReturn(reasonableAdjustments);
+
+        serviceToTest.getReasonableAdjustments(1l, types);
+
+        Mockito.verify(repository).findReasonableAdjustments(1l, types);
+    }
+
 }

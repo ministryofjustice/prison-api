@@ -149,7 +149,7 @@ public class OffenderCurfewRepositoryTest {
                         "    sysdate)",
                 new MapSqlParameterSource("bookingId", bookingId),
                 keyHolder,
-                new String[] {"OFFENDER_CURFEW_ID"});
+                new String[]{"OFFENDER_CURFEW_ID"});
 
         return keyHolder.getKey().longValue();
     }
@@ -157,11 +157,11 @@ public class OffenderCurfewRepositoryTest {
     @Test
     public void shouldSetHDCChecksPassedToY() {
 
-         val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
-         assertCurfewHDCChecksPassedEqualTo(curfewId, null, null);
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        assertCurfewHDCChecksPassedEqualTo(curfewId, null, null);
 
 
-         val date = LocalDate.of(2018, 1, 31);
+        val date = LocalDate.of(2018, 1, 31);
 
         repository.setHDCChecksPassed(curfewId, HdcChecks.builder().passed(true).date(date).build());
 
@@ -303,7 +303,7 @@ public class OffenderCurfewRepositoryTest {
                         .build()
         );
 
-        assertCurfewEqualTo(curfewId, null, null,"APPROVED", date);
+        assertCurfewEqualTo(curfewId, null, null, "APPROVED", date);
     }
 
     @Test
@@ -353,7 +353,7 @@ public class OffenderCurfewRepositoryTest {
             final LocalDate assessmentDate,
             final String approvalStatus,
             final LocalDate decisionDate) {
-        final var results = jdbcTemplate.queryForMap("SELECT PASSED_FLAG, ASSESSMENT_DATE, DECISION_DATE, APPROVAL_STATUS FROM OFFENDER_CURFEWS WHERE OFFENDER_CURFEW_ID = :curfewId", Map.of("curfewId" , curfewId));
+        final var results = jdbcTemplate.queryForMap("SELECT PASSED_FLAG, ASSESSMENT_DATE, DECISION_DATE, APPROVAL_STATUS FROM OFFENDER_CURFEWS WHERE OFFENDER_CURFEW_ID = :curfewId", Map.of("curfewId", curfewId));
         assertThat(results.get("PASSED_FLAG")).isEqualTo(passedFlag);
         assertThat(results.get("ASSESSMENT_DATE")).isEqualTo(assessmentDate == null ? null : Timestamp.valueOf(assessmentDate.atStartOfDay()));
         assertThat(results.get("APPROVAL_STATUS")).isEqualTo(approvalStatus);
@@ -376,7 +376,7 @@ public class OffenderCurfewRepositoryTest {
         return -1; // Unreachable!
     }
 
-    private int statusReasonCount(long curfewId, Set<String> codesToMatch){
+    private int statusReasonCount(long curfewId, Set<String> codesToMatch) {
         val count = jdbcTemplate.queryForObject(
                 "SELECT count(*) from HDC_STATUS_REASONS SR JOIN HDC_STATUS_TRACKINGS ST ON SR.HDC_STATUS_TRACKING_ID = ST.HDC_STATUS_TRACKING_ID WHERE ST.OFFENDER_CURFEW_ID = :curfewId AND ST.STATUS_CODE IN (:codesToMatch)",
                 Map.of(
@@ -394,20 +394,20 @@ public class OffenderCurfewRepositoryTest {
 
     private void assertCurfewHasStatusTracking(long curfewId, long statusTrackingId, String statusCode) {
         assertThat(jdbcTemplate.queryForObject(
-                        "SELECT STATUS_CODE FROM HDC_STATUS_TRACKINGS WHERE HDC_STATUS_TRACKING_ID = :trackingId AND OFFENDER_CURFEW_ID = :curfewId",
-                        Map.of(
-                                "curfewId", curfewId,
-                                "trackingId", statusTrackingId),
-                        String.class))
-        .isEqualTo(statusCode);
+                "SELECT STATUS_CODE FROM HDC_STATUS_TRACKINGS WHERE HDC_STATUS_TRACKING_ID = :trackingId AND OFFENDER_CURFEW_ID = :curfewId",
+                Map.of(
+                        "curfewId", curfewId,
+                        "trackingId", statusTrackingId),
+                String.class))
+                .isEqualTo(statusCode);
     }
 
     private void assertStatusTrackingHasStatusReason(long hdcTrackingId, String statusReasonCode) {
         assertThat(jdbcTemplate.queryForList(
-                        "SELECT STATUS_REASON_CODE FROM HDC_STATUS_REASONS WHERE HDC_STATUS_TRACKING_ID = :trackingId",
-                        Map.of("trackingId", hdcTrackingId),
-                        String.class))
-        .containsExactly(statusReasonCode);
+                "SELECT STATUS_REASON_CODE FROM HDC_STATUS_REASONS WHERE HDC_STATUS_TRACKING_ID = :trackingId",
+                Map.of("trackingId", hdcTrackingId),
+                String.class))
+                .containsExactly(statusReasonCode);
     }
 
 

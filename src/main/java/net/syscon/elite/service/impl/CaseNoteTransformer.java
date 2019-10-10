@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 @Component
@@ -33,7 +32,7 @@ public class CaseNoteTransformer {
         CaseNote out = null;
 
         if (in != null && in.getText() != null) {
-            out = CaseNote.builder()
+            final var caseNote = CaseNote.builder()
                     .caseNoteId(in.getCaseNoteId())
                     .bookingId(in.getBookingId())
                     .type(in.getType())
@@ -47,12 +46,10 @@ public class CaseNoteTransformer {
                     .staffId(in.getStaffId())
                     .agencyId(in.getAgencyId())
                     .authorName(WordUtils.capitalize(StringUtils.lowerCase(in.getAuthorName())))
-                    .amendments(new ArrayList<>())
-                    .additionalProperties(in.getAdditionalProperties())
                     .build();
 
             // Now create matcher object.
-            out = splitOutAmendments(in.getText(), out);
+            out = splitOutAmendments(in.getText(), caseNote);
         }
 
         return out;

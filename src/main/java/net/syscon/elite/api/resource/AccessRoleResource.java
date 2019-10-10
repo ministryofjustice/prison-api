@@ -16,39 +16,39 @@ public interface AccessRoleResource {
 
     @GET
     @Path("/")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of access roles", notes = "List of access roles", nickname="getAccessRoles")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = AccessRole.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of access roles", notes = "List of access roles", nickname = "getAccessRoles")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = AccessRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetAccessRolesResponse getAccessRoles(@ApiParam(value = "Include admin roles", required = true, defaultValue = "false") @QueryParam("includeAdmin") boolean includeAdmin);
 
     @POST
     @Path("/")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Create new access role.", notes = "Create new access role.", nickname="createAccessRole")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Create new access role.", notes = "Create new access role.", nickname = "createAccessRole")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = ""),
-        @ApiResponse(code = 400, message = "Invalid request - e.g. role code not provided.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to create an access role.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Parent access role not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 409, message = "A role already exists with the provided role code.", response = ErrorResponse.class) })
+            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 400, message = "Invalid request - e.g. role code not provided.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to create an access role.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Parent access role not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 409, message = "A role already exists with the provided role code.", response = ErrorResponse.class)})
     CreateAccessRoleResponse createAccessRole(@ApiParam(value = "", required = true) AccessRole body);
 
     @PUT
     @Path("/")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Update the access role.", notes = "Update the access role.", nickname="updateAccessRole")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Update the access role.", notes = "Update the access role.", nickname = "updateAccessRole")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = ""),
-        @ApiResponse(code = 400, message = "Invalid request - e.g. role code not provided.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to update an access role.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Access role not found.", response = ErrorResponse.class) })
+            @ApiResponse(code = 200, message = ""),
+            @ApiResponse(code = 400, message = "Invalid request - e.g. role code not provided.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to update an access role.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Access role not found.", response = ErrorResponse.class)})
     UpdateAccessRoleResponse updateAccessRole(@ApiParam(value = "", required = true) AccessRole body);
 
     class GetAccessRolesResponse extends ResponseDelegate {

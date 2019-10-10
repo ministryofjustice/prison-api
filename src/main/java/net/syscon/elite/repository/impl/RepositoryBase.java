@@ -16,63 +16,63 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public abstract class RepositoryBase  {
-	@Autowired
-	protected NamedParameterJdbcOperations jdbcTemplate;
+public abstract class RepositoryBase {
+    @Autowired
+    protected NamedParameterJdbcOperations jdbcTemplate;
 
-	@Autowired
-	protected SQLProvider sqlProvider;
+    @Autowired
+    protected SQLProvider sqlProvider;
 
-	@Autowired
-	protected QueryBuilderFactory queryBuilderFactory;
+    @Autowired
+    protected QueryBuilderFactory queryBuilderFactory;
 
     @Value("${datasource.jdbc.fetch_size:100}")
     protected int fetchSize;
 
-	@PostConstruct
-	public void initSql() {
-		sqlProvider.loadSql(getClass().getSimpleName().replace('.', '/'));
-		getJdbcTemplateBase().setFetchSize(fetchSize);
-	}
+    @PostConstruct
+    public void initSql() {
+        sqlProvider.loadSql(getClass().getSimpleName().replace('.', '/'));
+        getJdbcTemplateBase().setFetchSize(fetchSize);
+    }
 
-	public JdbcTemplate getJdbcTemplateBase() {
-		return ((JdbcTemplate)jdbcTemplate.getJdbcOperations());
-	}
+    public JdbcTemplate getJdbcTemplateBase() {
+        return ((JdbcTemplate) jdbcTemplate.getJdbcOperations());
+    }
 
     protected MapSqlParameterSource createParams(final Object... params) {
-		return new MapSqlParameterSource(array2map(params));
-	}
+        return new MapSqlParameterSource(array2map(params));
+    }
 
     protected MapSqlParameterSource createParamSource(final PageRequest pageRequest, final Object... params) {
-		Validate.notNull(pageRequest, "Page request must be provided.");
+        Validate.notNull(pageRequest, "Page request must be provided.");
 
 
         final var parameterSource = new MapSqlParameterSource();
 
-		parameterSource.addValue("offset", pageRequest.getOffset());
-		parameterSource.addValue("limit", pageRequest.getLimit());
+        parameterSource.addValue("offset", pageRequest.getOffset());
+        parameterSource.addValue("limit", pageRequest.getLimit());
 
-		parameterSource.addValues(array2map(params));
+        parameterSource.addValues(array2map(params));
 
-		return parameterSource;
-	}
+        return parameterSource;
+    }
 
-	// Converts one-dimensional array of key/value pairs to map
+    // Converts one-dimensional array of key/value pairs to map
     private Map<String, Object> array2map(final Object... params) {
-		Validate.isTrue(params.length % 2 == 0, "Additional parameters must be provided as key/value pairs.");
+        Validate.isTrue(params.length % 2 == 0, "Additional parameters must be provided as key/value pairs.");
 
         final Map<String, Object> theMap = new HashMap<>();
 
         for (var i = 0; i < params.length / 2; i++) {
             final var j = i * 2;
 
-			theMap.put(params[j].toString(), params[j + 1]);
-		}
+            theMap.put(params[j].toString(), params[j + 1]);
+        }
 
-		return theMap;
-	}
+        return theMap;
+    }
 
-	public String getQuery(final String name) {
-		return sqlProvider.get(name);
-	}
+    public String getQuery(final String name) {
+        return sqlProvider.get(name);
+    }
 }

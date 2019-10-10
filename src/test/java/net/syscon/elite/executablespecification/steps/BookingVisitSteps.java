@@ -53,11 +53,12 @@ public class BookingVisitSteps extends ScheduledEventSteps {
         final ResponseEntity<Visit> response;
         try {
             response = restTemplate.exchange(
-                            url,
-                            HttpMethod.GET,
-                            createEntity(),
-                            new ParameterizedTypeReference<Visit>() {},
-                            bookingId);
+                    url,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<Visit>() {
+                    },
+                    bookingId);
             lastVisit = response.getBody();
 
         } catch (final EliteClientException ex) {

@@ -21,14 +21,14 @@ import java.util.Map;
 @SuppressWarnings("unused")
 @ApiModel(description = "Inmate Detail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder(toBuilder = true   )
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
 public class InmateDetail {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long bookingId;
 
@@ -105,8 +105,8 @@ public class InmateDetail {
     }
 
     /**
-      * Offender Booking Id
-      */
+     * Offender Booking Id
+     */
     @ApiModelProperty(required = true, value = "Offender Booking Id")
     @JsonProperty("bookingId")
     public Long getBookingId() {
@@ -118,8 +118,8 @@ public class InmateDetail {
     }
 
     /**
-      * Booking Number
-      */
+     * Booking Number
+     */
     @ApiModelProperty(required = true, value = "Booking Number")
     @JsonProperty("bookingNo")
     public String getBookingNo() {
@@ -131,8 +131,8 @@ public class InmateDetail {
     }
 
     /**
-      * Offender Unique Reference
-      */
+     * Offender Unique Reference
+     */
     @ApiModelProperty(required = true, value = "Offender Unique Reference")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
@@ -144,8 +144,8 @@ public class InmateDetail {
     }
 
     /**
-      * First Name
-      */
+     * First Name
+     */
     @ApiModelProperty(required = true, value = "First Name")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -157,8 +157,8 @@ public class InmateDetail {
     }
 
     /**
-      * Middle Name(s)
-      */
+     * Middle Name(s)
+     */
     @ApiModelProperty(value = "Middle Name(s)")
     @JsonProperty("middleName")
     public String getMiddleName() {
@@ -170,8 +170,8 @@ public class InmateDetail {
     }
 
     /**
-      * Last Name
-      */
+     * Last Name
+     */
     @ApiModelProperty(required = true, value = "Last Name")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -183,8 +183,8 @@ public class InmateDetail {
     }
 
     /**
-      * Identifier of agency to which the offender is associated.
-      */
+     * Identifier of agency to which the offender is associated.
+     */
     @ApiModelProperty(required = true, value = "Identifier of agency to which the offender is associated.")
     @JsonProperty("agencyId")
     public String getAgencyId() {
@@ -196,8 +196,8 @@ public class InmateDetail {
     }
 
     /**
-      * Identifier of living unit (e.g. cell) that offender is assigned to.
-      */
+     * Identifier of living unit (e.g. cell) that offender is assigned to.
+     */
     @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that offender is assigned to.")
     @JsonProperty("assignedLivingUnitId")
     public Long getAssignedLivingUnitId() {
@@ -209,8 +209,8 @@ public class InmateDetail {
     }
 
     /**
-      * Indicates that the offender is currently in prison
-      */
+     * Indicates that the offender is currently in prison
+     */
     @ApiModelProperty(required = true, value = "Indicates that the offender is currently in prison")
     @JsonProperty("activeFlag")
     public boolean getActiveFlag() {
@@ -222,8 +222,8 @@ public class InmateDetail {
     }
 
     /**
-      * Religion of the prisoner
-      */
+     * Religion of the prisoner
+     */
     @ApiModelProperty(value = "Religion of the prisoner")
     @JsonProperty("religion")
     public String getReligion() {
@@ -235,8 +235,8 @@ public class InmateDetail {
     }
 
     /**
-      * The prisoner's preferred spoken language.
-      */
+     * The prisoner's preferred spoken language.
+     */
     @ApiModelProperty(value = "The prisoner's preferred spoken language.")
     @JsonProperty("language")
     public String getLanguage() {
@@ -248,8 +248,8 @@ public class InmateDetail {
     }
 
     /**
-      * List of Alerts
-      */
+     * List of Alerts
+     */
     @ApiModelProperty(value = "List of Alerts")
     @JsonProperty("alertsCodes")
     public List<String> getAlertsCodes() {
@@ -261,8 +261,8 @@ public class InmateDetail {
     }
 
     /**
-      * number of active alerts - Full Details Only
-      */
+     * number of active alerts - Full Details Only
+     */
     @ApiModelProperty(value = "number of active alerts - Full Details Only")
     @JsonProperty("activeAlertCount")
     public Long getActiveAlertCount() {
@@ -274,8 +274,8 @@ public class InmateDetail {
     }
 
     /**
-      * number of inactive alerts - Full Details Only
-      */
+     * number of inactive alerts - Full Details Only
+     */
     @ApiModelProperty(value = "number of inactive alerts - Full Details Only")
     @JsonProperty("inactiveAlertCount")
     public Long getInactiveAlertCount() {
@@ -287,8 +287,8 @@ public class InmateDetail {
     }
 
     /**
-      * List of alert details
-      */
+     * List of alert details
+     */
     @ApiModelProperty(value = "List of alert details")
     @JsonProperty("alerts")
     public List<Alert> getAlerts() {
@@ -300,8 +300,8 @@ public class InmateDetail {
     }
 
     /**
-      * Where the offender is staying
-      */
+     * Where the offender is staying
+     */
     @ApiModelProperty(value = "Where the offender is staying")
     @JsonProperty("assignedLivingUnit")
     public AssignedLivingUnit getAssignedLivingUnit() {
@@ -313,8 +313,8 @@ public class InmateDetail {
     }
 
     /**
-      * Image Id Ref of Offender
-      */
+     * Image Id Ref of Offender
+     */
     @ApiModelProperty(value = "Image Id Ref of Offender")
     @JsonProperty("facialImageId")
     public Long getFacialImageId() {
@@ -326,8 +326,8 @@ public class InmateDetail {
     }
 
     /**
-      * Date of Birth of offender
-      */
+     * Date of Birth of offender
+     */
     @ApiModelProperty(required = true, value = "Date of Birth of offender")
     @JsonProperty("dateOfBirth")
     public LocalDate getDateOfBirth() {
@@ -339,8 +339,8 @@ public class InmateDetail {
     }
 
     /**
-      * Age of offender - Full Details Only
-      */
+     * Age of offender - Full Details Only
+     */
     @ApiModelProperty(value = "Age of offender - Full Details Only")
     @JsonProperty("age")
     public Integer getAge() {
@@ -352,8 +352,8 @@ public class InmateDetail {
     }
 
     /**
-      * A set of physical attributes
-      */
+     * A set of physical attributes
+     */
     @ApiModelProperty(value = "A set of physical attributes")
     @JsonProperty("physicalAttributes")
     public PhysicalAttributes getPhysicalAttributes() {
@@ -365,8 +365,8 @@ public class InmateDetail {
     }
 
     /**
-      * List of physical characteristics
-      */
+     * List of physical characteristics
+     */
     @ApiModelProperty(value = "List of physical characteristics")
     @JsonProperty("physicalCharacteristics")
     public List<PhysicalCharacteristic> getPhysicalCharacteristics() {
@@ -378,8 +378,8 @@ public class InmateDetail {
     }
 
     /**
-      * List of profile information
-      */
+     * List of profile information
+     */
     @ApiModelProperty(value = "List of profile information")
     @JsonProperty("profileInformation")
     public List<ProfileInformation> getProfileInformation() {
@@ -404,8 +404,8 @@ public class InmateDetail {
     }
 
     /**
-      * List of physical marks
-      */
+     * List of physical marks
+     */
     @ApiModelProperty(value = "List of physical marks")
     @JsonProperty("physicalMarks")
     public List<PhysicalMark> getPhysicalMarks() {
@@ -417,8 +417,8 @@ public class InmateDetail {
     }
 
     /**
-      * List of assessments
-      */
+     * List of assessments
+     */
     @ApiModelProperty(value = "List of assessments")
     @JsonProperty("assessments")
     public List<Assessment> getAssessments() {
@@ -430,8 +430,8 @@ public class InmateDetail {
     }
 
     /**
-      * CSRA (Latest assessment with cellSharing=true from list of assessments)
-      */
+     * CSRA (Latest assessment with cellSharing=true from list of assessments)
+     */
     @ApiModelProperty(value = "CSRA (Latest assessment with cellSharing=true from list of assessments)")
     @JsonProperty("csra")
     public String getCsra() {
@@ -443,8 +443,8 @@ public class InmateDetail {
     }
 
     /**
-      * Category description (from list of assessments)
-      */
+     * Category description (from list of assessments)
+     */
     @ApiModelProperty(value = "Category description (from list of assessments)")
     @JsonProperty("category")
     public String getCategory() {
@@ -456,8 +456,8 @@ public class InmateDetail {
     }
 
     /**
-      * Category code (from list of assessments)
-      */
+     * Category code (from list of assessments)
+     */
     @ApiModelProperty(value = "Category code (from list of assessments)")
     @JsonProperty("categoryCode")
     public String getCategoryCode() {
@@ -469,8 +469,8 @@ public class InmateDetail {
     }
 
     /**
-      * Staff Id reference for assigned officer / keyworker
-      */
+     * Staff Id reference for assigned officer / keyworker
+     */
     @ApiModelProperty(value = "Staff Id reference for assigned officer / keyworker")
     @JsonProperty("assignedOfficerId")
     public Long getAssignedOfficerId() {
@@ -482,11 +482,11 @@ public class InmateDetail {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class InmateDetail {\n");
-        
+
         sb.append("  bookingId: ").append(bookingId).append("\n");
         sb.append("  bookingNo: ").append(bookingNo).append("\n");
         sb.append("  offenderNo: ").append(offenderNo).append("\n");

@@ -13,9 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SchedulesResourceTest extends ResourceTest {
 
-    @Autowired
-    private AuthTokenHelper authTokenHelper;
-
     @Test
     public void testThatScheduleActivities_IsReturnForAllActivityLocations() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
@@ -24,7 +21,8 @@ public class SchedulesResourceTest extends ResourceTest {
                 "/api/schedules/LEI/activities?timeSlot=PM&date=2017-09-11",
                 HttpMethod.GET,
                 createHttpEntity(token, ""),
-                new ParameterizedTypeReference<List<PrisonerSchedule>>() {});
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                });
 
         final var activities = response.getBody();
 

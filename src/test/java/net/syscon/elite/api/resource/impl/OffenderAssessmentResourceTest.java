@@ -10,10 +10,6 @@ import org.springframework.http.HttpStatus;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderAssessmentResourceTest extends ResourceTest {
-
-    @Autowired
-    private AuthTokenHelper authTokenHelper;
-
     @Test
     public void testSystemUserCanUpdateCategoryNextReviewDate() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
@@ -63,5 +59,39 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 "-56", "2018-06-05");
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void testSystemUserCanUpdateCategorySetInactive() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        // choose a booking that doesnt actually have any active
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/category/{bookingId}/inactive",
+                HttpMethod.PUT,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "-34");
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void testNormalUserCannotUpdateCategorySetInactive() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/category/{bookingId}/inactive",
+                HttpMethod.PUT,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                }, "-1");
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 }

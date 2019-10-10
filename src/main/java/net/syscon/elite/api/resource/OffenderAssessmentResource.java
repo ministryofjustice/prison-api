@@ -20,39 +20,39 @@ public interface OffenderAssessmentResource {
 
     @GET
     @Path("/{assessmentCode}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Offender assessment detail for multiple offenders.", notes = "Offender assessment detail for multiple offenders.", nickname="getOffenderAssessmentsAssessmentCode")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Offender assessment detail for multiple offenders.", nickname = "getOffenderAssessmentsAssessmentCode")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Assessment.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = Assessment.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(@ApiParam(value = "Assessment Type Code", required = true) @PathParam("assessmentCode") String assessmentCode,
                                                                                       @ApiParam(value = "The required offender numbers", required = true) @QueryParam("offenderNo") List<String> offenderNo,
-                                                                                      @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly,
+                                                                                      @ApiParam(value = "Returns only the latest assessment for the current sentence if true, otherwise all assessments for all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly,
                                                                                       @ApiParam(value = "Returns only active assessments if true, otherwise assessments with any status are included", defaultValue = "true") @QueryParam("activeOnly") Boolean activeOnly);
 
     @POST
     @Path("/{assessmentCode}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Retrieves Offender assessment details for multiple offenders - POST version to allow large offender lists.", notes = "Retrieves Offender assessment details for multiple offenders - POST version to allow large offender lists.", nickname="postOffenderAssessmentsAssessmentCode")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieves Offender assessment details for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsAssessmentCode")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "The assessment list is returned.", response = Assessment.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "The assessment list is returned.", response = Assessment.class, responseContainer = "List")})
     PostOffenderAssessmentsAssessmentCodeResponse postOffenderAssessmentsAssessmentCode(@ApiParam(value = "Assessment Type Code", required = true) @PathParam("assessmentCode") String assessmentCode,
                                                                                         @ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body,
-                                                                                        @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly,
+                                                                                        @ApiParam(value = "Returns only the latest assessment for the current sentence if true, otherwise all assessments for all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly,
                                                                                         @ApiParam(value = "Returns only active assessments if true, otherwise assessments with any status are included", defaultValue = "true") @QueryParam("activeOnly") Boolean activeOnly);
 
 
     @POST
     @Path("/csra/list")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.", notes = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.", nickname="postOffenderAssessmentsCsraList")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsCsraList")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "The CSRA assessment list is returned, 1 per offender.", response = Assessment.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "The CSRA assessment list is returned, 1 per offender.", response = Assessment.class, responseContainer = "List")})
     PostOffenderAssessmentsCsraListResponse postOffenderAssessmentsCsraList(@ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body);
 
     @GET
@@ -64,12 +64,12 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List")})
     List<OffenderCategorise> getOffenderCategorisations(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
                                                         @ApiParam(value = "Indicates which type of category information is required." +
-                                                     "<li>UNCATEGORISED: Offenders who need to be categorised,</li>" +
-                                                     "<li>CATEGORISED: Offenders who have an approved categorisation,</li>" +
-                                                     "<li>RECATEGORISATIONS: Offenders who will soon require recategorisation</li>", required = true) @QueryParam("type") @NotNull(message = "Categorisation type must not be null") String type,
+                                                                "<li>UNCATEGORISED: Offenders who need to be categorised,</li>" +
+                                                                "<li>CATEGORISED: Offenders who have an approved categorisation,</li>" +
+                                                                "<li>RECATEGORISATIONS: Offenders who will soon require recategorisation</li>", required = true) @QueryParam("type") @NotNull(message = "Categorisation type must not be null") String type,
                                                         @ApiParam(value = "For type CATEGORISED: The past date from which categorisations are returned.<br />" +
-                                                     "For type RECATEGORISATIONS: the future cutoff date: list includes all prisoners who require recategorisation on or before this date.<br />" +
-                                                     "For type UNCATEGORISED: Ignored; do not set this parameter.") @QueryParam("date") LocalDate date);
+                                                                "For type RECATEGORISATIONS: the future cutoff date: list includes all prisoners who require recategorisation on or before this date.<br />" +
+                                                                "For type UNCATEGORISED: Ignored; do not set this parameter.") @QueryParam("date") LocalDate date);
 
     @POST
     @Path("/category/{agencyId}")
@@ -84,35 +84,45 @@ public interface OffenderAssessmentResource {
 
     @POST
     @Path("/category/categorise")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record.", nickname="createCategorisation")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record.", nickname = "createCategorisation")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden - user not authorised to categorise the offender.", response = ErrorResponse.class) })
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to categorise the offender.", response = ErrorResponse.class)})
     Response createCategorisation(@ApiParam(value = "Categorisation details", required = true) @Valid CategorisationDetail body);
 
     @PUT
     @Path("/category/approve")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Approve a pending offender categorisation.", notes = "Update categorisation record with approval.", nickname="approveCategorisation")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Approve a pending offender categorisation.", notes = "Update categorisation record with approval.", nickname = "approveCategorisation")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden - user not authorised to approve the categorisation.", response = ErrorResponse.class) })
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to approve the categorisation.", response = ErrorResponse.class)})
     Response approveCategorisation(@ApiParam(value = "Approval details", required = true) @Valid CategoryApprovalDetail body);
 
     @PUT
+    @Path("/category/{bookingId}/inactive")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Set all active categorisations inactive", notes = "This endpoint should only be used with edge case initial categorisations.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = ""),
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to update categorisations.", response = ErrorResponse.class)})
+    Response setCategorisationInactive(@ApiParam(value = "The booking id of offender", required = true) @PathParam("bookingId") Long bookingId);
+
+    @PUT
     @Path("/category/{bookingId}/nextReviewDate/{nextReviewDate}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Update the next review date on the latest active categorisation", notes = "Update categorisation record with new next review date.", nickname="updateCategorisationNextReviewDate")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Update the next review date on the latest active categorisation", notes = "Update categorisation record with new next review date.", nickname = "updateCategorisationNextReviewDate")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = ""),
             @ApiResponse(code = 404, message = "Active categorisation not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden - user not authorised to update the categorisation.", response = ErrorResponse.class) })
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to update the categorisation.", response = ErrorResponse.class)})
     Response updateCategorisationNextReviewDate(@ApiParam(value = "The booking id of offender", required = true) @PathParam("bookingId") Long bookingId,
                                                 @ApiParam(value = "The new next review date (in YYYY-MM-DD format)", required = true) @PathParam("nextReviewDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate nextReviewDate);
 

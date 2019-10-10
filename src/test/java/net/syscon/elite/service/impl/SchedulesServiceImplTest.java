@@ -297,30 +297,30 @@ public class SchedulesServiceImplTest {
 
         when(bookingService.getEventsOnDay(anyCollection(), any(LocalDate.class)))
                 .thenReturn(List.of(
-                            ScheduledEvent
+                        ScheduledEvent
                                 .builder()
-                                    .bookingId(1L)
-                                    .eventClass("event class")
-                                    .eventId(2L)
-                                    .eventStatus("event status")
-                                    .eventType("event type")
-                                    .eventTypeDesc("event type description")
-                                    .eventSubType("event sub type")
-                                    .eventSubTypeDesc("event sub type description")
-                                    .eventDate(today)
-                                    .startTime(now)
-                                    .endTime(now)
-                                    .eventLocation("event location")
-                                    .eventLocationId(3L)
-                                    .eventSource("event source")
-                                    .eventSourceCode("event source code")
-                                    .eventSourceDesc("event source description")
-                                    .eventOutcome("event out come")
-                                    .performance("performance")
-                                    .outcomeComment("comments")
-                                    .paid(false)
-                                    .payRate(BigDecimal.valueOf(1))
-                                    .build()
+                                .bookingId(1L)
+                                .eventClass("event class")
+                                .eventId(2L)
+                                .eventStatus("event status")
+                                .eventType("event type")
+                                .eventTypeDesc("event type description")
+                                .eventSubType("event sub type")
+                                .eventSubTypeDesc("event sub type description")
+                                .eventDate(today)
+                                .startTime(now)
+                                .endTime(now)
+                                .eventLocation("event location")
+                                .eventLocationId(3L)
+                                .eventSource("event source")
+                                .eventSourceCode("event source code")
+                                .eventSourceDesc("event source description")
+                                .eventOutcome("event out come")
+                                .performance("performance")
+                                .outcomeComment("comments")
+                                .paid(false)
+                                .payRate(BigDecimal.valueOf(1))
+                                .build()
                         )
                 );
 
@@ -401,7 +401,7 @@ public class SchedulesServiceImplTest {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getVisits("LEI", offenders, LocalDate.now(), TimeSlot.AM);
 
-        verify(scheduleRepository,times(2)).getVisits(any(), anyList(), any());
+        verify(scheduleRepository, times(2)).getVisits(any(), anyList(), any());
     }
 
     @Test
@@ -409,7 +409,7 @@ public class SchedulesServiceImplTest {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getAppointments("LEI", offenders, LocalDate.now(), TimeSlot.AM);
 
-        verify(scheduleRepository,times(2)).getAppointments(any(), anyList(), any());
+        verify(scheduleRepository, times(2)).getAppointments(any(), anyList(), any());
     }
 
 
@@ -418,7 +418,7 @@ public class SchedulesServiceImplTest {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getActivities("LEI", offenders, LocalDate.now(), TimeSlot.AM, true);
 
-        verify(scheduleRepository,times(2)).getActivities(any(), anyList(), any());
+        verify(scheduleRepository, times(2)).getActivities(any(), anyList(), any());
     }
 
     @Test
@@ -426,7 +426,7 @@ public class SchedulesServiceImplTest {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getCourtEvents("LEI", offenders, LocalDate.now(), TimeSlot.AM);
 
-        verify(scheduleRepository,times(2)).getCourtEvents(anyList(), any());
+        verify(scheduleRepository, times(2)).getCourtEvents(anyList(), any());
     }
 
     @Test
@@ -434,6 +434,6 @@ public class SchedulesServiceImplTest {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getExternalTransfers("LEI", offenders, LocalDate.now());
 
-        verify(scheduleRepository,times(2)).getExternalTransfers(any(), anyList(), any());
+        verify(scheduleRepository, times(2)).getExternalTransfers(any(), anyList(), any());
     }
 }

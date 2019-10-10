@@ -19,7 +19,7 @@ import java.util.List;
 
 @ApiModel(description = "Offender Booking Summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder(toBuilder=true)
+@Builder(toBuilder = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -87,7 +87,8 @@ public class OffenderBooking {
     @JsonProperty("convictedStatus")
     public String getConvictedStatus() {
         if (this.bandCode != null) {
-            return Integer.valueOf(this.bandCode) <= 8 ? "Convicted" : "Remand";
+            final var band = Integer.parseInt(this.bandCode);
+            return band <= 8 || band == 11 ? "Convicted" : "Remand";
         }
         return null;
     }

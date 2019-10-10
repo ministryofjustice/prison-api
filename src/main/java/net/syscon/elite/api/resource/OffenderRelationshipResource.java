@@ -16,27 +16,27 @@ public interface OffenderRelationshipResource {
 
     @GET
     @Path("/externalRef/{externalRef}/{relationshipType}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of offenders", notes = "List of offenders", nickname="getBookingsByExternalRefAndType")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = OffenderSummary.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of offenders", notes = "List of offenders", nickname = "getBookingsByExternalRefAndType")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderSummary.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetBookingsByExternalRefAndTypeResponse getBookingsByExternalRefAndType(@ApiParam(value = "External Unique Reference to Contact Person", required = true) @PathParam("externalRef") String externalRef,
                                                                             @ApiParam(value = "Relationship Type", required = true) @PathParam("relationshipType") String relationshipType);
 
     @GET
     @Path("/person/{personId}/{relationshipType}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of offenders that are related to this person Id and relationship type", notes = "List of offenders that are related to this person Id and relationship type", nickname="getBookingsByPersonIdAndType")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of offenders that are related to this person Id and relationship type", notes = "List of offenders that are related to this person Id and relationship type", nickname = "getBookingsByPersonIdAndType")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = OffenderSummary.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = OffenderSummary.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetBookingsByPersonIdAndTypeResponse getBookingsByPersonIdAndType(@ApiParam(value = "Person Id of the contact person", required = true) @PathParam("personId") Long personId,
                                                                       @ApiParam(value = "Relationship Type", required = true) @PathParam("relationshipType") String relationshipType);
 

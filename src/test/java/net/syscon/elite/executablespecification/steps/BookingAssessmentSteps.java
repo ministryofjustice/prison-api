@@ -47,7 +47,8 @@ public class BookingAssessmentSteps extends CommonSteps {
         init();
         try {
             final var response = restTemplate.exchange(url, HttpMethod.GET,
-                    createEntity(), new ParameterizedTypeReference<Assessment>() {});
+                    createEntity(), new ParameterizedTypeReference<Assessment>() {
+                    });
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assessment = response.getBody();
         } catch (final EliteClientException ex) {
@@ -63,7 +64,8 @@ public class BookingAssessmentSteps extends CommonSteps {
                             url,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<Assessment>>() {});
+                            new ParameterizedTypeReference<List<Assessment>>() {
+                            });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
@@ -82,7 +84,8 @@ public class BookingAssessmentSteps extends CommonSteps {
                             url,
                             POST,
                             createEntity(offenderNoBody),
-                            new ParameterizedTypeReference<List<Assessment>>() {});
+                            new ParameterizedTypeReference<List<Assessment>>() {
+                            });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
@@ -97,7 +100,8 @@ public class BookingAssessmentSteps extends CommonSteps {
         init();
         try {
             final var response = restTemplate.exchange(url, HttpMethod.GET,
-                    createEntity(null, null), new ParameterizedTypeReference<List<Assessment>>() {});
+                    createEntity(null, null), new ParameterizedTypeReference<List<Assessment>>() {
+                    });
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assessment = response.getBody().isEmpty() ? null : response.getBody().get(0);
             buildResourceData(response);
@@ -111,7 +115,8 @@ public class BookingAssessmentSteps extends CommonSteps {
         try {
             final var url = API_ASSESSMENTS_PREFIX + "category/{agencyId}?type={type}" + (StringUtils.isNotBlank(date) ? "&date=" + date : "");
             final var response = restTemplate.exchange(url, HttpMethod.GET,
-                    createEntity(), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId, type);
+                    createEntity(), new ParameterizedTypeReference<List<OffenderCategorise>>() {
+                    }, agencyId, type);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             offenderCatList = response.getBody();
             buildResourceData(response);
@@ -125,7 +130,8 @@ public class BookingAssessmentSteps extends CommonSteps {
         try {
             final var url = API_ASSESSMENTS_PREFIX + "category/{agencyId}?latestOnly={latestOnly}";
             final var response = restTemplate.exchange(url, HttpMethod.POST,
-                    createEntity(bookingIds), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId, latestOnly);
+                    createEntity(bookingIds), new ParameterizedTypeReference<List<OffenderCategorise>>() {
+                    }, agencyId, latestOnly);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             offenderCatList = response.getBody();
             buildResourceData(response);
@@ -141,7 +147,8 @@ public class BookingAssessmentSteps extends CommonSteps {
                     restTemplate.exchange(
                             API_ASSESSMENTS_PREFIX + "category/categorise",
                             POST,
-                            createEntity(CategorisationDetail.builder().bookingId(bookingId).category(category).committee(committee).build()), new ParameterizedTypeReference<Map>() {});
+                            createEntity(CategorisationDetail.builder().bookingId(bookingId).category(category).committee(committee).build()), new ParameterizedTypeReference<Map>() {
+                            });
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             createResponse = response.getBody();
 
@@ -229,7 +236,7 @@ public class BookingAssessmentSteps extends CommonSteps {
                         tuple(-48L, "A1234AF", "Cat A", "CATEGORY", LocalDate.of(2016, Month.AUGUST, 8), "LEI", LocalDate.of(2016, Month.APRIL, 4), LocalDate.of(2016, Month.JULY, 7)),
                         tuple(-48L, "A1234AF", "Cat B", "CATEGORY", LocalDate.of(2018, Month.MAY, 8), "MDI", LocalDate.of(2016, Month.MAY, 4), LocalDate.of(2016, Month.MAY, 9)),
                         tuple(-48L, "A1234AF", "Cat B", "CATEGORY", LocalDate.of(2016, Month.MARCH, 8), "MDI", LocalDate.of(2016, Month.MARCH, 4), LocalDate.of(2016, Month.MARCH, 9)), // INACTIVE categorisation
-                        tuple(-5L, "A1234AE", "Unclass", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8), null, LocalDate.of(2016, Month.APRIL, 4), null ));
+                        tuple(-5L, "A1234AE", "Unclass", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8), null, LocalDate.of(2016, Month.APRIL, 4), null));
     }
 
     public void getUncategorisedOffenders(final String agencyId) {

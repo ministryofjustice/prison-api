@@ -21,17 +21,17 @@ import java.time.LocalDate;
 public class CreateAlert {
     @ApiModelProperty(value = "Code identifying type of alert", required = true, example = "X")
     @NotBlank
-    @Length(max=12)
+    @Length(max = 12)
     private String alertType;
 
     @ApiModelProperty(value = "Code identifying the sub type of alert", position = 1, required = true, example = "XEL")
     @NotBlank
-    @Length(max=12)
+    @Length(max = 12)
     private String alertCode;
 
     @ApiModelProperty(value = "Free Text Comment", position = 5, example = "has a large poster on cell wall")
     @NotBlank
-    @Length(max=1000)
+    @Length(max = 1000)
     private String comment;
 
     @ApiModelProperty(value = "Date the alert became effective", position = 2, example = "2019-02-13", required = true)

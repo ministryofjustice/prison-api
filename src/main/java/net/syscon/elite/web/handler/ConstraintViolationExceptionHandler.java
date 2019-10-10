@@ -13,7 +13,7 @@ import javax.ws.rs.ext.Provider;
  * This wrapper overrides the builtin Jersey handler ValidationExceptionMapper
  * for validation exceptions, which would otherwise consume them rather than ResourceExceptionHandler
  * Bind register in {@link ServletContextConfigs#setEnv} is also needed
- * 
+ *
  * @author steve
  */
 @Provider

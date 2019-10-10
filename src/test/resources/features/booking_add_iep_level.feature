@@ -1,4 +1,3 @@
-@test
 Feature: Change the current IEP Level for a booking
 
   Scenario: An authorised user attempts to change the current IEP Level of a booking within their caseloads.

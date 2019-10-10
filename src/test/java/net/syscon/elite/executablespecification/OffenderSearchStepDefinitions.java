@@ -15,7 +15,7 @@ import java.time.LocalDate;
  * <ul>
  *     <li>/v2/offender-search/_/_</li>
  * </ul>
- *
+ * <p>
  * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
@@ -41,12 +41,12 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
 
     @When("^an offender search is made filtering by alerts \"([^\"]*)\" in location \"([^\"]*)\"$")
     public void aBookingSearchIsMadeWithAlerts(final String alerts, final String locationPrefix) {
-        offenderSearch.search(locationPrefix,  null, false, true, true, alerts, null, null);
+        offenderSearch.search(locationPrefix, null, false, true, true, alerts, null, null);
     }
 
     @When("^an offender search is made in location \"([^\"]*)\" filtering between DOB between \"([^\"]*)\" and \"([^\"]*)\"$")
-    public void aBookingSearchIsMadeFilteringOnDobRange( final String locationPrefix, final String fromDob, final String toDob) {
-        offenderSearch.search(locationPrefix,  null, false, true, true, null, StringUtils.isNotBlank(fromDob) ? LocalDate.parse(fromDob) : null, StringUtils.isNotBlank(toDob) ? LocalDate.parse(toDob) : null);
+    public void aBookingSearchIsMadeFilteringOnDobRange(final String locationPrefix, final String fromDob, final String toDob) {
+        offenderSearch.search(locationPrefix, null, false, true, true, null, StringUtils.isNotBlank(fromDob) ? LocalDate.parse(fromDob) : null, StringUtils.isNotBlank(toDob) ? LocalDate.parse(toDob) : null);
     }
 
     @Then("^\"([^\"]*)\" offender records are returned$")
@@ -96,11 +96,11 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a booking search is made in \"([^\"]*)\"$")
     public void aBookingSearchIsMadeIn(final String subLocation) throws Throwable {
-        offenderSearch.search(subLocation, null, true, true, false,null, null, null);
+        offenderSearch.search(subLocation, null, true, true, false, null, null, null);
     }
 
     @Then("^only offenders situated in \"([^\"]*)\" be present in the results$")
     public void onlyOffendersSituatedInBePresentInTheResults(final String subLocationPrefix) throws Throwable {
-       offenderSearch.verifySubLocationPrefixInResults(subLocationPrefix);
+        offenderSearch.verifySubLocationPrefixInResults(subLocationPrefix);
     }
 }

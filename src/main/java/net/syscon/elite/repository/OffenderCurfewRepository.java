@@ -15,6 +15,7 @@ import java.util.Set;
 public interface OffenderCurfewRepository {
     /**
      * Retrieve the OffenderCurfews for every offender within the given agencies (prisons)
+     *
      * @param agencyIds The Ids of those agencies for which OffenderCurfews should be returned
      * @return A Collection of OffenderCurfew
      */

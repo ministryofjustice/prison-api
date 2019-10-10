@@ -55,7 +55,7 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
     public void keyWorkerAllocationsRequestIsMade(final Long staffId, final String agency) throws Throwable {
         keyworker.getKeyworkerAllocations(staffId, agency);
     }
-    
+
 
     @Then("^the correct key worker allocations are returned$")
     public void correctKeyWorkerAllocationsReceived() throws Throwable {

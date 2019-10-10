@@ -64,12 +64,4 @@ public class PrisonContactDetail {
     private List<Telephone> phones = new ArrayList<>();
 
 
-
-
-
-
-
-
-
-
 }

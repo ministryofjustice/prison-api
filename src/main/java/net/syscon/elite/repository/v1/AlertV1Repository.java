@@ -22,10 +22,10 @@ public class AlertV1Repository extends RepositoryBase {
     public List<AlertSP> getAlerts(final String nomsId, final boolean includeInactive, final LocalDateTime modifiedSince) {
         final var sql = includeInactive ? getQuery("ALERTS_BY_OFFENDER_WTIH_INACTIVE") : getQuery("ALERTS_BY_OFFENDER");
         return jdbcTemplate.query(
-                    sql,
-                    createParams(
-                            P_NOMS_ID, new SqlParameterValue(Types.VARCHAR, nomsId),
-                            P_MODIFIED_SINCE, new SqlParameterValue(Types.TIMESTAMP, DateTimeConverter.toDate(modifiedSince))),
+                sql,
+                createParams(
+                        P_NOMS_ID, new SqlParameterValue(Types.VARCHAR, nomsId),
+                        P_MODIFIED_SINCE, new SqlParameterValue(Types.TIMESTAMP, DateTimeConverter.toDate(modifiedSince))),
                 ALERT_V1_MAPPER);
     }
 }

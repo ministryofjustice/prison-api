@@ -30,14 +30,14 @@ public interface UserResource {
 
     @GET
     @Path("/")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Get user details.", notes = "Get user details.", nickname="getUsers")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get user details.", notes = "Get user details.", nickname = "getUsers")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetUsersResponse getUsers(@ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @QueryParam("nameFilter") String nameFilter,
                               @ApiParam(value = "Filter results by access role") @QueryParam("accessRole") String accessRole,
                               @ApiParam(value = "Requested offset of first record in returned collection of user records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
@@ -47,27 +47,27 @@ public interface UserResource {
 
     @GET
     @Path("/access-roles/caseload/{caseload}/access-role/{roleCode}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of users who have the named role at the named caseload", notes = "List of users who have the named role at the named caseload", nickname="getAllUsersHavingRoleAtCaseload")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of users who have the named role at the named caseload", notes = "List of users who have the named role at the named caseload", nickname = "getAllUsersHavingRoleAtCaseload")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetAllUsersHavingRoleAtCaseloadResponse getAllUsersHavingRoleAtCaseload(@ApiParam(value = "Caseload Id", required = true) @PathParam("caseload") String caseload,
                                                                             @ApiParam(value = "access role code", required = true) @PathParam("roleCode") String roleCode);
 
     @GET
     @Path("/caseload/{caseload}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Get user details by prison.", notes = "Get user details by prison.", nickname="getUsersByCaseLoad")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get user details by prison.", notes = "Get user details by prison.", nickname = "getUsersByCaseLoad")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetUsersByCaseLoadResponse getUsersByCaseLoad(@ApiParam(value = "The agency (prison) id.", required = true) @PathParam("caseload") String caseload,
                                                   @ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @QueryParam("nameFilter") String nameFilter,
                                                   @ApiParam(value = "Filter results by access role") @QueryParam("accessRole") String accessRole,
@@ -78,33 +78,33 @@ public interface UserResource {
 
     @GET
     @Path("/local-administrator/caseload/{caseload}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Deprecated: Get staff details for local administrators", notes = "Deprecated: please use /users/local-administrator/available", nickname="getStaffUsersForLocalAdministrator")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Deprecated: Get staff details for local administrators", notes = "Deprecated: please use /users/local-administrator/available", nickname = "getStaffUsersForLocalAdministrator")
     @Deprecated
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
-    GetStaffUsersForLocalAdminstrator deprecatedPleaseRemove(@ApiParam(value = "The agency (prison) id.", required = true, defaultValue = "", allowEmptyValue = true) @PathParam("caseload") String caseload,
-                                                                         @ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @QueryParam("nameFilter") String nameFilter,
-                                                                         @ApiParam(value = "Filter results by access role") @QueryParam("accessRole") String accessRole,
-                                                                         @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
-                                                                         @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
-                                                                         @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @HeaderParam("Sort-Fields") String sortFields,
-                                                                         @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
-
-    @GET
-    @Path("/local-administrator/available")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Get staff details for local administrator", notes = "Get user details for local administrator", nickname="getStaffUsersForLocalAdministrator")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    GetStaffUsersForLocalAdminstrator deprecatedPleaseRemove(@ApiParam(value = "The agency (prison) id.", required = true, defaultValue = "", allowEmptyValue = true) @PathParam("caseload") String caseload,
+                                                             @ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @QueryParam("nameFilter") String nameFilter,
+                                                             @ApiParam(value = "Filter results by access role") @QueryParam("accessRole") String accessRole,
+                                                             @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                                             @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
+                                                             @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @HeaderParam("Sort-Fields") String sortFields,
+                                                             @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+
+    @GET
+    @Path("/local-administrator/available")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get staff details for local administrator", notes = "Get user details for local administrator", nickname = "getStaffUsersForLocalAdministrator")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetStaffUsersForLocalAdminstrator getStaffUsersForLocalAdministrator(@ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @QueryParam("nameFilter") String nameFilter,
                                                                          @ApiParam(value = "Filter results by access role") @QueryParam("accessRole") String accessRole,
                                                                          @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
@@ -114,104 +114,103 @@ public interface UserResource {
 
     @GET
     @Path("/me")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Current user detail.", notes = "Current user detail.", nickname="getMyUserInformation")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Current user detail.", notes = "Current user detail.", nickname = "getMyUserInformation")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UserDetail.class),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+            @ApiResponse(code = 200, message = "OK", response = UserDetail.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetMyUserInformationResponse getMyUserInformation();
 
     @GET
     @Path("/me/bookingAssignments")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
     @Deprecated
-    @ApiOperation(value = "List of offender bookings assigned to current user.", notes = "Deprecated: Use <b>/bookings?iepLevel=true&offenderNo=&offenderNo=</b> instead. This API will be removed in a future release as keyworker holds the relationship to offender", nickname="getMyAssignments")
+    @ApiOperation(value = "List of offender bookings assigned to current user.", notes = "Deprecated: Use <b>/bookings?iepLevel=true&offenderNo=&offenderNo=</b> instead. This API will be removed in a future release as keyworker holds the relationship to offender", nickname = "getMyAssignments")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetMyAssignmentsResponse getMyAssignments(@ApiParam(value = "Requested offset of first record in returned collection of bookingAssignment records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
                                               @ApiParam(value = "Requested limit to number of bookingAssignment records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit);
 
     @GET
     @Path("/me/caseLoads")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of caseloads accessible to current user.", notes = "List of caseloads accessible to current user.", nickname="getMyCaseLoads")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of caseloads accessible to current user.", notes = "List of caseloads accessible to current user.", nickname = "getMyCaseLoads")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = CaseLoad.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = CaseLoad.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetMyCaseLoadsResponse getMyCaseLoads(@ApiParam(value = "If set to true then all caseloads are returned", defaultValue = "false") @QueryParam("allCaseloads") boolean allCaseloads);
 
     @GET
     @Path("/me/caseNoteTypes")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", notes = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", nickname="getMyCaseNoteTypes")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", notes = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", nickname = "getMyCaseNoteTypes")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetMyCaseNoteTypesResponse getMyCaseNoteTypes(@ApiParam(value = "Comma separated list of one or more of the following fields - <b>code, activeFlag, description</b>") @HeaderParam("Sort-Fields") String sortFields,
                                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
 
     @GET
     @Path("/me/locations")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of locations accessible to current user.", notes = "List of locations accessible to current user.", nickname="getMyLocations")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of locations accessible to current user.", notes = "List of locations accessible to current user.", nickname = "getMyLocations")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetMyLocationsResponse getMyLocations();
 
     @GET
     @Path("/me/roles")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of roles for current user.", notes = "List of roles for current user.", nickname="getMyRoles")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of roles for current user.", notes = "List of roles for current user.", nickname = "getMyRoles")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UserRole.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = UserRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetMyRolesResponse getMyRoles(@ApiParam(value = "If set to true then all roles are returned rather than just API roles", defaultValue = "false") @QueryParam("allRoles") boolean allRoles);
 
     @GET
     @Path("/staff/{staffId}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
     @Deprecated
-    @ApiOperation(value = "Staff detail.", notes = "Deprecated: Use <b>/staff/{staffId}</b> instead. This API will be removed in a future release.", nickname="getStaffDetail")
+    @ApiOperation(value = "Staff detail.", notes = "Deprecated: Use <b>/staff/{staffId}</b> instead. This API will be removed in a future release.", nickname = "getStaffDetail")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = StaffDetail.class),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+            @ApiResponse(code = 200, message = "OK", response = StaffDetail.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetStaffDetailResponse getStaffDetail(@ApiParam(value = "The staff id of the staff member.", required = true) @PathParam("staffId") Long staffId);
 
     @GET
     @Path("/{username}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "User detail.", notes = "User detail.", nickname="getUserDetails")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "User detail.", notes = "User detail.", nickname = "getUserDetails")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UserDetail.class),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+            @ApiResponse(code = 200, message = "OK", response = UserDetail.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetUserDetailsResponse getUserDetails(@ApiParam(value = "The username of the user.", required = true) @PathParam("username") String username);
-
 
 
     @POST
@@ -224,26 +223,25 @@ public interface UserResource {
     PostUserDetailsListResponse getUserDetailsList(@ApiParam(value = "The required usernames (mandatory)", required = true) Set<String> body);
 
 
-
     @GET
     @Path("/{username}/access-roles/caseload/{caseload}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of roles for the given user and caseload", notes = "List of roles for the given user and caseload", nickname="getRolesForUserAndCaseload")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of roles for the given user and caseload", notes = "List of roles for the given user and caseload", nickname = "getRolesForUserAndCaseload")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = AccessRole.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = AccessRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetRolesForUserAndCaseloadResponse getRolesForUserAndCaseload(@ApiParam(value = "user account to filter by", required = true) @PathParam("username") String username,
                                                                   @ApiParam(value = "Caseload Id", required = true) @PathParam("caseload") String caseload,
                                                                   @ApiParam(value = "Include admin roles", required = true, defaultValue = "false") @QueryParam("includeAdmin") boolean includeAdmin);
 
     @PUT
     @Path("/add/default/{caseload}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Add the NWEB caseload to specified caseload.", notes = "Add the NWEB caseload to specified caseload.", nickname="addApiAccessForCaseload")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Add the NWEB caseload to specified caseload.", notes = "Add the NWEB caseload to specified caseload.", nickname = "addApiAccessForCaseload")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "No New Users", response = CaseloadUpdate.class),
             @ApiResponse(code = 201, message = "New Users Enabled", response = CaseloadUpdate.class),
@@ -252,12 +250,12 @@ public interface UserResource {
 
     @PUT
     @Path("/me/activeCaseLoad")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Update working caseload for current user.", notes = "Update working caseload for current user.", nickname="updateMyActiveCaseLoad")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Update working caseload for current user.", notes = "Update working caseload for current user.", nickname = "updateMyActiveCaseLoad")
     @ApiResponses(value = {
-        @ApiResponse(code = 401, message = "Invalid username or password", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "the user does not have permission to view the caseload.", response = ErrorResponse.class) })
+            @ApiResponse(code = 401, message = "Invalid username or password", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "the user does not have permission to view the caseload.", response = ErrorResponse.class)})
     UpdateMyActiveCaseLoadResponse updateMyActiveCaseLoad(@ApiParam(value = "", required = true) CaseLoad body);
 
     @PUT

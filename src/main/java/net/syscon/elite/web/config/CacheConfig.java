@@ -46,7 +46,7 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.activity:3600}")
     private int activityTimeoutSeconds;
 
-    @Bean(destroyMethod="shutdown")
+    @Bean(destroyMethod = "shutdown")
     public net.sf.ehcache.CacheManager ehCacheManager() {
         final var config = new net.sf.ehcache.config.Configuration();
         config.sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(20_000));
@@ -80,6 +80,8 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("bookingPhysicalMarks", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingProfileInformation", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingLanguages", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingPersonalCareNeeds", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingReasonableAdjustments", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalCharacteristics", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalAttributes", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("offenderIdentifiers", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
@@ -115,7 +117,7 @@ public class CacheConfig implements CachingConfigurer {
 
     @Bean
     @Override
-    public CacheResolver cacheResolver()    {
+    public CacheResolver cacheResolver() {
         return new SimpleCacheResolver(cacheManager());
     }
 

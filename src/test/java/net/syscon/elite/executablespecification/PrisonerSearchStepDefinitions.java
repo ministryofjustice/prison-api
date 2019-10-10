@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -20,7 +21,7 @@ import java.util.Optional;
  * <ul>
  *     <li>/v2/prisoners</li>
  * </ul>
- *
+ * <p>
  * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
@@ -149,9 +150,9 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
         prisonerSearch.search(ImmutableMap.of("offenderNo", offenderNo), 0, 100, HttpStatus.FORBIDDEN);
     }
 
-    @When("^a search is made for prisoners with an offender number of \"([^\"]*)\" using simple endpoint$")
-    public void aSimpleSearchIsMadeForPrisonersWithAnOffenderNumberOf(final String offenderNo) throws Throwable {
-        prisonerSearch.simpleSearch(offenderNo, HttpStatus.OK);
+    @When("^a search is made for prisoners with offender numbers of \"([^\"]*)\" using simple endpoint$")
+    public void aSimpleSearchIsMadeForPrisonersWithAnOffenderNumberOf(final String offenderNos) throws Throwable {
+        prisonerSearch.simpleSearch(Arrays.asList(StringUtils.split(offenderNos, ",")), HttpStatus.OK);
     }
 
     @When("^a search is made for prisoners with CRO number of \"([^\"]*)\"$")

@@ -1,8 +1,6 @@
 package net.syscon.elite.service.impl;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
@@ -51,18 +49,16 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     private final CaseNoteRepository caseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final UserService userService;
-    private final TelemetryClient telemetryClient;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
 
     public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
-                               final UserService userService, final TelemetryClient telemetryClient,
+                               final UserService userService,
                                final AuthenticationFacade authenticationFacade,
                                @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
-        this.telemetryClient = telemetryClient;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
     }
@@ -96,7 +92,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
                 .orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
-        log.info("Returning casenote {} for bookingId {}", caseNoteId, bookingId);
+        log.info("Returning case note {}", caseNote);
 
         return transformer.transform(caseNote);
     }
@@ -109,12 +105,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         // TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
         final var caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
 
-        final var caseNoteCreated = getCaseNote(bookingId, caseNoteId);
-
-        // Log event
-        telemetryClient.trackEvent("CaseNoteCreated", ImmutableMap.of("type", caseNoteCreated.getType(), "subType", caseNoteCreated.getSubType()), null);
-
-        return caseNoteCreated;
+        return getCaseNote(bookingId, caseNoteId);
     }
 
     @Override
@@ -150,7 +141,6 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         }
 
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
-
         return getCaseNote(bookingId, caseNoteId);
     }
 
@@ -235,17 +225,15 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER','CASE_NOTE_EVENTS')")
     public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, final LocalDateTime createdDate, final Long limit) {
-        final var noteTypesMap = noteTypes.stream()
-                .map(t -> t.trim().replace(' ', '+'))
-                .collect(Collectors.toMap((n) -> StringUtils.substringBefore(n, "+"), (n) -> StringUtils.substringAfter(n, "+")));
+        final var noteTypesMap = QueryParamHelper.splitTypes(noteTypes);
 
-        final var events = caseNoteRepository.getCaseNoteEvents(createdDate, limit);
+        final var events = caseNoteRepository.getCaseNoteEvents(createdDate, noteTypesMap.keySet(), limit);
 
         // now filter out notes based on required note types
         return events.stream().filter((event) -> {
             final var subTypes = noteTypesMap.get(event.getMainNoteType());
             // will be null if not in map, otherwise will be empty if type in map with no sub type set
-            return subTypes != null && (subTypes.isEmpty() || subTypes.equals(event.getSubNoteType()));
+            return subTypes != null && (subTypes.isEmpty() || subTypes.contains(event.getSubNoteType()));
         }).collect(Collectors.toList());
     }
 

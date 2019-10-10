@@ -23,12 +23,12 @@ public class BookingProcs {
                     .withCatalogName(API_BOOKING_PROCS)
                     .withProcedureName("get_latest_booking")
                     .withNamedBinding()
-                .declareParameters(
+                    .declareParameters(
                             new SqlParameter(P_NOMS_ID, Types.VARCHAR),
                             new SqlOutParameter(P_BOOKING_CSR, Types.REF_CURSOR)
-                )
-                .returningResultSet(P_BOOKING_CSR,
-                        StandardBeanPropertyRowMapper.newInstance(BookingSP.class));
+                    )
+                    .returningResultSet(P_BOOKING_CSR,
+                            StandardBeanPropertyRowMapper.newInstance(BookingSP.class));
             compile();
         }
     }

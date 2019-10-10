@@ -93,7 +93,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     @ProxyUser
     public RemoveUsersAccessRoleForCaseloadResponse removeUsersAccessRoleForCaseload(final String username, final String caseload, final String roleCode) {
-        userService.removeUsersAccessRoleForCaseload( username,  caseload,  roleCode);
+        userService.removeUsersAccessRoleForCaseload(username, caseload, roleCode);
         return RemoveUsersAccessRoleForCaseloadResponse.respond200WithApplicationJson();
     }
 
@@ -110,14 +110,14 @@ public class UserResourceImpl implements UserResource {
     @ProxyUser
     public AddAccessRoleResponse addAccessRole(final String username, final String roleCode) {
         final var added = userService.addAccessRole(username, roleCode);
-        return added? AddAccessRoleResponse.respond201WithApplicationJson() : AddAccessRoleResponse.respond200WithApplicationJson();
+        return added ? AddAccessRoleResponse.respond201WithApplicationJson() : AddAccessRoleResponse.respond200WithApplicationJson();
     }
 
     @Override
     @ProxyUser
     public AddAccessRoleByCaseloadResponse addAccessRoleByCaseload(final String username, final String caseload, final String roleCode) {
         final var added = userService.addAccessRole(username, roleCode, caseload);
-        return added? AddAccessRoleByCaseloadResponse.respond201WithApplicationJson() : AddAccessRoleByCaseloadResponse.respond200WithApplicationJson();
+        return added ? AddAccessRoleByCaseloadResponse.respond201WithApplicationJson() : AddAccessRoleByCaseloadResponse.respond200WithApplicationJson();
     }
 
     @Override

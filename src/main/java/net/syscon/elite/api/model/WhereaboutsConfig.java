@@ -26,8 +26,8 @@ public class WhereaboutsConfig {
     private boolean enabled;
 
     /**
-      * Whether this prison is enabled for whereabouts
-      */
+     * Whether this prison is enabled for whereabouts
+     */
     @ApiModelProperty(required = true, value = "Whether this prison is enabled for whereabouts")
     @JsonProperty("enabled")
     public boolean getEnabled() {
@@ -39,11 +39,11 @@ public class WhereaboutsConfig {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class WhereaboutsConfig {\n");
-        
+
         sb.append("  enabled: ").append(enabled).append("\n");
         sb.append("}\n");
 

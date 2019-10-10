@@ -28,7 +28,7 @@ public class UserCaseloadAndRoleMaintenanceIntTest {
     }
 
     @Test
-    @WithMockUser(username="ITAG_USER",roles={"MAINTAIN_ACCESS_ROLES"})
+    @WithMockUser(username = "ITAG_USER", roles = {"MAINTAIN_ACCESS_ROLES"})
     public void addAndRemoveRoleFromStaffMember() {
         var users = userService.getAllUsernamesForCaseloadAndRole("NWEB", "LICENCE_CA");
         assertThat(users).hasSize(1);
@@ -50,7 +50,7 @@ public class UserCaseloadAndRoleMaintenanceIntTest {
     }
 
     @Test
-    @WithMockUser(username="ITAG_USER",roles={"MAINTAIN_ACCESS_ROLES"})
+    @WithMockUser(username = "ITAG_USER", roles = {"MAINTAIN_ACCESS_ROLES"})
     public void addUsersToNwebCaseload() {
 
         var numberAlloc = userService.addDefaultCaseloadForPrison("LEI");

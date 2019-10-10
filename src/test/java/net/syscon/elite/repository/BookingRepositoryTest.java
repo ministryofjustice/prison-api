@@ -161,6 +161,13 @@ public class BookingRepositoryTest {
     }
 
     @Test
+    public void findBalancesForVisitOrdersAndPrivilageVisitOrders() {
+        final var visitBalances = repository.getBookingVisitBalances(-1L);
+
+        assertThat(visitBalances).get().isEqualToIgnoringGivenFields(new VisitBalances(25, 2));
+    }
+
+    @Test
     public void testGetBookingActivities() {
         final var results = repository.getBookingActivities(-2L, LocalDate.parse("2011-12-11"), LocalDate.now(), null, null);
 
@@ -174,7 +181,7 @@ public class BookingRepositoryTest {
 
         assertThat(results).asList().hasSize(8);
         assertThat(results).asList().extracting("eventId", "eventLocation", "eventLocationId")
-                    .contains(new Tuple(-11L,"Carpentry Workshop", -26L));
+                .contains(new Tuple(-11L, "Carpentry Workshop", -26L));
     }
 
     @Test
@@ -528,7 +535,7 @@ public class BookingRepositoryTest {
 
         assertThatOffenderIepLevelsForBookingAre(bookingId, Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"));
 
-        repository.addIepLevel(-54L, "A_DUMMY_USER", new IepLevelAndComment("STD","A comment"));
+        repository.addIepLevel(-54L, "A_DUMMY_USER", new IepLevelAndComment("STD", "A comment"));
 
         final Timestamp today = Timestamp.valueOf(LocalDate.now().atStartOfDay());
 
@@ -594,4 +601,4 @@ public class BookingRepositoryTest {
                         "ORDER BY IEP_LEVEL_SEQ",
                 Map.of("bookingId", bookingId));
     }
- }
+}

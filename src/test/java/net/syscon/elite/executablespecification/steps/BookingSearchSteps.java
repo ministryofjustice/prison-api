@@ -112,7 +112,8 @@ public class BookingSearchSteps extends CommonSteps {
         final var queryUrl = API_QUERY_PREFIX + StringUtils.trimToEmpty(query);
 
         final var response = restTemplate.exchange(queryUrl,
-                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});
+                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {
+                });
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         inmateSummaries = response.getBody();

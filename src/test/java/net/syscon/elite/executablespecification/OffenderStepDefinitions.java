@@ -17,8 +17,10 @@ import static net.syscon.elite.executablespecification.steps.OffenderAdjudicatio
 
 public class OffenderStepDefinitions extends AbstractStepDefinitions {
 
-    @Autowired private OffenderSteps offenderSteps;
-    @Autowired private OffenderAdjudicationSteps adjudicationSteps;
+    @Autowired
+    private OffenderSteps offenderSteps;
+    @Autowired
+    private OffenderAdjudicationSteps adjudicationSteps;
 
 
     @When("^I view the addresses of offender with offender display number of \"([^\"]*)\"$")

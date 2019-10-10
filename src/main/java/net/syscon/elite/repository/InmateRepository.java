@@ -4,7 +4,6 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.Language;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -32,70 +32,86 @@ import static java.lang.String.format;
  * </ul>
  */
 public interface InmateRepository {
-	String QUERY_OPERATOR_AND = "and:";
-	String QUERY_OPERATOR_OR = "or:";
+    String QUERY_OPERATOR_AND = "and:";
+    String QUERY_OPERATOR_OR = "or:";
 
-	Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest);
+    Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest);
 
-	Page<OffenderBooking> searchForOffenderBookings(OffenderBookingSearchRequest request);
+    Page<OffenderBooking> searchForOffenderBookings(OffenderBookingSearchRequest request);
 
-	Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit);
+    Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit);
 
     List<InmateDto> findInmatesByLocation(String agencyId, List<Long> locations, Set<String> caseLoadIds);
 
-	Optional<InmateDetail> findInmate(Long inmateId);
+    Optional<InmateDetail> findInmate(Long inmateId);
 
-	Optional<InmateDetail> getBasicInmateDetail(Long bookingId);
+    Optional<InmateDetail> getBasicInmateDetail(Long bookingId);
 
-	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
+    Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
 
-	List<Long> getPersonalOfficerBookings(long staffId);
+    List<Long> getPersonalOfficerBookings(long staffId);
 
-	/**
-	 * Perform global search for offenders, based on specified criteria.
-	 *
-	 * @param query query criteria using internal query DSL.
-	 * @param pageRequest encapsulates sorting and pagination directives.
+    /**
+     * Perform global search for offenders, based on specified criteria.
+     *
+     * @param query       query criteria using internal query DSL.
+     * @param pageRequest encapsulates sorting and pagination directives.
+     * @return list of prisoner details matching specified query criteria.
+     */
+    Page<PrisonerDetail> findOffenders(String query, PageRequest pageRequest);
 
-	 * @return list of prisoner details matching specified query criteria.
-	 */
-	Page<PrisonerDetail> findOffenders(String query, PageRequest pageRequest);
     Page<PrisonerDetail> findOffendersWithAliases(String query, PageRequest pageRequest);
 
-	Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId);
+    Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId);
 
-	List<ProfileInformation> getProfileInformation(long bookingId);
-	List<Language> getLanguages(long bookingId);
+    List<ProfileInformation> getProfileInformation(long bookingId);
 
-	List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId);
+    List<Language> getLanguages(long bookingId);
 
-	List<PhysicalMark> findPhysicalMarks(long inmateId);
+    List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId);
+
+    List<PhysicalMark> findPhysicalMarks(long inmateId);
+
+    List<PersonalCareNeed> findPersonalCareNeeds(long bookingId, Set<String> problemCodes);
+
+    List<ReasonableAdjustment> findReasonableAdjustments(long bookingId, List<String> treatmentCodes);
 
     List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadIdsForUser);
+
     List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean latestOnly, boolean activeOnly);
-	List<OffenderCategorise> getUncategorised(String agencyId);
-	List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutoffDate);
+
+    List<OffenderCategorise> getUncategorised(String agencyId);
+
+    List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutoffDate);
+
     List<OffenderCategorise> getRecategorise(String agencyId, LocalDate cutoffDate);
 
     List<OffenderCategorise> getOffenderCategorisations(List<Long> bookingIds, String agencyId, boolean latestOnly);
 
-	Optional<ImageDetail> getMainBookingImage(long bookingId);
+    Optional<ImageDetail> getMainBookingImage(long bookingId);
 
-	Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeGranularity);
+    Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeGranularity);
 
-	List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
-	List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue);
-	Map<String, Long> insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId);
-	void approveCategory(CategoryApprovalDetail detail);
+    List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
+
+    List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue);
+
+    Map<String, Long> insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId);
+
+    void approveCategory(CategoryApprovalDetail detail);
+
+    int setCategorisationInactive(long bookingId);
 
     void updateActiveCategoryNextReviewDate(long bookingId, LocalDate date);
 
     List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData, Set<String> caseloads, boolean active);
+
     List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(String caseload, List<Long> bookingIds);
 
     static String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria) {
         final var likeTemplate = "%s:like:'%s%%'";
         final var eqTemplate = "%s:eq:'%s'";
+        final var inTemplate = "%s:in:%s";
         final var dateRangeTemplate = "(%s%s:gteq:'%s':'YYYY-MM-DD',and:%s:lteq:'%s':'YYYY-MM-DD')";
 
         final var nameMatchingTemplate = criteria.isPartialNameMatch() ? likeTemplate : eqTemplate;
@@ -103,21 +119,28 @@ public interface InmateRepository {
 
         final var query = new StringBuilder();
 
-        final var sexCode = "ALL".equals(criteria.getSexCode()) ? null : criteria.getSexCode();
+        final var sexCode = "ALL".equals(criteria.getGender()) ? null : criteria.getGender();
 
-		appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNo(), eqTemplate, logicOperator);
-		appendNonBlankNameCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
-		appendNonBlankNameCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
-		appendNonBlankNameCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
-		appendNonBlankNameCriteria(query, "sexCode", sexCode, nameMatchingTemplate, logicOperator);
-		appendLocationCriteria(query, criteria.getLatestLocationId(), nameMatchingTemplate, logicOperator);
-		appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
-		appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
+        if (criteria.getOffenderNos() != null && !criteria.getOffenderNos().isEmpty()) {
+            if (criteria.getOffenderNos().size() == 1) {
+                appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNos().get(0), eqTemplate, logicOperator);
+            } else {
+                appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNos().stream().collect(Collectors.joining("'|'", "'", "'")), inTemplate, logicOperator);
+            }
+        }
+
+        appendNonBlankNameCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
+        appendNonBlankNameCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
+        appendNonBlankNameCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
+        appendNonBlankNameCriteria(query, "sexCode", sexCode, nameMatchingTemplate, logicOperator);
+        appendLocationCriteria(query, criteria.getLocation(), nameMatchingTemplate, logicOperator);
+        appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
+        appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
 
         appendDateRangeCriteria(query, "dateOfBirth", criteria, dateRangeTemplate, logicOperator);
 
-		return StringUtils.trimToNull(query.toString());
-	}
+        return StringUtils.trimToNull(query.toString());
+    }
 
     static void appendLocationCriteria(final StringBuilder query, final String criteriaValue,
                                        final String operatorTemplate, final String logicOperator) {
@@ -134,38 +157,38 @@ public interface InmateRepository {
                 default:
             }
         }
-	}
+    }
 
     static void appendNonBlankNameCriteria(final StringBuilder query, final String criteriaName, final String criteriaValue,
                                            final String operatorTemplate, final String logicOperator) {
-		if (StringUtils.isNotBlank(criteriaValue)) {
+        if (StringUtils.isNotBlank(criteriaValue)) {
             final String escapedCriteriaValue;
 
-			if (StringUtils.contains(criteriaValue, "''")) {
-				escapedCriteriaValue = criteriaValue;
-			} else {
-				escapedCriteriaValue = RegExUtils.replaceAll(criteriaValue, "'", "''");
-			}
+            if (StringUtils.contains(criteriaValue, "''")) {
+                escapedCriteriaValue = criteriaValue;
+            } else {
+                escapedCriteriaValue = RegExUtils.replaceAll(criteriaValue, "'", "''");
+            }
 
-			appendNonBlankCriteria(query, criteriaName, escapedCriteriaValue, operatorTemplate, logicOperator);
-		}
-	}
+            appendNonBlankCriteria(query, criteriaName, escapedCriteriaValue, operatorTemplate, logicOperator);
+        }
+    }
 
     static void appendNonBlankCriteria(final StringBuilder query, final String criteriaName, final String criteriaValue,
                                        final String operatorTemplate, final String logicOperator) {
-		if (StringUtils.isNotBlank(criteriaValue)) {
-			if (query.length() > 0) {
-				query.append(",").append(logicOperator);
-			}
+        if (StringUtils.isNotBlank(criteriaValue)) {
+            if (query.length() > 0) {
+                query.append(",").append(logicOperator);
+            }
 
-			query.append(format(operatorTemplate, criteriaName, criteriaValue.toUpperCase()));
-		}
-	}
+            query.append(format(operatorTemplate, criteriaName, criteriaValue.toUpperCase()));
+        }
+    }
 
     static void appendDateRangeCriteria(final StringBuilder query, final String criteriaName, final PrisonerDetailSearchCriteria criteria,
                                         final String operatorTemplate, final String logicOperator) {
         final var calcDates = new CalcDateRanges(
-        		criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), criteria.getMaxYearsRange());
+                criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), criteria.getMaxYearsRange());
 
         if (calcDates.hasDateRange()) {
             final var dateRange = calcDates.getDateRange();

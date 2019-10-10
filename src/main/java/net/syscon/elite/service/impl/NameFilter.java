@@ -20,7 +20,7 @@ public class NameFilter {
     }
 
     private void extractNames(final String searchTerm) {
-        if(searchTerm!=null){
+        if (searchTerm != null) {
             final var nameSplit = StringUtils.split(searchTerm, " ");
             if (nameSplit.length > 1) {
                 surname = nameSplit[0];
@@ -29,11 +29,11 @@ public class NameFilter {
         }
     }
 
-    public boolean isFullNameSearch(){
-        return surname!=null;
+    public boolean isFullNameSearch() {
+        return surname != null;
     }
 
-    public boolean isProvided(){
+    public boolean isProvided() {
         return StringUtils.isNotBlank(searchTerm);
     }
 }

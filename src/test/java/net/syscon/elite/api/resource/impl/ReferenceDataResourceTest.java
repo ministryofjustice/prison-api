@@ -10,23 +10,19 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReferenceDataResourceTest extends ResourceTest {
-
-    @Autowired
-    private AuthTokenHelper authTokenHelper;
-
     @Test
     public void testCreateANewSubReferenceType() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var httpEntity = createHttpEntity(token,
                 "{" +
-                "    \"description\": \"TASK_TEST1\"," +
-                "    \"expiredDate\": \"2018-07-19\"," +
-                "    \"activeFlag\": \"N\"," +
-                "    \"listSeq\": 88," +
-                "    \"parentCode\": \"GEN\"," +
-                "    \"parentDomain\": \"TASK_TYPE\"" +
-                "}");
+                        "    \"description\": \"TASK_TEST1\"," +
+                        "    \"expiredDate\": \"2018-07-19\"," +
+                        "    \"activeFlag\": \"N\"," +
+                        "    \"listSeq\": 88," +
+                        "    \"parentCode\": \"GEN\"," +
+                        "    \"parentDomain\": \"TASK_TYPE\"" +
+                        "}");
 
         final var response = testRestTemplate.exchange(
                 "/api/reference-domains/domains/{domain}/codes/{code}",

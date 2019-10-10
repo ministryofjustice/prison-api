@@ -26,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
@@ -77,7 +75,7 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetAgencyLocations() {
-        final var locations = repository.getAgencyLocations("LEI", Arrays.asList("APP", "VISIT"), null, null);
+        final var locations = repository.getAgencyLocations("LEI", List.of("APP", "VISIT"), null, null);
         assertThat(locations).extracting("locationType").contains("AREA", "AREA", "CLAS", "WSHP");
     }
 
@@ -100,20 +98,20 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetAgencyLocationsNoResults1() {
-        final var locations = repository.getAgencyLocations("LEI", Arrays.asList("OTHER"), null, null);
+        final var locations = repository.getAgencyLocations("LEI", List.of("OTHER"), null, null);
         assertThat(locations).isEmpty();
     }
 
     @Test
     public void testGetAgencyLocationsNoResults2() {
-        final var locations = repository.getAgencyLocations("doesnotexist", Arrays.asList("APP"), null, null);
+        final var locations = repository.getAgencyLocations("doesnotexist", List.of("APP"), null, null);
         assertThat(locations).isEmpty();
     }
 
     @Test
     public void testGetAgencyLocationsAll() {
-        final var locations = repository.getAgencyLocations("LEI", Collections.emptyList(), null, null);
-        assertThat(locations).hasSize(40);
+        final var locations = repository.getAgencyLocations("LEI", List.of(), null, null);
+        assertThat(locations).hasSize(137);
     }
 
     @Test
@@ -182,15 +180,15 @@ public class AgencyRepositoryTest {
         val results = repository.getPrisonIepReview(criteria);
 
         assertThat(results.getItems()).containsExactly(OFFENDER_1_IEP_REVIEW,
-                                                        OFFENDER_2_IEP_REVIEW,
-                                                        OFFENDER_3_IEP_REVIEW,
-                                                        OFFENDER_4_IEP_REVIEW,
-                                                        OFFENDER_5_IEP_REVIEW,
-                                                        OFFENDER_6_IEP_REVIEW,
-                                                        OFFENDER_7_IEP_REVIEW,
-                                                        OFFENDER_8_IEP_REVIEW,
-                                                        OFFENDER_9_IEP_REVIEW,
-                                                        OFFENDER_10_IEP_REVIEW);
+                OFFENDER_2_IEP_REVIEW,
+                OFFENDER_3_IEP_REVIEW,
+                OFFENDER_4_IEP_REVIEW,
+                OFFENDER_5_IEP_REVIEW,
+                OFFENDER_6_IEP_REVIEW,
+                OFFENDER_7_IEP_REVIEW,
+                OFFENDER_8_IEP_REVIEW,
+                OFFENDER_9_IEP_REVIEW,
+                OFFENDER_10_IEP_REVIEW);
     }
 
     @Test

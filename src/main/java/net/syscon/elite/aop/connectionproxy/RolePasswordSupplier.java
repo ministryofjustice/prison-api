@@ -18,7 +18,7 @@ public class RolePasswordSupplier {
 
     /**
      * The role password.
-     *
+     * <p>
      * This is retrieved lazily from the database - providing resilience if the first
      * attempt fails. The reference is never updated once it is non-null.
      * Because RolePasswordSupplier used as a singleton the getRolePassword method below must be thread-safe.

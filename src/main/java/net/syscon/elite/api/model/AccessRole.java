@@ -25,7 +25,7 @@ import java.util.Map;
 public class AccessRole {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     private Long roleId;
 
     @NotBlank
@@ -49,8 +49,8 @@ public class AccessRole {
     }
 
     /**
-      * internal role id
-      */
+     * internal role id
+     */
     @ApiModelProperty(value = "internal role id")
     @JsonProperty("roleId")
     public Long getRoleId() {
@@ -62,8 +62,8 @@ public class AccessRole {
     }
 
     /**
-      * unique code for the access role
-      */
+     * unique code for the access role
+     */
     @ApiModelProperty(required = true, value = "unique code for the access role")
     @JsonProperty("roleCode")
     public String getRoleCode() {
@@ -75,8 +75,8 @@ public class AccessRole {
     }
 
     /**
-      * name of the access role
-      */
+     * name of the access role
+     */
     @ApiModelProperty(value = "name of the access role")
     @JsonProperty("roleName")
     public String getRoleName() {
@@ -88,8 +88,8 @@ public class AccessRole {
     }
 
     /**
-      * role code of the parent role
-      */
+     * role code of the parent role
+     */
     @ApiModelProperty(value = "role code of the parent role")
     @JsonProperty("parentRoleCode")
     public String getParentRoleCode() {
@@ -101,8 +101,8 @@ public class AccessRole {
     }
 
     /**
-      * ADMIN or GENERAL
-      */
+     * ADMIN or GENERAL
+     */
     @ApiModelProperty(value = "ADMIN or GENERAL")
     @JsonProperty("roleFunction")
     public String getRoleFunction() {
@@ -114,11 +114,11 @@ public class AccessRole {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class AccessRole {\n");
-        
+
         sb.append("  roleId: ").append(roleId).append("\n");
         sb.append("  roleCode: ").append(roleCode).append("\n");
         sb.append("  roleName: ").append(roleName).append("\n");

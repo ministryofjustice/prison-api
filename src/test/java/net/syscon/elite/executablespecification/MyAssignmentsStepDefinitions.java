@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * <ul>
  *     <li>/users/me/bookingAssignments</li>
  * </ul>
- *
+ * <p>
  * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class MyAssignmentsStepDefinitions extends AbstractStepDefinitions {
@@ -20,7 +20,7 @@ public class MyAssignmentsStepDefinitions extends AbstractStepDefinitions {
 
     @When("^I view my assignments$")
     public void iViewMyAssignments() throws Throwable {
-       myAssignments.getMyAssignments();
+        myAssignments.getMyAssignments();
     }
 
     @Then("^\"([^\"]*)\" total keyworker assignments records are returned$")

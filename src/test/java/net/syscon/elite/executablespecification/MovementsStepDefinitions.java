@@ -89,8 +89,9 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
     public void theRecordsShouldContainAEntryFor(final String offenderNo, final String lastName, final String fromAgency, final String toAgency, final String reason, final String time) {
-       movementsSteps.verifyOffenderMovements(offenderNo, lastName, fromAgency, toAgency, reason, time);
+        movementsSteps.verifyOffenderMovements(offenderNo, lastName, fromAgency, toAgency, reason, time);
     }
+
     @When("^a request is made to retrieve the 'offenders in' for agency \"([^\"]*)\" on date \"([^\"]*)\"$")
     public void aRequestIsMadeToRetrieveTheOffendersInForAgencyOnDate(final String agencyId, final String isoDateString) {
         movementsSteps.getOffendersIn(agencyId, LocalDate.parse(isoDateString));
@@ -136,7 +137,7 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a request is made to retrieve events involving agencies \"([^\"]*)\" and \"([^\"]*)\" between \"([^\"]*)\" and \"([^\"]*)\"$")
     public void aRequestIsMadeToRetrieveMovementsForAgencies(final String agency1, final String agency2, final String fromTime, final String toTime) throws Throwable {
-        final var agencies = List.of(agency1,agency2);
+        final var agencies = List.of(agency1, agency2);
         movementsSteps.getMovementsForAgencies(agencies, fromTime, toTime);
     }
 

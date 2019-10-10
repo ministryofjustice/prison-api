@@ -27,7 +27,7 @@ import java.util.Map;
 public class PhysicalAttributes {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String gender;
 
@@ -67,8 +67,8 @@ public class PhysicalAttributes {
     }
 
     /**
-      * Gender
-      */
+     * Gender
+     */
     @ApiModelProperty(required = true, value = "Gender")
     @JsonProperty("gender")
     public String getGender() {
@@ -80,8 +80,8 @@ public class PhysicalAttributes {
     }
 
     /**
-      * Ethnicity Code
-      */
+     * Ethnicity Code
+     */
     @ApiModelProperty(required = true, value = "Ethnicity Code")
     @JsonProperty("raceCode")
     public String getRaceCode() {
@@ -93,8 +93,8 @@ public class PhysicalAttributes {
     }
 
     /**
-      * Ethnicity
-      */
+     * Ethnicity
+     */
     @ApiModelProperty(required = true, value = "Ethnicity")
     @JsonProperty("ethnicity")
     public String getEthnicity() {
@@ -106,8 +106,8 @@ public class PhysicalAttributes {
     }
 
     /**
-      * Height in Feet
-      */
+     * Height in Feet
+     */
     @ApiModelProperty(required = true, value = "Height in Feet")
     @JsonProperty("heightFeet")
     public Integer getHeightFeet() {
@@ -119,8 +119,8 @@ public class PhysicalAttributes {
     }
 
     /**
-      * Height in Inches
-      */
+     * Height in Inches
+     */
     @ApiModelProperty(required = true, value = "Height in Inches")
     @JsonProperty("heightInches")
     public Integer getHeightInches() {
@@ -132,8 +132,8 @@ public class PhysicalAttributes {
     }
 
     /**
-      * Height in Metres (to 2dp)
-      */
+     * Height in Metres (to 2dp)
+     */
     @ApiModelProperty(required = true, value = "Height in Metres (to 2dp)")
     @JsonProperty("heightMetres")
     public BigDecimal getHeightMetres() {
@@ -145,8 +145,8 @@ public class PhysicalAttributes {
     }
 
     /**
-      * Height in Centimetres
-      */
+     * Height in Centimetres
+     */
     @ApiModelProperty(required = true, value = "Height in Centimetres")
     @JsonProperty("heightCentimetres")
     public Integer getHeightCentimetres() {
@@ -158,8 +158,8 @@ public class PhysicalAttributes {
     }
 
     /**
-      * Weight in Pounds
-      */
+     * Weight in Pounds
+     */
     @ApiModelProperty(required = true, value = "Weight in Pounds")
     @JsonProperty("weightPounds")
     public Integer getWeightPounds() {
@@ -171,8 +171,8 @@ public class PhysicalAttributes {
     }
 
     /**
-      * Weight in Kilograms
-      */
+     * Weight in Kilograms
+     */
     @ApiModelProperty(required = true, value = "Weight in Kilograms")
     @JsonProperty("weightKilograms")
     public Integer getWeightKilograms() {
@@ -184,11 +184,11 @@ public class PhysicalAttributes {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class PhysicalAttributes {\n");
-        
+
         sb.append("  gender: ").append(gender).append("\n");
         sb.append("  raceCode: ").append(raceCode).append("\n");
         sb.append("  ethnicity: ").append(ethnicity).append("\n");

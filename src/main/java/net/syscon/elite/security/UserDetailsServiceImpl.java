@@ -27,37 +27,37 @@ import static java.lang.String.format;
 @Service("userDetailsService")
 @Transactional(readOnly = true)
 public class UserDetailsServiceImpl implements UserDetailsService, AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
-	private final UserService userService;
-	private final String apiCaseloadId;
+    private final UserService userService;
+    private final String apiCaseloadId;
 
-	@Autowired
-	private Environment env;
+    @Autowired
+    private Environment env;
 
     public UserDetailsServiceImpl(final UserService userService,
                                   @Value("${application.caseload.id:NEWB}") final String apiCaseloadId) {
-		this.userService = userService;
-		this.apiCaseloadId = apiCaseloadId;
-	}
+        this.userService = userService;
+        this.apiCaseloadId = apiCaseloadId;
+    }
 
-	@Override
-	@Cacheable("loadUserByUsername")
-	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-		final var nomisProfile = ProfileUtil.isNomisProfile(env);
+    @Override
+    @Cacheable("loadUserByUsername")
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        final var nomisProfile = ProfileUtil.isNomisProfile(env);
 
         final var userDetail = userService.getUserByUsername(username);
         final var roles = userService.getRolesByUsername(username, false);
 
-		if (nomisProfile && !userService.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
-			throw new UnapprovedClientAuthenticationException(format("User does not have access to caseload %s", apiCaseloadId));
-		}
+        if (nomisProfile && !userService.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
+            throw new UnapprovedClientAuthenticationException(format("User does not have access to caseload %s", apiCaseloadId));
+        }
 
         final Set<GrantedAuthority> authorities = roles.stream()
-				.filter(Objects::nonNull)
-				.map(role -> new SimpleGrantedAuthority("ROLE_" + StringUtils.upperCase(StringUtils.replaceAll(role.getRoleCode(),"-", "_"))))
-				.collect(Collectors.toSet());
+                .filter(Objects::nonNull)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + StringUtils.upperCase(StringUtils.replaceAll(role.getRoleCode(), "-", "_"))))
+                .collect(Collectors.toSet());
 
-		return new UserDetailsImpl(username, null, authorities, userDetail.getAdditionalProperties());
-	}
+        return new UserDetailsImpl(username, null, authorities, userDetail.getAdditionalProperties());
+    }
 
     @Override
     public UserDetails loadUserDetails(final PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException {

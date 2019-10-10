@@ -2,7 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.Language;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -27,12 +27,12 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
 
+import static java.time.LocalDate.parse;
 import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVAL;
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static net.syscon.elite.util.Extractors.extractInteger;
 import static net.syscon.elite.util.Extractors.extractString;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -91,9 +91,38 @@ public class InmateRepositoryTest {
                 .build());
 
         final var results = foundInmates.getItems();
-        assertThat(results).hasSize(1);
-        assertThat(results).extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc").contains(
+        assertThat(results).extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc").containsExactly(
                 Tuple.tuple(-1L, "A1234AA", LocalDate.of(1969, Month.DECEMBER, 30), "A-1-1"));
+    }
+
+    @Test
+    public void testSearchForOffenderBookingsSpaceInSurname() {
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(Set.of("LEI", "MDI"))
+                .searchTerm1("HAR")
+                .searchTerm2("JO")
+                .locationPrefix("MDI")
+                .pageRequest(new PageRequest("lastName, firstName"))
+                .build());
+
+        assertThat(foundInmates.getItems())
+                .extracting(OffenderBooking::getBookingId, OffenderBooking::getOffenderNo, OffenderBooking::getDateOfBirth, OffenderBooking::getAssignedLivingUnitDesc)
+                .containsExactly(Tuple.tuple(-55L, "A1180HL", parse("1980-05-21"), "1-2-014"));
+    }
+
+    @Test
+    public void testSearchForOffenderBookingsSpaceInForename() {
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+                .caseloads(Set.of("LEI", "MDI"))
+                .searchTerm1("JO")
+                .searchTerm2("JAM")
+                .locationPrefix("MDI")
+                .pageRequest(new PageRequest("lastName, firstName"))
+                .build());
+
+        assertThat(foundInmates.getItems())
+                .extracting(OffenderBooking::getBookingId, OffenderBooking::getOffenderNo, OffenderBooking::getDateOfBirth, OffenderBooking::getAssignedLivingUnitDesc)
+                .containsExactly(Tuple.tuple(-55L, "A1180HL", parse("1980-05-21"), "1-2-014"));
     }
 
     @Test
@@ -111,9 +140,9 @@ public class InmateRepositoryTest {
 
         final var results = foundInmates.getItems();
 
-        assertThat(results).hasSize(7);
+        assertThat(results).hasSize(8);
         assertThat(results).extracting("convictedStatus").containsOnlyElementsOf(List.of("Convicted"));
-        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("SENT"));
+        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("SENT", "DEPORT"));
     }
 
     @Test
@@ -181,7 +210,7 @@ public class InmateRepositoryTest {
     public void testFindOffendersWithValidOffenderNoOnly() {
         final var TEST_OFFENDER_NO = "A1234AP";
 
-        final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
+        final var query = buildQuery(criteriaForOffenderNo(List.of(TEST_OFFENDER_NO)));
 
         final var offender = findOffender(query);
 
@@ -196,7 +225,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(47);
+        assertThat(offenders).hasSize(48);
     }
 
     @Test
@@ -216,7 +245,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(52);
+        assertThat(offenders).hasSize(53);
     }
 
     @Test
@@ -236,12 +265,12 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(52);
+        assertThat(offenders).hasSize(53);
     }
 
     @Test
     public void testFindOffendersWithInvalidOffenderNoOnly() {
-        final var TEST_OFFENDER_NO = "X9999XX";
+        final var TEST_OFFENDER_NO = List.of("X9999XX");
 
         final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
 
@@ -433,7 +462,7 @@ public class InmateRepositoryTest {
     public void testfindOffenderAliasesWithValidOffenderNoOnly() {
         final var TEST_OFFENDER_NO = "A1234AP";
 
-        final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
+        final var query = buildQuery(criteriaForOffenderNo(List.of(TEST_OFFENDER_NO)));
 
         final var offender = findOffenderWithAliases(query);
 
@@ -443,7 +472,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testfindOffenderAliasesWithInvalidOffenderNoOnly() {
-        final var TEST_OFFENDER_NO = "X9999XX";
+        final var TEST_OFFENDER_NO = List.of("X9999XX");
 
         final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
 
@@ -685,7 +714,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testGetOffenderCategorisationsNoApprover() {
-        final var list = repository.getOffenderCategorisations(Arrays.asList(-41L), "SYI", false);
+        final var list = repository.getOffenderCategorisations(List.of(-41L), "SYI", false);
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "lastName", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
                 .containsExactlyInAnyOrder(
@@ -746,15 +775,15 @@ public class InmateRepositoryTest {
         assertThat(list1).hasSize(2);
 
         // -38 and -39 within the cutoff
-        assertThat(list1).extracting("bookingId","assessmentSeq", "nextReviewDate","assessStatus"
-        ).containsExactlyInAnyOrder (Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"),
+        assertThat(list1).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus"
+        ).containsExactlyInAnyOrder(Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"),
                 Tuple.tuple(-39L, 2, LocalDate.of(2019, 6, 8), "A"));
 
         // The latest seq of booking id -38 is now after the cutoff but is pending - so should be selected, -39 is active and after cutoff:
         final var list2 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 1));
 
-        assertThat(list2).extracting("bookingId","assessmentSeq", "nextReviewDate","assessStatus"
-        ).containsExactly (Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"));
+        assertThat(list2).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus"
+        ).containsExactly(Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"));
     }
 
     @Test
@@ -769,8 +798,8 @@ public class InmateRepositoryTest {
                 "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
 
         ).containsExactlyInAnyOrder(
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D",  "B", "Cat B", false, "A"),
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D", "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B", "B", "Cat B", false, "A"),
                 Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, null, null, false, "A")
         );
     }
@@ -787,8 +816,8 @@ public class InmateRepositoryTest {
                 "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
 
         ).containsExactlyInAnyOrder(
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D",  "B", "Cat B", false, "A"),
-                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B",  "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D", "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B", "B", "Cat B", false, "A"),
                 Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 3, 4), 1, LocalDate.of(2016, 3, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 3, 9), "B", "Cat B", "B", "Cat B", false, "I"),
                 Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, null, null, false, "A")
         );
@@ -897,7 +926,7 @@ public class InmateRepositoryTest {
         // after making the pending cat active should make any earlier categorisation inactive (regardless of order)
         assertThat(results).asList()
                 .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
-                .contains(Tuple.tuple(1, "I"),Tuple.tuple(2, "I"),Tuple.tuple(3, "I"),Tuple.tuple(4, "A")
+                .contains(Tuple.tuple(1, "I"), Tuple.tuple(2, "I"), Tuple.tuple(3, "I"), Tuple.tuple(4, "A")
                 );
         assertThat((Timestamp) results.get(3).get("EVALUATION_DATE")).isCloseTo("2019-02-27", 1000L);
     }
@@ -957,6 +986,17 @@ public class InmateRepositoryTest {
 
     @Test
     @Transactional
+    public void testUpdateCategorySetInactive() {
+
+        repository.setCategorisationInactive(-38L);
+
+        final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-38L), "BMI", false);
+        // should not have updated the pending record
+        assertThat(catList).extracting("assessStatus").containsExactlyInAnyOrder("I", "I", "P");
+    }
+
+    @Test
+    @Transactional
     public void testUpdateCategoryNextReviewDate() {
 
         final var newNextReviewDate = LocalDate.of(2019, 2, 27);
@@ -970,18 +1010,32 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    @Transactional
+    public void testUpdateCategoryNextReviewDateForUnknownOffender() {
+
+        final var newNextReviewDate = LocalDate.of(2019, 2, 27);
+
+        try {
+            repository.updateActiveCategoryNextReviewDate(-15655L, newNextReviewDate);
+            fail("Should have thrown an EntityNotFoundException");
+        } catch (final EntityNotFoundException e) {
+            assertThat(e.getMessage()).isEqualTo("Unable to update next review date, could not find latest, active categorisation for booking id -15655, result count = 0");
+        }
+    }
+
+    @Test
     public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"), false, Set.of("LEI"), true);
         assertThat(offenders).hasSize(1);
         assertThat(offenders).extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName", "dateOfBirth", "assignedLivingUnitId").contains(
-                Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", LocalDate.parse("1970-03-01"), -7L)
+                Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", parse("1970-03-01"), -7L)
         );
     }
 
     @Test
     public void testAccessToAllData_whenTrue() {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), true, Collections.emptySet(), false);
-        assertThat(offenders).containsExactly(new InmateBasicDetails(-9L, "A00119", "A1234AI", "CHESTER", "JAMES", "THOMPSON", "LEI", -7L, LocalDate.parse("1970-03-01")));
+        assertThat(offenders).containsExactly(new InmateBasicDetails(-9L, "A00119", "A1234AI", "CHESTER", "JAMES", "THOMPSON", "LEI", -7L, parse("1970-03-01")));
     }
 
     @Test
@@ -1007,8 +1061,8 @@ public class InmateRepositoryTest {
     @Test
     public void testGetBasicInmateDetailsByBookingIds() {
         final var offenders = repository.getBasicInmateDetailsByBookingIds("LEI", List.of(-3L, -4L, -35L));  //-35L ignored as it is MDI agency
-        assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, LocalDate.parse("1999-10-27"))
-                , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, LocalDate.parse("1970-01-01")));
+        assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, parse("1999-10-27"))
+                , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, parse("1970-01-01")));
     }
 
     @Test
@@ -1036,11 +1090,38 @@ public class InmateRepositoryTest {
                 "additionalProperties");
     }
 
+    @Test
+    public void getPersonalCareNeeds() {
+        final var expectedInfo = List.of(
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON").problemDescription("No Disability").commentText("description 1").startDate(LocalDate.of(2010, 6, 21)).build(),
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").commentText("P1").startDate(LocalDate.of(2010, 6, 21)).build());
+        final var info = repository.findPersonalCareNeeds(-1, Set.of("DISAB", "MATSTAT"));
+        assertThat(info).isEqualTo(expectedInfo);
+    }
+
+    @Test
+    public void getReasonableAdjustment() {
+        final var expectedInfo = List.of(
+                ReasonableAdjustment.builder()
+                        .treatmentCode("WHEELCHR_ACC")
+                        .commentText("abcd")
+                        .startDate(LocalDate.of(2010, 6, 21))
+                        .build(),
+                ReasonableAdjustment.builder()
+                        .treatmentCode("PEEP")
+                        .commentText("EFGH")
+                        .startDate(LocalDate.of(2010, 6, 21))
+                        .build());
+        final var treatmentCodes = List.of("WHEELCHR_ACC", "PEEP");
+        final var info = repository.findReasonableAdjustments(-1, treatmentCodes);
+        assertThat(info).isEqualTo(expectedInfo);
+    }
+
     /*****************************************************************************************/
 
-    private PrisonerDetailSearchCriteria criteriaForOffenderNo(final String offenderNo) {
+    private PrisonerDetailSearchCriteria criteriaForOffenderNo(final List<String> offenderNos) {
         return PrisonerDetailSearchCriteria.builder()
-                .offenderNo(offenderNo)
+                .offenderNos(offenderNos)
                 .build();
     }
 
@@ -1056,26 +1137,26 @@ public class InmateRepositoryTest {
                 .build();
     }
 
-    private PrisonerDetailSearchCriteria criteriaForPersonalAttrs(final String offenderNo, final String lastName, final String firstName) {
+    private PrisonerDetailSearchCriteria criteriaForPersonalAttrs(final List<String> offenderNos, final String lastName, final String firstName) {
         return PrisonerDetailSearchCriteria.builder()
-                .offenderNo(offenderNo)
+                .offenderNos(offenderNos)
                 .lastName(lastName)
                 .firstName(firstName)
                 .build();
     }
 
-    private PrisonerDetailSearchCriteria criteriaForPartialPersonalAttrs(final String offenderNo, final String lastName, final String firstName) {
+    private PrisonerDetailSearchCriteria criteriaForPartialPersonalAttrs(final List<String> offenderNos, final String lastName, final String firstName) {
         return PrisonerDetailSearchCriteria.builder()
-                .offenderNo(offenderNo)
+                .offenderNos(offenderNos)
                 .lastName(lastName)
                 .firstName(firstName)
                 .partialNameMatch(true)
                 .build();
     }
 
-    private PrisonerDetailSearchCriteria criteriaForAnyPersonalAttrs(final String offenderNo, final String lastName, final String firstName) {
+    private PrisonerDetailSearchCriteria criteriaForAnyPersonalAttrs(final List<String> offenderNos, final String lastName, final String firstName) {
         return PrisonerDetailSearchCriteria.builder()
-                .offenderNo(offenderNo)
+                .offenderNos(offenderNos)
                 .lastName(lastName)
                 .firstName(firstName)
                 .anyMatch(true)
@@ -1093,13 +1174,13 @@ public class InmateRepositoryTest {
 
     private PrisonerDetailSearchCriteria criteriaForLocationFilter(final String location) {
         return PrisonerDetailSearchCriteria.builder()
-                .latestLocationId(location)
+                .location(location)
                 .build();
     }
 
     private PrisonerDetailSearchCriteria criteriaForGenderFilter(final String gender) {
         return PrisonerDetailSearchCriteria.builder()
-                .sexCode(gender)
+                .gender(gender)
                 .build();
     }
 

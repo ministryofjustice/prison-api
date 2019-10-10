@@ -50,7 +50,7 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
                 createParams("staffId", staffId,
                         "staffUserType", "GENERAL",
                         "currentDate", DateTimeConverter.toDate(LocalDate.now())),
-        CASELOAD_ROW_MAPPER);
+                CASELOAD_ROW_MAPPER);
     }
 
     @Override

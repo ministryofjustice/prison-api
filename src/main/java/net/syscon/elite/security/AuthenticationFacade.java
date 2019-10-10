@@ -47,7 +47,7 @@ public class AuthenticationFacade {
     public boolean isIdentifiedAuthentication() {
         final var auth = getAuthentication();
         return StringUtils.isNotBlank(MDC.get(PROXY_USER))
-            && Optional.ofNullable(auth).
+                && Optional.ofNullable(auth).
                 filter(OAuth2Authentication.class::isInstance).
                 map(OAuth2Authentication.class::cast).
                 filter(OAuth2Authentication::isAuthenticated).

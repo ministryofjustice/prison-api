@@ -26,7 +26,7 @@ import java.util.Map;
 public class LocationCountDetail {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotNull
     private Long conductByUserId;
 
@@ -53,8 +53,8 @@ public class LocationCountDetail {
     }
 
     /**
-      * Who did the count (staff ID)
-      */
+     * Who did the count (staff ID)
+     */
     @ApiModelProperty(required = true, value = "Who did the count (staff ID)")
     @JsonProperty("conductByUserId")
     public Long getConductByUserId() {
@@ -66,8 +66,8 @@ public class LocationCountDetail {
     }
 
     /**
-      * Staff Id
-      */
+     * Staff Id
+     */
     @ApiModelProperty(required = true, value = "Staff Id")
     @JsonProperty("enteredByUserId")
     public Long getEnteredByUserId() {
@@ -79,8 +79,8 @@ public class LocationCountDetail {
     }
 
     /**
-      * The number of inmates
-      */
+     * The number of inmates
+     */
     @ApiModelProperty(required = true, value = "The number of inmates")
     @JsonProperty("inmateCount")
     public Integer getInmateCount() {
@@ -92,8 +92,8 @@ public class LocationCountDetail {
     }
 
     /**
-      * Reason for count
-      */
+     * Reason for count
+     */
     @ApiModelProperty(required = true, value = "Reason for count")
     @JsonProperty("countReasonCode")
     public String getCountReasonCode() {
@@ -105,8 +105,8 @@ public class LocationCountDetail {
     }
 
     /**
-      * Comments
-      */
+     * Comments
+     */
     @ApiModelProperty(value = "Comments")
     @JsonProperty("comment")
     public String getComment() {
@@ -118,11 +118,11 @@ public class LocationCountDetail {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class LocationCountDetail {\n");
-        
+
         sb.append("  conductByUserId: ").append(conductByUserId).append("\n");
         sb.append("  enteredByUserId: ").append(enteredByUserId).append("\n");
         sb.append("  inmateCount: ").append(inmateCount).append("\n");

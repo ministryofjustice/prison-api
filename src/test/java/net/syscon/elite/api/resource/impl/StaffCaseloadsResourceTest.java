@@ -10,10 +10,6 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StaffCaseloadsResourceTest extends ResourceTest {
-
-    @Autowired
-    private AuthTokenHelper authTokenHelper;
-
     @Test
     public void testCanRetrieveCaseloadForAStaffMember() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);

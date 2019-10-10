@@ -28,12 +28,16 @@ public interface BookingService {
     List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
     void updateAttendance(String offenderNo, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance);
+
     void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance);
+
     void updateAttendanceForMultipleBookingIds(final Set<BookingActivity> bookingActivities, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance);
 
     Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
     List<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
+    Optional<VisitBalances> getBookingVisitBalances(final Long bookingId);
 
     Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
@@ -44,29 +48,42 @@ public interface BookingService {
     void checkBookingExists(Long bookingId);
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
+
+    List<Offence> getMainOffenceDetails(Set<Long> bookingIds);
+
     List<OffenceHistoryDetail> getOffenceHistory(String offenderNo);
 
     List<ScheduledEvent> getEventsToday(Long bookingId);
+
     List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingIds, LocalDate day);
+
     List<ScheduledEvent> getEventsThisWeek(Long bookingId);
+
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
+
     List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForAgency(Set<String> agencyIds);
+
     List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId);
+
     List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, List<String> offenderNos);
+
     List<OffenderSentenceDetail> getBookingSentencesSummary(List<Long> bookingIds);
+
     Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo);
+
     Visit getBookingVisitLast(Long bookingId);
+
     Visit getBookingVisitNext(Long bookingId);
 
     List<OffenderSummary> getBookingsByExternalRefAndType(String externalRef, String relationshipType);
 
     List<OffenderSummary> getBookingsByPersonIdAndType(Long personId, String relationshipType);
 
-    Long getBookingIdByOffenderNo(final String offenderNo, final String ... rolesAllowed);
+    Long getBookingIdByOffenderNo(final String offenderNo, final String... rolesAllowed);
 
-    void verifyBookingAccess(Long bookingId, String ... rolesAllowed);
+    void verifyBookingAccess(Long bookingId, String... rolesAllowed);
 
-    void verifyCanViewSensitiveBookingInfo(String offenderNo, String ... roleAllowed);
+    void verifyCanViewSensitiveBookingInfo(String offenderNo, String... roleAllowed);
 
     /**
      * <<< FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER >>>
@@ -87,7 +104,7 @@ public interface BookingService {
      *
      * @param offenderNo offender number.
      * @return offender booking summary or {@code null} if no offender with specified offender number exists or if a
-     *         latest booking cannot be located for offender.
+     * latest booking cannot be located for offender.
      */
     OffenderSummary getLatestBookingByOffenderNo(String offenderNo);
 

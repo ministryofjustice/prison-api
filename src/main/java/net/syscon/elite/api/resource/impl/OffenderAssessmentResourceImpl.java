@@ -46,9 +46,9 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
         return PostOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
     }
 
-    private List<Assessment> applyDefaultsAndGetAssessmentsByCode(String assessmentCode, List<String> offenderList, Boolean latestOnly, Boolean activeOnly) {
-        var latest = latestOnly == null ? true : latestOnly;
-        var active = activeOnly == null ? true : activeOnly;
+    private List<Assessment> applyDefaultsAndGetAssessmentsByCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly) {
+        final var latest = latestOnly == null ? true : latestOnly;
+        final var active = activeOnly == null ? true : activeOnly;
 
         return inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, latest, active);
     }
@@ -64,10 +64,10 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final String type, final LocalDate date) {
-        CategoryInformationType enumType;
-        try{
+        final CategoryInformationType enumType;
+        try {
             enumType = CategoryInformationType.valueOf(type);
-        } catch(IllegalArgumentException e){
+        } catch (final IllegalArgumentException e) {
             throw new BadRequestException("Categorisation type is invalid: " + type);
         }
         return inmateService.getCategory(agencyId, enumType, date);
@@ -75,7 +75,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final Boolean latestOnly) {
-        var latest = latestOnly == null ? true : latestOnly;
+        final var latest = latestOnly == null ? true : latestOnly;
         final var results = inmateService.getOffenderCategorisations(agencyId, bookingIds, latest);
         return results;
     }
@@ -102,7 +102,17 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     @ProxyUser
-    public Response updateCategorisationNextReviewDate(final Long bookingId,  final LocalDate nextReviewDate) {
+    public Response setCategorisationInactive(final Long bookingId){
+        inmateService.setCategorisationInactive(bookingId);
+        return Response.ok()
+                .status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @Override
+    @ProxyUser
+    public Response updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate) {
         inmateService.updateCategorisationNextReviewDate(bookingId, nextReviewDate);
         return Response.ok()
                 .status(200)

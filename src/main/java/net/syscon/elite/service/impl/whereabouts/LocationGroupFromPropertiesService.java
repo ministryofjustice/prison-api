@@ -55,7 +55,8 @@ public class LocationGroupFromPropertiesService implements LocationGroupService 
 
     /**
      * Get the available sub-groups (sub-locations) for the named group/agency.
-     * @param agencyId The agency identifier
+     *
+     * @param agencyId  The agency identifier
      * @param groupName The  name of a group
      * @return Alphabetically sorted List of subgroups matching the criteria
      */

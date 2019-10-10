@@ -53,7 +53,8 @@ public class BookingAlertSteps extends CommonSteps {
                             API_REQUEST_BASE_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<Alert>>() {},
+                            new ParameterizedTypeReference<List<Alert>>() {
+                            },
                             bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -75,7 +76,8 @@ public class BookingAlertSteps extends CommonSteps {
                             API_REQUEST_OFFENDER_NO_BASE_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<Alert>>() {},
+                            new ParameterizedTypeReference<List<Alert>>() {
+                            },
                             offenderNo);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -97,7 +99,8 @@ public class BookingAlertSteps extends CommonSteps {
                             API_REQUEST_ALERT_URL,
                             HttpMethod.GET,
                             createEntity(null, null),
-                            new ParameterizedTypeReference<Alert>() {},
+                            new ParameterizedTypeReference<Alert>() {
+                            },
                             bookingId,
                             alertId);
 

@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -182,10 +185,10 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
         final var currentByOffenderBookdId = curfews
                 .stream()
                 .collect(
-                    groupingBy(
-                        OffenderCurfew::getOffenderBookId,
-                        maxBy(OFFENDER_CURFEW_COMPARATOR)
-                    ));
+                        groupingBy(
+                                OffenderCurfew::getOffenderBookId,
+                                maxBy(OFFENDER_CURFEW_COMPARATOR)
+                        ));
 
         return currentByOffenderBookdId
                 .values()

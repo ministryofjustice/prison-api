@@ -27,16 +27,19 @@ import java.util.Map;
 public class NewCaseNote {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
-    @Length(max=12) @NotBlank
+
+    @Length(max = 12)
+    @NotBlank
     private String type;
 
-    @Length(max=12) @NotBlank
+    @Length(max = 12)
+    @NotBlank
     private String subType;
 
     private LocalDateTime occurrenceDateTime;
 
-    @Length(max=4000) @NotBlank
+    @Length(max = 4000)
+    @NotBlank
     private String text;
 
     @JsonAnyGetter
@@ -51,8 +54,8 @@ public class NewCaseNote {
     }
 
     /**
-      * Case Note Type
-      */
+     * Case Note Type
+     */
     @ApiModelProperty(required = true, value = "Case Note Type")
     @JsonProperty("type")
     public String getType() {
@@ -64,8 +67,8 @@ public class NewCaseNote {
     }
 
     /**
-      * Case Note Sub Type
-      */
+     * Case Note Sub Type
+     */
     @ApiModelProperty(required = true, value = "Case Note Sub Type")
     @JsonProperty("subType")
     public String getSubType() {
@@ -77,8 +80,8 @@ public class NewCaseNote {
     }
 
     /**
-      * Date and Time of when case note contact with offender was made
-      */
+     * Date and Time of when case note contact with offender was made
+     */
     @ApiModelProperty(value = "Date and Time of when case note contact with offender was made")
     @JsonProperty("occurrenceDateTime")
     public LocalDateTime getOccurrenceDateTime() {
@@ -90,8 +93,8 @@ public class NewCaseNote {
     }
 
     /**
-      * Case Note Text
-      */
+     * Case Note Text
+     */
     @ApiModelProperty(required = true, value = "Case Note Text")
     @JsonProperty("text")
     public String getText() {
@@ -103,11 +106,11 @@ public class NewCaseNote {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class NewCaseNote {\n");
-        
+
         sb.append("  type: ").append(type).append("\n");
         sb.append("  subType: ").append(subType).append("\n");
         sb.append("  occurrenceDateTime: ").append(occurrenceDateTime).append("\n");

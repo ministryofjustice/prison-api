@@ -41,6 +41,7 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
     public void dateOfBirthOfStaffDetailsReturnedIs(final String dob) {
         staff.verifyStaffDob(dob);
     }
+
     @Then("^resource not found response is received from staff API$")
     public void resourceNotFoundResponseIsReceivedFromStaffAPI() {
         staff.verifyResourceNotFound();

@@ -29,7 +29,7 @@ public class ContactRelationshipIntTest {
     private BookingService bookingService;
 
     @Test
-    @WithMockUser(username= "ITAG_USER", roles = { "CONTACT_CREATE" })
+    @WithMockUser(username = "ITAG_USER", roles = {"CONTACT_CREATE"})
     public void testCreateRelationshipWithMultipleOffendersAndLinkedRelationships() {
         var contactList = contactService.getRelationships(BOOKING1_ID, "COM", false);
         assertThat(contactList).hasSize(4);

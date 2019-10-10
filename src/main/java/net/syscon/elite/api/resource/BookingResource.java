@@ -421,13 +421,25 @@ public interface BookingResource {
     @Path("/{bookingId}/mainOffence")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Offender main offence detail.", notes = "Offender main offence detail.", nickname = "getMainOffence")
+    @ApiOperation(value = "Get Offender main offence detail.", notes = "Offender main offence detail.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenceDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<OffenceDetail> getMainOffence(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+
+    @POST
+    @Path("/mainOffence")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Get Offender main offence detail.", notes = "Post version to allow specifying a large number of bookingIds.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenceDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    GetMainOffenceResponse getMainOffence(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+    List<Offence> getMainOffence(@ApiParam(value = "The bookingIds to identify the offenders", required = true) Set<Long> body);
 
     @GET
     @Path("/offenderNo/{offenderNo}/offenceHistory")
@@ -476,6 +488,30 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetPhysicalMarksResponse getPhysicalMarks(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+
+    @GET
+    @Path("/{bookingId}/personal-care-needs")
+    @Produces({"application/json"})
+    @ApiOperation(value = "Personal Care Needs", notes = "Personal Care Need", nickname = "getPersonalCareNeeds")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PersonalCareNeed.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    PersonalCareNeeds getPersonalCareNeeds(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
+                                           @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @QueryParam("type") List<String> type);
+
+    @GET
+    @Path("/{bookingId}/reasonable-adjustments")
+    @Produces({"application/json"})
+    @ApiOperation(value = "Reasonable Adjustment Information", notes = "Reasonable Adjustment Information", nickname = "getReasonableAdjustment")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ReasonableAdjustment.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    ReasonableAdjustments getReasonableAdjustments(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
+                                                   @ApiParam(value = "a list of treatment codes to search.", example = "PEEP", required = true) @QueryParam("type") List<String> type);
 
     @GET
     @Path("/{bookingId}/profileInformation")
@@ -569,6 +605,16 @@ public interface BookingResource {
     GetBookingVisitsForTodayResponse getBookingVisitsForToday(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
                                                               @ApiParam(value = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") @HeaderParam("Sort-Fields") String sortFields,
                                                               @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+
+    @GET
+    @Path("/offenderNo/{offenderNo}/visit/balances")
+    @Produces({"application/json"})
+    @ApiOperation(value = "Balances visit orders and privilege visit orders for offender.", notes = "Balances visit orders and privilege visit orders for offender.", nickname = "getBookingVisitsBalances")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = VisitBalances.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    VisitBalances getBookingVisitBalances(@ApiParam(value = "The offenderNo of offender", required = true) @PathParam("offenderNo") String offenderNo);
 
     @GET
     @Path("/offenderNo/{offenderNo}")
@@ -782,8 +828,9 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Resource not found - booking or event does not exist or is not accessible to user.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
     UpdateAttendanceResponse updateAttendance(@ApiParam(value = "The booking Id of the prisoner", required = true, example = "213531") @PathParam("bookingId") @NotNull Long bookingId,
-                                              @ApiParam(value = "The activity id", required = true,example = "1212131") @PathParam("activityId") @NotNull Long activityId,
+                                              @ApiParam(value = "The activity id", required = true, example = "1212131") @PathParam("activityId") @NotNull Long activityId,
                                               @ApiParam(value = "", required = true) @NotNull UpdateAttendance body);
+
     @PUT
     @Path("/activities/attendance")
     @Consumes({"application/json"})
@@ -1344,24 +1391,6 @@ public interface BookingResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMainBookingImageDataResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetMainOffenceResponse extends ResponseDelegate {
-
-        private GetMainOffenceResponse(final Response response) {
-            super(response);
-        }
-
-        private GetMainOffenceResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetMainOffenceResponse respond200WithApplicationJson(final List<OffenceDetail> entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetMainOffenceResponse(responseBuilder.build(), entity);
         }
     }
 

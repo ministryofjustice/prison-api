@@ -18,7 +18,7 @@ public class LocationGroupServiceSelector implements LocationGroupService {
 
     public LocationGroupServiceSelector(
             @Qualifier("defaultLocationGroupService") LocationGroupService defaultService,
-            @Qualifier("overrideLocationGroupService")LocationGroupService overrideService) {
+            @Qualifier("overrideLocationGroupService") LocationGroupService overrideService) {
         this.defaultService = defaultService;
         this.overrideService = overrideService;
     }

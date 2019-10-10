@@ -13,7 +13,8 @@ import java.util.Map;
 @Repository
 public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepository {
 
-    private @Value("${api.currency:GBP}") String currency;
+    private @Value("${api.currency:GBP}")
+    String currency;
 
     private final Map<String, FieldMapper> accountMapping = new ImmutableMap.Builder<String, FieldMapper>()
             .put("cash_balance", new FieldMapper("cash"))//

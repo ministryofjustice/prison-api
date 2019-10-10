@@ -15,7 +15,7 @@ abstract class CurfewState {
         this.curfew = curfew;
     }
 
-     static CurfewState getState(HomeDetentionCurfew curfew) {
+    static CurfewState getState(HomeDetentionCurfew curfew) {
         if (curfew.getPassed() == null) {
             return new InitialState(curfew);
         }
@@ -80,6 +80,6 @@ abstract class CurfewState {
 
     private String className() {
         val fullName = getClass().getName();
-        return fullName.substring(fullName.lastIndexOf('.') +1);
+        return fullName.substring(fullName.lastIndexOf('.') + 1);
     }
 }

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Target({ METHOD, FIELD, PARAMETER })
+@Target({METHOD, FIELD, PARAMETER})
 @Retention(RUNTIME)
 @Constraint(validatedBy = CaseNoteTypeSubTypeValidator.class)
 public @interface CaseNoteTypeSubTypeValid {

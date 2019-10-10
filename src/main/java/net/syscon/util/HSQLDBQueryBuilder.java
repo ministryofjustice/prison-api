@@ -8,17 +8,17 @@ import java.util.Optional;
 
 public class HSQLDBQueryBuilder extends AbstractQueryBuilder {
 
-	private static final String COUNT_SELECT = "WITH TOTAL_COUNT AS ( SELECT COUNT(*) AS RECORD_COUNT %s ) SELECT * FROM TOTAL_COUNT, (";
+    private static final String COUNT_SELECT = "WITH TOTAL_COUNT AS ( SELECT COUNT(*) AS RECORD_COUNT %s ) SELECT * FROM TOTAL_COUNT, (";
 
     public HSQLDBQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, final DatabaseDialect dialect) {
-		super(initialSQL, fieldMap, dialect);
-	}
+        super(initialSQL, fieldMap, dialect);
+    }
 
-	public String build() {
+    public String build() {
         var result = new StringBuilder();
         final var statementType = getStatementType();
 
-		if (Optional.of(SQLKeyword.SELECT).equals(statementType)) {
+        if (Optional.of(SQLKeyword.SELECT).equals(statementType)) {
             // Prepare initial SQL - wrap and apply additional criteria, as necessary.
             final var preparedSql = prepareSql();
 
@@ -27,47 +27,47 @@ public class HSQLDBQueryBuilder extends AbstractQueryBuilder {
             // Apply any sorting...
             final var strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? " " : " " + (SQLKeyword.ORDER_BY + " " + extraOrderBy);
 
-			result.append(strOrderBy);
+            result.append(strOrderBy);
 
-			// Append pagination support...
-			if (includePagination) {
-				buildPaginationSql(result);
-			}
+            // Append pagination support...
+            if (includePagination) {
+                buildPaginationSql(result);
+            }
 
             // Apply record count based on full criteria defined in prepared SQL...
-			if (includeRowCount || includeDirectRowCount) {
-				buildAnsiDataCountSql(result, preparedSql);
-			}
+            if (includeRowCount || includeDirectRowCount) {
+                buildAnsiDataCountSql(result, preparedSql);
+            }
 
-			// Remove special characters if required...
-			if (removeSpecialChars) {
-				result = new StringBuilder(removeSpecialCharacters(result.toString()));
-			}
+            // Remove special characters if required...
+            if (removeSpecialChars) {
+                result = new StringBuilder(removeSpecialCharacters(result.toString()));
+            }
 
-			// Replace all occurrences of 'WM_CONCAT' keyword with 'GROUP_CONCAT'...
-			result = new StringBuilder(StringUtils.replaceAll(result.toString(), "WM_CONCAT", "GROUP_CONCAT"));
-		} else {
-			result.append(initialSQL);
-		}
+            // Replace all occurrences of 'WM_CONCAT' keyword with 'GROUP_CONCAT'...
+            result = new StringBuilder(StringUtils.replaceAll(result.toString(), "WM_CONCAT", "GROUP_CONCAT"));
+        } else {
+            result.append(initialSQL);
+        }
 
-		return result.toString();
-	}
+        return result.toString();
+    }
 
     private void buildPaginationSql(final StringBuilder result) {
-		result.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
-	}
+        result.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
+    }
 
     private void buildAnsiDataCountSql(final StringBuilder result, final String fullSql) {
         final var criteria = QueryUtil.getCriteriaFromQuery(fullSql);
 
-		result.insert(0, String.format(COUNT_SELECT, criteria));
+        result.insert(0, String.format(COUNT_SELECT, criteria));
 
-		if (includePagination) {
-			result.append(")");
-		}
-	}
+        if (includePagination) {
+            result.append(")");
+        }
+    }
 
-	private String prepareSql() {
+    private String prepareSql() {
         final var preparedSql = new StringBuilder();
 
         if (includeRowCount || extraWhere.length() > 0 || extraOrderBy.length() > 0) {

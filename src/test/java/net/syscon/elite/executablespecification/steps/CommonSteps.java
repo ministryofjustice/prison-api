@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,7 +29,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Common BDD step implementations
@@ -55,7 +57,7 @@ public abstract class CommonSteps {
 
     @Step("Verify number of resource records returned")
     public void verifyResourceRecordsReturned(final long expectedCount) {
-        assertThat(Integer.valueOf(resources.size()).longValue()).isEqualTo(expectedCount);
+        assertThat(resources).hasSize(Math.toIntExact(expectedCount));
     }
 
     @Step("Verify total number of resource records available")
@@ -112,14 +114,14 @@ public abstract class CommonSteps {
         verifyAccessDenied(Collections.singletonList(expectedUserMessage));
     }
 
-    public void verifyAccessDenied(final List<String> expectedUserMessages) {
+    private void verifyAccessDenied(final List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
         assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
     }
 
     @Step("Verify not authorised")
-    public void verifyNotAuthorised() {
+    private void verifyNotAuthorised() {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
@@ -135,7 +137,7 @@ public abstract class CommonSteps {
         verifyResourceConflict(Collections.singletonList(expectedUserMessage));
     }
 
-    public void verifyResourceConflict(final List<String> expectedUserMessages) {
+    private void verifyResourceConflict(final List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
@@ -148,17 +150,8 @@ public abstract class CommonSteps {
 
     @Step("Apply pagination")
     public void applyPagination(final Long offset, final Long limit) {
-        if (limit == null) {
-            paginationLimit = 10L;
-        } else {
-            paginationLimit = limit;
-        }
-
-        if (offset == null) {
-            paginationOffset = 0;
-        } else {
-            paginationOffset = offset;
-        }
+        paginationLimit = Objects.requireNonNullElse(limit, 10L);
+        paginationOffset = Objects.requireNonNullElse(offset, 0L);
     }
 
     protected void init() {
@@ -174,7 +167,7 @@ public abstract class CommonSteps {
         this.resources = receivedResponse.getBody();
     }
 
-    protected void setResourceMetaData(final List<?> resources) {
+    void setResourceMetaData(final List<?> resources) {
         this.resources = resources;
     }
 
@@ -198,7 +191,7 @@ public abstract class CommonSteps {
         final var headers = new HttpHeaders();
 
         if (auth.getToken() != null) {
-            headers.add("Authorization", "bearer "+auth.getToken());
+            headers.add("Authorization", "bearer " + auth.getToken());
         }
 
         if (extraHeaders != null) {
@@ -208,7 +201,7 @@ public abstract class CommonSteps {
         return new HttpEntity<>(entity, headers);
     }
 
-    protected Map<String, String> csv2map(final String commaSeparatedList) {
+    private Map<String, String> csv2map(final String commaSeparatedList) {
         final Map<String, String> out;
 
         if (StringUtils.isBlank(commaSeparatedList)) {
@@ -217,13 +210,13 @@ public abstract class CommonSteps {
             out = Pattern.compile("\\s*,\\s*")
                     .splitAsStream(commaSeparatedList.trim())
                     .map(s -> s.split("=", 2))
-                    .collect(Collectors.toMap(a -> a[0], a -> a.length > 1 ? a[1]: ""));
+                    .collect(Collectors.toMap(a -> a[0], a -> a.length > 1 ? a[1] : ""));
         }
 
         return out;
     }
 
-    protected List<String> csv2list(final String commaSeparatedList) {
+    List<String> csv2list(final String commaSeparatedList) {
         final List<String> out;
 
         if (StringUtils.isBlank(commaSeparatedList)) {
@@ -235,7 +228,7 @@ public abstract class CommonSteps {
         return out;
     }
 
-    protected void verifyIdentical(final List<String> listActual, final List<String> listExpected) {
+    void verifyIdentical(final List<String> listActual, final List<String> listExpected) {
         // Both lists are expected to be provided (i.e. non-null). Empty lists are ok.
         // Sorting and converting back to String so that details of non-matching lists are clearly disclosed
         Collections.sort(listActual);
@@ -247,7 +240,7 @@ public abstract class CommonSteps {
         assertThat(actual).isEqualTo(expected);
     }
 
-    protected void verifyIdentical(final Map<String, String> mapActual, final Map<String, String> mapExpected) {
+    private void verifyIdentical(final Map<String, String> mapActual, final Map<String, String> mapExpected) {
         // Both maps are expected to be provided (i.e. non-null). Empty maps are ok.
         // Key/Value pairs converted to String so that details of non-matching entries are clearly disclosed
         for (final var entry : mapExpected.entrySet()) {
@@ -265,7 +258,7 @@ public abstract class CommonSteps {
         assertThat(actualRemaining).isEqualTo("");
     }
 
-    protected <T> List<String> extractPropertyValues(final Collection<T> actualCollection, final Function<T, String> mapper) {
+    private <T> List<String> extractPropertyValues(final Collection<T> actualCollection, final Function<T, String> mapper) {
         final List<String> extractedVals = new ArrayList<>();
 
         if (actualCollection != null) {
@@ -281,9 +274,9 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
-    protected <T> Map<String, String> extractPropertyValuesToMap(final Collection<T> actualCollection,
-                                                                 final Function<T, String> keyMapper,
-                                                                 final Function<T, String> valMapper) {
+    private <T> Map<String, String> extractPropertyValuesToMap(final Collection<T> actualCollection,
+                                                               final Function<T, String> keyMapper,
+                                                               final Function<T, String> valMapper) {
         final Map<String, String> extractedPropMap = new HashMap<>();
 
         if (actualCollection != null) {
@@ -293,7 +286,7 @@ public abstract class CommonSteps {
         return extractedPropMap;
     }
 
-    protected <T> List<String> extractLocalDateValues(final Collection<T> actualCollection, final Function<T, LocalDate> mapper) {
+    private <T> List<String> extractLocalDateValues(final Collection<T> actualCollection, final Function<T, LocalDate> mapper) {
         final List<String> extractedVals = new ArrayList<>();
         final var dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -311,7 +304,7 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
-    protected <T> List<String> extractLocalDateTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper) {
+    private <T> List<String> extractLocalDateTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper) {
         final List<String> extractedVals = new ArrayList<>();
         final var dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -329,7 +322,7 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
-    protected <T> List<String> extractLocalTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper) {
+    private <T> List<String> extractLocalTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper) {
         final List<String> extractedVals = new ArrayList<>();
         final var dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -347,7 +340,7 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
-    protected <T> List<String> extractDateValues(final Collection<T> actualCollection, final Function<T, Date> mapper) {
+    private <T> List<String> extractDateValues(final Collection<T> actualCollection, final Function<T, Date> mapper) {
         final List<String> extractedVals = new ArrayList<>();
         final var dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -365,7 +358,7 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
-    protected <T> List<String> extractLongValues(final Collection<T> actualCollection, final Function<T, Long> mapper) {
+    private <T> List<String> extractLongValues(final Collection<T> actualCollection, final Function<T, Long> mapper) {
         final List<String> extractedVals = new ArrayList<>();
 
         if (actualCollection != null) {
@@ -391,18 +384,18 @@ public abstract class CommonSteps {
         verifyIdentical(actualValList, expectedValList);
     }
 
-    protected <T> void verifyLongValues(final Collection<T> actualCollection,
-                                        final Function<T, Long> mapper,
-                                        final String expectedValues) {
+    <T> void verifyLongValues(final Collection<T> actualCollection,
+                              final Function<T, Long> mapper,
+                              final String expectedValues) {
         final var actualValList = extractLongValues(actualCollection, mapper);
         final var expectedValList = csv2list(expectedValues);
 
         verifyIdentical(actualValList, expectedValList);
     }
 
-    protected <T> void verifyLocalDateValues(final Collection<T> actualCollection,
-                                             final Function<T, LocalDate> mapper,
-                                             final String expectedValues) {
+    <T> void verifyLocalDateValues(final Collection<T> actualCollection,
+                                   final Function<T, LocalDate> mapper,
+                                   final String expectedValues) {
         final var actualValList = extractLocalDateValues(actualCollection, mapper);
         final var expectedValList = csv2list(expectedValues);
 
@@ -417,8 +410,8 @@ public abstract class CommonSteps {
         verifyIdentical(actualValList, expectedValList);
     }
 
-    protected <T> void verifyLocalTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper,
-                                             final String expectedValues) {
+    <T> void verifyLocalTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper,
+                                   final String expectedValues) {
         final var actualValList = extractLocalTimeValues(actualCollection, mapper);
         final var expectedValList = csv2list(expectedValues);
 
@@ -434,17 +427,17 @@ public abstract class CommonSteps {
         verifyIdentical(actualValList, expectedValList);
     }
 
-    protected <T> void verifyPropertyMapValues(final Collection<T> actualCollection,
-                                               final Function<T, String> keyMapper,
-                                               final Function<T, String> valMapper,
-                                               final String expectedMapValues) {
+    <T> void verifyPropertyMapValues(final Collection<T> actualCollection,
+                                     final Function<T, String> keyMapper,
+                                     final Function<T, String> valMapper,
+                                     final String expectedMapValues) {
         final var actualPropertyMap = extractPropertyValuesToMap(actualCollection, keyMapper, valMapper);
         final var expectedPropertyMap = csv2map(expectedMapValues);
 
         verifyIdentical(actualPropertyMap, expectedPropertyMap);
     }
 
-    protected void verifyPropertyValue(final Object bean, final String propertyName, final String expectedValue) throws ReflectiveOperationException {
+    void verifyPropertyValue(final Object bean, final String propertyName, final String expectedValue) throws ReflectiveOperationException {
         verifyField(bean, propertyName, expectedValue);
     }
 
@@ -458,15 +451,15 @@ public abstract class CommonSteps {
         } else {
             if (actual instanceof BigDecimal) {
                 // Assume a monetary value with 2dp
-                assertEquals(expectedValue, ((BigDecimal) actual).setScale(2).toString());
+                assertThat(((BigDecimal) actual).setScale(2, RoundingMode.HALF_UP).toString()).isEqualTo(expectedValue);
             } else {
-                assertEquals(expectedValue, actual.toString());
+                assertThat(actual.toString()).isEqualTo(expectedValue);
             }
         }
 
     }
 
-    protected void verifyLocalDate(final LocalDate actual, final String expected) {
+    void verifyLocalDate(final LocalDate actual, final String expected) {
         if (Objects.nonNull(actual)) {
             assertThat(actual).isEqualTo(expected);
         } else {
@@ -474,7 +467,7 @@ public abstract class CommonSteps {
         }
     }
 
-    protected void verifyLocalDateTime(final LocalDateTime actual, final String expected) {
+    void verifyLocalDateTime(final LocalDateTime actual, final String expected) {
         if (Objects.nonNull(actual)) {
             assertThat(actual).isEqualTo(RegExUtils.replaceFirst(expected, "\\s{1}", "T"));
         } else {
@@ -482,7 +475,7 @@ public abstract class CommonSteps {
         }
     }
 
-    protected void verifyEnum(final Enum<?> actual, final String expected) {
+    void verifyEnum(final Enum<?> actual, final String expected) {
         if (Objects.nonNull(actual)) {
             assertThat(actual.toString()).isEqualTo(expected);
         } else {
@@ -490,22 +483,22 @@ public abstract class CommonSteps {
         }
     }
 
-    protected String buildQuery(final String queryParam) {
+    String buildQuery(final String queryParam) {
         return "?query=" + StringUtils.trimToEmpty(queryParam);
     }
 
-    protected String buildQueryStringParameters(final Map<String, String> parameters) {
+    String buildQueryStringParameters(final Map<String, String> parameters) {
         return parameters.keySet()
                 .stream()
                 .map(key -> String.format("%s=%s", key, parameters.get(key)))
                 .collect(Collectors.joining("&"));
     }
 
-    protected Map<String,String> addPaginationHeaders() {
+    protected Map<String, String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
     }
 
-    protected Map<String, String> buildSortHeaders(final String sortFields, final Order sortOrder) {
+    Map<String, String> buildSortHeaders(final String sortFields, final Order sortOrder) {
         final Map<String, String> sortHeaders = new HashMap<>();
 
         if (StringUtils.isNotBlank(sortFields)) {
@@ -519,7 +512,7 @@ public abstract class CommonSteps {
         return sortHeaders.isEmpty() ? null : ImmutableMap.copyOf(sortHeaders);
     }
 
-    protected void validateResourcesIndex(final int index) {
+    void validateResourcesIndex(final int index) {
         assertThat(index).isGreaterThan(-1);
         assertThat(index).isLessThan(resources.size());
     }
@@ -530,11 +523,11 @@ public abstract class CommonSteps {
         final var totals = headers.get("Total-Records");
 
         if ((totals != null) && !totals.isEmpty()) {
-            final var totalRecords = Long.valueOf(totals.get(0));
+            final var totalRecords = Long.parseLong(totals.get(0));
             final var offsets = headers.get("Page-Offset");
-            final var returnedOffset = Long.valueOf(offsets.get(0));
+            final var returnedOffset = Long.parseLong(offsets.get(0));
             final var limits = headers.get("Page-Limit");
-            final var returnedLimit = Long.valueOf(limits.get(0));
+            final var returnedLimit = Long.parseLong(limits.get(0));
 
             metaData = new Page<>(null, totalRecords, returnedOffset, returnedLimit);
         } else {
@@ -547,16 +540,15 @@ public abstract class CommonSteps {
     /**
      * Equality assertion where blank and null are treated as equal
      */
-    protected static void assertEqualsBlankIsNull(final String expected, final String actual) {
-        if (StringUtils.isBlank(actual) && StringUtils.isBlank(expected) ) {
+    static void assertEqualsBlankIsNull(final String expected, final String actual) {
+        if (StringUtils.isBlank(actual) && StringUtils.isBlank(expected)) {
             return;
         }
-        assertEquals(expected, actual);
+        assertThat(actual).isEqualTo(expected);
     }
 
-    protected void assertErrorResponse(final Response.StatusType expectedStatusCode) {
+    void assertErrorResponse(final Response.StatusType expectedStatusCode) {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(expectedStatusCode.getStatusCode());
-
     }
 }

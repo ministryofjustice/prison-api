@@ -9,10 +9,12 @@ import java.util.function.Predicate;
 public interface LocationGroupService {
 
     List<LocationGroup> getLocationGroupsForAgency(String agencyId);
+
     List<LocationGroup> getLocationGroups(String agencyId);
 
     /**
      * Supply a filter predicate for LocationGroups.
+     *
      * @param agencyId
      * @param groupName
      * @return a suitable predicate.

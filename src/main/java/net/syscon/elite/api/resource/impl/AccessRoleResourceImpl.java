@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
 
 @RestResource
 @Path("/access-roles")
-public class AccessRoleResourceImpl implements AccessRoleResource{
+public class AccessRoleResourceImpl implements AccessRoleResource {
     private final AccessRoleService accessRoleService;
 
     public AccessRoleResourceImpl(final AccessRoleService accessRoleService) {

@@ -1,8 +1,8 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.IepLevel;
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.WhereaboutsConfig;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
@@ -58,7 +58,8 @@ public class AgencySteps extends CommonSteps {
                     url,
                     HttpMethod.GET,
                     httpEntity,
-                    new ParameterizedTypeReference<List<Agency>>() {},
+                    new ParameterizedTypeReference<List<Agency>>() {
+                    },
                     params);
 
             agencies = response.getBody();
@@ -80,7 +81,8 @@ public class AgencySteps extends CommonSteps {
                     url,
                     HttpMethod.GET,
                     createEntity(null, headers),
-                    new ParameterizedTypeReference<List<Location>>() {},
+                    new ParameterizedTypeReference<List<Location>>() {
+                    },
                     agencyId);
 
             locations = response.getBody();
@@ -105,7 +107,8 @@ public class AgencySteps extends CommonSteps {
                     url,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<List<Location>>() {},
+                    new ParameterizedTypeReference<List<Location>>() {
+                    },
                     agencyId);
 
             locations = response.getBody();
@@ -142,7 +145,7 @@ public class AgencySteps extends CommonSteps {
 
         final var uriBuilder = UriComponentsBuilder.fromPath(API_AGENCY_URL);
 
-        if(activeOnly != null) {
+        if (activeOnly != null) {
             uriBuilder.queryParam("activeOnly", activeOnly);
         }
 
@@ -163,7 +166,8 @@ public class AgencySteps extends CommonSteps {
         init();
         try {
             final var response = restTemplate.exchange(resourcePath, HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<Agency>>() {}, caseload);
+                    new ParameterizedTypeReference<List<Agency>>() {
+                    }, caseload);
 
             agencies = response.getBody();
             buildResourceData(response);

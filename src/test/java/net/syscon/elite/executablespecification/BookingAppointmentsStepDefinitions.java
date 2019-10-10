@@ -172,7 +172,7 @@ public class BookingAppointmentsStepDefinitions extends AbstractStepDefinitions 
 
     @When("^An appointment is created with an invalid comment$")
     public void appointmentIsCreatedInThePast() throws Throwable {
-        bookingAppointments.createAppointment(-4L, "MEDE",LocalDateTime.now().plusDays(1), -29L, StringUtils.repeat("0123456789", 1000));
+        bookingAppointments.createAppointment(-4L, "MEDE", LocalDateTime.now().plusDays(1), -29L, StringUtils.repeat("0123456789", 1000));
     }
 
     @When("^An appointment is created for an invalid type$")

@@ -11,6 +11,7 @@ import java.util.List;
 public interface AccessRoleService {
 
     void createAccessRole(@Valid AccessRole accessRole);
+
     void updateAccessRole(@Valid AccessRole accessRole);
 
     List<AccessRole> getAccessRoles(boolean includeAdmin);

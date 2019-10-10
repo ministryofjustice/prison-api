@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class OffenderAddressServiceImpl implements OffenderAddressService{
+public class OffenderAddressServiceImpl implements OffenderAddressService {
 
     private final OffenderAddressRepository repository;
     private final BookingService bookingService;

@@ -47,7 +47,8 @@ public class BookingAliasSteps extends CommonSteps {
                     restTemplate.exchange(
                             API_REQUEST_BASE_URL,
                             HttpMethod.GET, createEntity(),
-                            new ParameterizedTypeReference<List<Alias>>() {},
+                            new ParameterizedTypeReference<List<Alias>>() {
+                            },
                             bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

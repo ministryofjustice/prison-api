@@ -47,6 +47,8 @@ public interface BookingRepository {
 
     List<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
+    Optional<VisitBalances> getBookingVisitBalances(Long bookingId);
+
     List<ScheduledEvent> getBookingVisits(Collection<Long> bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
     Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
@@ -60,10 +62,13 @@ public interface BookingRepository {
     Long createBookingAppointment(Long bookingId, NewAppointment newAppointment, String agencyId);
 
     List<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, Set<String> allowedCaseloadsOnly, boolean filterByCaseload, boolean viewInactiveBookings);
+
     List<OffenderSentenceCalculation> getOffenderSentenceCalculations(Set<String> agencyIds);
+
     List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId, String sentenceTermCode);
 
     Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
+
     Visit getBookingVisitNext(Long bookingId, LocalDateTime from);
 
     Optional<Long> getBookingIdByOffenderNo(String offenderNo);

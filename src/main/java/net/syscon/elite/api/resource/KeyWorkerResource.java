@@ -19,79 +19,79 @@ public interface KeyWorkerResource {
 
     @GET
     @Path("/{agencyId}/allocationHistory")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "All allocations in specified agency.", notes = "All allocations in specified agency.", nickname="getAllocationHistory")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = OffenderKeyWorker.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "All allocations in specified agency.", notes = "All allocations in specified agency.", nickname = "getAllocationHistory")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderKeyWorker.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetAllocationHistoryResponse getAllocationHistory(@ApiParam(value = "The agency (prison) identifier.", required = true) @PathParam("agencyId") String agencyId,
                                                       @ApiParam(value = "Requested offset of first record in returned collection of allocationHistory records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
                                                       @ApiParam(value = "Requested limit to number of allocationHistory records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit);
 
     @GET
     @Path("/{agencyId}/available")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Key workers available for allocation at specified agency.", notes = "Key workers available for allocation at specified agency.", nickname="getAvailableKeyworkers")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Key workers available for allocation at specified agency.", notes = "Key workers available for allocation at specified agency.", nickname = "getAvailableKeyworkers")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Keyworker.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = Keyworker.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetAvailableKeyworkersResponse getAvailableKeyworkers(@ApiParam(value = "The agency (prison) identifier.", required = true) @PathParam("agencyId") String agencyId);
 
     @GET
     @Path("/{staffId}/agency/{agencyId}/offenders")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Specified key worker's currently assigned offenders.", notes = "Specified key worker's currently assigned offenders.", nickname="getAllocationsForKeyworker")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Specified key worker's currently assigned offenders.", notes = "Specified key worker's currently assigned offenders.", nickname = "getAllocationsForKeyworker")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = KeyWorkerAllocationDetail.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = KeyWorkerAllocationDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetAllocationsForKeyworkerResponse getAllocationsForKeyworker(@ApiParam(value = "The key worker staff id", required = true) @PathParam("staffId") Long staffId,
                                                                   @ApiParam(value = "The agency (prison) identifier.", required = true) @PathParam("agencyId") String agencyId);
 
     @POST
     @Path("/{agencyId}/current-allocations")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", nickname="postKeyWorkerAgencyIdCurrentAllocations")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", nickname = "postKeyWorkerAgencyIdCurrentAllocations")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "The allocations list is returned.", response = KeyWorkerAllocationDetail.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "The allocations list is returned.", response = KeyWorkerAllocationDetail.class, responseContainer = "List")})
     PostKeyWorkerAgencyIdCurrentAllocationsResponse postKeyWorkerAgencyIdCurrentAllocations(@ApiParam(value = "The agency (prison) identifier.", required = true) @PathParam("agencyId") String agencyId,
                                                                                             @ApiParam(value = "The required staff Ids (mandatory)", required = true) List<Long> body);
 
     @POST
     @Path("/{agencyId}/current-allocations/offenders")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", nickname="postKeyWorkerAgencyIdCurrentAllocationsOffenders")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", nickname = "postKeyWorkerAgencyIdCurrentAllocationsOffenders")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "The allocations list is returned.", response = KeyWorkerAllocationDetail.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "The allocations list is returned.", response = KeyWorkerAllocationDetail.class, responseContainer = "List")})
     PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse postKeyWorkerAgencyIdCurrentAllocationsOffenders(@ApiParam(value = "The agency (prison) identifier.", required = true) @PathParam("agencyId") String agencyId,
                                                                                                               @ApiParam(value = "The required offender Nos (mandatory)", required = true) List<String> body);
 
     @POST
     @Path("/offenders/allocationHistory")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", notes = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", nickname="postKeyWorkerOffendersAllocationHistory")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", notes = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", nickname = "postKeyWorkerOffendersAllocationHistory")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "The allocations history list is returned.", response = OffenderKeyWorker.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "The allocations history list is returned.", response = OffenderKeyWorker.class, responseContainer = "List")})
     PostKeyWorkerOffendersAllocationHistoryResponse postKeyWorkerOffendersAllocationHistory(@ApiParam(value = "The required offender nos (mandatory)", required = true) List<String> body);
 
     @POST
     @Path("/staff/allocationHistory")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.", nickname="postKeyWorkerStaffAllocationHistory")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.", nickname = "postKeyWorkerStaffAllocationHistory")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "The allocations history list is returned.", response = OffenderKeyWorker.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "The allocations history list is returned.", response = OffenderKeyWorker.class, responseContainer = "List")})
     PostKeyWorkerStaffAllocationHistoryResponse postKeyWorkerStaffAllocationHistory(@ApiParam(value = "The required staff Ids (mandatory)", required = true) List<Long> body);
 
     class GetAllocationHistoryResponse extends ResponseDelegate {

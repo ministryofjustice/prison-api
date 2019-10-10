@@ -94,7 +94,8 @@ public class BookingDetailSteps extends CommonSteps {
             final var response = restTemplate.exchange(
                     API_BOOKING_REQUEST_URL + "/physicalCharacteristics", HttpMethod.GET,
                     createEntity(null, null),
-                    new ParameterizedTypeReference<List<PhysicalCharacteristic>>() {}, bookingId);
+                    new ParameterizedTypeReference<List<PhysicalCharacteristic>>() {
+                    }, bookingId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             physicalCharacteristics = response.getBody();
             buildResourceData(response);
@@ -109,7 +110,8 @@ public class BookingDetailSteps extends CommonSteps {
             final var response = restTemplate.exchange(
                     API_BOOKING_REQUEST_URL + "/profileInformation", HttpMethod.GET,
                     createEntity(null, null),
-                    new ParameterizedTypeReference<List<ProfileInformation>>() {}, bookingId);
+                    new ParameterizedTypeReference<List<ProfileInformation>>() {
+                    }, bookingId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             profileInformation = response.getBody();
             buildResourceData(response);
@@ -124,7 +126,8 @@ public class BookingDetailSteps extends CommonSteps {
             final var response = restTemplate.exchange(
                     API_BOOKING_REQUEST_URL + "/identifiers", HttpMethod.GET,
                     createEntity(null, null),
-                    new ParameterizedTypeReference<List<OffenderIdentifier>>() {}, bookingId);
+                    new ParameterizedTypeReference<List<OffenderIdentifier>>() {
+                    }, bookingId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
         } catch (final EliteClientException ex) {
@@ -214,6 +217,7 @@ public class BookingDetailSteps extends CommonSteps {
     public void verifyOffenderActiveFlag(final boolean activeFlag) {
         assertThat(inmateDetail.getActiveFlag()).isEqualTo(activeFlag);
     }
+
     @Step("Verify offender assigned officer id")
     public void verifyOffenderAssignedOfficerId(final Long assignedOfficerId) {
         assertThat(inmateDetail.getAssignedOfficerId())
@@ -276,7 +280,7 @@ public class BookingDetailSteps extends CommonSteps {
     @Step("Verify active alert count")
     public void verifyActiveCount(final int count) {
         assertThat(inmateDetail.getActiveAlertCount())
-                .as(format("bookingId: %s",inmateDetail.getBookingId()))
+                .as(format("bookingId: %s", inmateDetail.getBookingId()))
                 .isEqualTo(count);
     }
 
@@ -284,7 +288,7 @@ public class BookingDetailSteps extends CommonSteps {
     public void verifyInactiveCount(final int count) {
 
         assertThat(inmateDetail.getInactiveAlertCount())
-                .as(format("bookingId: %s",inmateDetail.getBookingId()))
+                .as(format("bookingId: %s", inmateDetail.getBookingId()))
                 .isEqualTo(count);
     }
 
@@ -320,7 +324,8 @@ public class BookingDetailSteps extends CommonSteps {
                             API_BOOKING_DETAILS_BY_OFFENDERS,
                             HttpMethod.POST,
                             createEntity(offenderNumbers),
-                            new ParameterizedTypeReference<List<InmateDetail>>() {});
+                            new ParameterizedTypeReference<List<InmateDetail>>() {
+                            });
 
             offenders = response.getBody();
         } catch (final EliteClientException ex) {
@@ -336,7 +341,8 @@ public class BookingDetailSteps extends CommonSteps {
                             API_BOOKING_DETAILS_BY_BOOKING_IDS,
                             HttpMethod.POST,
                             createEntity(bookingIds),
-                            new ParameterizedTypeReference<List<InmateBasicDetails>>() {}, agencyId);
+                            new ParameterizedTypeReference<List<InmateBasicDetails>>() {
+                            }, agencyId);
 
             offendersBasic = response.getBody();
         } catch (final EliteClientException ex) {
@@ -354,7 +360,7 @@ public class BookingDetailSteps extends CommonSteps {
                         offender.getBookingId().equals(Long.parseLong(bookingId)) &&
                         offender.getAgencyId().equals(agencyId) &&
                         offender.getOffenderNo().equals(offenderNo))
-                 .count())
+                .count())
                 .isEqualTo(1);
     }
 

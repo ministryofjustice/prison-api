@@ -20,14 +20,14 @@ public interface LocationResource {
 
     @GET
     @Path("/description/{locationPrefix}/inmates")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of offenders at location.", notes = "List of offenders at location.", nickname="getOffendersAtLocationDescription")
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of offenders at location.", notes = "List of offenders at location.", nickname = "getOffendersAtLocationDescription")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(@ApiParam(value = "", required = true) @PathParam("locationPrefix") String locationPrefix,
                                                                                 @ApiParam(value = "offender name or id to match") @QueryParam("keywords") String keywords,
                                                                                 @ApiParam(value = "Offenders with a DOB >= this date", example = "1970-01-02") @QueryParam("fromDob") LocalDate fromDob,
@@ -44,39 +44,39 @@ public interface LocationResource {
 
     @GET
     @Path("/groups/{agencyId}/{name}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of cell locations by group at agency location.", notes = "List of cell locations by group at agency location.", nickname="getLocationGroup")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of cell locations by group at agency location.", notes = "List of cell locations by group at agency location.", nickname = "getLocationGroup")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetLocationGroupResponse getLocationGroup(@ApiParam(value = "The prison", required = true) @PathParam("agencyId") String agencyId,
                                               @ApiParam(value = "The group name", required = true) @PathParam("name") String name);
 
     @GET
     @Path("/{locationId}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Location detail.", notes = "Location detail.", nickname="getLocation")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Location detail.", notes = "Location detail.", nickname = "getLocation")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Location.class),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+            @ApiResponse(code = 200, message = "OK", response = Location.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetLocationResponse getLocation(@ApiParam(value = "The location id of location", required = true) @PathParam("locationId") Long locationId);
 
     @GET
     @Path("/{locationId}/inmates")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "List of offenders at location.", notes = "List of offenders at location.", nickname="getOffendersAtLocation")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of offenders at location.", notes = "List of offenders at location.", nickname = "getOffendersAtLocation")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetOffendersAtLocationResponse getOffendersAtLocation(@ApiParam(value = "The location id of location", required = true) @PathParam("locationId") Long locationId,
                                                           @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</p> ", required = true) @QueryParam("query") String query,
                                                           @ApiParam(value = "Requested offset of first record in returned collection of inmate records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,

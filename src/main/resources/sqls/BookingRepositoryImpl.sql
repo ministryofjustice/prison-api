@@ -643,3 +643,9 @@ FIND_BOOKING_IDS_IN_AGENCY {
   WHERE OB.OFFENDER_BOOK_ID IN (:bookingIds)
   AND OB.AGY_LOC_ID = :agencyId
 }
+
+FIND_REMAINING_VO_PVO {
+SELECT ovb.remaining_vo, ovb.remaining_pvo
+FROM offender_visit_balances ovb
+WHERE ovb.offender_book_id = :bookingId
+}

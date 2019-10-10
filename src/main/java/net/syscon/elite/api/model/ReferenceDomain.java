@@ -25,7 +25,7 @@ import java.util.Map;
 public class ReferenceDomain {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String domain;
 
@@ -55,8 +55,8 @@ public class ReferenceDomain {
     }
 
     /**
-      * Reference domain name
-      */
+     * Reference domain name
+     */
     @ApiModelProperty(required = true, value = "Reference domain name")
     @JsonProperty("domain")
     public String getDomain() {
@@ -68,8 +68,8 @@ public class ReferenceDomain {
     }
 
     /**
-      * Reference domain description.
-      */
+     * Reference domain description.
+     */
     @ApiModelProperty(required = true, value = "Reference domain description.")
     @JsonProperty("description")
     public String getDescription() {
@@ -81,8 +81,8 @@ public class ReferenceDomain {
     }
 
     /**
-      * Reference domain status.
-      */
+     * Reference domain status.
+     */
     @ApiModelProperty(required = true, value = "Reference domain status.")
     @JsonProperty("domainStatus")
     public String getDomainStatus() {
@@ -94,8 +94,8 @@ public class ReferenceDomain {
     }
 
     /**
-      * Reference domain owner.
-      */
+     * Reference domain owner.
+     */
     @ApiModelProperty(required = true, value = "Reference domain owner.")
     @JsonProperty("ownerCode")
     public String getOwnerCode() {
@@ -107,8 +107,8 @@ public class ReferenceDomain {
     }
 
     /**
-      * Application that uses reference domain.
-      */
+     * Application that uses reference domain.
+     */
     @ApiModelProperty(required = true, value = "Application that uses reference domain.")
     @JsonProperty("applnCode")
     public String getApplnCode() {
@@ -120,8 +120,8 @@ public class ReferenceDomain {
     }
 
     /**
-      * Parent domain for reference domain.
-      */
+     * Parent domain for reference domain.
+     */
     @ApiModelProperty(value = "Parent domain for reference domain.")
     @JsonProperty("parentDomain")
     public String getParentDomain() {
@@ -133,11 +133,11 @@ public class ReferenceDomain {
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         final var sb = new StringBuilder();
 
         sb.append("class ReferenceDomain {\n");
-        
+
         sb.append("  domain: ").append(domain).append("\n");
         sb.append("  description: ").append(description).append("\n");
         sb.append("  domainStatus: ").append(domainStatus).append("\n");
