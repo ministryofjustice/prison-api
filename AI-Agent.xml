@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationInsightsAgent>
+  <Instrumentation>
+    <BuiltIn enabled="true">
+      <HTTP enabled="true" W3C="true"/>
+
+      <!-- capture query plans for JDBC queries that exceed this value (MySQL, PostgreSQL),
+           default is 10000 milliseconds -->
+      <MaxStatementQueryLimitInMS>1000</MaxStatementQueryLimitInMS>
+
+    </BuiltIn>
+  </Instrumentation>
+</ApplicationInsightsAgent>
