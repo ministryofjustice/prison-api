@@ -13,6 +13,50 @@ Feature: Location and Location Group Events
     Then schedules response is HTTP 404 resource not found
     And schedules response error message is "Resource with id [ZZGHI] not found."
 
+  Scenario: location group does not exist
+    Given an agency which belongs to a caseload accessible to current user
+    And location group does not exist for the agency
+    When schedules are requested for agency and location group
+    Then schedules response is HTTP 404 resource not found
+    And schedules response error message is "Group 'doesnotexist' does not exist for agencyId 'LEI'."
+
+  Scenario: no location group scheduled events
+    Given no offender has any scheduled events for current day
+    When schedules are requested for agency and location group
+    Then schedules response is an empty list
+
+  Scenario: location group scheduled events in order
+    Given one or more offenders have scheduled events for current day
+    And offenders are located in a location that belongs to requested agency and location group
+    When schedules are requested for a valid agency and location group
+    Then response is a list of offender's schedules with size 14
+    And returned schedules are ordered as defined by requested location group
+    And returned schedules are only for offenders located in locations "LEI-A-1-1,LEI-A-1-10"
+
+  Scenario: location group AM timeslot
+    Given one or more offenders have scheduled events for current day
+    And offenders are located in a location that belongs to requested agency and location group
+    When schedules are requested for a valid agency and location group with 'timeSlot' = 'AM'
+    Then response is a list of offender's schedules with size 9
+    And start time of all returned schedules is before 12h00
+    And returned schedules are ordered as defined by requested location group
+    And returned schedules are only for offenders located in locations "LEI-A-1-1,LEI-A-1-10"
+
+  Scenario: location group PM timeslot
+    Given one or more offenders have scheduled events for current day
+    And offenders are located in a location that belongs to requested agency and location group
+    When schedules are requested for a valid agency and location group with 'timeSlot' = 'PM'
+    Then response is a list of offender's schedules with size 5
+    And start time of all returned schedules is between 12h00 and 17h00
+    And returned schedules are ordered as defined by requested location group
+    And returned schedules are only for offenders located in locations "LEI-A-1-1,LEI-A-1-10"
+
+  Scenario: location group ED timeslot
+    Given offenders are located in a location that belongs to requested agency and location group
+    When schedules are requested for a valid agency and location group with date = '2017-10-15' and 'timeSlot' = 'ED'
+    Then response is a list of offender's schedules with size 1
+    And start time of all returned schedules is on or after 17h00
+    And returned schedules are only for offenders located in locations "LEI-A-1-1"
 
 ###############################################################
 
