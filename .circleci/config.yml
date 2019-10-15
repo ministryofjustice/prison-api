@@ -37,6 +37,7 @@ jobs:
             - build.gradle
             - Dockerfile
             - run.sh
+            - AI-Agent.xml
 
   build_docker:
     <<: *defaults
