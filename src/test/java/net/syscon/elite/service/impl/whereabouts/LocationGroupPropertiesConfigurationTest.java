@@ -40,7 +40,7 @@ public class LocationGroupPropertiesConfigurationTest {
     public void groupsPropertiesWiredInUsingQualifier() {
         assertThat(properties)
                 .isNotEmpty()
-                .containsKeys("MDI_Houseblock 1", "WCI_Segregation");
+                .containsKeys("MDI_Houseblock 1", "HEI_Segregation Unit");
     }
 
     @Test
