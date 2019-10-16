@@ -2,7 +2,6 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 
@@ -26,7 +25,14 @@ public class StaffCaseloadsResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
 
-        assertThatJson(response.getBody()).isEqualTo("[{caseLoadId:\"BXI\",description:\"Brixton (HMP)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:false},{caseLoadId:\"LEI\",description:\"Leeds (HMP)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:true},{caseLoadId:\"MDI\",description:\"Moorland Closed (HMP & YOI)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:false},{caseLoadId:\"NWEB\",description:\"Nomis-web Application\",type:\"APP\",caseloadFunction:\"GENERAL\",currentlyActive:false},{caseLoadId:\"SYI\",description:\"Shrewsbury (HMP)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:false},{caseLoadId:\"WAI\",description:\"The Weare (HMP)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:false}]");
+        assertThatJson(response.getBody()).isEqualTo("[" +
+                "{caseLoadId:\"BXI\",description:\"Brixton (HMP)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:false}," +
+                "{caseLoadId:\"LEI\",description:\"Leeds (HMP)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:true}," +
+                "{caseLoadId:\"MDI\",description:\"Moorland Closed (HMP & YOI)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:false}," +
+                "{caseLoadId:\"NWEB\",description:\"Nomis-web Application\",type:\"APP\",caseloadFunction:\"GENERAL\",currentlyActive:false}," +
+                "{caseLoadId:\"RNI\",description:\"Ranby (HMP)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:false}," +
+                "{caseLoadId:\"SYI\",description:\"Shrewsbury (HMP)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:false}," +
+                "{caseLoadId:\"WAI\",description:\"The Weare (HMP)\",type:\"INST\",caseloadFunction:\"GENERAL\",currentlyActive:false}]");
     }
 
     @Test

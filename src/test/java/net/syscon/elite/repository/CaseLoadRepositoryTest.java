@@ -48,13 +48,13 @@ public class CaseLoadRepositoryTest {
     @Test
     public void testGetAllCaseLoadsByUsername() {
         final var caseLoads = repository.getAllCaseLoadsByUsername(TEST_USERNAME);
-        assertThat(caseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("LEI", "BXI", "MDI", "SYI", "WAI", "NWEB");
+        assertThat(caseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("LEI", "BXI", "MDI", "RNI", "SYI", "WAI", "NWEB");
     }
 
     @Test
     public void testGetCaseLoadsByUsername() {
         final var caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME);
-        assertThat(caseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("LEI", "BXI", "MDI", "SYI", "WAI");
+        assertThat(caseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("LEI", "BXI", "MDI", "RNI", "SYI", "WAI");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class CaseLoadRepositoryTest {
     public void testGetCaseLoadsByUsername_CurrentInactive() {
         final var caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME);
         final var activeCaseLoads = caseLoads.stream().filter(cl -> !cl.isCurrentlyActive()).collect(Collectors.toList());
-        assertThat(activeCaseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("BXI", "MDI", "SYI", "WAI");
+        assertThat(activeCaseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("BXI", "MDI", "RNI", "SYI", "WAI");
     }
 
     @Test
