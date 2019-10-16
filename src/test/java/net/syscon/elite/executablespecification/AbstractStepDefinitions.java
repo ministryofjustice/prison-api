@@ -26,7 +26,6 @@ abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {
 
-
         @Bean
         public AccessRoleSteps accessRoleSteps() {
             return new AccessRoleSteps();
