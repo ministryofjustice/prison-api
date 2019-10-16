@@ -6,8 +6,7 @@
 
       <!-- capture query plans for JDBC queries that exceed this value (MySQL, PostgreSQL),
            default is 10000 milliseconds -->
-      <MaxStatementQueryLimitInMS>1000</MaxStatementQueryLimitInMS>
-
+      <MaxStatementQueryLimitInMS>10000</MaxStatementQueryLimitInMS>
     </BuiltIn>
   </Instrumentation>
 </ApplicationInsightsAgent>
