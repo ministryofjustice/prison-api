@@ -175,14 +175,21 @@ public class ScheduleRepositoryTest {
     @Test
     public void testGetActivities() {
         final var date = LocalDate.parse("2017-09-15");
-        final var results = repository.getActivities("LEI", Collections.singletonList("A1234AB"), date);
-        assertThat(results).hasSize(1);
+        final var results = repository.getActivities("LEI", Arrays.asList("A1234AB", "A1234AD"), date);
+        assertThat(results).hasSize(2);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
         assertThat(results.get(0).getExcluded()).isFalse();
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
         assertThat(results.get(0).getLocationId()).isEqualTo(-26L);
         assertThat(results.get(0).getTimeSlot()).isEqualTo(TimeSlot.PM);
         assertThat(results.get(0).getEventLocation()).isEqualTo("Carpentry Workshop");
+
+        assertThat(results.get(1).getOffenderNo()).isEqualTo("A1234AD");
+        assertThat(results.get(1).getExcluded()).isFalse();
+        assertThat(results.get(1).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
+        assertThat(results.get(1).getLocationId()).isEqualTo(-26L);
+        assertThat(results.get(1).getTimeSlot()).isEqualTo(TimeSlot.PM);
+        assertThat(results.get(1).getEventLocation()).isEqualTo("Carpentry Workshop");
     }
 
     @Test
