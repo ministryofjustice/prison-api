@@ -63,7 +63,7 @@ public class ScheduleRepositoryTest {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
         final var results = repository.getLocationActivities(-26L, date, toDate, "lastName,startTime", Order.ASC);
-        assertThat(results).hasSize(24);
+        assertThat(results).hasSize(32);
         assertPrisonerDetails(results.get(0));
         // assert at least 1 field from all results
         assertThat(results.get(1).getStartTime().toString()).isEqualTo("2017-09-12T13:00");
@@ -73,7 +73,10 @@ public class ScheduleRepositoryTest {
 
         assertThat(results.get(1).getBookingId().toString()).isEqualTo("-2");
         assertThat(results.get(12).getBookingId().toString()).isEqualTo("-3");
-        assertThat(results.get(23).getBookingId().toString()).isEqualTo("-5");
+        assertThat(results.get(16).getBookingId().toString()).isEqualTo("-4");
+        assertThat(results.get(23).getBookingId().toString()).isEqualTo("-4");
+        assertThat(results.get(24).getBookingId().toString()).isEqualTo("-5");
+        assertThat(results.get(31).getBookingId().toString()).isEqualTo("-5");
 
         assertThat(results.get(5).getLastName()).isEqualTo("ANDERSON"); // date today
         assertThat(results.get(6).getLastName()).isEqualTo("ANDERSON");
@@ -88,14 +91,22 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(13).getLastName()).isEqualTo("BATES");
         assertThat(results.get(14).getLastName()).isEqualTo("BATES");
         assertThat(results.get(15).getLastName()).isEqualTo("BATES");
-        assertThat(results.get(16).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(17).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(18).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(19).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(20).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(21).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(22).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(23).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(16).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(17).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(18).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(19).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(20).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(21).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(22).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(23).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(24).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(25).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(26).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(27).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(28).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(29).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(30).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(31).getLastName()).isEqualTo("DUCK");
 
 
         results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-26L));
@@ -164,14 +175,21 @@ public class ScheduleRepositoryTest {
     @Test
     public void testGetActivities() {
         final var date = LocalDate.parse("2017-09-15");
-        final var results = repository.getActivities("LEI", Collections.singletonList("A1234AB"), date);
-        assertThat(results).hasSize(1);
+        final var results = repository.getActivities("LEI", Arrays.asList("A1234AB", "A1234AD"), date);
+        assertThat(results).hasSize(2);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
         assertThat(results.get(0).getExcluded()).isFalse();
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
         assertThat(results.get(0).getLocationId()).isEqualTo(-26L);
         assertThat(results.get(0).getTimeSlot()).isEqualTo(TimeSlot.PM);
         assertThat(results.get(0).getEventLocation()).isEqualTo("Carpentry Workshop");
+
+        assertThat(results.get(1).getOffenderNo()).isEqualTo("A1234AD");
+        assertThat(results.get(1).getExcluded()).isFalse();
+        assertThat(results.get(1).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
+        assertThat(results.get(1).getLocationId()).isEqualTo(-26L);
+        assertThat(results.get(1).getTimeSlot()).isEqualTo(TimeSlot.PM);
+        assertThat(results.get(1).getEventLocation()).isEqualTo("Carpentry Workshop");
     }
 
     @Test

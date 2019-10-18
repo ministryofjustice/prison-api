@@ -121,9 +121,9 @@ Feature: Location and Location Group Events
       | -25        | VISIT    |          | BATES, DUCK                   | VISIT,VISIT         | 00:00, 00:00            |
       | -28        | APP      |          | BATES,DUCK,DUCK               | EDUC,EDUC,EDUC      | 04:00, 01:00, 00:00     |
       | -29        | APP      |          | BATES                         | MEDE                | 03:00                   |
-      | -26        | PROG     | AM       | ANDERSON,BATES, DUCK          | EDUC,EDUC, EDUC     | 00:00,00:00, 00:00      |
-      | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,DUCK,DUCK| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,13:00,13:00,13:00 |
-      | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,DUCK,DUCK,DUCK | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,12:00,12:00,12:00,13:00,13:00,13:00 |
+      | -26        | PROG     | AM       | ANDERSON,BATES, CHAPLIN, DUCK | EDUC,EDUC, EDUC, EDUC     | 00:00,00:00, 00:00, 00:00 |
+      | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,CHAPLIN,CHAPLIN,DUCK,DUCK| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,12:00,13:00,13:00,13:00,13:00 |
+      | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,CHAPLIN,CHAPLIN,CHAPLIN,DUCK,DUCK,DUCK | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,00:00,12:00,12:00,12:00,12:00,13:00,13:00,13:00,13:00 |
 
 
   Scenario Outline: Request an offenders scheduled activities for a specific date
