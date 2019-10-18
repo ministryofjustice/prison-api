@@ -227,7 +227,7 @@ public class ScheduleRepositoryTest {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
         final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC);
-        assertThat(results).hasSize(71);
+        assertThat(results).hasSize(76);
 
 
         results.forEach(result -> {
@@ -238,7 +238,9 @@ public class ScheduleRepositoryTest {
             assertThat(List.of("CHAP", "EDUC")).contains(result.getEvent());
 
             // Check the offenders returned have the expected booking ids
-            assertThat(List.of(-1L, -2L, -3L, -4L, -5L)).contains(result.getBookingId());
+            // -35L is someone at a different agency (simulating being transferred)
+            // but who was allocated to a program at LEI during the specified time period
+            assertThat(List.of(-1L, -2L, -3L, -4L, -5L, -35L)).contains(result.getBookingId());
         });
     }
 
