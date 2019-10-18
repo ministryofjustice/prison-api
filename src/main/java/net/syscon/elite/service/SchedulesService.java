@@ -12,21 +12,21 @@ import java.util.List;
  */
 public interface SchedulesService {
 
-    List<PrisonerSchedule> getLocationGroupEvents(final String agencyId, final String groupName,
-                                                  final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder);
+    List<PrisonerSchedule> getLocationGroupEvents(String agencyId, String groupName,
+                                                  LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder);
 
-    List<PrisonerSchedule> getLocationEvents(final String agencyId, final Long locationId, final String usage,
-                                             final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder);
+    List<PrisonerSchedule> getLocationEvents(String agencyId, Long locationId, String usage,
+                                             LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder);
 
-    List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder);
+    List<PrisonerSchedule> getActivitiesAtAllLocations(String agencyId, LocalDate fromDate, LocalDate toDate, TimeSlot timeSlot, String sortFields, Order sortOrder);
 
-    List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot);
+    List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNos, LocalDate date, TimeSlot timeSlot);
 
-    List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot);
+    List<PrisonerSchedule> getAppointments(String agencyId, List<String> offenderNos, LocalDate date, TimeSlot timeSlot);
 
-    List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded);
+    List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNos, LocalDate date, TimeSlot timeSlot, boolean includeExcluded);
 
-    List<PrisonerSchedule> getCourtEvents(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot);
+    List<PrisonerSchedule> getCourtEvents(String agencyId, List<String> offenderNos, LocalDate date, TimeSlot timeSlot);
 
-    List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNos, final LocalDate date);
+    List<PrisonerSchedule> getExternalTransfers(String agencyId, List<String> offenderNos, LocalDate date);
 }
