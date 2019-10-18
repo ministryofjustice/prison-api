@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -239,6 +240,19 @@ public class ScheduleRepositoryTest {
             // Check the offenders returned have the expected booking ids
             assertThat(List.of(-1L, -2L, -3L, -4L, -5L)).contains(result.getBookingId());
         });
+    }
 
+    @Test
+    public void testScheduledActivity_ForAGivenDateRangeAreReturned() {
+        final var fromDate = LocalDate.of(2017, 9, 11);
+        final var toDate = LocalDate.of(2017, 9, 12);
+
+        final var activities = repository.getAllActivitiesAtAgency("LEI", fromDate, toDate, "lastName,startTime", Order.ASC);
+
+        assertThat(Objects.requireNonNull(activities)
+                .stream()
+                .flatMap(event -> List.of(event.getStartTime(), event.getEndTime()).stream())
+                .allMatch(date -> date.toLocalDate().isEqual(fromDate) || date.toLocalDate().isEqual(toDate)))
+                .isTrue();
     }
 }

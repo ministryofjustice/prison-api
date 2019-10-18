@@ -158,13 +158,15 @@ public class SchedulesServiceImpl implements SchedulesService {
 
     @Override
     @VerifyAgencyAccess
-    public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
+    public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
-        final var day = date == null ? LocalDate.now() : date;
+        final var startDate = fromDate == null ? LocalDate.now() : fromDate;
+        final var endDate = toDate == null ? LocalDate.now() : toDate;
+
         final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
-        final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, day, day, orderByFields, order);
+        final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, startDate, endDate, orderByFields, order);
 
         return filterByTimeSlot(timeSlot, activities);
     }
