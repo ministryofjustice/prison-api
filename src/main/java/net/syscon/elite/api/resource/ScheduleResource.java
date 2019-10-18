@@ -16,7 +16,6 @@ public interface ScheduleResource {
 
     @GET
     @Path("/{agencyId}/groups/{name}")
-    @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", notes = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", nickname = "getGroupEvents")
     @ApiResponses(value = {
@@ -33,7 +32,6 @@ public interface ScheduleResource {
 
     @GET
     @Path("/{agencyId}/locations/{locationId}/usage/{usage}")
-    @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Get all Prisoner events for given date at location.", notes = "Get all Prisoner events for given date at location.", nickname = "getLocationEvents")
     @ApiResponses(value = {
@@ -51,7 +49,6 @@ public interface ScheduleResource {
 
     @GET
     @Path("/{agencyId}/activities")
-    @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Get all Prisoner activities for given date.", notes = "Get all Prisoner activities for given date", nickname = "getActivitiesAtAllLocations")
     @ApiResponses(value = {
@@ -67,7 +64,6 @@ public interface ScheduleResource {
 
     @GET
     @Path("/{agencyId}/activities-by-date-range")
-    @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Get all Prisoner activities for given date.", notes = "Get all Prisoner activities for given date range", nickname = "getActivitiesAtAllLocationsByDateRange")
     @ApiResponses(value = {
