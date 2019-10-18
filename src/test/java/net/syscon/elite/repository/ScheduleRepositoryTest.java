@@ -22,8 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -175,7 +175,7 @@ public class ScheduleRepositoryTest {
     @Test
     public void testGetActivities() {
         final var date = LocalDate.parse("2017-09-15");
-        final var results = repository.getActivities("LEI", Arrays.asList("A1234AB", "A1234AD"), date);
+        final var results = repository.getActivities("LEI", List.of("A1234AB", "A1234AD"), date);
         assertThat(results).hasSize(2);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
         assertThat(results.get(0).getExcluded()).isFalse();
@@ -204,7 +204,7 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetCourtEvents() {
-        final var results = repository.getCourtEvents(Arrays.asList("A1234AA", "A1234AB"), LocalDate.parse("2017-02-17"));
+        final var results = repository.getCourtEvents(List.of("A1234AA", "A1234AB"), LocalDate.parse("2017-02-17"));
 
         assertThat(results).asList().hasSize(2);
         assertThat(results).asList().extracting("offenderNo", "eventType", "event", "eventDescription", "eventStatus", "startTime").contains(
@@ -219,5 +219,26 @@ public class ScheduleRepositoryTest {
         final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC);
 
         assertThat(results).extracting("locationId").contains(-25L, -26L, -27L);
+    }
+
+    @Test
+    public void testGetAllActivitiesAtAgency() {
+        final var date = LocalDate.parse("2015-12-11");
+        final var toDate = LocalDate.now();
+        final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC);
+        assertThat(results).hasSize(71);
+
+
+        results.forEach(result -> {
+            // Check activities are returned for expected locations
+            assertThat(List.of(-26L, -27L, -25L)).contains(result.getLocationId());
+
+            // Check activities are of the expected types
+            assertThat(List.of("CHAP", "EDUC")).contains(result.getEvent());
+
+            // Check the offenders returned have the expected booking ids
+            assertThat(List.of(-1L, -2L, -3L, -4L, -5L)).contains(result.getBookingId());
+        });
+
     }
 }
