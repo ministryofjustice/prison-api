@@ -28,7 +28,7 @@ Feature: Booking Search
     Examples:
       | name     | number | first name list | middle name list | living unit list    |  image ids   | DOB                   |
       | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5         | -1,-2        | 1969-12-30,1998-08-28 |
-      | DUCK     | 1      | DONALD          | JEFFREY          | A-1-10              | 1            | 1956-02-28            |
+      | MATTHEWS | 1      | DONALD          | JEFFREY          | A-1-10              | 1            | 1956-02-28            |
       | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5         | -1,-2        | 1969-12-30,1998-08-28 |
       | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5         | -1,-2        | 1969-12-30,1998-08-28 |
       | UNKNOWN  | 0      |                 |                  |                     |              |                       |
@@ -56,9 +56,9 @@ Feature: Booking Search
 
     Examples:
       | name    | number | last name list | middle name list |
-      | DONALD  | 2      | DUCK,TRUMP     | JEFFREY          |
-      | donald  | 2      | DUCK,TRUMP     | JEFFREY          |
-      | DoNAld  | 2      | DUCK,TRUMP     | JEFFREY          |
+      | HARRY   | 2      | JONES,SARLY    |                  |
+      | harry   | 2      | JONES,SARLY    |                  |
+      | HaRrY   | 2      | JONES,SARLY    |                  |
       | UNKNOWN | 0      |                |                  |
       |         | 0      |                |                  |
 
@@ -84,7 +84,7 @@ Feature: Booking Search
 
     Examples:
       | first name | last name | number | first name list            | last name list             |
-      | DONALD     | TRUMP     | 1      | DONALD                     | TRUMP                      |
+      | HARRY      | JONES     | 1      | HARRY                      | JONES                      |
       | CHARLES    | CHAPLIN   | 1      | CHARLES                    | CHAPLIN                    |
       | JOHN       | DOE       | 0      |                            |                            |
       | DA%        | SMITH     | 2      | DANIEL,DARIUS              | SMITH,SMITH                |
@@ -102,8 +102,8 @@ Feature: Booking Search
 
     Examples:
       | first name | last name | number | first name list                    | last name list                   |
-      | DONALD     | CHAPLIN   | 3      | CHARLES,DONALD,DONALD              | CHAPLIN,DUCK,TRUMP               |
-      | CHARLES    | TRUMP     | 2      | CHARLES,DONALD                     | CHAPLIN,TRUMP                    |
+      | HARRY      | CHAPLIN   | 3      | CHARLES,HARRY,HARRY                | CHAPLIN,JONES,SARLY              |
+      | CHARLES    | JONES     | 2      | CHARLES,HARRY                      | CHAPLIN,JONES                    |
       | JOHN       | DOE       | 0      |                                    |                                  |
       | DA%        | SMITH     | 5      | DANIEL,DANIEL,DARIUS,GILES,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY  |
       | DANIEL     | SM%       | 5      | DANIEL,DANIEL,DARIUS,GILES,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY  |

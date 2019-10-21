@@ -62,7 +62,7 @@ Feature: Prisoner Search results contain aliases
       | firstName | middleNames    | lastName | numberResults | offenderNos             | foundFirstNames        | foundMiddleNames | foundLastNames            | foundWorkingLastName     | foundWorkingFirstName  | foundWorkingDob                  |
       |           |                | AND      | 3             | A1234AA,A1234AB,A1234AF | ARTHUR,GILLIAN,ANTHONY | BORIS,EVE        | ANDERSON,ANDERSON,ANDREWS |ANDERSON,ANDERSON,ANDREWS | ANTHONY,ARTHUR,GILLIAN | 1964-12-01,1969-12-30,1998-08-28 |
       | CHES      |                |          | 3             | A1183CW,A1234AI,A1234AI | CHESNEY,CHESNEY,CHESTER| JAMES            | THOMPSON,THOMSON,THOMSON  |THOMPSON,THOMPSON,WOAKES  | CHESTER,CHESTER,CHRIS  | 1970-03-01,1970-03-01,1989-03-02 |
-      |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | DUCK                      | DUCK                     | DONALD                 | 1956-02-28                       |
+      |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | MATTHEWS                  | MATTHEWS                 | DONALD                 | 1956-02-28                       |
 
   Scenario Outline: Search prisoners for a specified Date of Birth
     Given a user has a token name of "GLOBAL_SEARCH"
