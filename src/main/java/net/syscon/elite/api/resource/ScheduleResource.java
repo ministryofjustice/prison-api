@@ -73,7 +73,7 @@ public interface ScheduleResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<PrisonerSchedule> getActivitiesAtAllLocationsByDateRange(@ApiParam(value = "The prison.", required = true) @PathParam("agencyId") String agencyId,
                                                                   @ApiParam(value = "From date of whereabouts list, default today") @QueryParam("fromDate") LocalDate fromDate,
-                                                                  @ApiParam(value = "To Date of whereabouts list, default today") @QueryParam("toDate") LocalDate toDate,
+                                                                  @ApiParam(value = "To Date of whereabouts list, default from date") @QueryParam("toDate") LocalDate toDate,
                                                                   @ApiParam(value = "AM, PM or ED") @QueryParam("timeSlot") TimeSlot timeSlot,
                                                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @HeaderParam("Sort-Fields") String sortFields,
                                                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);

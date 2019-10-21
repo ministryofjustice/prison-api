@@ -438,7 +438,7 @@ public class SchedulesServiceImplTest {
     }
 
     @Test
-    public void testGeActivitiesAtAllLocationsForDateRange_CallsTheRepositoryWithTheCorrectParameters() {
+    public void testGeActivitiesAtAllLocations_CallsTheRepositoryWithTheCorrectParameters() {
         final var from = LocalDate.now();
         final var to = LocalDate.now().plusDays(1);
 
@@ -447,6 +447,17 @@ public class SchedulesServiceImplTest {
         schedulesService.getActivitiesAtAllLocations("LEI", from, to, TimeSlot.AM, sortFields, Order.ASC);
 
         verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, to, sortFields, Order.ASC);
+    }
+
+    @Test
+    public void testGeActivitiesAtAllLocations_UseFromDate_WhenToDateIsNull() {
+        final var from = LocalDate.now().plusDays(-10);
+
+        final var sortFields = "lastName,startTime";
+
+        schedulesService.getActivitiesAtAllLocations("LEI", from, null, TimeSlot.AM, sortFields, Order.ASC);
+
+        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, from, sortFields, Order.ASC);
     }
 
 }
