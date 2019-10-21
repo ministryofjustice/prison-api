@@ -241,6 +241,9 @@ public class ScheduleRepositoryTest {
             // -35L is someone at a different agency (simulating being transferred)
             // but who was allocated to a program at LEI during the specified time period
             assertThat(List.of(-1L, -2L, -3L, -4L, -5L, -35L)).contains(result.getBookingId());
+
+            // Get offender cell locations. -1L and -3L share a cell.
+            assertThat(List.of("LEI-A-1-1", "LEI-H-1-5", "LEI-A-1", "LEI-A-1-10", "MDI-1-1-001")).contains(result.getCellLocation());
         });
     }
 
