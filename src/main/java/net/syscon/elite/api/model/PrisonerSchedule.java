@@ -30,33 +30,33 @@ public class PrisonerSchedule {
     @ApiModelProperty(hidden = true)
     private Map<String, Object> additionalProperties;
 
-    @ApiModelProperty(required = true, value = "Offender number (e.g. NOMS Number).")
+    @ApiModelProperty(required = true, value = "Offender number (e.g. NOMS Number)")
     @NotBlank
     private String offenderNo;
 
-    @ApiModelProperty(value = "Activity id if any. Used to attend or pay the event.")
+    @ApiModelProperty(value = "Activity id if any. Used to attend or pay the event")
     private Long eventId;
 
-    @ApiModelProperty(value = "Booking id for offender.")
+    @ApiModelProperty(value = "Booking id for offender")
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "The number which (uniquely) identifies the internal location associated with the Scheduled Event (Prisoner Schedule).")
+    @ApiModelProperty(required = true, value = "The number which (uniquely) identifies the internal location associated with the Scheduled Event (Prisoner Schedule)")
     @NotNull
     private Long locationId;
 
-    @ApiModelProperty(required = true, value = "Offender first name.")
+    @ApiModelProperty(required = true, value = "Offender first name")
     @NotBlank
     private String firstName;
 
-    @ApiModelProperty(required = true, value = "Offender last name.")
+    @ApiModelProperty(required = true, value = "Offender last name")
     @NotBlank
     private String lastName;
 
-    @ApiModelProperty(required = true, value = "Offender cell.")
+    @ApiModelProperty(required = true, value = "Offender cell")
     @NotBlank
     private String cellLocation;
 
-    @ApiModelProperty(required = true, value = "Event code.")
+    @ApiModelProperty(required = true, value = "Event code")
     @NotBlank
     private String event;
 
@@ -64,7 +64,7 @@ public class PrisonerSchedule {
     @NotBlank
     private String eventType;
 
-    @ApiModelProperty(required = true, value = "Description of event code.")
+    @ApiModelProperty(required = true, value = "Description of event code")
     @NotBlank
     private String eventDescription;
 
@@ -78,7 +78,7 @@ public class PrisonerSchedule {
     @NotBlank
     private String eventStatus;
 
-    @ApiModelProperty(required = true, value = "Date and time at which event starts")
+    @ApiModelProperty(required = true, value = "Comment")
     @Length(max = 4000)
     private String comment;
 
@@ -89,22 +89,22 @@ public class PrisonerSchedule {
     @ApiModelProperty(value = "Date and time at which event ends")
     private LocalDateTime endTime;
 
-    @ApiModelProperty(value = "Attendance, possible values are the codes in the 'PS_PA_OC' reference domain.")
+    @ApiModelProperty(value = "Attendance, possible values are the codes in the 'PS_PA_OC' reference domain")
     private String eventOutcome;
 
-    @ApiModelProperty(value = "Possible values are the codes in the 'PERFORMANCE' reference domain.")
+    @ApiModelProperty(value = "Possible values are the codes in the 'PERFORMANCE' reference domain")
     private String performance;
 
     @ApiModelProperty(value = "No-pay reason")
     private String outcomeComment;
 
-    @ApiModelProperty(value = "Activity paid flag.")
+    @ApiModelProperty(value = "Activity paid flag")
     private Boolean paid;
 
     @ApiModelProperty(value = "Amount paid per activity session in pounds")
     private BigDecimal payRate;
 
-    @ApiModelProperty(value = "Activity excluded flag.")
+    @ApiModelProperty(value = "Activity excluded flag")
     private Boolean excluded;
 
     @ApiModelProperty(value = "Activity time slot")
