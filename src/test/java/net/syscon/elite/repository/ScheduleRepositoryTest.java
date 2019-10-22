@@ -22,8 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -63,7 +64,7 @@ public class ScheduleRepositoryTest {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
         final var results = repository.getLocationActivities(-26L, date, toDate, "lastName,startTime", Order.ASC);
-        assertThat(results).hasSize(24);
+        assertThat(results).hasSize(32);
         assertPrisonerDetails(results.get(0));
         // assert at least 1 field from all results
         assertThat(results.get(1).getStartTime().toString()).isEqualTo("2017-09-12T13:00");
@@ -73,7 +74,10 @@ public class ScheduleRepositoryTest {
 
         assertThat(results.get(1).getBookingId().toString()).isEqualTo("-2");
         assertThat(results.get(12).getBookingId().toString()).isEqualTo("-3");
-        assertThat(results.get(23).getBookingId().toString()).isEqualTo("-5");
+        assertThat(results.get(16).getBookingId().toString()).isEqualTo("-4");
+        assertThat(results.get(23).getBookingId().toString()).isEqualTo("-4");
+        assertThat(results.get(24).getBookingId().toString()).isEqualTo("-5");
+        assertThat(results.get(31).getBookingId().toString()).isEqualTo("-5");
 
         assertThat(results.get(5).getLastName()).isEqualTo("ANDERSON"); // date today
         assertThat(results.get(6).getLastName()).isEqualTo("ANDERSON");
@@ -88,14 +92,22 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(13).getLastName()).isEqualTo("BATES");
         assertThat(results.get(14).getLastName()).isEqualTo("BATES");
         assertThat(results.get(15).getLastName()).isEqualTo("BATES");
-        assertThat(results.get(16).getLastName()).isEqualTo("MATTHEWS");
-        assertThat(results.get(17).getLastName()).isEqualTo("MATTHEWS");
-        assertThat(results.get(18).getLastName()).isEqualTo("MATTHEWS");
-        assertThat(results.get(19).getLastName()).isEqualTo("MATTHEWS");
-        assertThat(results.get(20).getLastName()).isEqualTo("MATTHEWS");
-        assertThat(results.get(21).getLastName()).isEqualTo("MATTHEWS");
-        assertThat(results.get(22).getLastName()).isEqualTo("MATTHEWS");
-        assertThat(results.get(23).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(16).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(17).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(18).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(19).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(20).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(21).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(22).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(23).getLastName()).isEqualTo("CHAPLIN");
+        assertThat(results.get(24).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(25).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(26).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(27).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(28).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(29).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(30).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(31).getLastName()).isEqualTo("MATTHEWS");
 
 
         results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-26L));
@@ -164,14 +176,21 @@ public class ScheduleRepositoryTest {
     @Test
     public void testGetActivities() {
         final var date = LocalDate.parse("2017-09-15");
-        final var results = repository.getActivities("LEI", Collections.singletonList("A1234AB"), date);
-        assertThat(results).hasSize(1);
+        final var results = repository.getActivities("LEI", List.of("A1234AB", "A1234AD"), date);
+        assertThat(results).hasSize(2);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
         assertThat(results.get(0).getExcluded()).isFalse();
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
         assertThat(results.get(0).getLocationId()).isEqualTo(-26L);
         assertThat(results.get(0).getTimeSlot()).isEqualTo(TimeSlot.PM);
         assertThat(results.get(0).getEventLocation()).isEqualTo("Carpentry Workshop");
+
+        assertThat(results.get(1).getOffenderNo()).isEqualTo("A1234AD");
+        assertThat(results.get(1).getExcluded()).isFalse();
+        assertThat(results.get(1).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
+        assertThat(results.get(1).getLocationId()).isEqualTo(-26L);
+        assertThat(results.get(1).getTimeSlot()).isEqualTo(TimeSlot.PM);
+        assertThat(results.get(1).getEventLocation()).isEqualTo("Carpentry Workshop");
     }
 
     @Test
@@ -186,7 +205,7 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetCourtEvents() {
-        final var results = repository.getCourtEvents(Arrays.asList("A1234AA", "A1234AB"), LocalDate.parse("2017-02-17"));
+        final var results = repository.getCourtEvents(List.of("A1234AA", "A1234AB"), LocalDate.parse("2017-02-17"));
 
         assertThat(results).asList().hasSize(2);
         assertThat(results).asList().extracting("offenderNo", "eventType", "event", "eventDescription", "eventStatus", "startTime").contains(
@@ -201,5 +220,44 @@ public class ScheduleRepositoryTest {
         final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC);
 
         assertThat(results).extracting("locationId").contains(-25L, -26L, -27L);
+    }
+
+    @Test
+    public void testGetAllActivitiesAtAgency() {
+        final var date = LocalDate.parse("2015-12-11");
+        final var toDate = LocalDate.now();
+        final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC);
+        assertThat(results).hasSize(76);
+
+
+        results.forEach(result -> {
+            // Check activities are returned for expected locations
+            assertThat(List.of(-26L, -27L, -25L)).contains(result.getLocationId());
+
+            // Check activities are of the expected types
+            assertThat(List.of("CHAP", "EDUC")).contains(result.getEvent());
+
+            // Check the offenders returned have the expected booking ids
+            // -35L is someone at a different agency (simulating being transferred)
+            // but who was allocated to a program at LEI during the specified time period
+            assertThat(List.of(-1L, -2L, -3L, -4L, -5L, -35L)).contains(result.getBookingId());
+
+            // Get offender cell locations. -1L and -3L share a cell.
+            assertThat(List.of("LEI-A-1-1", "LEI-H-1-5", "LEI-A-1", "LEI-A-1-10", "MDI-1-1-001")).contains(result.getCellLocation());
+        });
+    }
+
+    @Test
+    public void testScheduledActivity_ForAGivenDateRangeAreReturned() {
+        final var fromDate = LocalDate.of(2017, 9, 11);
+        final var toDate = LocalDate.of(2017, 9, 12);
+
+        final var activities = repository.getAllActivitiesAtAgency("LEI", fromDate, toDate, "lastName,startTime", Order.ASC);
+
+        assertThat(Objects.requireNonNull(activities)
+                .stream()
+                .flatMap(event -> List.of(event.getStartTime(), event.getEndTime()).stream())
+                .allMatch(date -> date.toLocalDate().isEqual(fromDate) || date.toLocalDate().isEqual(toDate)))
+                .isTrue();
     }
 }

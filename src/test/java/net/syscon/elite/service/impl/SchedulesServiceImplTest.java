@@ -281,7 +281,7 @@ public class SchedulesServiceImplTest {
     }
 
     @Test
-    public void testThatScheduleEventIsCorrectlyMappedToPrisonSchedule() {
+    public void testScheduleEventIsCorrectlyMappedToPrisonSchedule() {
         final var today = LocalDate.now().atStartOfDay().toLocalDate();
         final var now = today.atStartOfDay().plusHours(10);
 
@@ -356,17 +356,17 @@ public class SchedulesServiceImplTest {
     }
 
     @Test
-    public void testThatGeActivitiesAtAllLocations_callsTheRepositoryWithTheCorrectParameters() {
+    public void testGeActivitiesAtAllLocations_callsTheRepositoryWithTheCorrectParameters() {
         final var today = LocalDate.now();
         final var sortFields = "lastName,startTime";
 
-        schedulesService.getActivitiesAtAllLocations("LEI", today, TimeSlot.AM, sortFields, Order.ASC);
+        schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, sortFields, Order.ASC);
 
         verify(scheduleRepository).getAllActivitiesAtAgency("LEI", today, today, sortFields, Order.ASC);
     }
 
     @Test
-    public void testThatGeActivitiesAtAllLocations_appliesTimeSlotFiltering() {
+    public void testGeActivitiesAtAllLocations_appliesTimeSlotFiltering() {
         final var today = LocalDate.now();
 
         when(scheduleRepository.getAllActivitiesAtAgency(eq("LEI"), eq(today), eq(today), eq("lastName"), eq(Order.ASC)))
@@ -391,13 +391,13 @@ public class SchedulesServiceImplTest {
                                 .build()
                 ));
 
-        final var activities = schedulesService.getActivitiesAtAllLocations("LEI", today, TimeSlot.AM, null, Order.ASC);
+        final var activities = schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, null, Order.ASC);
 
         assertThat(activities).hasSize(1);
     }
 
     @Test
-    public void testThatCallsToGetVisits_AreBatched() {
+    public void testCallsToGetVisits_AreBatched() {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getVisits("LEI", offenders, LocalDate.now(), TimeSlot.AM);
 
@@ -405,7 +405,7 @@ public class SchedulesServiceImplTest {
     }
 
     @Test
-    public void testThatCallsToGetAppointments_AreBatched() {
+    public void testCallsToGetAppointments_AreBatched() {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getAppointments("LEI", offenders, LocalDate.now(), TimeSlot.AM);
 
@@ -414,7 +414,7 @@ public class SchedulesServiceImplTest {
 
 
     @Test
-    public void testThatCallsToGetActivities_AreBatched() {
+    public void testCallsToGetActivities_AreBatched() {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getActivities("LEI", offenders, LocalDate.now(), TimeSlot.AM, true);
 
@@ -422,7 +422,7 @@ public class SchedulesServiceImplTest {
     }
 
     @Test
-    public void testThatCallsToGetCourtEvents_AreBatched() {
+    public void testCallsToGetCourtEvents_AreBatched() {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getCourtEvents("LEI", offenders, LocalDate.now(), TimeSlot.AM);
 
@@ -430,10 +430,34 @@ public class SchedulesServiceImplTest {
     }
 
     @Test
-    public void testThatCallsToGetExternalTransfers_AreBatched() {
+    public void testCallsToGetExternalTransfers_AreBatched() {
         final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
         schedulesService.getExternalTransfers("LEI", offenders, LocalDate.now());
 
         verify(scheduleRepository, times(2)).getExternalTransfers(any(), anyList(), any());
     }
+
+    @Test
+    public void testGeActivitiesAtAllLocations_CallsTheRepositoryWithTheCorrectParameters() {
+        final var from = LocalDate.now();
+        final var to = LocalDate.now().plusDays(1);
+
+        final var sortFields = "lastName,startTime";
+
+        schedulesService.getActivitiesAtAllLocations("LEI", from, to, TimeSlot.AM, sortFields, Order.ASC);
+
+        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, to, sortFields, Order.ASC);
+    }
+
+    @Test
+    public void testGeActivitiesAtAllLocations_UseFromDate_WhenToDateIsNull() {
+        final var from = LocalDate.now().plusDays(-10);
+
+        final var sortFields = "lastName,startTime";
+
+        schedulesService.getActivitiesAtAllLocations("LEI", from, null, TimeSlot.AM, sortFields, Order.ASC);
+
+        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, from, sortFields, Order.ASC);
+    }
+
 }

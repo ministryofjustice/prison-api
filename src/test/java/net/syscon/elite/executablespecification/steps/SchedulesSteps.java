@@ -53,19 +53,15 @@ public class SchedulesSteps extends CommonSteps {
     }
 
     public void givenNoScheduledEventsForCurrentDay() {
-        agency = "LEI";
-        groupName = "A-Wing_Landing 2";
+        agency = "RNI";
+        groupName = "Segregation Unit";
         location = -24L;
         usage = "APP";
     }
 
     public void givenAnExistingAgencyAndLocationGroup() {
-        agency = "LEI";
-        groupName = "A-Wing";
-    }
-
-    public void givenAnExistingAgency() {
-        agency = "LEI";
+        agency = "RNI";
+        groupName = "Segregation Unit";
     }
 
     public void givenAgencyDoesNotBelongToCaseload() {
@@ -74,7 +70,7 @@ public class SchedulesSteps extends CommonSteps {
     }
 
     public void givenAgencyBelongsToCaseload() {
-        agency = "LEI";
+        agency = "RNI";
         usage = "APP";
     }
 
@@ -158,11 +154,6 @@ public class SchedulesSteps extends CommonSteps {
 
     public void givenLocationDoesNotExistForTheAgency() {
         location = -99L;
-    }
-
-    public void givenLocationNoScheduledEventsForCurrentDay() {
-        agency = "LEI";
-        location = -24L;
     }
 
     public void givenScheduledEventsForCurrentDayAtLocation() {

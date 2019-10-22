@@ -2,31 +2,38 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 import java.time.Instant
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 plugins {
     id 'java'
     id 'groovy'
     id 'org.springframework.boot' version '2.1.9.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-    id 'com.github.ben-manes.versions' version '0.25.0'
+    id 'com.github.ben-manes.versions' version '0.26.0'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations {
+    agentDeps
+    agentDeps.transitive = false
 }
 
 project.sourceCompatibility = 11
 project.targetCompatibility = 11
 
-def today = Instant.now()
 group 'net.syscon.elite'
 
-def todayDate = LocalDate.now()
-def formatter = DateTimeFormatter.ofPattern('yyyy-MM-dd')
-version todayDate.format(formatter)
+def today = Instant.now()
+def todaysDate = LocalDate.now().format('yyyy-MM-dd')
+version = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
 
 jar {
-    archiveBaseName = rootProject.name
+    baseName = rootProject.name
     manifest {
-        attributes 'Implementation-Title': rootProject.name,
-                'Implementation-Version': System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
+        attributes 'Implementation-Title': rootProject.name, 'Implementation-Version': version
     }
 }
 
@@ -34,7 +41,7 @@ springBoot {
     buildInfo {
         properties {
             artifact = rootProject.name
-            version = System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
+            version = version
             group = group
             name = rootProject.name
             time = today
@@ -46,11 +53,6 @@ springBoot {
             ]
         }
     }
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
 }
 
 configurations {
@@ -102,14 +104,15 @@ dependencies {
     implementation 'com.github.jsqlparser:jsqlparser:3.0'
     implementation 'net.sf.ehcache:ehcache:2.10.6'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
-    implementation 'com.zaxxer:HikariCP:3.3.1'
+    implementation 'com.zaxxer:HikariCP:3.4.1'
 
     implementation 'io.swagger:swagger-jersey2-jaxrs:1.5.23'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.2'
-    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.5.0'
-    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.5.0'
+    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.5.1-BETA'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.5.1-BETA'
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:2.5.1-BETA'
 
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'commons-io:commons-io:2.6'
@@ -128,20 +131,29 @@ dependencies {
     testImplementation 'io.rest-assured:json-schema-validator:4.1.2'
     testImplementation 'io.rest-assured:spring-mock-mvc:4.1.2'
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'com.google.code.gson:gson:2.8.5'
+    testImplementation 'com.google.code.gson:gson:2.8.6'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
 
     testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.9.0'
 
-    testImplementation 'net.serenity-bdd:serenity-core:2.0.76'
-    testImplementation 'net.serenity-bdd:serenity-junit:2.0.76'
-    testImplementation 'net.serenity-bdd:serenity-spring:2.0.76'
+    testImplementation 'net.serenity-bdd:serenity-core:2.0.80'
+    testImplementation 'net.serenity-bdd:serenity-junit:2.0.80'
+    testImplementation 'net.serenity-bdd:serenity-spring:2.0.80'
     testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.45'
     testImplementation 'org.slf4j:slf4j-api:1.7.25'
     testCompileOnly 'org.projectlombok:lombok:1.18.10'
+
+    compile configurations.agentDeps
 }
+
+task copyAgent(type: Copy) {
+  from configurations.agentDeps
+  into "$buildDir/libs"
+}
+
+assemble.dependsOn copyAgent
 
 task testIntegration(type: Test) {
     include '**/*IntTest*'

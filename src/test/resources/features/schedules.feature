@@ -18,7 +18,7 @@ Feature: Location and Location Group Events
     And location group does not exist for the agency
     When schedules are requested for agency and location group
     Then schedules response is HTTP 404 resource not found
-    And schedules response error message is "Group 'doesnotexist' does not exist for agencyId 'LEI'."
+    And schedules response error message is "Group 'doesnotexist' does not exist for agencyId 'RNI'."
 
   Scenario: no location group scheduled events
     Given no offender has any scheduled events for current day
@@ -58,15 +58,14 @@ Feature: Location and Location Group Events
     And start time of all returned schedules is on or after 17h00
     And returned schedules are only for offenders located in locations "LEI-A-1-1"
 
-
   Scenario Outline: event locations
     Given offenders are located in a location that belongs to requested agency and location group
     When schedules are requested for a valid agency and location group with date = '2017-10-15' and 'timeSlot' = 'ED'
     Then an event is returned with "<eventDescription>" and "<eventLocation>"
 
     Examples:
-    | eventDescription   | eventLocation  |
-    | Medical - Dentist  | Medical Centre |
+      | eventDescription  | eventLocation  |
+      | Medical - Dentist | Medical Centre |
 
 
 ###############################################################
@@ -122,9 +121,9 @@ Feature: Location and Location Group Events
       | -25        | VISIT    |          | BATES, MATTHEWS               | VISIT,VISIT         | 00:00, 00:00            |
       | -28        | APP      |          | BATES,MATTHEWS,MATTHEWS       | EDUC,EDUC,EDUC      | 04:00, 01:00, 00:00     |
       | -29        | APP      |          | BATES                         | MEDE                | 03:00                   |
-      | -26        | PROG     | AM       | ANDERSON,BATES, MATTHEWS      | EDUC,EDUC, EDUC     | 00:00,00:00, 00:00      |
-      | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,MATTHEWS,MATTHEWS| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,13:00,13:00,13:00 |
-      | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,MATTHEWS,MATTHEWS,MATTHEWS | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,12:00,12:00,12:00,13:00,13:00,13:00 |
+      | -26        | PROG     | AM       | ANDERSON,BATES, CHAPLIN, DUCK | EDUC,EDUC, EDUC, EDUC     | 00:00,00:00, 00:00, 00:00 |
+      | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,CHAPLIN,CHAPLIN,DUCK,MATTHEWS| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,12:00,13:00,13:00,13:00,13:00 |
+      | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,CHAPLIN,CHAPLIN,CHAPLIN,MATTHEWS,MATTHEWS,MATTHEWS | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,00:00,12:00,12:00,12:00,12:00,13:00,13:00,13:00,13:00 |
 
 
   Scenario Outline: Request an offenders scheduled activities for a specific date
