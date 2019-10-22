@@ -54,7 +54,7 @@ public class ClientTrackingTelemetryModule implements WebTelemetryModule, Teleme
             } catch (ExpiredJwtException e) {
                 // Expired token which spring security will handle
             } catch (GeneralSecurityException | IOException e) {
-                log.warn("problem decoding jwt public key for application insights");
+                log.warn("problem decoding jwt public key for application insights", e);
             }
 
         }
@@ -71,9 +71,9 @@ public class ClientTrackingTelemetryModule implements WebTelemetryModule, Teleme
     RSAPublicKey getPublicKeyFromString(String key) throws IOException,
             GeneralSecurityException {
         String publicKey = new String(Base64.decodeBase64(key));
-        publicKey = publicKey.replace("-----BEGIN PUBLIC KEY-----\r", "");
+        publicKey = publicKey.replace("-----BEGIN PUBLIC KEY-----", "");
         publicKey = publicKey.replace("-----END PUBLIC KEY-----", "");
-        publicKey = publicKey.replace("\r", "");
+        publicKey = publicKey.replaceAll("\\R", "");
         byte[] encoded = Base64.decodeBase64(publicKey);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKey pubKey = (RSAPublicKey) kf.generatePublic(new
