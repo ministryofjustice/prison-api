@@ -204,7 +204,7 @@ public class BookingRepositoryTest {
         assertThat(summary.getOffenderNo()).isEqualTo("A1234AE");
         assertThat(summary.getFirstName()).isEqualTo("DONALD");
         assertThat(summary.getMiddleNames()).isEqualTo("JEFFREY ROBERT");
-        assertThat(summary.getLastName()).isEqualTo("DUCK");
+        assertThat(summary.getLastName()).isEqualTo("MATTHEWS");
         assertThat(summary.getBookingId()).isEqualTo(bookingIdForActiveBooking);
         assertThat(summary.getAgencyLocationId()).isEqualTo("LEI");
         assertThat(summary.getCurrentlyInPrison()).isEqualTo("Y");

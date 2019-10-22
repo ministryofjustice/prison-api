@@ -68,7 +68,7 @@ Feature: Prisoner Search
       | firstName | middleNames    | lastName | numberResults | offenderNos             | foundFirstNames        | foundMiddleNames | foundLastNames            |
       |           |                | AND      | 3             | A1234AA,A1234AB,A1234AF | ARTHUR,GILLIAN,ANTHONY | BORIS,EVE        | ANDERSON,ANDERSON,ANDREWS |
       | CHES      |                |          | 1             | A1234AI                 | CHESTER                | JAMES            | THOMPSON                  |
-      |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | DUCK                      |
+      |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | MATTHEWS                  |
 
   Scenario Outline: Search prisoners for a specified Date of Birth
     Given a user has a token name of "GLOBAL_SEARCH"

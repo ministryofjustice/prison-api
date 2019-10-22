@@ -100,14 +100,14 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(21).getLastName()).isEqualTo("CHAPLIN");
         assertThat(results.get(22).getLastName()).isEqualTo("CHAPLIN");
         assertThat(results.get(23).getLastName()).isEqualTo("CHAPLIN");
-        assertThat(results.get(24).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(25).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(26).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(27).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(28).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(29).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(30).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(31).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(24).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(25).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(26).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(27).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(28).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(29).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(30).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(31).getLastName()).isEqualTo("MATTHEWS");
 
 
         results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-26L));
@@ -122,8 +122,8 @@ public class ScheduleRepositoryTest {
         assertThat(results).hasSize(4);
         assertThat(results.get(0).getLastName()).isEqualTo("ANDERSON");
         assertThat(results.get(1).getLastName()).isEqualTo("BATES");
-        assertThat(results.get(2).getLastName()).isEqualTo("DUCK");
-        assertThat(results.get(3).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(2).getLastName()).isEqualTo("MATTHEWS");
+        assertThat(results.get(3).getLastName()).isEqualTo("MATTHEWS");
         assertThat(results.get(0).getBookingId().toString()).isEqualTo("-2");
         assertThat(results.get(1).getBookingId().toString()).isEqualTo("-3");
         assertThat(results.get(2).getBookingId().toString()).isEqualTo("-5");
@@ -142,7 +142,7 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(2).getLastName()).isEqualTo("ANDERSON");
         assertThat(results.get(3).getLastName()).isEqualTo("ANDERSON");
         assertThat(results.get(4).getLastName()).isEqualTo("BATES");
-        assertThat(results.get(5).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(5).getLastName()).isEqualTo("MATTHEWS");
         assertThat(results.get(0).getBookingId().toString()).isEqualTo("-1");
         assertThat(results.get(4).getBookingId().toString()).isEqualTo("-3");
         assertThat(results.get(5).getBookingId().toString()).isEqualTo("-5");

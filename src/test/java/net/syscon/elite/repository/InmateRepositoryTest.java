@@ -70,7 +70,7 @@ public class InmateRepositoryTest {
         final var foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
 
         assertThat(foundInmates.getItems()).isNotEmpty();
-        assertThat(foundInmates.getItems()).extracting(OffenderBooking::getLastName).contains("FOX", "DUCK", "BATES");
+        assertThat(foundInmates.getItems()).extracting(OffenderBooking::getLastName).contains("FOX", "BATES");
     }
 
     @Test
@@ -350,7 +350,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testFindOffendersWithFirstNameAndLastName() {
-        final var query = buildQuery(criteriaForPersonalAttrs(null, "TRUMP", "DONALD"));
+        final var query = buildQuery(criteriaForPersonalAttrs(null, "JONES", "HARRY"));
 
         final var offender = findOffender(query);
 
@@ -552,7 +552,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testFindOffenderAliasesWithFirstNameAndLastName() {
-        final var query = buildQuery(criteriaForPersonalAttrs(null, "TRUMP", "DONALD"));
+        final var query = buildQuery(criteriaForPersonalAttrs(null, "JONES", "HARRY"));
 
         final var offender = findOffenderWithAliases(query);
 
@@ -668,7 +668,7 @@ public class InmateRepositoryTest {
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED, null),
                 Tuple.tuple("A1234AC", -3L, "NORMAN", "BATES", UNCATEGORISED, "X"),
                 Tuple.tuple("A1234AD", -4L, "CHARLES", "CHAPLIN", UNCATEGORISED, "U"),
-                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", UNCATEGORISED, "Z"));
+                Tuple.tuple("A1234AE", -5L, "DONALD", "MATTHEWS", UNCATEGORISED, "Z"));
 
         assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status",
                 "categoriserFirstName", "categoriserLastName", "category").contains(
@@ -829,7 +829,7 @@ public class InmateRepositoryTest {
         final var uncat = repository.getUncategorised("LEI");
 
         assertThat(uncat).extracting("offenderNo", "bookingId", "firstName", "lastName", "status").doesNotContain(
-                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
+                Tuple.tuple("A1234AE", -5L, "DONALD", "MATTHEWS", AWAITING_APPROVAL));
 
         final var catDetail = CategorisationDetail.builder()
                 .bookingId(-5L)
@@ -847,7 +847,7 @@ public class InmateRepositoryTest {
         final var list = repository.getUncategorised("LEI");
 
         assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
-                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
+                Tuple.tuple("A1234AE", -5L, "DONALD", "MATTHEWS", AWAITING_APPROVAL));
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -5 AND ASSESSMENT_SEQ = 3");
         assertThat(results).asList()

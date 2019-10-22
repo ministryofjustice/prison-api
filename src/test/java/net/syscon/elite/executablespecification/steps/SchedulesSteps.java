@@ -110,7 +110,7 @@ public class SchedulesSteps extends CommonSteps {
     }
 
     public void verifySchedulesAreOrdered() {
-        // Check donald duck is at the end, cell 10, so
+        // Check donald matthews is at the end, cell 10, so
         // just ensure cell A-1-1 comes before A-1-10
         assertThat(results).isSortedAccordingTo((o1, o2) -> o1.getCellLocation().compareTo(o2.getCellLocation()));
     }

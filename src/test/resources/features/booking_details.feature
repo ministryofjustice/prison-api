@@ -319,7 +319,7 @@ Feature: Booking Details
 
       Examples:
       | firstName | lastName   | middleName     | offenderNo   | bookingId | agencyId |
-      | Donald    | Duck       | Jeffrey Robert | A1234AE      | -5        | LEI      |
+      | Donald    | Matthews   | Jeffrey Robert | A1234AE      | -5        | LEI      |
       | Gillian   | Anderson   | Eve            | A1234AB      | -2        | LEI      |
 
   Scenario: A GLOBAL_SEARCH user can see offender details from any agency

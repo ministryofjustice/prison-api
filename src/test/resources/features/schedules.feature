@@ -118,12 +118,12 @@ Feature: Location and Location Group Events
     Examples:
       | locationId | usage    | timeSlot | last name list                | event type list     | start time list         |
       | -28        | VISIT    |          | BATES                         | VISIT               | 01:00                   |
-      | -25        | VISIT    |          | BATES, DUCK                   | VISIT,VISIT         | 00:00, 00:00            |
-      | -28        | APP      |          | BATES,DUCK,DUCK               | EDUC,EDUC,EDUC      | 04:00, 01:00, 00:00     |
+      | -25        | VISIT    |          | BATES, MATTHEWS               | VISIT,VISIT         | 00:00, 00:00            |
+      | -28        | APP      |          | BATES,MATTHEWS,MATTHEWS       | EDUC,EDUC,EDUC      | 04:00, 01:00, 00:00     |
       | -29        | APP      |          | BATES                         | MEDE                | 03:00                   |
-      | -26        | PROG     | AM       | ANDERSON,BATES, CHAPLIN, DUCK | EDUC,EDUC, EDUC, EDUC     | 00:00,00:00, 00:00, 00:00 |
-      | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,CHAPLIN,CHAPLIN,DUCK,DUCK| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,12:00,13:00,13:00,13:00,13:00 |
-      | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,CHAPLIN,CHAPLIN,CHAPLIN,DUCK,DUCK,DUCK | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,00:00,12:00,12:00,12:00,12:00,13:00,13:00,13:00,13:00 |
+      | -26        | PROG     | AM       | ANDERSON,BATES, CHAPLIN, MATTHEWS | EDUC,EDUC, EDUC, EDUC     | 00:00,00:00, 00:00, 00:00 |
+      | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,CHAPLIN,CHAPLIN,MATTHEWS,MATTHEWS| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,12:00,13:00,13:00,13:00,13:00 |
+      | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,CHAPLIN,CHAPLIN,CHAPLIN,MATTHEWS,MATTHEWS,MATTHEWS | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,00:00,12:00,12:00,12:00,12:00,13:00,13:00,13:00,13:00 |
 
 
   Scenario Outline: Request an offenders scheduled activities for a specific date
