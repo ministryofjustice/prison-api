@@ -70,7 +70,7 @@ public class InmateRepositoryTest {
         final var foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
 
         assertThat(foundInmates.getItems()).isNotEmpty();
-        assertThat(foundInmates.getItems()).extracting(OffenderBooking::getLastName).contains("FOX", "MATTHEWS", "BATES");
+        assertThat(foundInmates.getItems()).extracting(OffenderBooking::getLastName).contains("FOX", "BATES");
     }
 
     @Test
