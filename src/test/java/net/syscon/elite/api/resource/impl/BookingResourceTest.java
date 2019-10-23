@@ -3,7 +3,6 @@ package net.syscon.elite.api.resource.impl;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 
@@ -220,5 +219,22 @@ public class BookingResourceTest extends ResourceTest {
 
         assertThat(response.getBody().get(0).getBookingId()).isEqualTo(-20);
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
+    }
+
+    @Test
+    public void testGetMovementForBooking() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/movement/{sequenceNumber}",
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                Movement.class, "-29", "2");
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getBody()).isNotNull();
+
+        assertThat(response.getBody().getFromAgency()).isEqualTo("LEI");
+        assertThat(response.getBody().getToAgency()).isEqualTo("BMI");
     }
 }

@@ -14,6 +14,8 @@ public interface MovementsRepository {
 
     MovementCount getMovementCount(String agencyId, LocalDate date);
 
+    Movement getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber);
+
     List<Movement> getMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes, final boolean latestOnly);
 
     List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date);
