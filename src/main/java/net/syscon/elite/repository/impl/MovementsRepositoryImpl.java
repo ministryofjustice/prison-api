@@ -46,6 +46,15 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
+    public Movement getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber) {
+        return jdbcTemplate.queryForObject(getQuery("GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE"),
+                createParams(
+                "bookingId", bookingId,
+                "sequenceNumber", sequenceNumber),
+                MOVEMENT_MAPPER);
+    }
+
+    @Override
     public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
         if (movementTypes.isEmpty()) {
             return jdbcTemplate.query(getQuery("GET_MOVEMENTS_BY_OFFENDERS"), createParams(

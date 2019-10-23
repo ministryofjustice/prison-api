@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.resource.BookingResource;
@@ -40,6 +41,7 @@ import static net.syscon.util.ResourceUtils.nvl;
  */
 @RestResource
 @Path("/bookings")
+@AllArgsConstructor
 public class BookingResourceImpl implements BookingResource {
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
@@ -54,28 +56,7 @@ public class BookingResourceImpl implements BookingResource {
     private final BookingMaintenanceService bookingMaintenanceService;
     private final IdempotentRequestService idempotentRequestService;
     private final IncidentService incidentService;
-
-    public BookingResourceImpl(final AuthenticationFacade authenticationFacade, final BookingService bookingService,
-                               final InmateService inmateService, final CaseNoteService caseNoteService,
-                               final InmateAlertService inmateAlertService, final FinanceService financeService,
-                               final ContactService contactService, final AdjudicationService adjudicationService,
-                               final ImageService imageService, final KeyWorkerAllocationService keyworkerService,
-                               final BookingMaintenanceService bookingMaintenanceService,
-                               final IdempotentRequestService idempotentRequestService, final IncidentService incidentService) {
-        this.authenticationFacade = authenticationFacade;
-        this.bookingService = bookingService;
-        this.inmateService = inmateService;
-        this.caseNoteService = caseNoteService;
-        this.inmateAlertService = inmateAlertService;
-        this.financeService = financeService;
-        this.contactService = contactService;
-        this.adjudicationService = adjudicationService;
-        this.imageService = imageService;
-        this.keyworkerService = keyworkerService;
-        this.bookingMaintenanceService = bookingMaintenanceService;
-        this.idempotentRequestService = idempotentRequestService;
-        this.incidentService = incidentService;
-    }
+    private final MovementsService movementsService;
 
     @Override
     public GetOffenderBookingsResponse getOffenderBookings(final String query, final List<Long> bookingId, final List<String> offenderNo, final boolean iepLevel, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
@@ -155,6 +136,11 @@ public class BookingResourceImpl implements BookingResource {
                 bookingMaintenanceService.recallBooking(authenticationFacade.getCurrentUsername(), recallBooking);
 
         return RecallOffenderBookingResponse.respond200WithApplicationJson(offenderSummary);
+    }
+
+    @Override
+    public Movement getMovementByBookingIdAndSequence(final Long bookingId, final Integer sequenceNumber) {
+        return movementsService.getMovementByBookingIdAndSequence(bookingId, sequenceNumber);
     }
 
     @Override
@@ -322,7 +308,7 @@ public class BookingResourceImpl implements BookingResource {
     public GetAssessmentByCodeResponse getAssessmentByCode(final Long bookingId, final String assessmentCode) {
         final var inmateAssessmentByCode = inmateService.getInmateAssessmentByCode(bookingId, assessmentCode);
 
-        if (!inmateAssessmentByCode.isPresent()) {
+        if (inmateAssessmentByCode.isEmpty()) {
             throw EntityNotFoundException.withMessage("Offender does not have a [" + assessmentCode + "] assessment on record.");
         }
 
@@ -480,14 +466,12 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public List<OffenceDetail> getMainOffence(final Long bookingId) {
-        final var offenceDetails = bookingService.getMainOffenceDetails(bookingId);
-        return offenceDetails;
+        return bookingService.getMainOffenceDetails(bookingId);
     }
 
     @Override
     public List<Offence> getMainOffence(final Set<Long> bookingIds) {
-        final var offences = bookingService.getMainOffenceDetails(bookingIds);
-        return offences;
+        return bookingService.getMainOffenceDetails(bookingIds);
     }
 
     @Override

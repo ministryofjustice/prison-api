@@ -53,6 +53,20 @@ public interface BookingResource {
                                                   @ApiParam(value = "If set to true then only basic data is returned", defaultValue = "false") @QueryParam("basicInfo") boolean basicInfo);
 
     @GET
+    @Path("/{bookingId}/movement/{sequenceNumber}")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieves a specific movement for a booking", notes = "Must booking in user caseload or have system privilege")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Movement.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+
+    Movement getMovementByBookingIdAndSequence(@ApiParam(value = "The booking id of offender", required = true) @PathParam("bookingId") final Long bookingId,
+                                               @ApiParam(value = "The sequence Number of the movement", required = true) @PathParam("sequenceNumber") final Integer sequenceNumber);
+
+    @GET
     @Path("/{bookingId}/activities")
     @Consumes({"application/json"})
     @Produces({"application/json"})

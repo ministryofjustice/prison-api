@@ -2,6 +2,7 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.*;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.List;
 public interface MovementsService {
 
     List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate, List<String> movementTypes);
+
+    Movement getMovementByBookingIdAndSequence(@NotNull final Long bookingId, @NotNull final Integer sequenceNumber);
 
     List<Movement> getMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes, boolean latestOnly);
 

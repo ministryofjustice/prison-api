@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
+import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.MovementsService;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +15,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Validated
 @Transactional(readOnly = true)
 public class MovementsServiceImpl implements MovementsService {
 
@@ -40,6 +44,18 @@ public class MovementsServiceImpl implements MovementsService {
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
         return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public Movement getMovementByBookingIdAndSequence(@NotNull final Long bookingId, @NotNull final Integer sequenceNumber) {
+        final var movement = movementsRepository.getMovementByBookingIdAndSequence(bookingId, sequenceNumber);
+        return movement.toBuilder()
+                .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
+                .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
+                .toCity(WordUtils.capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
+                .fromCity(WordUtils.capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
+                .build();
     }
 
     @Override
