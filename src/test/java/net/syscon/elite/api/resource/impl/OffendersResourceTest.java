@@ -92,4 +92,68 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }
+
+    @Test
+    public void testCanRetrieveIncidentCandidatesWithSystemUser() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatJsonFileAndStatus(response, 200, "incidents_candidates.json");
+    }
+
+    @Test
+    public void testCannotRetrieveIncidentCandidatesWithGlobalSearch() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(403);
+    }
+
+    @Test
+    public void testCanRetrieveAlertCandidatesWithSystemUser() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatJsonFileAndStatus(response, 200, "alerts_candidates.json");
+    }
+
+    @Test
+    public void testCannotRetrieveAlertCandidatesWithGlobalSearch() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(403);
+    }
 }

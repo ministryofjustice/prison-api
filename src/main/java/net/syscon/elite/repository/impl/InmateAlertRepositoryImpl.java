@@ -15,6 +15,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -117,6 +118,14 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "offenderNos", offenderNos,
                         "agencyId", agencyId),
                 alertMapper);
+    }
+
+    @Override
+    public List<String> getAlertCandidates(LocalDateTime cutoffTimestamp) {
+        return jdbcTemplate.queryForList(
+                getQuery("GET_ALERT_CANDIDATES"),
+                createParams("cutoffTimestamp", cutoffTimestamp),
+                String.class);
     }
 
     @Override

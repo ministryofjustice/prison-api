@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,4 +82,15 @@ public class IncidentCaseRepositoryTest {
         assertThat(questionnaire.getQuestions().first().getAnswers()).hasSize(2);
     }
 
+    @Test
+    public void testGetIncidentCandidates() {
+        final var results = repository.getIncidentCandidates(LocalDateTime.of(2016, 1, 1, 0, 0));
+        assertThat(results).containsExactlyInAnyOrder("A1234AA", "A1234AB", "A1234AC", "A1234AD");
+    }
+
+    @Test
+    public void testGetIncidentCandidatesNone() {
+        final var results = repository.getIncidentCandidates(LocalDateTime.of(2017, 1, 1, 0, 0));
+        assertThat(results).hasSize(0);
+    }
 }

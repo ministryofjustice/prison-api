@@ -10,7 +10,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -44,5 +46,10 @@ public class IncidentService {
 
     public Questionnaire getQuestionnaire(@NotNull final String category, @NotNull final String code) {
         return repository.getQuestionnaire(category, code).orElseThrow(EntityNotFoundException.withId(format("%s/%s", category, code)));
+    }
+
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
+    public Set<String> getIncidentCandidates(LocalDateTime cutoffTimestamp) {
+        return repository.getIncidentCandidates(cutoffTimestamp);
     }
 }

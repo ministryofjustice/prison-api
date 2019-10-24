@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static net.syscon.elite.util.Extractors.*;
@@ -84,6 +85,18 @@ public class InmateAlertRepositoryTest {
                 .containsExactly(
                         Tuple.tuple(-1L, 1L, "A1234AA", "XA"),
                         Tuple.tuple(-1L, 3L, "A1234AA", "RSS"));
+    }
+
+    @Test
+    public void testGetAlertCandidates() {
+        final var results = repository.getAlertCandidates(LocalDateTime.of(2016, 1, 1, 0, 0));
+        assertThat(results).containsExactlyInAnyOrder("A1234AC", "A1234AD");
+    }
+
+    @Test
+    public void testGetAlertCandidatesNone() {
+        final var results = repository.getAlertCandidates(LocalDateTime.of(2017, 1, 1, 0, 0));
+        assertThat(results).hasSize(0);
     }
 
     @Test

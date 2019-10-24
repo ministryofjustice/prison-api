@@ -22,8 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -104,6 +106,12 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
         log.info("Returning {} matching Alerts for Offender Number {}", alerts.size(), offenderNo);
         return alerts;
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
+    public List<String> getAlertCandidates(LocalDateTime cutoffTimestamp) {
+        return inmateAlertRepository.getAlertCandidates(cutoffTimestamp);
     }
 
     @Override

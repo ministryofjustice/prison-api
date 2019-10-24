@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,8 @@ public interface InmateAlertRepository {
     List<Alert> getAlertsByOffenderNos(String agencyId, List<String> offenderNos, boolean latestOnly, String query, String orderByField, Order order);
 
     long createNewAlert(long bookingId, CreateAlert alert);
+
+    List<String> getAlertCandidates(LocalDateTime cutoffTimestamp);
 
     Optional<Alert> expireAlert(long bookingId, long alertSeq, ExpireAlert alert);
 }

@@ -5,6 +5,7 @@ import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,10 +20,8 @@ public class IncidentCaseRepository extends RepositoryBase {
     private final StandardBeanPropertyRowMapper<IncidentParty> INCIDENT_PARTY_MAPPER =
             new StandardBeanPropertyRowMapper<>(IncidentParty.class);
 
-
     private final StandardBeanPropertyRowMapper<FlatQuestionnaire> QUESTIONNAIRE_MAPPER =
             new StandardBeanPropertyRowMapper<>(FlatQuestionnaire.class);
-
 
     public List<IncidentCase> getIncidentCasesByOffenderNo(final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
         final var sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_OFFENDER_NO");
@@ -192,4 +191,24 @@ public class IncidentCaseRepository extends RepositoryBase {
 
     }
 
+    public Set<String> getIncidentCandidates(LocalDateTime cutoffTimestamp) {
+
+        Set<String> noDuplicatesResults = new HashSet<>();
+        noDuplicatesResults.addAll(jdbcTemplate.queryForList(
+            getQuery("GET_INCIDENT_PARTIES_CANDIDATES"),
+            createParams("cutoffTimestamp", cutoffTimestamp),
+            String.class));
+
+        noDuplicatesResults.addAll(jdbcTemplate.queryForList(
+            getQuery("GET_INCIDENT_CANDIDATES"),
+            createParams("cutoffTimestamp", cutoffTimestamp),
+            String.class));
+
+        noDuplicatesResults.addAll(jdbcTemplate.queryForList(
+            getQuery("GET_INCIDENT_RESPONSES_CANDIDATES"),
+            createParams("cutoffTimestamp", cutoffTimestamp),
+            String.class));
+
+        return noDuplicatesResults;
+    }
 }

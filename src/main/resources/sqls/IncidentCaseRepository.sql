@@ -89,3 +89,29 @@ FILTER_BY_PARTICIPATION {
 FILTER_BY_TYPE {
   ic.incident_type IN (:incidentTypes)
 }
+
+GET_INCIDENT_CANDIDATES {
+    select distinct o.offender_id_display as offender_no
+    from incident_cases ic
+        join incident_case_parties icp on ic.incident_case_id = icp.incident_case_id
+        join offender_bookings ob      on ob.offender_book_id = icp.offender_book_id
+        join offenders o               on o.offender_id = ob.offender_id
+    where ic.modify_datetime > :cutoffTimestamp
+}
+
+GET_INCIDENT_RESPONSES_CANDIDATES {
+    select distinct o.offender_id_display as offender_no
+    from incident_case_responses icr
+        join incident_case_parties icp on icr.incident_case_id = icp.incident_case_id
+        join offender_bookings ob      on ob.offender_book_id = icp.offender_book_id
+        join offenders o               on o.offender_id = ob.offender_id
+    where icr.modify_datetime > :cutoffTimestamp
+}
+
+GET_INCIDENT_PARTIES_CANDIDATES {
+    select distinct o.offender_id_display as offender_no
+    from incident_case_parties icp
+        join offender_bookings ob on ob.offender_book_id = icp.offender_book_id
+        join offenders o          on o.offender_id = ob.offender_id
+    where icp.modify_datetime > :cutoffTimestamp
+}

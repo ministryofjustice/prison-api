@@ -21,6 +21,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
@@ -58,6 +60,11 @@ public class OffenderResourceImpl implements OffenderResource {
         return new IncidentListResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(),
                 incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles));
+    }
+
+    @Override
+    public List<String> getIncidentCandidates(@NotNull final LocalDateTime fromDateTime) {
+        return new ArrayList(incidentService.getIncidentCandidates(fromDateTime));
     }
 
     @Override
@@ -112,6 +119,11 @@ public class OffenderResourceImpl implements OffenderResource {
                 StringUtils.defaultIfBlank(sortFields, "bookingId,alertId"),
                 nvl(sortOrder, Order.ASC));
         return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(inmateAlertsByOffenderNos);
+    }
+
+    @Override
+    public List<String> getAlertCandidates(@NotNull final LocalDateTime fromDateTime) {
+        return alertService.getAlertCandidates(fromDateTime);
     }
 
     @Override
