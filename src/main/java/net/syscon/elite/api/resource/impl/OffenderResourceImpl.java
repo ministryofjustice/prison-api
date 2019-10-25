@@ -21,6 +21,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
@@ -58,6 +59,19 @@ public class OffenderResourceImpl implements OffenderResource {
         return new IncidentListResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(),
                 incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles));
+    }
+
+    @Override
+    public Response getIncidentCandidates(@NotNull final LocalDateTime fromDateTime, final Long pageOffset, final Long pageLimit) {
+        var paged = incidentService.getIncidentCandidates(fromDateTime,
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 1000L));
+        return Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .header("Total-Records", paged.getTotalRecords())
+                .header("Page-Offset", paged.getPageOffset())
+                .header("Page-Limit", paged.getPageLimit())
+                .entity(paged.getItems()).build();
     }
 
     @Override
@@ -112,6 +126,19 @@ public class OffenderResourceImpl implements OffenderResource {
                 StringUtils.defaultIfBlank(sortFields, "bookingId,alertId"),
                 nvl(sortOrder, Order.ASC));
         return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(inmateAlertsByOffenderNos);
+    }
+
+    @Override
+    public Response getAlertCandidates(@NotNull final LocalDateTime fromDateTime, final Long pageOffset, final Long pageLimit) {
+        var paged = alertService.getAlertCandidates(fromDateTime,
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 1000L));
+        return Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .header("Total-Records", paged.getTotalRecords())
+                .header("Page-Offset", paged.getPageOffset())
+                .header("Page-Limit", paged.getPageLimit())
+                .entity(paged.getItems()).build();
     }
 
     @Override

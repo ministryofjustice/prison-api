@@ -73,6 +73,13 @@ FROM OFFENDER_ALERTS OA
 WHERE O.OFFENDER_ID_DISPLAY IN (:offenderNos) AND (:agencyId IS NULL OR B.AGY_LOC_ID = :agencyId)
 }
 
+GET_ALERT_CANDIDATES {
+    select distinct o.offender_id_display as offender_no
+    from OFFENDER_ALERTS icp
+         join OFFENDER_BOOKINGS ob on ob.offender_book_id = icp.offender_book_id
+         join OFFENDERS o on o.offender_id = ob.offender_id
+    where icp.modify_datetime > :cutoffTimestamp
+}
 
 CREATE_ALERT {
 INSERT INTO OFFENDER_ALERTS (

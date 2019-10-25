@@ -12,7 +12,9 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Api(tags = {"/offenders"})
 public interface OffenderResource {
@@ -32,6 +34,19 @@ public interface OffenderResource {
     IncidentListResponse getIncidentsByOffenderNo(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathParam("offenderNo") @NotNull String offenderNo,
                                                   @ApiParam(value = "incidentType", example = "ASSAULT", allowMultiple = true) @QueryParam("incidentType") List<String> incidentTypes,
                                                   @ApiParam(value = "participationRoles", example = "ASSIAL", allowMultiple = true, allowableValues = "ACTINV,ASSIAL,FIGHT,IMPED,PERP,SUSASS,SUSINV,VICT,AI,PAS,AO") @QueryParam("participationRoles") List<String> participationRoles);
+
+    @GET
+    @Path("/incidents/candidates")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Return a list of offender nos across the estate for which an incident has recently occurred or changed",
+            notes = "This query is slow and can take several minutes",
+            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
+    Response getIncidentCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @QueryParam("fromDateTime") @NotNull LocalDateTime fromDateTime,
+                                   @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                   @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") @HeaderParam("Page-Limit") Long pageLimit);
 
     @GET
     @Path("/{offenderNo}/addresses")
@@ -96,6 +111,19 @@ public interface OffenderResource {
                                                                  allowableValues = "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active",
                                                                  defaultValue = "bookingId,alertType") @HeaderParam("Sort-Fields") String sortFields,
                                                          @ApiParam(value = "Sort order", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+
+    @GET
+    @Path("/alerts/candidates")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Return a list of offender nos across the estate for which an alert has recently been created or changed",
+            notes = "This query is slow and can take several minutes",
+            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
+    Response getAlertCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @QueryParam("fromDateTime") @NotNull LocalDateTime fromDateTime,
+                                @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") @HeaderParam("Page-Limit") Long pageLimit);
 
     @GET
     @Path("/{offenderNo}/case-notes")

@@ -1,12 +1,17 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Page;
+import net.syscon.elite.repository.mapping.PageAwareRowMapper;
+import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -19,10 +24,11 @@ public class IncidentCaseRepository extends RepositoryBase {
     private final StandardBeanPropertyRowMapper<IncidentParty> INCIDENT_PARTY_MAPPER =
             new StandardBeanPropertyRowMapper<>(IncidentParty.class);
 
-
     private final StandardBeanPropertyRowMapper<FlatQuestionnaire> QUESTIONNAIRE_MAPPER =
             new StandardBeanPropertyRowMapper<>(FlatQuestionnaire.class);
 
+    private final StandardBeanPropertyRowMapper<OffenderSummary> CANDIDATE_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
     public List<IncidentCase> getIncidentCasesByOffenderNo(final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
         final var sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_OFFENDER_NO");
@@ -192,4 +198,23 @@ public class IncidentCaseRepository extends RepositoryBase {
 
     }
 
+    public Page<String> getIncidentCandidates(LocalDateTime cutoffTimestamp, final long offset, final long limit) {
+        final var builder = queryBuilderFactory.getQueryBuilder(getQuery("GET_INCIDENT_CANDIDATES"), CANDIDATE_MAPPER);
+
+        final var sql = builder
+                .addRowCount()
+                .addPagination()
+                .build();
+
+        final var rowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderSummary.class, CANDIDATE_MAPPER.getFieldMap());
+        final var paRowMapper = new PageAwareRowMapper<>(rowMapper);
+
+        final List<OffenderSummary> offenderSummaries = jdbcTemplate.query(
+                sql,
+                createParams("cutoffTimestamp", cutoffTimestamp, "offset", offset, "limit", limit),
+                paRowMapper);
+        final var results = offenderSummaries.stream().map(OffenderSummary::getOffenderNo).collect(Collectors.toList());
+
+        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
+    }
 }

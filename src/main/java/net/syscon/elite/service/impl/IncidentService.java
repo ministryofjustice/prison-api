@@ -2,6 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.api.model.Questionnaire;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.impl.IncidentCaseRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.BookingService;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -44,5 +46,10 @@ public class IncidentService {
 
     public Questionnaire getQuestionnaire(@NotNull final String category, @NotNull final String code) {
         return repository.getQuestionnaire(category, code).orElseThrow(EntityNotFoundException.withId(format("%s/%s", category, code)));
+    }
+
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
+    public Page<String> getIncidentCandidates(LocalDateTime cutoffTimestamp, final long offset, final long limit) {
+        return repository.getIncidentCandidates(cutoffTimestamp, offset, limit);
     }
 }
