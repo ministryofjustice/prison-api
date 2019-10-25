@@ -89,14 +89,26 @@ public class InmateAlertRepositoryTest {
 
     @Test
     public void testGetAlertCandidates() {
-        final var results = repository.getAlertCandidates(LocalDateTime.of(2016, 1, 1, 0, 0));
-        assertThat(results).containsExactlyInAnyOrder("A1234AC", "A1234AD");
+        final var results = repository.getAlertCandidates(LocalDateTime.of(2016, 1, 1, 0, 0), 0, 10);
+        assertThat(results.getItems()).containsExactlyInAnyOrder("A1234AC", "A1234AD");
+    }
+
+    @Test
+    public void testGetAlertCandidatesPage1() {
+        final var results = repository.getAlertCandidates(LocalDateTime.of(2016, 1, 1, 0, 0), 0, 1);
+        assertThat(results.getItems()).containsExactlyInAnyOrder("A1234AC");
+    }
+
+    @Test
+    public void testGetAlertCandidatesPage2() {
+        final var results = repository.getAlertCandidates(LocalDateTime.of(2016, 1, 1, 0, 0), 1, 2);
+        assertThat(results.getItems()).containsExactlyInAnyOrder("A1234AD");
     }
 
     @Test
     public void testGetAlertCandidatesNone() {
-        final var results = repository.getAlertCandidates(LocalDateTime.of(2017, 1, 1, 0, 0));
-        assertThat(results).hasSize(0);
+        final var results = repository.getAlertCandidates(LocalDateTime.of(2017, 1, 1, 0, 0), 0, 10);
+        assertThat(results.getItems()).hasSize(0);
     }
 
     @Test

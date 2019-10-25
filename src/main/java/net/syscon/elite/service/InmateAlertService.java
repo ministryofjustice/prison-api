@@ -22,7 +22,7 @@ public interface InmateAlertService {
     List<Alert> getInmateAlertsByOffenderNos(String offenderNo, boolean latestOnly, String query, String orderByField, Order order);
 
     @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
-    List<String> getAlertCandidates(LocalDateTime cutoffTimestamp);
+    Page<String> getAlertCandidates(LocalDateTime cutoffTimestamp, long offset, long limit);
 
     long createNewAlert(long bookingId, CreateAlert alert);
 

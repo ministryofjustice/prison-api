@@ -4,12 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CreateAlert;
 import net.syscon.elite.api.model.ExpireAlert;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateAlertRepository {
@@ -41,6 +44,9 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
             .put("UPDATE_FIRST_NAME", new FieldMapper("expiredByFirstName"))
             .put("UPDATE_LAST_NAME", new FieldMapper("expiredByLastName"))
             .build();
+
+    private final StandardBeanPropertyRowMapper<OffenderSummary> CANDIDATE_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
     @Override
     public List<Alert> getActiveAlerts(final long bookingId) {
@@ -121,11 +127,24 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public List<String> getAlertCandidates(LocalDateTime cutoffTimestamp) {
-        return jdbcTemplate.queryForList(
-                getQuery("GET_ALERT_CANDIDATES"),
-                createParams("cutoffTimestamp", cutoffTimestamp),
-                String.class);
+    public Page<String> getAlertCandidates(final LocalDateTime cutoffTimestamp, final long offset, final long limit) {
+        final var builder = queryBuilderFactory.getQueryBuilder(getQuery("GET_ALERT_CANDIDATES"), CANDIDATE_MAPPER);
+
+        final var sql = builder
+                .addRowCount()
+                .addPagination()
+                .build();
+
+        final var rowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderSummary.class, CANDIDATE_MAPPER.getFieldMap());
+        final var paRowMapper = new PageAwareRowMapper<>(rowMapper);
+
+        final List<OffenderSummary> offenderSummaries = jdbcTemplate.query(
+                sql,
+                createParams("cutoffTimestamp", cutoffTimestamp, "offset", offset, "limit", limit),
+                paRowMapper);
+        final var results = offenderSummaries.stream().map(OffenderSummary::getOffenderNo).collect(Collectors.toList());
+
+        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
 
     @Override

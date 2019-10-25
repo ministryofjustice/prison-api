@@ -22,7 +22,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
@@ -63,8 +62,16 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    public List<String> getIncidentCandidates(@NotNull final LocalDateTime fromDateTime) {
-        return new ArrayList(incidentService.getIncidentCandidates(fromDateTime));
+    public Response getIncidentCandidates(@NotNull final LocalDateTime fromDateTime, final Long pageOffset, final Long pageLimit) {
+        var paged = incidentService.getIncidentCandidates(fromDateTime,
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 1000L));
+        return Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .header("Total-Records", paged.getTotalRecords())
+                .header("Page-Offset", paged.getPageOffset())
+                .header("Page-Limit", paged.getPageLimit())
+                .entity(paged.getItems()).build();
     }
 
     @Override
@@ -122,8 +129,16 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    public List<String> getAlertCandidates(@NotNull final LocalDateTime fromDateTime) {
-        return alertService.getAlertCandidates(fromDateTime);
+    public Response getAlertCandidates(@NotNull final LocalDateTime fromDateTime, final Long pageOffset, final Long pageLimit) {
+        var paged = alertService.getAlertCandidates(fromDateTime,
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 1000L));
+        return Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .header("Total-Records", paged.getTotalRecords())
+                .header("Page-Offset", paged.getPageOffset())
+                .header("Page-Limit", paged.getPageLimit())
+                .entity(paged.getItems()).build();
     }
 
     @Override

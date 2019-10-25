@@ -84,13 +84,28 @@ public class IncidentCaseRepositoryTest {
 
     @Test
     public void testGetIncidentCandidates() {
-        final var results = repository.getIncidentCandidates(LocalDateTime.of(2016, 1, 1, 0, 0));
-        assertThat(results).containsExactlyInAnyOrder("A1234AA", "A1234AB", "A1234AC", "A1234AD");
+        final var results = repository.getIncidentCandidates(LocalDateTime.of(2016, 1, 1, 0, 0), 0, 10);
+        assertThat(results.getItems()).containsExactlyInAnyOrder("A1234AA", "A1234AB", "A1234AC", "A1234AD");
+    }
+
+    @Test
+    public void testGetIncidentCandidatesPage1() {
+        final var results = repository.getIncidentCandidates(LocalDateTime.of(2016, 1, 1, 0, 0), 0, 1);
+        assertThat(results.getItems()).containsExactlyInAnyOrder("A1234AA");
+    }
+
+    @Test
+    public void testGetIncidentCandidatesPage2() {
+        final var results = repository.getIncidentCandidates(LocalDateTime.of(2016, 1, 1, 0, 0), 1, 5);
+        assertThat(results.getPageOffset()).isEqualTo(1);
+        assertThat(results.getPageLimit()).isEqualTo(5);
+        assertThat(results.getTotalRecords()).isEqualTo(4);
+        assertThat(results.getItems()).containsExactlyInAnyOrder("A1234AB", "A1234AC", "A1234AD");
     }
 
     @Test
     public void testGetIncidentCandidatesNone() {
-        final var results = repository.getIncidentCandidates(LocalDateTime.of(2017, 1, 1, 0, 0));
-        assertThat(results).hasSize(0);
+        final var results = repository.getIncidentCandidates(LocalDateTime.of(2017, 1, 1, 0, 0), 0, 10);
+        assertThat(results.getItems()).hasSize(0);
     }
 }

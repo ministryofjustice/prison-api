@@ -39,14 +39,14 @@ public interface OffenderResource {
     @Path("/incidents/candidates")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Return a list of offender nos across the estate for which an incident has recently occurred or changed, grouped by agencyId",
+    @ApiOperation(value = "Return a list of offender nos across the estate for which an incident has recently occurred or changed",
             notes = "This query is slow and can take several minutes",
             authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Set.class, responseContainer = "Map"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<String> getIncidentCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @QueryParam("fromDateTime")  @NotNull LocalDateTime fromDateTime);
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
+    Response getIncidentCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @QueryParam("fromDateTime") @NotNull LocalDateTime fromDateTime,
+                                   @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                   @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") @HeaderParam("Page-Limit") Long pageLimit);
 
     @GET
     @Path("/{offenderNo}/addresses")
@@ -120,10 +120,10 @@ public interface OffenderResource {
             notes = "This query is slow and can take several minutes",
             authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Set.class, responseContainer = "Map"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<String> getAlertCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @QueryParam("fromDateTime")  @NotNull LocalDateTime fromDateTime);
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
+    Response getAlertCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @QueryParam("fromDateTime") @NotNull LocalDateTime fromDateTime,
+                                @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") @HeaderParam("Page-Limit") Long pageLimit);
 
     @GET
     @Path("/{offenderNo}/case-notes")

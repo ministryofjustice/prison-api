@@ -110,8 +110,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
-    public List<String> getAlertCandidates(LocalDateTime cutoffTimestamp) {
-        return inmateAlertRepository.getAlertCandidates(cutoffTimestamp);
+    public Page<String> getAlertCandidates(final LocalDateTime cutoffTimestamp, final long offset, final long limit) {
+        return inmateAlertRepository.getAlertCandidates(cutoffTimestamp, offset, limit);
     }
 
     @Override

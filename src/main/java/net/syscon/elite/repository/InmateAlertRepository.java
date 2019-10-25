@@ -21,7 +21,7 @@ public interface InmateAlertRepository {
 
     long createNewAlert(long bookingId, CreateAlert alert);
 
-    List<String> getAlertCandidates(LocalDateTime cutoffTimestamp);
+    Page<String> getAlertCandidates(LocalDateTime cutoffTimestamp, final long offset, final long limit);
 
     Optional<Alert> expireAlert(long bookingId, long alertSeq, ExpireAlert alert);
 }
