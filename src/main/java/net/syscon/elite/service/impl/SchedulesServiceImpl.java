@@ -122,6 +122,7 @@ public class SchedulesServiceImpl implements SchedulesService {
         return PrisonerSchedule.builder()
                 .bookingId(inmate.getBookingId())
                 .locationId(event.getEventLocationId())
+                .locationCode(event.getLocationCode())
                 .cellLocation(inmate.getLocationDescription())
                 .lastName(inmate.getLastName())
                 .firstName(inmate.getFirstName())
