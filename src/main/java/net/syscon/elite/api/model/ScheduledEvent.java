@@ -96,4 +96,7 @@ public class ScheduledEvent {
 
     @ApiModelProperty(value = "Amount paid per activity session in pounds")
     private BigDecimal payRate;
+
+    @ApiModelProperty(value = "The code for the activity location")
+    private String locationCode;
 }
