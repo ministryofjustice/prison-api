@@ -173,6 +173,7 @@ public class BookingRepositoryTest {
 
         assertThat(results).asList().hasSize(8);
         assertThat(results).asList().extracting("eventId", "payRate").contains(new Tuple(-11L, new BigDecimal("1.000")));
+        assertThat(results).asList().extracting("locationCode").contains("CARP");
     }
 
     @Test
