@@ -109,4 +109,7 @@ public class PrisonerSchedule {
 
     @ApiModelProperty(value = "Activity time slot")
     private TimeSlot timeSlot;
+
+    @ApiModelProperty(value = "The code for the activity location")
+    private String locationCode;
 }

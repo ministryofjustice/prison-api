@@ -69,11 +69,11 @@ public class SchedulesServiceImplTest {
         final var results = schedulesService.getLocationGroupEvents("LEI", "myWing",
                 DATE, TimeSlot.AM, null, null);
 
-        assertThat(results).asList().extracting("cellLocation", "startTime", "eventDescription", "eventType")
+        assertThat(results).asList().extracting("cellLocation", "startTime", "eventDescription", "eventType", "locationCode")
                 .containsExactly(
-                        tuple("H1", LocalDateTime.of(2018, Month.AUGUST, 31, 11, 0), "Morning-11", "VISIT"),
-                        tuple("H2", LocalDateTime.of(2018, Month.AUGUST, 31, 9, 0), "Morning-12", "APP"),
-                        tuple("M0", LocalDateTime.of(2018, Month.AUGUST, 31, 10, 0), "Morning-10", null));
+                        tuple("H1", LocalDateTime.of(2018, Month.AUGUST, 31, 11, 0), "Morning-11", "VISIT", null),
+                        tuple("H2", LocalDateTime.of(2018, Month.AUGUST, 31, 9, 0), "Morning-12", "APP", null),
+                        tuple("M0", LocalDateTime.of(2018, Month.AUGUST, 31, 10, 0), "Morning-10", null, null));
     }
 
     @Test
