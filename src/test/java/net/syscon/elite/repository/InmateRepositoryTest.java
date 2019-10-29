@@ -991,8 +991,8 @@ public class InmateRepositoryTest {
         repository.setCategorisationInactive(-38L);
 
         final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-38L), "BMI", false);
-        // should not have updated the pending record
-        assertThat(catList).extracting("assessStatus").containsExactlyInAnyOrder("I", "I", "P");
+        // should have updated the 2 active and 1 pending record
+        assertThat(catList).extracting("assessStatus").containsExactlyInAnyOrder("I", "I", "I");
     }
 
     @Test
