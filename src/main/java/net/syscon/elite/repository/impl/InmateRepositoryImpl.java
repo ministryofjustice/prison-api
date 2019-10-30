@@ -715,7 +715,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
         // get all active or pending categorisation sequences ordered desc
         final var sequences = jdbcTemplate.query(
-                getQuery("GET_ACTIVE_OFFENDER_CATEGORY_SEQUENCES"),
+                getQuery("GET_OFFENDER_CATEGORY_SEQUENCES"),
                 createParams("bookingId", detail.getBookingId(),
                         "assessmentTypeId", assessmentId,
                         "statuses", Arrays.asList("A", "P")),
@@ -772,7 +772,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
         // get all active categorisation sequences
         final var sequences = jdbcTemplate.query(
-                getQuery("GET_ACTIVE_OFFENDER_CATEGORY_SEQUENCES"),
+                getQuery("GET_OFFENDER_CATEGORY_SEQUENCES"),
                 createParams("bookingId", bookingId,
                         "assessmentTypeId", assessmentId,
                         "statuses", Arrays.asList("A", "P")),
