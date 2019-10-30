@@ -108,7 +108,7 @@ public interface OffenderAssessmentResource {
     @Path("/category/{bookingId}/inactive")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Set all active categorisations inactive", notes = "This endpoint should only be used with edge case initial categorisations.")
+    @ApiOperation(value = "Set all active or pending (status A or P) categorisations inactive", notes = "This endpoint should only be used with edge case initial categorisations.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = ""),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to update categorisations.", response = ErrorResponse.class)})
