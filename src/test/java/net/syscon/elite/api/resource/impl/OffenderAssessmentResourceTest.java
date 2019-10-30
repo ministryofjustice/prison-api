@@ -62,7 +62,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testSystemUserCanUpdateCategorySetInactive() {
+    public void testSystemUserCanUpdateCategorySetActiveInactive() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var httpEntity = createHttpEntity(token, null);
@@ -70,6 +70,24 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
         // choose a booking that doesnt actually have any active
         final var response = testRestTemplate.exchange(
                 "/api/offender-assessments/category/{bookingId}/inactive",
+                HttpMethod.PUT,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "-34");
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void testSystemUserCanUpdateCategorySetPendingInactive() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        // choose a booking that doesnt actually have any active
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/category/{bookingId}/inactive?status=PENDING",
                 HttpMethod.PUT,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {

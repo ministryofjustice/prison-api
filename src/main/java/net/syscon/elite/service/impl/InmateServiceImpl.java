@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -488,12 +489,14 @@ public class InmateServiceImpl implements InmateService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('SYSTEM_USER')")
-    public void setCategorisationInactive(final Long bookingId) {
-        var count = repository.setCategorisationInactive(bookingId);
+    public void setCategorisationInactive(final Long bookingId, final AssessmentStatusType status) {
+        var count = repository.setCategorisationInactive(bookingId, status);
 
         // Log event
         telemetryClient.trackEvent("CategorisationSetInactive", ImmutableMap.of(
-                "bookingId", bookingId.toString(), "count", String.valueOf(count)), null);
+                "bookingId", bookingId.toString(),
+                "count", String.valueOf(count),
+                "status", String.valueOf(status)), null);
     }
 
     @Override
