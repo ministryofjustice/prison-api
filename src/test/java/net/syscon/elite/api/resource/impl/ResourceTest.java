@@ -81,7 +81,7 @@ public abstract class ResourceTest {
 
     protected void assertThatJsonFileAndStatus(final ResponseEntity<String> response, final int status, final String jsonFile) {
         assertThatStatus(response, status);
-        System.out.println("Found content " + response.getBody());
+
         assertThat(getBodyAsJsonContent(response)).isEqualToJson(jsonFile);
     }
 

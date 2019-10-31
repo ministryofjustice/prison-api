@@ -58,9 +58,10 @@ public class BookingServiceImplTest {
 
     private BookingService bookingService;
 
-    private void programMocks(final String appointmentType, final String agencyId,
-                              final long eventId, final String principal, final ScheduledEvent expectedEvent, final Location location,
-                              final NewAppointment newAppointment) {
+    @SuppressWarnings("SameParameterValue")
+    private void setupCreateBookingAppointment(final String appointmentType, final long bookingId, final String agencyId,
+                                               final long eventId, final String principal, final ScheduledEvent expectedEvent, final Location location,
+                                               final NewAppointment newAppointment) {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(principal, "credentials"));
 
         when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
@@ -70,10 +71,10 @@ public class BookingServiceImplTest {
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
 
-        when(bookingRepository.createBookingAppointment((long) 100, newAppointment, agencyId))
+        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
                 .thenReturn(eventId);
 
-        when(bookingRepository.getBookingAppointment((long) 100, eventId)).thenReturn(expectedEvent);
+        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
     }
 
     @Before
@@ -110,7 +111,7 @@ public class BookingServiceImplTest {
                 .comment("comment")
                 .locationId(locationId).build();
 
-        programMocks(appointmentType, agencyId, eventId, principal, expectedEvent, location,
+        setupCreateBookingAppointment(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
         final var actualEvent = bookingService.createBookingAppointment(bookingId, principal, newAppointment);
@@ -171,7 +172,7 @@ public class BookingServiceImplTest {
                 .comment("comment")
                 .locationId(locationId).build();
 
-        programMocks(appointmentType, agencyId, eventId, principal, expectedEvent, location,
+        setupCreateBookingAppointment(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
         when(locationService.getLocation(newAppointment.getLocationId()))
@@ -197,7 +198,7 @@ public class BookingServiceImplTest {
                 .startTime(LocalDateTime.now().plusDays(1)).endTime(LocalDateTime.now().plusDays(2)).comment("comment")
                 .locationId(locationId).build();
 
-        programMocks(appointmentType, agencyId, eventId, principal, expectedEvent, location,
+        setupCreateBookingAppointment(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
         when(referenceDomainService.getReferenceCodeByDomainAndCode(
