@@ -539,10 +539,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetEventsTodayResponse getEventsToday(final Long bookingId) {
-        final var scheduledEvents = bookingService.getEventsToday(bookingId);
-
-        return GetEventsTodayResponse.respond200WithApplicationJson(scheduledEvents);
+    public List<ScheduledEvent> getEventsToday(final Long bookingId) {
+        return bookingService.getEventsToday(bookingId);
     }
 
     @Override
@@ -556,17 +554,13 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetEventsThisWeekResponse getEventsThisWeek(final Long bookingId) {
-        final var scheduledEvents = bookingService.getEventsThisWeek(bookingId);
-
-        return GetEventsThisWeekResponse.respond200WithApplicationJson(scheduledEvents);
+    public List<ScheduledEvent> getEventsThisWeek(final Long bookingId) {
+        return bookingService.getEventsThisWeek(bookingId);
     }
 
     @Override
-    public GetEventsNextWeekResponse getEventsNextWeek(final Long bookingId) {
-        final var scheduledEvents = bookingService.getEventsNextWeek(bookingId);
-
-        return GetEventsNextWeekResponse.respond200WithApplicationJson(scheduledEvents);
+    public List<ScheduledEvent> getEventsNextWeek(final Long bookingId) {
+        return bookingService.getEventsNextWeek(bookingId);
     }
 
     @Override
