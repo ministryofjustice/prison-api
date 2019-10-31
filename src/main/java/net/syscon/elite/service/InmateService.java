@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -30,7 +31,7 @@ public interface InmateService {
 
     void updateCategorisationNextReviewDate(Long bookingId, LocalDate nextReviewDate);
 
-    void setCategorisationInactive(Long bookingId);
+    void setCategorisationInactive(Long bookingId, AssessmentStatusType status);
 
     Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
 

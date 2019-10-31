@@ -6,10 +6,12 @@ import net.syscon.elite.api.model.CategorisationDetail;
 import net.syscon.elite.api.model.CategoryApprovalDetail;
 import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.resource.OffenderAssessmentResource;
+import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.InmateService;
+import org.springframework.util.StringUtils;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
@@ -102,8 +104,16 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     @ProxyUser
-    public Response setCategorisationInactive(final Long bookingId){
-        inmateService.setCategorisationInactive(bookingId);
+    public Response setCategorisationInactive(final Long bookingId, final String status){
+
+        final AssessmentStatusType enumType;
+        try {
+            enumType = StringUtils.isEmpty(status) ? null : AssessmentStatusType.valueOf(status);
+        } catch (final IllegalArgumentException e) {
+            throw new BadRequestException("Assessment status type is invalid: " + status);
+        }
+
+        inmateService.setCategorisationInactive(bookingId, enumType);
         return Response.ok()
                 .status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON)

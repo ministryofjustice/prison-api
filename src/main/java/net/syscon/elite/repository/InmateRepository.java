@@ -1,6 +1,7 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
@@ -100,7 +101,7 @@ public interface InmateRepository {
 
     void approveCategory(CategoryApprovalDetail detail);
 
-    int setCategorisationInactive(long bookingId);
+    int setCategorisationInactive(long bookingId, AssessmentStatusType status);
 
     void updateActiveCategoryNextReviewDate(long bookingId, LocalDate date);
 

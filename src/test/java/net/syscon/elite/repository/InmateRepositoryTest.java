@@ -1,6 +1,7 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.AssessmentDto;
@@ -988,11 +989,28 @@ public class InmateRepositoryTest {
     @Transactional
     public void testUpdateCategorySetInactive() {
 
-        repository.setCategorisationInactive(-38L);
+        repository.setCategorisationInactive(-38L, null);
 
         final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-38L), "BMI", false);
         // should have updated the 2 active and 1 pending record
-        assertThat(catList).extracting("assessStatus").containsExactlyInAnyOrder("I", "I", "I");
+        assertThat(catList).extracting("assessmentSeq", "assessStatus").containsExactlyInAnyOrder(
+                Tuple.tuple(1, "I"),
+                Tuple.tuple(2, "I"),
+                Tuple.tuple(3, "P"));
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateCategorySetInactivePending() {
+
+        repository.setCategorisationInactive(-38L, AssessmentStatusType.PENDING);
+
+        final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-38L), "BMI", false);
+        // should have updated the 2 active and 1 pending record
+        assertThat(catList).extracting("assessmentSeq", "assessStatus").containsExactlyInAnyOrder(
+                Tuple.tuple(1, "A"),
+                Tuple.tuple(2, "A"),
+                Tuple.tuple(3, "I"));
     }
 
     @Test

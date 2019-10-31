@@ -3,6 +3,7 @@ package net.syscon.elite.repository.impl;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
@@ -767,7 +768,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    public int setCategorisationInactive(final long bookingId) {
+    public int setCategorisationInactive(final long bookingId, final AssessmentStatusType status) {
         final var assessmentId = getCategoryAssessmentId();
         final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
         // get all active categorisation sequences
@@ -775,7 +776,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 getQuery("GET_OFFENDER_CATEGORY_SEQUENCES"),
                 createParams("bookingId", bookingId,
                         "assessmentTypeId", assessmentId,
-                        "statuses", Arrays.asList("A", "P")),
+                        "statuses", Arrays.asList(status == AssessmentStatusType.PENDING ? "P" : "A")),
                 mapper);
         if (CollectionUtils.isEmpty(sequences)) {
             log.warn(String.format("No active category assessments found for booking id %d", bookingId));
