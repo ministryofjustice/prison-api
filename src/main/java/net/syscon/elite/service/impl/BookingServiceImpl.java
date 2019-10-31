@@ -36,6 +36,8 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
 import static net.syscon.elite.service.ContactService.EXTERNAL_REL;
 
@@ -50,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
     private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
     private static final String IEP_LEVEL_DOMAIN = "IEP_LEVEL";
 
-    private final StartTimeComparator startTimeComparator = new StartTimeComparator();
+    private final Comparator<ScheduledEvent> startTimeComparator = Comparator.comparing(ScheduledEvent::getStartTime, nullsLast(naturalOrder()));
 
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
@@ -64,25 +66,6 @@ public class BookingServiceImpl implements BookingService {
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
     private final int maxBatchSize;
-
-    /**
-     * Order ScheduledEvents by startTime with null coming last
-     */
-    class StartTimeComparator implements Comparator<ScheduledEvent> {
-
-        @Override
-        public int compare(final ScheduledEvent event1, final ScheduledEvent event2) {
-            if (event1.getStartTime() == event2.getStartTime()) {
-                return 0;
-            } else if (event1.getStartTime() == null) {
-                return 1;
-            } else if (event2.getStartTime() == null) {
-                return -1;
-            } else {
-                return event1.getStartTime().compareTo(event2.getStartTime());
-            }
-        }
-    }
 
     public BookingServiceImpl(final BookingRepository bookingRepository,
                               final SentenceRepository sentenceRepository, final AgencyService agencyService,
@@ -339,8 +322,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingVisitBalances(bookingId);
     }
 
-    ;
-
     private List<ScheduledEvent> getBookingVisits(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -383,7 +364,7 @@ public class BookingServiceImpl implements BookingService {
         if (!isViewAllBookings()) {
             try {
                 verifyBookingAccess(bookingId, rolesAllowed);
-            } catch (EntityNotFoundException e) {
+            } catch (final EntityNotFoundException e) {
                 throw EntityNotFoundException.withId(offenderNo);
             }
         }
@@ -588,7 +569,7 @@ public class BookingServiceImpl implements BookingService {
      * @throws EntityNotFoundException if current user does not have access to specified booking.
      */
     @Override
-    public void verifyBookingAccess(final Long bookingId, String... rolesAllowed) {
+    public void verifyBookingAccess(final Long bookingId, final String... rolesAllowed) {
         // system user has access to everything
         if (securityUtils.isOverrideRole(rolesAllowed)) return;
 
@@ -668,28 +649,16 @@ public class BookingServiceImpl implements BookingService {
         return getEvents(bookingId, today.plusDays(7), today.plusDays(13));
     }
 
-    private List<ScheduledEvent> getEvents(final Long bookingId, final LocalDate from, final LocalDate to) {
-        final var activitiesPaged = getBookingActivities(bookingId, from, to, 0, maxBatchSize, null, null);
-        final var activities = activitiesPaged.getItems();
-        if (activitiesPaged.getTotalRecords() > activitiesPaged.getPageLimit()) {
-            activities.addAll(getBookingActivities(bookingId, from, to, maxBatchSize, activitiesPaged.getTotalRecords(), null, null).getItems());
-        }
-        final var visitsPaged = getBookingVisits(bookingId, from, to, 0, maxBatchSize, null, null);
-        final var visits = visitsPaged.getItems();
-        if (visitsPaged.getTotalRecords() > visitsPaged.getPageLimit()) {
-            visits.addAll(getBookingVisits(bookingId, from, to, maxBatchSize, visitsPaged.getTotalRecords(), null, null).getItems());
-        }
-        final var appointmentsPaged = getBookingAppointments(bookingId, from, to, 0, maxBatchSize, null, null);
-        final var appointments = appointmentsPaged.getItems();
-        if (appointmentsPaged.getTotalRecords() > appointmentsPaged.getPageLimit()) {
-            appointments.addAll(getBookingAppointments(bookingId, from, to, maxBatchSize, appointmentsPaged.getTotalRecords(), null, null).getItems());
-        }
-        final List<ScheduledEvent> results = new ArrayList<>();
-        results.addAll(activities);
-        results.addAll(visits);
-        results.addAll(appointments);
-        results.sort(startTimeComparator);
-        return results;
+    @Override
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public List<ScheduledEvent> getEvents(final Long bookingId, final LocalDate from, final LocalDate to) {
+        final var activities = getBookingActivities(bookingId, from, to, null, null);
+        final var visits = getBookingVisits(bookingId, from, to, null, null);
+        final var appointments = getBookingAppointments(bookingId, from, to, null, null);
+        return Stream.of(activities, visits, appointments)
+                .flatMap(Collection::stream)
+                .sorted(startTimeComparator)
+                .collect(Collectors.toList());
     }
 
     private List<ScheduledEvent> getEvents(final Collection<Long> bookingIds, final LocalDate from, final LocalDate to) {
@@ -697,10 +666,9 @@ public class BookingServiceImpl implements BookingService {
         final var visits = getBookingVisits(bookingIds, from, to, null, null);
         final var appointments = getBookingAppointments(bookingIds, from, to, null, null);
 
-        final List<ScheduledEvent> results = new ArrayList<>(activities);
-        results.addAll(visits);
-        results.addAll(appointments);
-        return results;
+        return Stream.of(activities, visits, appointments)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -757,7 +725,7 @@ public class BookingServiceImpl implements BookingService {
 
         final Comparator<OffenderSentenceDetail> compareDate = Comparator.comparing(
                 s -> s.getSentenceDetail().getReleaseDate(),
-                Comparator.nullsLast(Comparator.naturalOrder())
+                nullsLast(naturalOrder())
         );
 
         return offenderSentenceDetails.stream().sorted(compareDate).collect(toList());

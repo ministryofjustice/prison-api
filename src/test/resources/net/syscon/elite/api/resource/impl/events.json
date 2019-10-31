@@ -1,0 +1,25 @@
+[
+  {
+    "bookingId": -1,
+    "eventType": "act08:59:50",
+    "eventSubType": "some sub act",
+    "startTime": "2019-01-02T08:59:50"
+  },
+  {
+    "bookingId": -1,
+    "eventType": "vis09:02:03",
+    "eventSubType": "some sub vis",
+    "startTime": "2019-01-02T09:02:03"
+  },
+  {
+    "bookingId": -1,
+    "eventType": "act10:11:12",
+    "eventSubType": "some sub act",
+    "startTime": "2019-01-02T10:11:12"
+  },
+  {
+    "bookingId": -1,
+    "eventType": "appnull",
+    "eventSubType": "some sub app"
+  }
+]

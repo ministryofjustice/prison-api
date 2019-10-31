@@ -167,7 +167,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final Boolean activeOnly) {
-        var active = activeOnly == null ? true : activeOnly;
+        final var active = activeOnly == null ? true : activeOnly;
         return inmateService.getBasicInmateDetailsForOffenders(offenders, active);
     }
 
@@ -175,7 +175,6 @@ public class BookingResourceImpl implements BookingResource {
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final Set<Long> bookingIds) {
         return inmateService.getBasicInmateDetailsByBookingIds(caseload, bookingIds);
     }
-
 
     @Override
     public GetBookingActivitiesResponse getBookingActivities(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
@@ -540,10 +539,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetEventsTodayResponse getEventsToday(final Long bookingId) {
-        final var scheduledEvents = bookingService.getEventsToday(bookingId);
-
-        return GetEventsTodayResponse.respond200WithApplicationJson(scheduledEvents);
+    public List<ScheduledEvent> getEventsToday(final Long bookingId) {
+        return bookingService.getEventsToday(bookingId);
     }
 
     @Override
@@ -552,17 +549,18 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetEventsThisWeekResponse getEventsThisWeek(final Long bookingId) {
-        final var scheduledEvents = bookingService.getEventsThisWeek(bookingId);
-
-        return GetEventsThisWeekResponse.respond200WithApplicationJson(scheduledEvents);
+    public List<ScheduledEvent> getEvents(final Long bookingId, final String fromDate, final String toDate) {
+        return bookingService.getEvents(bookingId, fromISO8601DateString(fromDate), fromISO8601DateString(toDate));
     }
 
     @Override
-    public GetEventsNextWeekResponse getEventsNextWeek(final Long bookingId) {
-        final var scheduledEvents = bookingService.getEventsNextWeek(bookingId);
+    public List<ScheduledEvent> getEventsThisWeek(final Long bookingId) {
+        return bookingService.getEventsThisWeek(bookingId);
+    }
 
-        return GetEventsNextWeekResponse.respond200WithApplicationJson(scheduledEvents);
+    @Override
+    public List<ScheduledEvent> getEventsNextWeek(final Long bookingId) {
+        return bookingService.getEventsNextWeek(bookingId);
     }
 
     @Override
