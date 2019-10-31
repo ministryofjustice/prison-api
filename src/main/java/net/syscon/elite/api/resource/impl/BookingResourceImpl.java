@@ -549,7 +549,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<ScheduledEvent> getEvents(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public List<ScheduledEvent> getEvents(final Long bookingId, final String fromDate, final String toDate) {
         return bookingService.getEvents(bookingId, fromISO8601DateString(fromDate), fromISO8601DateString(toDate));
     }
 
