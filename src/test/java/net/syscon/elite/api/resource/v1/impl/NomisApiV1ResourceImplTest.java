@@ -81,7 +81,7 @@ public class NomisApiV1ResourceImplTest {
 
         final var offender = nomisApiV1Resource.getOffender("A1404AE");
 
-        assertThat(offender).extracting("nomsId").contains("A1404AE");
+        assertThat(offender).extracting(Offender::getNomsId).isEqualTo("A1404AE");
 
         verify(service).getOffender(anyString());
         verifyNoMoreInteractions(service);
@@ -94,7 +94,7 @@ public class NomisApiV1ResourceImplTest {
 
         final var event = nomisApiV1Resource.getOffenderImage("A1404AE");
 
-        assertThat(event).extracting("image").contains("ABCDEFGHI");
+        assertThat(event).extracting(Image::getImage).isEqualTo("ABCDEFGHI");
 
         verify(service).getOffenderImage(anyString());
         verifyNoMoreInteractions(service);

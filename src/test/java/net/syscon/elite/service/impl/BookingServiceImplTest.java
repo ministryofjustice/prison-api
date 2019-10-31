@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.val;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
@@ -57,7 +58,7 @@ public class BookingServiceImplTest {
 
     private BookingService bookingService;
 
-    private void programMocks(final String appointmentType, final long bookingId, final String agencyId,
+    private void programMocks(final String appointmentType, final String agencyId,
                               final long eventId, final String principal, final ScheduledEvent expectedEvent, final Location location,
                               final NewAppointment newAppointment) {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(principal, "credentials"));
@@ -69,10 +70,10 @@ public class BookingServiceImplTest {
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
 
-        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+        when(bookingRepository.createBookingAppointment((long) 100, newAppointment, agencyId))
                 .thenReturn(eventId);
 
-        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
+        when(bookingRepository.getBookingAppointment((long) 100, eventId)).thenReturn(expectedEvent);
     }
 
     @Before
@@ -109,7 +110,7 @@ public class BookingServiceImplTest {
                 .comment("comment")
                 .locationId(locationId).build();
 
-        programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
+        programMocks(appointmentType, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
         final var actualEvent = bookingService.createBookingAppointment(bookingId, principal, newAppointment);
@@ -170,18 +171,14 @@ public class BookingServiceImplTest {
                 .comment("comment")
                 .locationId(locationId).build();
 
-        programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
+        programMocks(appointmentType, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
         when(locationService.getLocation(newAppointment.getLocationId()))
                 .thenThrow(new EntityNotFoundException("test"));
 
-        try {
-            bookingService.createBookingAppointment(bookingId, principal, newAppointment);
-            fail("Should have thrown exception");
-        } catch (final BadRequestException e) {
-            assertThat(e.getMessage()).isEqualTo("Location does not exist or is not in your caseload.");
-        }
+        assertThatThrownBy(() -> bookingService.createBookingAppointment(bookingId, principal, newAppointment))
+                .isInstanceOf(BadRequestException.class).hasMessage("Location does not exist or is not in your caseload.");
     }
 
     @Test
@@ -200,19 +197,16 @@ public class BookingServiceImplTest {
                 .startTime(LocalDateTime.now().plusDays(1)).endTime(LocalDateTime.now().plusDays(2)).comment("comment")
                 .locationId(locationId).build();
 
-        programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
+        programMocks(appointmentType, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
         when(referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.empty());
 
-        try {
-            bookingService.createBookingAppointment(bookingId, principal, newAppointment);
-            fail("Should have thrown exception");
-        } catch (final BadRequestException e) {
-            assertThat(e.getMessage()).isEqualTo("Event type not recognised.");
-        }
+        assertThatThrownBy(() -> bookingService.createBookingAppointment(bookingId, principal, newAppointment))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Event type not recognised.");
     }
 
     @Test
@@ -224,7 +218,6 @@ public class BookingServiceImplTest {
         when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
-
 
         bookingService.verifyCanViewSensitiveBookingInfo("off-1");
     }
@@ -425,5 +418,41 @@ public class BookingServiceImplTest {
         bookingService.getBookingVisitBalances(bookingId);
 
         verify(bookingRepository).getBookingVisitBalances(bookingId);
+    }
+
+    @Test
+    public void getEvents_CallsBookingRepository() {
+        final var bookingId = -1L;
+        final var from = LocalDate.parse("2019-02-03");
+        final var to = LocalDate.parse("2019-03-03");
+        bookingService.getEvents(bookingId, from, to);
+        verify(bookingRepository).getBookingActivities(bookingId, from, to, "startTime", Order.ASC);
+        verify(bookingRepository).getBookingVisits(bookingId, from, to, "startTime", Order.ASC);
+        verify(bookingRepository).getBookingAppointments(bookingId, from, to, "startTime", Order.ASC);
+    }
+
+    @Test
+    public void getEvents_SortsAndCombinesNullsLast() {
+        final var bookingId = -1L;
+        final var from = LocalDate.parse("2019-02-03");
+        final var to = LocalDate.parse("2019-03-03");
+        when(bookingRepository.getBookingActivities(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("act", "10:11:12"),
+                        createEvent("act", "08:59:50"))
+        );
+        when(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("vis", null))
+        );
+        when(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("app", "09:02:03"))
+        );
+        final var events = bookingService.getEvents(bookingId, from, to);
+        assertThat(events).extracting(ScheduledEvent::getEventType).containsExactly("act08:59:50", "app09:02:03", "act10:11:12", "visnull");
+    }
+
+    private ScheduledEvent createEvent(final String type, final String time) {
+        return ScheduledEvent.builder().bookingId(-1L)
+                .startTime(Optional.ofNullable(time).map(t -> "2019-01-02T" + t).map(LocalDateTime::parse).orElse(null))
+                .eventType(type + time).build();
     }
 }

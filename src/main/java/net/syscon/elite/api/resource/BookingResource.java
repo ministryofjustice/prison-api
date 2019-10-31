@@ -76,13 +76,13 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    GetBookingActivitiesResponse getBookingActivities(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
-                                                      @ApiParam(value = "Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).") @QueryParam("fromDate") String fromDate,
-                                                      @ApiParam(value = "Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") String toDate,
-                                                      @ApiParam(value = "Requested offset of first record in returned collection of activity records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
-                                                      @ApiParam(value = "Requested limit to number of activity records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
-                                                      @ApiParam(value = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") @HeaderParam("Sort-Fields") String sortFields,
-                                                      @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+    Response getBookingActivities(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
+                                  @ApiParam(value = "Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).") @QueryParam("fromDate") String fromDate,
+                                  @ApiParam(value = "Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") String toDate,
+                                  @ApiParam(value = "Requested offset of first record in returned collection of activity records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                  @ApiParam(value = "Requested limit to number of activity records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
+                                  @ApiParam(value = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") @HeaderParam("Sort-Fields") String sortFields,
+                                  @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
 
     @GET
     @Path("/{bookingId}/activities/today")
@@ -347,6 +347,23 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetEventsThisWeekResponse getEventsThisWeek(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+
+    @GET
+    @Path("/{bookingId}/events")
+    @Produces({"application/json"})
+    @ApiOperation(value = "All scheduled events for offender.", notes = "All scheduled events for offender.", nickname = "getEvents")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ScheduledEvent.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    List<ScheduledEvent> getEvents(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
+                                   @ApiParam(value = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") @QueryParam("fromDate") String fromDate,
+                                   @ApiParam(value = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") String toDate,
+                                   @ApiParam(value = "Requested offset of first record in returned collection of activity records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                   @ApiParam(value = "Requested limit to number of activity records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
+                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") @HeaderParam("Sort-Fields") String sortFields,
+                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
 
     @GET
     @Path("/{bookingId}/events/today")

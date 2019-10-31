@@ -2,16 +2,22 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.PersonalCareNeed;
 import net.syscon.elite.api.model.ReasonableAdjustment;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.InmateRepository;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +25,8 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @MockBean
     private InmateRepository inmateRepository;
+    @SpyBean
+    private BookingRepository bookingRepository;
 
     @Test
     public void getPersonalCaseNeeds() {
@@ -74,7 +82,6 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void getVisitBalances() {
-
         final var offenderNo = "A1234AA";
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
@@ -92,5 +99,31 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/-3/visit/balances", HttpMethod.GET, requestEntity, String.class);
 
         assertThatJsonFileAndStatus(responseEntity, 404, "visitbalancesinvalidbookingid.json");
+    }
+
+    @Test
+    public void getEvents() {
+        when(bookingRepository.getBookingActivities(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("act", "10:11:12"),
+                        createEvent("act", "08:59:50"))
+        );
+        when(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("vis", "09:02:03"))
+        );
+        when(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("app", null))
+        );
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/events", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "events.json");
+    }
+
+    private ScheduledEvent createEvent(final String type, final String time) {
+        return ScheduledEvent.builder().bookingId(-1L)
+                .startTime(Optional.ofNullable(time).map(t -> "2019-01-02T" + t).map(LocalDateTime::parse).orElse(null))
+                .eventType(type + time)
+                .eventSubType("some sub " + type)
+                .build();
     }
 }

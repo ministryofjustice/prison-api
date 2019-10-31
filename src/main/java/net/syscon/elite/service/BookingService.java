@@ -53,6 +53,8 @@ public interface BookingService {
 
     List<OffenceHistoryDetail> getOffenceHistory(String offenderNo);
 
+    List<ScheduledEvent> getEvents(Long bookingId, LocalDate fromDate, LocalDate toDate);
+
     List<ScheduledEvent> getEventsToday(Long bookingId);
 
     List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingIds, LocalDate day);

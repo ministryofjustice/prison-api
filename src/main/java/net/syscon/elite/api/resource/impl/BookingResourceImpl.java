@@ -167,7 +167,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final Boolean activeOnly) {
-        var active = activeOnly == null ? true : activeOnly;
+        final var active = activeOnly == null ? true : activeOnly;
         return inmateService.getBasicInmateDetailsForOffenders(offenders, active);
     }
 
@@ -175,7 +175,6 @@ public class BookingResourceImpl implements BookingResource {
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final Set<Long> bookingIds) {
         return inmateService.getBasicInmateDetailsByBookingIds(caseload, bookingIds);
     }
-
 
     @Override
     public GetBookingActivitiesResponse getBookingActivities(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
@@ -549,6 +548,11 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public GetOffenderIdentifiersResponse getOffenderIdentifiers(final Long bookingId) {
         return GetOffenderIdentifiersResponse.respond200WithApplicationJson(inmateService.getOffenderIdentifiers(bookingId));
+    }
+
+    @Override
+    public List<ScheduledEvent> getEvents(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+        return bookingService.getEvents(bookingId, fromISO8601DateString(fromDate), fromISO8601DateString(toDate));
     }
 
     @Override
