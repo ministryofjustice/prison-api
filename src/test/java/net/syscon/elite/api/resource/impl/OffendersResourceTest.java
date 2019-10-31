@@ -1,16 +1,30 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
+import net.syscon.elite.repository.OffenderDeletionRepository;
 import org.junit.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class OffendersResourceTest extends ResourceTest {
+
+    private final String OFFENDER_NUMBER = "A1234AB";
+
+    @MockBean
+    private OffenderDeletionRepository offenderDeletionRepository;
+
     @Test
     public void testCanRetrieveSentenceDetailsForOffender() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
@@ -23,7 +37,7 @@ public class OffendersResourceTest extends ResourceTest {
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
                 },
-                "A1234AB");
+                OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "sentence.json");
     }
@@ -40,7 +54,7 @@ public class OffendersResourceTest extends ResourceTest {
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
                 },
-                "A1234AB");
+                OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "sentence.json");
     }
@@ -57,7 +71,7 @@ public class OffendersResourceTest extends ResourceTest {
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
                 },
-                "A1234AB");
+                OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "alerts.json");
     }
@@ -74,7 +88,7 @@ public class OffendersResourceTest extends ResourceTest {
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
                 },
-                "A1234AB");
+                OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "casenotes.json");
     }
@@ -91,7 +105,7 @@ public class OffendersResourceTest extends ResourceTest {
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
                 },
-                "A1234AB");
+                OFFENDER_NUMBER);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }
@@ -197,5 +211,30 @@ public class OffendersResourceTest extends ResourceTest {
                 });
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
+    }
+
+    @Test
+    public void deleteOffender() {
+
+        assertThatStatus(
+                deleteOffenderWithRoles("ROLE_DELETE_OFFENDER"),
+                204);
+
+        verify(offenderDeletionRepository).deleteOffender(OFFENDER_NUMBER);
+    }
+
+    @Test
+    public void deleteOffenderForbiddenWithoutCorrectRole() {
+
+        assertThatStatus(
+                deleteOffenderWithRoles("ROLE_IS_INCORRECT"),
+                403);
+
+        verify(offenderDeletionRepository, never()).deleteOffender(any());
+    }
+
+    private ResponseEntity<Void> deleteOffenderWithRoles(final String... roles) {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("SOME_USER", Arrays.asList(roles), Map.of());
+        return testRestTemplate.exchange("/api/offenders/" + OFFENDER_NUMBER, HttpMethod.DELETE, requestEntity, Void.class);
     }
 }

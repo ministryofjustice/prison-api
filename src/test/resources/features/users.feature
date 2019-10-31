@@ -66,7 +66,7 @@ Feature: User Details and Roles
     When the client assigns access role "ACCESS_ROLE_GENERAL" to user "JBRIEN" for caseload "MDI"
     Then resource not found response is received from users API
 
-  Scenario: A trusted client can remove a role assginment
+  Scenario: A trusted client can remove a role assignment
     Given a user has a token name of "ADMIN_TOKEN"
     And the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
     When the client removes role "KW_ADMIN" from user "API_TEST_USER" at caseload "NWEB"
