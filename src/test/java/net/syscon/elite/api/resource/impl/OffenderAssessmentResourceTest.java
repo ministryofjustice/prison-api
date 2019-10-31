@@ -92,7 +92,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
                 },
-                "-34");
+                "-31");
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
     }
