@@ -75,6 +75,8 @@ public interface InmateRepository {
 
     List<PersonalCareNeed> findPersonalCareNeeds(long bookingId, Set<String> problemCodes);
 
+    List<PersonalCareNeed> findPersonalCareNeeds(List<String> offenderNos, Set<String> problemCodes);
+
     List<ReasonableAdjustment> findReasonableAdjustments(long bookingId, List<String> treatmentCodes);
 
     List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadIdsForUser);

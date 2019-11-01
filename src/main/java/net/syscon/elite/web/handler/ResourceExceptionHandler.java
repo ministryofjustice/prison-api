@@ -84,7 +84,7 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             userMessage = ex.getMessage();
             log.error("Internal Server Error", ex);
         } else if (ex instanceof NotSupportedException) {
-            userMessage = "Not Implemented Operation";
+            userMessage = "Media Type not supported - should be application/json";
             status = Response.Status.NOT_IMPLEMENTED.getStatusCode();
         } else if (ex instanceof RestServiceException) {
             status = ((RestServiceException) ex).getResponseStatus().getStatusCode();

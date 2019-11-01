@@ -26,7 +26,6 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotSupportedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -855,15 +854,5 @@ public class BookingServiceImpl implements BookingService {
 
     private static String forAgency(final String agencyId) {
         return AGENCY_LOCATION_ID_KEY + ":eq:'" + agencyId + "'";
-    }
-
-    @Override
-    public OffenderSummary createBooking(@Valid final NewBooking newBooking) {
-        throw new NotSupportedException("Service not implemented here.");
-    }
-
-    @Override
-    public OffenderSummary recallBooking(@Valid final RecallBooking recallBooking) {
-        throw new NotSupportedException("Service not implemented here.");
     }
 }

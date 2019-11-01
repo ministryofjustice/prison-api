@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -29,8 +30,8 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -55,6 +56,8 @@ public class InmateServiceImplTest {
     private Environment env;
     @Mock
     private TelemetryClient telemetryClient;
+    @Captor
+    private ArgumentCaptor<List<Long>> bookingIdsArgument;
 
     private InmateService serviceToTest;
 
@@ -178,7 +181,7 @@ public class InmateServiceImplTest {
 
         assertThat(responseMap).contains(entry("bookingId", -5L), entry("sequenceNumber", 2L));
         assertThat(catDetail.getNextReviewDate()).isEqualTo(LocalDate.now().plusMonths(6));
-        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
+        verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
     }
 
     @Test
@@ -193,28 +196,27 @@ public class InmateServiceImplTest {
 
         serviceToTest.createCategorisation(1234L, catDetail);
 
-        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
+        verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
     }
 
     @Test
     public void testGetOffenderCategorisationsBatching() {
 
-        var setOf150Longs = Stream.iterate(1L, n -> n + 1)
+        final var setOf150Longs = Stream.iterate(1L, n -> n + 1)
                 .limit(150)
                 .collect(Collectors.toSet());
 
-        ArgumentCaptor<String> agencyArgument = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<List<Long>> bookingIdsArgument = ArgumentCaptor.forClass(List.class);
+        final var agencyArgument = ArgumentCaptor.forClass(String.class);
 
         final var catDetail1 = OffenderCategorise.builder().bookingId(-5L).category("D").build();
         final var catDetail2 = OffenderCategorise.builder().bookingId(-4L).category("B").build();
         final var catDetail3 = OffenderCategorise.builder().bookingId(-3L).category("C").build();
 
-        var listOf100Longs = Stream.iterate(1L, n -> n + 1)
+        final var listOf100Longs = Stream.iterate(1L, n -> n + 1)
                 .limit(100)
                 .collect(Collectors.toList());
 
-        var listOf50Longs = Stream.iterate(101L, n -> n + 1)
+        final var listOf50Longs = Stream.iterate(101L, n -> n + 1)
                 .limit(50)
                 .collect(Collectors.toList());
 
@@ -225,8 +227,8 @@ public class InmateServiceImplTest {
 
         assertThat(results).hasSize(3);
 
-        Mockito.verify(repository, Mockito.times(2)).getOffenderCategorisations(bookingIdsArgument.capture(), agencyArgument.capture(), eq(true));
-        var capturedArguments = bookingIdsArgument.getAllValues();
+        verify(repository, Mockito.times(2)).getOffenderCategorisations(bookingIdsArgument.capture(), agencyArgument.capture(), eq(true));
+        final var capturedArguments = bookingIdsArgument.getAllValues();
         assertThat(capturedArguments.get(0)).containsAll(listOf100Longs);
         assertThat(capturedArguments.get(1)).containsAll(listOf50Longs);
     }
@@ -234,22 +236,21 @@ public class InmateServiceImplTest {
     @Test
     public void testGetBasicInmateDetailsByBookingIdsBatching() {
 
-        var setOf150Longs = Stream.iterate(1L, n -> n + 1)
+        final var setOf150Longs = Stream.iterate(1L, n -> n + 1)
                 .limit(150)
                 .collect(Collectors.toSet());
 
-        ArgumentCaptor<String> agencyArgument = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<List<Long>> bookingIdsArgument = ArgumentCaptor.forClass(List.class);
+        final var agencyArgument = ArgumentCaptor.forClass(String.class);
 
         final var detail1 = InmateBasicDetails.builder().bookingId(-5L).lastName("D").build();
         final var detail2 = InmateBasicDetails.builder().bookingId(-4L).lastName("B").build();
         final var detail3 = InmateBasicDetails.builder().bookingId(-3L).lastName("C").build();
 
-        var listOf100Longs = Stream.iterate(1L, n -> n + 1)
+        final var listOf100Longs = Stream.iterate(1L, n -> n + 1)
                 .limit(100)
                 .collect(Collectors.toList());
 
-        var listOf50Longs = Stream.iterate(101L, n -> n + 1)
+        final var listOf50Longs = Stream.iterate(101L, n -> n + 1)
                 .limit(50)
                 .collect(Collectors.toList());
 
@@ -260,8 +261,8 @@ public class InmateServiceImplTest {
 
         assertThat(results).hasSize(3);
 
-        Mockito.verify(repository, Mockito.times(2)).getBasicInmateDetailsByBookingIds(agencyArgument.capture(), bookingIdsArgument.capture());
-        var capturedArguments = bookingIdsArgument.getAllValues();
+        verify(repository, Mockito.times(2)).getBasicInmateDetailsByBookingIds(agencyArgument.capture(), bookingIdsArgument.capture());
+        final var capturedArguments = bookingIdsArgument.getAllValues();
         assertThat(capturedArguments.get(0)).containsAll(listOf100Longs);
         assertThat(capturedArguments.get(1)).containsAll(listOf50Longs);
     }
@@ -306,7 +307,7 @@ public class InmateServiceImplTest {
     public void testThatAnExceptionIsNotThrown_whenGlobalSearchUserWithNoActiveCaseloadsRequestsInmateDetails() {
         when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
         serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), false);
-        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), true, Collections.emptySet(), false);
+        verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), true, Collections.emptySet(), false);
     }
 
     @Test
@@ -318,45 +319,72 @@ public class InmateServiceImplTest {
 
         serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), true);
 
-        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), false, caseLoad, true);
-        Mockito.verify(caseLoadService).getCaseLoadIdsForUser("ME", false);
+        verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), false, caseLoad, true);
+        verify(caseLoadService).getCaseLoadIdsForUser("ME", false);
     }
 
     @Test
     public void testGetPersonalCareNeedsByProblemTypeAndSubtype() {
         final var problemTypes = List.of("DISAB+RM", "DISAB+RC", "MATSTAT");
         final var personalCareNeedsAll = List.of(
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("MI").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build(),
-                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build()
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("MI").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build(),
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build()
         );
         final var personalCareNeeds = new PersonalCareNeeds(
                 List.of(
-                        PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build(),
-                        PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.of(2019, 1, 2)).build()
+                        PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build(),
+                        PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build()
                 )
         );
 
-        when(repository.findPersonalCareNeeds(1l, Set.of("DISAB", "MATSTAT"))).thenReturn(personalCareNeedsAll);
+        when(repository.findPersonalCareNeeds(anyLong(), anySet())).thenReturn(personalCareNeedsAll);
 
-        final var response = serviceToTest.getPersonalCareNeeds(1l, problemTypes);
+        final var response = serviceToTest.getPersonalCareNeeds(1L, problemTypes);
 
-        Mockito.verify(repository).findPersonalCareNeeds(1l, Set.of("DISAB", "MATSTAT"));
+        verify(repository).findPersonalCareNeeds(1L, Set.of("DISAB", "MATSTAT"));
         assertThat(response).isEqualTo(personalCareNeeds);
+    }
+
+    @Test
+    public void testGetPersonalCareNeedsSplitByOffender() {
+        final var problemTypes = List.of("DISAB+RM", "DISAB+RC", "MATSTAT");
+
+        final var aaMat = PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9")
+                .startDate(LocalDate.parse("2010-06-21")).offenderNo("A1234AA").build();
+        final var aaDisab = PersonalCareNeed.builder().problemType("DISAB").problemCode("RM")
+                .startDate(LocalDate.parse("2010-06-21")).offenderNo("A1234AA").build();
+        final var abDisab = PersonalCareNeed.builder().problemType("DISAB").problemCode("RC")
+                .startDate(LocalDate.parse("2010-06-22")).offenderNo("A1234AB").build();
+        final var acDisab = PersonalCareNeed.builder().problemType("DISAB").problemCode("RM")
+                .startDate(LocalDate.parse("2010-06-22")).offenderNo("A1234AC").build();
+        final var adDisab = PersonalCareNeed.builder().problemType("DISAB").problemCode("ND")
+                .startDate(LocalDate.parse("2010-06-24")).offenderNo("A1234AD").build();
+
+        when(repository.findPersonalCareNeeds(anyList(), anySet())).thenReturn(
+                List.of(aaMat, aaDisab, abDisab, acDisab, adDisab));
+
+        final var response = serviceToTest.getPersonalCareNeeds(List.of("A1234AA"), problemTypes);
+
+        verify(repository).findPersonalCareNeeds(List.of("A1234AA"), Set.of("DISAB", "MATSTAT"));
+        assertThat(response).containsExactly(
+                new PersonalCareNeeds("A1234AA", List.of(aaMat, aaDisab)),
+                new PersonalCareNeeds("A1234AB", List.of(abDisab)),
+                new PersonalCareNeeds("A1234AC", List.of(acDisab)));
     }
 
     @Test
     public void testGetReasonableAdjustmentsByType() {
         final var types = List.of("PEEP", "WHEELCHR_ACC");
         final var reasonableAdjustments = List.of(
-                ReasonableAdjustment.builder().treatmentCode("WHEELCHR_ACC").commentText("abcd").startDate(LocalDate.of(2019, 1, 2)).build()
+                ReasonableAdjustment.builder().treatmentCode("WHEELCHR_ACC").commentText("abcd").startDate(LocalDate.parse("2019-01-02")).build()
         );
 
-        when(repository.findReasonableAdjustments(1l, types)).thenReturn(reasonableAdjustments);
+        when(repository.findReasonableAdjustments(1L, types)).thenReturn(reasonableAdjustments);
 
-        serviceToTest.getReasonableAdjustments(1l, types);
+        serviceToTest.getReasonableAdjustments(1L, types);
 
-        Mockito.verify(repository).findReasonableAdjustments(1l, types);
+        verify(repository).findReasonableAdjustments(1L, types);
     }
 
 }

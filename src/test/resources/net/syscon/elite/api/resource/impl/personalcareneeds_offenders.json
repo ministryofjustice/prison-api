@@ -1,0 +1,53 @@
+[
+  {
+    "offenderNo": "A1234AA",
+    "personalCareNeeds": [
+      {
+        "problemType": "MATSTAT",
+        "problemCode": "ACCU9",
+        "problemStatus": "ON",
+        "problemDescription": "Preg, acc under 9mths",
+        "commentText": "P1",
+        "startDate": "2010-06-21",
+        "endDate": null
+      },
+      {
+        "problemType": "DISAB",
+        "problemCode": "RM",
+        "problemStatus": "ON",
+        "problemDescription": "No Disability",
+        "commentText": "description 1",
+        "startDate": "2010-06-21",
+        "endDate": null
+      }
+    ]
+  },
+  {
+    "offenderNo": "A1234AB",
+    "personalCareNeeds": [
+      {
+        "problemType": "DISAB",
+        "problemCode": "RC",
+        "problemStatus": "ON",
+        "problemDescription": "No Disability",
+        "commentText": null,
+        "startDate": "2010-06-22",
+        "endDate": null
+      }
+    ]
+  },
+  {
+    "offenderNo": "A1234AC",
+    "personalCareNeeds": [
+      {
+        "problemType": "DISAB",
+        "problemCode": "RC",
+        "problemStatus": "ON",
+        "problemDescription": "No Disability",
+        "commentText": null,
+        "startDate": "2010-06-22",
+        "endDate": null
+      }
+    ]
+  }
+]
