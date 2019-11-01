@@ -92,9 +92,27 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
                 },
-                "-34");
+                "-31");
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void testSetPendingInactiveValidationError() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/category/{bookingId}/inactive?status=OTHER",
+                HttpMethod.PUT,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "-34");
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getBody()).contains("Assessment status type is invalid: OTHER");
     }
 
     @Test

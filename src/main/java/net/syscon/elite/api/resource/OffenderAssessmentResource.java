@@ -111,12 +111,13 @@ public interface OffenderAssessmentResource {
     @ApiOperation(value = "Set all active or pending (status A or P) categorisations inactive", notes = "This endpoint should only be used with edge case categorisations.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = ""),
+            @ApiResponse(code = 400, message = "Invalid request - e.g. invalid status.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to update categorisations.", response = ErrorResponse.class)})
     Response setCategorisationInactive(
             @ApiParam(value = "The booking id of offender") @PathParam("bookingId") Long bookingId,
             @ApiParam(value = "Indicates which categorisation statuses to set." +
                     "<li>ACTIVE (default): set all active (i.e. approved) categorisations inactive,</li>" +
-                    "<li>PENDING: set all pending (i.e. awaiting approval) categorisations inactive,</li>") @QueryParam("type") String status);
+                    "<li>PENDING: set all pending (i.e. awaiting approval) categorisations inactive,</li>") @QueryParam("status") String status);
 
     @PUT
     @Path("/category/{bookingId}/nextReviewDate/{nextReviewDate}")
