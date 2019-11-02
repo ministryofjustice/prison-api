@@ -86,7 +86,6 @@ public abstract class ResourceTest {
     }
 
     private <T> JsonContent<T> getBodyAsJsonContent(final ResponseEntity<String> response) {
-        System.out.println(response.getBody());
         return new JsonContent<>(getClass(), forType(String.class), Objects.requireNonNull(response.getBody()));
     }
 }
