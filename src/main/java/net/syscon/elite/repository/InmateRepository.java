@@ -1,6 +1,7 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
@@ -74,6 +75,8 @@ public interface InmateRepository {
 
     List<PersonalCareNeed> findPersonalCareNeeds(long bookingId, Set<String> problemCodes);
 
+    List<PersonalCareNeed> findPersonalCareNeeds(List<String> offenderNos, Set<String> problemCodes);
+
     List<ReasonableAdjustment> findReasonableAdjustments(long bookingId, List<String> treatmentCodes);
 
     List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadIdsForUser);
@@ -100,7 +103,7 @@ public interface InmateRepository {
 
     void approveCategory(CategoryApprovalDetail detail);
 
-    int setCategorisationInactive(long bookingId);
+    int setCategorisationInactive(long bookingId, AssessmentStatusType status);
 
     void updateActiveCategoryNextReviewDate(long bookingId, LocalDate date);
 

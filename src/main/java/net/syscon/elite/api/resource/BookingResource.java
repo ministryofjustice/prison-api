@@ -326,7 +326,6 @@ public interface BookingResource {
 
     @GET
     @Path("/{bookingId}/events/nextWeek")
-    @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Scheduled events for offender for following week.", notes = "Scheduled events for offender for following week.", nickname = "getEventsNextWeek")
     @ApiResponses(value = {
@@ -334,11 +333,10 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    GetEventsNextWeekResponse getEventsNextWeek(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+    List<ScheduledEvent> getEventsNextWeek(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
 
     @GET
     @Path("/{bookingId}/events/thisWeek")
-    @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Scheduled events for offender for coming week (from current day).", notes = "Scheduled events for offender for coming week (from current day).", nickname = "getEventsThisWeek")
     @ApiResponses(value = {
@@ -346,11 +344,23 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    GetEventsThisWeekResponse getEventsThisWeek(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+    List<ScheduledEvent> getEventsThisWeek(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+
+    @GET
+    @Path("/{bookingId}/events")
+    @Produces({"application/json"})
+    @ApiOperation(value = "All scheduled events for offender.", notes = "All scheduled events for offender.", nickname = "getEvents")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ScheduledEvent.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    List<ScheduledEvent> getEvents(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
+                                   @ApiParam(value = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") @QueryParam("fromDate") String fromDate,
+                                   @ApiParam(value = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") String toDate);
 
     @GET
     @Path("/{bookingId}/events/today")
-    @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Today's scheduled events for offender.", notes = "Today's scheduled events for offender.", nickname = "getEventsToday")
     @ApiResponses(value = {
@@ -358,7 +368,7 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    GetEventsTodayResponse getEventsToday(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
+    List<ScheduledEvent> getEventsToday(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
 
     @GET
     @Path("/{bookingId}/identifiers")
@@ -508,12 +518,25 @@ public interface BookingResource {
     @Produces({"application/json"})
     @ApiOperation(value = "Personal Care Needs", notes = "Personal Care Need", nickname = "getPersonalCareNeeds")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PersonalCareNeed.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "OK", response = PersonalCareNeeds.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     PersonalCareNeeds getPersonalCareNeeds(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId,
                                            @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @QueryParam("type") List<String> type);
+
+    @POST
+    @Path("/offenderNo/personal-care-needs")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Personal Care Needs  - POST version to allow for large numbers of offenders", notes = "Personal Care Needs", nickname = "getPersonalCareNeeds")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PersonalCareNeeds.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    List<PersonalCareNeeds> getPersonalCareNeeds(@ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body,
+                                                 @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @QueryParam("type") List<String> type);
 
     @GET
     @Path("/{bookingId}/reasonable-adjustments")
@@ -1246,60 +1269,6 @@ public interface BookingResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetContactsResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetEventsNextWeekResponse extends ResponseDelegate {
-
-        private GetEventsNextWeekResponse(final Response response) {
-            super(response);
-        }
-
-        private GetEventsNextWeekResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetEventsNextWeekResponse respond200WithApplicationJson(final List<ScheduledEvent> entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetEventsNextWeekResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetEventsThisWeekResponse extends ResponseDelegate {
-
-        private GetEventsThisWeekResponse(final Response response) {
-            super(response);
-        }
-
-        private GetEventsThisWeekResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetEventsThisWeekResponse respond200WithApplicationJson(final List<ScheduledEvent> entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetEventsThisWeekResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetEventsTodayResponse extends ResponseDelegate {
-
-        private GetEventsTodayResponse(final Response response) {
-            super(response);
-        }
-
-        private GetEventsTodayResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetEventsTodayResponse respond200WithApplicationJson(final List<ScheduledEvent> entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetEventsTodayResponse(responseBuilder.build(), entity);
         }
     }
 

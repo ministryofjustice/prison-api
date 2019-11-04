@@ -7,6 +7,7 @@ import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.resource.BookingResource.GetAlertsByOffenderNosResponse;
 import net.syscon.elite.api.resource.IncidentsResource.IncidentListResponse;
 import net.syscon.elite.api.support.Order;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -185,4 +186,15 @@ public interface OffenderResource {
     CaseNote updateOffenderCaseNote(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") @PathParam("offenderNo") String offenderNo,
                                     @ApiParam(value = "The case note id", required = true, example = "1212134") @PathParam("caseNoteId") Long caseNoteId,
                                     @ApiParam(value = "", required = true) UpdateCaseNote body);
+
+    @ApiIgnore("WIP, to be used as part of the GDPR project")
+    @DELETE
+    @Path("/{offenderNo}")
+    @ApiOperation( value = "Delete an offender", notes = "Deletes an offender and all associated data", nickname = "deleteOffender")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "Offender deleted successfully."),
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to delete offender.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Resource not found - offender does not exist or is not accessible to user.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    void deleteOffender(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathParam("offenderNo") @NotNull String offenderNo);
 }

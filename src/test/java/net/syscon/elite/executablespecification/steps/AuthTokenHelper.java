@@ -35,7 +35,7 @@ public class AuthTokenHelper {
         // ITAG_USER with ROLE_MAINTAIN_IEP and scope ['read','write]
         MAINTAIN_IEP,
         PAY,
-        UPDATE_ALERT;
+        UPDATE_ALERT
     }
 
 

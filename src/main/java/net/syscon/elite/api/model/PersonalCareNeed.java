@@ -1,5 +1,6 @@
 package net.syscon.elite.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -35,4 +36,7 @@ public class PersonalCareNeed {
 
     @ApiModelProperty(value = "End Date", position = 7, example = "2010-06-21")
     private LocalDate endDate;
+
+    @JsonIgnore
+    private String offenderNo;
 }

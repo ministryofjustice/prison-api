@@ -2,16 +2,22 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.PersonalCareNeed;
 import net.syscon.elite.api.model.ReasonableAdjustment;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.InmateRepository;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,12 +25,14 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @MockBean
     private InmateRepository inmateRepository;
+    @SpyBean
+    private BookingRepository bookingRepository;
 
     @Test
-    public void getPersonalCaseNeeds() {
+    public void getPersonalCareNeeds() {
         final var bookingId = -1;
 
-        when(inmateRepository.findPersonalCareNeeds(bookingId, Set.of("DISAB", "MATSTAT"))).thenReturn(List.of(createPersonalCareNeeds()));
+        when(inmateRepository.findPersonalCareNeeds(anyLong(), anySet())).thenReturn(List.of(createPersonalCareNeeds()));
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
 
@@ -36,9 +44,36 @@ public class BookingResourceImplIntTest extends ResourceTest {
     }
 
     @Test
-    public void getPersonalCaseNeeds_missingProblemType() {
+    public void postPersonalCareNeedsForOffenders() {
+        when(inmateRepository.findPersonalCareNeeds(anyList(), anySet())).thenReturn(createPersonalCareNeedsForOffenders());
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of(), List.of("A1234AA", "A1234AB", "A1234AC"));
+
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT&type=DISAB+RM&type=DISAB+RC", HttpMethod.POST, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "personalcareneeds_offenders.json");
+
+        verify(inmateRepository).findPersonalCareNeeds(List.of("A1234AA", "A1234AB", "A1234AC"), Set.of("DISAB", "MATSTAT"));
+    }
+
+    @Test
+    public void getPersonalCareNeeds_missingProblemType() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
         final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/personal-care-needs", HttpMethod.GET, requestEntity, String.class);
+        assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_validation.json");
+    }
+
+    @Test
+    public void postPersonalCareNeedsForOffenders_missingOffenders() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT", HttpMethod.POST, requestEntity, String.class);
+        assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_offender_validation.json");
+    }
+
+    @Test
+    public void postPersonalCareNeedsForOffenders_missingProblemType() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of(), List.of("A1234AA", "A1234AB", "A1234AC"));
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs", HttpMethod.POST, requestEntity, String.class);
         assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_validation.json");
     }
 
@@ -65,6 +100,25 @@ public class BookingResourceImplIntTest extends ResourceTest {
         return PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").startDate(LocalDate.of(2010, 6, 21)).build();
     }
 
+    private List<PersonalCareNeed> createPersonalCareNeedsForOffenders() {
+        return List.of(
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
+                        .problemDescription("Preg, acc under 9mths").commentText("P1")
+                        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON")
+                        .problemDescription("No Disability").commentText("description 1")
+                        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("RC").problemStatus("ON")
+                        .problemDescription("No Disability").commentText(null)
+                        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AB").build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("RC").problemStatus("ON")
+                        .problemDescription("No Disability").commentText(null)
+                        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                        .problemDescription("No Disability").commentText("description 2")
+                        .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build());
+    }
+
     @Test
     public void getReasonableAdjustment_missingTreatmentCodes() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
@@ -74,7 +128,6 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void getVisitBalances() {
-
         final var offenderNo = "A1234AA";
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
@@ -92,5 +145,31 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/-3/visit/balances", HttpMethod.GET, requestEntity, String.class);
 
         assertThatJsonFileAndStatus(responseEntity, 404, "visitbalancesinvalidbookingid.json");
+    }
+
+    @Test
+    public void getEvents() {
+        when(bookingRepository.getBookingActivities(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("act", "10:11:12"),
+                        createEvent("act", "08:59:50"))
+        );
+        when(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("vis", "09:02:03"))
+        );
+        when(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("app", null))
+        );
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/events", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "events.json");
+    }
+
+    private ScheduledEvent createEvent(final String type, final String time) {
+        return ScheduledEvent.builder().bookingId(-1L)
+                .startTime(Optional.ofNullable(time).map(t -> "2019-01-02T" + t).map(LocalDateTime::parse).orElse(null))
+                .eventType(type + time)
+                .eventSubType("some sub " + type)
+                .build();
     }
 }

@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
@@ -15,6 +16,9 @@ import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.impl.IncidentService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Path;
@@ -29,6 +33,7 @@ import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
 @Path("/offenders")
+@RequiredArgsConstructor
 public class OffenderResourceImpl implements OffenderResource {
 
     private final IncidentService incidentService;
@@ -37,22 +42,8 @@ public class OffenderResourceImpl implements OffenderResource {
     private final AdjudicationService adjudicationService;
     private final CaseNoteService caseNoteService;
     private final BookingService bookingService;
+    private final OffenderDeletionService offenderDeletionService;
     private final AuthenticationFacade authenticationFacade;
-
-    public OffenderResourceImpl(final IncidentService incidentService, final InmateAlertService alertService,
-                                final OffenderAddressService addressService,
-                                final AdjudicationService adjudicationService,
-                                final CaseNoteService caseNoteService,
-                                final BookingService bookingService,
-                                final AuthenticationFacade authenticationFacade) {
-        this.incidentService = incidentService;
-        this.alertService = alertService;
-        this.addressService = addressService;
-        this.adjudicationService = adjudicationService;
-        this.caseNoteService = caseNoteService;
-        this.bookingService = bookingService;
-        this.authenticationFacade = authenticationFacade;
-    }
 
     @Override
     public IncidentListResponse getIncidentsByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
@@ -205,5 +196,12 @@ public class OffenderResourceImpl implements OffenderResource {
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public OffenderSentenceDetail getOffenderSentenceDetail(final String offenderNo) {
         return bookingService.getOffenderSentenceDetail(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+    }
+
+    @Override
+    @PreAuthorize("#oauth2.hasScope('write') && hasRole('DELETE_OFFENDER')")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteOffender(final String offenderNo) {
+        offenderDeletionService.deleteOffender(offenderNo);
     }
 }
