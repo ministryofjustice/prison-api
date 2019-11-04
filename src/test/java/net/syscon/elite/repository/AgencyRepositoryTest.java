@@ -51,25 +51,49 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetEnabledAgencyWhenActiveOnly() {
-        final var agency = repository.findAgency("LEI", ACTIVE_ONLY);
+        final var agency = repository.findAgency("LEI", ACTIVE_ONLY, "INST");
         assertThat(agency).isPresent();
     }
 
     @Test
     public void testGetEnabledAgencyWithInactive() {
-        final var agency = repository.findAgency("LEI", ALL);
+        final var agency = repository.findAgency("LEI", ALL, "INST");
         assertThat(agency).isPresent();
     }
 
     @Test
     public void testGetDisabledAgencyWhenActiveOnly() {
-        final var agency = repository.findAgency("ZZGHI", ACTIVE_ONLY);
+        final var agency = repository.findAgency("ZZGHI", ACTIVE_ONLY, "INST");
         assertThat(agency).isEmpty();
     }
 
     @Test
     public void testGetDisabledAgencyWithInactive() {
-        final var agency = repository.findAgency("ZZGHI", ALL);
+        final var agency = repository.findAgency("ZZGHI", ALL, "INST");
+        assertThat(agency).isPresent();
+    }
+
+    @Test
+    public void testGetEnabledAgencyWithNoAgencyTypeFilter() {
+        final var agency = repository.findAgency("LEI", ALL, null);
+        assertThat(agency).isPresent();
+    }
+
+    @Test
+    public void testGetAgencyWithWrongTypeFilter() {
+        final var agency = repository.findAgency("COURT1", ALL, "INST");
+        assertThat(agency).isNotPresent();
+    }
+
+    @Test
+    public void testGetAgencyWithCorrectTypeFilter() {
+        final var agency = repository.findAgency("COURT1", ALL, "CRT");
+        assertThat(agency).isPresent();
+    }
+
+    @Test
+    public void testGetAgencyWithNoypeFilter() {
+        final var agency = repository.findAgency("COURT1", ALL, null);
         assertThat(agency).isPresent();
     }
 

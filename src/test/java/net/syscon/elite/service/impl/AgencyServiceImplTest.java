@@ -20,8 +20,7 @@ import java.util.Optional;
 
 import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,9 +46,9 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldCallGetAgency() {
-        when(agencyRepo.findAgency(Mockito.anyString(), any())).thenReturn(Optional.of(Agency.builder().build()));
-        service.getAgency("LEI", ALL);
-        verify(agencyRepo).findAgency("LEI", ALL);
+        when(agencyRepo.findAgency(Mockito.anyString(), any(), isNull())).thenReturn(Optional.of(Agency.builder().build()));
+        service.getAgency("LEI", ALL, null);
+        verify(agencyRepo).findAgency("LEI", ALL, null);
     }
 
     @Test

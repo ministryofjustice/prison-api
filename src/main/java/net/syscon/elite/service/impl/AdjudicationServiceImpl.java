@@ -96,7 +96,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     private Function<String, String> establishmentFinder() {
         val establishments = new HashMap<String, String>();
         return agencyId -> establishments.computeIfAbsent(agencyId, id ->
-                agencyRepository.findAgency(id, ALL)
+                agencyRepository.findAgency(id, ALL, null)
                         .map(agency -> LocationProcessor.formatLocation(agency.getDescription()))
                         .orElseThrow(EntityNotFoundException.withId(agencyId)));
     }
