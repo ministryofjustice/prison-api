@@ -110,9 +110,5 @@ public interface BookingService {
      */
     OffenderSummary getLatestBookingByOffenderNo(String offenderNo);
 
-    OffenderSummary createBooking(@Valid NewBooking newBooking);
-
-    OffenderSummary recallBooking(@Valid RecallBooking recallBooking);
-
     Map<Long, List<String>> getBookingAlertSummary(List<Long> bookingIds, LocalDateTime now);
 }

@@ -39,6 +39,8 @@ public interface InmateService {
 
     PersonalCareNeeds getPersonalCareNeeds(Long bookingId, @NotEmpty List<String> problemTypes);
 
+    List<PersonalCareNeeds> getPersonalCareNeeds(@NotEmpty List<String> offenderNo, @NotEmpty List<String> problemTypes);
+
     ReasonableAdjustments getReasonableAdjustments(Long bookingId, @NotEmpty List<String> treatmentCodes);
 
     List<ProfileInformation> getProfileInformation(Long bookingId);

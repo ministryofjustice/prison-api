@@ -503,6 +503,11 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public List<PersonalCareNeeds> getPersonalCareNeeds(final List<String> offenderNos, final List<String> problemTypes) {
+        return inmateService.getPersonalCareNeeds(offenderNos, problemTypes);
+    }
+
+    @Override
     public ReasonableAdjustments getReasonableAdjustments(final Long bookingId, final List<String> treatmentCodes) {
         return inmateService.getReasonableAdjustments(bookingId, treatmentCodes);
     }

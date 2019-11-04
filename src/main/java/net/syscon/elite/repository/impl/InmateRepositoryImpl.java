@@ -99,21 +99,20 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("COMMENT_TEXT", new FieldMapper("comment"))
             .build();
 
-    private final StandardBeanPropertyRowMapper<PersonalCareNeed> PERSONAL_CARE_NEEDS_MAPPER = new StandardBeanPropertyRowMapper<>(PersonalCareNeed.class);
-    private final StandardBeanPropertyRowMapper<ReasonableAdjustment> REASONABLE_ADJUSTMENTS_MAPPER = new StandardBeanPropertyRowMapper<>(ReasonableAdjustment.class);
+    private static final StandardBeanPropertyRowMapper<PersonalCareNeed> PERSONAL_CARE_NEEDS_MAPPER = new StandardBeanPropertyRowMapper<>(PersonalCareNeed.class);
+    private static final StandardBeanPropertyRowMapper<ReasonableAdjustment> REASONABLE_ADJUSTMENTS_MAPPER = new StandardBeanPropertyRowMapper<>(ReasonableAdjustment.class);
 
-    private final StandardBeanPropertyRowMapper<AssessmentDto> ASSESSMENT_MAPPER = new StandardBeanPropertyRowMapper<>(AssessmentDto.class);
-    private final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
-    private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
-    private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
-    private final StandardBeanPropertyRowMapper<Language> LANGUAGE_MAPPER = new StandardBeanPropertyRowMapper<>(Language.class);
-    private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
-    private final StandardBeanPropertyRowMapper<OffenderCategorise> OFFENDER_CATEGORY_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderCategorise.class);
+    private static final StandardBeanPropertyRowMapper<AssessmentDto> ASSESSMENT_MAPPER = new StandardBeanPropertyRowMapper<>(AssessmentDto.class);
+    private static final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
+    private static final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
+    private static final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
+    private static final StandardBeanPropertyRowMapper<Language> LANGUAGE_MAPPER = new StandardBeanPropertyRowMapper<>(Language.class);
+    private static final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
+    private static final StandardBeanPropertyRowMapper<OffenderCategorise> OFFENDER_CATEGORY_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderCategorise.class);
 
-    private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
-            new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
+    private static final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
 
-    private final StandardBeanPropertyRowMapper<InmateBasicDetails> OFFENDER_BASIC_DETAILS_MAPPER = new StandardBeanPropertyRowMapper<>(InmateBasicDetails.class);
+    private static final StandardBeanPropertyRowMapper<InmateBasicDetails> OFFENDER_BASIC_DETAILS_MAPPER = new StandardBeanPropertyRowMapper<>(InmateBasicDetails.class);
 
     private final Map<String, FieldMapper> PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP;
 
@@ -364,6 +363,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId, "problemCodes", problemCodes),
+                PERSONAL_CARE_NEEDS_MAPPER);
+    }
+
+    @Override
+    public List<PersonalCareNeed> findPersonalCareNeeds(final List<String> offenderNos, final Set<String> problemCodes) {
+        final var sql = getQuery("FIND_PERSONAL_CARE_NEEDS_BY_OFFENDER");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("offenderNos", offenderNos, "problemCodes", problemCodes),
                 PERSONAL_CARE_NEEDS_MAPPER);
     }
 

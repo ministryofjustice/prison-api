@@ -1110,11 +1110,35 @@ public class InmateRepositoryTest {
 
     @Test
     public void getPersonalCareNeeds() {
-        final var expectedInfo = List.of(
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON").problemDescription("No Disability").commentText("description 1").startDate(LocalDate.of(2010, 6, 21)).build(),
-                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").commentText("P1").startDate(LocalDate.of(2010, 6, 21)).build());
         final var info = repository.findPersonalCareNeeds(-1, Set.of("DISAB", "MATSTAT"));
-        assertThat(info).isEqualTo(expectedInfo);
+        assertThat(info).containsExactly(
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                        .problemDescription("No Disability").commentText("description 1")
+                        .startDate(LocalDate.parse("2010-06-21")).build(),
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
+                        .problemDescription("Preg, acc under 9mths").commentText("P1")
+                        .startDate(LocalDate.parse("2010-06-21")).build());
+    }
+
+    @Test
+    public void getPersonalCareNeedsForOffenderNos() {
+        final var info = repository.findPersonalCareNeeds(List.of("A1234AA", "A1234AB", "A1234AC", "A1234AD"), Set.of("DISAB", "MATSTAT"));
+        assertThat(info).containsExactly(
+                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
+                        .problemDescription("Preg, acc under 9mths").commentText("P1")
+                        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                        .problemDescription("No Disability").commentText("description 1")
+                        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                        .problemDescription("No Disability").commentText(null)
+                        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AB").build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                        .problemDescription("No Disability").commentText(null)
+                        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
+                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                        .problemDescription("No Disability").commentText("description 2")
+                        .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build());
     }
 
     @Test
