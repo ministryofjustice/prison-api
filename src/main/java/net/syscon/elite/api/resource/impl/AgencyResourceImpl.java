@@ -46,8 +46,8 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
-    public GetAgencyResponse getAgency(final String agencyId, final boolean activeOnly) {
-        final var agency = agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL);
+    public GetAgencyResponse getAgency(final String agencyId, final boolean activeOnly, final boolean agencyType) {
+        final var agency = agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, null);
 
         return GetAgencyResponse.respond200WithApplicationJson(agency);
     }

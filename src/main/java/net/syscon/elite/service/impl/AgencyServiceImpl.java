@@ -52,8 +52,8 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public Agency getAgency(final String agencyId, final StatusFilter filter) {
-        final var agency = agencyRepository.findAgency(agencyId, filter).orElseThrow(EntityNotFoundException.withId(agencyId));
+    public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
+        final var agency = agencyRepository.findAgency(agencyId, filter, agencyType).orElseThrow(EntityNotFoundException.withId(agencyId));
         agency.setDescription(LocationProcessor.formatLocation(agency.getDescription()));
         return agency;
     }
@@ -67,7 +67,7 @@ public class AgencyServiceImpl implements AgencyService {
     public void checkAgencyExists(final String agencyId) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
-        if (agencyRepository.findAgency(agencyId, ACTIVE_ONLY).isEmpty()) {
+        if (agencyRepository.findAgency(agencyId, ACTIVE_ONLY, null).isEmpty()) {
             throw EntityNotFoundException.withId(agencyId);
         }
     }

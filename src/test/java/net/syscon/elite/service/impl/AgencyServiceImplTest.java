@@ -47,9 +47,9 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldCallGetAgency() {
-        when(agencyRepo.findAgency(Mockito.anyString(), any())).thenReturn(Optional.of(Agency.builder().build()));
-        service.getAgency("LEI", ALL);
-        verify(agencyRepo).findAgency("LEI", ALL);
+        when(agencyRepo.findAgency(Mockito.anyString(), any(), null)).thenReturn(Optional.of(Agency.builder().build()));
+        service.getAgency("LEI", ALL, null);
+        verify(agencyRepo).findAgency("LEI", ALL, null);
     }
 
     @Test

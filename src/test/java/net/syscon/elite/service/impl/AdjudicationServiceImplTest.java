@@ -89,7 +89,7 @@ public class AdjudicationServiceImplTest {
         val hearingLocation = Location.builder().agencyId("MDI").description("MDI-AA-CR-1").userDescription("Hearing Room 1").build();
         val agency = Agency.builder().description("MOORLANDS (HMP)").build();
 
-        when(agencyRepository.findAgency("MDI", ALL)).thenReturn(Optional.of(agency));
+        when(agencyRepository.findAgency("MDI", ALL, null)).thenReturn(Optional.of(agency));
         when(locationRepository.findLocation(1L, ALL)).thenReturn(Optional.of(incidentLocation));
         when(locationRepository.findLocation(2L, ALL)).thenReturn(Optional.of(hearingLocation));
 
