@@ -43,7 +43,7 @@ public interface AgencyResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetAgencyResponse getAgency(@ApiParam(value = "", required = true) @PathParam("agencyId") String agencyId,
                                 @ApiParam(value = "Only return active agencies", defaultValue = "true") @QueryParam("activeOnly") @DefaultValue("true") boolean activeOnly,
-                                @ApiParam(value = "Agency Type") @QueryParam("agencyType") boolean agencyType);
+                                @ApiParam(value = "Agency Type") @QueryParam("agencyType") String agencyType);
 
     @GET
     @Path("/{agencyId}/eventLocations")
