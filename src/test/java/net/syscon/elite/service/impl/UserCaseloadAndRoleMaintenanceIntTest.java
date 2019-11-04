@@ -54,7 +54,7 @@ public class UserCaseloadAndRoleMaintenanceIntTest {
     public void addUsersToNwebCaseload() {
 
         var numberAlloc = userService.addDefaultCaseloadForPrison("LEI");
-        assertThat(numberAlloc.getNumUsersEnabled()).isEqualTo(1);
+        assertThat(numberAlloc.getNumUsersEnabled()).isEqualTo(2);
 
         numberAlloc = userService.addDefaultCaseloadForPrison("LEI");
         assertThat(numberAlloc.getNumUsersEnabled()).isEqualTo(0);
