@@ -30,7 +30,7 @@ public interface AgencyRepository {
 
     List<Agency> findAgenciesByCaseload(String caseload);
 
-    Optional<Agency> findAgency(String agencyId, StatusFilter filter);
+    Optional<Agency> findAgency(String agencyId, StatusFilter filter, final String agencyType);
 
     List<PrisonContactDetail> getPrisonContactDetails(String agencyId);
 
