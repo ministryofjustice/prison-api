@@ -38,6 +38,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
 
 
+@SuppressWarnings("ConstantConditions")
 public class NomisApiV1ResourceImplIntTest extends ResourceTest {
     @MockBean
     private PostTransaction postTransaction;
@@ -212,13 +213,13 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var testClob = new javax.sql.rowset.serial.SerialClob(eventData.toCharArray());
         final var timestamp = Timestamp.valueOf("2019-07-09 00:00:00.000");
 
-        final var procedureResponse = Map.of(
-                P_NOMS_ID, (Object) "G7806VO",
-                P_ROOT_OFFENDER_ID, (Object) 0L,
-                P_SINGLE_OFFENDER_ID, (Object) "",
-                P_AGY_LOC_ID, (Object) "LEI",
-                P_DETAILS_CLOB, (Object) testClob,
-                P_TIMESTAMP, (Object) timestamp);
+        final var procedureResponse = Map.<String, Object>of(
+                P_NOMS_ID, "G7806VO",
+                P_ROOT_OFFENDER_ID, 0L,
+                P_SINGLE_OFFENDER_ID, "",
+                P_AGY_LOC_ID, "LEI",
+                P_DETAILS_CLOB, testClob,
+                P_TIMESTAMP, timestamp);
 
         when(offenderPssDetail.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
 
@@ -233,8 +234,10 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
 
         final var expectedSurname = "HALIBUT";
+        final var alias = new AliasSP();
+        alias.setLastName("PLAICE");
         final var procedureResponse = Map.of(P_OFFENDER_CSR, (Object) List.of(OffenderSP.builder().lastName(expectedSurname)
-                .offenderAliases(List.of(AliasSP.builder().lastName("PLAICE").build()))
+                .offenderAliases(List.of(alias))
                 .build()));
 
         when(offenderDetails.execute(any(SqlParameterSource.class))).thenReturn(procedureResponse);
