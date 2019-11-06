@@ -50,7 +50,6 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
 
         log.debug("Deleting all offender booking data for book ID: '{}'", bookId);
 
-        // These could all be deleted in parallel:
         deleteAgencyIncidents(bookId);
         deleteOffenderCases(bookId);
         deleteOffenderContactPersons(bookId);
@@ -171,12 +170,7 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
     }
 
     private void deleteOffenderProgramProfiles(final String bookId) {
-
-        // This is actually required to be deleted before offender_transactions
-        // can be deleted from... So maybe if necessary, we'd have to look at deleting
-        // these first?
         executeNamedSqlWithBookingId("OD_DELETE_OFFENDER_COURSE_ATTENDANCES", bookId);
-
         executeNamedSqlWithBookingId("OD_DELETE_OFFENDER_EXCLUDE_ACTS_SCHDS", bookId);
         executeNamedSqlWithBookingId("OD_DELETE_OFFENDER_PRG_PRF_PAY_BANDS", bookId);
         executeNamedSqlWithBookingId("OD_DELETE_OFFENDER_PROGRAM_PROFILES", bookId);
