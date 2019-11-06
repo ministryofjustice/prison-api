@@ -17,6 +17,7 @@ import java.util.List;
 import static net.syscon.elite.repository.v1.storedprocs.StoreProcMetadata.*;
 import static net.syscon.elite.repository.v1.storedprocs.VisitsProc.*;
 
+@SuppressWarnings("unchecked")
 @Slf4j
 @Repository
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -27,7 +28,7 @@ public class VisitV1Repository extends RepositoryBase {
     private final GetUnavailability getUnavailability;
     private final GetVisitSlotsWithCapacity getVisitSlotsWithCapacity;
 
-    public List<AvailableDatesSP> getAvailableDates(final String offenderId, final LocalDate fromDate, final LocalDate toDate) {
+    public List<AvailableDatesSP> getAvailableDates(final Long offenderId, final LocalDate fromDate, final LocalDate toDate) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_ROOT_OFFENDER_ID, offenderId)
@@ -39,7 +40,7 @@ public class VisitV1Repository extends RepositoryBase {
         return (List<AvailableDatesSP>) result.get(P_DATE_CSR);
     }
 
-    public List<ContactPersonSP> getContactList(final String offenderId) {
+    public List<ContactPersonSP> getContactList(final Long offenderId) {
 
         final var params = new MapSqlParameterSource()
                 .addValue(P_ROOT_OFFENDER_ID, offenderId);

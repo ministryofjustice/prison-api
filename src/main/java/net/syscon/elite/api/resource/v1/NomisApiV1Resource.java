@@ -121,7 +121,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Events getOffenderEvents(
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") @QueryParam("prison_id") @Length(max = 3) String prisonId,
-            @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1417AE") @QueryParam("offender_id") String offenderId,
+            @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1417AE") @QueryParam("offender_id") String offenderIdentifier,
             @ApiParam(name = "event_type", value = "Event Type", example = "H") @QueryParam("event_type") String eventType,
             @ApiParam(name = "from_datetime", value = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @QueryParam("from_datetime") String fromDateTime,
             @ApiParam(name = "limit", value = "Number of events to return", example = "100") @QueryParam("limit") Long limit);
@@ -228,7 +228,7 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @HeaderParam("X-Client-Name") String clientName,
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathParam("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-            @ApiParam(name = "client_unique_ref", value = "Client unique reference", required = false) @QueryParam("client_unique_ref") @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
+            @ApiParam(name = "client_unique_ref", value = "Client unique reference") @QueryParam("client_unique_ref") @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
 
     @GET
     @Path("/prison/{prison_id}/live_roll")
@@ -363,7 +363,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     AvailableDates getVisitAvailableDates(
-            @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1583AE", required = true) @PathParam("offender_id") @NotNull String offenderId,
+            @ApiParam(name = "offender_id", value = "Offender Id", example = "1234567", required = true) @NotNull @PathParam("offender_id") Long offenderId,
             @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) @NotNull @QueryParam("start_date") LocalDate fromDate,
             @ApiParam(name = "end_date", value = "To date", example = "2019-05-01", required = true) @NotNull @QueryParam("end_date") LocalDate toDate);
 
@@ -379,9 +379,8 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ContactList getVisitContactList(
-            @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1583AE", required = true) @PathParam("offender_id") @NotNull String offenderId);
+            @ApiParam(name = "offender_id", value = "Offender Id", example = "1234567", required = true) @NotNull @PathParam("offender_id") Long offenderId);
 
-    @SuppressWarnings("RestParamTypeInspection")
     @GET
     @Path("offenders/{offender_id}/visits/unavailability")
     @Consumes({"application/json"})
