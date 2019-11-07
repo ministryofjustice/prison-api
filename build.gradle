@@ -79,7 +79,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.10'
 
-    implementation files("${rootDir}/lib/ojdbc8-18.3.jar")
+    implementation files("${rootDir}/lib/ojdbc10-19.3.jar")
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-aop'

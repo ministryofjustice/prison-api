@@ -103,7 +103,7 @@ public class NomisV1SQLErrorCodeTranslator extends SQLErrorCodeSQLExceptionTrans
         final var errorCode = sqlEx.getErrorCode();
 
         final var dataAccessException = translate(errorCode, sqlEx);
-        return dataAccessException.orElseGet(() -> customTranslate(task, sql, sqlEx));
+        return dataAccessException.orElseGet(() -> super.customTranslate(task, sql, sqlEx));
     }
 
     private Optional<DataAccessException> translate(final int errorCode, final SQLException sqlEx) {

@@ -522,7 +522,17 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/available_dates?start_date=2017-01-01&end_date=2017-02-01", HttpMethod.GET, requestEntity, String.class);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
-        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Invalid start and end date range\",\"developerMessage\":\"\"}");
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Start date cannot be in the past\",\"developerMessage\":\"\"}");
+    }
+
+    @Test
+    public void getAvailableDatesInvalidOffenderId() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/AB2425215C/visits/available_dates?start_date=2017-01-01&end_date=2017-02-01", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Parameter exception (invalid date, time, format, type)\",\"developerMessage\":\"java.lang.NumberFormatException: For input string: \\\"AB2425215C\\\"\"}");
     }
 
     @Test
@@ -767,10 +777,10 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
     public void getVisitSlotsWithCapacityInvalidDate() {
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
 
-        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/MDI/slots?start_date=2017-01-01&end_date=2017-01-01", HttpMethod.GET, requestEntity, String.class);
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/MDI/slots?start_date=3000-01-01&end_date=3017-01-01", HttpMethod.GET, requestEntity, String.class);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
-        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Invalid start and end date range\",\"developerMessage\":\"\"}");
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"End date cannot be more than 60 days in the future\",\"developerMessage\":\"\"}");
     }
 
 }
