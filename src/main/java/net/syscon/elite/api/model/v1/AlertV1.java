@@ -20,7 +20,7 @@ import java.time.LocalDate;
 @ToString
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({"alert_type", "alert_sub_type", "alert_date", "expiry_date", "status", "comment"})
-public class Alert {
+public class AlertV1 {
 
     @ApiModelProperty(value = "Code and description identifying the type of alert", required = true, example = "{ code: 'X', desc: 'Security' }")
     @JsonProperty("alert_type")
