@@ -109,10 +109,10 @@ public class NomisApiV1Service {
                 .build();
     }
 
-    public List<Alert> getAlerts(final String nomsId, final boolean includeInactive, final LocalDateTime modifiedSince) {
+    public List<AlertV1> getAlerts(final String nomsId, final boolean includeInactive, final LocalDateTime modifiedSince) {
         final var alerts = alertV1Repository.getAlerts(nomsId, includeInactive, modifiedSince).stream()
                 .filter(a -> a.getAlertSeq() != null)
-                .map(a -> Alert.builder()
+                .map(a -> AlertV1.builder()
                         .type(CodeDescription.safeNullBuild(a.getAlertType(), a.getAlertTypeDesc()))
                         .subType(CodeDescription.safeNullBuild(a.getAlertCode(), a.getAlertCodeDesc()))
                         .date(a.getAlertDate())
@@ -244,7 +244,7 @@ public class NomisApiV1Service {
     }
 
     @Transactional
-    public PaymentResponse storePayment(final String prisonId, final String nomsId, final String payType, final String payDesc, BigDecimal payAmount, final LocalDate payDate, final String payClientRef) {
+    public PaymentResponse storePayment(final String prisonId, final String nomsId, final String payType, final String payDesc, final BigDecimal payAmount, final LocalDate payDate, final String payClientRef) {
         // No return value from repository - a runtime exception will be thrown in the event of problems
         financeV1Repository.postStorePayment(prisonId, nomsId, payType, payDesc, payAmount, payDate, payClientRef);
         return PaymentResponse.builder().message("Payment accepted").build();
@@ -280,7 +280,7 @@ public class NomisApiV1Service {
 
     public AccountTransaction getTransactionByClientUniqueRef(final String prisonId, final String nomsId, final String uniqueClientId) {
 
-        var response = financeV1Repository.getTransactionByClientUniqueRef(prisonId, nomsId, uniqueClientId)
+        final var response = financeV1Repository.getTransactionByClientUniqueRef(prisonId, nomsId, uniqueClientId)
                 .stream()
                 .map(t -> AccountTransaction.builder()
                         .id("" + t.getTxnId() + "-" + t.getTxnEntrySeq())
@@ -305,7 +305,7 @@ public class NomisApiV1Service {
         return new ActiveOffender(id);
     }
 
-    public AvailableDates getVisitAvailableDates(final String offenderID, LocalDate fromDate, LocalDate toDate) {
+    public AvailableDates getVisitAvailableDates(final Long offenderID, final LocalDate fromDate, final LocalDate toDate) {
         validateStartAndEndDateRange(fromDate, toDate);
 
         final var dates = visitV1Repository.getAvailableDates(offenderID, fromDate, toDate);
@@ -313,7 +313,7 @@ public class NomisApiV1Service {
         return AvailableDates.builder().dates(dates.stream().map(AvailableDatesSP::getSlotDate).collect(Collectors.toList())).build();
     }
 
-    public ContactList getVisitContactList(final String offenderID) {
+    public ContactList getVisitContactList(final Long offenderID) {
 
         final Map<ContactPerson, List<ContactPersonSP>> response = visitV1Repository.getContactList(offenderID).stream()
                 .collect(Collectors.groupingBy(this::convertToPerson, LinkedHashMap::new, Collectors.toList()));
@@ -332,10 +332,10 @@ public class NomisApiV1Service {
         return combineResultsIntoMap(dateArray, visitV1Repository.getUnavailability(offenderId, dates));
     }
 
-    public VisitSlots getVisitSlotsWithCapacity(final String prisonId, LocalDate fromDate, LocalDate toDate) {
+    public VisitSlots getVisitSlotsWithCapacity(final String prisonId, final LocalDate fromDate, final LocalDate toDate) {
         validateStartAndEndDateRange(fromDate, toDate);
 
-        var response = visitV1Repository.getVisitSlotsWithCapacity(prisonId, fromDate, toDate).stream()
+        final var response = visitV1Repository.getVisitSlotsWithCapacity(prisonId, fromDate, toDate).stream()
                 .map(v -> VisitSlotCapacity.builder()
                         .time(v.getSlotStart().format(ofPattern("yyyy-MM-dd'T'HH:mm")) + "/" + v.getSlotEnd().format(ofPattern("HH:mm")))
                         .capacity(v.getCapacity())
@@ -350,20 +350,19 @@ public class NomisApiV1Service {
         return new VisitSlots(response);
     }
 
-    private void validateStartAndEndDateRange(LocalDate fromDate, LocalDate toDate) {
-        final var leadDays = 0;
+    private void validateStartAndEndDateRange(final LocalDate fromDate, final LocalDate toDate) {
         final var cutOffDays = 60;
         final var now = LocalDate.now();
 
-        if (fromDate.isBefore(now.plusDays(leadDays)) ||
-                fromDate.isAfter(now.plusDays(cutOffDays)) ||
-                toDate.isBefore(fromDate) ||
-                toDate.isAfter(toDate.plusDays(cutOffDays))) {
-            throw new BadRequestException("Invalid start and end date range");
-        }
+        if (fromDate.isBefore(now)) throw new BadRequestException("Start date cannot be in the past");
+
+        if (toDate.isBefore(fromDate)) throw new BadRequestException("End date cannot be before the start date");
+
+        if (toDate.isAfter(now.plusDays(cutOffDays)))
+            throw new BadRequestException("End date cannot be more than 60 days in the future");
     }
 
-    private List<VisitRestriction> addToPerson(List<ContactPersonSP> value) {
+    private List<VisitRestriction> addToPerson(final List<ContactPersonSP> value) {
 
         return value.stream().filter(r -> StringUtils.isNotEmpty(r.getRestrictionTypeCode())).map(r ->
                 VisitRestriction.builder()
@@ -373,7 +372,7 @@ public class NomisApiV1Service {
                         .commentText(r.getCommentText()).build()).collect(Collectors.toList());
     }
 
-    private ContactPerson convertToPerson(ContactPersonSP c) {
+    private ContactPerson convertToPerson(final ContactPersonSP c) {
         return ContactPerson.builder()
                 .id(c.getPersonId())
                 .firstName(c.getFirstName())
@@ -396,8 +395,8 @@ public class NomisApiV1Service {
         }).collect(Collectors.toList());
     }
 
-    private SortedMap<String, UnavailabilityReason> combineResultsIntoMap(final List<LocalDate> dates, List<UnavailabilityReasonSP> response) {
-        TreeMap<String, UnavailabilityReason> dateMap = dates.stream().collect(Collectors.toMap(String::valueOf, date -> new UnavailabilityReason(), (a, b) -> b, TreeMap::new));
+    private SortedMap<String, UnavailabilityReason> combineResultsIntoMap(final List<LocalDate> dates, final List<UnavailabilityReasonSP> response) {
+        final var dateMap = dates.stream().collect(Collectors.toMap(String::valueOf, date -> new UnavailabilityReason(), (a, b) -> b, TreeMap::new));
         response.forEach(r -> dateMap.computeIfPresent(r.getEventDateAsString(), (s, unavailableDate) -> unavailableDate.update(r)));
 
         return dateMap;

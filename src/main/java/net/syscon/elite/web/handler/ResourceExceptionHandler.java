@@ -108,6 +108,11 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             developerMessage = ex.getMessage();
             userMessage = "Parameter exception (invalid date, time, format, type)";
             log.info(developerMessage);
+        } else if (ex instanceof ParamException.PathParamException) {
+            status = Response.Status.BAD_REQUEST.getStatusCode();
+            developerMessage = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
+            userMessage = "Parameter exception (invalid date, time, format, type)";
+            log.info(developerMessage);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";

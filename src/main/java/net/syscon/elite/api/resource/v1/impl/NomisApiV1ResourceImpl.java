@@ -60,8 +60,8 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     }
 
     @Override
-    public Events getOffenderEvents(final String prisonId, final String offenderId, final String eventType, final String fromDateTime, final Long limit) {
-        final var events = service.getEvents(prisonId, new OffenderIdentifier(offenderId), eventType, optionalStrToLocalDateTime(fromDateTime), limit);
+    public Events getOffenderEvents(final String prisonId, final String offenderIdentifier, final String eventType, final String fromDateTime, final Long limit) {
+        final var events = service.getEvents(prisonId, new OffenderIdentifier(offenderIdentifier), eventType, optionalStrToLocalDateTime(fromDateTime), limit);
         return new Events(events);
     }
 
@@ -125,58 +125,58 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
-    public PaymentResponse storePayment(String prisonId, String nomsId, StorePaymentRequest payment) {
+    public PaymentResponse storePayment(final String prisonId, final String nomsId, final StorePaymentRequest payment) {
 
         return service.storePayment(prisonId, nomsId, payment.getType(), payment.getDescription(), payment.getAmountInPounds(), LocalDate.now(), payment.getClientTransactionId());
     }
 
     @Override
-    public AccountBalance getAccountBalance(String prisonId, String nomsId) {
+    public AccountBalance getAccountBalance(final String prisonId, final String nomsId) {
 
         return service.getAccountBalances(prisonId, nomsId);
     }
 
     @Override
-    public AccountTransactions getAccountTransactions(String prisonId, String nomsId, String accountCode, LocalDate fromDate, LocalDate toDate) {
+    public AccountTransactions getAccountTransactions(final String prisonId, final String nomsId, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
 
         final var transactions = service.getAccountTransactions(prisonId, nomsId, accountCode, fromDate, toDate);
         return new AccountTransactions(transactions);
     }
 
     @Override
-    public AccountTransaction getTransactionByClientUniqueRef(final String clientName, String prisonId, String nomsId, String clientUniqueRef) {
+    public AccountTransaction getTransactionByClientUniqueRef(final String clientName, final String prisonId, final String nomsId, final String clientUniqueRef) {
         final var uniqueClientId = getUniqueClientId(clientName, clientUniqueRef);
 
         return service.getTransactionByClientUniqueRef(prisonId, nomsId, uniqueClientId);
     }
 
     @Override
-    public ActiveOffender getActiveOffender(String nomsId, LocalDate birthDate) {
+    public ActiveOffender getActiveOffender(final String nomsId, final LocalDate birthDate) {
 
         return service.getActiveOffender(nomsId, birthDate);
     }
 
     @Override
-    public AvailableDates getVisitAvailableDates(String offenderId, LocalDate fromDate, LocalDate toDate) {
+    public AvailableDates getVisitAvailableDates(final Long offenderId, final LocalDate fromDate, final LocalDate toDate) {
 
         return service.getVisitAvailableDates(offenderId, fromDate, toDate);
     }
 
     @Override
-    public ContactList getVisitContactList(String offenderId) {
+    public ContactList getVisitContactList(final Long offenderId) {
 
         return service.getVisitContactList(offenderId);
     }
 
     @Override
-    public SortedMap<String, UnavailabilityReason> getVisitUnavailability(Long offenderId, String dates) {
+    public SortedMap<String, UnavailabilityReason> getVisitUnavailability(final Long offenderId, final String dates) {
 
         return service.getVisitUnavailability(offenderId, dates);
     }
 
 
     @Override
-    public VisitSlots getVisitSlotsWithCapacity(String prisonId, LocalDate fromDate, LocalDate toDate) {
+    public VisitSlots getVisitSlotsWithCapacity(final String prisonId, final LocalDate fromDate, final LocalDate toDate) {
 
         return service.getVisitSlotsWithCapacity(prisonId, fromDate, toDate);
     }

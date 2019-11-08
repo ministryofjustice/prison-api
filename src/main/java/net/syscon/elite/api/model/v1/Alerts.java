@@ -14,5 +14,5 @@ import java.util.List;
 @ToString
 public class Alerts {
     @ApiModelProperty(value = "Alerts", allowEmptyValue = true)
-    private List<Alert> alerts;
+    private List<AlertV1> alerts;
 }

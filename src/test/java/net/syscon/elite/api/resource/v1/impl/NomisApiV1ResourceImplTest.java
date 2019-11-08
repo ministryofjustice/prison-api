@@ -226,13 +226,13 @@ public class NomisApiV1ResourceImplTest {
                 .dates(List.of(LocalDate.of(2019, 1, 1), LocalDate.of(2019, 1, 2)))
                 .build();
 
-        when(service.getVisitAvailableDates(anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(availableDates);
+        when(service.getVisitAvailableDates(anyLong(), any(LocalDate.class), any(LocalDate.class))).thenReturn(availableDates);
 
-        final var result = nomisApiV1Resource.getVisitAvailableDates("1111111", LocalDate.of(2019, 1, 1), LocalDate.of(2019, 2, 1));
+        final var result = nomisApiV1Resource.getVisitAvailableDates(1111111L, LocalDate.of(2019, 1, 1), LocalDate.of(2019, 2, 1));
 
         assertThat(result).isEqualTo(availableDates);
 
-        verify(service).getVisitAvailableDates("1111111", LocalDate.of(2019, 1, 1), LocalDate.of(2019, 2, 1));
+        verify(service).getVisitAvailableDates(1111111L, LocalDate.of(2019, 1, 1), LocalDate.of(2019, 2, 1));
         verifyNoMoreInteractions(service);
     }
 
@@ -262,13 +262,13 @@ public class NomisApiV1ResourceImplTest {
                                         .build()))
                         .build();
 
-        when(service.getVisitContactList(anyString())).thenReturn(contactList);
+        when(service.getVisitContactList(anyLong())).thenReturn(contactList);
 
-        final var result = nomisApiV1Resource.getVisitContactList("1111111");
+        final var result = nomisApiV1Resource.getVisitContactList(1111111L);
 
         assertThat(result).isEqualTo(contactList);
 
-        verify(service).getVisitContactList("1111111");
+        verify(service).getVisitContactList(1111111L);
         verifyNoMoreInteractions(service);
     }
 
