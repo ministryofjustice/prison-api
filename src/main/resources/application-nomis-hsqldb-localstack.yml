@@ -14,6 +14,13 @@ spring:
   profiles:
     include: dev
 
+offender.deletion:
+  sqs:
+    provider: localstack
+    queue.name: elite2_api_queue
+    endpoint.url: http://localhost:4576
+    region: eu-west-2
+
 graceful:
   shutdown:
     enabled: false
