@@ -109,10 +109,10 @@ public class NomisApiV1Service {
                 .build();
     }
 
-    public List<Alert> getAlerts(final String nomsId, final boolean includeInactive, final LocalDateTime modifiedSince) {
+    public List<AlertV1> getAlerts(final String nomsId, final boolean includeInactive, final LocalDateTime modifiedSince) {
         final var alerts = alertV1Repository.getAlerts(nomsId, includeInactive, modifiedSince).stream()
                 .filter(a -> a.getAlertSeq() != null)
-                .map(a -> Alert.builder()
+                .map(a -> AlertV1.builder()
                         .type(CodeDescription.safeNullBuild(a.getAlertType(), a.getAlertTypeDesc()))
                         .subType(CodeDescription.safeNullBuild(a.getAlertCode(), a.getAlertCodeDesc()))
                         .date(a.getAlertDate())
