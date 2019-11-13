@@ -543,7 +543,8 @@ GET_OFFENDER_CATEGORISATIONS {
       left join staff_members sm_a ON sm_a.staff_id = sua.staff_id
 
   where off_ass.offender_book_id in (:bookingIds)
-    and off_ass.assessment_create_location = :agencyId -- included to ensure only authorised bookings are returned
+    and (:agencyId is null or off_ass.assessment_create_location = :agencyId)
+     -- included to ensure only authorised bookings are returned (unless client has system role)
     and off_ass.assessment_type_id = :assessmentId
 }
 

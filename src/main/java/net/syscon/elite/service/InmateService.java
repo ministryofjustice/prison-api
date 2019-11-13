@@ -64,6 +64,7 @@ public interface InmateService {
     List<OffenderCategorise> getCategory(String agencyId, CategoryInformationType type, LocalDate cutOffDate);
 
     List<OffenderCategorise> getOffenderCategorisations(String agencyId, Set<Long> bookingIds, boolean latestOnly);
+    List<OffenderCategorise> getOffenderCategorisationsSystem(Set<Long> bookingIds, boolean latestOnly);
 
     List<Long> getPersonalOfficerBookings(String username);
 

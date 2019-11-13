@@ -83,6 +83,13 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
+    public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final Boolean latestOnly) {
+        final var latest = latestOnly == null ? true : latestOnly;
+        final var results = inmateService.getOffenderCategorisationsSystem(bookingIds, latest);
+        return results;
+    }
+
+    @Override
     @ProxyUser
     public Response createCategorisation(final CategorisationDetail detail) {
         return Response.ok()
