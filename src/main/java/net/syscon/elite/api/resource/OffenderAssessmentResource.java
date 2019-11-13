@@ -75,12 +75,25 @@ public interface OffenderAssessmentResource {
     @Path("/category/{agencyId}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.", notes = "Categorisation details for supplied Offenders", nickname = "getOffenderCategorisations")
+    @ApiOperation(value = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.",
+            notes = "Categorisation details for supplied Offenders where agencyId is their create agency and is in the caseload")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The list of offenders with categorisation details is returned if categorisation record exists", response = OffenderCategorise.class, responseContainer = "List")})
+            @ApiResponse(code = 200, message = "The list of offenders with categorisation details is returned if categorisation record exists and their create agency is in the caseload", response = OffenderCategorise.class, responseContainer = "List")})
     List<OffenderCategorise> getOffenderCategorisations(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
                                                         @ApiParam(value = "The required booking Ids (mandatory)", required = true) Set<Long> bookingIds,
                                                         @ApiParam(value = "Only get the latest category for each booking", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly);
+
+    @POST
+    @Path("/category")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.",
+            notes = "Categorisation details for all supplied Offenders",
+            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The list of offenders with categorisation details is returned if categorisation record exists", response = OffenderCategorise.class, responseContainer = "List")})
+    List<OffenderCategorise> getOffenderCategorisationsSystem(@ApiParam(value = "The required booking Ids (mandatory)", required = true) Set<Long> bookingIds,
+                                                              @ApiParam(value = "Only get the latest category for each booking", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly);
 
     @POST
     @Path("/category/categorise")

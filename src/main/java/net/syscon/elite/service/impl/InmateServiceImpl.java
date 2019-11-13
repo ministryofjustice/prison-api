@@ -436,6 +436,16 @@ public class InmateServiceImpl implements InmateService {
     @Override
     @VerifyAgencyAccess
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
+        return doGetOffenderCategorisations(agencyId, bookingIds, latestOnly);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
+    public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
+        return doGetOffenderCategorisations(null, bookingIds, latestOnly);
+    }
+
+    private List<OffenderCategorise> doGetOffenderCategorisations(String agencyId, Set<Long> bookingIds, boolean latestOnly) {
         final List<OffenderCategorise> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(bookingIds)) {
             final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
