@@ -1,8 +1,8 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
@@ -23,5 +23,5 @@ public interface InmateAlertRepository {
 
     Page<String> getAlertCandidates(LocalDateTime cutoffTimestamp, final long offset, final long limit);
 
-    Optional<Alert> expireAlert(long bookingId, long alertSeq, ExpireAlert alert);
+    Optional<Alert> updateAlert(long bookingId, long alertSeq, AlertChanges alert);
 }

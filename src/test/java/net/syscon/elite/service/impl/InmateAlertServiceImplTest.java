@@ -2,8 +2,8 @@ package net.syscon.elite.service.impl;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
@@ -122,11 +122,6 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testAlertRepository_ExpireAlertIsCalledWithCorrectParams() {
-        final var expireAlert = ExpireAlert
-                .builder()
-                .expiryDate(LocalDate.now())
-                .build();
-
         final var alert = Alert.builder()
                 .alertId(4L)
                 .bookingId(-1L)
@@ -139,14 +134,58 @@ public class InmateAlertServiceImplTest {
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
 
-        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(alert));
+        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(alert));
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
 
-        final var updatedAlert = service.expireAlert(-1L, 4L, expireAlert);
+        final var updatedAlert = service.updateAlert(-1L, 4L, AlertChanges
+                .builder()
+                .expiryDate(LocalDate.now())
+                .build());
 
         assertThat(updatedAlert).isEqualTo(alert);
 
-        verify(inmateAlertRepository).expireAlert(-1L, 4L, expireAlert);
+        verify(inmateAlertRepository).updateAlert(-1L, 4L, AlertChanges
+                .builder()
+                .expiryDate(LocalDate.now())
+                .build());
+    }
+
+    @Test
+    public void testExceptionIsThrown_WhenExpiryDateAndCommentAreNull() {
+        assertThatThrownBy(() -> service.updateAlert(1L, 2L, AlertChanges.builder().build()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Please provide an expiry date, or a comment");
+    }
+
+    @Test
+    public void testThatOnlyTheCommentTextGetsUpdate_WhenExpiryIsNull() {
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+
+        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
+
+        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
+
+        verify(inmateAlertRepository).updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
+    }
+
+    @Test
+    public void testThatTelemetryFires_WhenCommentIsUpdated() {
+
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+
+        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
+                .thenReturn(Optional.of(Alert.builder().alertCode("X").alertType("XX").build()));
+
+        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
+
+        verify(inmateAlertRepository).updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
+
+        verify(telemetryClient).trackEvent("Alert updated", Map.of(
+                "bookingId", "1",
+                "alertSeq", "2",
+                "comment", "Comment text updated",
+                "updated_by", "ITAG_USER"
+        ), null);
     }
 
     @Test
@@ -203,10 +242,10 @@ public class InmateAlertServiceImplTest {
 
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(true).build()));
-        when(inmateAlertRepository.expireAlert(anyLong(), anyLong(), any()))
+        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().build()));
 
-        service.expireAlert(-1L, -2L, ExpireAlert
+        service.updateAlert(-1L, -2L, AlertChanges
                 .builder()
                 .expiryDate(LocalDate.now())
                 .build());
@@ -253,7 +292,7 @@ public class InmateAlertServiceImplTest {
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(false).build()));
 
         assertThatThrownBy(() ->
-                service.expireAlert(-14, 1, ExpireAlert.builder().expiryDate(LocalDate.now()).build()))
+                service.updateAlert(-14, 1, AlertChanges.builder().expiryDate(LocalDate.now()).build()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Alert is already inactive.");
     }
@@ -282,7 +321,6 @@ public class InmateAlertServiceImplTest {
                 .dateExpires(dateExpires)
                 .build();
     }
-
 
     @NotNull
     private ReferenceCode getAlertReferenceCode() {

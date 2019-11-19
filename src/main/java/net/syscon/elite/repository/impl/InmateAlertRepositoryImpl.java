@@ -2,8 +2,8 @@ package net.syscon.elite.repository.impl;
 
 import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -148,7 +148,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
     }
 
     @Override
-    public Optional<Alert> expireAlert(final long bookingId, final long alertSeq, final ExpireAlert alert) {
+    public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final AlertChanges alert) {
         final var updateAlertSql = getQuery("UPDATE_ALERT");
         final var insertNextWorkFlowLogEntry = getQuery("INSERT_NEXT_WORK_FLOW_LOG");
 
@@ -158,6 +158,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
                         "alertSeq", alertSeq,
                         "bookingId", bookingId,
                         "alertStatus", alert.getAlertStatus(),
+                        "comment", alert.getComment(),
                         "expiryDate", DateTimeConverter.toDate(alert.getExpiryDate())
                 )
         );

@@ -1,8 +1,8 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
@@ -165,7 +165,7 @@ public class InmateAlertRepositoryTest {
         final var alertSeq = 1L;
         final var expiryDate = LocalDate.now();
 
-        repository.expireAlert(bookingId, alertSeq, ExpireAlert
+        repository.updateAlert(bookingId, alertSeq, AlertChanges
                 .builder()
                 .expiryDate(expiryDate)
                 .build());
@@ -219,8 +219,8 @@ public class InmateAlertRepositoryTest {
                         .alertDate(LocalDate.now())
                         .build());
 
-        repository.expireAlert(-17L, alertSeq,
-                ExpireAlert.builder()
+        repository.updateAlert(-17L, alertSeq,
+                AlertChanges.builder()
                         .expiryDate(LocalDate.now())
                         .build());
 
@@ -240,5 +240,27 @@ public class InmateAlertRepositoryTest {
                         extractDate("WORK_ACTION_DATE"))
                 .contains(Tuple.tuple("MOD", "DONE", "SA", LocalDate.now()));
 
+    }
+
+    @Test
+    public void testAlertCommentIsUpdated() {
+        final var alert = CreateAlert
+                .builder()
+                .alertDate(LocalDate.now())
+                .alertType("x")
+                .alertCode("xx")
+                .comment("Poor behaviour")
+                .build();
+
+        final var latestAlertSeq = repository.createNewAlert(-10L, alert);
+
+        repository.updateAlert(-10L, latestAlertSeq, AlertChanges.builder().expiryDate(LocalDate.now()).build());
+        repository.updateAlert(-10L, latestAlertSeq, AlertChanges.builder().comment("Test").build());
+
+        final var updatedAlert = repository.getAlert(-10L, latestAlertSeq).orElseThrow();
+
+        assertThat(updatedAlert)
+                .extracting("alertId", "comment", "dateExpires", "active")
+                .contains(latestAlertSeq, "Test", LocalDate.now(), false);
     }
 }

@@ -31,6 +31,7 @@ FIND_INMATE_ALERT {
               ALERT_DATE,
               ALERT_TYPE,
               ALERT_STATUS,
+              EXPIRY_DATE,
               COALESCE(alType.DESCRIPTION, ALERT_TYPE) as ALERT_TYPE_DESC,
               ALERT_CODE,
               COALESCE(alCode.DESCRIPTION, ALERT_CODE) as ALERT_CODE_DESC,
@@ -110,8 +111,19 @@ VALUES
 
 UPDATE_ALERT {
 UPDATE OFFENDER_ALERTS SET
-    EXPIRY_DATE = :expiryDate,
-    ALERT_STATUS = :alertStatus,
+    ALERT_STATUS = CASE WHEN :alertStatus is NULL
+            THEN (SELECT ALERT_STATUS FROM OFFENDER_ALERTS OA WHERE OA.OFFENDER_BOOK_ID = :bookingId AND OA.ALERT_SEQ = :alertSeq)
+            ELSE :alertStatus
+        END,
+    EXPIRY_DATE = CASE WHEN :expiryDate is NULL
+            THEN (SELECT EXPIRY_DATE FROM OFFENDER_ALERTS OA WHERE OA.OFFENDER_BOOK_ID = :bookingId AND OA.ALERT_SEQ = :alertSeq)
+            ELSE :expiryDate
+        END,
+    COMMENT_TEXT =
+        CASE WHEN :comment is NULL
+            THEN (SELECT COMMENT_TEXT FROM OFFENDER_ALERTS OA WHERE OA.OFFENDER_BOOK_ID = :bookingId AND OA.ALERT_SEQ = :alertSeq)
+            ELSE :comment
+        END,
     MODIFY_USER_ID = USER
 WHERE ALERT_SEQ = :alertSeq
 AND OFFENDER_BOOK_ID = :bookingId
