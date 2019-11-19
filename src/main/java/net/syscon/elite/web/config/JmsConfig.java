@@ -28,13 +28,15 @@ public class JmsConfig {
 
     @Bean
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(final AmazonSQS awsSqs) {
+    public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(
+            final AmazonSQS awsSqs,
+            @Value("${offender.deletion.sqs.concurrency:3-10}") final String concurrency) {
 
         final var factory = new DefaultJmsListenerContainerFactory();
 
         factory.setConnectionFactory(new SQSConnectionFactory(new ProviderConfiguration(), awsSqs));
         factory.setDestinationResolver(new DynamicDestinationResolver());
-        factory.setConcurrency("3-10");
+        factory.setConcurrency(concurrency);
         factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
         factory.setErrorHandler(throwable -> log.error("JMS error occurred", throwable));
 

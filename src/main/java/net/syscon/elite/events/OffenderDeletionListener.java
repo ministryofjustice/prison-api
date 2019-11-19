@@ -1,5 +1,6 @@
 package net.syscon.elite.events;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,15 +44,14 @@ public class OffenderDeletionListener {
         return event.getOffenderIdDisplay();
     }
 
-    @SuppressWarnings("unchecked")
     private OffenderDeletionEvent parseOffenderDeletionEvent(final String requestJson) {
         try {
-            final Map<String, String> message = objectMapper.readValue(requestJson, Map.class);
+            final Map<String, Object> message = objectMapper.readValue(requestJson, new TypeReference<>() {});
 
             checkNotNull(message, "Could not parse request into map: %s", requestJson);
             checkNotNull(message.get("Message"), "Request did not contain 'Message' key: %s", requestJson);
 
-            return objectMapper.readValue(message.get("Message"), OffenderDeletionEvent.class);
+            return objectMapper.readValue(message.get("Message").toString(), OffenderDeletionEvent.class);
         } catch (final IOException e) {
             throw new RuntimeException("Failed to parse request", e);
         }
