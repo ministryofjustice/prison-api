@@ -3,8 +3,8 @@ package net.syscon.elite.service.impl;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
@@ -25,7 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -165,7 +164,34 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
-    public Alert expireAlert(final long bookingId, final long alertSeq, final ExpireAlert expireAlert) {
+    public Alert updateAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges) {
+        if (alertChanges.getExpiryDate() == null && StringUtils.isBlank(alertChanges.getComment()))
+            throw new IllegalArgumentException("Please provide an expiry date, or a comment");
+
+        if (alertChanges.getExpiryDate() == null && StringUtils.isNotBlank(alertChanges.getComment()))
+            return updateAlertComment(bookingId, alertSeq, alertChanges);
+
+        return expireAlert(bookingId, alertSeq, alertChanges);
+    }
+
+    private Alert updateAlertComment(final long bookingId, final long alertSeq, final AlertChanges alertChanges) {
+        final var username = authenticationFacade.getCurrentUsername();
+
+        var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, alertChanges)
+                .orElseThrow(EntityNotFoundException.withId(alertSeq));
+
+        log.info("Alert updated {}", alert);
+        telemetryClient.trackEvent("Alert updated", Map.of(
+                "bookingId", String.valueOf(bookingId),
+                "alertSeq", String.valueOf(alertSeq),
+                "comment", "Comment text set",
+                "updated_by", username
+        ), null);
+
+        return alert;
+    }
+
+    private Alert expireAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges) {
         final var username = authenticationFacade.getCurrentUsername();
 
         final var existingAlert = inmateAlertRepository.getAlert(bookingId, alertSeq)
@@ -174,18 +200,16 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         if (!existingAlert.isActive())
             throw new IllegalArgumentException("Alert is already inactive.");
 
-        final var alert = inmateAlertRepository.expireAlert(bookingId, alertSeq, expireAlert)
+        final var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, alertChanges)
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
-        log.info("Updated updated {}", alert);
+        log.info("Alert updated {}", alert);
         telemetryClient.trackEvent("Alert updated", Map.of(
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
-                "expiryDate", expireAlert.getExpiryDate().toString(),
+                "expiryDate", alertChanges.getExpiryDate().toString(),
                 "updated_by", username
         ), null);
-
-
         return alert;
     }
 

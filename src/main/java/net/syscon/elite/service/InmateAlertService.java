@@ -1,8 +1,8 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
 import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.ExpireAlert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,5 +26,5 @@ public interface InmateAlertService {
 
     long createNewAlert(long bookingId, CreateAlert alert);
 
-    Alert expireAlert(long bookingId, long alertSeq, ExpireAlert alert);
+    Alert updateAlert(long bookingId, long alertSeq, AlertChanges alert);
 }
