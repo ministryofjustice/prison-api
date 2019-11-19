@@ -183,7 +183,7 @@ public class InmateAlertServiceImplTest {
         verify(telemetryClient).trackEvent("Alert updated", Map.of(
                 "bookingId", "1",
                 "alertSeq", "2",
-                "comment", "Comment text set",
+                "comment", "Comment text updated",
                 "updated_by", "ITAG_USER"
         ), null);
     }

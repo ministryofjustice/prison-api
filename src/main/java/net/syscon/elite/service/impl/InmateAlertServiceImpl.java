@@ -184,7 +184,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         telemetryClient.trackEvent("Alert updated", Map.of(
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
-                "comment", "Comment text set",
+                "comment", "Comment text updated",
                 "updated_by", username
         ), null);
 
