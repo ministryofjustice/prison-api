@@ -128,6 +128,75 @@ To run all feature tests in IntelliJ, avoiding known @wip or @broken tests, add 
 |api.db.target   | nomis                         | 
 |cucumber.options| --tags 'not(@wip or @broken)' |
 
+### Running localstack
+```bash
+TMPDIR=/private$TMPDIR docker-compose -f docker-compose-data-compliance.yml up localstack
+```
+
+#### Creating the Topic and Queue
+Simpliest way is running the following script
+```bash
+./setup-queue.bash
+```
+
+Or you can run the scripts individually as shown below.
+
+#### Creating a topic and queue on localstack
+
+```bash
+aws --endpoint-url=http://localhost:4575 sns create-topic --name offender_events
+```
+
+Results in:
+```json
+{
+    "TopicArn": "arn:aws:sns:eu-west-2:000000000000:offender_events"
+}
+
+```
+
+#### Creating a queue
+```bash
+aws --endpoint-url=http://localhost:4576 sqs create-queue --queue-name elite2_api_queue
+```
+
+Results in:
+```json
+{
+   "QueueUrl": "http://localhost:4576/queue/elite2_api_queue"
+}
+```
+
+#### Creating a subscription
+```bash
+aws --endpoint-url=http://localhost:4575 sns subscribe \
+    --topic-arn arn:aws:sns:eu-west-2:000000000000:offender_events \
+    --protocol sqs \
+    --notification-endpoint http://localhost:4576/queue/elite2_api_queue \
+    --attributes '{"FilterPolicy":"{\"eventType\":[\"DATA_COMPLIANCE_DELETE-OFFENDER\"]}"}'
+```
+
+Results in:
+```json
+{
+    "SubscriptionArn": "arn:aws:sns:eu-west-2:000000000000:offender_events:074545bd-393c-4a43-ad62-95b1809534f0"
+}
+```
+
+#### Publish to the queue
+(Warning, if configured, this will prompt Elite2 to delete the Offender provided)
+```bash
+aws --endpoint-url=http://localhost:4575 sns publish \
+    --topic-arn arn:aws:sns:eu-west-2:000000000000:offender_events \
+    --message '{"offenderIdDisplay":"SOME_OFFENDER_ID_DISPLAY"}' \ 
+    --message-attributes "eventType={StringValue=DATA_COMPLIANCE_DELETE-OFFENDER,DataType=String}"
+```
+
+#### Read off the queue
+```bash
+aws --endpoint-url=http://localhost:4576 sqs receive-message \
+    --queue-url http://localhost:4576/queue/elite2_api_queue
+```
 
 ### Project related links ###
 * [GitHub](https://github.com/ministryofjustice/elite2-api)
