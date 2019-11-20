@@ -109,21 +109,23 @@ VALUES
      )
 }
 
-UPDATE_ALERT {
+EXPIRE_ALERT {
 UPDATE OFFENDER_ALERTS SET
-    ALERT_STATUS = CASE WHEN :alertStatus is NULL
-            THEN (SELECT ALERT_STATUS FROM OFFENDER_ALERTS OA WHERE OA.OFFENDER_BOOK_ID = :bookingId AND OA.ALERT_SEQ = :alertSeq)
-            ELSE :alertStatus
-        END,
-    EXPIRY_DATE = CASE WHEN :expiryDate is NULL
-            THEN (SELECT EXPIRY_DATE FROM OFFENDER_ALERTS OA WHERE OA.OFFENDER_BOOK_ID = :bookingId AND OA.ALERT_SEQ = :alertSeq)
-            ELSE :expiryDate
-        END,
+    ALERT_STATUS = :alertStatus,
+    EXPIRY_DATE = :expiryDate,
     COMMENT_TEXT =
         CASE WHEN :comment is NULL
             THEN (SELECT COMMENT_TEXT FROM OFFENDER_ALERTS OA WHERE OA.OFFENDER_BOOK_ID = :bookingId AND OA.ALERT_SEQ = :alertSeq)
             ELSE :comment
         END,
+    MODIFY_USER_ID = USER
+WHERE ALERT_SEQ = :alertSeq
+AND OFFENDER_BOOK_ID = :bookingId
+}
+
+UPDATE_ALERT_COMMENT {
+UPDATE OFFENDER_ALERTS SET
+    COMMENT_TEXT = :comment,
     MODIFY_USER_ID = USER
 WHERE ALERT_SEQ = :alertSeq
 AND OFFENDER_BOOK_ID = :bookingId
