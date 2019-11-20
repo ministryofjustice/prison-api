@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class AlertChanges {
-    @ApiModelProperty(value = "Date the alert became inactive", example = "2019-02-13", required = true)
+    @ApiModelProperty(value = "Date the alert became inactive", example = "2019-02-13")
     private LocalDate expiryDate;
 
     @ApiModelProperty(value = "Alert comment")

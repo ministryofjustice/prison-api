@@ -149,19 +149,28 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 
     @Override
     public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final AlertChanges alert) {
-        final var updateAlertSql = getQuery("UPDATE_ALERT");
+        final var expireAlertSql = getQuery("EXPIRE_ALERT");
+        final var updateAlertCommentSql = getQuery("UPDATE_ALERT_COMMENT");
         final var insertNextWorkFlowLogEntry = getQuery("INSERT_NEXT_WORK_FLOW_LOG");
 
-        jdbcTemplate.update(
-                updateAlertSql,
-                createParams(
-                        "alertSeq", alertSeq,
-                        "bookingId", bookingId,
-                        "alertStatus", alert.getAlertStatus(),
-                        "comment", alert.getComment(),
-                        "expiryDate", DateTimeConverter.toDate(alert.getExpiryDate())
-                )
-        );
+        if (alert.getExpiryDate() != null) {
+            jdbcTemplate.update(
+                    expireAlertSql,
+                    createParams(
+                            "alertSeq", alertSeq,
+                            "bookingId", bookingId,
+                            "alertStatus", alert.getAlertStatus(),
+                            "comment", alert.getComment(),
+                            "expiryDate", DateTimeConverter.toDate(alert.getExpiryDate())
+                    ));
+        } else {
+            jdbcTemplate.update(
+                    updateAlertCommentSql,
+                    createParams(
+                            "alertSeq", alertSeq,
+                            "bookingId", bookingId,
+                            "comment", alert.getComment()));
+        }
 
         jdbcTemplate.update(
                 insertNextWorkFlowLogEntry,
