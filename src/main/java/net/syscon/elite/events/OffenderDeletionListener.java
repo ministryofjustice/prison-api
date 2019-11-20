@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.apache.logging.log4j.util.Strings.isNotEmpty;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 @Slf4j
 @Service

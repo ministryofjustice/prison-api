@@ -30,7 +30,7 @@ public class JmsConfig {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(
             final AmazonSQS awsSqs,
-            @Value("${offender.deletion.sqs.concurrency:3-10}") final String concurrency) {
+            @Value("${offender.deletion.sqs.concurrency:1}") final String concurrency) {
 
         final var factory = new DefaultJmsListenerContainerFactory();
 
