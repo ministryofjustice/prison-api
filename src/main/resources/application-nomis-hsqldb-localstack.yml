@@ -15,6 +15,10 @@ spring:
     include: dev
 
 offender.deletion:
+
+  db:
+    enable.parallel.hints: false
+
   sqs:
     provider: localstack
     queue.name: elite2_api_queue
