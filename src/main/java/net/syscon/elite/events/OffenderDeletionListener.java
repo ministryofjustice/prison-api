@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 @Slf4j
@@ -48,8 +48,8 @@ public class OffenderDeletionListener {
         try {
             final Map<String, Object> message = objectMapper.readValue(requestJson, new TypeReference<>() {});
 
-            checkNotNull(message, "Could not parse request into map: %s", requestJson);
-            checkNotNull(message.get("Message"), "Request did not contain 'Message' key: %s", requestJson);
+            requireNonNull(message, "Could not parse request into map: " + requestJson);
+            requireNonNull(message.get("Message"), "Request did not contain 'Message' key: " + requestJson);
 
             return objectMapper.readValue(message.get("Message").toString(), OffenderDeletionEvent.class);
         } catch (final IOException e) {
