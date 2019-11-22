@@ -445,7 +445,7 @@ public class InmateServiceImpl implements InmateService {
         return doGetOffenderCategorisations(null, bookingIds, latestOnly);
     }
 
-    private List<OffenderCategorise> doGetOffenderCategorisations(String agencyId, Set<Long> bookingIds, boolean latestOnly) {
+    private List<OffenderCategorise> doGetOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
         final List<OffenderCategorise> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(bookingIds)) {
             final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
@@ -495,9 +495,10 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     @VerifyBookingAccess
-    @PreAuthorize("hasAnyRole('CREATE_CATEGORISATION,CREATE_RECATEGORISATION')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
+        validate(categorisationDetail);
         final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
         final var currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
         final var responseKeyMap = repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());
@@ -509,7 +510,19 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     @VerifyBookingAccess
-    @PreAuthorize("hasRole('APPROVE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
+    @Transactional
+    public void updateCategorisation(final Long bookingId, final CategorisationUpdateDetail detail) {
+        validate(detail);
+        repository.updateCategory(detail);
+
+        // Log event
+        telemetryClient.trackEvent("CategorisationUpdated", ImmutableMap.of("bookingId", bookingId.toString(), "seq", detail.getAssessmentSeq().toString()), null);
+    }
+
+    @Override
+    @VerifyBookingAccess
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','APPROVE_CATEGORISATION')")
     @Transactional
     public void approveCategorisation(final Long bookingId, final CategoryApprovalDetail detail) {
         validate(detail);
@@ -520,10 +533,22 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
+    @VerifyBookingAccess
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','APPROVE_CATEGORISATION')")
+    @Transactional
+    public void rejectCategorisation(final Long bookingId, final CategoryRejectionDetail detail) {
+        validate(detail);
+        repository.rejectCategory(detail);
+
+        // Log event
+        telemetryClient.trackEvent("CategorisationRejected", ImmutableMap.of("bookingId", bookingId.toString(), "seq", detail.getAssessmentSeq().toString()), null);
+    }
+
+    @Override
     @Transactional
     @PreAuthorize("hasRole('SYSTEM_USER')")
     public void setCategorisationInactive(final Long bookingId, final AssessmentStatusType status) {
-        var count = repository.setCategorisationInactive(bookingId, status);
+        final var count = repository.setCategorisationInactive(bookingId, status);
 
         // Log event
         telemetryClient.trackEvent("CategorisationSetInactive", ImmutableMap.of(
@@ -542,11 +567,54 @@ public class InmateServiceImpl implements InmateService {
         telemetryClient.trackEvent("CategorisationNextReviewDateUpdated", ImmutableMap.of("bookingId", bookingId.toString()), null);
     }
 
+    private void validate(CategorisationDetail detail) {
+        try {
+            referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
+        } catch (final EntityNotFoundException ex) {
+            throw new BadRequestException("Category not recognised.");
+        }
+        try {
+            referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getCommittee(), false);
+        } catch (final EntityNotFoundException ex) {
+            throw new BadRequestException("Committee Code not recognised.");
+        }
+    }
+
+    private void validate(CategorisationUpdateDetail detail) {
+        if (detail.getCategory() != null) {
+            try {
+                referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
+            } catch (final EntityNotFoundException ex) {
+                throw new BadRequestException("Category not recognised.");
+            }
+        }
+        if (detail.getCommittee() != null) {
+            try {
+                referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getCommittee(), false);
+            } catch (final EntityNotFoundException ex) {
+                throw new BadRequestException("Committee Code not recognised.");
+            }
+        }
+    }
+
     private void validate(final CategoryApprovalDetail detail) {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
         } catch (final EntityNotFoundException ex) {
             throw new BadRequestException("Category not recognised.");
+        }
+        try {
+            referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getReviewCommitteeCode(), false);
+        } catch (final EntityNotFoundException ex) {
+            throw new BadRequestException("Committee Code not recognised.");
+        }
+    }
+
+    private void validate(final CategoryRejectionDetail detail) {
+        try {
+            referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getReviewCommitteeCode(), false);
+        } catch (final EntityNotFoundException ex) {
+            throw new BadRequestException("Committee Code not recognised.");
         }
     }
 

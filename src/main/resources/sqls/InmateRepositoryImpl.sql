@@ -574,8 +574,8 @@ VALUES
      (:bookingId,
      :seq,
      :assessmentDate,
-     :assessmentId,
-     (select s.MAX_SCORE from assessment_supervisions s where s.assessment_id = :assessmentId and s.supervision_level_type = :category),
+     :assessmentTypeId,
+     (select s.MAX_SCORE from assessment_supervisions s where s.assessment_id = :assessmentTypeId and s.supervision_level_type = :category),
      :assessStatus,  -- P  (AWAITING_APPROVAL)
      :category,
      :assessStaffId,
@@ -589,6 +589,19 @@ VALUES
      )
 }
 
+UPDATE_CATEGORY {
+  update OFFENDER_ASSESSMENTS set
+     ASSESSMENT_DATE = :assessmentDate,
+     CALC_SUP_LEVEL_TYPE = COALESCE(:category, CALC_SUP_LEVEL_TYPE),
+     ASSESS_COMMENT_TEXT = COALESCE(:assessComment, ASSESS_COMMENT_TEXT),
+     NEXT_REVIEW_DATE = COALESCE(:reviewDate, NEXT_REVIEW_DATE),
+     ASSESS_COMMITTE_CODE = COALESCE(:assessCommitteeCode, ASSESS_COMMITTE_CODE)
+  where OFFENDER_BOOK_ID=:bookingId
+    and ASSESSMENT_SEQ=:seq
+    and ASSESSMENT_TYPE_ID=:assessmentTypeId
+    and ASSESS_STATUS='P'
+}
+
 APPROVE_CATEGORY {
   update OFFENDER_ASSESSMENTS set
     ASSESS_STATUS=:assessStatus,
@@ -599,6 +612,18 @@ APPROVE_CATEGORY {
     COMMITTE_COMMENT_TEXT=:committeeCommentText,
     NEXT_REVIEW_DATE=COALESCE(:nextReviewDate, NEXT_REVIEW_DATE),
     REVIEW_SUP_LEVEL_TEXT=:approvedCategoryComment
+  where OFFENDER_BOOK_ID=:bookingId
+    and ASSESSMENT_SEQ=:seq
+    and ASSESSMENT_TYPE_ID=:assessmentTypeId
+    and ASSESS_STATUS='P'
+}
+
+REJECT_CATEGORY {
+  update OFFENDER_ASSESSMENTS set
+    EVALUATION_DATE=:evaluationDate,
+    EVALUATION_RESULT_CODE=:evaluationResultCode,
+    REVIEW_COMMITTE_CODE=:reviewCommitteeCode,
+    COMMITTE_COMMENT_TEXT=:committeeCommentText
   where OFFENDER_BOOK_ID=:bookingId
     and ASSESSMENT_SEQ=:seq
     and ASSESSMENT_TYPE_ID=:assessmentTypeId

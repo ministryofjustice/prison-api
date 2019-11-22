@@ -88,7 +88,7 @@ public interface OffenderAssessmentResource {
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.",
-            notes = "Categorisation details for all supplied Offenders",
+            notes = "Categorisation details for all supplied Offenders using SYSTEM access",
             authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The list of offenders with categorisation details is returned if categorisation record exists", response = OffenderCategorise.class, responseContainer = "List")})
@@ -99,23 +99,47 @@ public interface OffenderAssessmentResource {
     @Path("/category/categorise")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record.", nickname = "createCategorisation")
+    @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record.",
+            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("CREATE_CATEGORISATION"), @Authorization("CREATE_RECATEGORISATION")})
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = ""),
-            @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden - user not authorised to categorise the offender.", response = ErrorResponse.class)})
+            @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class)})
     Response createCategorisation(@ApiParam(value = "Categorisation details", required = true) @Valid CategorisationDetail body);
+
+    @PUT
+    @Path("/category/categorise")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Update a pending offender categorisation.",
+            notes = "This is intended for use by the categoriser to correct any problems with a pending (in-progress) categorisation." +
+                    " Fields left as null will be left unchanged",
+            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("CREATE_CATEGORISATION"), @Authorization("CREATE_RECATEGORISATION")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = ""),
+            @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class)})
+    Response updateCategorisation(@ApiParam(value = "Categorisation details", required = true) @Valid CategorisationUpdateDetail body);
 
     @PUT
     @Path("/category/approve")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Approve a pending offender categorisation.", notes = "Update categorisation record with approval.", nickname = "approveCategorisation")
+    @ApiOperation(value = "Approve a pending offender categorisation.", notes = "Update categorisation record with approval.",
+            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("APPROVE_CATEGORISATION")})
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = ""),
-            @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden - user not authorised to approve the categorisation.", response = ErrorResponse.class)})
+            @ApiResponse(code = 400, message = "Validation error - e.g. category does not exist.", response = ErrorResponse.class)})
     Response approveCategorisation(@ApiParam(value = "Approval details", required = true) @Valid CategoryApprovalDetail body);
+
+    @PUT
+    @Path("/category/reject")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Reject a pending offender categorisation.", notes = "Update categorisation record with rejection.",
+            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("APPROVE_CATEGORISATION")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 400, message = "Validation error - e.g. comment too long or committee code does not exist.", response = ErrorResponse.class)})
+    Response rejectCategorisation(@ApiParam(value = "Rejection details", required = true) @Valid CategoryRejectionDetail body);
 
     @PUT
     @Path("/category/{bookingId}/inactive")

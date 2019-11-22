@@ -1,4 +1,3 @@
-@sdar
 Feature: Booking Offences
 
   Acceptence Criteria

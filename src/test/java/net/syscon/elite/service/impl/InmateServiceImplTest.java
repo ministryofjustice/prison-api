@@ -49,6 +49,8 @@ public class InmateServiceImplTest {
     @Mock
     private UserService userService;
     @Mock
+    private ReferenceDomainService referenceDomainService;
+    @Mock
     private AuthenticationFacade authenticationFacade;
     @Mock
     private KeyWorkerAllocationRepository keyWorkerAllocationRepository;
@@ -63,8 +65,8 @@ public class InmateServiceImplTest {
 
     @Before
     public void init() {
-        serviceToTest = new InmateServiceImpl(repository, caseLoadService, inmateAlertService, null,
-                bookingService, userService, userRepository, authenticationFacade,
+        serviceToTest = new InmateServiceImpl(repository, caseLoadService, inmateAlertService,
+                referenceDomainService, bookingService, userService, userRepository, authenticationFacade,
                 keyWorkerAllocationRepository, env, telemetryClient, "WING", 100);
     }
 

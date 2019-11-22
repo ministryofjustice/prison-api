@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @ApiModel(description = "Categorisation approval detail for an offender")
@@ -19,34 +20,33 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CategoryApprovalDetail {
 
-    @ApiModelProperty(required = true, value = "Booking Id")
+    @ApiModelProperty(required = true, value = "Booking Id", position = 1)
     @NotNull(message = "bookingId must be provided")
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Category code, reference code in domain 'SUP_LVL_TYPE'")
+    @ApiModelProperty(required = false, value = "Sequence number. Only used to check consistency", position = 2)
+    private Integer assessmentSeq;
+
+    @ApiModelProperty(required = true, value = "Category code, reference code in domain 'SUP_LVL_TYPE'", position = 3)
     @NotNull(message = "category must be provided")
     private String category;
 
-    @ApiModelProperty(value = "Date of approval")
+    @ApiModelProperty(required = true, value = "Date of approval", position = 4)
     @NotNull(message = "Date of approval must be provided")
     private LocalDate evaluationDate;
 
-    @ApiModelProperty(value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'")
+    @ApiModelProperty(required = true, value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'", position = 5)
     @NotNull(message = "Department must be provided")
     private String reviewCommitteeCode;
 
-    @ApiModelProperty(value = "Approved result category comment")
+    @ApiModelProperty(value = "Approved result category comment", position = 6)
+    @Size(max = 240, message = "Comment text must be a maximum of 240 characters")
     private String approvedCategoryComment;
 
-    @ApiModelProperty(value = "Overall comment")
+    @ApiModelProperty(value = "Overall comment", position = 7)
+    @Size(max = 240, message = "Comment text must be a maximum of 240 characters")
     private String committeeCommentText;
 
-    @Deprecated
-    private String reviewPlacementAgencyId;
-
-    @Deprecated
-    private String reviewPlacementText;
-
-    @ApiModelProperty(value = "Next review date (date of recategorisation, remains unchanged if not provided)")
+    @ApiModelProperty(value = "Next review date (date of re-assessment, remains unchanged if not provided)", position = 8)
     private LocalDate nextReviewDate;
 }
