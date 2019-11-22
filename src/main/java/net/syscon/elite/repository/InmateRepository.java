@@ -101,7 +101,11 @@ public interface InmateRepository {
 
     Map<String, Long> insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId);
 
+    void updateCategory(CategorisationUpdateDetail detail);
+
     void approveCategory(CategoryApprovalDetail detail);
+
+    void rejectCategory(CategoryRejectionDetail detail);
 
     int setCategorisationInactive(long bookingId, AssessmentStatusType status);
 

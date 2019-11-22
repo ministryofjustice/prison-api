@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.ws.rs.BadRequestException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Month;
@@ -750,12 +751,13 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    @Transactional
     public void testGetRecategoriseRemovesNonStandardCatA() {
-        final var list1 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 30));
-        assertThat(list1).hasSize(2);
+        final var possibly_38_39_40_41 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 30));
+        assertThat(possibly_38_39_40_41).hasSize(2);
 
         // -40 is a cat A but was a B earlier.
-        assertThat(list1).extracting("bookingId").doesNotContain(Tuple.tuple(-40L));
+        assertThat(possibly_38_39_40_41).extracting("bookingId").doesNotContain(Tuple.tuple(-40L));
     }
 
     @Test
@@ -871,6 +873,55 @@ public class InmateRepositoryTest {
 
     @Test
     @Transactional
+    public void testUpdateCategory() {
+
+        final var catDetail = CategorisationUpdateDetail.builder()
+                .bookingId(-32L)
+                .assessmentSeq(4)
+                .category("C")
+                .committee("GOV")
+                .comment("updated cat")
+                .nextReviewDate(LocalDate.of(2019, 12, 1))
+                .build();
+
+        repository.updateCategory(catDetail);
+
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 AND ASSESSMENT_SEQ = 4");
+        assertThat(results).asList()
+                .extracting(extractInteger("ASSESSMENT_SEQ"),
+                        extractString("CALC_SUP_LEVEL_TYPE"),
+                        extractString("ASSESS_STATUS"),
+                        extractString("ASSESS_COMMENT_TEXT"),
+                        extractString("ASSESS_COMMITTE_CODE"))
+                .containsExactly(Tuple.tuple(4, "C", "P", "updated cat", "GOV"));
+
+        assertThat((Date) results.get(0).get("ASSESSMENT_DATE")).isToday();
+        assertThat((Timestamp) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2019-12-01T00:00:00.000", 1000);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateCategoryMinimalFields() {
+        final var catDetail = CategorisationUpdateDetail.builder()
+                .bookingId(-34L)
+                .assessmentSeq(1)
+                .build();
+
+        repository.updateCategory(catDetail);
+
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -34 AND ASSESSMENT_SEQ = 1");
+        assertThat(results).asList()
+                .extracting(extractInteger("ASSESSMENT_SEQ"),
+                        extractString("CALC_SUP_LEVEL_TYPE"),
+                        extractString("ASSESS_COMMENT_TEXT"),
+                        extractString("ASSESS_COMMITTE_CODE"))
+                .containsExactly(Tuple.tuple(1, "B", "assess comment", "GOV"));
+
+        assertThat((Date) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2019-06-09", 1000L);
+    }
+
+    @Test
+    @Transactional
     public void testApproveCategoryAllFields() {
         final var catDetail = CategoryApprovalDetail.builder()
                 .bookingId(-1L)
@@ -918,7 +969,7 @@ public class InmateRepositoryTest {
                 .build();
 
 
-        // 4 cateorisation records with status Inactive, Active, Inactive, Pending
+        // 4 categorisation records with status Inactive, Active, Inactive, Pending
         repository.approveCategory(catDetail);
 
 
@@ -983,6 +1034,77 @@ public class InmateRepositoryTest {
                 .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", null, null, null, null)
                 );
         assertThat((Timestamp) results.get(1).get("NEXT_REVIEW_DATE")).isCloseTo("2018-06-01T00:00:00.000", 1000);
+    }
+
+    @Test
+    @Transactional
+    public void testApproveCategoryUsingSeq() {
+        final var catDetail = CategoryApprovalDetail.builder()
+                .bookingId(-1L)
+                .assessmentSeq(8)
+                .category("C")
+                .evaluationDate(LocalDate.of(2019, 2, 27))
+                .approvedCategoryComment("My comment")
+                .reviewCommitteeCode("REVIEW")
+                .committeeCommentText("committeeCommentText")
+                .nextReviewDate(LocalDate.of(2019, 7, 24))
+                .build();
+
+        repository.approveCategory(catDetail);
+
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
+        assertThat(results).asList()
+                .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
+                .contains(Tuple.tuple(6, "I")
+                );
+        assertThat(results).asList()
+                .extracting(extractInteger("ASSESSMENT_SEQ"),
+                        extractString("REVIEW_SUP_LEVEL_TYPE"),
+                        extractString("REVIEW_COMMITTE_CODE"),
+                        extractString("EVALUATION_RESULT_CODE"),
+                        extractString("ASSESS_STATUS"),
+                        extractString("REVIEW_SUP_LEVEL_TEXT"),
+                        extractString("COMMITTE_COMMENT_TEXT"))
+                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText")
+                );
+        assertThat((Timestamp) results.get(0).get("EVALUATION_DATE")).isNull();
+        assertThat((Timestamp) results.get(1).get("EVALUATION_DATE")).isCloseTo("2019-02-27T00:00:00.000", 1000);
+        assertThat((Timestamp) results.get(1).get("NEXT_REVIEW_DATE")).isCloseTo("2019-07-24T00:00:00.000", 1000);
+    }
+
+    @Test
+    @Transactional
+    public void testRejectCategory() {
+        final var catDetail = CategoryRejectionDetail.builder()
+                .bookingId(-32L)
+                .assessmentSeq(4)
+                .evaluationDate(LocalDate.of(2019, 2, 27))
+                .reviewCommitteeCode("REVIEW")
+                .committeeCommentText("committeeCommentText")
+                .build();
+
+        repository.rejectCategory(catDetail);
+
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 AND ASSESSMENT_SEQ = 4");
+        assertThat(results).asList()
+                .extracting(extractInteger("ASSESSMENT_SEQ"),
+                        extractString("EVALUATION_RESULT_CODE"),
+                        extractString("REVIEW_COMMITTE_CODE"),
+                        extractString("COMMITTE_COMMENT_TEXT"))
+                .containsExactly(Tuple.tuple(4, "REJ", "REVIEW", "committeeCommentText"));
+
+        assertThat((Date) results.get(0).get("EVALUATION_DATE")).isCloseTo("2019-02-27", 1000);
+    }
+
+    @Test(expected = BadRequestException.class)
+    @Transactional
+    public void testRejectCategoryNotFound() {
+        final var catDetail = CategoryRejectionDetail.builder()
+                .bookingId(-32L)
+                .assessmentSeq(99)
+                .build();
+
+        repository.rejectCategory(catDetail);
     }
 
     @Test

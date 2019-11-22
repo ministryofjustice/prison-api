@@ -522,7 +522,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     public List<OffenderCategorise> getUncategorised(final String agencyId) {
         final var rawData = jdbcTemplate.query(
                 getQuery("GET_UNCATEGORISED"),
-                createParams("agencyId", agencyId, "assessmentId", getCategoryAssessmentId()),
+                createParams("agencyId", agencyId, "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
         return applyCategorisationRestrictions(rawData);
@@ -535,7 +535,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 createParams("agencyId", agencyId,
                         "cutOffDate", DateTimeConverter.toDate(cutoffDate),
                         "assessStatus", "A",
-                        "assessmentId", getCategoryAssessmentId()),
+                        "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
         return removeEarlierCategorisations(rawData);
@@ -547,7 +547,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 getQuery("GET_RECATEGORISE"),
                 createParams("agencyId", agencyId,
                         "assessStatus", Set.of("A", "P"),
-                        "assessmentId", getCategoryAssessmentId()),
+                        "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
         return applyCutoffDateForActiveCategorisations(
@@ -561,13 +561,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 getQuery("GET_OFFENDER_CATEGORISATIONS"),
                 createParams("bookingIds", bookingIds,
                         "agencyId", agencyId,
-                        "assessmentId", getCategoryAssessmentId()),
+                        "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
         return latestOnly ? removeEarlierCategorisations(rawData) : rawData;
     }
 
-    private Long getCategoryAssessmentId() {
+    private Long getCategoryAssessmentTypeId() {
         return jdbcTemplate.queryForObject(getQuery("GET_CATEGORY_ASSESSMENT_ID"), Map.of(), Long.class);
     }
 
@@ -703,7 +703,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         jdbcTemplate.update(
                 getQuery("INSERT_CATEGORY"),
                 createParams("bookingId", detail.getBookingId(),
-                        "assessmentId", getCategoryAssessmentId(),
+                        "assessmentTypeId", getCategoryAssessmentTypeId(),
                         "seq", newSeq,
                         "assessmentDate", LocalDate.now(),
                         "assessStatus", "P",
@@ -720,23 +720,51 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
+    public void updateCategory(final CategorisationUpdateDetail detail) {
+
+        final int result = jdbcTemplate.update(
+                getQuery("UPDATE_CATEGORY"),
+                createParams("bookingId", detail.getBookingId(),
+                        "seq", detail.getAssessmentSeq(),
+                        "assessmentTypeId", getCategoryAssessmentTypeId(),
+                        "assessmentDate", LocalDate.now(),
+                        "category", detail.getCategory(),
+                        "assessComment", detail.getComment(),
+                        "reviewDate", detail.getNextReviewDate(),
+                        "assessCommitteeCode", detail.getCommittee()));
+        if (result != 1) {
+            throw new BadRequestException(String.format("No pending category assessment found, category %.10s, booking %d, seq %d",
+                    detail.getCategory(),
+                    detail.getBookingId(),
+                    detail.getAssessmentSeq()));
+        }
+    }
+
+    @Override
     public void approveCategory(final CategoryApprovalDetail detail) {
-        final var assessmentId = getCategoryAssessmentId();
-        final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
+        final var assessmentId = getCategoryAssessmentTypeId();
+
         // get all active or pending categorisation sequences ordered desc
         final var sequences = jdbcTemplate.query(
                 getQuery("GET_OFFENDER_CATEGORY_SEQUENCES"),
                 createParams("bookingId", detail.getBookingId(),
                         "assessmentTypeId", assessmentId,
                         "statuses", Arrays.asList("A", "P")),
-                mapper);
+                SingleColumnRowMapper.newInstance(Integer.class));
         if (CollectionUtils.isEmpty(sequences)) {
             throw new BadRequestException(String.format("No category assessment found, category %.10s, booking %d",
                     detail.getCategory(),
                     detail.getBookingId()));
         }
+        final int maxSequence = sequences.get(0);
 
-        final var maxSequence = sequences.get(0);
+        if (detail.getAssessmentSeq() != null && detail.getAssessmentSeq() != maxSequence) {
+            log.warn(String.format("approveCategory: sequences do not match for booking id %d: maxSequence = %d, PG Nomis seq = %d",
+                    detail.getBookingId(),
+                    maxSequence,
+                    detail.getAssessmentSeq()));
+        }
+
         final var approvalResult = jdbcTemplate.update(
                 getQuery("APPROVE_CATEGORY"),
                 createParams("bookingId", detail.getBookingId(),
@@ -745,7 +773,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessStatus", "A",
                         "category", detail.getCategory(),
                         "evaluationDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getEvaluationDate())),
-                        "evaluationResultCode", "APP", // or 'REJ'
+                        "evaluationResultCode", "APP",
                         "reviewCommitteeCode", detail.getReviewCommitteeCode(),
                         "committeeCommentText", detail.getCommitteeCommentText(),
                         "nextReviewDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getNextReviewDate())),
@@ -777,8 +805,29 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
+    public void rejectCategory(final CategoryRejectionDetail detail) {
+        final var assessmentId = getCategoryAssessmentTypeId();
+        final var result = jdbcTemplate.update(
+                getQuery("REJECT_CATEGORY"),
+                createParams("bookingId", detail.getBookingId(),
+                        "seq", detail.getAssessmentSeq(),
+                        "assessmentTypeId", assessmentId,
+                        "evaluationDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getEvaluationDate())),
+                        "evaluationResultCode", "REJ",
+                        "reviewCommitteeCode", detail.getReviewCommitteeCode(),
+                        "committeeCommentText", detail.getCommitteeCommentText()
+                )
+        );
+        if (result != 1) {
+            throw new BadRequestException(String.format("Category assessment not found, booking %d, seq %d",
+                    detail.getBookingId(),
+                    detail.getAssessmentSeq()));
+        }
+    }
+
+    @Override
     public int setCategorisationInactive(final long bookingId, final AssessmentStatusType status) {
-        final var assessmentId = getCategoryAssessmentId();
+        final var assessmentId = getCategoryAssessmentTypeId();
         final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
         // get all active categorisation sequences
         final var sequences = jdbcTemplate.query(
@@ -807,7 +856,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     @Override
     public void updateActiveCategoryNextReviewDate(final long bookingId, final LocalDate date) {
         log.debug("Updating categorisation next Review date for booking id {} with value {}", bookingId, date);
-        final var assessmentId = getCategoryAssessmentId();
+        final var assessmentId = getCategoryAssessmentTypeId();
 
         final var result = jdbcTemplate.update(
                 getQuery("UPDATE_CATEORY_NEXT_REVIEW_DATE"),

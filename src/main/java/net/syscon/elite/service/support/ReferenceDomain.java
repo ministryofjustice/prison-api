@@ -9,6 +9,7 @@ public enum ReferenceDomain {
     INTERNAL_LOCATION_USAGE("ILOC_USG"),
     PERFORMANCE("PERFORMANCE"),
     EVENT_OUTCOME("PS_PA_OC"),
+    ASSESSMENT_COMMITTEE_CODE("ASSESS_COMM"),
     CATEGORY("SUP_LVL_TYPE");
 
     private final String domain;

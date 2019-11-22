@@ -5,7 +5,10 @@ import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.InmateDto;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -27,9 +30,13 @@ public interface InmateService {
 
     Map<String, Long> createCategorisation(Long bookingId, CategorisationDetail detail);
 
+    void updateCategorisation(Long bookingId, CategorisationUpdateDetail categorisationDetail);
+
     void approveCategorisation(Long bookingId, CategoryApprovalDetail detail);
 
     void updateCategorisationNextReviewDate(Long bookingId, LocalDate nextReviewDate);
+
+    void rejectCategorisation(Long bookingId, CategoryRejectionDetail detail);
 
     void setCategorisationInactive(Long bookingId, AssessmentStatusType status);
 

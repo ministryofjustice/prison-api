@@ -3,7 +3,9 @@ package net.syscon.elite.api.resource.impl;
 import io.jsonwebtoken.lang.Collections;
 import net.syscon.elite.api.model.Assessment;
 import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategorisationUpdateDetail;
 import net.syscon.elite.api.model.CategoryApprovalDetail;
+import net.syscon.elite.api.model.CategoryRejectionDetail;
 import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.resource.OffenderAssessmentResource;
 import net.syscon.elite.api.support.AssessmentStatusType;
@@ -78,15 +80,13 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     @Override
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final Boolean latestOnly) {
         final var latest = latestOnly == null ? true : latestOnly;
-        final var results = inmateService.getOffenderCategorisations(agencyId, bookingIds, latest);
-        return results;
+        return inmateService.getOffenderCategorisations(agencyId, bookingIds, latest);
     }
 
     @Override
     public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final Boolean latestOnly) {
         final var latest = latestOnly == null ? true : latestOnly;
-        final var results = inmateService.getOffenderCategorisationsSystem(bookingIds, latest);
-        return results;
+        return inmateService.getOffenderCategorisationsSystem(bookingIds, latest);
     }
 
     @Override
@@ -101,10 +101,30 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     @ProxyUser
+    public Response updateCategorisation(final CategorisationUpdateDetail detail){
+        inmateService.updateCategorisation(detail.getBookingId(), detail);
+        return Response.ok()
+                .status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @Override
+    @ProxyUser
     public Response approveCategorisation(final CategoryApprovalDetail detail) {
         inmateService.approveCategorisation(detail.getBookingId(), detail);
         return Response.ok()
-                .status(201)
+                .status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @Override
+    @ProxyUser
+    public Response rejectCategorisation(CategoryRejectionDetail detail) {
+        inmateService.rejectCategorisation(detail.getBookingId(), detail);
+        return Response.ok()
+                .status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .build();
     }
