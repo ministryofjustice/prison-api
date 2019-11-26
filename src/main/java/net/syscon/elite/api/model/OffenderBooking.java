@@ -23,7 +23,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OffenderBooking {
+public class OffenderBooking implements CategoryCodeAware {
 
     @NotNull
     @ApiModelProperty(required = true, value = "Unique, numeric booking id.", position = 1, example = "1234134")
