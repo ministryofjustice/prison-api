@@ -903,21 +903,19 @@ public class InmateRepositoryTest {
     @Transactional
     public void testUpdateCategoryMinimalFields() {
         final var catDetail = CategorisationUpdateDetail.builder()
-                .bookingId(-34L)
-                .assessmentSeq(1)
+                .bookingId(-37L)
+                .assessmentSeq(3)
                 .build();
 
         repository.updateCategory(catDetail);
 
-        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -34 AND ASSESSMENT_SEQ = 1");
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -37 AND ASSESSMENT_SEQ = 3");
         assertThat(results).asList()
                 .extracting(extractInteger("ASSESSMENT_SEQ"),
-                        extractString("CALC_SUP_LEVEL_TYPE"),
-                        extractString("ASSESS_COMMENT_TEXT"),
-                        extractString("ASSESS_COMMITTE_CODE"))
-                .containsExactly(Tuple.tuple(1, "B", "assess comment", "GOV"));
+                        extractString("CALC_SUP_LEVEL_TYPE"))
+                .containsExactly(Tuple.tuple(3, "B"));
 
-        assertThat((Date) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2019-06-09", 1000L);
+        assertThat((Date) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2016-08-08", 1000L);
     }
 
     @Test
