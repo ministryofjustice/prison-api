@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
+import net.syscon.elite.api.model.PrisonerInformation;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.util.DatabaseDialect;
@@ -23,6 +24,8 @@ public interface OffenderRepository {
      * @return page of offender detail records.
      */
     Page<PrisonerDetail> findOffenders(PrisonerDetailSearchCriteria criteria, PageRequest pageRequest);
+
+    Page<PrisonerInformation> getPrisonersInPrison(String agencyId, PageRequest pageRequest);
 
     enum ColumnMapper {
         ORACLE_11(DatabaseDialect.ORACLE_11, ColumnMappings.getOracleColumnMappings()),

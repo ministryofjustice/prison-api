@@ -44,7 +44,7 @@ public abstract class ResourceTest {
         return createHttpEntity(bearerToken, body, Collections.emptyMap());
     }
 
-    private HttpEntity<?> createHttpEntity(final String bearerToken, final Object body, final Map<String, String> additionalHeaders) {
+    protected HttpEntity<?> createHttpEntity(final String bearerToken, final Object body, final Map<String, String> additionalHeaders) {
         final var headers = new HttpHeaders();
 
         headers.add("Authorization", "Bearer " + bearerToken);

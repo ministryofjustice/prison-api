@@ -1,16 +1,29 @@
 package net.syscon.elite.service.support;
 
-import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.CategoryCodeAware;
+import net.syscon.elite.api.model.OffenderSentenceDetail;
+import net.syscon.elite.api.model.ReleaseDateAware;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InmatesHelper {
 
-    public static void setCategory(final List<OffenderBooking> bookings, final List<AssessmentDto> assessmentsForBookings) {
+    public static void setReleaseDate(final List<? extends ReleaseDateAware> bookings, final List<OffenderSentenceDetail> sentenceDetails) {
+        final var mapOfBookings = createMapOfSentences(sentenceDetails);
+        bookings.forEach(booking -> {
+            final var sentenceDet = mapOfBookings.get(booking.getBookingId());
+            if (sentenceDet != null) {
+                booking.setReleaseDate(sentenceDet.getSentenceDetail().getReleaseDate());
+            }
+        });
+    }
+
+    public static void setCategory(final List<? extends CategoryCodeAware> bookings, final List<AssessmentDto> assessmentsForBookings) {
         final var mapOfBookings = createMapOfBookings(assessmentsForBookings);
         bookings.forEach(booking -> {
             final var dtos = mapOfBookings.get(booking.getBookingId());
@@ -18,6 +31,12 @@ public class InmatesHelper {
                 booking.setCategoryCode(deriveClassificationCode(dtos.get(0)));
             }
         });
+    }
+
+    private static Map<Long, OffenderSentenceDetail> createMapOfSentences(final List<OffenderSentenceDetail> sentenceDetails) {
+        final var sentenceMap = new HashMap<Long, OffenderSentenceDetail>();
+        sentenceDetails.forEach(s -> sentenceMap.put(s.getBookingId(), s));
+        return sentenceMap;
     }
 
     public static Map<Long, List<AssessmentDto>> createMapOfBookings(final List<AssessmentDto> assessmentsForBookings) {
