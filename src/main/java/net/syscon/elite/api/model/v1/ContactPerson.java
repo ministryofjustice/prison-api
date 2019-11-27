@@ -1,5 +1,6 @@
 package net.syscon.elite.api.model.v1;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,13 +17,16 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "_id")
 @JsonInclude(Include.NON_NULL)
 @ToString
 @JsonPropertyOrder({"id", "given_name", "middle_names", "surname", "date_of_birth",
         "gender", "relationship_type", "contact_type", "approved_visitor", "active", "restrictions"})
 
 public class ContactPerson {
+
+    @JsonIgnore
+    private Long _id;
 
     @ApiModelProperty(value = "ID", name = "id", example = "1234567", position = 1)
     private Long id;

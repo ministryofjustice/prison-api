@@ -374,6 +374,7 @@ public class NomisApiV1Service {
 
     private ContactPerson convertToPerson(final ContactPersonSP c) {
         return ContactPerson.builder()
+                ._id(c.getOffenderContactPersonId())
                 .id(c.getPersonId())
                 .firstName(c.getFirstName())
                 .middleName(c.getMiddleName())
