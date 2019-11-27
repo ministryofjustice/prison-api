@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ContactPersonSP {
 
+    private Long offenderContactPersonId;
     private Long personId;
     private String firstName;
     private String middleName;
