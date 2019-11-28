@@ -1,5 +1,6 @@
 package net.syscon.elite.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -71,9 +72,17 @@ public class PrisonerInformation implements CategoryCodeAware, ReleaseDateAware 
     @ApiModelProperty(value = "Category of this prisoner", example = "C", position = 18)
     private String categoryCode;
 
-    @ApiModelProperty(value = "Status of prisoner in community", example = "???", position = 19)
+    @ApiModelProperty(value = "Status of prisoner in community", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT", position = 19)
     private String communityStatus;
 
-    @ApiModelProperty(value = "Legal Status", example = "???", position = 20)
-    private String legalStatus;
+    @ApiModelProperty(value = "Legal Status", example = "Convicted", allowableValues = "Convicted,Remand", position = 20)
+    public String getLegalStatus() {
+        if (this.bandCode != null) {
+            return bandCode <= 8 || bandCode == 11 ? "Convicted" : "Remand";
+        }
+        return null;
+    }
+
+    @JsonIgnore
+    private Integer bandCode;
 }
