@@ -3,12 +3,25 @@ defaults: &defaults
   environment:
     JAVA_TOOL_OPTIONS: -Xmx1024m -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
 
-version: 2
-jobs:
-  build:
+version: 2.1
+
+orbs:
+  owasp: entur/owasp@0.0.6
+
+executors:
+  builder:
     <<: *defaults
     docker:
       - image: circleci/openjdk:11-jdk-browsers
+
+  deployer:
+    <<: *defaults
+    docker:
+      - image: circleci/python:latest-browsers
+
+jobs:
+  build:
+    executor: builder
     steps:
       - checkout
       - restore_cache:
@@ -40,9 +53,7 @@ jobs:
             - AI-Agent.xml
 
   build_docker:
-    <<: *defaults
-    docker:
-      - image: circleci/python:latest-browsers
+    executor: deployer
     steps:
       - setup_remote_docker:
           exclusive: true
@@ -86,3 +97,16 @@ workflows:
               only:
                 - master
                 - nomis-api
+
+  scheduled:
+    triggers:
+      - schedule:
+          cron: "01 11 * * 1-5"
+          filters:
+            branches:
+              only:
+                - master
+                - DT-393-add-owasp
+    jobs:
+      - owasp/gradle_owasp_dependency_check:
+          executor: builder

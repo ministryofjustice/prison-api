@@ -6,7 +6,8 @@ import java.time.LocalDate
 plugins {
     id 'java'
     id 'groovy'
-    id 'org.springframework.boot' version '2.2.0.RELEASE'
+    id 'org.springframework.boot' version '2.2.1.RELEASE'
+    id 'org.owasp.dependencycheck' version '5.2.4'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'com.github.ben-manes.versions' version '0.27.0'
 }
@@ -23,6 +24,15 @@ configurations {
 
 project.sourceCompatibility = 11
 project.targetCompatibility = 11
+
+dependencyCheck {
+    failBuildOnCVSS = 5
+    suppressionFiles = ['dependency-check-suppress-spring.xml']
+    format = 'ALL'
+    analyzers {
+        assemblyEnabled = false
+    }
+}
 
 group 'net.syscon.elite'
 
@@ -90,11 +100,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-devtools'
 
-    implementation 'org.springframework.security.oauth:spring-security-oauth2:2.3.6.RELEASE'
-    implementation 'org.springframework.security:spring-security-jwt:1.0.11.RELEASE'
+    implementation 'org.springframework.security.oauth:spring-security-oauth2:2.4.0.RELEASE'
+    implementation 'org.springframework.security:spring-security-jwt:1.1.0.RELEASE'
 
     implementation 'org.springframework:spring-jms:5.2.1.RELEASE'
-    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.677')
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.683')
     implementation 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
 
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
@@ -104,8 +114,8 @@ dependencies {
     implementation 'javax.activation:activation:1.1.1'
 
     implementation 'commons-codec:commons-codec:1.13'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.0'
-    implementation 'com.github.jsqlparser:jsqlparser:3.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.1'
+    implementation 'com.github.jsqlparser:jsqlparser:3.1'
     implementation 'net.sf.ehcache:ehcache:2.10.6'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'com.zaxxer:HikariCP:3.4.1'
@@ -114,9 +124,9 @@ dependencies {
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.2'
-    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.5.1'
-    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.5.1'
-    agentDeps 'com.microsoft.azure:applicationinsights-agent:2.5.1'
+    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.0-BETA'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.0-BETA'
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:2.6.0-BETA'
     implementation configurations.agentDeps
 
     implementation 'org.apache.commons:commons-lang3:3.9'
@@ -143,10 +153,10 @@ dependencies {
     testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.11.1'
 
-    testImplementation 'net.serenity-bdd:serenity-core:2.0.82'
-    testImplementation 'net.serenity-bdd:serenity-junit:2.0.82'
-    testImplementation 'net.serenity-bdd:serenity-spring:2.0.82'
-    testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.45'
+    testImplementation 'net.serenity-bdd:serenity-core:2.0.89'
+    testImplementation 'net.serenity-bdd:serenity-junit:2.0.89'
+    testImplementation 'net.serenity-bdd:serenity-spring:2.0.89'
+    testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.48'
     testImplementation 'org.slf4j:slf4j-api:1.7.25'
     testCompileOnly 'org.projectlombok:lombok:1.18.10'
 }
