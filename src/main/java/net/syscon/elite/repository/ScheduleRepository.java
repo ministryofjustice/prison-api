@@ -14,10 +14,10 @@ public interface ScheduleRepository {
     List<PrisonerSchedule> getLocationVisits(Long locationId, LocalDate fromDate, LocalDate toDate,
                                              String orderByFields, Order order);
 
-    List<PrisonerSchedule> getAllActivitiesAtAgency(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order);
+    List<PrisonerSchedule> getAllActivitiesAtAgency(String agencyId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
-    List<PrisonerSchedule> getLocationActivities(Long locationId, LocalDate fromDate, LocalDate toDate,
-                                                 String orderByFields, Order order);
+    List<PrisonerSchedule> getActivitiesAtLocation(Long locationId, LocalDate fromDate, LocalDate toDate,
+                                                   String orderByFields, Order order, boolean includeSuspended);
 
     List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNo, LocalDate date);
 

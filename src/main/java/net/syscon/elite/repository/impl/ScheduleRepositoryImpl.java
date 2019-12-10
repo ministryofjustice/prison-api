@@ -12,6 +12,7 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Repository
 public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRepository {
@@ -36,10 +37,22 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
 
     @Override
-    public List<PrisonerSchedule> getLocationActivities(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
-        final var initialSql = getQuery("GET_ACTIVITIES_AT_ALL_OR_ONE_LOCATION");
+    public List<PrisonerSchedule> getActivitiesAtLocation(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order, boolean includeSuspended) {
+        final var initialSql = getQuery("GET_ACTIVITIES_AT_ONE_LOCATION");
 
-        return getScheduledEvents(initialSql, locationId, fromDate, toDate, orderByFields, order);
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
+
+        final var sql = builder
+                .addOrderBy(order, orderByFields)
+                .build();
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("locationId", locationId,
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
+                        "includeSuspended", includeSuspended ? Set.of("Y", "N") : Set.of("N")),
+                EVENT_ROW_MAPPER);
     }
 
     @Override
@@ -71,8 +84,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                 sql,
                 createParams("locationId", locationId,
                         "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
-                EVENT_ROW_MAPPER);
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))), EVENT_ROW_MAPPER);
     }
 
     @Override

@@ -63,7 +63,7 @@ public class ScheduleRepositoryTest {
     public void testGetLocationActivities() {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
-        final var results = repository.getLocationActivities(-26L, date, toDate, "lastName,startTime", Order.ASC);
+        final var results = repository.getActivitiesAtLocation(-26L, date, toDate, "lastName,startTime", Order.ASC, false);
         assertThat(results).hasSize(32);
         assertPrisonerDetails(results.get(0));
         // assert at least 1 field from all results
@@ -259,5 +259,27 @@ public class ScheduleRepositoryTest {
                 .flatMap(event -> List.of(event.getStartTime(), event.getEndTime()).stream())
                 .allMatch(date -> date.toLocalDate().isEqual(fromDate) || date.toLocalDate().isEqual(toDate)))
                 .isTrue();
+    }
+
+    @Test
+    public void testSuspendedAre_NotReturned() {
+        final var fromDate = LocalDate.of(1985, 1, 1);
+        final var toDate = LocalDate.of(1985, 1, 1);
+
+        final var activities = repository.getActivitiesAtLocation(-27L, fromDate, toDate, "lastName,startTime", Order.ASC, false);
+
+        assertThat(activities).hasSize(0);
+    }
+
+    @Test
+    public void testSuspendedActivity_Returned() {
+        final var fromDate = LocalDate.of(1985, 1, 1);
+        final var toDate = LocalDate.of(1985, 1, 1);
+
+        final var activities = repository.getActivitiesAtLocation(-27L, fromDate, toDate, "lastName,startTime", Order.ASC, true);
+
+        assertThat(activities).hasSize(1);
+        assertThat(activities).asList().extracting("offenderNo", "event", "eventDescription", "eventStatus", "startTime", "suspended").contains(
+                new Tuple("A1234AF", "EDUC", "Education", null, LocalDateTime.parse("1985-01-01T13:10:00"), true));
     }
 }

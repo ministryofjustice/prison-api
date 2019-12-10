@@ -304,7 +304,7 @@ public class BookingRepositoryTest {
 
         repository.updateAttendance(-3L, -1L, updateAttendance, true, true);
 
-        final var prisonerSchedules = scheduleRepository.getLocationActivities(-26L, null, null, null, null);
+        final var prisonerSchedules = scheduleRepository.getActivitiesAtLocation(-26L, null, null, null, null, false);
         final var first = prisonerSchedules.stream()
                 .filter(ps -> ps.getEventId() != null && ps.getEventId() == -1L)
                 .peek(ps -> {

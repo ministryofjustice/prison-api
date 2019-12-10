@@ -18,6 +18,9 @@ public interface SchedulesService {
     List<PrisonerSchedule> getLocationEvents(String agencyId, Long locationId, String usage,
                                              LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder);
 
+    List<PrisonerSchedule> getActivitiesAtLocation(Long locationId, LocalDate date, TimeSlot timeSlot,
+                                                   String sortFields, Order sortOrder, boolean includeSuspended);
+
     List<PrisonerSchedule> getActivitiesAtAllLocations(String agencyId, LocalDate fromDate, LocalDate toDate, TimeSlot timeSlot, String sortFields, Order sortOrder);
 
     List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNos, LocalDate date, TimeSlot timeSlot);

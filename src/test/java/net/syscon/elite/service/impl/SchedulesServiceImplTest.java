@@ -274,7 +274,7 @@ public class SchedulesServiceImplTest {
                 .event("PROG")
                 .build();
         final var visits = Arrays.asList(visit);
-        when(scheduleRepository.getLocationActivities(-100L, DATE, DATE, "lastName", Order.ASC)).thenReturn(visits);
+        when(scheduleRepository.getActivitiesAtLocation(-100L, DATE, DATE, "lastName", Order.ASC, false)).thenReturn(visits);
 
         final var results = schedulesService.getLocationEvents("LEI", -100L, "PROG", DATE, TimeSlot.ED, null, null);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A10");
@@ -452,12 +452,56 @@ public class SchedulesServiceImplTest {
     @Test
     public void testGeActivitiesAtAllLocations_UseFromDate_WhenToDateIsNull() {
         final var from = LocalDate.now().plusDays(-10);
-
         final var sortFields = "lastName,startTime";
 
         schedulesService.getActivitiesAtAllLocations("LEI", from, null, TimeSlot.AM, sortFields, Order.ASC);
 
         verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, from, sortFields, Order.ASC);
+    }
+
+    @Test
+    public void testLocationIdIsValidated_OnGetLocationActivity() {
+        final var locationId = -1L;
+
+        schedulesService.getActivitiesAtLocation(locationId, LocalDate.now(), TimeSlot.AM, "", Order.ASC, false);
+
+        verify(locationService).getLocation(locationId);
+    }
+
+
+    @Test
+    public void testGetLocationActivity_callsTheRepositoryWithTheCorrectParameters() {
+        final var locationId = -1L;
+        final var today = LocalDate.now();
+        final var sortFields = "lastName,startTime";
+
+        schedulesService.getActivitiesAtLocation(locationId, today, TimeSlot.AM, sortFields, Order.ASC, true);
+
+        verify(scheduleRepository).getActivitiesAtLocation(locationId, today, today, sortFields, Order.ASC, true);
+    }
+
+    @Test
+    public void testGetLocationActivity_appliesTimeSlotFiltering() {
+        final var today = LocalDate.now();
+
+        when(scheduleRepository.getActivitiesAtLocation(anyLong(), any(), any(), anyString(), any(), anyBoolean()))
+                .thenReturn(List.of(
+                        PrisonerSchedule
+                                .builder()
+                                .startTime(LocalDateTime.now().withHour(23))
+                                .endTime(LocalDateTime.now().withHour(23))
+                                .build(),
+                        PrisonerSchedule
+                                .builder()
+                                .startTime(LocalDateTime.now().withHour(11))
+                                .endTime(LocalDateTime.now().withHour(11))
+                                .build()
+                ));
+
+        final var activities = schedulesService
+                .getActivitiesAtLocation(1L, today, TimeSlot.AM, null, Order.ASC, false);
+
+        assertThat(activities).hasSize(1);
     }
 
 }
