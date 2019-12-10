@@ -158,6 +158,18 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
+    public List<PrisonerSchedule> getActivitiesAtLocation(final Long locationId, final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder, final boolean includeSuspended) {
+        validateLocation(locationId);
+
+        final var day = date == null ? LocalDate.now() : date;
+        final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
+        final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+
+        final var activities = scheduleRepository.getActivitiesAtLocation(locationId, day, day, orderByFields, order, includeSuspended);
+        return filterByTimeSlot(timeSlot, activities);
+    }
+
+    @Override
     @VerifyAgencyAccess
     public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
@@ -181,7 +193,7 @@ public class SchedulesServiceImpl implements SchedulesService {
             case "VISIT":
                 return scheduleRepository.getLocationVisits(locationId, day, day, orderByFields, order);
             default:
-                return scheduleRepository.getLocationActivities(locationId, day, day, orderByFields, order);
+                return scheduleRepository.getActivitiesAtLocation(locationId, day, day, orderByFields, order, false);
         }
     }
 

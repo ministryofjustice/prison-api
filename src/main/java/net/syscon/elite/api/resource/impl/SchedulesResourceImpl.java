@@ -33,11 +33,16 @@ public class SchedulesResourceImpl implements ScheduleResource {
 
     @Override
     public List<PrisonerSchedule> getLocationEvents(final String agencyId, final Long locationId, final String usage,
-                                                    final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
+                                                    final LocalDate date, final TimeSlot timeSlot, final String sortFields,
+                                                    final Order sortOrder) {
 
-        return schedulesService.getLocationEvents(agencyId, locationId, usage,
-                date, timeSlot, sortFields, sortOrder);
+        return schedulesService.getLocationEvents(agencyId, locationId, usage, date, timeSlot, sortFields, sortOrder);
 
+    }
+
+    @Override
+    public List<PrisonerSchedule> getActivitiesAtLocation(final Long locationId, final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder, final boolean includeSuspended) {
+        return schedulesService.getActivitiesAtLocation(locationId, date, timeSlot, sortFields, sortOrder, includeSuspended);
     }
 
     @Override

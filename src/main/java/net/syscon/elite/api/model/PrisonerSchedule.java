@@ -112,4 +112,7 @@ public class PrisonerSchedule {
 
     @ApiModelProperty(value = "The code for the activity location")
     private String locationCode;
+
+    @ApiModelProperty(value = "Event scheduled has been suspended")
+    private Boolean suspended;
 }
