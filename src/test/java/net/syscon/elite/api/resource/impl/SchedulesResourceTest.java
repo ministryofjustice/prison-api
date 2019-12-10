@@ -45,4 +45,21 @@ public class SchedulesResourceTest extends ResourceTest {
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
         assertThat(activities).isNotEmpty();
     }
+
+    @Test
+    public void testThatSuspendedActivity_IsReturned() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/locations/-27/activities?timeSlot=PM&date=1985-01-01&includeSuspended=true",
+                HttpMethod.GET,
+                createHttpEntity(token, ""),
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                });
+
+        final var activities = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(activities).hasSize(1);
+    }
 }
