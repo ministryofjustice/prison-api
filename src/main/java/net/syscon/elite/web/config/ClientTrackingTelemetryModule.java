@@ -48,8 +48,8 @@ public class ClientTrackingTelemetryModule implements WebTelemetryModule, Teleme
 
                 final var properties = ThreadContext.getRequestTelemetryContext().getHttpRequestTelemetry().getProperties();
 
-                properties.put("user_name", String.valueOf(jwtBody.get("user_name")));
-                properties.put("client_id", String.valueOf(jwtBody.get("client_id")));
+                properties.put("username", String.valueOf(jwtBody.get("user_name")));
+                properties.put("clientId", String.valueOf(jwtBody.get("client_id")));
 
             } catch (ExpiredJwtException e) {
                 // Expired token which spring security will handle
