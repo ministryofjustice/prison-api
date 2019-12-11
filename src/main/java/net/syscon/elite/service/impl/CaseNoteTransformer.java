@@ -75,10 +75,12 @@ public class CaseNoteTransformer {
                 final var m = AMEND_CASE_NOTE_REGEX.matcher(amendmentDetails);
                 if (m.find()) {
                     final var dateTimeOfAmendment = m.group(2);
+                    final var firstAttemptDateTime = DateTimeConverter.fromStringToLocalDateTime(dateTimeOfAmendment, caseNoteDateFormat);
+                    final var amendmentDateTime = firstAttemptDateTime != null ? firstAttemptDateTime : DateTimeConverter.fromStringToLocalDateTime(dateTimeOfAmendment, "dd-MM-yyyy HH:mm:ss");
                     final var caseNoteAmendment = CaseNoteAmendment.builder()
                             .additionalNoteText(caseNoteText.trim())
                             .authorName(getFullNameFromUsername(m.group(1)))
-                            .creationDateTime(DateTimeConverter.fromStringToLocalDateTime(dateTimeOfAmendment, caseNoteDateFormat))
+                            .creationDateTime(amendmentDateTime)
                             .build();
                     caseNote.getAmendments().add(caseNoteAmendment);
                 }
