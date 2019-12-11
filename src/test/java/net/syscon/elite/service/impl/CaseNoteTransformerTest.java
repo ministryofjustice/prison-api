@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.CaseNoteAmendment;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.service.UserService;
 import org.junit.Before;
@@ -11,6 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
@@ -41,18 +43,20 @@ public class CaseNoteTransformerTest {
         final var returnedCaseNote = transformer.transform(caseNote);
 
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("test1");
-        assertThat(returnedCaseNote.getAmendments()).hasSize(2);
+        assertThat(returnedCaseNote.getAmendments()).isEqualTo(List.of(
+                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T11:59:18"), "Willis, Michael", "hi there"),
+                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T12:00:06"), "Mc'rendell, Steven", "hi again")));
+    }
 
-        final var firstAmendment = returnedCaseNote.getAmendments().get(0);
-        assertThat(firstAmendment.getAdditionalNoteText()).isEqualTo("hi there");
-        assertThat(firstAmendment.getAuthorName()).isEqualTo("Willis, Michael");
-        assertThat(firstAmendment.getCreationDateTime()).isEqualTo(LocalDateTime.of(2017, 10, 4, 11, 59, 18));
+    @Test
+    public void happyPathCaseNoteAmendmentTest_OldNomisFormatDate() {
+        caseNote.setText("test1 ...[MWILLIS_GEN updated the case notes on 04-10-2017 11:59:18] hi there ...[SRENDELL updated the case notes on 04-10-2017 12:00:06] hi again");
+        final var returnedCaseNote = transformer.transform(caseNote);
 
-
-        final var secondAmendment = returnedCaseNote.getAmendments().get(1);
-        assertThat(secondAmendment.getAdditionalNoteText()).isEqualTo("hi again");
-        assertThat(secondAmendment.getAuthorName()).isEqualTo("Mc'rendell, Steven");
-        assertThat(secondAmendment.getCreationDateTime()).isEqualTo(LocalDateTime.of(2017, 10, 4, 12, 0, 6));
+        assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("test1");
+        assertThat(returnedCaseNote.getAmendments()).isEqualTo(List.of(
+                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T11:59:18"), "Willis, Michael", "hi there"),
+                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T12:00:06"), "Mc'rendell, Steven", "hi again")));
     }
 
     @Test
