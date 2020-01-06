@@ -6,7 +6,7 @@ import java.time.LocalDate
 plugins {
     id 'java'
     id 'groovy'
-    id 'org.springframework.boot' version '2.2.1.RELEASE'
+    id 'org.springframework.boot' version '2.2.2.RELEASE' // remove pinning of tomcat version to 9.0.30 when next upgrading
     id 'org.owasp.dependencycheck' version '5.2.4'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'com.github.ben-manes.versions' version '0.27.0'
@@ -33,6 +33,7 @@ dependencyCheck {
         assemblyEnabled = false
     }
 }
+ext['tomcat.version'] = '9.0.30'
 
 group 'net.syscon.elite'
 
