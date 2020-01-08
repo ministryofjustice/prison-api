@@ -1,16 +1,20 @@
 package net.syscon.elite.repository.impl;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.PrisonerDetail;
-import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
-import net.syscon.elite.api.model.PrisonerInformation;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.OffenderRepository;
+import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
+import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.repository.support.OffenderRepositorySearchHelper;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collections;
+import java.util.Map;
 
 @Repository
 @Slf4j
@@ -20,6 +24,10 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
 
     private final StandardBeanPropertyRowMapper<PrisonerInformation> PRISONER_INFORMATION_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerInformation.class);
+
+    private final Map<String, FieldMapper> OFFENDER_NOMS_ID_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
+            .put("OFFENDER_ID_DISPLAY", new FieldMapper("nomsId"))
+            .build();
 
     public Page<PrisonerInformation> getPrisonersInPrison(final String agencyId, final PageRequest pageRequest) {
         final var initialSql = getQuery("PRISONERS_AT_LOCATION");
@@ -65,5 +73,24 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
         final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
 
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
+    }
+
+    @Override
+    public Page<OffenderNomsId> listAllOffenders(final PageRequest pageRequest) {
+
+        final var sql = queryBuilderFactory.getQueryBuilder(getQuery("LIST_ALL_OFFENDERS"), OFFENDER_NOMS_ID_MAPPING)
+                .addRowCount()
+                .addPagination()
+                .build();
+
+        final var paRowMapper = new PageAwareRowMapper<>(
+                Row2BeanRowMapper.makeMapping(sql, OffenderNomsId.class, OFFENDER_NOMS_ID_MAPPING));
+
+        final var params =
+                createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
+
+        final var offenderNomsIds = jdbcTemplate.query(sql, params, paRowMapper);
+
+        return new Page<>(offenderNomsIds, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 }

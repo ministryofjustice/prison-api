@@ -197,4 +197,17 @@ public interface OffenderResource {
             @ApiResponse(code = 404, message = "Resource not found - offender does not exist or is not accessible to user.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     void deleteOffender(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathParam("offenderNo") @NotNull String offenderNo);
+
+    @GET
+    @Path("/ids")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Return a list of all offender NOMS IDs.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderNomsId.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Response getOffenderNomsIds(
+            @ApiParam(value = "Requested offset of first offender NOMS ID in returned list.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+            @ApiParam(value = "Requested limit to the  offender NOMS IDs returned.", defaultValue = "100") @HeaderParam("Page-Limit") Long pageLimit);
 }

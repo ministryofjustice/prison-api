@@ -1,7 +1,7 @@
 package net.syscon.elite.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.syscon.elite.service.OffenderDeletionService;
+import net.syscon.elite.service.OffenderDataComplianceService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 public class OffenderDeletionListenerTest {
 
     @Mock
-    private OffenderDeletionService offenderDeletionService;
+    private OffenderDataComplianceService offenderDataComplianceService;
 
     private ObjectMapper objectMapper;
     private OffenderDeletionListener listener;
@@ -27,7 +27,7 @@ public class OffenderDeletionListenerTest {
     @Before
     public void setUp() {
         objectMapper = new ObjectMapper();
-        listener = new OffenderDeletionListener(offenderDeletionService, objectMapper);
+        listener = new OffenderDeletionListener(offenderDataComplianceService, objectMapper);
     }
 
     @Test
@@ -35,7 +35,7 @@ public class OffenderDeletionListenerTest {
 
         listener.handleOffenderDeletionEvent(getJson("offender-deletion-request.json"));
 
-        verify(offenderDeletionService).deleteOffender("A1234AA");
+        verify(offenderDataComplianceService).deleteOffender("A1234AA");
     }
 
     @Test
@@ -44,7 +44,7 @@ public class OffenderDeletionListenerTest {
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("Request did not contain 'Message' key: {}");
 
-        verifyNoInteractions(offenderDeletionService);
+        verifyNoInteractions(offenderDataComplianceService);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class OffenderDeletionListenerTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Failed to parse request");
 
-        verifyNoInteractions(offenderDeletionService);
+        verifyNoInteractions(offenderDataComplianceService);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class OffenderDeletionListenerTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No offender specified in request");
 
-        verifyNoInteractions(offenderDeletionService);
+        verifyNoInteractions(offenderDataComplianceService);
     }
 
     private String getJson(final String filename) throws IOException {
