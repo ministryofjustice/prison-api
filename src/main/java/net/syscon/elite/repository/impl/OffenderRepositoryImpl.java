@@ -1,6 +1,5 @@
 package net.syscon.elite.repository.impl;
 
-import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
@@ -13,7 +12,6 @@ import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.repository.support.OffenderRepositorySearchHelper;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
 import java.util.Map;
 
 @Repository
@@ -25,9 +23,8 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
     private final StandardBeanPropertyRowMapper<PrisonerInformation> PRISONER_INFORMATION_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerInformation.class);
 
-    private final Map<String, FieldMapper> OFFENDER_NOMS_ID_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
-            .put("OFFENDER_ID_DISPLAY", new FieldMapper("nomsId"))
-            .build();
+    private final Map<String, FieldMapper> OFFENDER_NOMS_ID_MAPPING =
+            Map.of("OFFENDER_ID_DISPLAY", new FieldMapper("nomsId"));
 
     public Page<PrisonerInformation> getPrisonersInPrison(final String agencyId, final PageRequest pageRequest) {
         final var initialSql = getQuery("PRISONERS_AT_LOCATION");
