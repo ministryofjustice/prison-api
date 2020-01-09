@@ -58,10 +58,10 @@ public class ClientTrackingTelemetryModuleTest {
 
         final var insightTelemetry = ThreadContext.getRequestTelemetryContext().getHttpRequestTelemetry().getProperties();
 
-        assertThat(insightTelemetry).hasSize(2);
+        assertThat(insightTelemetry).hasSize(3);
         assertThat(insightTelemetry.get("username")).isEqualTo("bob");
         assertThat(insightTelemetry.get("clientId")).isEqualTo("elite2apiclient");
-
+        assertThat(insightTelemetry.get("clientIpAddress")).isEqualTo("127.0.0.1");
     }
 
     @Test
