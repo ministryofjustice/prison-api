@@ -5,14 +5,10 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.OffenderRepository;
-import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
-import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.repository.support.OffenderRepositorySearchHelper;
 import org.springframework.stereotype.Repository;
-
-import java.util.Map;
 
 @Repository
 @Slf4j
@@ -23,13 +19,13 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
     private final StandardBeanPropertyRowMapper<PrisonerInformation> PRISONER_INFORMATION_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerInformation.class);
 
-    private final Map<String, FieldMapper> OFFENDER_NOMS_ID_MAPPING =
-            Map.of("OFFENDER_ID_DISPLAY", new FieldMapper("nomsId"));
+    private final StandardBeanPropertyRowMapper<OffenderNumber> OFFENDER_NUMBER_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderNumber.class);
 
     public Page<PrisonerInformation> getPrisonersInPrison(final String agencyId, final PageRequest pageRequest) {
         final var initialSql = getQuery("PRISONERS_AT_LOCATION");
 
-        final var sql = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_INFORMATION_MAPPER.getFieldMap())
+        final var sql = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_INFORMATION_MAPPER)
                 .addRowCount()
                 .addOrderBy(pageRequest)
                 .addPagination()
@@ -49,7 +45,7 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
     public Page<PrisonerDetail> findOffenders(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
         final var initialSql = getQuery("SEARCH_OFFENDERS");
 
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER);
         final var dialect = builder.getDialect();
         final var columnMappings = ColumnMapper.getColumnMappingsForDialect(dialect);
 
@@ -62,7 +58,7 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
                 .addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
                 .build();
 
-        final var paRowMapper = new PageAwareRowMapper<PrisonerDetail>(PRISONER_DETAIL_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
 
         final var params =
                 createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
@@ -73,21 +69,19 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
     }
 
     @Override
-    public Page<OffenderNomsId> listAllOffenders(final PageRequest pageRequest) {
+    public Page<OffenderNumber> listAllOffenders(final PageRequest pageRequest) {
 
-        final var sql = queryBuilderFactory.getQueryBuilder(getQuery("LIST_ALL_OFFENDERS"), OFFENDER_NOMS_ID_MAPPING)
+        final var sql = queryBuilderFactory.getQueryBuilder(getQuery("LIST_ALL_OFFENDERS"), OFFENDER_NUMBER_MAPPER)
                 .addRowCount()
                 .addPagination()
                 .build();
 
-        final var paRowMapper = new PageAwareRowMapper<>(
-                Row2BeanRowMapper.makeMapping(sql, OffenderNomsId.class, OFFENDER_NOMS_ID_MAPPING));
+        final var paRowMapper = new PageAwareRowMapper<>(OFFENDER_NUMBER_MAPPER);
 
-        final var params =
-                createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
+        final var params = createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
-        final var offenderNomsIds = jdbcTemplate.query(sql, params, paRowMapper);
+        final var offenderNumbers = jdbcTemplate.query(sql, params, paRowMapper);
 
-        return new Page<>(offenderNomsIds, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
+        return new Page<>(offenderNumbers, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 }

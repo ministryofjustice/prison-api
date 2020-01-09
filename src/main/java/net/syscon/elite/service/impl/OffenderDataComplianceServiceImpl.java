@@ -2,7 +2,7 @@ package net.syscon.elite.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.OffenderNomsId;
+import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.OffenderDeletionRepository;
@@ -26,7 +26,7 @@ public class OffenderDataComplianceServiceImpl implements OffenderDataCompliance
     }
 
     @Override
-    public Page<OffenderNomsId> getOffenderNomsIds(long offset, long limit) {
+    public Page<OffenderNumber> getOffenderNomsIds(long offset, long limit) {
         return offenderRepository.listAllOffenders(new PageRequest(offset, limit));
     }
 }

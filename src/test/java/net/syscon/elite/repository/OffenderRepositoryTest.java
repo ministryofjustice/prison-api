@@ -1,6 +1,6 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.OffenderNomsId;
+import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Page;
@@ -76,12 +76,12 @@ public class OffenderRepositoryTest {
     @Test
     public void listAllOffenders() {
 
-        Page<OffenderNomsId> offenderIds = repository.listAllOffenders(new PageRequest(0L, 100L));
+        Page<OffenderNumber> offenderIds = repository.listAllOffenders(new PageRequest(0L, 100L));
 
         assertThat(offenderIds.getTotalRecords()).isEqualTo(51);
         assertThat(offenderIds.getItems()).hasSize(51);
-        assertThat(offenderIds.getItems()).extracting(OffenderNomsId::getNomsId)
-                .contains("A1176RS", "A1178RS", "A1179MT", "A1180HI", "A1180HJ", "A1180HK", "A1180HL", "A1180MA",
+        assertThat(offenderIds.getItems()).extracting(OffenderNumber::getOffenderNumber)
+                .containsExactly("A1176RS", "A1178RS", "A1179MT", "A1180HI", "A1180HJ", "A1180HK", "A1180HL", "A1180MA",
                         "A1181MV", "A1182BS", "A1183AD", "A1183CW", "A1183JE", "A1183SH", "A1184JR", "A1184MA",
                         "A118DDD", "A118FFF", "A118GGG", "A118HHH", "A1234AA", "A1234AB", "A1234AC", "A1234AD",
                         "A1234AE", "A1234AF", "A1234AG", "A1234AH", "A1234AI", "A1234AJ", "A1234AK", "A1234AL",

@@ -9,15 +9,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel(description = "The Offender NOMS ID")
+@ApiModel(description = "The NOMS Offender Number")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OffenderNomsId {
+public class OffenderNumber {
 
-    @ApiModelProperty("nomsId")
-    private String nomsId;
+    @ApiModelProperty("offenderNumber")
+    private String offenderNumber;
 
 }

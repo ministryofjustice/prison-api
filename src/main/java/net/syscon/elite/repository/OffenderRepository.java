@@ -1,6 +1,6 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.OffenderNomsId;
+import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.model.PrisonerInformation;
@@ -26,7 +26,7 @@ public interface OffenderRepository {
      */
     Page<PrisonerDetail> findOffenders(PrisonerDetailSearchCriteria criteria, PageRequest pageRequest);
 
-    Page<OffenderNomsId> listAllOffenders(PageRequest pageRequest);
+    Page<OffenderNumber> listAllOffenders(PageRequest pageRequest);
 
     Page<PrisonerInformation> getPrisonersInPrison(String agencyId, PageRequest pageRequest);
 

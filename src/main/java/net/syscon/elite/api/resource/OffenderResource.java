@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Api(tags = {"/offenders"})
 public interface OffenderResource {
@@ -204,7 +203,7 @@ public interface OffenderResource {
     @Produces({"application/json"})
     @ApiOperation(value = "Return a list of all offender NOMS IDs.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderNomsId.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "OK", response = OffenderNumber.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Response getOffenderNomsIds(
