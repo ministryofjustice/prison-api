@@ -14,8 +14,7 @@ import net.syscon.elite.core.RestResource;
         title = "HMPPS Nomis API Documentation",
         description = "API for access to NOMIS Database",
         contact = @Contact(name = "HMPPS Digital Studio",
-                url = "http://digital.prison.service.justice.gov.uk",
-                email = "feedback@digital.justice.gov.uk"),
-        termsOfService = "https://gateway.nomis-api.service.justice.gov.uk/auth/terms")  )
+                url = "https://digital.prison.service.justice.gov.uk",
+                email = "feedback@digital.justice.gov.uk"))  )
 public interface SwaggerInfo {
 }
