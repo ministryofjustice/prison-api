@@ -579,7 +579,8 @@ public interface BookingResource {
     @Path("/{bookingId}/sentenceDetail")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Offender sentence detail (key dates and additional days awarded).", notes = "Offender sentence detail (key dates and additional days awarded).", nickname = "getBookingSentenceDetail")
+    @ApiOperation(value = "Offender sentence detail (key dates and additional days awarded).", nickname = "getBookingSentenceDetail",
+            notes = "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = SentenceDetail.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),

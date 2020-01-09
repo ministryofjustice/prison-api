@@ -21,39 +21,39 @@ import java.time.LocalDate;
 @Data
 public class BaseSentenceDetail {
 
-    @ApiModelProperty(value = "SED - date on which sentence expires.", position = 50)
+    @ApiModelProperty(value = "SED - date on which sentence expires.", position = 50, example = "2020-02-03")
     private LocalDate sentenceExpiryDate;
-    @ApiModelProperty(value = "ARD - calculated automatic (unconditional) release date for offender.", position = 51)
+    @ApiModelProperty(value = "ARD - calculated automatic (unconditional) release date for offender.", position = 51, example = "2020-02-03")
     private LocalDate automaticReleaseDate;
-    @ApiModelProperty(value = "CRD - calculated conditional release date for offender.", position = 52)
+    @ApiModelProperty(value = "CRD - calculated conditional release date for offender.", position = 52, example = "2020-02-03")
     private LocalDate conditionalReleaseDate;
-    @ApiModelProperty(value = "NPD - calculated non-parole date for offender (relating to the 1991 act).", position = 53)
+    @ApiModelProperty(value = "NPD - calculated non-parole date for offender (relating to the 1991 act).", position = 53, example = "2020-02-03")
     private LocalDate nonParoleDate;
-    @ApiModelProperty(value = "PRRD - calculated post-recall release date for offender.", position = 54)
+    @ApiModelProperty(value = "PRRD - calculated post-recall release date for offender.", position = 54, example = "2020-02-03")
     private LocalDate postRecallReleaseDate;
-    @ApiModelProperty(value = "LED - date on which offender licence expires.", position = 55)
+    @ApiModelProperty(value = "LED - date on which offender licence expires.", position = 55, example = "2020-02-03")
     private LocalDate licenceExpiryDate;
-    @ApiModelProperty(value = "HDCED - date on which offender will be eligible for home detention curfew.", position = 56)
+    @ApiModelProperty(value = "HDCED - date on which offender will be eligible for home detention curfew.", position = 56, example = "2020-02-03")
     private LocalDate homeDetentionCurfewEligibilityDate;
-    @ApiModelProperty(value = "PED - date on which offender is eligible for parole.", position = 57)
+    @ApiModelProperty(value = "PED - date on which offender is eligible for parole.", position = 57, example = "2020-02-03")
     private LocalDate paroleEligibilityDate;
-    @ApiModelProperty(value = "HDCAD - the offender's actual home detention curfew date.", position = 58)
+    @ApiModelProperty(value = "HDCAD - the offender's actual home detention curfew date.", position = 58, example = "2020-02-03")
     private LocalDate homeDetentionCurfewActualDate;
-    @ApiModelProperty(value = "APD - the offender's actual parole date.", position = 59)
+    @ApiModelProperty(value = "APD - the offender's actual parole date.", position = 59, example = "2020-02-03")
     private LocalDate actualParoleDate;
-    @ApiModelProperty(value = "ROTL - the date on which offender will be released on temporary licence.", position = 60)
+    @ApiModelProperty(value = "ROTL - the date on which offender will be released on temporary licence.", position = 60, example = "2020-02-03")
     private LocalDate releaseOnTemporaryLicenceDate;
-    @ApiModelProperty(value = "ERSED - the date on which offender will be eligible for early removal (under the Early Removal Scheme for foreign nationals).", position = 61)
+    @ApiModelProperty(value = "ERSED - the date on which offender will be eligible for early removal (under the Early Removal Scheme for foreign nationals).", position = 61, example = "2020-02-03")
     private LocalDate earlyRemovalSchemeEligibilityDate;
-    @ApiModelProperty(value = "ETD - early term date for offender.", position = 62)
+    @ApiModelProperty(value = "ETD - early term date for offender.", position = 62, example = "2020-02-03")
     private LocalDate earlyTermDate;
-    @ApiModelProperty(value = "MTD - mid term date for offender.", position = 63)
+    @ApiModelProperty(value = "MTD - mid term date for offender.", position = 63, example = "2020-02-03")
     private LocalDate midTermDate;
-    @ApiModelProperty(value = "LTD - late term date for offender.", position = 64)
+    @ApiModelProperty(value = "LTD - late term date for offender.", position = 64, example = "2020-02-03")
     private LocalDate lateTermDate;
-    @ApiModelProperty(value = "TUSED - top-up supervision expiry date for offender.", position = 65)
+    @ApiModelProperty(value = "TUSED - top-up supervision expiry date for offender.", position = 65, example = "2020-02-03")
     private LocalDate topupSupervisionExpiryDate;
-    @ApiModelProperty(value = "Date on which minimum term is reached for parole (indeterminate/life sentences).", position = 66)
+    @ApiModelProperty(value = "Date on which minimum term is reached for parole (indeterminate/life sentences).", position = 66, example = "2020-02-03")
     private LocalDate tariffDate;
 
 }

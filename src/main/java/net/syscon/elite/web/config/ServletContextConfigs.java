@@ -83,7 +83,7 @@ public class ServletContextConfigs extends ResourceConfig {
 
         final var config = new BeanConfig();
 
-        config.setConfigId("net-syscon-elite2-api");
+        config.setConfigId("elite2-api");
         config.setTitle("HMPPS Nomis API Documentation");
         config.setVersion(getVersion());
         config.setContact("HMPPS Sheffield Studio Development Team");

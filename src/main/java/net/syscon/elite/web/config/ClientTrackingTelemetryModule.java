@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.util.IpAddressHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
+
+import static net.syscon.util.MdcUtility.IP_ADDRESS;
 
 @Slf4j
 @Configuration
@@ -50,7 +53,7 @@ public class ClientTrackingTelemetryModule implements WebTelemetryModule, Teleme
 
                 properties.put("username", String.valueOf(jwtBody.get("user_name")));
                 properties.put("clientId", String.valueOf(jwtBody.get("client_id")));
-
+                properties.put(IP_ADDRESS, IpAddressHelper.retrieveIpFromRemoteAddr(httpServletRequest));
             } catch (ExpiredJwtException e) {
                 // Expired token which spring security will handle
             } catch (GeneralSecurityException | IOException e) {
