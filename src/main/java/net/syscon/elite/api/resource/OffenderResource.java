@@ -201,12 +201,12 @@ public interface OffenderResource {
     @Path("/ids")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Return a list of all offender NOMS IDs.")
+    @ApiOperation(value = "Return a list of all unique Noms IDs (also called Prisoner number and offenderNo).")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderNumber.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    Response getOffenderNomsIds(
-            @ApiParam(value = "Requested offset of first offender NOMS ID in returned list.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
-            @ApiParam(value = "Requested limit to the offender NOMS IDs returned.", defaultValue = "100") @HeaderParam("Page-Limit") Long pageLimit);
+    Response getOffenderNumbers(
+            @ApiParam(value = "Requested offset of first Noms ID in returned list.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+            @ApiParam(value = "Requested limit to the Noms IDs returned.", defaultValue = "100") @HeaderParam("Page-Limit") Long pageLimit);
 }

@@ -249,14 +249,6 @@ public class OffendersResourceTest extends ResourceTest {
         assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
     }
 
-    @Test
-    public void listAllOffendersForbiddenWithoutCorrectRole() {
-
-        assertThatStatus(
-                listAllOffendersUsingRoles("ROLE_IS_INCORRECT"),
-                403);
-    }
-
     private ResponseEntity<String> listAllOffendersUsingRoles(final String... roles) {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation(

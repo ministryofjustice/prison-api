@@ -206,10 +206,9 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    @PreAuthorize("hasRole('DATA_COMPLIANCE_ADMIN')")
-    public Response getOffenderNomsIds(final Long pageOffset, final Long pageLimit) {
+    public Response getOffenderNumbers(final Long pageOffset, final Long pageLimit) {
 
-        final var offenderNomsIds = offenderDataComplianceService.getOffenderNomsIds(pageOffset, pageLimit);
+        final var offenderNomsIds = offenderDataComplianceService.getOffenderNumbers(pageOffset, pageLimit);
 
         return Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON)

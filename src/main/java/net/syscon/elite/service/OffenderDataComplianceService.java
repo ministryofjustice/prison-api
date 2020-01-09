@@ -7,5 +7,5 @@ public interface OffenderDataComplianceService {
 
     void deleteOffender(String offenderNo);
 
-    Page<OffenderNumber> getOffenderNomsIds(long offset, long limit);
+    Page<OffenderNumber> getOffenderNumbers(long offset, long limit);
 }

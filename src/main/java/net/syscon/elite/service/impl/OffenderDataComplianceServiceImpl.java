@@ -26,7 +26,7 @@ public class OffenderDataComplianceServiceImpl implements OffenderDataCompliance
     }
 
     @Override
-    public Page<OffenderNumber> getOffenderNomsIds(long offset, long limit) {
+    public Page<OffenderNumber> getOffenderNumbers(long offset, long limit) {
         return offenderRepository.listAllOffenders(new PageRequest(offset, limit));
     }
 }
