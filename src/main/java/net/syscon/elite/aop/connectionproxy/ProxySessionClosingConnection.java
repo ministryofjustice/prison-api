@@ -25,8 +25,15 @@ public class ProxySessionClosingConnection implements Connection {
     public void close() throws SQLException {
         final var oracleConnection = (OracleConnection) wrappedConnection.unwrap(Connection.class);
         log.debug("Closing proxy connection {}", oracleConnection);
+        clearContext(oracleConnection);
         oracleConnection.close(OracleConnection.PROXY_SESSION);
         wrappedConnection.close();
+    }
+
+    private void clearContext(final Connection conn) throws SQLException {
+        try (final var ps = conn.prepareStatement("BEGIN nomis_context.close_session(); END;")) {
+            ps.execute();
+        }
     }
 
     @Override

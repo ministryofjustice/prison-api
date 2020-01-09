@@ -5,12 +5,15 @@ import net.syscon.elite.security.AuthenticationFacade;
 import oracle.jdbc.driver.OracleConnection;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.MDC;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
 import static java.lang.String.format;
+import static net.syscon.util.MdcUtility.IP_ADDRESS;
+import static net.syscon.util.MdcUtility.USER_ID_HEADER;
 
 @Aspect
 @Slf4j
@@ -48,6 +51,8 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
 
         setDefaultSchema(wrappedConnection);
 
+        setContext(wrappedConnection);
+
         roleConfigurer.setRoleForConnection(oracleConnection);
 
         return wrappedConnection;
@@ -77,6 +82,20 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
             try (final var ps = conn.prepareStatement(format("ALTER SESSION SET CURRENT_SCHEMA=%s", defaultSchema))) {
                 ps.execute();
             }
+        }
+    }
+
+    private void setContext(final Connection conn) throws SQLException {
+        final var sql = format("BEGIN \n" +
+                "nomis_context.set_context('AUDIT_MODULE_NAME','%s'); \n" +
+                "nomis_context.set_context('AUDIT_CLIENT_USER_ID','%s'); \n" +
+                "nomis_context.set_context('AUDIT_CLIENT_IP_ADDRESS','%s'); \n" +
+                "END;",
+                "ELITE2_API",
+                MDC.get(USER_ID_HEADER),
+                MDC.get(IP_ADDRESS));
+        try (final var ps = conn.prepareStatement(sql)) {
+            ps.execute();
         }
     }
 }

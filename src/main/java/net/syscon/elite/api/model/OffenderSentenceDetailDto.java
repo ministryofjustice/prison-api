@@ -106,7 +106,8 @@ public class OffenderSentenceDetailDto {
     @ApiModelProperty(value = "Confirmed release date for offender.", example = "2019-04-02")
     private LocalDate confirmedReleaseDate;
 
-    @ApiModelProperty(value = "Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm.", example = "2019-04-02")
+    @ApiModelProperty(value = "Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm." +
+            "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>", example = "2019-04-02")
     private LocalDate releaseDate;
 
     @ApiModelProperty(value = "Date on which minimum term is reached for parole (indeterminate/life sentences).", example = "2019-04-02")
