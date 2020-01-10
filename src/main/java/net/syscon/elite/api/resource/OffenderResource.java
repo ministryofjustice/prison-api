@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Api(tags = {"/offenders"})
 public interface OffenderResource {
@@ -197,4 +196,17 @@ public interface OffenderResource {
             @ApiResponse(code = 404, message = "Resource not found - offender does not exist or is not accessible to user.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     void deleteOffender(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathParam("offenderNo") @NotNull String offenderNo);
+
+    @GET
+    @Path("/ids")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Return a list of all unique Noms IDs (also called Prisoner number and offenderNo).")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderNumber.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Response getOffenderNumbers(
+            @ApiParam(value = "Requested offset of first Noms ID in returned list.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+            @ApiParam(value = "Requested limit to the Noms IDs returned.", defaultValue = "100") @HeaderParam("Page-Limit") Long pageLimit);
 }

@@ -1,9 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.PrisonerDetail;
-import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
-import net.syscon.elite.api.model.PrisonerInformation;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.OffenderRepository;
@@ -21,10 +19,13 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
     private final StandardBeanPropertyRowMapper<PrisonerInformation> PRISONER_INFORMATION_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerInformation.class);
 
+    private final StandardBeanPropertyRowMapper<OffenderNumber> OFFENDER_NUMBER_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderNumber.class);
+
     public Page<PrisonerInformation> getPrisonersInPrison(final String agencyId, final PageRequest pageRequest) {
         final var initialSql = getQuery("PRISONERS_AT_LOCATION");
 
-        final var sql = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_INFORMATION_MAPPER.getFieldMap())
+        final var sql = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_INFORMATION_MAPPER)
                 .addRowCount()
                 .addOrderBy(pageRequest)
                 .addPagination()
@@ -44,7 +45,7 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
     public Page<PrisonerDetail> findOffenders(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
         final var initialSql = getQuery("SEARCH_OFFENDERS");
 
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER);
         final var dialect = builder.getDialect();
         final var columnMappings = ColumnMapper.getColumnMappingsForDialect(dialect);
 
@@ -57,7 +58,7 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
                 .addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
                 .build();
 
-        final var paRowMapper = new PageAwareRowMapper<PrisonerDetail>(PRISONER_DETAIL_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
 
         final var params =
                 createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
@@ -65,5 +66,22 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
         final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
 
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
+    }
+
+    @Override
+    public Page<OffenderNumber> listAllOffenders(final PageRequest pageRequest) {
+
+        final var sql = queryBuilderFactory.getQueryBuilder(getQuery("LIST_ALL_OFFENDERS"), OFFENDER_NUMBER_MAPPER)
+                .addRowCount()
+                .addPagination()
+                .build();
+
+        final var paRowMapper = new PageAwareRowMapper<>(OFFENDER_NUMBER_MAPPER);
+
+        final var params = createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
+
+        final var offenderNumbers = jdbcTemplate.query(sql, params, paRowMapper);
+
+        return new Page<>(offenderNumbers, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 }
