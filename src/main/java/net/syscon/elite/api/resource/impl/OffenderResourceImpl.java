@@ -208,13 +208,15 @@ public class OffenderResourceImpl implements OffenderResource {
     @Override
     public Response getOffenderNumbers(final Long pageOffset, final Long pageLimit) {
 
-        final var offenderNomsIds = offenderDataComplianceService.getOffenderNumbers(pageOffset, pageLimit);
+        final var offenderNumbers = offenderDataComplianceService.getOffenderNumbers(
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 100L));
 
         return Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON)
-                .header("Total-Records", offenderNomsIds.getTotalRecords())
-                .header("Page-Offset", offenderNomsIds.getPageOffset())
-                .header("Page-Limit", offenderNomsIds.getPageLimit())
-                .entity(offenderNomsIds.getItems()).build();
+                .header("Total-Records", offenderNumbers.getTotalRecords())
+                .header("Page-Offset", offenderNumbers.getPageOffset())
+                .header("Page-Limit", offenderNumbers.getPageLimit())
+                .entity(offenderNumbers.getItems()).build();
     }
 }
