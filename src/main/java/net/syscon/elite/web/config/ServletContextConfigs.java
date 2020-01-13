@@ -87,7 +87,7 @@ public class ServletContextConfigs extends ResourceConfig {
         config.setTitle("HMPPS Nomis API Documentation");
         config.setVersion(getVersion());
         config.setContact("HMPPS Sheffield Studio Development Team");
-        config.setSchemes(new String[]{"https", "http"});
+        config.setSchemes(new String[]{"https"});
         config.setBasePath(contextPath + apiPath);
         config.setResourcePackage("net.syscon.elite.api");
         config.setPrettyPrint(true);
