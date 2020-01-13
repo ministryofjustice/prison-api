@@ -8,11 +8,13 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken.ELITE2_API_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -240,7 +242,8 @@ public class OffendersResourceTest extends ResourceTest {
     @Test
     public void listAllOffenders() {
 
-        ResponseEntity<String> response = listAllOffendersUsingRoles("ROLE_DATA_COMPLIANCE_ADMIN");
+        ResponseEntity<String> response = listAllOffendersUsingHeaders(
+                Map.of("Page-Offset", "0", "Page-Limit", "100"));
 
         assertThatJsonFileAndStatus(response, 200, "list_all_offenders.json");
 
@@ -249,13 +252,20 @@ public class OffendersResourceTest extends ResourceTest {
         assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
     }
 
-    private ResponseEntity<String> listAllOffendersUsingRoles(final String... roles) {
+    @Test
+    public void listAllOffendersUsesDefaultPaginationParams() {
 
-        final var requestEntity = createHttpEntityWithBearerAuthorisation(
-                "SOME_USER",
-                asList(roles),
-                Map.of("Page-Offset", "0", "Page-Limit", "100"));
+        ResponseEntity<String> response = listAllOffendersUsingHeaders(Map.of());
 
+        assertThatJsonFileAndStatus(response, 200, "list_all_offenders.json");
+
+        assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
+        assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
+        assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
+    }
+
+    private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER), null, headers);
         return testRestTemplate.exchange("/api/offenders/ids", HttpMethod.GET, requestEntity, String.class);
     }
 }
