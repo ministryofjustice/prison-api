@@ -12,7 +12,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
 
   elite2-api:
-    build: .
+    image: mojdigitalstudio/elite2-api:latest
     container_name: elite2-api
     depends_on:
       - oauth-server
