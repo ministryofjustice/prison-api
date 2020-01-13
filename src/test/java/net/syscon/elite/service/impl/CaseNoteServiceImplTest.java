@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.UserService;
 import org.junit.Before;
@@ -32,13 +33,16 @@ public class CaseNoteServiceImplTest {
     private UserService userService;
 
     @Mock
+    private BookingService bookingService;
+
+    @Mock
     private AuthenticationFacade authenticationFacade;
 
     private CaseNoteService caseNoteService;
 
     @Before
     public void setUp() {
-        caseNoteService = new CaseNoteServiceImpl(repository, new CaseNoteTransformer(userService, null), userService, authenticationFacade, 10);
+        caseNoteService = new CaseNoteServiceImpl(repository, new CaseNoteTransformer(userService, null), userService, authenticationFacade, bookingService, 10);
     }
 
     @Test

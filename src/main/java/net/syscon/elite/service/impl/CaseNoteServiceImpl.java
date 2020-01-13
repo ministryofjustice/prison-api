@@ -8,6 +8,8 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.security.VerifyOffenderAccess;
+import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.UserService;
@@ -49,16 +51,19 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     private final CaseNoteRepository caseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final UserService userService;
+    private final BookingService bookingService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
 
     public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
                                final UserService userService,
                                final AuthenticationFacade authenticationFacade,
+                               final BookingService bookingService,
                                @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
+        this.bookingService = bookingService;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
     }
@@ -142,6 +147,22 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
         return getCaseNote(bookingId, caseNoteId);
+    }
+
+    @Override
+    @Transactional
+    @VerifyOffenderAccess
+    public CaseNote createCaseNote(String offenderNo, @NotNull @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
+        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        return createCaseNote(latestBookingByOffenderNo.getBookingId(), caseNote, username);
+    }
+
+    @Override
+    @Transactional
+    @VerifyOffenderAccess
+    public CaseNote updateCaseNote(String offenderNo, Long caseNoteId, String username, @NotBlank(message = "{caseNoteTextBlank}") String newCaseNoteText) {
+        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        return updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, username, newCaseNoteText);
     }
 
     @Override

@@ -20,6 +20,10 @@ public interface CaseNoteService {
 
     CaseNote updateCaseNote(Long bookingId, Long caseNoteId, String username, @NotBlank(message = "{caseNoteTextBlank}") String newCaseNoteText);
 
+    CaseNote createCaseNote(String offenderNo, @NotNull @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username);
+
+    CaseNote updateCaseNote(String offenderNo, Long caseNoteId, String username, @NotBlank(message = "{caseNoteTextBlank}") String newCaseNoteText);
+
     CaseNoteCount getCaseNoteCount(Long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate);
 
     List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType);
