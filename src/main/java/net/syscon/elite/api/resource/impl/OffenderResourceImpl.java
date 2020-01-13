@@ -42,7 +42,7 @@ public class OffenderResourceImpl implements OffenderResource {
     private final AdjudicationService adjudicationService;
     private final CaseNoteService caseNoteService;
     private final BookingService bookingService;
-    private final OffenderDeletionService offenderDeletionService;
+    private final OffenderDataComplianceService offenderDataComplianceService;
     private final AuthenticationFacade authenticationFacade;
 
     @Override
@@ -202,6 +202,21 @@ public class OffenderResourceImpl implements OffenderResource {
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('DELETE_OFFENDER')")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteOffender(final String offenderNo) {
-        offenderDeletionService.deleteOffender(offenderNo);
+        offenderDataComplianceService.deleteOffender(offenderNo);
+    }
+
+    @Override
+    public Response getOffenderNumbers(final Long pageOffset, final Long pageLimit) {
+
+        final var offenderNumbers = offenderDataComplianceService.getOffenderNumbers(
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 100L));
+
+        return Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .header("Total-Records", offenderNumbers.getTotalRecords())
+                .header("Page-Offset", offenderNumbers.getPageOffset())
+                .header("Page-Limit", offenderNumbers.getPageLimit())
+                .entity(offenderNumbers.getItems()).build();
     }
 }

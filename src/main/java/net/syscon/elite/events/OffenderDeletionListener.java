@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.events.dto.OffenderDeletionEvent;
-import net.syscon.elite.service.OffenderDeletionService;
+import net.syscon.elite.service.OffenderDataComplianceService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 @ConditionalOnProperty(name = "offender.deletion.sqs.provider")
 public class OffenderDeletionListener {
 
-    private final OffenderDeletionService offenderDeletionService;
+    private final OffenderDataComplianceService offenderDataComplianceService;
     private final ObjectMapper objectMapper;
 
     @JmsListener(destination = "${offender.deletion.sqs.queue.name}")
@@ -31,7 +31,7 @@ public class OffenderDeletionListener {
 
         log.debug("Handling incoming offender deletion request: {}", requestJson);
 
-        offenderDeletionService.deleteOffender(
+        offenderDataComplianceService.deleteOffender(
                 getOffenderIdDisplay(requestJson));
     }
 

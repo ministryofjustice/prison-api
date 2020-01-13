@@ -8,15 +8,16 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
+import static net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken.ELITE2_API_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class OffendersResourceTest extends ResourceTest {
 
@@ -234,7 +235,37 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     private ResponseEntity<Void> deleteOffenderWithRoles(final String... roles) {
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("SOME_USER", Arrays.asList(roles), Map.of());
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("SOME_USER", asList(roles), Map.of());
         return testRestTemplate.exchange("/api/offenders/" + OFFENDER_NUMBER, HttpMethod.DELETE, requestEntity, Void.class);
+    }
+
+    @Test
+    public void listAllOffenders() {
+
+        ResponseEntity<String> response = listAllOffendersUsingHeaders(
+                Map.of("Page-Offset", "0", "Page-Limit", "100"));
+
+        assertThatJsonFileAndStatus(response, 200, "list_all_offenders.json");
+
+        assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
+        assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
+        assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
+    }
+
+    @Test
+    public void listAllOffendersUsesDefaultPaginationParams() {
+
+        ResponseEntity<String> response = listAllOffendersUsingHeaders(Map.of());
+
+        assertThatJsonFileAndStatus(response, 200, "list_all_offenders.json");
+
+        assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
+        assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
+        assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
+    }
+
+    private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER), null, headers);
+        return testRestTemplate.exchange("/api/offenders/ids", HttpMethod.GET, requestEntity, String.class);
     }
 }
