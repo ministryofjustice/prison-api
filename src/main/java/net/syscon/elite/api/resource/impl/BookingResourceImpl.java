@@ -19,7 +19,9 @@ import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
@@ -41,6 +43,7 @@ import static net.syscon.util.ResourceUtils.nvl;
  */
 @RestResource
 @Path("/bookings")
+@Validated
 @AllArgsConstructor
 public class BookingResourceImpl implements BookingResource {
     private final AuthenticationFacade authenticationFacade;
@@ -76,7 +79,7 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_CREATE')")
     @ProxyUser
-    public CreateOffenderBookingResponse createOffenderBooking(final NewBooking newBooking) {
+    public CreateOffenderBookingResponse createOffenderBooking(@Valid final NewBooking newBooking) {
         // Step 1.
         // This service supports idempotent request control. First step is to check for existence of a response for
         // a previous request that used the same correlationId. If no correlationId is provided, this step can be skipped.
@@ -131,7 +134,7 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_RECALL')")
     @ProxyUser
-    public RecallOffenderBookingResponse recallOffenderBooking(final RecallBooking recallBooking) {
+    public RecallOffenderBookingResponse recallOffenderBooking(@Valid final RecallBooking recallBooking) {
         final var offenderSummary =
                 bookingMaintenanceService.recallBooking(authenticationFacade.getCurrentUsername(), recallBooking);
 

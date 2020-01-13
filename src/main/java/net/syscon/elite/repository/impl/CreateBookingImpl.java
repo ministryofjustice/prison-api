@@ -42,7 +42,7 @@ public class CreateBookingImpl {
         // Initialise parameters
         final var now = DateTimeConverter.toDate(LocalDateTime.now());
 
-        final var youthOffender = newBooking.getYouthOffender() ? "Y" : "N";
+        final var youthOffender = newBooking.isYouthOffender() ? "Y" : "N";
 
         final var params = new MapSqlParameterSource()
                 .addValue("p_noms_id", newBooking.getOffenderNo(), Types.VARCHAR)
