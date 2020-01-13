@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
 
+import static java.lang.String.format;
 import static net.syscon.util.MdcUtility.*;
 
 
@@ -52,8 +53,12 @@ public class RequestLogFilter implements Filter {
 
         try {
             final var start = LocalDateTime.now();
+
+            final var requestUri = format("%s %s", req.getMethod(), req.getRequestURI());
+            MDC.put(REQUEST_URI, requestUri);
+
             if (log.isTraceEnabled() && isLoggingAllowed()) {
-                log.trace("Request: {} {}", req.getMethod(), req.getRequestURI());
+                log.trace("Request: {}", requestUri);
             }
 
             chain.doFilter(request, response);
@@ -63,12 +68,13 @@ public class RequestLogFilter implements Filter {
             final var status = res.getStatus();
             MDC.put(RESPONSE_STATUS, String.valueOf(status));
             if (log.isTraceEnabled() && isLoggingAllowed()) {
-                log.trace("Response: {} {} - Status {} - Start {}, Duration {} ms", req.getMethod(), req.getRequestURI(), status, start.format(formatter), duration);
+                log.trace("Response: {} - Status {} - Start {}, Duration {} ms", requestUri, status, start.format(formatter), duration);
             }
         } finally {
             MDC.remove(REQUEST_DURATION);
             MDC.remove(RESPONSE_STATUS);
             MDC.remove(SKIP_LOGGING);
+            MDC.remove(REQUEST_URI);
         }
     }
 
