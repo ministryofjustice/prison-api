@@ -11,6 +11,7 @@ import java.util.Map;
 @Setter
 public class Address {
     private String agencyId;
+    private String description;
     private String addressType;
     private String premise;
     private String street;

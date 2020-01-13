@@ -184,6 +184,7 @@ public class AgencyRepositoryTest {
     private PrisonContactDetail buildBmiPrisonContactDetails() {
         return PrisonContactDetail.builder()
                 .agencyId("BMI")
+                .description("BIRMINGHAM")
                 .addressType("BUS")
                 .premise("Birmingham HMP")
                 .locality("Ambley")
