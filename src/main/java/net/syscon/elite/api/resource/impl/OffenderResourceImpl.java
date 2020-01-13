@@ -10,6 +10,7 @@ import net.syscon.elite.api.resource.IncidentsResource.IncidentListResponse;
 import net.syscon.elite.api.resource.OffenderResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
@@ -171,22 +172,22 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    @VerifyOffenderAccess
+    @PreAuthorize("#oauth2.hasScope('write')")
+    @ProxyUser
     public CaseNote createOffenderCaseNote(final String offenderNo, final NewCaseNote body) {
-        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         try {
-            return caseNoteService.createCaseNote(latestBookingByOffenderNo.getBookingId(), body, authenticationFacade.getCurrentUsername());
+            return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
         } catch (EntityNotFoundException e) {
             throw EntityNotFoundException.withId(offenderNo);
         }
     }
 
     @Override
-    @VerifyOffenderAccess
+    @PreAuthorize("#oauth2.hasScope('write')")
+    @ProxyUser
     public CaseNote updateOffenderCaseNote(final String offenderNo, final Long caseNoteId, final UpdateCaseNote body) {
-        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         try {
-            return caseNoteService.updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
+            return caseNoteService.updateCaseNote(offenderNo, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
         } catch (EntityNotFoundException e) {
             throw EntityNotFoundException.withId(offenderNo);
         }

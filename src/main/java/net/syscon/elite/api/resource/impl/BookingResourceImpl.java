@@ -443,9 +443,7 @@ public class BookingResourceImpl implements BookingResource {
     @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
     public CreateOffenderCaseNoteResponse createOffenderCaseNote(final String offenderNo, final NewCaseNote body) {
-        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        final var caseNote = caseNoteService.createCaseNote(latestBookingByOffenderNo.getBookingId(), body, authenticationFacade.getCurrentUsername());
-
+        final var caseNote = caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
         return CreateOffenderCaseNoteResponse.respond201WithApplicationJson(caseNote);
     }
 

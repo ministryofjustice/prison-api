@@ -111,10 +111,12 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
     }
 
     private String getPrisonWhereOffenderBookingIsToBeCreated(final String requestedPrisonId) {
-        String prisonId = requestedPrisonId;
-        if (StringUtils.isBlank(prisonId)) {
+        final String prisonId;
+        if (StringUtils.isBlank(requestedPrisonId)) {
             final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername()).orElseThrow(() -> new IllegalStateException("Unable to determine caseload location for current user."));
             prisonId = caseLoad.getCaseLoadId();
+        } else {
+            prisonId = requestedPrisonId;
         }
 
         if (agencyService.getAgency(prisonId, StatusFilter.ACTIVE_ONLY, "INST") == null) {

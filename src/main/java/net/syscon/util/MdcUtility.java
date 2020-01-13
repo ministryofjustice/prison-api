@@ -12,6 +12,7 @@ public class MdcUtility {
     public static final String SKIP_LOGGING = "skipLogging";
     public static final String PROXY_USER = "proxy-user";
     public static final String IP_ADDRESS = "clientIpAddress";
+    public static final String REQUEST_URI = "request-url";
 
     public static boolean isLoggingAllowed() {
         return !"true".equals(MDC.get(SKIP_LOGGING));
