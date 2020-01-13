@@ -44,7 +44,7 @@ public class RecallBookingImpl {
         // Initialise parameters
         final var now = DateTimeConverter.toDate(LocalDateTime.now());
 
-        final var youthOffender = recallBooking.getYouthOffender() ? "Y" : "N";
+        final var youthOffender = recallBooking.isYouthOffender() ? "Y" : "N";
 
         final var params = new MapSqlParameterSource()
                 .addValue("p_noms_id", recallBooking.getOffenderNo(), Types.VARCHAR)

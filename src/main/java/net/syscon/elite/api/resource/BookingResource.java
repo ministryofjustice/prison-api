@@ -742,7 +742,7 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Request to create offender booking failed. Consult response for reason.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "User not authorised to create offender booking.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    CreateOffenderBookingResponse createOffenderBooking(@ApiParam(value = "Details required to enable creation of new offender booking (and offender, if necessary).", required = true) NewBooking body);
+    CreateOffenderBookingResponse createOffenderBooking(@ApiParam(value = "Details required to enable creation of new offender booking (and offender, if necessary).", required = true) @Valid NewBooking body);
 
     @POST
     @Path("/{bookingId}/appointments")
@@ -823,7 +823,7 @@ public interface BookingResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Offender successfully recalled.", response = OffenderSummary.class),
             @ApiResponse(code = 400, message = "Request to recall offender failed. Consult response for reason.", response = ErrorResponse.class)})
-    RecallOffenderBookingResponse recallOffenderBooking(@ApiParam(value = "Details required to enable recall of offender.", required = true) RecallBooking body);
+    RecallOffenderBookingResponse recallOffenderBooking(@ApiParam(value = "Details required to enable recall of offender.", required = true) @Valid RecallBooking body);
 
     @PUT
     @Path("/{bookingId}/caseNotes/{caseNoteId}")
