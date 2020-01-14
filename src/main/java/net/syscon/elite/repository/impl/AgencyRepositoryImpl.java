@@ -237,6 +237,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
         final var address = addressList.stream().findAny().get();
         return PrisonContactDetail.builder().agencyId(address.getAgencyId())
+                .description(address.getDescription())
                 .addressType(address.getAddressType())
                 .phones(telephones)
                 .locality(address.getLocality())

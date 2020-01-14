@@ -49,6 +49,7 @@ FIND_AGENCIES_BY_CURRENT_CASELOAD {
 FIND_PRISON_ADDRESSES_PHONE_NUMBERS {
   SELECT
     al.AGY_LOC_ID agency_id,
+    al.DESCRIPTION,
     ad.address_type,
     ad.PREMISE,
     ad.STREET,
