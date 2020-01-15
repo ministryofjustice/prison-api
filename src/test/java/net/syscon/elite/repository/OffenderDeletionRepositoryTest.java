@@ -42,7 +42,8 @@ public class OffenderDeletionRepositoryTest {
 
         assertOffenderDataExists();
 
-        repository.deleteOffender("A1234AA");
+        assertThat(repository.deleteOffender("A1234AA"))
+                .containsExactly("-1001");
 
         assertOffenderDataDeleted();
     }

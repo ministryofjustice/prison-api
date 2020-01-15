@@ -16,11 +16,11 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
     private boolean enableParallelHints;
 
     @Override
-    public void deleteOffender(final String offenderNumber) {
+    public Set<String> deleteOffender(final String offenderNumber) {
 
         log.info("Deleting all data for offender: '{}'", offenderNumber);
 
-        final List<String> offenderIds = offenderIdsFor(offenderNumber);
+        final Set<String> offenderIds = new HashSet<>(offenderIdsFor(offenderNumber));
 
         if (offenderIds.isEmpty()) {
             throw EntityNotFoundException.withId(offenderNumber);
@@ -34,26 +34,28 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         deleteOffenderData(offenderIds);
 
         log.info("Deleted {} offender records with offenderNumber: '{}'", offenderIds.size(), offenderNumber);
+
+        return offenderIds;
     }
 
-    private List<String> offenderIdsFor(final String offenderNumber) {
-        return jdbcTemplate.queryForList(
+    private Set<String> offenderIdsFor(final String offenderNumber) {
+        return new HashSet<>(jdbcTemplate.queryForList(
                 getQuery("OD_OFFENDER_IDS"),
                 createParams("offenderNo", offenderNumber),
-                String.class);
-    }
-
-    private void deleteOffenderBookings(final List<String> offenderIds) {
-
-        log.debug("Deleting all offender booking data for offender ID: '{}'", offenderIds);
-
-        deleteOffenderBooking(jdbcTemplate.queryForList(
-                getQuery("OD_OFFENDER_BOOKING_IDS"),
-                createParams("offenderIds", offenderIds),
                 String.class));
     }
 
-    private void deleteOffenderBooking(final List<String> bookIds) {
+    private void deleteOffenderBookings(final Set<String> offenderIds) {
+
+        log.debug("Deleting all offender booking data for offender ID: '{}'", offenderIds);
+
+        deleteOffenderBooking(new HashSet<>(jdbcTemplate.queryForList(
+                getQuery("OD_OFFENDER_BOOKING_IDS"),
+                createParams("offenderIds", offenderIds),
+                String.class)));
+    }
+
+    private void deleteOffenderBooking(final Set<String> bookIds) {
 
         log.debug("Deleting all offender booking data for book ID: '{}'", bookIds);
 
@@ -123,14 +125,14 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_VSC_ERROR_LOGS", bookIds);
     }
 
-    private void deleteOffenderCases(final List<String> bookIds) {
+    private void deleteOffenderCases(final Set<String> bookIds) {
         deleteOrders(bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CASE_IDENTIFIERS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CASE_STATUSES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CASES", bookIds);
     }
 
-    private void deleteOrders(final List<String> bookIds) {
+    private void deleteOrders(final Set<String> bookIds) {
         deleteOffenderSentences(bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_REORDER_SENTENCES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_ORDER_PURPOSES", bookIds);
@@ -138,7 +140,7 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         deleteCourtEventsAndOffenderCharges(bookIds);
     }
 
-    private void deleteOffenderSentences(final List<String> bookIds) {
+    private void deleteOffenderSentences(final Set<String> bookIds) {
         deleteOffenderCaseNotes(bookIds);
         deleteOffenderSentConditions(bookIds);
         deleteOffenderSentenceAdjusts(bookIds);
@@ -152,51 +154,51 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_SENTENCES", bookIds);
     }
 
-    private void deleteOffenderSentConditions(final List<String> bookIds) {
+    private void deleteOffenderSentConditions(final Set<String> bookIds) {
         deleteOffenderPrgObligations(bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_SENT_COND_STATUSES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_SENT_CONDITIONS", bookIds);
     }
 
-    private void deleteOffenderPrgObligations(final List<String> bookIds) {
+    private void deleteOffenderPrgObligations(final Set<String> bookIds) {
         deleteOffenderMovementApps(bookIds);
         deleteOffenderProgramProfiles(bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_PRG_OBLIGATION_HTY", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_PRG_OBLIGATIONS", bookIds);
     }
 
-    private void deleteOffenderMovementApps(final List<String> bookIds) {
+    private void deleteOffenderMovementApps(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_IND_SCH_SENTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_IND_SCHEDULES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_MOVEMENT_APPS", bookIds);
     }
 
-    private void deleteOffenderSentenceAdjusts(final List<String> bookIds) {
+    private void deleteOffenderSentenceAdjusts(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_SENTENCE_ADJUSTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_KEY_DATE_ADJUSTS", bookIds);
     }
 
-    private void deleteOffenderProgramProfiles(final List<String> bookIds) {
+    private void deleteOffenderProgramProfiles(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_COURSE_ATTENDANCES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_EXCLUDE_ACTS_SCHDS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_PRG_PRF_PAY_BANDS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_PROGRAM_PROFILES", bookIds);
     }
 
-    private void deleteOffenderCaseNotes(final List<String> bookIds) {
+    private void deleteOffenderCaseNotes(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CASE_NOTE_SENTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFF_CASE_NOTE_RECIPIENTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CASE_NOTES", bookIds);
     }
 
-    private void deleteCourtEventsAndOffenderCharges(final List<String> bookIds) {
+    private void deleteCourtEventsAndOffenderCharges(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_LINK_CASE_TXNS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_COURT_EVENT_CHARGES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_COURT_EVENTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CHARGES", bookIds);
     }
 
-    private void deleteAgencyIncidents(final List<String> bookIds) {
+    private void deleteAgencyIncidents(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_OIC_SANCTIONS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OIC_HEARING_RESULTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OIC_HEARING_COMMENTS", bookIds);
@@ -208,12 +210,12 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         executeNamedSqlWithBookingIds("OD_DELETE_AGENCY_INCIDENT_PARTIES", bookIds);
     }
 
-    private void deleteOffenderContactPersons(final List<String> bookIds) {
+    private void deleteOffenderContactPersons(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_PERSON_RESTRICTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CONTACT_PERSONS", bookIds);
     }
 
-    private void deleteOffenderCSIPReports(final List<String> bookIds) {
+    private void deleteOffenderCSIPReports(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CSIP_FACTORS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CSIP_INTVW", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CSIP_PLANS", bookIds);
@@ -222,12 +224,12 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CSIP_REPORTS", bookIds);
     }
 
-    private void deleteCurfewAddresses(final List<String> bookIds) {
+    private void deleteCurfewAddresses(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_CURFEW_ADDRESS_OCCUPANTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_CURFEW_ADDRESSES", bookIds);
     }
 
-    private void deleteHDCRequestReferrals(final List<String> bookIds) {
+    private void deleteHDCRequestReferrals(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_HDC_PROB_STAFF_RESPONSES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_HDC_PROB_STAFF_COMMENTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_HDC_BOARD_DECISIONS", bookIds);
@@ -235,12 +237,12 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         executeNamedSqlWithBookingIds("OD_DELETE_HDC_REQUEST_REFERRALS", bookIds);
     }
 
-    private void deleteHDCStatusTrackings(final List<String> bookIds) {
+    private void deleteHDCStatusTrackings(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_HDC_STATUS_REASONS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_HDC_STATUS_TRACKINGS", bookIds);
     }
 
-    private void deleteOffenderCurfews(final List<String> bookIds) {
+    private void deleteOffenderCurfews(final Set<String> bookIds) {
         deleteCurfewAddresses(bookIds);
         deleteHDCRequestReferrals(bookIds);
         deleteHDCStatusTrackings(bookIds);
@@ -248,81 +250,81 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CURFEWS", bookIds);
     }
 
-    private void deleteOffenderGangAffiliations(final List<String> bookIds) {
+    private void deleteOffenderGangAffiliations(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_GANG_INVESTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_GANG_EVIDENCES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_GANG_AFFILIATIONS", bookIds);
     }
 
-    private void deleteOffenderHealthProblems(final List<String> bookIds) {
+    private void deleteOffenderHealthProblems(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_MEDICAL_TREATMENTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_HEALTH_PROBLEMS", bookIds);
     }
 
-    private void deleteOffenderLIDSKeyDates(final List<String> bookIds) {
+    private void deleteOffenderLIDSKeyDates(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_LIDS_REMAND_DAYS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_LIDS_KEY_DATES", bookIds);
     }
 
-    private void deleteOffenderNonAssociations(final List<String> bookIds) {
+    private void deleteOffenderNonAssociations(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_NA_DETAILS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_NON_ASSOCIATIONS", bookIds);
     }
 
-    private void deleteOffenderRehabDecisions(final List<String> bookIds) {
+    private void deleteOffenderRehabDecisions(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_REHAB_PROVIDERS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_REHAB_DECISIONS", bookIds);
     }
 
-    private void deleteOffenderSentCalculations(final List<String> bookIds) {
+    private void deleteOffenderSentCalculations(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_HDC_CALC_EXCLUSION_REASONS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_SENT_CALCULATIONS", bookIds);
     }
 
-    private void deleteOffenderSubstanceUses(final List<String> bookIds) {
+    private void deleteOffenderSubstanceUses(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_SUBSTANCE_DETAILS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_SUBSTANCE_TREATMENTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_SUBSTANCE_USES", bookIds);
     }
 
-    private void deleteOffenderVisits(final List<String> bookIds) {
+    private void deleteOffenderVisits(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_VISIT_VISITORS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_VISITS", bookIds);
     }
 
-    private void deleteOffenderVisitBalances(final List<String> bookIds) {
+    private void deleteOffenderVisitBalances(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_VISIT_BALANCE_ADJS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_VISIT_BALANCES", bookIds);
     }
 
-    private void deleteOffenderVisitOrders(final List<String> bookIds) {
+    private void deleteOffenderVisitOrders(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_VO_VISITORS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_VISIT_ORDERS", bookIds);
     }
 
-    private void deleteOffenderVSCSentences(final List<String> bookIds) {
+    private void deleteOffenderVSCSentences(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_VSC_SENTENCE_TERMS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_VSC_SENTENCES", bookIds);
     }
 
-    private void deleteOffenderBeneficiaries(final List<String> offenderIds) {
+    private void deleteOffenderBeneficiaries(final Set<String> offenderIds) {
         executeNamedSqlWithOffenderIds("OD_DELETE_BENEFICIARY_TRANSACTIONS", offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_BENEFICIARIES", offenderIds);
     }
 
-    private void deleteOffenderDeductions(final List<String> offenderIds) {
+    private void deleteOffenderDeductions(final Set<String> offenderIds) {
         deleteOffenderBeneficiaries(offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_ADJUSTMENT_TXNS", offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_DEDUCTION_RECEIPTS", offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_DEDUCTIONS", offenderIds);
     }
 
-    private void deleteOffenderTransactions(final List<String> offenderIds) {
+    private void deleteOffenderTransactions(final Set<String> offenderIds) {
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_TRANSACTION_DETAILS", offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_TRANSACTIONS", offenderIds);
     }
 
-    private void deleteOffenderData(final List<String> offenderIds) {
+    private void deleteOffenderData(final Set<String> offenderIds) {
 
         log.debug("Deleting all (non-booking) offender data for offender ID: '{}'", offenderIds);
 
@@ -347,13 +349,13 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         log.info("Deleted {} bookings for offender ID: {}", bookingRowsDeleted, offenderIds);
     }
 
-    private void deleteAddresses(final List<String> offenderIds) {
+    private void deleteAddresses(final Set<String> offenderIds) {
         executeNamedSqlWithOffenderIds("OD_DELETE_ADDRESS_PHONES", offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_ADDRESS_USAGES", offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_ADDRESSES", offenderIds);
     }
 
-    private void deleteOffenderFinances(final List<String> offenderIds) {
+    private void deleteOffenderFinances(final Set<String> offenderIds) {
         deleteOffenderTransactions(offenderIds);
         deleteOffenderDeductions(offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_SUB_ACCOUNTS", offenderIds);
@@ -361,11 +363,11 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_PAYMENT_PROFILES", offenderIds);
     }
 
-    private int executeNamedSqlWithOffenderIds(final String sql, final List<String> ids) {
+    private int executeNamedSqlWithOffenderIds(final String sql, final Set<String> ids) {
         return jdbcTemplate.update(getQuery(sql), createParams("offenderIds", ids));
     }
 
-    private void executeNamedSqlWithBookingIds(final String sql, final List<String> ids) {
+    private void executeNamedSqlWithBookingIds(final String sql, final Set<String> ids) {
         jdbcTemplate.update(getQuery(sql), createParams("bookIds", ids));
     }
 }
