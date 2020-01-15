@@ -1,6 +1,8 @@
 package net.syscon.elite.repository;
 
+import java.util.Set;
+
 public interface OffenderDeletionRepository {
 
-    void deleteOffender(String offenderNo);
+    Set<String> deleteOffender(String offenderNo);
 }
