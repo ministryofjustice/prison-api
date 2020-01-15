@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.api.Condition;
@@ -9,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,9 +19,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @JdbcTest
@@ -30,11 +34,16 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @ContextConfiguration(classes = PersistenceConfigs.class)
 public class OffenderDeletionRepositoryTest {
 
+    private static final String OFFENDER_NUMBER = "A1234AA";
+
     @Autowired
     private OffenderDeletionRepository repository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @MockBean
+    private TelemetryClient telemetryClient;
 
     @Test
     @Transactional
@@ -42,7 +51,7 @@ public class OffenderDeletionRepositoryTest {
 
         assertOffenderDataExists();
 
-        repository.deleteOffender("A1234AA");
+        repository.deleteOffender(OFFENDER_NUMBER);
 
         assertOffenderDataDeleted();
     }
@@ -61,6 +70,9 @@ public class OffenderDeletionRepositoryTest {
 
     private void assertOffenderDataDeleted() {
         checkTables(new Condition<>(List::isEmpty, "Entry Not Found"));
+
+        verify(telemetryClient).trackEvent("OffenderDelete",
+                Map.of("offenderNo", OFFENDER_NUMBER, "count", "1"), null);
     }
 
     private void checkTables(final Condition<? super List<? extends String>> condition) {

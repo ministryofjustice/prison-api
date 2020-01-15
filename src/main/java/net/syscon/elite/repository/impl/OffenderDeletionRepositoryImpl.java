@@ -1,5 +1,6 @@
 package net.syscon.elite.repository.impl;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -12,8 +13,16 @@ import java.util.*;
 @Slf4j
 public class OffenderDeletionRepositoryImpl extends RepositoryBase implements OffenderDeletionRepository {
 
-    @Value("${offender.deletion.db.enable.parallel.hints:false}")
-    private boolean enableParallelHints;
+    private final boolean enableParallelHints;
+    private final TelemetryClient telemetryClient;
+
+    public OffenderDeletionRepositoryImpl(
+            @Value("${offender.deletion.db.enable.parallel.hints:false}") final boolean enableParallelHints,
+            final TelemetryClient telemetryClient) {
+
+        this.enableParallelHints = enableParallelHints;
+        this.telemetryClient = telemetryClient;
+    }
 
     @Override
     public void deleteOffender(final String offenderNumber) {
@@ -34,6 +43,8 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         deleteOffenderData(offenderIds);
 
         log.info("Deleted {} offender records with offenderNumber: '{}'", offenderIds.size(), offenderNumber);
+        telemetryClient.trackEvent("OffenderDelete",
+                Map.of("offenderNo", offenderNumber, "count", String.valueOf(offenderIds.size())), null);
     }
 
     private List<String> offenderIdsFor(final String offenderNumber) {
