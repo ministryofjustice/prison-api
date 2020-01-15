@@ -10,6 +10,7 @@ import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +24,7 @@ import javax.jms.Session;
 @Slf4j
 @EnableJms
 @Configuration
-@ConditionalOnProperty(name = "offender.deletion.sqs.provider")
+@ConditionalOnExpression("'${offender.deletion.sqs.provider}'.equals('aws') or '${offender.deletion.sqs.provider}'.equals('localstack')")
 public class JmsConfig {
 
     @Bean
@@ -46,7 +47,7 @@ public class JmsConfig {
     @Bean
     @ConditionalOnProperty(name = "offender.deletion.sqs.provider", havingValue = "localstack")
     @Primary
-    public AmazonSQSAsync awsSqsClient(@Value("${offender.deletion.sqs.endpoint.url}") final String serviceEndpoint,
+    public AmazonSQSAsync awsLocalClient(@Value("${offender.deletion.sqs.endpoint.url}") final String serviceEndpoint,
                                        @Value("${offender.deletion.sqs.region}") final String region) {
 
         log.debug("Creating Localstack SQS client");
@@ -59,7 +60,7 @@ public class JmsConfig {
     @Bean
     @ConditionalOnProperty(name = "offender.deletion.sqs.provider", havingValue = "aws")
     @Primary
-    public AmazonSQSAsync awsLocalClient(@Value("${offender.deletion.sqs.aws.access.key.id}") final String accessKey,
+    public AmazonSQSAsync awsSqsClient(@Value("${offender.deletion.sqs.aws.access.key.id}") final String accessKey,
                                          @Value("${offender.deletion.sqs.aws.secret.access.key}") final String secretKey,
                                          @Value("${offender.deletion.sqs.region}") final String region) {
 

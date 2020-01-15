@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.events.dto.OffenderDeletionEvent;
 import net.syscon.elite.service.OffenderDataComplianceService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 @Slf4j
 @Service
 @AllArgsConstructor
-@ConditionalOnProperty(name = "offender.deletion.sqs.provider")
+@ConditionalOnExpression("'${offender.deletion.sqs.provider}'.equals('aws') or '${offender.deletion.sqs.provider}'.equals('localstack')")
 public class OffenderDeletionListener {
 
     private final OffenderDataComplianceService offenderDataComplianceService;
