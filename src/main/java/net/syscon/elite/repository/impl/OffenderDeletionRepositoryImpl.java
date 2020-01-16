@@ -20,7 +20,7 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
 
         log.info("Deleting all data for offender: '{}'", offenderNumber);
 
-        final Set<String> offenderIds = new HashSet<>(offenderIdsFor(offenderNumber));
+        final Set<String> offenderIds = offenderIdsFor(offenderNumber);
 
         if (offenderIds.isEmpty()) {
             throw EntityNotFoundException.withId(offenderNumber);
