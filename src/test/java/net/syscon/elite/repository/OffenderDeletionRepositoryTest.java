@@ -66,6 +66,8 @@ public class OffenderDeletionRepositoryTest {
 
     private void checkTables(final Condition<? super List<? extends String>> condition) {
 
+        queryForCourtEventCharges().is(condition);
+
         queryByHealthProblemId("OFFENDER_MEDICAL_TREATMENTS").is(condition);
         queryByHealthProblemId("OFFENDER_HEALTH_PROBLEMS").is(condition);
 
@@ -134,6 +136,12 @@ public class OffenderDeletionRepositoryTest {
     private ListAssert<String> queryByOffenderId(final String tableName) {
         return assertThat(jdbcTemplate.queryForList(
                 "SELECT offender_id FROM " + tableName + " WHERE offender_id = -1001",
+                String.class));
+    }
+
+    private ListAssert<String> queryForCourtEventCharges() {
+        return assertThat(jdbcTemplate.queryForList(
+                "SELECT event_id FROM court_event_charges WHERE event_id = -201 AND offender_charge_id = -1",
                 String.class));
     }
 }
