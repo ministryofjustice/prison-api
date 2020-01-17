@@ -1,7 +1,6 @@
 package net.syscon.elite.aop;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.core.Constants;
 import net.syscon.util.MdcUtility;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -32,15 +31,12 @@ public class LoggingAspect {
 
     @AfterThrowing(pointcut = "loggingPointcut()", throwing = "e")
     public void logAfterThrowing(final JoinPoint joinPoint, final Throwable e) {
-        if (env.acceptsProfiles(Constants.SPRING_PROFILE_DEVELOPMENT)) {
-            log.error("Exception in {}.{}() with cause = \'{}\' and exception = \'{}\'", joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName(), e.getCause() != null ? e.getCause() : "NULL", e.getMessage());
-
-            e.printStackTrace();
-        } else {
-            log.error("Exception in {}.{}() with cause = {}", joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName(), e.getCause() != null ? e.getCause() : "NULL");
-        }
+        log.error(
+                String.format(
+                        "Exception in pointcut %s.%s()",
+                        joinPoint.getSignature().getDeclaringTypeName(),
+                        joinPoint.getSignature().getName()),
+                e);
     }
 
     @Around("loggingPointcut()")
