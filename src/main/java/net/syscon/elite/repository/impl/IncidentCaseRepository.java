@@ -128,7 +128,10 @@ public class IncidentCaseRepository extends RepositoryBase {
             final var partiesByCase = incidentParties.stream().collect(groupingBy(IncidentParty::getIncidentCaseId));
 
             incidentCases.forEach(ic -> {
-                ic.setParties(new TreeSet<>(partiesByCase.get(ic.getIncidentCaseId())));
+                final var parties = partiesByCase.get(ic.getIncidentCaseId());
+                if (parties != null) {
+                    ic.setParties(new TreeSet<>(parties));
+                }
             });
         }
 
