@@ -33,7 +33,6 @@ dependencyCheck {
         assemblyEnabled = false
     }
 }
-ext['tomcat.version'] = '9.0.30'
 
 group 'net.syscon.elite'
 
@@ -105,7 +104,7 @@ dependencies {
     implementation 'org.springframework.security.oauth:spring-security-oauth2:2.4.0.RELEASE'
     implementation 'org.springframework.security:spring-security-jwt:1.1.0.RELEASE'
 
-    implementation 'org.hibernate:hibernate-java8:5.3.0.Beta1'
+    implementation 'org.hibernate:hibernate-java8:5.4.10.Final'
     implementation 'org.springframework:spring-jms:5.2.3.RELEASE'
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.711')
     implementation 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
