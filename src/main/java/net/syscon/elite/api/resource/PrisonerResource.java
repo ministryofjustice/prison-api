@@ -4,7 +4,6 @@ import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
-import net.syscon.elite.api.model.PrisonerInformation;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.ResponseDelegate;
@@ -17,22 +16,6 @@ import java.util.List;
 @Api(tags = {"/prisoners"})
 @SuppressWarnings("unused")
 public interface PrisonerResource {
-
-    @GET
-    @Path("/at-location/{establishmentCode}")
-    @Consumes({"application/json"})
-    @Produces({"application/json"})
-    @ApiOperation(value = "List of prisoners at a prison establishment", authorizations = {@Authorization("SYSTEM_USER"), @Authorization("GLOBAL_SEARCH")})
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerInformation.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-
-    Response getPrisonerDetailAtLocation(@ApiParam(value = "Establishment Code", required = true, example = "MDI") @PathParam("establishmentCode") final String establishmentCode,
-                                         @ApiParam(value = "Requested offset of first record in returned collection of prisoner records.", defaultValue = "0") @DefaultValue("0") @HeaderParam("Page-Offset") Long pageOffset,
-                                         @ApiParam(value = "Requested limit to number of prisoner records returned.", defaultValue = "10") @DefaultValue("10") @HeaderParam("Page-Limit") Long pageLimit,
-                                         @ApiParam(value = "Comma separated list of one or more of the following fields - <b>bookingId, nomsId, cellLocation</b>", defaultValue = "bookingId") @DefaultValue("bookingId") @HeaderParam("Sort-Fields") String sortFields,
-                                         @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @DefaultValue("ASC") @HeaderParam("Sort-Order") Order sortOrder);
 
     @GET
     @Path("/")

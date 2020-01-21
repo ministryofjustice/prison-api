@@ -49,57 +49,6 @@ FROM OFFENDERS O
   LEFT JOIN PROFILE_CODES PC3 ON PC3.PROFILE_TYPE = OPD3.PROFILE_TYPE AND PC3.PROFILE_CODE = OPD3.PROFILE_CODE
 }
 
-PRISONERS_AT_LOCATION {
-    SELECT OB.AGY_LOC_ID                                                                             ESTABLISHMENT_CODE,
-           OB.OFFENDER_BOOK_ID                                                                       BOOKING_ID,
-           O.OFFENDER_ID_DISPLAY                                                                     NOMS_ID,
-           O.FIRST_NAME                                                                              GIVEN_NAME1,
-           CONCAT(O.MIDDLE_NAME,
-                  CASE WHEN MIDDLE_NAME_2 IS NOT NULL THEN CONCAT(' ', O.MIDDLE_NAME_2) ELSE '' END) GIVEN_NAME2,
-           O.LAST_NAME                                                                               LAST_NAME,
-           OB.REQUEST_NAME AS                                                                        REQUESTED_NAME,
-           O.BIRTH_DATE                                                                              DATE_OF_BIRTH,
-           RCS.DESCRIPTION                                                                           GENDER,
-           CASE
-               WHEN english_speaking.english_speaking_flag = 'Y' THEN 1
-               ELSE 0
-               END                                                                                   ENGLISH_SPEAKING,
-           AIL.DESCRIPTION                                                                           CELL_LOCATION,
-           OB.BOOKING_BEGIN_DATE                                                                     BOOKING_BEGIN_DATE,
-           dt_admission.admission_date                                                               ADMISSION_DATE,
-           'ACTIVE ' || OB.in_out_status                                                             COMMUNITY_STATUS,
-           CAST(IST.BAND_CODE AS int)                                                                BAND_CODE
-    FROM OFFENDER_BOOKINGS OB
-             INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID AND OB.ACTIVE_FLAG = 'Y' AND OB.BOOKING_SEQ = 1
-             INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
-             INNER JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-             LEFT JOIN OFFENDER_IMPRISON_STATUSES OIS ON OIS.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OIS.LATEST_STATUS = 'Y'
-             LEFT JOIN IMPRISONMENT_STATUSES IST ON IST.IMPRISONMENT_STATUS = OIS.IMPRISONMENT_STATUS
-             LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE AND RCS.DOMAIN = 'SEX'
-             LEFT JOIN (
-        SELECT DISTINCT offender_book_id,
-               'Y' AS english_speaking_flag
-        FROM offender_languages
-        WHERE language_code = 'ENG'
-          AND speak_skill IN ('Y',
-                              'A',
-                              'G',
-                              'D')) english_speaking on english_speaking.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
-
-             LEFT JOIN (
-        SELECT m.offender_book_id,
-                        Max(m.movement_time) AS admission_date
-        FROM offender_external_movements m,
-             offender_bookings h
-        WHERE h.booking_status = 'O'
-          AND h.active_flag = 'Y'
-          AND m.direction_code = 'IN'
-          AND m.movement_type = 'ADM'
-          AND m.to_agy_loc_id = h.agy_loc_id
-          AND h.offender_book_id = m.offender_book_id
-        GROUP BY m.offender_book_id) dt_admission on dt_admission.OFFENDER_BOOK_ID = ob.OFFENDER_BOOK_ID
-    WHERE OB.AGY_LOC_ID = :agencyId
-}
 
 LIST_ALL_OFFENDERS {
     SELECT DISTINCT OFFENDER_ID_DISPLAY OFFENDER_NUMBER FROM OFFENDERS ORDER BY OFFENDER_ID_DISPLAY ASC

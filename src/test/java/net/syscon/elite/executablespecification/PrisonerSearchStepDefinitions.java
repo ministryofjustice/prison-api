@@ -189,7 +189,7 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^bad request response is received from prisoner search API$")
     public void badRequestResponseIsReceivedFromPrisonerSearchAPI() {
-        prisonerSearch.verifyBadRequest("Invalid search criteria.");
+        prisonerSearch.verifyBadRequest("Incorrectly formatted PNC number");
     }
 
     @Given("^That each search below returns all matching aliases$")

@@ -1,0 +1,101 @@
+{
+  "content": [
+    {
+      "nomsId": "A5577RS",
+      "establishmentCode": "LEI",
+      "bookingId": -33,
+      "givenName1": "HAROLD",
+      "lastName": "LLOYD",
+      "dateOfBirth": "1945-01-10",
+      "gender": "Male",
+      "englishSpeaking": false,
+      "unitCode1": "H",
+      "unitCode2": "1",
+      "communityStatus": "ACTIVE IN"
+    },
+    {
+      "nomsId": "A1234AE",
+      "establishmentCode": "LEI",
+      "bookingId": -5,
+      "givenName1": "DONALD",
+      "givenName2": "JEFFREY ROBERT",
+      "lastName": "MATTHEWS",
+      "dateOfBirth": "1956-02-28",
+      "gender": "Male",
+      "englishSpeaking": false,
+      "unitCode1": "A",
+      "unitCode2": "1",
+      "unitCode3": "10",
+      "releaseDate": "2023-05-07",
+      "categoryCode": "Z",
+      "communityStatus": "ACTIVE IN",
+      "legalStatus": "Convicted"
+    },
+    {
+      "nomsId": "Z0017ZZ",
+      "establishmentCode": "LEI",
+      "bookingId": -17,
+      "givenName1": "MICHEAL",
+      "lastName": "PETERS",
+      "dateOfBirth": "1972-01-01",
+      "gender": "Male",
+      "englishSpeaking": false,
+      "unitCode1": "H",
+      "unitCode2": "1",
+      "releaseDate": "2018-01-16",
+      "communityStatus": "ACTIVE IN"
+    },
+    {
+      "nomsId": "A1178RS",
+      "establishmentCode": "LEI",
+      "bookingId": -34,
+      "givenName1": "FRED",
+      "lastName": "QUIMBY",
+      "dateOfBirth": "1945-01-10",
+      "gender": "Male",
+      "englishSpeaking": false,
+      "unitCode1": "H",
+      "unitCode2": "1",
+      "communityStatus": "ACTIVE IN"
+    },
+    {
+      "nomsId": "A5576RS",
+      "establishmentCode": "LEI",
+      "bookingId": -31,
+      "givenName1": "HARRY",
+      "lastName": "SARLY",
+      "dateOfBirth": "1945-01-10",
+      "gender": "Male",
+      "englishSpeaking": false,
+      "unitCode1": "H",
+      "unitCode2": "1",
+      "categoryCode": "A",
+      "communityStatus": "ACTIVE IN"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 10,
+    "pageNumber": 2,
+    "pageSize": 5,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 5,
+  "totalElements": 25,
+  "last": false,
+  "size": 5,
+  "numberOfElements": 5,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "number": 2,
+  "first": false,
+  "empty": false
+}

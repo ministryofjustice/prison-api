@@ -1,10 +1,11 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalDate;
 
@@ -18,14 +19,15 @@ import java.time.LocalDate;
 @ToString
 public class PrisonerInformation implements CategoryCodeAware, ReleaseDateAware {
 
-    @ApiModelProperty(value = "Establishment Code for prisoner", example = "MDI", required = true, position = 1)
+    @Id
+    @ApiModelProperty(value = "Offender Identifier", example = "A1234AA", required = true, position = 1)
+    private String nomsId;
+
+    @ApiModelProperty(value = "Establishment Code for prisoner", example = "MDI", required = true, position = 2)
     private String establishmentCode;
 
-    @ApiModelProperty(value = "Booking Id (Internal)", example = "1231232", required = true, position = 2)
+    @ApiModelProperty(value = "Booking Id (Internal)", example = "1231232", required = true, position = 3)
     private Long bookingId;
-
-    @ApiModelProperty(value = "Offender Identifier", example = "A1234AA", required = true, position = 3)
-    private String nomsId;
 
     @ApiModelProperty(value = "Given Name 1", example = "John", required = true, position = 4)
     private String givenName1;
@@ -48,42 +50,54 @@ public class PrisonerInformation implements CategoryCodeAware, ReleaseDateAware 
     @ApiModelProperty(value = "Indicated that is English speaking", example = "true", required = true, position = 10)
     private boolean englishSpeaking;
 
-    @ApiModelProperty(value = "Full Location Code Description", example = "MDI-A-2-003", required = true, position = 11)
-    private String cellLocation;
-
-    @ApiModelProperty(value = "Level 1 Location Unit Code", example = "A", required = true, position = 12)
+    @ApiModelProperty(value = "Level 1 Location Unit Code", example = "A", required = true, position = 11)
     private String unitCode1;
 
-    @ApiModelProperty(value = "Level 2 Location Unit Code", example = "2", position = 13)
+    @ApiModelProperty(value = "Level 2 Location Unit Code", example = "2", position = 12)
     private String unitCode2;
 
-    @ApiModelProperty(value = "Level 3 Location Unit Code", example = "003", position = 14)
+    @ApiModelProperty(value = "Level 3 Location Unit Code", example = "003", position = 13)
     private String unitCode3;
 
-    @ApiModelProperty(value = "Date Prisoner booking was initial made", example = "2017-05-01", required = true, position = 15)
+    @ApiModelProperty(value = "Date Prisoner booking was initial made", example = "2017-05-01", required = true, position = 14)
     private LocalDate bookingBeginDate;
 
-    @ApiModelProperty(value = "Date of admission into this prison", example = "2019-06-01", required = true, position = 16)
+    @ApiModelProperty(value = "Date of admission into this prison", example = "2019-06-01", required = true, position = 15)
     private LocalDate admissionDate;
 
     @ApiModelProperty(value = "Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm." +
-            "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>", example = "2021-04-12", position = 17)
+            "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>", example = "2021-04-12", position = 16)
     private LocalDate releaseDate;
 
-    @ApiModelProperty(value = "Category of this prisoner", example = "C", position = 18)
+    @ApiModelProperty(value = "Category of this prisoner", example = "C", position = 17)
     private String categoryCode;
 
-    @ApiModelProperty(value = "Status of prisoner in community", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT", position = 19)
+    @ApiModelProperty(value = "Status of prisoner in community", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT", position = 18)
     private String communityStatus;
 
-    @ApiModelProperty(value = "Legal Status", example = "Convicted", allowableValues = "Convicted,Remand", position = 20)
-    public String getLegalStatus() {
-        if (this.bandCode != null) {
-            return bandCode <= 8 || bandCode == 11 ? "Convicted" : "Remand";
+    @ApiModelProperty(value = "Legal Status", example = "Convicted", allowableValues = "Convicted,Remand", position = 19)
+    private String legalStatus;
+
+    public void deriveLegalStatus(String bandCodeStr) {
+        if (bandCodeStr != null) {
+            final var bandCode = Integer.valueOf(bandCodeStr);
+            legalStatus = (bandCode <= 8 || bandCode == 11) ? "Convicted" : "Remand";
         }
-        return null;
     }
 
-    @JsonIgnore
-    private Integer bandCode;
+    public void deriveUnitCodes(final String cellLocation) {
+        final var levels = StringUtils.split(cellLocation, "-");
+        if (levels.length > 1) {
+            setUnitCode1(levels[1]);
+        }
+        if (levels.length > 2) {
+            setUnitCode2(levels[2]);
+        }
+        if (levels.length > 3) {
+            setUnitCode3(levels[3]);
+        }
+        if (levels.length > 4) {
+            setUnitCode3(getUnitCode3()+"-"+levels[4]);
+        }
+    }
 }
