@@ -12,6 +12,7 @@ import net.syscon.elite.web.provider.LocalDateTimeProvider;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import javax.ws.rs.ext.ExceptionMapper;
 
 @Configuration
-@EnableWebMvc
 @EnableScheduling
 @EnableCaching(proxyTargetClass = true)
 @EnableAsync(proxyTargetClass = true)
@@ -51,14 +50,17 @@ public class ServletContextConfigs extends ResourceConfig {
     @Autowired
     public void setEnv(final ConfigurableEnvironment env) {
         final var restResources = AnnotationScanner.findAnnotatedClasses(RestResource.class, apiResourcePackages);
-
         registerClasses(restResources);
+        register(RequestContextFilter.class);
+        property(ServerProperties.RESPONSE_SET_STATUS_OVER_SEND_ERROR, true);
 
         register(new EndpointLoggingListener(apiPath));
-
         register(ResourceExceptionHandler.class);
-        register(RequestContextFilter.class);
         register(LoggingFeature.class);
+        register(ApiListingResource.class);
+        register(SwaggerSerializers.class);
+        register(LocalDateProvider.class);
+        register(LocalDateTimeProvider.class);
 
         // Override jersey built-in Validation exception mapper
         register(new AbstractBinder() {
@@ -71,18 +73,7 @@ public class ServletContextConfigs extends ResourceConfig {
 
     @PostConstruct
     public void init() {
-        configureSwagger();
-    }
-
-    private void configureSwagger() {
-        // Available at localhost:port/api/swagger.json
-        register(ApiListingResource.class);
-        register(SwaggerSerializers.class);
-        register(LocalDateProvider.class);
-        register(LocalDateTimeProvider.class);
-
         final var config = new BeanConfig();
-
         config.setConfigId("elite2-api");
         config.setTitle("HMPPS Nomis API Documentation");
         config.setVersion(getVersion());

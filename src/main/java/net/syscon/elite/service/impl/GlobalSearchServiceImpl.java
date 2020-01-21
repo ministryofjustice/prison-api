@@ -10,6 +10,7 @@ import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.service.GlobalSearchService;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -53,8 +54,8 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
                 prisonersPage = executeQuery(criteria, adjustedPageRequest);
             }
             prisonersPage.getItems().forEach(p -> p.setLatestLocation(LocationProcessor.formatLocation(p.getLatestLocation())));
-        } catch (final IllegalArgumentException iaex) {
-            throw new BadRequestException("Invalid search criteria.", iaex);
+        } catch (final InvalidDataAccessApiUsageException iaex) {
+            throw new BadRequestException(iaex.getMostSpecificCause().getMessage(), iaex);
         }
 
         return prisonersPage;

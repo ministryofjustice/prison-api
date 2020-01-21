@@ -12,8 +12,6 @@ import net.syscon.elite.service.impl.PrisonerInformationService;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
@@ -105,22 +103,4 @@ public class PrisonerResourceImpl implements PrisonerResource {
         return GetPrisonersResponse.respond200WithApplicationJson(offenders);
     }
 
-    @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public Response getPrisonerDetailAtLocation(final String establishmentCode,
-                                            final Long pageOffset,
-                                            final Long pageLimit,
-                                            final String sortFields,
-                                            final Order sortOrder) {
-        final var prisonerInfo =  prisonerInformationService.getPrisonerInformationByPrison(establishmentCode,
-                new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
-
-        return Response.status(200)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
-                .header("Total-Records", prisonerInfo.getTotalRecords())
-                .header("Page-Offset", prisonerInfo.getPageOffset())
-                .header("Page-Limit", prisonerInfo.getPageLimit())
-                .entity(prisonerInfo.getItems())
-                .build();
-    }
 }
