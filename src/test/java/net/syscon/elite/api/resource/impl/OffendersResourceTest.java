@@ -1,11 +1,13 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
@@ -109,6 +111,39 @@ public class OffendersResourceTest extends ResourceTest {
                 OFFENDER_NUMBER);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
+    }
+
+    @Test
+    public void testGetIncidents() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+
+        final var response = testRestTemplate.exchange(
+                "/api/incidents/-1",
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                new ParameterizedTypeReference<IncidentCase>() {
+                });
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        final var result = response.getBody();
+        assertThat(result).extracting("incidentCaseId", "incidentTitle", "incidentType")
+                .containsExactlyInAnyOrder(-1L, "Big Fight", "ASSAULT");
+        assertThat(result.getResponses()).hasSize(19);
+        assertThat(result.getParties()).hasSize(6);
+    }
+
+    @Test
+    public void testGetIncidentsNoParties() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+
+        final var response = testRestTemplate.exchange(
+                "/api/incidents/-4",
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                new ParameterizedTypeReference<IncidentCase>() {
+                });
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).extracting("incidentCaseId", "incidentTitle")
+                .containsExactlyInAnyOrder(-4L, "Medium sized fight");
     }
 
     @Test
