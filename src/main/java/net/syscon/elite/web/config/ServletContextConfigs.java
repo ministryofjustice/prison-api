@@ -27,14 +27,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
-import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.ext.ExceptionMapper;
 
 @Configuration
 @EnableScheduling
 @EnableCaching(proxyTargetClass = true)
 @EnableAsync(proxyTargetClass = true)
-@ApplicationPath("/api")
 public class ServletContextConfigs extends ResourceConfig {
 
     @Value("${server.servlet.context-path:}")
@@ -56,14 +54,13 @@ public class ServletContextConfigs extends ResourceConfig {
         register(RequestContextFilter.class);
         property(ServerProperties.RESPONSE_SET_STATUS_OVER_SEND_ERROR, true);
 
+        register(new EndpointLoggingListener(apiPath));
         register(ResourceExceptionHandler.class);
-        register(RequestContextFilter.class);
         register(LoggingFeature.class);
         register(ApiListingResource.class);
         register(SwaggerSerializers.class);
         register(LocalDateProvider.class);
         register(LocalDateTimeProvider.class);
-        register(new EndpointLoggingListener(apiPath));
 
         // Override jersey built-in Validation exception mapper
         register(new AbstractBinder() {
