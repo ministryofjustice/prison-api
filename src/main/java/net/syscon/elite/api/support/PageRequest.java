@@ -1,5 +1,7 @@
 package net.syscon.elite.api.support;
 
+import org.springframework.data.domain.Sort;
+
 import java.util.Objects;
 
 public class PageRequest {
@@ -79,6 +81,22 @@ public class PageRequest {
 
     public Long getLimit() {
         return limit;
+    }
+
+    public Sort.Direction getDirection() {
+        return Sort.Direction.valueOf(getOrder().name());
+    }
+
+    public int getSize() {
+        return Math.toIntExact(limit);
+    }
+
+    public int getPage() {
+        return (int) Math.floor((float)offset / limit);
+    }
+
+    public static org.springframework.data.domain.PageRequest of(final String orderBy, final Order order, final Long offset, final Long limit) {
+        return org.springframework.data.domain.PageRequest.of((int) Math.floor((float)offset / limit), Math.toIntExact(limit), Sort.Direction.valueOf(order.name()), orderBy);
     }
 
     public boolean isAscendingOrder() {

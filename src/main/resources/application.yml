@@ -5,6 +5,9 @@ spring:
   application:
     name: elite2-api
 
+  jpa:
+    open-in-view: false
+
   jersey:
     type: servlet
     application-path: /api

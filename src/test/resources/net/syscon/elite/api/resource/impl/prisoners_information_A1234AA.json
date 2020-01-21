@@ -1,0 +1,17 @@
+{
+  "establishmentCode": "LEI",
+  "bookingId": -1,
+  "nomsId": "A1234AA",
+  "lastName": "ANDERSON",
+  "dateOfBirth": "1969-12-30",
+  "gender": "Male",
+  "englishSpeaking": false,
+  "unitCode1": "A",
+  "unitCode2": "1",
+  "unitCode3": "1",
+  "admissionDate": "2019-10-17",
+  "releaseDate": "2018-04-23",
+  "categoryCode": "LOW",
+  "communityStatus": "ACTIVE IN",
+  "legalStatus": "Convicted"
+}
