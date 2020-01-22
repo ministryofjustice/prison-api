@@ -604,6 +604,41 @@ public class AppointmentsServiceImplTest {
                 .hasMessage("Event type not recognised.");
     }
 
+    @Test
+    public void testOverrideAgencyLocationTest() {
+        final var appointmentType = "MEDE";
+        final var locationId = -20L;
+        final var bookingId = 100L;
+        final var agencyId = "LEI";
+        final var eventId = -10L;
+        final var principal = "ME";
+        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
+        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
+
+        final var newAppointment = NewAppointment.builder()
+                .appointmentType(appointmentType)
+                .startTime(LocalDateTime.now().plusDays(1))
+                .endTime(LocalDateTime.now().plusDays(2))
+                .comment("comment")
+                .locationId(locationId).build();
+
+        ensureRoles("EXTERNAL_APPOINTMENT");
+
+        when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
+        when(referenceDomainService.getReferenceCodeByDomainAndCode(
+                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
+                .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
+
+        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+                .thenReturn(eventId);
+
+        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
+
+        appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
+
+        verify(locationService, never()).getUserLocations(principal);
+    }
+
     private void stubValidBookingIds(final String agencyId, final long... bookingIds) {
         final var ids = Arrays.stream(bookingIds).boxed().collect(Collectors.toList());
         when(bookingRepository.findBookingsIdsInAgency(ids, agencyId)).thenReturn(ids);
