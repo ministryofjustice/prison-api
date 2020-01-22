@@ -1,7 +1,6 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.Lists;
-import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
@@ -56,10 +55,8 @@ public class BookingServiceImpl implements BookingService {
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
-    private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
-    private final TelemetryClient telemetryClient;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -67,10 +64,9 @@ public class BookingServiceImpl implements BookingService {
 
     public BookingServiceImpl(final BookingRepository bookingRepository,
                               final SentenceRepository sentenceRepository, final AgencyService agencyService,
-                              final CaseLoadService caseLoadService, final LocationService locationService,
+                              final CaseLoadService caseLoadService,
                               final ReferenceDomainService referenceDomainService,
                               final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
-                              final TelemetryClient telemetryClient,
                               final AuthenticationFacade securityUtils,
                               final AuthenticationFacade authenticationFacade,
                               @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
@@ -79,10 +75,8 @@ public class BookingServiceImpl implements BookingService {
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
-        this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
-        this.telemetryClient = telemetryClient;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;

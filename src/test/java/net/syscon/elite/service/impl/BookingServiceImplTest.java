@@ -55,7 +55,7 @@ public class BookingServiceImplTest {
     private AuthenticationFacade authenticationFacade;
 
     private BookingService bookingService;
-    
+
     @Before
     public void init() {
         bookingService = new BookingServiceImpl(
@@ -63,10 +63,8 @@ public class BookingServiceImplTest {
                 null,
                 agencyService,
                 null,
-                locationService,
                 referenceDomainService,
                 null,
-                telemetryClient,
                 securityUtils, authenticationFacade, "1",
                 10);
     }
