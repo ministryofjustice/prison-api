@@ -47,6 +47,5 @@ public class ImagesResourceImpl implements ImageResource {
     public GetImageResponse getImage(final Long imageId) {
         final var imageDetail = imageService.findImageDetail(imageId);
         return GetImageResponse.respond200WithApplicationJson(imageDetail);
-
     }
 }
