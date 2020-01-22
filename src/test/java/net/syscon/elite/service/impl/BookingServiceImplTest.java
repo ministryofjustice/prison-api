@@ -55,26 +55,7 @@ public class BookingServiceImplTest {
     private AuthenticationFacade authenticationFacade;
 
     private BookingService bookingService;
-
-//    @SuppressWarnings("SameParameterValue")
-//    private void setupCreateBookingAppointment(final String appointmentType, final long bookingId, final String agencyId,
-//                                               final long eventId, final String principal, final ScheduledEvent expectedEvent, final Location location,
-//                                               final NewAppointment newAppointment) {
-//        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(principal, "credentials"));
-//
-//        when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-//        when(locationService.getUse   rLocations(principal)).thenReturn(Collections.singletonList(location));
-//
-//        when(referenceDomainService.getReferenceCodeByDomainAndCode(
-//                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
-//                .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
-//
-//        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-//                .thenReturn(eventId);
-//
-//        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
-//    }
-
+    
     @Before
     public void init() {
         bookingService = new BookingServiceImpl(
