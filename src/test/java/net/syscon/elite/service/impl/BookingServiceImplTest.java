@@ -8,24 +8,22 @@ import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
-import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,24 +56,24 @@ public class BookingServiceImplTest {
 
     private BookingService bookingService;
 
-    @SuppressWarnings("SameParameterValue")
-    private void setupCreateBookingAppointment(final String appointmentType, final long bookingId, final String agencyId,
-                                               final long eventId, final String principal, final ScheduledEvent expectedEvent, final Location location,
-                                               final NewAppointment newAppointment) {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(principal, "credentials"));
-
-        when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-        when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
-
-        when(referenceDomainService.getReferenceCodeByDomainAndCode(
-                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
-                .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
-
-        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-                .thenReturn(eventId);
-
-        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
-    }
+//    @SuppressWarnings("SameParameterValue")
+//    private void setupCreateBookingAppointment(final String appointmentType, final long bookingId, final String agencyId,
+//                                               final long eventId, final String principal, final ScheduledEvent expectedEvent, final Location location,
+//                                               final NewAppointment newAppointment) {
+//        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(principal, "credentials"));
+//
+//        when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
+//        when(locationService.getUse   rLocations(principal)).thenReturn(Collections.singletonList(location));
+//
+//        when(referenceDomainService.getReferenceCodeByDomainAndCode(
+//                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
+//                .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
+//
+//        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+//                .thenReturn(eventId);
+//
+//        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
+//    }
 
     @Before
     public void init() {
@@ -92,123 +90,6 @@ public class BookingServiceImplTest {
                 10);
     }
 
-    @Test
-    public void testCreateBookingAppointment() {
-
-        final var appointmentType = "MEDE";
-        final var locationId = -20L;
-        final var bookingId = 100L;
-        final var agencyId = "LEI";
-        final var eventId = -10L;
-        final var principal = "ME";
-        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
-        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-
-        final var newAppointment = NewAppointment.builder()
-                .appointmentType(appointmentType)
-                .startTime(LocalDateTime.now().plusDays(1))
-                .endTime(LocalDateTime.now().plusDays(2))
-                .comment("comment")
-                .locationId(locationId).build();
-
-        setupCreateBookingAppointment(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
-                newAppointment);
-
-        final var actualEvent = bookingService.createBookingAppointment(bookingId, principal, newAppointment);
-
-        assertThat(actualEvent).isEqualTo(expectedEvent);
-    }
-
-    @Test
-    public void testCreateBookingAppointmentInvalidStartTime() {
-
-        final var bookingId = 100L;
-        final var principal = "ME";
-
-        final var newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(-1))
-                .endTime(LocalDateTime.now().plusDays(2)).build();
-
-        try {
-            bookingService.createBookingAppointment(bookingId, principal, newAppointment);
-            fail("Should have thrown exception");
-        } catch (final BadRequestException e) {
-            assertThat(e.getMessage()).isEqualTo("Appointment time is in the past.");
-        }
-    }
-
-    @Test
-    public void testCreateBookingAppointmentInvalidEndTime() {
-
-        final var bookingId = 100L;
-        final var principal = "ME";
-
-        final var newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(2))
-                .endTime(LocalDateTime.now().plusDays(1)).build();
-
-        try {
-            bookingService.createBookingAppointment(bookingId, principal, newAppointment);
-            fail("Should have thrown exception");
-        } catch (final BadRequestException e) {
-            assertThat(e.getMessage()).isEqualTo("Appointment end time is before the start time.");
-        }
-    }
-
-    @Test
-    public void testCreateBookingAppointmentInvalidLocation() {
-
-        final var appointmentType = "MEDE";
-        final var locationId = -20L;
-        final var bookingId = 100L;
-        final var agencyId = "LEI";
-        final var eventId = -10L;
-        final var principal = "ME";
-        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
-        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-
-        final var newAppointment = NewAppointment.builder()
-                .appointmentType(appointmentType)
-                .startTime(LocalDateTime.now().plusDays(1))
-                .endTime(LocalDateTime.now().plusDays(2))
-                .comment("comment")
-                .locationId(locationId).build();
-
-        setupCreateBookingAppointment(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
-                newAppointment);
-
-        when(locationService.getLocation(newAppointment.getLocationId()))
-                .thenThrow(new EntityNotFoundException("test"));
-
-        assertThatThrownBy(() -> bookingService.createBookingAppointment(bookingId, principal, newAppointment))
-                .isInstanceOf(BadRequestException.class).hasMessage("Location does not exist or is not in your caseload.");
-    }
-
-    @Test
-    public void testCreateBookingAppointmentInvalidAppointmentType() {
-
-        final var appointmentType = "MEDE";
-        final var locationId = -20L;
-        final var bookingId = 100L;
-        final var agencyId = "LEI";
-        final var eventId = -10L;
-        final var principal = "ME";
-        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
-        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-
-        final var newAppointment = NewAppointment.builder().appointmentType(appointmentType)
-                .startTime(LocalDateTime.now().plusDays(1)).endTime(LocalDateTime.now().plusDays(2)).comment("comment")
-                .locationId(locationId).build();
-
-        setupCreateBookingAppointment(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
-                newAppointment);
-
-        when(referenceDomainService.getReferenceCodeByDomainAndCode(
-                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
-                .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> bookingService.createBookingAppointment(bookingId, principal, newAppointment))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("Event type not recognised.");
-    }
 
     @Test
     public void testVerifyCanAccessLatestBooking() {
