@@ -148,15 +148,13 @@ public class AppointmentsServiceImpl implements AppointmentsService {
             final var appointmentLocation = locationService.getLocation(newAppointment.getLocationId());
             final var skipLocationAgencyCheck = authenticationFacade.isOverrideRole("SYSTEM_USER", "EXTERNAL_APPOINTMENT");
 
-            if (skipLocationAgencyCheck)
-               return appointmentLocation.getAgencyId();
+            if (skipLocationAgencyCheck) return appointmentLocation.getAgencyId();
 
             final var userLocations = locationService.getUserLocations(username);
             final var isValidLocation = userLocations.stream()
                     .anyMatch(loc -> loc.getAgencyId().equals(appointmentLocation.getAgencyId()));
 
-            if (isValidLocation)
-               return appointmentLocation.getAgencyId();
+            if (isValidLocation) return appointmentLocation.getAgencyId();
 
         } catch (final EntityNotFoundException ignored) { }
 
