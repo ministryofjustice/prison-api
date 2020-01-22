@@ -30,9 +30,15 @@
 
 2) Using Gradle directly via command-line (optionally setting the spring profile variable to select the in-memory database)
 
+*Windows*
 ```bash
 set JAVA_OPTS=-Dspring.profiles.active=nomis-hsqldb
 gradlew bootRun
+```
+
+*Mac*
+```bash
+./gradlew bootRun --args='--spring.profiles.active=nomis-hsqldb'
 ```
 
 #### Health
