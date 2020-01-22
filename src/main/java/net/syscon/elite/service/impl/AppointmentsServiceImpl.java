@@ -99,24 +99,16 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
     @Transactional
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = "EXTERNAL_APPOINTMENT")
     public ScheduledEvent createBookingAppointment(final Long bookingId, final String username, @Valid final NewAppointment newAppointment) {
         validateStartTime(newAppointment);
         validateEndTime(newAppointment);
-        final var agencyId = validateLocationAndGetAgency(username, newAppointment);
         validateEventType(newAppointment);
+
+        final var agencyId = validateLocationAndGetAgency(username, newAppointment);
         final var eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
 
-        // Log event
-        final Map<String, String> logMap = new HashMap<>();
-        logMap.put("type", newAppointment.getAppointmentType());
-        logMap.put("start", newAppointment.getStartTime().toString());
-        logMap.put("location", newAppointment.getLocationId().toString());
-        logMap.put("user", username);
-        if (newAppointment.getEndTime() != null) {
-            logMap.put("end", newAppointment.getEndTime().toString());
-        }
-        telemetryClient.trackEvent("AppointmentCreated", logMap, null);
+        trackSingleAppointmentCreation(username, newAppointment);
 
         return bookingRepository.getBookingAppointment(bookingId, eventId);
     }
@@ -151,26 +143,24 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
     private String validateLocationAndGetAgency(final String username, final NewAppointment newAppointment) {
-        Optional<String> agencyId;
 
         try {
             final var appointmentLocation = locationService.getLocation(newAppointment.getLocationId());
-            final var userLocations = locationService.getUserLocations(username);
+            final var skipLocationAgencyTest = authenticationFacade.isOverrideRole("SYSTEM_USER", "EXTERNAL_APPOINTMENT");
 
+            if (skipLocationAgencyTest)
+               return appointmentLocation.getAgencyId();
+
+            final var userLocations = locationService.getUserLocations(username);
             final var isValidLocation = userLocations.stream()
                     .anyMatch(loc -> loc.getAgencyId().equals(appointmentLocation.getAgencyId()));
 
-            if (isValidLocation) {
-                agencyId = Optional.of(appointmentLocation.getAgencyId());
-            } else {
-                agencyId = Optional.empty();
-            }
-        } catch (final EntityNotFoundException enfex) {
-            agencyId = Optional.empty();
-        }
+            if (isValidLocation)
+               return appointmentLocation.getAgencyId();
 
-        return agencyId.orElseThrow(() ->
-                new BadRequestException("Location does not exist or is not in your caseload."));
+        } catch (final EntityNotFoundException ignored) { }
+
+        throw new BadRequestException("Location does not exist or is not in your caseload.");
     }
 
 
@@ -265,6 +255,18 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         logMap.put("count", Integer.toString(appointments.size()));
 
         telemetryClient.trackEvent("AppointmentsCreated", logMap, null);
+    }
+
+    private void trackSingleAppointmentCreation(String username, @Valid NewAppointment newAppointment) {
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("type", newAppointment.getAppointmentType());
+        logMap.put("start", newAppointment.getStartTime().toString());
+        logMap.put("location", newAppointment.getLocationId().toString());
+        logMap.put("user", username);
+        if (newAppointment.getEndTime() != null) {
+            logMap.put("end", newAppointment.getEndTime().toString());
+        }
+        telemetryClient.trackEvent("AppointmentCreated", logMap, null);
     }
 
     static List<AppointmentDetails> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
