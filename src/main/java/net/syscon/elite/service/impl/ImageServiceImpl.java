@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 @AllArgsConstructor
 @Transactional(readOnly = true)
@@ -25,8 +27,10 @@ public class ImageServiceImpl implements ImageService {
     private OffenderImageRepository offenderImageRepository;
 
     @Override
-    public List<OffenderImage> findOffenderImagesFor(final String offenderNumber) {
-        return offenderImageRepository.getImagesByOffenderNumber(offenderNumber);
+    public List<ImageDetail> findOffenderImagesFor(final String offenderNumber) {
+        return offenderImageRepository.getImagesByOffenderNumber(offenderNumber).stream()
+                .map(this::convertFrom)
+                .collect(toList());
     }
 
     @Override
@@ -42,5 +46,16 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public byte[] getImageContent(final String offenderNo, final boolean fullSizeImage) {
         return repository.getImageContent(offenderNo, fullSizeImage);
+    }
+
+    private ImageDetail convertFrom(final OffenderImage image) {
+        return ImageDetail.builder()
+                .imageId(image.getOffenderImageId())
+                .captureDate(image.getCaptureDateTime().toLocalDate())
+                .imageView(image.getImageViewType())
+                .imageOrientation(image.getOrientationType())
+                .imageType(image.getImageObjectType())
+                .objectId(image.getImageObjectId())
+                .build();
     }
 }

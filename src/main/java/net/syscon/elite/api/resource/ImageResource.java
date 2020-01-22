@@ -9,16 +9,28 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.util.List;
 
 @Api(tags = {"/images"})
 @SuppressWarnings("unused")
 public interface ImageResource {
 
     @GET
+    @Path("/offenders/{offenderNo}")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Image details related to offender.", nickname = "getImagesByOffender")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ImageDetail.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<ImageDetail> getImagesByOffender(@PathParam("offenderNo") final String offenderNo);
+
+    @GET
     @Path("/{imageId}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "Image detail (with image data).", notes = "Image detail (with image data).", nickname = "getImage")
+    @ApiOperation(value = "Image detail.", notes = "Image detail.", nickname = "getImage")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = ImageDetail.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),

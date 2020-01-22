@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ImageServiceImplTest {
 
+    private static final LocalDateTime DATETIME = LocalDateTime.now();
+
     @Mock
     private ImageRepository imageRepository;
 
@@ -32,18 +35,32 @@ public class ImageServiceImplTest {
     private ImageService service;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         service = new ImageServiceImpl(imageRepository, offenderImageRepository);
     }
 
     @Test
     public void findOffenderImages() {
 
-        OffenderImage image = mock(OffenderImage.class);
+        when(offenderImageRepository.getImagesByOffenderNumber("A1234AA")).thenReturn(List.of(
+                OffenderImage.builder()
+                        .offenderImageId(123L)
+                        .captureDateTime(DATETIME)
+                        .imageViewType("FACE")
+                        .orientationType("FRONT")
+                        .imageObjectType("OFF_BKG")
+                        .imageObjectId(1L)
+                        .build()));
 
-        when(offenderImageRepository.getImagesByOffenderNumber("A1234AA")).thenReturn(List.of(image));
-
-        assertThat(service.findOffenderImagesFor("A1234AA")).containsOnly(image);
+        assertThat(service.findOffenderImagesFor("A1234AA")).containsOnly(
+                ImageDetail.builder()
+                        .imageId(123L)
+                        .captureDate(DATETIME.toLocalDate())
+                        .imageView("FACE")
+                        .imageOrientation("FRONT")
+                        .imageType("OFF_BKG")
+                        .objectId(1L)
+                        .build());
     }
 
     @Test
