@@ -146,9 +146,9 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
         try {
             final var appointmentLocation = locationService.getLocation(newAppointment.getLocationId());
-            final var skipLocationAgencyTest = authenticationFacade.isOverrideRole("SYSTEM_USER", "EXTERNAL_APPOINTMENT");
+            final var skipLocationAgencyCheck = authenticationFacade.isOverrideRole("SYSTEM_USER", "EXTERNAL_APPOINTMENT");
 
-            if (skipLocationAgencyTest)
+            if (skipLocationAgencyCheck)
                return appointmentLocation.getAgencyId();
 
             final var userLocations = locationService.getUserLocations(username);
