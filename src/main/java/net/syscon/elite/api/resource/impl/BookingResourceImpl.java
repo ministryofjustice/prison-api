@@ -60,6 +60,7 @@ public class BookingResourceImpl implements BookingResource {
     private final IdempotentRequestService idempotentRequestService;
     private final IncidentService incidentService;
     private final MovementsService movementsService;
+    private final AppointmentsService appointmentsService;
 
     @Override
     public GetOffenderBookingsResponse getOffenderBookings(final String query, final List<Long> bookingId, final List<String> offenderNo, final boolean iepLevel, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
@@ -715,7 +716,7 @@ public class BookingResourceImpl implements BookingResource {
     @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
     public PostBookingsBookingIdAppointmentsResponse postBookingsBookingIdAppointments(final Long bookingId, final NewAppointment newAppointment) {
-        final var createdEvent = bookingService.createBookingAppointment(
+        final var createdEvent = appointmentsService.createBookingAppointment(
                 bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
 
         return PostBookingsBookingIdAppointmentsResponse.respond201WithApplicationJson(createdEvent);

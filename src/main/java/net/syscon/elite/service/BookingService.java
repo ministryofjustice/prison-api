@@ -42,9 +42,7 @@ public interface BookingService {
     Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
     List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
-
-    ScheduledEvent createBookingAppointment(Long bookingId, String username, @Valid NewAppointment newAppointment);
-
+    
     void checkBookingExists(Long bookingId);
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
