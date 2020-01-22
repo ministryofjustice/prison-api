@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.ImageDetail;
 import net.syscon.elite.repository.ImageRepository;
 import net.syscon.elite.repository.jpa.model.OffenderImage;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 @Transactional(readOnly = true)
 public class ImageServiceImpl implements ImageService {
 

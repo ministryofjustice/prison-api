@@ -9,10 +9,23 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.util.List;
 
 @Api(tags = {"/images"})
 @SuppressWarnings("unused")
 public interface ImageResource {
+
+    @GET
+    @Path("/offenders/{offenderNo}")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Image details (with image data).", notes = "Image details (with image data).", nickname = "getImagesForOffender")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ImageDetail.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    GetImagesForOffenderResponse getImagesForOffender(@ApiParam(value = "The offender number", required = true) @PathParam("offenderNo") String offenderNo);
 
     @GET
     @Path("/{imageId}")
@@ -38,6 +51,46 @@ public interface ImageResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     GetImageDataResponse getImageData(@ApiParam(value = "The image id of offender", required = true) @PathParam("imageId") Long imageId,
                                       @ApiParam(value = "Return full size image", defaultValue = "false") @QueryParam("fullSizeImage") @DefaultValue("false") boolean fullSizeImage);
+
+
+    class GetImagesForOffenderResponse extends ResponseDelegate {
+
+        private GetImagesForOffenderResponse(final Response response) {
+            super(response);
+        }
+
+        private GetImagesForOffenderResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetImageResponse respond200WithApplicationJson(final List<ImageDetail> entity) {
+            final var responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetImageResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetImageResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetImageResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetImageResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetImageResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetImageResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetImageResponse(responseBuilder.build(), entity);
+        }
+    }
 
     class GetImageResponse extends ResponseDelegate {
 
