@@ -39,10 +39,28 @@ public class OffenderDeletionListenerTest {
     }
 
     @Test
-    public void handleOffenderDeletionEventThrowsIfMessageNotPresent() {
-        assertThatThrownBy(() -> listener.handleOffenderDeletionEvent("{}"))
+    public void handleOffenderDeletionEventThrowsIfMessageAttributesNotPresent() {
+        assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-no-attributes.json")))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("Request did not contain 'Message' key: {}");
+                .hasMessage("Event has no attributes");
+
+        verifyNoInteractions(offenderDataComplianceService);
+    }
+
+    @Test
+    public void handleOffenderDeletionEventThrowsIfEventTypeUnexpected() {
+        assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-bad-event-type.json")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Unexpected message event type: UNEXPECTED!");
+
+        verifyNoInteractions(offenderDataComplianceService);
+    }
+
+    @Test
+    public void handleOffenderDeletionEventThrowsIfMessageNotPresent() {
+        assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-no-message.json")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("argument \"content\" is null");
 
         verifyNoInteractions(offenderDataComplianceService);
     }
@@ -53,7 +71,7 @@ public class OffenderDeletionListenerTest {
         assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(
                 getJson("offender-deletion-request-bad-message.json")))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessage("Failed to parse request");
+                .hasMessageContaining("Failed to parse request");
 
         verifyNoInteractions(offenderDataComplianceService);
     }

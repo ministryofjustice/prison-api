@@ -1,14 +1,12 @@
 package net.syscon.elite.events.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode
-@ToString
 public class OffenderDeletionEvent {
     private String offenderIdDisplay;
 }

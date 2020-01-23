@@ -1,20 +1,18 @@
 package net.syscon.elite.events;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.events.dto.OffenderDeletionEvent;
+import net.syscon.elite.events.dto.SqsEvent;
 import net.syscon.elite.service.OffenderDataComplianceService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 @Slf4j
@@ -22,6 +20,8 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 @AllArgsConstructor
 @ConditionalOnExpression("'${offender.deletion.sqs.provider}'.equals('aws') or '${offender.deletion.sqs.provider}'.equals('localstack')")
 public class OffenderDeletionListener {
+
+    private static final String EXPECTED_EVENT_TYPE = "DATA_COMPLIANCE_DELETE-OFFENDER";
 
     private final OffenderDataComplianceService offenderDataComplianceService;
     private final ObjectMapper objectMapper;
@@ -46,14 +46,15 @@ public class OffenderDeletionListener {
 
     private OffenderDeletionEvent parseOffenderDeletionEvent(final String requestJson) {
         try {
-            final Map<String, Object> message = objectMapper.readValue(requestJson, new TypeReference<>() {});
+            final SqsEvent message = objectMapper.readValue(requestJson, SqsEvent.class);
 
-            requireNonNull(message, "Could not parse request into map: " + requestJson);
-            requireNonNull(message.get("Message"), "Request did not contain 'Message' key: " + requestJson);
+            checkState(EXPECTED_EVENT_TYPE.equals(message.getEventType()),
+                    "Unexpected message event type: %s", message.getEventType());
 
-            return objectMapper.readValue(message.get("Message").toString(), OffenderDeletionEvent.class);
+            return objectMapper.readValue(message.getMessage(), OffenderDeletionEvent.class);
+
         } catch (final IOException e) {
-            throw new RuntimeException("Failed to parse request", e);
+            throw new RuntimeException("Failed to parse request: " + requestJson, e);
         }
     }
 }
