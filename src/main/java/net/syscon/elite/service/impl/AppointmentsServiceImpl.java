@@ -99,7 +99,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
     @Transactional
     @Override
-    @VerifyBookingAccess(overrideRoles = "EXTERNAL_APPOINTMENT")
+    @VerifyBookingAccess(overrideRoles = "GLOBAL_APPOINTMENT")
     public ScheduledEvent createBookingAppointment(final Long bookingId, final String username, @Valid final NewAppointment newAppointment) {
         validateStartTime(newAppointment);
         validateEndTime(newAppointment);
@@ -146,7 +146,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
         try {
             final var appointmentLocation = locationService.getLocation(newAppointment.getLocationId());
-            final var skipLocationAgencyCheck = authenticationFacade.isOverrideRole("SYSTEM_USER", "EXTERNAL_APPOINTMENT");
+            final var skipLocationAgencyCheck = authenticationFacade.isOverrideRole("SYSTEM_USER", "GLOBAL_APPOINTMENT");
 
             if (skipLocationAgencyCheck) return appointmentLocation.getAgencyId();
 

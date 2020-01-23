@@ -622,7 +622,7 @@ public class AppointmentsServiceImplTest {
                 .comment("comment")
                 .locationId(locationId).build();
 
-        ensureRoles("EXTERNAL_APPOINTMENT");
+        ensureRoles("GLOBAL_APPOINTMENT");
 
         when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
         when(referenceDomainService.getReferenceCodeByDomainAndCode(

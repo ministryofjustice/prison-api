@@ -146,7 +146,7 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<PrisonerSchedule> getLocationEvents(final String agencyId, final Long locationId, final String usage,
                                                     final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
@@ -170,7 +170,7 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
         final var startDate = fromDate == null ? LocalDate.now() : fromDate;
