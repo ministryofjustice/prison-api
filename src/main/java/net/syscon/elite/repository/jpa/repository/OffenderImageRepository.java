@@ -13,7 +13,14 @@ import java.util.List;
 public interface OffenderImageRepository extends CrudRepository<OffenderImage, Long> {
 
     @Query(value =
-            "SELECT * FROM offender_images i " +
+            "SELECT " +
+                    "i.offender_image_id," +
+                    "i.capture_datetime," +
+                    "i.image_view_type," +
+                    "i.orientation_type," +
+                    "i.image_object_type," +
+                    "i.image_object_id " +
+                    "FROM offender_images i " +
             "INNER JOIN offender_bookings ob " +
             "ON ob.offender_book_id = i.offender_book_id " +
             "INNER JOIN offenders o " +

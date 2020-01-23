@@ -28,7 +28,6 @@ public class OffenderImageRepositoryTest {
 
         assertThat(images).hasSize(1);
         assertThat(images).extracting(OffenderImage::getOffenderImageId).containsOnly(-1L);
-        assertThat(images).extracting(OffenderImage::getOffenderBookingId).containsOnly(-1L);
     }
 
     @Test

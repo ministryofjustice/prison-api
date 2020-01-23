@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Image Detail
@@ -25,8 +23,6 @@ import java.util.Map;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class ImageDetail {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
 
     @NotNull
     private Long imageId;
@@ -44,19 +40,6 @@ public class ImageDetail {
     private String imageType;
 
     private Long objectId;
-
-    private String imageData;
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
 
     /**
      * Image ID
@@ -136,19 +119,6 @@ public class ImageDetail {
         this.objectId = objectId;
     }
 
-    /**
-     * Bytes of Image
-     */
-    @ApiModelProperty(value = "Bytes of Image")
-    @JsonProperty("imageData")
-    public String getImageData() {
-        return imageData;
-    }
-
-    public void setImageData(final String imageData) {
-        this.imageData = imageData;
-    }
-
     @Override
     public String toString() {
         final var sb = new StringBuilder();
@@ -161,7 +131,6 @@ public class ImageDetail {
         sb.append("  imageOrientation: ").append(imageOrientation).append("\n");
         sb.append("  imageType: ").append(imageType).append("\n");
         sb.append("  objectId: ").append(objectId).append("\n");
-        sb.append("  imageData: ").append(imageData).append("\n");
         sb.append("}\n");
 
         return sb.toString();
