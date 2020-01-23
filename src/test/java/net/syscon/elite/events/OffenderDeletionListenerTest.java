@@ -51,7 +51,7 @@ public class OffenderDeletionListenerTest {
     public void handleOffenderDeletionEventThrowsIfEventTypeUnexpected() {
         assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-bad-event-type.json")))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Unexpected message event type: UNEXPECTED!");
+                .hasMessage("Unexpected message event type: 'UNEXPECTED!', expecting: 'DATA_COMPLIANCE_DELETE-OFFENDER'");
 
         verifyNoInteractions(offenderDataComplianceService);
     }

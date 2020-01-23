@@ -49,7 +49,7 @@ public class OffenderDeletionListener {
             final SqsEvent message = objectMapper.readValue(requestJson, SqsEvent.class);
 
             checkState(EXPECTED_EVENT_TYPE.equals(message.getEventType()),
-                    "Unexpected message event type: %s", message.getEventType());
+                    "Unexpected message event type: '%s', expecting: '%s'", message.getEventType(), EXPECTED_EVENT_TYPE);
 
             return objectMapper.readValue(message.getMessage(), OffenderDeletionEvent.class);
 
