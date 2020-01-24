@@ -70,7 +70,7 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
     }
 
     @Override
-    public Set<Long> getOffenderIdsFor(String offenderNo) {
+    public Set<Long> getOffenderIdsFor(final String offenderNo) {
         return new HashSet<>(jdbcTemplate.queryForList(
                 getQuery("GET_OFFENDER_IDS"),
                 createParams("offenderNo", offenderNo),
