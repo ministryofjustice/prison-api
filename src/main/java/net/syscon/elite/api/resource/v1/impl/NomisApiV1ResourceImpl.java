@@ -3,14 +3,14 @@ package net.syscon.elite.api.resource.v1.impl;
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.v1.NomisApiV1Resource;
 import net.syscon.elite.core.ProxyUser;
-import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.v1.NomisApiV1Service;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.SortedMap;
@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 
 import static net.syscon.util.DateTimeConverter.optionalStrToLocalDateTime;
 
-@RestResource
-@Path("/v1")
+@RestController
+@RequestMapping("/v1")
 public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
     private final NomisApiV1Service service;

@@ -20,8 +20,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.web.client.HttpClientErrorException;
 
-import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
@@ -301,7 +301,7 @@ public class InmateServiceImplTest {
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
 
         Assertions.assertThatThrownBy(() -> serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), true))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessageContaining("User has not active caseloads");
     }
 

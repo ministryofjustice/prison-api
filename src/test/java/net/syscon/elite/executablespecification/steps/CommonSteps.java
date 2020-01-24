@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.annotation.PostConstruct;
-import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -77,7 +77,7 @@ public abstract class CommonSteps {
     @Step("Verify resource not found")
     public void verifyResourceNotFound() {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(errorResponse.getDeveloperMessage()).as("Test is calling incorrect path/uri").isEmpty();
     }
 
@@ -89,7 +89,7 @@ public abstract class CommonSteps {
     @Step("Verify 500 error")
     public void verify500Error() {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Step("Verify bad request")
@@ -99,14 +99,14 @@ public abstract class CommonSteps {
 
     public void verifyBadRequest(final List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
     }
 
     @Step("Verify access denied")
     public void verifyAccessDenied() {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Step("Verify access denied")
@@ -116,14 +116,14 @@ public abstract class CommonSteps {
 
     private void verifyAccessDenied(final List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
     }
 
     @Step("Verify not authorised")
     private void verifyNotAuthorised() {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Step("Verify not authorised")
@@ -139,7 +139,7 @@ public abstract class CommonSteps {
 
     private void verifyResourceConflict(final List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
     }
 
@@ -547,8 +547,8 @@ public abstract class CommonSteps {
         assertThat(actual).isEqualTo(expected);
     }
 
-    void assertErrorResponse(final Response.StatusType expectedStatusCode) {
+    void assertErrorResponse(final HttpStatus expectedStatusCode) {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(expectedStatusCode.getStatusCode());
+        assertThat(errorResponse.getStatus()).isEqualTo(expectedStatusCode.value());
     }
 }

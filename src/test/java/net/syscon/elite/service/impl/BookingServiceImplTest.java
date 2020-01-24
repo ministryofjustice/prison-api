@@ -16,8 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.client.HttpClientErrorException;
 
-import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -131,7 +131,7 @@ public class BookingServiceImplTest {
         try {
             bookingService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (final BadRequestException e) {
+        } catch (final HttpClientErrorException e) {
             assertThat(e.getMessage()).isEqualTo("Appointment time is in the past.");
         }
     }
@@ -148,7 +148,7 @@ public class BookingServiceImplTest {
         try {
             bookingService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (final BadRequestException e) {
+        } catch (final HttpClientErrorException e) {
             assertThat(e.getMessage()).isEqualTo("Appointment end time is before the start time.");
         }
     }
@@ -179,7 +179,7 @@ public class BookingServiceImplTest {
                 .thenThrow(new EntityNotFoundException("test"));
 
         assertThatThrownBy(() -> bookingService.createBookingAppointment(bookingId, principal, newAppointment))
-                .isInstanceOf(BadRequestException.class).hasMessage("Location does not exist or is not in your caseload.");
+                .isInstanceOf(HttpClientErrorException.class).hasMessage("Location does not exist or is not in your caseload.");
     }
 
     @Test
@@ -206,7 +206,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookingService.createBookingAppointment(bookingId, principal, newAppointment))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessage("Event type not recognised.");
     }
 

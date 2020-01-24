@@ -13,14 +13,15 @@ import net.syscon.elite.service.AppointmentsService;
 import net.syscon.elite.service.LocationService;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.ReferenceDomain;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.BadRequestException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -77,7 +78,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         final var defaults = appointments.getAppointmentDefaults();
 
         final var agencyId = findLocationInUserLocations(defaults.getLocationId())
-                .orElseThrow(() -> new BadRequestException("Location does not exist or is not in your caseload."))
+                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload."))
                 .getAgencyId();
 
         assertValidAppointmentType(defaults.getAppointmentType());
@@ -95,7 +96,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
     private void assertThatRequestHasPermission(final AppointmentsToCreate appointments) {
         if (appointments.moreThanOneOffender() && !hasRoles("BULK_APPOINTMENTS")) {
-            throw new BadRequestException("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
         }
     }
 
@@ -107,11 +108,11 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
     private void assertThatAppointmentFallsWithin(final AppointmentDetails appointment, final LocalDateTime limit) {
         if (appointment.getStartTime().isAfter(limit)) {
-            throw new BadRequestException("An appointment startTime is later than the limit of " + limit);
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "An appointment startTime is later than the limit of " + limit);
         }
         if (appointment.getEndTime() == null) return;
         if (appointment.getEndTime().isAfter(limit)) {
-            throw new BadRequestException("An appointment endTime is later than the limit of " + limit);
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "An appointment endTime is later than the limit of " + limit);
         }
     }
 
@@ -123,7 +124,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         final var numberOfAppointments = appointments.getAppointments().size();
 
         if (numberOfAppointments > MAXIMUM_NUMBER_OF_APPOINTMENTS) {
-            throw new BadRequestException("Request to create " + numberOfAppointments + " appointments exceeds limit of " + MAXIMUM_NUMBER_OF_APPOINTMENTS);
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Request to create " + numberOfAppointments + " appointments exceeds limit of " + MAXIMUM_NUMBER_OF_APPOINTMENTS);
         }
     }
 
@@ -131,7 +132,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         final var bookingIds = appointments.stream().map(AppointmentDetails::getBookingId).collect(Collectors.toList());
         final var bookingIdsInAgency = bookingRepository.findBookingsIdsInAgency(bookingIds, agencyId);
         if (bookingIdsInAgency.size() < bookingIds.size()) {
-            throw new BadRequestException("A BookingId does not exist in your caseload");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "A BookingId does not exist in your caseload");
         }
     }
 
@@ -142,12 +143,12 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     private static void assertStartTimePrecedesEndTime(final AppointmentDetails appointment) {
         if (appointment.getEndTime() != null
                 && appointment.getEndTime().isBefore(appointment.getStartTime())) {
-            throw new BadRequestException("Appointment end time is before the start time.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment end time is before the start time.");
         }
     }
 
     private void assertValidAppointmentType(final String appointmentType) {
-        findEventType(appointmentType).orElseThrow(() -> new BadRequestException("Event type not recognised."));
+        findEventType(appointmentType).orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Event type not recognised."));
     }
 
     private Optional<ReferenceCode> findEventType(final String appointmentType) {

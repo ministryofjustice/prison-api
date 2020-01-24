@@ -9,8 +9,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.web.client.HttpClientErrorException;
 
-import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -305,7 +305,7 @@ public class MovementsServiceImplTest {
 
         assertThatThrownBy(() -> {
             final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
-        }).isInstanceOf(BadRequestException.class).hasMessageContaining("No agency location identifiers were supplied");
+        }).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("No agency location identifiers were supplied");
 
         verifyNoMoreInteractions(movementsRepository);
     }
@@ -325,7 +325,7 @@ public class MovementsServiceImplTest {
 
         assertThatThrownBy(() -> {
             final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
-        }).isInstanceOf(BadRequestException.class).hasMessageContaining("The supplied fromDateTime parameter is after the toDateTime value");
+        }).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("The supplied fromDateTime parameter is after the toDateTime value");
 
         verifyNoMoreInteractions(movementsRepository);
     }
@@ -346,7 +346,7 @@ public class MovementsServiceImplTest {
 
         assertThatThrownBy(() -> {
             final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
-        }).isInstanceOf(BadRequestException.class).hasMessageContaining("At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]");
+        }).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]");
 
         verifyNoMoreInteractions(movementsRepository);
     }

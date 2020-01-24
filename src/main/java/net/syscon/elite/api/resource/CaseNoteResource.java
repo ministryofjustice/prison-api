@@ -2,93 +2,77 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.ws.rs.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Api(tags = {"/case-notes"})
-@SuppressWarnings({"unused", "RestParamTypeInspection"})
 public interface CaseNoteResource {
 
-    @GET
-    @Path("/staff-usage")
-    @Consumes({"application/json"})
-    @Produces({"application/json"})
+    @GetMapping("/staff-usage")
     @ApiOperation(value = "Count of case notes", notes = "Count of case notes", nickname = "getCaseNoteStaffUsageSummary")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = CaseNoteStaffUsage.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<CaseNoteStaffUsage> getCaseNoteStaffUsageSummary(@ApiParam(value = "a list of staffId numbers to use.", required = true) @QueryParam("staffId") List<String> staffId,
-                                                          @ApiParam(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", defaultValue = "1") @QueryParam("numMonths") Integer numMonths,
-                                                          @ApiParam(value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") @QueryParam("fromDate") LocalDate fromDate,
-                                                          @ApiParam(value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") @QueryParam("toDate") LocalDate toDate,
-                                                          @ApiParam(value = "Case note type.") @QueryParam("type") String type,
-                                                          @ApiParam(value = "Case note sub-type.") @QueryParam("subType") String subType);
+    List<CaseNoteStaffUsage> getCaseNoteStaffUsageSummary(@ApiParam(value = "a list of staffId numbers to use.", required = true) @RequestParam("staffId") List<String> staffId,
+                                                          @ApiParam(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", defaultValue = "1") @RequestParam(value = "numMonths", required = false, defaultValue = "1") Integer numMonths,
+                                                          @ApiParam(value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+                                                          @ApiParam(value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") @RequestParam(value = "toDate", required = false) LocalDate toDate,
+                                                          @ApiParam(value = "Case note type.") @RequestParam("type") String type,
+                                                          @ApiParam(value = "Case note sub-type.") @RequestParam("subType") String subType);
 
-    @GET
-    @Path("/usage")
-    @Consumes({"application/json"})
-    @Produces({"application/json"})
+    @GetMapping("/usage")
     @ApiOperation(value = "Count of case notes", notes = "Count of case notes", nickname = "getCaseNoteUsageSummary")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = CaseNoteUsage.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<CaseNoteUsage> getCaseNoteUsageSummary(@ApiParam(value = "a list of offender numbers to search.", required = true) @QueryParam("offenderNo") List<String> offenderNo,
-                                                @ApiParam(value = "Staff Id to filter by") @QueryParam("staffId") Integer staffId,
-                                                @ApiParam(value = "Agency Id to filter by") @QueryParam("agencyId") String agencyId,
-                                                @ApiParam(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", defaultValue = "1") @QueryParam("numMonths") Integer numMonths,
-                                                @ApiParam(value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") @QueryParam("fromDate") LocalDate fromDate,
-                                                @ApiParam(value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") @QueryParam("toDate") LocalDate toDate,
-                                                @ApiParam(value = "Case note type.") @QueryParam("type") String type,
-                                                @ApiParam(value = "Case note sub-type.") @QueryParam("subType") String subType);
+    List<CaseNoteUsage> getCaseNoteUsageSummary(@ApiParam(value = "a list of offender numbers to search.", required = true) @RequestParam("offenderNo") List<String> offenderNo,
+                                                @ApiParam(value = "Staff Id to filter by") @RequestParam("staffId") Integer staffId,
+                                                @ApiParam(value = "Agency Id to filter by") @RequestParam("agencyId") String agencyId,
+                                                @ApiParam(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", defaultValue = "1") @RequestParam("numMonths") Integer numMonths,
+                                                @ApiParam(value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") @RequestParam("fromDate") LocalDate fromDate,
+                                                @ApiParam(value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") @RequestParam("toDate") LocalDate toDate,
+                                                @ApiParam(value = "Case note type.") @RequestParam("type") String type,
+                                                @ApiParam(value = "Case note sub-type.") @RequestParam("subType") String subType);
 
-    @GET
+    @GetMapping("/summary")
     @ApiIgnore
-    @Path("/summary")
-    @Consumes({"application/json"})
-    @Produces({"application/json"})
     @ApiOperation(value = "Count of case notes by booking id", notes = "Count of case notes by booking id", nickname = "getCaseNoteSummaryByBookingId")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = CaseNoteUsageByBookingId.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<CaseNoteUsageByBookingId> getCaseNoteSummaryByBookingId(@ApiParam(value = "a list of booking ids to search.", required = true) @QueryParam("bookingId") List<Integer> bookingId,
-                                                                 @ApiParam(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", defaultValue = "1") @QueryParam("numMonths") Integer numMonths,
-                                                                 @ApiParam(value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") @QueryParam("fromDate") LocalDate fromDate,
-                                                                 @ApiParam(value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") @QueryParam("toDate") LocalDate toDate,
-                                                                 @ApiParam(value = "Case note type.") @QueryParam("type") String type,
-                                                                 @ApiParam(value = "Case note sub-type.") @QueryParam("subType") String subType);
+    List<CaseNoteUsageByBookingId> getCaseNoteSummaryByBookingId(@ApiParam(value = "a list of booking ids to search.", required = true) @RequestParam("bookingId") List<Integer> bookingId,
+                                                                 @ApiParam(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", defaultValue = "1") @RequestParam("numMonths") Integer numMonths,
+                                                                 @ApiParam(value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") @RequestParam("fromDate") LocalDate fromDate,
+                                                                 @ApiParam(value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") @RequestParam("toDate") LocalDate toDate,
+                                                                 @ApiParam(value = "Case note type.") @RequestParam("type") String type,
+                                                                 @ApiParam(value = "Case note sub-type.") @RequestParam("subType") String subType);
 
-    @POST
-    @Path("/staff-usage")
-    @Consumes({"application/json"})
-    @Produces({"application/json"})
+    @PostMapping("/staff-usage")
     @ApiOperation(value = "Retrieves list of case notes grouped by type/sub-type and staff", notes = "Retrieves list of case notes grouped by type/sub-type and staff", nickname = "getCaseNoteStaffUsageSummaryByPost")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The case note usage list is returned.", response = CaseNoteStaffUsage.class, responseContainer = "List")})
     List<CaseNoteStaffUsage> getCaseNoteStaffUsageSummaryByPost(@ApiParam(value = "", required = true) CaseNoteStaffUsageRequest body);
 
-    @POST
-    @Path("/usage")
-    @Consumes({"application/json"})
-    @Produces({"application/json"})
+    @PostMapping("/usage")
     @ApiOperation(value = "Retrieves list of case notes grouped by type and offender", notes = "Retrieves list of case notes grouped by type and offender", nickname = "getCaseNoteUsageSummaryByPost")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The case note usage list is returned.", response = CaseNoteUsage.class, responseContainer = "List")})
     List<CaseNoteUsage> getCaseNoteUsageSummaryByPost(@ApiParam(value = "", required = true) CaseNoteUsageRequest body);
 
-    @GET
-    @Path("/events_no_limit")
+    @GetMapping("/events_no_limit")
     @ApiIgnore
-    @Produces({"application/json"})
     @ApiOperation(value = "Fetch all case notes of a given type since a given date", notes = "Returns all case notes - consumed by Delius<br/>" +
             "These are generated by  whenever a case note is created or amended for an offender.<br/>" +
             "*Note:* An alternative call [GET /case_notes/for_delius](#case-notes-feed-fetch-case-notes-direct-get) has been created for performance reasons.<br/>" +
@@ -99,12 +83,10 @@ public interface CaseNoteResource {
             @ApiResponse(code = 200, message = "OK", response = CaseNoteEvent.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<CaseNoteEvent> getCaseNotesEventsNoLimit(@ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) @QueryParam("type") List<String> noteTypes,
-                                                  @ApiParam(value = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") @QueryParam("createdDate") LocalDateTime createdDate);
+    List<CaseNoteEvent> getCaseNotesEventsNoLimit(@ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) @RequestParam("type") List<String> noteTypes,
+                                                  @ApiParam(value = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") @RequestParam("createdDate") LocalDateTime createdDate);
 
-    @GET
-    @Path("/events")
-    @Produces({"application/json"})
+    @GetMapping("/events")
     @ApiOperation(value = "Fetch all case notes of a given type since a given date", notes = "Returns all case notes - consumed by Delius<br/>" +
             "These are generated by  whenever a case note is created or amended for an offender.<br/>" +
             "*Note:* An alternative call [GET /case_notes/for_delius](#case-notes-feed-fetch-case-notes-direct-get) has been created for performance reasons.<br/>" +
@@ -115,7 +97,7 @@ public interface CaseNoteResource {
             @ApiResponse(code = 200, message = "OK", response = CaseNoteEvent.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<CaseNoteEvent> getCaseNotesEvents(@ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) @QueryParam("type") List<String> noteTypes,
-                                           @ApiParam(value = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") @QueryParam("createdDate") LocalDateTime createdDate,
-                                           @ApiParam(name = "limit", value = "Number of events to return", example = "100") @QueryParam("limit") Long limit);
+    List<CaseNoteEvent> getCaseNotesEvents(@ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) @RequestParam("type") List<String> noteTypes,
+                                           @ApiParam(value = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") @RequestParam("createdDate") LocalDateTime createdDate,
+                                           @ApiParam(name = "limit", value = "Number of events to return", example = "100") @RequestParam("limit") Long limit);
 }

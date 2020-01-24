@@ -17,8 +17,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.client.HttpClientErrorException;
 
-import javax.ws.rs.BadRequestException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -106,7 +106,7 @@ public class AppointmentsServiceImplTest {
                                         .build())
                         .appointments(Arrays.asList(new AppointmentDetails[1001]))
                         .build()))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessage("Request to create 1001 appointments exceeds limit of 1000");
 
         verifyNoMoreInteractions(telemetryClient);
@@ -131,7 +131,7 @@ public class AppointmentsServiceImplTest {
                                                 .build())
                                 .appointments(List.of())
                                 .build()))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessage("Location does not exist or is not in your caseload.");
 
         verifyNoMoreInteractions(telemetryClient);
@@ -154,7 +154,7 @@ public class AppointmentsServiceImplTest {
                                                 .build())
                                 .appointments(List.of())
                                 .build()))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessage("Event type not recognised.");
 
         verifyNoMoreInteractions(telemetryClient);
@@ -199,7 +199,7 @@ public class AppointmentsServiceImplTest {
                                                 .build())
                                 .appointments(List.of(DETAILS_1))
                                 .build()))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessage("A BookingId does not exist in your caseload");
 
         verifyNoMoreInteractions(telemetryClient);
@@ -258,7 +258,7 @@ public class AppointmentsServiceImplTest {
                 .build();
 
         assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessageStartingWith("An appointment startTime is later than the limit of ");
     }
 
@@ -287,7 +287,7 @@ public class AppointmentsServiceImplTest {
                 .build();
 
         assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessageStartingWith("An appointment endTime is later than the limit of ");
     }
 
@@ -311,7 +311,7 @@ public class AppointmentsServiceImplTest {
                 .build();
 
         assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessage("Appointment end time is before the start time.");
     }
 
@@ -369,7 +369,7 @@ public class AppointmentsServiceImplTest {
                 .build();
 
         assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessage("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
     }
 

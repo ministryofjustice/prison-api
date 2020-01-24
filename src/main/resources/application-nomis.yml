@@ -10,6 +10,11 @@ spring:
   profiles:
     include: nomis-local,logstash,ai
 
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.Oracle10gDialect
+
   datasource:
     hikari:
       maximum-pool-size: 10

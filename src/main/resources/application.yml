@@ -7,10 +7,15 @@ spring:
 
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          fetch_size: 100
 
-  jersey:
-    type: servlet
-    application-path: /api
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss"
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
 
 logging:
   level:
@@ -31,3 +36,7 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+
+api:
+  base:
+    path: /api

@@ -1,13 +1,15 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.PersonIdentifier;
 import net.syscon.elite.api.resource.PersonResource;
-import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.PersonService;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.Path;
+import java.util.List;
 
-@RestResource
-@Path("persons")
+@RestController
+@RequestMapping("persons")
 public class PersonResourceImpl implements PersonResource {
     private final PersonService service;
 
@@ -16,7 +18,7 @@ public class PersonResourceImpl implements PersonResource {
     }
 
     @Override
-    public GetPersonIdentifiersResponse getPersonIdentifiers(final Long personId) {
-        return GetPersonIdentifiersResponse.respond200WithApplicationJson(service.getPersonIdentifiers(personId));
+    public List<PersonIdentifier> getPersonIdentifiers(final Long personId) {
+        return service.getPersonIdentifiers(personId);
     }
 }

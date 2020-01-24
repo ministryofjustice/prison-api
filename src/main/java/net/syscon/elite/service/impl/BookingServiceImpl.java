@@ -18,14 +18,15 @@ import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
-import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -440,14 +441,14 @@ public class BookingServiceImpl implements BookingService {
 
     private void validateStartTime(final NewAppointment newAppointment) {
         if (newAppointment.getStartTime().isBefore(LocalDateTime.now())) {
-            throw new BadRequestException("Appointment time is in the past.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment time is in the past.");
         }
     }
 
     private void validateEndTime(final NewAppointment newAppointment) {
         if (newAppointment.getEndTime() != null
                 && newAppointment.getEndTime().isBefore(newAppointment.getStartTime())) {
-            throw new BadRequestException("Appointment end time is before the start time.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment end time is before the start time.");
         }
     }
 
@@ -462,7 +463,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (result.isEmpty()) {
-            throw new BadRequestException("Event type not recognised.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Event type not recognised.");
         }
     }
 
@@ -486,13 +487,13 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return agencyId.orElseThrow(() ->
-                new BadRequestException("Location does not exist or is not in your caseload."));
+                new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload."));
     }
 
     private void validateScheduledEventsRequest(final LocalDate fromDate, final LocalDate toDate) {
         // Validate date range
         if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
-            throw new BadRequestException("Invalid date range: toDate is before fromDate.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid date range: toDate is before fromDate.");
         }
     }
 
@@ -789,7 +790,7 @@ public class BookingServiceImpl implements BookingService {
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final Set<String> caseloads, final boolean filterByCaseloads) {
         final var query = buildAgencyQuery(agencyId, authenticationFacade.getCurrentUsername());
         if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
-            throw new BadRequestException("Request must be restricted to either a caseload, agency or list of offenders");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Request must be restricted to either a caseload, agency or list of offenders");
         }
         return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings());
     }

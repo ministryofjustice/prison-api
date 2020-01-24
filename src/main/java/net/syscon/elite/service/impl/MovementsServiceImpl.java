@@ -11,14 +11,15 @@ import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -194,7 +195,7 @@ public class MovementsServiceImpl implements MovementsService {
         final var badRequestMsg = checkTransferParameters(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
         if (badRequestMsg != null) {
             log.info("Request parameters supplied were not valid - {}", badRequestMsg);
-            throw new BadRequestException(badRequestMsg);
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, badRequestMsg);
         }
 
         final List<CourtEvent> listOfCourtEvents;

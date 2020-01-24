@@ -1,20 +1,16 @@
 package net.syscon.elite.api.resource.impl;
 
-import lombok.val;
-import net.syscon.elite.api.model.IepLevel;
-import net.syscon.elite.api.model.WhereaboutsConfig;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.AgencyResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.api.support.TimeSlot;
-import net.syscon.elite.core.RestResource;
-import net.syscon.elite.service.AgencyService;
-import net.syscon.elite.service.LocationGroupService;
-import net.syscon.elite.service.OffenderIepReviewSearchCriteria;
-import net.syscon.elite.service.WhereaboutsEnabledService;
+import net.syscon.elite.service.*;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,8 +18,8 @@ import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
 import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static net.syscon.util.ResourceUtils.nvl;
 
-@RestResource
-@Path("/agencies")
+@RestController
+@RequestMapping("/agencies")
 public class AgencyResourceImpl implements AgencyResource {
     private final AgencyService agencyService;
     private final LocationGroupService locationGroupService;
@@ -39,24 +35,22 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
-    public GetAgenciesResponse getAgencies(final Long pageOffset, final Long pageLimit) {
+    public ResponseEntity<List<Agency>> getAgencies(final Long pageOffset, final Long pageLimit) {
         final var agencies = agencyService.getAgencies(nvl(pageOffset, 0L), nvl(pageLimit, 10L));
 
-        return GetAgenciesResponse.respond200WithApplicationJson(agencies);
+        return ResponseEntity.ok()
+                .headers(agencies.getPaginationHeaders())
+                .body(agencies.getItems());
     }
 
     @Override
-    public GetAgencyResponse getAgency(final String agencyId, final boolean activeOnly, final String agencyType) {
-        final var agency = agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType);
-
-        return GetAgencyResponse.respond200WithApplicationJson(agency);
+    public Agency getAgency(final String agencyId, final boolean activeOnly, final String agencyType) {
+        return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType);
     }
 
     @Override
-    public GetAgencyLocationsResponse getAgencyLocations(final String agencyId, final String eventType, final String sortFields, final Order sortOrder) {
-        final var locations = agencyService.getAgencyLocations(agencyId, eventType, sortFields, sortOrder);
-
-        return GetAgencyLocationsResponse.respond200WithApplicationJson(locations);
+    public List<Location> getAgencyLocations(final String agencyId, final String eventType, final String sortFields, final Order sortOrder) {
+        return agencyService.getAgencyLocations(agencyId, eventType, sortFields, sortOrder);
     }
 
     @Override
@@ -65,9 +59,8 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
-    public GetAvailableLocationGroupsResponse getAvailableLocationGroups(final String agencyId) {
-        final var locationGroups = locationGroupService.getLocationGroupsForAgency(agencyId);
-        return GetAvailableLocationGroupsResponse.respond200WithApplicationJson(locationGroups);
+    public List<LocationGroup> getAvailableLocationGroups(final String agencyId) {
+        return locationGroupService.getLocationGroupsForAgency(agencyId);
     }
 
     @Override
@@ -76,44 +69,37 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
-    public GetAgencyEventLocationsResponse getAgencyEventLocations(final String agencyId, final String sortFields, final Order sortOrder) {
-        final var locations = agencyService.getAgencyEventLocations(agencyId, sortFields, sortOrder);
-
-        return GetAgencyEventLocationsResponse.respond200WithApplicationJson(locations);
+    public List<Location> getAgencyEventLocations(final String agencyId, final String sortFields, final Order sortOrder) {
+        return agencyService.getAgencyEventLocations(agencyId, sortFields, sortOrder);
     }
 
     @Override
-    public GetAgencyEventLocationsBookedResponse getAgencyEventLocationsBooked(final String agencyId, final LocalDate date, final TimeSlot timeSlot) {
-        final var locations = agencyService.getAgencyEventLocationsBooked(agencyId, date, timeSlot);
-
-        return GetAgencyEventLocationsBookedResponse.respond200WithApplicationJson(locations);
+    public List<Location> getAgencyEventLocationsBooked(final String agencyId, final LocalDate date, final TimeSlot timeSlot) {
+        return agencyService.getAgencyEventLocationsBooked(agencyId, date, timeSlot);
     }
 
     @Override
-    public GetAgenciesByCaseloadResponse getAgenciesByCaseload(final String caseload) {
-        final var agenciesByCaseload = agencyService.getAgenciesByCaseload(caseload);
-        return GetAgenciesByCaseloadResponse.respond200WithApplicationJson(agenciesByCaseload);
+    public List<Agency> getAgenciesByCaseload(final String caseload) {
+        return agencyService.getAgenciesByCaseload(caseload);
     }
 
     @Override
-    public GetPrisonContactDetailListResponse getPrisonContactDetailList() {
-        final var prisonContactDetail = agencyService.getPrisonContactDetail();
-        return GetPrisonContactDetailListResponse.respond200WithApplicationJson(prisonContactDetail);
+    public List<PrisonContactDetail> getPrisonContactDetailList() {
+        return agencyService.getPrisonContactDetail();
     }
 
     @Override
-    public GetPrisonContactDetailResponse getPrisonContactDetail(final String agencyId) {
-        final var prisonContactDetail = agencyService.getPrisonContactDetail(agencyId);
-        return GetPrisonContactDetailResponse.respond200WithApplicationJson(prisonContactDetail);
+    public PrisonContactDetail getPrisonContactDetail(final String agencyId) {
+        return agencyService.getPrisonContactDetail(agencyId);
     }
 
     @Override
-    public GetPrisonIepReviewResponse getPrisonIepReview(final String agencyId,
-                                                         final String iepLevel,
-                                                         final String location,
-                                                         final Long pageOffset,
-                                                         final Long pageLimit) {
-        val criteria = OffenderIepReviewSearchCriteria.builder()
+    public ResponseEntity<List<OffenderIepReview>> getPrisonIepReview(final String agencyId,
+                                                                      final String iepLevel,
+                                                                      final String location,
+                                                                      final Long pageOffset,
+                                                                      final Long pageLimit) {
+        final var criteria = OffenderIepReviewSearchCriteria.builder()
                 .agencyId(agencyId)
                 .iepLevel(iepLevel)
                 .location(location)
@@ -121,7 +107,9 @@ public class AgencyResourceImpl implements AgencyResource {
                 .build();
 
         final var prisonIepReview = agencyService.getPrisonIepReview(criteria);
-        return GetPrisonIepReviewResponse.respond200WithApplicationJson(prisonIepReview);
-    }
 
+        return ResponseEntity.ok()
+                .headers(prisonIepReview.getPaginationHeaders())
+                .body(prisonIepReview.getItems());
+    }
 }

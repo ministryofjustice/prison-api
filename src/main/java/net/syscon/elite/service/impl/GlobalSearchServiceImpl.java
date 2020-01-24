@@ -10,14 +10,14 @@ import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.service.GlobalSearchService;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.BadRequestException;
 import java.util.Collections;
 
 /**
@@ -46,17 +46,13 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
 
         final Page<PrisonerDetail> prisonersPage;
 
-        try {
-            // Always force the use of streamlined SQL when searching by PNC or CRO for performance reasons
-            if (criteria.isPrioritisedMatch() || StringUtils.isNotBlank(criteria.getPncNumber()) || StringUtils.isNotBlank(criteria.getCroNumber())) {
-                prisonersPage = executePrioritisedQuery(criteria, adjustedPageRequest);
-            } else {
-                prisonersPage = executeQuery(criteria, adjustedPageRequest);
-            }
-            prisonersPage.getItems().forEach(p -> p.setLatestLocation(LocationProcessor.formatLocation(p.getLatestLocation())));
-        } catch (final InvalidDataAccessApiUsageException iaex) {
-            throw new BadRequestException(iaex.getMostSpecificCause().getMessage(), iaex);
+        // Always force the use of streamlined SQL when searching by PNC or CRO for performance reasons
+        if (criteria.isPrioritisedMatch() || StringUtils.isNotBlank(criteria.getPncNumber()) || StringUtils.isNotBlank(criteria.getCroNumber())) {
+            prisonersPage = executePrioritisedQuery(criteria, adjustedPageRequest);
+        } else {
+            prisonersPage = executeQuery(criteria, adjustedPageRequest);
         }
+        prisonersPage.getItems().forEach(p -> p.setLatestLocation(LocationProcessor.formatLocation(p.getLatestLocation())));
 
         return prisonersPage;
     }
@@ -169,13 +165,13 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
 
     private void validateLocationFilter(final String location) {
         if (StringUtils.isNotBlank(location) && !VALID_LOCATION_FILTER_VALUES.contains(location)) {
-            throw new BadRequestException(String.format("Location filter value %s not recognised.", location));
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("Location filter value %s not recognised.", location));
         }
     }
 
     private void validateGenderFilter(final String gender) {
         if (StringUtils.isNotBlank(gender) && !VALID_GENDER_FILTER_VALUES.contains(gender)) {
-            throw new BadRequestException(String.format("Gender filter value %s not recognised.", gender));
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("Gender filter value %s not recognised.", gender));
         }
     }
 }

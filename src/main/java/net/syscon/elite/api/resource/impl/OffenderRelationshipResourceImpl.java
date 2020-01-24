@@ -1,13 +1,15 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.resource.OffenderRelationshipResource;
-import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.BookingService;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.Path;
+import java.util.List;
 
-@RestResource
-@Path("/offender-relationships")
+@RestController
+@RequestMapping("/offender-relationships")
 public class OffenderRelationshipResourceImpl implements OffenderRelationshipResource {
 
     private final BookingService bookingService;
@@ -17,16 +19,12 @@ public class OffenderRelationshipResourceImpl implements OffenderRelationshipRes
     }
 
     @Override
-    public GetBookingsByExternalRefAndTypeResponse getBookingsByExternalRefAndType(final String externalRef, final String relationshipType) {
-        final var bookings = bookingService.getBookingsByExternalRefAndType(externalRef, relationshipType);
-
-        return GetBookingsByExternalRefAndTypeResponse.respond200WithApplicationJson(bookings);
+    public List<OffenderSummary> getBookingsByExternalRefAndType(final String externalRef, final String relationshipType) {
+        return bookingService.getBookingsByExternalRefAndType(externalRef, relationshipType);
     }
 
     @Override
-    public GetBookingsByPersonIdAndTypeResponse getBookingsByPersonIdAndType(final Long personId, final String relationshipType) {
-        final var bookings = bookingService.getBookingsByPersonIdAndType(personId, relationshipType);
-
-        return GetBookingsByPersonIdAndTypeResponse.respond200WithApplicationJson(bookings);
+    public List<OffenderSummary> getBookingsByPersonIdAndType(final Long personId, final String relationshipType) {
+        return bookingService.getBookingsByPersonIdAndType(personId, relationshipType);
     }
 }

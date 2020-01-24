@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.ws.rs.DefaultValue;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +29,8 @@ public class CaseNoteUsageRequest {
     private LocalDate toDate;
 
     @ApiModelProperty(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", position = 3, example = "2")
-    @DefaultValue("1")
-    private Integer numMonths;
+    @Builder.Default
+    private Integer numMonths = 1;
 
     @Builder.Default
     @ApiModelProperty(required = true, value = "a list of offender numbers to search.", position = 4)

@@ -1,4 +1,4 @@
-package net.syscon.elite.api.resource.controller;
+package uk.gov.justice.hmpps.nomis.api.resource.controller;
 
 import io.swagger.annotations.*;
 import lombok.AllArgsConstructor;
@@ -21,8 +21,8 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@Api(tags = {"prisoners"})
-@RequestMapping(value="/api2/prisoners", produces = MediaType.APPLICATION_JSON_VALUE)
+@Api(tags = {"/prisoners"})
+@RequestMapping(value="/prisoners", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 public class PrisonerStatusController {
 
