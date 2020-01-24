@@ -5,8 +5,6 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.ImageDetail;
 import net.syscon.elite.api.resource.ImageResource;
 import net.syscon.elite.core.RestResource;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ImageService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +15,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static java.util.Objects.isNull;
-
 @RestResource
 @Path("/images")
 public class ImagesResourceImpl implements ImageResource {
-
-    @Autowired
-    private BookingService bookingService;
 
     @Autowired
     private ImageService imageService;
@@ -55,11 +48,6 @@ public class ImagesResourceImpl implements ImageResource {
 
     @Override
     public List<ImageDetail> getImagesByOffender(final String offenderNo) {
-
-        if (isNull(bookingService.getLatestBookingByOffenderNo(offenderNo))) {
-            throw EntityNotFoundException.withMessage("Bookings for offender: '%s' not found", offenderNo);
-        }
-
         return imageService.findOffenderImagesFor(offenderNo);
     }
 
