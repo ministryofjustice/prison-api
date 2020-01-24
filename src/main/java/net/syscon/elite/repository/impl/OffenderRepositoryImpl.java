@@ -12,6 +12,10 @@ import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.repository.support.OffenderRepositorySearchHelper;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Repository
 @Slf4j
 public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRepository {
@@ -63,5 +67,13 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
         final var offenderNumbers = jdbcTemplate.query(sql, params, paRowMapper);
 
         return new Page<>(offenderNumbers, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
+    }
+
+    @Override
+    public Set<Long> getOffenderIdsFor(String offenderNo) {
+        return new HashSet<>(jdbcTemplate.queryForList(
+                getQuery("GET_OFFENDER_IDS"),
+                createParams("offenderNo", offenderNo),
+                Long.class));
     }
 }

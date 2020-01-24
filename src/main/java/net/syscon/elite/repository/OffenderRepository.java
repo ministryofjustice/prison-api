@@ -7,9 +7,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.util.DatabaseDialect;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Provides high-performance data access services encompassing the full offender population,
@@ -26,6 +24,8 @@ public interface OffenderRepository {
     Page<PrisonerDetail> findOffenders(PrisonerDetailSearchCriteria criteria, PageRequest pageRequest);
 
     Page<OffenderNumber> listAllOffenders(PageRequest pageRequest);
+
+    Set<Long> getOffenderIdsFor(final String offenderNo);
 
     enum ColumnMapper {
         ORACLE_11(DatabaseDialect.ORACLE_11, ColumnMappings.getOracleColumnMappings()),
