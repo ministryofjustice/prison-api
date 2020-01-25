@@ -2,11 +2,10 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,8 +23,8 @@ public interface MovementResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<Movement> getRecentMovementsByDate(
-            @ApiParam(value = "A timestamp that indicates the earliest record required", required = true) @RequestParam("fromDateTime") LocalDateTime fromDateTime,
-            @ApiParam(value = "The date for which movements are searched", required = true) @RequestParam("movementDate") LocalDate movementDate,
+            @ApiParam(value = "A timestamp that indicates the earliest record required", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDateTime") LocalDateTime fromDateTime,
+            @ApiParam(value = "The date for which movements are searched", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("movementDate") LocalDate movementDate,
             @ApiParam(value = "Filter to just movements to or from this agency.") @RequestParam(value = "agencyId", required = false) String agencyId,
             @ApiParam(value = "movement type codes to filter by, defaults to TRN, REL, ADM") @RequestParam(value = "movementTypes", required = false) List<String> movementTypes);
 
@@ -54,16 +53,16 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     MovementCount getRollcountMovements(
             @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId,
-            @ApiParam(value = "The date for which movements are counted, default today.", required = true) @RequestParam("movementDate") LocalDate movementDate);
+            @ApiParam(value = "The date for which movements are counted, default today.", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("movementDate") LocalDate movementDate);
 
     @PostMapping("/offenders")
     @ApiOperation(value = "", nickname = "getMovementsByOffenders")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = Movement.class, responseContainer = "List")})
     List<Movement> getMovementsByOffenders(
-            @ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body,
-            @ApiParam(value = "movement type codes to filter by") @RequestParam("movementTypes") List<String> movementTypes,
-            @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @RequestParam("latestOnly") Boolean latestOnly);
+            @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
+            @ApiParam(value = "movement type codes to filter by") @RequestParam(value = "movementTypes", required = false) List<String> movementTypes,
+            @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") Boolean latestOnly);
 
     @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/{agencyId}/enroute")
@@ -76,7 +75,7 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderMovement> getEnrouteOffenderMovements(
             @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId,
-            @ApiParam(value = "Optional filter on date of movement") @RequestParam("movementDate") LocalDate movementDate);
+            @ApiParam(value = "Optional filter on date of movement") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("movementDate") LocalDate movementDate);
 
     @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/rollcount/{agencyId}/enroute")
@@ -88,7 +87,7 @@ public interface MovementResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     int getEnrouteOffenderMovementCount(
-            @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId, @ApiParam(value = "Optional filter on date of movement.", required = true) @RequestParam("movementDate") LocalDate movementDate);
+            @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId, @ApiParam(value = "Optional filter on date of movement.", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("movementDate") LocalDate movementDate);
 
     @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/{agencyId}/in/{isoDate}")
@@ -102,7 +101,7 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderIn> getMovementsIn(
             @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId,
-            @ApiParam(value = "date", required = true) @PathVariable("isoDate") LocalDate movementsDate);
+            @ApiParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("isoDate") LocalDate movementsDate);
 
     @GetMapping("/livingUnit/{livingUnitId}/currently-out")
 
@@ -140,7 +139,7 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderOutTodayDto> getOffendersOutToday(
             @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId,
-            @ApiParam(value = "date", required = true) @PathVariable("isoDate") LocalDate movementsDate);
+            @ApiParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("isoDate") LocalDate movementsDate);
 
     @GetMapping("/rollcount/{agencyId}/in-reception")
 
@@ -167,12 +166,12 @@ public interface MovementResource {
             @ApiResponse(code = 403, message = "The token presented has expired.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     public TransferSummary getTransfers(
-            @ApiParam(value = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) @RequestParam("agencyId") List<String> agencyIds,
-            @ApiParam(value = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) @RequestParam("fromDateTime") LocalDateTime fromDateTime,
-            @ApiParam(value = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) @RequestParam("toDateTime") LocalDateTime toDateTime,
-            @ApiParam(value = "Set to true to include planned court events", required = false, defaultValue = "false") @RequestParam("courtEvents") boolean courtEvents,
-            @ApiParam(value = "Set to true to include planned release events", required = false, defaultValue = "false") @RequestParam("releaseEvents") boolean releaseEvents,
-            @ApiParam(value = "Set to true to include planned transfer/appointment events", required = false, defaultValue = "false") @RequestParam("transferEvents") boolean transferEvents,
-            @ApiParam(value = "Set to true to include confirmed movements", required = false, defaultValue = "false") @RequestParam("movements") boolean movements);
+            @ApiParam(value = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) @NotEmpty @RequestParam("agencyId") List<String> agencyIds,
+            @ApiParam(value = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDateTime") LocalDateTime fromDateTime,
+            @ApiParam(value = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDateTime") LocalDateTime toDateTime,
+            @ApiParam(value = "Set to true to include planned court events", required = false, defaultValue = "false") @RequestParam(value = "courtEvents", required = false, defaultValue = "false") boolean courtEvents,
+            @ApiParam(value = "Set to true to include planned release events", required = false, defaultValue = "false") @RequestParam(value = "releaseEvents", required = false, defaultValue = "false") boolean releaseEvents,
+            @ApiParam(value = "Set to true to include planned transfer/appointment events", required = false, defaultValue = "false") @RequestParam(value = "transferEvents", required = false, defaultValue = "false") boolean transferEvents,
+            @ApiParam(value = "Set to true to include confirmed movements", required = false, defaultValue = "false") @RequestParam(value = "movements", required = false, defaultValue = "false") boolean movements);
 
 }

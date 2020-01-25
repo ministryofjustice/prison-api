@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Api(tags = {"/offender-sentences"})
@@ -19,13 +20,11 @@ public interface OffenderSentenceResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<OffenderSentenceDetail> getOffenderSentences(@ApiParam(value = "agency/prison to restrict results, if none provided current active caseload will be used, unless offenderNo list is specified") @RequestParam("agencyId") String agencyId,
-                                                      @ApiParam(value = "a list of offender numbers to search.") @RequestParam("offenderNo") List<String> offenderNo);
+    List<OffenderSentenceDetail> getOffenderSentences(@ApiParam(value = "agency/prison to restrict results, if none provided current active caseload will be used, unless offenderNo list is specified") @RequestParam(value = "agencyId", required = false) String agencyId,
+                                                      @ApiParam(value = "a list of offender numbers to search.") @RequestParam(value = "offenderNo", required = false) List<String> offenderNo);
 
     @GetMapping("/home-detention-curfew-candidates")
-
-
-    @ApiOperation(value = "List of offenders Eligibile for HDC", notes = "Version 1", nickname = "getOffenderSentencesHomeDetentionCurfewCandidates")
+    @ApiOperation(value = "List of offenders eligible for HDC", notes = "Version 1", nickname = "getOffenderSentencesHomeDetentionCurfewCandidates")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Sentence details for offenders who are candidates for Home Detention Curfew.", response = OffenderSentenceCalculation.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
@@ -34,7 +33,6 @@ public interface OffenderSentenceResource {
     List<OffenderSentenceCalc> getOffenderSentencesHomeDetentionCurfewCandidates();
 
     @GetMapping("/booking/{bookingId}/home-detention-curfews/latest")
-
     @ApiOperation(value = "Retrieve the current state of the latest Home Detention Curfew for a booking")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "HDC information", response = HomeDetentionCurfew.class),
@@ -44,14 +42,13 @@ public interface OffenderSentenceResource {
     HomeDetentionCurfew getLatestHomeDetentionCurfew(@PathVariable("bookingId") Long bookingId);
 
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
-
     @ApiOperation(value = "Set the HDC checks passed flag")
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "The checks passed flag was set"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
     })
-    ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") Long bookingId, HdcChecks hdcChecks);
+    ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") Long bookingId, @RequestBody HdcChecks hdcChecks);
 
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ApiOperation(value = "Clear the HDC checks passed flag")
@@ -63,14 +60,13 @@ public interface OffenderSentenceResource {
     ResponseEntity<Void> clearCurfewChecks(@PathVariable("bookingId") Long bookingId);
 
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
-
     @ApiOperation(value = "Set the HDC approval status")
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "The new approval status was set"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
     })
-    ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") Long bookingId, ApprovalStatus approvalStatus);
+    ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") Long bookingId, @RequestBody ApprovalStatus approvalStatus);
 
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ApiOperation(value = "Clear the HDC approval status")
@@ -85,13 +81,13 @@ public interface OffenderSentenceResource {
     @ApiOperation(value = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.", notes = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.", nickname = "postOffenderSentences")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The list of offenders is returned.", response = OffenderSentenceDetail.class, responseContainer = "List")})
-    List<OffenderSentenceDetail> postOffenderSentences(@ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body);
+    List<OffenderSentenceDetail> postOffenderSentences(@ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body);
 
     @PostMapping("/bookings")
     @ApiOperation(value = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.", notes = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.", nickname = "postOffenderSentencesBookings")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The list of offenders is returned.", response = OffenderSentenceDetail.class, responseContainer = "List")})
-    List<OffenderSentenceDetail> postOffenderSentencesBookings(@ApiParam(value = "The required booking ids (mandatory)", required = true) List<Long> body);
+    List<OffenderSentenceDetail> postOffenderSentencesBookings(@ApiParam(value = "The required booking ids (mandatory)", required = true) @RequestBody List<Long> body);
 
     @GetMapping("/booking/{bookingId}/sentenceTerms")
     @ApiOperation(value = "Sentence term details for a prisoner", nickname = "getOffenderSentenceTerms")

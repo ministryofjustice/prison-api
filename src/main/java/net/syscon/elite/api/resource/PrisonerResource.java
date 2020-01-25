@@ -5,9 +5,11 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Order;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Api(tags = {"/prisoners"})
@@ -28,9 +30,9 @@ public interface PrisonerResource {
                                       @ApiParam(value = "The first name of the offender.") @RequestParam(value = "firstName", required = false) String firstName,
                                       @ApiParam(value = "The middle name(s) of the offender.") @RequestParam(value = "middleNames", required = false) String middleNames,
                                       @ApiParam(value = "The last name of the offender.") @RequestParam(value = "lastName", required = false) String lastName,
-                                      @ApiParam(value = "The offender's date of birth. Cannot be used in conjunction with <i>dobFrom</i> or <i>dobTo</i>. Must be specified using YYYY-MM-DD format.") @RequestParam(value = "dob", required = false) String dob,
-                                      @ApiParam(value = "Start date for offender date of birth search. If <i>dobTo</i> is not specified, an implicit <i>dobTo</i> value of <i>dobFrom</i> + 10 years will be applied. If <i>dobTo</i> is specified, it will be adjusted, if necessary, to ensure it is not more than 10 years after <i>dobFrom</i>. Cannot be used in conjunction with <i>dob</i>. Must be specified using YYYY-MM-DD format.") @RequestParam(value = "dobFrom", required = false) String dobFrom,
-                                      @ApiParam(value = "End date for offender date of birth search. If <i>dobFrom</i> is not specified, an implicit <i>dobFrom</i> value of <i>dobTo</i> - 10 years will be applied. Cannot be used in conjunction with <i>dob</i>. Must be specified using YYYY-MM-DD format.") @RequestParam(value = "dobTo", required = false) String dobTo,
+                                      @ApiParam(value = "The offender's date of birth. Cannot be used in conjunction with <i>dobFrom</i> or <i>dobTo</i>. Must be specified using YYYY-MM-DD format.") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "dob", required = false) LocalDate dob,
+                                      @ApiParam(value = "Start date for offender date of birth search. If <i>dobTo</i> is not specified, an implicit <i>dobTo</i> value of <i>dobFrom</i> + 10 years will be applied. If <i>dobTo</i> is specified, it will be adjusted, if necessary, to ensure it is not more than 10 years after <i>dobFrom</i>. Cannot be used in conjunction with <i>dob</i>. Must be specified using YYYY-MM-DD format.") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "dobFrom", required = false) LocalDate dobFrom,
+                                      @ApiParam(value = "End date for offender date of birth search. If <i>dobFrom</i> is not specified, an implicit <i>dobFrom</i> value of <i>dobTo</i> - 10 years will be applied. Cannot be used in conjunction with <i>dob</i>. Must be specified using YYYY-MM-DD format.") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "dobTo", required = false) LocalDate dobTo,
                                       @ApiParam(value = "Offender's location filter (IN, OUT or ALL) - defaults to ALL.", defaultValue = "ALL") @RequestParam(value = "location", required = false) String location,
                                       @ApiParam(value = "Offender's gender code (F - Female, M - Male, NK - Not Known or NS - Not Specified).") @RequestParam(value = "gender", required = false) String genderCode,
                                       @ApiParam(value = "If <i>true</i>, the search will use partial, start-of-name matching of offender names (where provided). For example, if <i>lastName</i> criteria of 'AD' is specified, this will match an offender whose last name is 'ADAMS' but not an offender whose last name is 'HADAD'. This will typically increase the number of matching offenders found. This parameter can be used with any other search processing parameter (e.g. <i>prioritisedMatch</i> or <i>anyMatch</i>).") @RequestParam(value = "partialNameMatch", required = false, defaultValue = "false") boolean partialNameMatch,
@@ -58,7 +60,7 @@ public interface PrisonerResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<PrisonerDetail>> getPrisoners(@ApiParam(value = "", required = true) PrisonerDetailSearchCriteria criteria,
+    ResponseEntity<List<PrisonerDetail>> getPrisoners(@ApiParam(value = "", required = true) @RequestBody PrisonerDetailSearchCriteria criteria,
                                                       @ApiParam(value = "Requested offset of first record in returned collection of prisoner records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                       @ApiParam(value = "Requested limit to number of prisoner records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
                                                       @ApiParam(value = "Comma separated list of one or more of the following fields - <b>offenderNo, pncNumber, croNumber, firstName, lastName, dob</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,

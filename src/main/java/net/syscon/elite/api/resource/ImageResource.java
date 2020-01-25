@@ -26,11 +26,10 @@ public interface ImageResource {
     @GetMapping(value = "/{imageId}/data", produces = "image/jpeg")
     @ApiOperation(value = "Image data (as bytes).", notes = "Image data (as bytes).", nickname = "getImageData")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = File.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    ResponseEntity<?> getImageData(@ApiParam(value = "The image id of offender", required = true) @PathVariable("imageId") Long imageId,
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Requested resource not found."),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.")})
+    ResponseEntity<byte[]> getImageData(@ApiParam(value = "The image id of offender", required = true) @PathVariable("imageId") Long imageId,
                                   @ApiParam(value = "Return full size image", defaultValue = "false") @RequestParam(value = "fullSizeImage", defaultValue = "false")  boolean fullSizeImage);
 
 

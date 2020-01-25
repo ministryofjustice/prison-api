@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
@@ -24,19 +25,19 @@ public class CategoryApprovalDetail {
     @NotNull(message = "bookingId must be provided")
     private Long bookingId;
 
-    @ApiModelProperty(required = false, value = "Sequence number. Only used to check consistency", position = 2)
+    @ApiModelProperty(value = "Sequence number. Only used to check consistency", position = 2)
     private Integer assessmentSeq;
 
     @ApiModelProperty(required = true, value = "Category code, reference code in domain 'SUP_LVL_TYPE'", position = 3)
-    @NotNull(message = "category must be provided")
+    @NotEmpty(message = "category must be provided")
     private String category;
 
     @ApiModelProperty(required = true, value = "Date of approval", position = 4)
     @NotNull(message = "Date of approval must be provided")
     private LocalDate evaluationDate;
 
-    @ApiModelProperty(required = true, value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'", position = 5)
-    @NotNull(message = "Department must be provided")
+    @ApiModelProperty(required = true, value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'", example = "REVIEW", position = 5)
+    @NotEmpty(message = "Department must be provided")
     private String reviewCommitteeCode;
 
     @ApiModelProperty(value = "Approved result category comment", position = 6)

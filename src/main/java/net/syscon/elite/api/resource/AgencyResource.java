@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.service.OffenderIepReview;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,8 +37,8 @@ public interface AgencyResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Agency getAgency(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
-                                @ApiParam(value = "Only return active agencies", defaultValue = "true") @RequestParam(value = "activeOnly", defaultValue = "true")  boolean activeOnly,
-                                @ApiParam(value = "Agency Type") @RequestParam("agencyType") String agencyType);
+                                @ApiParam(value = "Only return active agencies", defaultValue = "true") @RequestParam(value = "activeOnly", defaultValue = "true", required = false)  boolean activeOnly,
+                                @ApiParam(value = "Agency Type") @RequestParam(value = "agencyType", required = false) String agencyType);
 
     @GetMapping("/{agencyId}/eventLocations")
     @ApiOperation(value = "List of locations for agency where events (appointments, visits, activities) could be held.", notes = "List of locations for agency where events (appointments, visits, activities) could be held.", nickname = "getAgencyEventLocations")
@@ -58,8 +59,8 @@ public interface AgencyResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<Location> getAgencyEventLocationsBooked(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
-                                                                        @ApiParam(value = "Filter list to only return locations which prisoners will be attending on this day", required = true) @RequestParam("bookedOnDay") LocalDate bookedOnDay,
-                                                                        @ApiParam(value = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)") @RequestParam("timeSlot") TimeSlot timeSlot);
+                                                                        @ApiParam(value = "Filter list to only return locations which prisoners will be attending on this day", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("bookedOnDay") LocalDate bookedOnDay,
+                                                                        @ApiParam(value = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot);
 
     @GetMapping("/{agencyId}/locations")
     @ApiOperation(value = "List of active internal locations for agency.", notes = "List of active internal locations for agency.", nickname = "getAgencyLocations")
@@ -69,7 +70,7 @@ public interface AgencyResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<Location> getAgencyLocations(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
-                                                  @ApiParam(value = "Restricts list of locations returned to those that can be used for the specified event type.") @RequestParam("eventType") String eventType,
+                                                  @ApiParam(value = "Restricts list of locations returned to those that can be used for the specified event type.") @RequestParam(value = "eventType", required = false) String eventType,
                                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
                                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
 

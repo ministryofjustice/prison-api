@@ -87,7 +87,7 @@ public interface ReferenceDomainResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ReferenceCode createReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathVariable("domain") @NotNull @Length(max = 12) String domain,
                                       @ApiParam(value = "The reference code.", required = true) @PathVariable("code") @NotNull @Length(max = 12) String code,
-                                      @ApiParam(value = "Reference Information", required = true) @NotNull @Valid ReferenceCodeInfo referenceData);
+                                      @ApiParam(value = "Reference Information", required = true) @NotNull @Valid @RequestBody ReferenceCodeInfo referenceData);
 
     @PutMapping("/domains/{domain}/codes/{code}")
     @ResponseStatus(value = HttpStatus.OK, reason = "Reference Code Updated")
@@ -99,7 +99,7 @@ public interface ReferenceDomainResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ReferenceCode updateReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathVariable("domain") @NotNull @Length(max = 12) String domain,
                                       @ApiParam(value = "The reference code.", required = true) @PathVariable("code") @NotNull @Length(max = 12) String code,
-                                      @ApiParam(value = "Reference Information", required = true) @NotNull @Valid ReferenceCodeInfo referenceData);
+                                      @ApiParam(value = "Reference Information", required = true) @RequestBody @NotNull @Valid ReferenceCodeInfo referenceData);
 
     @GetMapping("/scheduleReasons")
     @ApiOperation(value = "Get possible reason codes for created event.", notes = "Get possible reason codes for created event.", nickname = "getScheduleReasons")

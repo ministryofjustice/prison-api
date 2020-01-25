@@ -780,7 +780,7 @@ public class BookingServiceImpl implements BookingService {
         final var viewAllBookings = isViewAllBookings();
         final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
 
-        if (offenderNos.isEmpty()) {
+        if (offenderNos == null || offenderNos.isEmpty()) {
             return offenderSentenceSummaries(agencyId, caseLoadIdsForUser, !viewAllBookings);
         } else {
             return offenderSentenceSummaries(offenderNos, caseLoadIdsForUser, !viewAllBookings);

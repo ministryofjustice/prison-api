@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.api.resource.AccessRoleResource;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.service.AccessRoleService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +29,7 @@ public class AccessRoleResourceImpl implements AccessRoleResource {
     @ProxyUser
     public ResponseEntity<Void> createAccessRole(final AccessRole newAccessRole) {
         accessRoleService.createAccessRole(newAccessRole);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override

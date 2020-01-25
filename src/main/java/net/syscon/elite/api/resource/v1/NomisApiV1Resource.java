@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.v1.*;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,6 @@ public interface NomisApiV1Resource {
 
 
     @GetMapping("/offenders/{noms_id}/image")
-
-
     @ApiOperation(value = "Get Current Photograph of the offender",
             notes = "Returns a 480wx600h JPEG photograph of the offender. The data is base64 encoded within the image key.")
     @ApiResponses(value = {
@@ -45,8 +44,6 @@ public interface NomisApiV1Resource {
 
 
     @GetMapping("/offenders/{noms_id}/location")
-
-
     @ApiOperation(value = "Current Location of the offender",
             notes = "The levels shows the type of each level of the location address as defined on the Agency Details tab in Maintain Agency Locations screen (OUMAGLOC).<br/><br/>Since the offender's location can change often and is fairly sensitive (and therefore should not automatically be exposed to all services), this information is not included in the general offender information call.")
     @ApiResponses(value = {
@@ -57,8 +54,6 @@ public interface NomisApiV1Resource {
     Location getLatestBookingLocation(@ApiParam(name = "noms_id", value = "Offender Noms ID", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
 
     @GetMapping("/offenders/{noms_id}/charges")
-
-
     @ApiOperation(value = "Legal cases for each booking and charges within each legal case.",
             notes = "Returns all the bookings, the legal cases for each booking and charges within each legal case.<br/>" +
                     "The ordering is as follows:<ul>" +
@@ -73,8 +68,6 @@ public interface NomisApiV1Resource {
     Bookings getBookings(@ApiParam(name = "noms_id", value = "Offender Noms ID", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
 
     @GetMapping("/offenders/{noms_id}/alerts")
-
-
     @ApiOperation(value = "Fetch alerts by offender",
             notes = "Returns all active alerts for the specified offender or those that meet the optional criteria. Active alerts are listed first, followed by inactive alerts, both sorted by ascending order of alert date.<br/>" +
                     "<ul><li>if alert_type is specified then only alerts of that type are returned</li>" +
@@ -86,13 +79,11 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Alerts getAlerts(@ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1583AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-                     @ApiParam(name = "alert_type", value = "Alert Type, if alert_type is specified then only alerts of that type are returned", example = "H") @RequestParam("alert_type") String alertType,
-                     @ApiParam(name = "modified_since", value = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @RequestParam("modified_since") String modifiedSince,
+                     @ApiParam(name = "alert_type", value = "Alert Type, if alert_type is specified then only alerts of that type are returned", example = "H") @RequestParam(value = "alert_type", required = false) String alertType,
+                     @ApiParam(name = "modified_since", value = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @RequestParam(value = "modified_since", required = false) String modifiedSince,
                      @ApiParam(name = "include_inactive", value = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true", defaultValue = "false") @RequestParam(value = "include_inactive", defaultValue = "false") boolean includeInactive);
 
     @GetMapping("/offenders/events")
-
-
     @ApiOperation(value = "Fetch events",
             notes = "Returns all events that required to update the prisoner self service application. Currently these are:" +
                     "<ul><li>ALERT</li>" +
@@ -112,14 +103,12 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Events getOffenderEvents(
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") @RequestParam("prison_id") @Length(max = 3) String prisonId,
-            @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1417AE") @RequestParam("offender_id") String offenderIdentifier,
-            @ApiParam(name = "event_type", value = "Event Type", example = "H") @RequestParam("event_type") String eventType,
+            @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1417AE") @RequestParam(value = "offender_id", required = false) String offenderIdentifier,
+            @ApiParam(name = "event_type", value = "Event Type", example = "ALERT") @RequestParam("event_type") String eventType,
             @ApiParam(name = "from_datetime", value = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @RequestParam("from_datetime") String fromDateTime,
             @ApiParam(name = "limit", value = "Number of events to return", example = "100") @RequestParam("limit") Long limit);
 
     @PostMapping("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
-
-
     @ApiOperation(value = "Record transaction at previous Prison.",
             notes = "<p>Post a financial transaction to Nomis to a prison that the offender is no longer at.</p>" +
                     "<p>The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid. Only Transaction types with a usage of R (Receipt) are valid." +
@@ -145,7 +134,7 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader("X-Client-Name") String clientName,
             @ApiParam(name = "previous_prison_id", value = "Prison ID", example = "BMI", required = true) @PathVariable("previous_prison_id") @NotNull @Length(max = 3) String previousPrisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-            @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
+            @ApiParam(value = "Transaction Details", required = true) @RequestBody @NotNull @Valid CreateTransaction createTransaction);
 
 
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/transactions")
@@ -181,11 +170,9 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader("X-Client-Name") String clientName,
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathVariable("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-            @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid CreateTransaction createTransaction);
+            @ApiParam(value = "Transaction Details", required = true) @RequestBody @NotNull @Valid CreateTransaction createTransaction);
 
     @GetMapping("/offenders/{noms_id}/pss_detail")
-
-
     @ApiOperation(value = "Get the PSS detail by offender",
             notes = "Returns the PSS detail information for the specified offender including personal data, warnings, sentence details and location information.<br/>" +
                     "<ul><li>The 'type' field is always OFFENDER_DETAILS_REQUEST</li><br/>" +
@@ -199,8 +186,6 @@ public interface NomisApiV1Resource {
     Event getOffenderPssDetail(@ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
 
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/holds")
-
-
     @ApiOperation(value = "Get holds.",
             notes = "Gets every hold on an offender’s account or just the hold identified by the client_unique_ref")
     @ResponseStatus(value = HttpStatus.OK, reason = "OK")
@@ -213,11 +198,9 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader("X-Client-Name") String clientName,
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathVariable("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-            @ApiParam(name = "client_unique_ref", value = "Client unique reference") @RequestParam("client_unique_ref") @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
+            @ApiParam(name = "client_unique_ref", value = "Client unique reference") @RequestParam(value = "client_unique_ref", required = false) @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
 
     @GetMapping("/prison/{prison_id}/live_roll")
-
-
     @ApiOperation(value = "Fetching live roll.")
     @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
@@ -229,8 +212,6 @@ public interface NomisApiV1Resource {
 
 
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/payment")
-
-
     @ApiOperation(value = "Store a payment for an offender account.",
             notes = "Pay events will be stored in a table on receipt by Nomis to be processed by a batch job scheduled to run after the last Nomis payroll batch job but before the advances and scheduled payments batch jobs.\n" +
                     "<br/>" +
@@ -260,12 +241,10 @@ public interface NomisApiV1Resource {
     PaymentResponse storePayment(
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathVariable("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-            @ApiParam(value = "Transaction Details", required = true) @NotNull @Valid StorePaymentRequest storePaymentRequest);
+            @ApiParam(value = "Transaction Details", required = true) @RequestBody @NotNull @Valid StorePaymentRequest storePaymentRequest);
 
 
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts")
-
-
     @ApiOperation(value = "Retrieve an offender's financial account balances.", notes = "Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>" +
             "All balance values are represented as pence values.")
     @ResponseStatus(value = HttpStatus.OK, reason = "OK")
@@ -293,8 +272,8 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) @PathVariable("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(name = "account_code", value = "Account code", example = "spends", required = true, allowableValues = "spends,cash,savings") @PathVariable("account_code") @NotNull String accountCode,
-            @ApiParam(name = "from_date", value = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") @RequestParam("from_date") LocalDate fromDate,
-            @ApiParam(name = "to_date", value = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") @RequestParam("to_date") LocalDate toDate);
+            @ApiParam(name = "from_date", value = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) LocalDate fromDate,
+            @ApiParam(name = "to_date", value = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to_date", required = false) LocalDate toDate);
 
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/transactions/{client_unique_ref}")
     @ApiOperation(value = "Retrieve a single financial transaction using client unique ref.", notes = "All transaction amounts are represented as pence values.")
@@ -321,7 +300,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ActiveOffender getActiveOffender(
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @RequestParam("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
-            @ApiParam(name = "date_of_birth", value = "date of birth", example = "2019-05-01") @NotNull @RequestParam("date_of_birth") LocalDate birthDate);
+            @ApiParam(name = "date_of_birth", value = "date of birth", example = "2019-05-01") @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date_of_birth", required = false) LocalDate birthDate);
 
     @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("offenders/{offender_id}/visits/available_dates")
@@ -335,7 +314,7 @@ public interface NomisApiV1Resource {
     AvailableDates getVisitAvailableDates(
             @ApiParam(name = "offender_id", value = "Offender Id", example = "1234567", required = true) @NotNull @PathVariable("offender_id") Long offenderId,
             @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) @NotNull @RequestParam("start_date") LocalDate fromDate,
-            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01", required = true) @NotNull @RequestParam("end_date") LocalDate toDate);
+            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01", required = true) @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("end_date") LocalDate toDate);
 
     @GetMapping("offenders/{offender_id}/visits/contact_list")
     @ApiOperation(value = "Fetch contacts list for offender",
@@ -371,6 +350,6 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     VisitSlots getVisitSlotsWithCapacity(
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") @PathVariable("prison_id") @Length(max = 3) String prisonId,
-            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) @NotNull @RequestParam("start_date") LocalDate fromDate,
-            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01", required = true) @NotNull @RequestParam("end_date") LocalDate toDate);
+            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("start_date") LocalDate fromDate,
+            @ApiParam(name = "end_date", value = "To date", example = "2019-05-01", required = true) @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("end_date") LocalDate toDate);
 }

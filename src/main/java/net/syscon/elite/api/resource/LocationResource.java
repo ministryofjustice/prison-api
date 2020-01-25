@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.support.Order;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,8 +27,8 @@ public interface LocationResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     ResponseEntity<List<OffenderBooking>> getOffendersAtLocationDescription(@ApiParam(value = "", required = true) @PathVariable("locationPrefix") String locationPrefix,
                                                                             @ApiParam(value = "offender name or id to match") @RequestParam(value = "keywords", required = false) String keywords,
-                                                                            @ApiParam(value = "Offenders with a DOB >= this date", example = "1970-01-02") @RequestParam(value = "fromDob", required = false) LocalDate fromDob,
-                                                                            @ApiParam(value = "Offenders with a DOB <= this date", example = "1975-01-02") @RequestParam(value = "toDob", required = false) LocalDate toDob,
+                                                                            @ApiParam(value = "Offenders with a DOB >= this date", example = "1970-01-02") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "fromDob", required = false) LocalDate fromDob,
+                                                                            @ApiParam(value = "Offenders with a DOB <= this date", example = "1975-01-02") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDob", required = false) LocalDate toDob,
                                                                             @ApiParam(value = "alert flags to filter by") @RequestParam(value = "alerts", required = false) List<String> alerts,
                                                                             @ApiParam(value = "return IEP data", defaultValue = "false") @RequestParam(value = "returnIep", defaultValue = "false") boolean returnIep,
                                                                             @ApiParam(value = "return Alert data", defaultValue = "false") @RequestParam(value = "returnAlerts", defaultValue = "false") boolean returnAlerts,

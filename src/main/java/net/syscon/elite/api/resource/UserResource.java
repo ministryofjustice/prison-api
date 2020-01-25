@@ -29,8 +29,8 @@ public interface UserResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<UserDetail>> getUsers(@ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @RequestParam("nameFilter") String nameFilter,
-                              @ApiParam(value = "Filter results by access role") @RequestParam("accessRole") String accessRole,
+    ResponseEntity<List<UserDetail>> getUsers(@ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @RequestParam(value = "nameFilter", required = false) String nameFilter,
+                              @ApiParam(value = "Filter results by access role") @RequestParam(value = "accessRole", required = false) String accessRole,
                               @ApiParam(value = "Requested offset of first record in returned collection of user records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                               @ApiParam(value = "Requested limit to number of user records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
                               @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
@@ -54,8 +54,8 @@ public interface UserResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     ResponseEntity<List<UserDetail>>  getUsersByCaseLoad(@ApiParam(value = "The agency (prison) id.", required = true) @PathVariable("caseload") String caseload,
-                                                  @ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @RequestParam("nameFilter") String nameFilter,
-                                                  @ApiParam(value = "Filter results by access role") @RequestParam("accessRole") String accessRole,
+                                                  @ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @RequestParam(value = "nameFilter", required = false) String nameFilter,
+                                                  @ApiParam(value = "Filter results by access role") @RequestParam(value = "accessRole", required = false) String accessRole,
                                                   @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                   @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
                                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
@@ -69,9 +69,9 @@ public interface UserResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<UserDetail>> deprecatedPleaseRemove(@ApiParam(value = "The agency (prison) id.", required = true, defaultValue = "", allowEmptyValue = true) @PathVariable("caseload") String caseload,
-                                                             @ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @RequestParam("nameFilter") String nameFilter,
-                                                             @ApiParam(value = "Filter results by access role") @RequestParam("accessRole") String accessRole,
+    ResponseEntity<List<UserDetail>> deprecatedPleaseRemove(@ApiParam(value = "The agency (prison) id.", required = true, allowEmptyValue = true) @PathVariable(value = "caseload") String caseload,
+                                                             @ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @RequestParam(value = "nameFilter", required = false) String nameFilter,
+                                                             @ApiParam(value = "Filter results by access role") @RequestParam(value = "accessRole", required = false) String accessRole,
                                                              @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                              @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
                                                              @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
@@ -84,8 +84,8 @@ public interface UserResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<UserDetail>> getStaffUsersForLocalAdministrator(@ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @RequestParam("nameFilter") String nameFilter,
-                                                                         @ApiParam(value = "Filter results by access role") @RequestParam("accessRole") String accessRole,
+    ResponseEntity<List<UserDetail>> getStaffUsersForLocalAdministrator(@ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @RequestParam(value = "nameFilter", required = false) String nameFilter,
+                                                                         @ApiParam(value = "Filter results by access role") @RequestParam(value = "accessRole", required = false) String accessRole,
                                                                          @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                                          @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
                                                                          @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
@@ -118,7 +118,7 @@ public interface UserResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<CaseLoad> getMyCaseLoads(@ApiParam(value = "If set to true then all caseloads are returned", defaultValue = "false") @RequestParam("allCaseloads") boolean allCaseloads);
+    List<CaseLoad> getMyCaseLoads(@ApiParam(value = "If set to true then all caseloads are returned", defaultValue = "false") @RequestParam(value = "allCaseloads", required = false, defaultValue = "false") boolean allCaseloads);
 
     @GetMapping("/me/caseNoteTypes")
     @ApiOperation(value = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", notes = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", nickname = "getMyCaseNoteTypes")
@@ -146,7 +146,7 @@ public interface UserResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<UserRole> getMyRoles(@ApiParam(value = "If set to true then all roles are returned rather than just API roles", defaultValue = "false") @RequestParam("allRoles") boolean allRoles);
+    List<UserRole> getMyRoles(@ApiParam(value = "If set to true then all roles are returned rather than just API roles", defaultValue = "false") @RequestParam(value = "allRoles", required = false, defaultValue = "false") boolean allRoles);
 
     @GetMapping("/staff/{staffId}")
     @Deprecated
@@ -172,7 +172,7 @@ public interface UserResource {
     @ApiOperation(value = "Returns the user details for supplied usernames - POST version to allow large user lists.", notes = "user details for supplied usernames", nickname = "getUserDetailsList")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The list of user details", response = UserDetail.class, responseContainer = "List")})
-    List<UserDetail> getUserDetailsList(@ApiParam(value = "The required usernames (mandatory)", required = true) Set<String> body);
+    List<UserDetail> getUserDetailsList(@ApiParam(value = "The required usernames (mandatory)", required = true) @RequestBody Set<String> body);
 
 
     @GetMapping("/{username}/access-roles/caseload/{caseload}")
@@ -184,7 +184,7 @@ public interface UserResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<AccessRole> getRolesForUserAndCaseload(@ApiParam(value = "user account to filter by", required = true) @PathVariable("username") String username,
                                                                   @ApiParam(value = "Caseload Id", required = true) @PathVariable("caseload") String caseload,
-                                                                  @ApiParam(value = "Include admin roles", required = true, defaultValue = "false") @RequestParam("includeAdmin") boolean includeAdmin);
+                                                                  @ApiParam(value = "Include admin roles", required = true, defaultValue = "false") @RequestParam(value = "includeAdmin", defaultValue = "false", required = false) boolean includeAdmin);
 
     @PutMapping("/add/default/{caseload}")
     @ApiOperation(value = "Add the NWEB caseload to specified caseload.", notes = "Add the NWEB caseload to specified caseload.", nickname = "addApiAccessForCaseload")
@@ -199,7 +199,7 @@ public interface UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 401, message = "Invalid username or password", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "the user does not have permission to view the caseload.", response = ErrorResponse.class)})
-    ResponseEntity<?> updateMyActiveCaseLoad(@ApiParam(value = "", required = true) CaseLoad body);
+    ResponseEntity<?> updateMyActiveCaseLoad(@ApiParam(value = "", required = true) @RequestBody CaseLoad body);
 
     @PutMapping("/{username}/access-role/{roleCode}")
     @ApiOperation(value = "Add the given access role to the user.", notes = "Add the given access role to the user.", nickname = "addAccessRole")

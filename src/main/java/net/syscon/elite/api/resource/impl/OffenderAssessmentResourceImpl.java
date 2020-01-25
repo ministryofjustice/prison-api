@@ -82,6 +82,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     @Override
     @ProxyUser
     public ResponseEntity<Void> createCategorisation(final CategorisationDetail detail) {
+        inmateService.createCategorisation(detail.getBookingId(), detail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -96,14 +97,14 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     @ProxyUser
     public ResponseEntity<Void> approveCategorisation(final CategoryApprovalDetail detail) {
         inmateService.approveCategorisation(detail.getBookingId(), detail);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
     @ProxyUser
     public ResponseEntity<Void> rejectCategorisation(CategoryRejectionDetail detail) {
         inmateService.rejectCategorisation(detail.getBookingId(), detail);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override

@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
 import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.support.Order;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -38,7 +39,7 @@ public interface OffenderResource {
             authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
-    ResponseEntity<List<String>> getIncidentCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @RequestParam("fromDateTime") @NotNull LocalDateTime fromDateTime,
+    ResponseEntity<List<String>> getIncidentCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDateTime") @NotNull LocalDateTime fromDateTime,
                                                        @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                        @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) Long pageLimit);
 
@@ -63,10 +64,10 @@ public interface OffenderResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ResponseEntity<AdjudicationSearchResponse> getAdjudicationsByOffenderNo(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo,
-                                          @ApiParam(value = "An offence id to allow optionally filtering by type of offence") @RequestParam("offenceId") String offenceId,
-                                          @ApiParam(value = "An agency id to allow optionally filtering by the agency in which the offence occurred") @RequestParam("agencyId") String agencyId,
-                                          @ApiParam(value = "Adjudications must have been reported on or after this date (in YYYY-MM-DD format).") @RequestParam("fromDate") LocalDate fromDate,
-                                          @ApiParam(value = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") @RequestParam("toDate") LocalDate toDate,
+                                          @ApiParam(value = "An offence id to allow optionally filtering by type of offence") @RequestParam(value = "offenceId", required = false) String offenceId,
+                                          @ApiParam(value = "An agency id to allow optionally filtering by the agency in which the offence occurred") @RequestParam(value = "agencyId", required = false) String agencyId,
+                                          @ApiParam(value = "Adjudications must have been reported on or after this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+                                          @ApiParam(value = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate,
                                           @ApiParam(value = "Requested offset of first record in returned collection of adjudications.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                           @ApiParam(value = "Requested limit to number of adjudications returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit);
 
@@ -108,9 +109,9 @@ public interface OffenderResource {
             authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
-    ResponseEntity<List<String>>  getAlertCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @RequestParam("fromDateTime") @NotNull LocalDateTime fromDateTime,
+    ResponseEntity<List<String>>  getAlertCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDateTime") @NotNull LocalDateTime fromDateTime,
                                 @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
-                                @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit);
+                                @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) Long pageLimit);
 
     @GetMapping("/{offenderNo}/case-notes")
 
@@ -119,8 +120,8 @@ public interface OffenderResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = CaseNote.class, responseContainer = "List")})
     ResponseEntity<List<CaseNote>>  getOffenderCaseNotes(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") @PathVariable("offenderNo") String offenderNo,
-                                  @ApiParam(value = "start contact date to search from", required = true) @RequestParam("from") String from,
-                                  @ApiParam(value = "end contact date to search up to (including this date)", required = true) @RequestParam("to") String to,
+                                  @ApiParam(value = "start contact date to search from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from", required = false) LocalDate from,
+                                  @ApiParam(value = "end contact date to search up to (including this date)") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to", required = false) LocalDate to,
                                   @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - creationDateTime, type, subType, source</p> ", required = true) @RequestParam(value = "query", required = false) String query,
                                   @ApiParam(value = "Requested offset of first record in returned collection of caseNote records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                   @ApiParam(value = "Requested limit to number of caseNote records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
@@ -128,8 +129,6 @@ public interface OffenderResource {
                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
 
     @GetMapping("/{offenderNo}/case-notes/{caseNoteId}")
-
-
     @ApiOperation(value = "Offender case note detail.", notes = "Retrieve an single offender case note", nickname = "getOffenderCaseNote")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = CaseNote.class)})
@@ -152,11 +151,9 @@ public interface OffenderResource {
             @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
             @ApiResponse(code = 409, message = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", response = ErrorResponse.class)})
     CaseNote createOffenderCaseNote(@ApiParam(value = "The offenderNo of offender", required = true, example = "A1234AA") @PathVariable("offenderNo") String offenderNo,
-                                    @ApiParam(value = "", required = true) NewCaseNote body);
+                                    @ApiParam(value = "", required = true) @RequestBody NewCaseNote body);
 
     @PutMapping("/{offenderNo}/case-notes/{caseNoteId}")
-
-
     @ApiOperation(value = "Amend offender case note.", notes = "Amend offender case note.", nickname = "updateOffenderCaseNote")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Case Note amendment processed successfully. Updated case note is returned.", response = CaseNote.class),
@@ -166,7 +163,7 @@ public interface OffenderResource {
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
     CaseNote updateOffenderCaseNote(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") @PathVariable("offenderNo") String offenderNo,
                                     @ApiParam(value = "The case note id", required = true, example = "1212134") @PathVariable("caseNoteId") Long caseNoteId,
-                                    @ApiParam(value = "", required = true) UpdateCaseNote body);
+                                    @ApiParam(value = "", required = true) @RequestBody UpdateCaseNote body);
 
     @ApiIgnore("WIP, to be used as part of the GDPR project")
     @DeleteMapping("/{offenderNo}")

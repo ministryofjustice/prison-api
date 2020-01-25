@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
@@ -34,9 +35,9 @@ public class PrisonerResourceImpl implements PrisonerResource {
             final String firstName,
             final String middleNames,
             final String lastName,
-            final String dob,
-            final String dobFrom,
-            final String dobTo,
+            final LocalDate dob,
+            final LocalDate dobFrom,
+            final LocalDate dobTo,
             final String location,
             final String genderCode,
             final boolean partialNameMatch,
@@ -57,9 +58,9 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .croNumber(croNumber)
                 .location(location)
                 .gender(genderCode)
-                .dob(fromISO8601DateString(dob))
-                .dobFrom(fromISO8601DateString(dobFrom))
-                .dobTo(fromISO8601DateString(dobTo))
+                .dob(dob)
+                .dobFrom(dobFrom)
+                .dobTo(dobTo)
                 .partialNameMatch(partialNameMatch)
                 .anyMatch(anyMatch)
                 .prioritisedMatch(prioritisedMatch)

@@ -3,12 +3,19 @@ package net.syscon.elite.web.handler;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.NoContentException;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -38,7 +45,7 @@ public class ControllerAdvice {
                 .body(ErrorResponse
                         .builder()
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                        .developerMessage(e.getMessage())
+                        .developerMessage(e.getMostSpecificCause().getMessage())
                         .build());
     }
 
@@ -49,6 +56,7 @@ public class ControllerAdvice {
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse
                         .builder()
+                        .userMessage(e.getMessage())
                         .status(HttpStatus.FORBIDDEN.value())
                         .build());
     }
@@ -60,6 +68,7 @@ public class ControllerAdvice {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
                         .builder()
+                        .userMessage(e.getMessage())
                         .status(HttpStatus.BAD_REQUEST.value())
                         .developerMessage(e.getMessage())
                         .build());
@@ -72,6 +81,116 @@ public class ControllerAdvice {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
                         .builder()
+                        .userMessage(e.getMessage())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final EntityNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEntityExistsException(final EntityExistsException e) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
+                        .status(HttpStatus.CONFLICT.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<ErrorResponse> handleHttpClientErrorException(final HttpClientErrorException e) {
+        return ResponseEntity
+                .status(e.getStatusCode())
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
+                        .status(e.getStatusCode().value())
+                        .developerMessage(e.getMostSpecificCause().getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(TypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatchException(final TypeMismatchException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMostSpecificCause().getMessage())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(final IllegalArgumentException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidDataAccessApiUsageException(final InvalidDataAccessApiUsageException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMostSpecificCause().getMessage())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(HttpMessageConversionException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageConversionException(final HttpMessageConversionException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMostSpecificCause().getMessage())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+
+    @ExceptionHandler(NoContentException.class)
+    public ResponseEntity<ErrorResponse> handleNoContentException(final NoContentException e) {
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage("No content returned")
+                        .status(HttpStatus.NO_CONTENT.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
                         .status(HttpStatus.BAD_REQUEST.value())
                         .developerMessage(e.getMessage())
                         .build());
@@ -84,29 +203,8 @@ public class ControllerAdvice {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse
                         .builder()
+                        .userMessage(e.getMessage())
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                        .developerMessage(e.getMessage())
-                        .build());
-    }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final Exception e) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse
-                        .builder()
-                        .status(HttpStatus.NOT_FOUND.value())
-                        .developerMessage(e.getMessage())
-                        .build());
-    }
-
-    @ExceptionHandler(EntityExistsException.class)
-    public ResponseEntity<ErrorResponse> handleEntityExistsException(final Exception e) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ErrorResponse
-                        .builder()
-                        .status(HttpStatus.CONFLICT.value())
                         .developerMessage(e.getMessage())
                         .build());
     }

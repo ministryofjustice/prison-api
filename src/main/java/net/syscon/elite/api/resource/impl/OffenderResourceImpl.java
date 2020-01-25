@@ -108,25 +108,22 @@ public class OffenderResourceImpl implements OffenderResource {
 
     @Override
     public ResponseEntity<List<String>> getAlertCandidates(@NotNull final LocalDateTime fromDateTime, final Long pageOffset, final Long pageLimit) {
-        var paged = alertService.getAlertCandidates(fromDateTime,
+        return alertService.getAlertCandidates(fromDateTime,
                 nvl(pageOffset, 0L),
-                nvl(pageLimit, 1000L));
-        return ResponseEntity.ok()
-                .headers(paged.getPaginationHeaders())
-                .body(paged.getItems());
+                nvl(pageLimit, 1000L)).getResponse();
     }
 
     @Override
     @VerifyOffenderAccess
-    public ResponseEntity<List<CaseNote>> getOffenderCaseNotes(final String offenderNo, final String from, final String to, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public ResponseEntity<List<CaseNote>> getOffenderCaseNotes(final String offenderNo, final LocalDate from, final LocalDate to, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
 
         try {
             final var pagedCaseNotes = caseNoteService.getCaseNotes(
                     latestBookingByOffenderNo.getBookingId(),
                     query,
-                    fromISO8601DateString(from),
-                    fromISO8601DateString(to),
+                    from,
+                    to,
                     sortFields,
                     sortOrder,
                     nvl(pageOffset, 0L),

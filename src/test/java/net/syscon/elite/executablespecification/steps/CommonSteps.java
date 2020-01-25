@@ -78,7 +78,6 @@ public abstract class CommonSteps {
     public void verifyResourceNotFound() {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.NOT_FOUND.value());
-        assertThat(errorResponse.getDeveloperMessage()).as("Test is calling incorrect path/uri").isEmpty();
     }
 
     @Step("Verify user message in error response")
@@ -99,14 +98,14 @@ public abstract class CommonSteps {
 
     public void verifyBadRequest(final List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
     }
 
     @Step("Verify access denied")
     public void verifyAccessDenied() {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     @Step("Verify access denied")
@@ -116,14 +115,14 @@ public abstract class CommonSteps {
 
     private void verifyAccessDenied(final List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
         assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
     }
 
     @Step("Verify not authorised")
     private void verifyNotAuthorised() {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Step("Verify not authorised")
@@ -139,7 +138,7 @@ public abstract class CommonSteps {
 
     private void verifyResourceConflict(final List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.CONFLICT.value());
         assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
     }
 
@@ -453,7 +452,7 @@ public abstract class CommonSteps {
                 // Assume a monetary value with 2dp
                 assertThat(((BigDecimal) actual).setScale(2, RoundingMode.HALF_UP).toString()).isEqualTo(expectedValue);
             } else {
-                assertThat(actual.toString()).isEqualTo(expectedValue);
+                assertThat(actual).isEqualTo(expectedValue);
             }
         }
 

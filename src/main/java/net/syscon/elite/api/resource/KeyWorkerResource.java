@@ -6,10 +6,7 @@ import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.model.OffenderKeyWorker;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -52,26 +49,26 @@ public interface KeyWorkerResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The allocations list is returned.", response = KeyWorkerAllocationDetail.class, responseContainer = "List")})
     List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocations(@ApiParam(value = "The agency (prison) identifier.", required = true) @PathVariable("agencyId") String agencyId,
-                                                                            @ApiParam(value = "The required staff Ids (mandatory)", required = true) List<Long> body);
+                                                                            @ApiParam(value = "The required staff Ids (mandatory)", required = true) @RequestBody List<Long> body);
 
     @PostMapping("/{agencyId}/current-allocations/offenders")
     @ApiOperation(value = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", nickname = "postKeyWorkerAgencyIdCurrentAllocationsOffenders")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The allocations list is returned.", response = KeyWorkerAllocationDetail.class, responseContainer = "List")})
     List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocationsOffenders(@ApiParam(value = "The agency (prison) identifier.", required = true) @PathVariable("agencyId") String agencyId,
-                                                                                     @ApiParam(value = "The required offender Nos (mandatory)", required = true) List<String> body);
+                                                                                     @ApiParam(value = "The required offender Nos (mandatory)", required = true) @RequestBody List<String> body);
 
     @PostMapping("/offenders/allocationHistory")
     @ApiOperation(value = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", notes = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", nickname = "postKeyWorkerOffendersAllocationHistory")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The allocations history list is returned.", response = OffenderKeyWorker.class, responseContainer = "List")})
-    List<OffenderKeyWorker> postKeyWorkerOffendersAllocationHistory(@ApiParam(value = "The required offender nos (mandatory)", required = true) List<String> body);
+    List<OffenderKeyWorker> postKeyWorkerOffendersAllocationHistory(@ApiParam(value = "The required offender nos (mandatory)", required = true) @RequestBody List<String> body);
 
     @PostMapping("/staff/allocationHistory")
     @ApiOperation(value = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.", nickname = "postKeyWorkerStaffAllocationHistory")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The allocations history list is returned.", response = OffenderKeyWorker.class, responseContainer = "List")})
-    List<OffenderKeyWorker> postKeyWorkerStaffAllocationHistory(@ApiParam(value = "The required staff Ids (mandatory)", required = true) List<Long> body);
+    List<OffenderKeyWorker> postKeyWorkerStaffAllocationHistory(@ApiParam(value = "The required staff Ids (mandatory)", required = true) @RequestBody List<Long> body);
 
 
 }

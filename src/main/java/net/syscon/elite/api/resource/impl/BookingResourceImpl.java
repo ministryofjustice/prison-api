@@ -35,6 +35,7 @@ import java.util.Set;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * Implementation of Booking (/bookings) endpoint.
@@ -173,11 +174,11 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public ResponseEntity<List<ScheduledEvent>> getBookingActivities(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public ResponseEntity<List<ScheduledEvent>> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var activities = bookingService.getBookingActivities(
                 bookingId,
-                fromISO8601DateString(fromDate),
-                fromISO8601DateString(toDate),
+                fromDate,
+                toDate,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 sortFields,
@@ -202,7 +203,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> updateAttendance(final String offenderNo, final Long activityId, final UpdateAttendance updateAttendance) {
+    public ResponseEntity<Void> updateAttendance(final String offenderNo, final Long activityId, @NotNull final UpdateAttendance updateAttendance) {
         bookingService.updateAttendance(offenderNo, activityId, updateAttendance);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -302,13 +303,13 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public ResponseEntity<List<CaseNote>> getOffenderCaseNotes(final Long bookingId, final String from, final String to,
+    public ResponseEntity<List<CaseNote>> getOffenderCaseNotes(final Long bookingId, final LocalDate from, final LocalDate to,
                                                                final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         return caseNoteService.getCaseNotes(
                 bookingId,
                 query,
-                fromISO8601DateString(from),
-                fromISO8601DateString(to),
+                from,
+                to,
                 sortFields,
                 sortOrder,
                 nvl(pageOffset, 0L),
@@ -328,8 +329,9 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('MAINTAIN_IEP')")
     @ProxyUser
-    public void addIepLevel(final Long bookingId, final IepLevelAndComment iepLevel) {
+    public ResponseEntity<Void> addIepLevel(final Long bookingId, @NotNull final IepLevelAndComment iepLevel) {
         bookingService.addIepLevel(bookingId, authenticationFacade.getCurrentUsername(), iepLevel);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -344,39 +346,18 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public ResponseEntity<?> getMainBookingImageDataByNo(final String offenderNo, final boolean fullSizeImage) {
-        final var data = imageService.getImageContent(offenderNo, fullSizeImage);
-        return processImageResponse(offenderNo, data);
+    public ResponseEntity<byte[]> getMainBookingImageDataByNo(final String offenderNo, final boolean fullSizeImage) {
+        return imageService.getImageContent(offenderNo, fullSizeImage)
+                .map(bytes -> new ResponseEntity<>(bytes, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(NOT_FOUND));
     }
 
     @Override
-    public ResponseEntity<?> getMainBookingImageData(final Long bookingId, final boolean fullSizeImage) {
+    public ResponseEntity<byte[]> getMainBookingImageData(final Long bookingId, final boolean fullSizeImage) {
         final var mainBookingImage = inmateService.getMainBookingImage(bookingId);
-        final var imageId = mainBookingImage.getImageId();
-        final var data = imageService.getImageContent(imageId, fullSizeImage);
-        return processImageResponse(String.valueOf(imageId), data);
-    }
-
-    private ResponseEntity<?> processImageResponse(final String id, final byte[] data) {
-        if (data != null) {
-            try {
-                final var temp = File.createTempFile("userimage", ".tmp");
-                FileUtils.copyInputStreamToFile(new ByteArrayInputStream(data), temp);
-                return ResponseEntity.ok(temp);
-            } catch (final IOException e) {
-                final var errorResponse = ErrorResponse.builder()
-                        .errorCode(500)
-                        .userMessage("An error occurred loading the image for ID " + id)
-                        .build();
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-            }
-        } else {
-            final var errorResponse = ErrorResponse.builder()
-                    .errorCode(404)
-                    .userMessage("No image was found for ID " + id)
-                    .build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-        }
+        return imageService.getImageContent(mainBookingImage.getImageId(), fullSizeImage)
+                .map(bytes -> new ResponseEntity<>(bytes, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(NOT_FOUND));
     }
 
     @Override
@@ -493,8 +474,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<ScheduledEvent> getEvents(final Long bookingId, final String fromDate, final String toDate) {
-        return bookingService.getEvents(bookingId, fromISO8601DateString(fromDate), fromISO8601DateString(toDate));
+    public List<ScheduledEvent> getEvents(final Long bookingId, final LocalDate fromDate, final LocalDate toDate) {
+        return bookingService.getEvents(bookingId, fromDate, toDate);
     }
 
     @Override
@@ -513,27 +494,27 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final String fromDate, final String toDate) {
+    public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
         return caseNoteService.getCaseNoteCount(
                 bookingId,
                 type,
                 subType,
-                fromISO8601DateString(fromDate),
-                fromISO8601DateString(toDate));
+                fromDate,
+                toDate);
     }
 
     @Override
-    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final String awardCutoffDate, final String adjudicationCutoffDate) {
+    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDate, final LocalDate adjudicationCutoffDate) {
         return adjudicationService.getAdjudicationSummary(bookingId,
-                fromISO8601DateString(awardCutoffDate), fromISO8601DateString(adjudicationCutoffDate));
+                awardCutoffDate, adjudicationCutoffDate);
     }
 
     @Override
-    public ResponseEntity<List<ScheduledEvent>> getBookingVisits(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public ResponseEntity<List<ScheduledEvent>> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         return bookingService.getBookingVisits(
                 bookingId,
-                fromISO8601DateString(fromDate),
-                fromISO8601DateString(toDate),
+                fromDate,
+                toDate,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 sortFields,
@@ -578,11 +559,11 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public ResponseEntity<List<ScheduledEvent>> getBookingsBookingIdAppointments(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public ResponseEntity<List<ScheduledEvent>> getBookingsBookingIdAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         return bookingService.getBookingAppointments(
                 bookingId,
-                fromISO8601DateString(fromDate),
-                fromISO8601DateString(toDate),
+                fromDate,
+                toDate,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 sortFields,
