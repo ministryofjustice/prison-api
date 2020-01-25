@@ -291,7 +291,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThatJson(response.getBody()).node("userMessage").isEqualTo("Category not recognised.");
     }
 
@@ -334,7 +334,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.CREATED.value());
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -38 AND ASSESSMENT_SEQ = 3");
         assertThat(results).asList()

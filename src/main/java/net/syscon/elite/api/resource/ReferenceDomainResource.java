@@ -90,7 +90,6 @@ public interface ReferenceDomainResource {
                                       @ApiParam(value = "Reference Information", required = true) @NotNull @Valid @RequestBody ReferenceCodeInfo referenceData);
 
     @PutMapping("/domains/{domain}/codes/{code}")
-    @ResponseStatus(value = HttpStatus.OK, reason = "Reference Code Updated")
     @ApiOperation(value = "Updates a reference code")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Updated", response = ReferenceCode.class),

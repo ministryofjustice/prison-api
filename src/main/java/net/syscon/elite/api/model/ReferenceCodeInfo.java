@@ -55,6 +55,7 @@ public class ReferenceCodeInfo {
     private String systemDataFlag = "Y'";
 
     @ApiModelProperty(value = "Expired Date", position = 7, example = "2018-03-09")
+
     private LocalDate expiredDate;
 
 }

@@ -35,6 +35,8 @@ public class SwaggerConfig {
         final var docket = new Docket(DocumentationType.SWAGGER_2)
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
+                .securitySchemes(List.of(securityScheme()))
+                .securityContexts(List.of(securityContext()))
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(Predicates

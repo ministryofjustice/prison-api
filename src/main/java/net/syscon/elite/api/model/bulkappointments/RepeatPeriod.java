@@ -3,6 +3,7 @@ package net.syscon.elite.api.model.bulkappointments;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 
 public enum RepeatPeriod {
@@ -18,7 +19,7 @@ public enum RepeatPeriod {
         public LocalDateTime endDateTime(final LocalDateTime start, final long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
             final var dayOfWeek = start.getDayOfWeek().getValue(); // Monday == 1, Sunday == 7.
             if (dayOfWeek > 5) {
-                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Weekend starts not allowed for WEEKDAY repeat period, but " + start + " is a Saturday or Sunday");
+                throw new ValidationException("Weekend starts not allowed for WEEKDAY repeat period, but " + start + " is a Saturday or Sunday");
             }
             final var weeks = offsetEndDateTimeByThisNumberOfPeriodsFromStart / 5;
             final var remainder = offsetEndDateTimeByThisNumberOfPeriodsFromStart % 5;

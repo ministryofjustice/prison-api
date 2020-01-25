@@ -100,7 +100,7 @@ public interface CaseNoteResource {
             @ApiResponse(code = 200, message = "OK", response = CaseNoteEvent.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<CaseNoteEvent> getCaseNotesEvents(@ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) @RequestParam("type") List<String> noteTypes,
-                                           @ApiParam(value = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") @RequestParam("createdDate") LocalDateTime createdDate,
+    List<CaseNoteEvent> getCaseNotesEvents(@ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) @NotEmpty @RequestParam("type") List<String> noteTypes,
+                                           @ApiParam(value = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("createdDate") LocalDateTime createdDate,
                                            @ApiParam(name = "limit", value = "Number of events to return", example = "100") @RequestParam("limit") Long limit);
 }

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.time.LocalDate;
@@ -415,7 +416,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     PersonalCareNeeds getPersonalCareNeeds(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
-                                           @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @RequestParam("type") List<String> type);
+                                           @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
 
     @PostMapping("/offenderNo/personal-care-needs")
     @ApiOperation(value = "Personal Care Needs  - POST version to allow for large numbers of offenders", notes = "Personal Care Needs", nickname = "getPersonalCareNeeds")
@@ -424,8 +425,8 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<PersonalCareNeeds> getPersonalCareNeeds(@ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
-                                                 @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @RequestParam("type") List<String> type);
+    List<PersonalCareNeeds> getPersonalCareNeeds(@ApiParam(value = "The required offender numbers (mandatory)", required = true) @NotEmpty(message = "offenderNo: must not be empty") @RequestBody List<String> offenderNo,
+                                                 @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
 
     @GetMapping("/{bookingId}/reasonable-adjustments")
     @ApiOperation(value = "Reasonable Adjustment Information", notes = "Reasonable Adjustment Information", nickname = "getReasonableAdjustment")
@@ -435,7 +436,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     ReasonableAdjustments getReasonableAdjustments(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
-                                                   @ApiParam(value = "a list of treatment codes to search.", example = "PEEP", required = true) @RequestParam("type") List<String> type);
+                                                   @ApiParam(value = "a list of treatment codes to search.", example = "PEEP", required = true) @NotEmpty(message = "treatmentCodes: must not be empty") @RequestParam(value = "type", required = false) List<String> treatmentCodes);
 
     @GetMapping("/{bookingId}/profileInformation")
     @ApiOperation(value = "Profile Information", notes = "Profile Information", nickname = "getProfileInformation")
@@ -526,7 +527,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     InmateDetail getOffenderBookingByOffenderNo(@ApiParam(value = "The offenderNo of offender", required = true) @PathVariable("offenderNo") String offenderNo,
-                                                @ApiParam(value = "If set to true then full data is returned", defaultValue = "false") @RequestParam("fullInfo") boolean fullInfo);
+                                                @ApiParam(value = "If set to true then full data is returned", defaultValue = "false") @RequestParam(value = "fullInfo", required = false, defaultValue = "false") boolean fullInfo);
 
     @PostMapping("/offenders")
     @ApiOperation(value = "Offender detail.", notes = "Offender detail for offenders", nickname = "getBasicInmateDetailsForOffenders")

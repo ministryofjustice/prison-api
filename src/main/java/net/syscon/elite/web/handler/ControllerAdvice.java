@@ -117,7 +117,7 @@ public class ControllerAdvice {
                 .status(e.getStatusCode())
                 .body(ErrorResponse
                         .builder()
-                        .userMessage(e.getMessage())
+                        .userMessage(e.getStatusText())
                         .status(e.getStatusCode().value())
                         .developerMessage(e.getMostSpecificCause().getMessage())
                         .build());
@@ -131,7 +131,7 @@ public class ControllerAdvice {
                         .builder()
                         .userMessage(e.getMostSpecificCause().getMessage())
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .developerMessage(e.getMessage())
+                        .developerMessage(e.getMostSpecificCause().getMessage())
                         .build());
     }
 
@@ -155,7 +155,7 @@ public class ControllerAdvice {
                         .builder()
                         .userMessage(e.getMostSpecificCause().getMessage())
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .developerMessage(e.getMessage())
+                        .developerMessage(e.getMostSpecificCause().getMessage())
                         .build());
     }
 
@@ -167,7 +167,7 @@ public class ControllerAdvice {
                         .builder()
                         .userMessage(e.getMostSpecificCause().getMessage())
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .developerMessage(e.getMessage())
+                        .developerMessage(e.getMostSpecificCause().getMessage())
                         .build());
     }
 

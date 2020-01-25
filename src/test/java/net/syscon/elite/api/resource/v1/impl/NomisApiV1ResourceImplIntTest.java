@@ -522,7 +522,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/available_dates?start_date=2017-01-01&end_date=2017-02-01", HttpMethod.GET, requestEntity, String.class);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
-        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Start date cannot be in the past\",\"developerMessage\":\"\"}");
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Start date cannot be in the past\",\"developerMessage\":\"400 Start date cannot be in the past\"}");
     }
 
     @Test
@@ -729,7 +729,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/2425215/visits/unavailability?dates=" + day1, HttpMethod.GET, requestEntity, String.class);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
-        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Dates requested must be in future\",\"developerMessage\":\"\"}");
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Dates requested must be in future\",\"developerMessage\":\"400 Dates requested must be in future\"}");
     }
 
     @Test
@@ -780,7 +780,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/MDI/slots?start_date=3000-01-01&end_date=3017-01-01", HttpMethod.GET, requestEntity, String.class);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
-        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"End date cannot be more than 60 days in the future\",\"developerMessage\":\"\"}");
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"End date cannot be more than 60 days in the future\",\"developerMessage\":\"400 End date cannot be more than 60 days in the future\"}");
     }
 
 }

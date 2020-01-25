@@ -452,7 +452,7 @@ public abstract class CommonSteps {
                 // Assume a monetary value with 2dp
                 assertThat(((BigDecimal) actual).setScale(2, RoundingMode.HALF_UP).toString()).isEqualTo(expectedValue);
             } else {
-                assertThat(actual).isEqualTo(expectedValue);
+                assertThat(actual.toString()).isEqualTo(expectedValue);
             }
         }
 

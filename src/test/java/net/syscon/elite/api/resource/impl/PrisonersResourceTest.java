@@ -47,7 +47,7 @@ public class PrisonersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null, Map.of("Page-Limit", "30"));
 
         final var response = testRestTemplate.exchange(
-                "/api2/prisoners/at-location/LEI",
+                "/api/prisoners/at-location/LEI",
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
@@ -63,7 +63,7 @@ public class PrisonersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null, Map.of());
 
         final var response = testRestTemplate.exchange(
-                "/api2/prisoners/by-establishment/LEI?size=5&page=2&sort=lastName,asc&sort=givenName1,asc",
+                "/api/prisoners/by-establishment/LEI?size=5&page=2&sort=lastName,asc&sort=givenName1,asc",
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
@@ -79,7 +79,7 @@ public class PrisonersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null, Map.of());
 
         final var response = testRestTemplate.exchange(
-                "/api2/prisoners/A1234AA/full-status",
+                "/api/prisoners/A1234AA/full-status",
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {

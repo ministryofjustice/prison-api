@@ -131,7 +131,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 409, message = "Duplicate Post - A transaction already exists with the client_unique_ref provided.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Transfer transferTransaction(
-            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader("X-Client-Name") String clientName,
+            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader(value = "X-Client-Name", required = false) String clientName,
             @ApiParam(name = "previous_prison_id", value = "Prison ID", example = "BMI", required = true) @PathVariable("previous_prison_id") @NotNull @Length(max = 3) String previousPrisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(value = "Transaction Details", required = true) @RequestBody @NotNull @Valid CreateTransaction createTransaction);
@@ -167,7 +167,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 409, message = "Duplicate post - The unique_client_ref has been used before", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Transaction createTransaction(
-            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader("X-Client-Name") String clientName,
+            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader(value = "X-Client-Name", required = false) String clientName,
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathVariable("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(value = "Transaction Details", required = true) @RequestBody @NotNull @Valid CreateTransaction createTransaction);
@@ -195,7 +195,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 409, message = "Offender not in specified prison", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<Hold> getHolds(
-            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader("X-Client-Name") String clientName,
+            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader(value = "X-Client-Name", required = false) String clientName,
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathVariable("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(name = "client_unique_ref", value = "Client unique reference") @RequestParam(value = "client_unique_ref", required = false) @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
@@ -284,7 +284,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     AccountTransaction getTransactionByClientUniqueRef(
-            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader("X-Client-Name") String clientName,
+            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader(value = "X-Client-Name", required = false) String clientName,
             @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) @PathVariable("prison_id") @NotNull @Length(max = 3) String prisonId,
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(name = "client_unique_ref", value = "Client unique reference", required = true) @PathVariable("client_unique_ref") @Length(max = 64) @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) final String clientUniqueRef);
@@ -292,7 +292,6 @@ public interface NomisApiV1Resource {
     @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/lookup/active_offender")
     @ApiOperation(value = "Retrieve active offender", notes = "offender id will be returned if offender is found")
-    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Active Offender ID returned", response = ActiveOffender.class),
             @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
@@ -313,7 +312,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     AvailableDates getVisitAvailableDates(
             @ApiParam(name = "offender_id", value = "Offender Id", example = "1234567", required = true) @NotNull @PathVariable("offender_id") Long offenderId,
-            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) @NotNull @RequestParam("start_date") LocalDate fromDate,
+            @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("start_date") LocalDate fromDate,
             @ApiParam(name = "end_date", value = "To date", example = "2019-05-01", required = true) @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("end_date") LocalDate toDate);
 
     @GetMapping("offenders/{offender_id}/visits/contact_list")
