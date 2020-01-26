@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,6 +76,25 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of(), List.of("A1234AA", "A1234AB", "A1234AC"));
         final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs", HttpMethod.POST, requestEntity, String.class);
         assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_validation.json");
+    }
+
+    @Test
+    public void offenderAlerts_respondsWithOKWhenOffenderNumberSupplied() {
+        var oneOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), List.of("A1234AA"));
+
+        var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, oneOffendersInRequest, String.class);
+
+        assertThatStatus(minimumOfOneOffenderRequiredResponse, 200);
+    }
+
+    @Test
+    public void offenderAlerts_respondsWithBadRequestWhenNoOffendersNumbersSupplied() {
+        var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), null);
+
+        var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, noOffendersInRequest, String.class);
+
+        assertThatStatus(minimumOfOneOffenderRequiredResponse, 400);
+        assertThat(minimumOfOneOffenderRequiredResponse.getBody()).contains("A minimum of one offender number is required");
     }
 
     @Test

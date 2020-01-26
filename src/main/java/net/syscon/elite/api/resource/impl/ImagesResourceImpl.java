@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -31,6 +32,11 @@ public class ImagesResourceImpl implements ImageResource {
         return imageService.getImageContent(imageId, fullSizeImage)
                 .map(bytes -> new ResponseEntity<>(bytes, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(NOT_FOUND));
+    }
+
+    @Override
+    public List<ImageDetail> getImagesByOffender(final String offenderNo) {
+        return imageService.findOffenderImagesFor(offenderNo);
     }
 
     @Override

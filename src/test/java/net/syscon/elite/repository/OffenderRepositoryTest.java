@@ -20,6 +20,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -88,6 +90,18 @@ public class OffenderRepositoryTest {
                         "A1234AN", "A1234AO", "A1234AP", "A4476RS", "A5576RS", "A5577RS", "A6676RS", "A9876EC",
                         "A9876RS", "Z0017ZZ", "Z0018ZZ", "Z0019ZZ", "Z0020ZZ", "Z0021ZZ", "Z0022ZZ", "Z0023ZZ",
                         "Z0024ZZ", "Z0025ZZ", "Z0026ZZ");
+    }
+
+    @Test
+    public void getOffenderIds() {
+        var ids = repository.getOffenderIdsFor("A1234AA");
+        assertThat(ids).containsExactlyInAnyOrder(-1001L);
+    }
+
+    @Test
+    public void getOffenderIdsReturnsEmptySet() {
+        var ids = repository.getOffenderIdsFor("unknown");
+        assertThat(ids).isEmpty();
     }
 
     private PrisonerDetailSearchCriteria criteriaForPNCNumber(final String pncNumber) {

@@ -623,7 +623,7 @@ public interface BookingResource {
     @ApiOperation(value = "Get alerts for a list of offenders. Requires SYSTEM_READ_ONLY role")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = Alert.class, responseContainer = "List")})
-    List<Alert> getAlertsByOffenderNos(@ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body);
+    List<Alert> getAlertsByOffenderNos(@ApiParam(value = "The required offender numbers (mandatory)", required = true) @NotEmpty(message = "A minimum of one offender number is required") @RequestBody List<String> body);
 
     @PostMapping("/offenderNo/{offenderNo}/caseNotes")
     @ResponseStatus(HttpStatus.CREATED)

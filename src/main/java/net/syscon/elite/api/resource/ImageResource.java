@@ -9,10 +9,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.File;
+import java.util.List;
 
 @Api(tags = {"/images"})
 
 public interface ImageResource {
+
+    @GetMapping("/offenders/{offenderNo}")
+    @ApiOperation(value = "Image details related to offender.", nickname = "getImagesByOffender")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ImageDetail.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<ImageDetail> getImagesByOffender(@PathVariable("offenderNo") final String offenderNo);
 
     @GetMapping("/{imageId}")
     @ApiOperation(value = "Image detail (with image data).", notes = "Image detail (with image data).", nickname = "getImage")

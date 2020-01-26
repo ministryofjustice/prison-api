@@ -1,7 +1,6 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.Lists;
-import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
@@ -13,7 +12,6 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
-import net.syscon.elite.service.support.ReferenceDomain;
 import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,10 +56,8 @@ public class BookingServiceImpl implements BookingService {
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
-    private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
-    private final TelemetryClient telemetryClient;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -69,10 +65,9 @@ public class BookingServiceImpl implements BookingService {
 
     public BookingServiceImpl(final BookingRepository bookingRepository,
                               final SentenceRepository sentenceRepository, final AgencyService agencyService,
-                              final CaseLoadService caseLoadService, final LocationService locationService,
+                              final CaseLoadService caseLoadService,
                               final ReferenceDomainService referenceDomainService,
                               final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
-                              final TelemetryClient telemetryClient,
                               final AuthenticationFacade securityUtils,
                               final AuthenticationFacade authenticationFacade,
                               @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
@@ -81,10 +76,8 @@ public class BookingServiceImpl implements BookingService {
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
-        this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
-        this.telemetryClient = telemetryClient;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;
@@ -403,30 +396,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingAppointments(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
 
-    @Transactional
-    @Override
-    @VerifyBookingAccess
-    public ScheduledEvent createBookingAppointment(final Long bookingId, final String username, @Valid final NewAppointment newAppointment) {
-        validateStartTime(newAppointment);
-        validateEndTime(newAppointment);
-        final var agencyId = validateLocationAndGetAgency(username, newAppointment);
-        validateEventType(newAppointment);
-        final var eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
-
-        // Log event
-        final Map<String, String> logMap = new HashMap<>();
-        logMap.put("type", newAppointment.getAppointmentType());
-        logMap.put("start", newAppointment.getStartTime().toString());
-        logMap.put("location", newAppointment.getLocationId().toString());
-        logMap.put("user", username);
-        if (newAppointment.getEndTime() != null) {
-            logMap.put("end", newAppointment.getEndTime().toString());
-        }
-        telemetryClient.trackEvent("AppointmentCreated", logMap, null);
-
-        return bookingRepository.getBookingAppointment(bookingId, eventId);
-    }
-
     // FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER
     @Override
     public OffenderSummary getLatestBookingByBookingId(final Long bookingId) {
@@ -439,56 +408,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getLatestBookingByOffenderNo(offenderNo).orElse(null);
     }
 
-    private void validateStartTime(final NewAppointment newAppointment) {
-        if (newAppointment.getStartTime().isBefore(LocalDateTime.now())) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment time is in the past.");
-        }
-    }
-
-    private void validateEndTime(final NewAppointment newAppointment) {
-        if (newAppointment.getEndTime() != null
-                && newAppointment.getEndTime().isBefore(newAppointment.getStartTime())) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment end time is before the start time.");
-        }
-    }
-
-    private void validateEventType(final NewAppointment newAppointment) {
-        Optional<ReferenceCode> result;
-
-        try {
-            result = referenceDomainService.getReferenceCodeByDomainAndCode(
-                    ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false);
-        } catch (final EntityNotFoundException ex) {
-            result = Optional.empty();
-        }
-
-        if (result.isEmpty()) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Event type not recognised.");
-        }
-    }
-
-    private String validateLocationAndGetAgency(final String username, final NewAppointment newAppointment) {
-        Optional<String> agencyId;
-
-        try {
-            final var appointmentLocation = locationService.getLocation(newAppointment.getLocationId());
-            final var userLocations = locationService.getUserLocations(username);
-
-            final var isValidLocation = userLocations.stream()
-                    .anyMatch(loc -> loc.getAgencyId().equals(appointmentLocation.getAgencyId()));
-
-            if (isValidLocation) {
-                agencyId = Optional.of(appointmentLocation.getAgencyId());
-            } else {
-                agencyId = Optional.empty();
-            }
-        } catch (final EntityNotFoundException enfex) {
-            agencyId = Optional.empty();
-        }
-
-        return agencyId.orElseThrow(() ->
-                new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload."));
-    }
 
     private void validateScheduledEventsRequest(final LocalDate fromDate, final LocalDate toDate) {
         // Validate date range

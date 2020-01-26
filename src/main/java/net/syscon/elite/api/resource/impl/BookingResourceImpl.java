@@ -59,6 +59,7 @@ public class BookingResourceImpl implements BookingResource {
     private final IdempotentRequestService idempotentRequestService;
     private final IncidentService incidentService;
     private final MovementsService movementsService;
+    private final AppointmentsService appointmentsService;
 
     @Override
     public ResponseEntity<List<OffenderBooking>> getOffenderBookings(final String query, final List<Long> bookingId, final List<String> offenderNo, final boolean iepLevel, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
@@ -612,9 +613,7 @@ public class BookingResourceImpl implements BookingResource {
     @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
     public ScheduledEvent postBookingsBookingIdAppointments(final Long bookingId, final NewAppointment newAppointment) {
-        return bookingService.createBookingAppointment(
+        return appointmentsService.createBookingAppointment(
                 bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
     }
-
-
 }
