@@ -1,5 +1,5 @@
 {
   "status": 400,
-  "userMessage": "Required List parameter 'type' is not present",
-  "developerMessage": "Required List parameter 'type' is not present"
+  "userMessage": "getPersonalCareNeeds.arg1: problemTypes: must not be empty",
+  "developerMessage": "getPersonalCareNeeds.arg1: problemTypes: must not be empty"
 }

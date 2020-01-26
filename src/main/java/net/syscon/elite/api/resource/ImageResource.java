@@ -18,7 +18,7 @@ public interface ImageResource {
     @GetMapping("/offenders/{offenderNo}")
     @ApiOperation(value = "Image details related to offender.", nickname = "getImagesByOffender")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = ImageDetail.class),
+            @ApiResponse(code = 200, message = "OK", response = ImageDetail.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<ImageDetail> getImagesByOffender(@PathVariable("offenderNo") final String offenderNo);

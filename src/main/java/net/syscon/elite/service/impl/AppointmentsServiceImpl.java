@@ -117,14 +117,14 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
     private void validateStartTime(final NewAppointment newAppointment) {
         if (newAppointment.getStartTime().isBefore(LocalDateTime.now())) {
-            throw new BadRequestException("Appointment time is in the past.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment time is in the past.");
         }
     }
 
     private void validateEndTime(final NewAppointment newAppointment) {
         if (newAppointment.getEndTime() != null
                 && newAppointment.getEndTime().isBefore(newAppointment.getStartTime())) {
-            throw new BadRequestException("Appointment end time is before the start time.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment end time is before the start time.");
         }
     }
 
@@ -139,7 +139,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         }
 
         if (result.isEmpty()) {
-            throw new BadRequestException("Event type not recognised.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Event type not recognised.");
         }
     }
 
@@ -159,7 +159,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
         } catch (final EntityNotFoundException ignored) { }
 
-        throw new BadRequestException("Location does not exist or is not in your caseload.");
+        throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload.");
     }
 
 
@@ -285,7 +285,6 @@ public class AppointmentsServiceImpl implements AppointmentsService {
                 .map(startTime -> buildFromPrototypeWithStartTimeAndDuration(details, startTime, appointmentDuration));
     }
 
-
     private static AppointmentDetails buildFromPrototypeWithStartTimeAndDuration(final AppointmentDetails prototype,
                                                                                  final LocalDateTime startTime,
                                                                                  final Optional<Duration> appointmentDuration) {
@@ -293,7 +292,6 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         appointmentDuration.ifPresent(d -> builder.endTime(startTime.plus(d)));
         return builder.build();
     }
-
 
     private void createAppointments(final List<AppointmentDetails> details, final AppointmentDefaults defaults, final String agencyId) {
         bookingRepository.createMultipleAppointments(details, defaults, agencyId);

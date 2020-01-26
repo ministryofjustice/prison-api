@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -507,8 +508,8 @@ public class AppointmentsServiceImplTest {
         try {
             appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (final BadRequestException e) {
-            assertThat(e.getMessage()).isEqualTo("Appointment time is in the past.");
+        } catch (final HttpClientErrorException e){
+            assertThat(e.getStatusText()).isEqualTo("Appointment time is in the past.");
         }
     }
 
@@ -524,8 +525,8 @@ public class AppointmentsServiceImplTest {
         try {
             appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (final BadRequestException e) {
-            assertThat(e.getMessage()).isEqualTo("Appointment end time is before the start time.");
+        } catch (final HttpClientErrorException e) {
+            assertThat(e.getStatusText()).isEqualTo("Appointment end time is before the start time.");
         }
     }
 
@@ -564,7 +565,7 @@ public class AppointmentsServiceImplTest {
                 .thenThrow(new EntityNotFoundException("test"));
 
         assertThatThrownBy(() -> appointmentsService.createBookingAppointment(bookingId, principal, newAppointment))
-                .isInstanceOf(BadRequestException.class).hasMessage("Location does not exist or is not in your caseload.");
+                .isInstanceOf(HttpClientErrorException.class).hasMessage("Location does not exist or is not in your caseload.");
     }
 
     @Test
@@ -600,7 +601,7 @@ public class AppointmentsServiceImplTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> appointmentsService.createBookingAppointment(bookingId, principal, newAppointment))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(HttpClientErrorException.class)
                 .hasMessage("Event type not recognised.");
     }
 
