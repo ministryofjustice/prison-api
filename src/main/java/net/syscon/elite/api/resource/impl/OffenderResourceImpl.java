@@ -26,7 +26,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestController
@@ -179,7 +178,7 @@ public class OffenderResourceImpl implements OffenderResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('DELETE_OFFENDER')")
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteOffender(final String offenderNo) {
         offenderDataComplianceService.deleteOffender(offenderNo);
     }

@@ -52,7 +52,7 @@ public class ReferenceCodeInfo {
     @Length(max = 1)
     @Pattern(regexp = "[N|Y]")
     @Builder.Default
-    private String systemDataFlag = "Y'";
+    private String systemDataFlag = "Y";
 
     @ApiModelProperty(value = "Expired Date", position = 7, example = "2018-03-09")
 
