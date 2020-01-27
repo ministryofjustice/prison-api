@@ -5,7 +5,6 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.v1.*;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -117,7 +116,6 @@ public interface NomisApiV1Resource {
                     "<p>If the offender has been transferred to another prison then the funds are transferred to this prison.</p>" +
                     "<p>If the account was previously closed then it will be closed again.</p>" +
                     "<p>If the offender has been released then the funds are transferred to NACRO. Based on the Nomis Clear Inactive accounts screen (OTDCLINA).</p>")
-    @ResponseStatus(value = HttpStatus.OK, reason = "Transaction Created")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Transaction Created", response = Transfer.class),
             @ApiResponse(code = 400, message = "One of: <ul><li>Invalid transaction type - The transaction type has not been set up for the API for {prison_id}</li>" +
@@ -156,7 +154,6 @@ public interface NomisApiV1Resource {
                     "<li>The sub_account the amount is debited or credited from will be determined by the transaction_type definition in NOMIS.</li>" +
                     "<li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.</li>" +
                     "<li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li></ul>")
-    @ResponseStatus(value = HttpStatus.OK, reason = "Transaction Created")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Transaction Created", response = Transaction.class),
             @ApiResponse(code = 400, message = "One of: <ul><li>Insufficient Funds - The prisoner has insufficient funds in the required account to cover the cost of the debit transaction</li>" +
@@ -188,7 +185,6 @@ public interface NomisApiV1Resource {
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/holds")
     @ApiOperation(value = "Get holds.",
             notes = "Gets every hold on an offender’s account or just the hold identified by the client_unique_ref")
-    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Transaction Created", response = Hold.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Offender Not Found - No offender matching the specified offender_id has been found on nomis.", response = ErrorResponse.class),
@@ -202,7 +198,6 @@ public interface NomisApiV1Resource {
 
     @GetMapping("/prison/{prison_id}/live_roll")
     @ApiOperation(value = "Fetching live roll.")
-    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Live roll returned for this prison.", response = LiveRoll.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found.", response = ErrorResponse.class),
@@ -229,7 +224,6 @@ public interface NomisApiV1Resource {
                     "<br/>" +
                     "The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>" +
                     "This will be setup by script intially as part of the deployment process as shown below<br/><br/>")
-    @ResponseStatus(value = HttpStatus.OK, reason = "Payment accepted")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Payment accepted", response = Transaction.class),
             @ApiResponse(code = 400, message = "One of: <ul><li>Offender not in specified prison - prisoner identified by {noms_id} is not in prison {prison_id}</li><li>Invalid payment type</li>" +
@@ -247,7 +241,6 @@ public interface NomisApiV1Resource {
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts")
     @ApiOperation(value = "Retrieve an offender's financial account balances.", notes = "Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>" +
             "All balance values are represented as pence values.")
-    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Account balances returned for this offender and prison.", response = AccountBalance.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),
@@ -262,7 +255,6 @@ public interface NomisApiV1Resource {
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/transactions")
     @ApiOperation(value = "Retrieve an offender's financial transaction history for cash, spends or savings.", notes = "Transactions are returned in NOMIS ordee (Descending date followed by id).<br/>" +
             "All transaction amounts are represented as pence values.")
-    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Account transactions returned", response = AccountTransactions.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),
@@ -277,7 +269,6 @@ public interface NomisApiV1Resource {
 
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/transactions/{client_unique_ref}")
     @ApiOperation(value = "Retrieve a single financial transaction using client unique ref.", notes = "All transaction amounts are represented as pence values.")
-    @ResponseStatus(value = HttpStatus.OK, reason = "OK")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Account transaction returned", response = AccountTransaction.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),

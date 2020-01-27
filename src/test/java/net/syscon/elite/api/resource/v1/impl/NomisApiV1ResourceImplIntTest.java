@@ -532,7 +532,7 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/AB2425215C/visits/available_dates?start_date=2017-01-01&end_date=2017-02-01", HttpMethod.GET, requestEntity, String.class);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(400);
-        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"Parameter exception (invalid date, time, format, type)\",\"developerMessage\":\"java.lang.NumberFormatException: For input string: \\\"AB2425215C\\\"\"}");
+        assertThatJson(responseEntity.getBody()).isEqualTo("{\"status\":400,\"userMessage\":\"For input string: \\\"AB2425215C\\\"\",\"developerMessage\":\"For input string: \\\"AB2425215C\\\"\"}");
     }
 
     @Test
