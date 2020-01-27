@@ -2,6 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.ImageDetail;
 import net.syscon.elite.repository.ImageRepository;
+import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.repository.jpa.model.OffenderImage;
 import net.syscon.elite.repository.jpa.repository.OffenderImageRepository;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -13,9 +14,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -25,6 +29,7 @@ import static org.mockito.Mockito.when;
 public class ImageServiceImplTest {
 
     private static final LocalDateTime DATETIME = LocalDateTime.now();
+    private static final String OFFENDER_NUMBER = "A1234AA";
 
     @Mock
     private ImageRepository imageRepository;
@@ -32,17 +37,22 @@ public class ImageServiceImplTest {
     @Mock
     private OffenderImageRepository offenderImageRepository;
 
+    @Mock
+    private OffenderRepository offenderRepository;
+
     private ImageService service;
 
     @Before
     public void setUp() {
-        service = new ImageServiceImpl(imageRepository, offenderImageRepository);
+        service = new ImageServiceImpl(imageRepository, offenderImageRepository, offenderRepository);
     }
 
     @Test
     public void findOffenderImages() {
 
-        when(offenderImageRepository.getImagesByOffenderNumber("A1234AA")).thenReturn(List.of(
+        when(offenderRepository.getOffenderIdsFor(OFFENDER_NUMBER)).thenReturn(Set.of(1L));
+
+        when(offenderImageRepository.getImagesByOffenderNumber(OFFENDER_NUMBER)).thenReturn(List.of(
                 OffenderImage.builder()
                         .offenderImageId(123L)
                         .captureDateTime(DATETIME)
@@ -52,7 +62,7 @@ public class ImageServiceImplTest {
                         .imageObjectId(1L)
                         .build()));
 
-        assertThat(service.findOffenderImagesFor("A1234AA")).containsOnly(
+        assertThat(service.findOffenderImagesFor(OFFENDER_NUMBER)).containsOnly(
                 ImageDetail.builder()
                         .imageId(123L)
                         .captureDate(DATETIME.toLocalDate())
@@ -61,6 +71,15 @@ public class ImageServiceImplTest {
                         .imageType("OFF_BKG")
                         .objectId(1L)
                         .build());
+    }
+
+    @Test
+    public void findOffenderImagesThrowsEntityNotFoundException() {
+
+        when(offenderRepository.getOffenderIdsFor(OFFENDER_NUMBER)).thenReturn(emptySet());
+
+        assertThatThrownBy(() -> service.findOffenderImagesFor(OFFENDER_NUMBER))
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test

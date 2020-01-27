@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.ImageDetail;
 import net.syscon.elite.repository.ImageRepository;
+import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.repository.jpa.model.OffenderImage;
 import net.syscon.elite.repository.jpa.repository.OffenderImageRepository;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -26,8 +27,14 @@ public class ImageServiceImpl implements ImageService {
     @Autowired
     private OffenderImageRepository offenderImageRepository;
 
+    @Autowired
+    private OffenderRepository offenderRepository;
+
     @Override
     public List<ImageDetail> findOffenderImagesFor(final String offenderNumber) {
+
+        if (offenderRepository.getOffenderIdsFor(offenderNumber).isEmpty()) throw EntityNotFoundException.withId(offenderNumber);
+
         return offenderImageRepository.getImagesByOffenderNumber(offenderNumber).stream()
                 .map(this::convertFrom)
                 .collect(toList());
