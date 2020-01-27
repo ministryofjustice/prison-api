@@ -11,7 +11,6 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import javax.ws.rs.DefaultValue;
 import java.time.LocalDate;
 
 @ApiModel(description = "Reference Code Data")
@@ -42,8 +41,8 @@ public class ReferenceCodeInfo {
     @ApiModelProperty(required = true, value = "Reference data item active indicator flag.", example = "Y", allowableValues = "Y,N", position = 4)
     @Length(max = 1)
     @Pattern(regexp = "[N|Y]")
-    @DefaultValue("Y")
-    private String activeFlag;
+    @Builder.Default
+    private String activeFlag = "Y";
 
     @ApiModelProperty(value = "List Sequence", example = "1", position = 5)
     @Max(value = 999999)
@@ -52,10 +51,11 @@ public class ReferenceCodeInfo {
     @ApiModelProperty(value = "System Data Flag", position = 6, example = "Y", allowableValues = "Y,N")
     @Length(max = 1)
     @Pattern(regexp = "[N|Y]")
-    @DefaultValue("Y")
-    private String systemDataFlag;
+    @Builder.Default
+    private String systemDataFlag = "Y";
 
     @ApiModelProperty(value = "Expired Date", position = 7, example = "2018-03-09")
+
     private LocalDate expiredDate;
 
 }

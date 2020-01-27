@@ -3,7 +3,8 @@ package net.syscon.elite.web.config;
 import net.syscon.elite.security.EntryPointUnauthorizedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -13,6 +14,8 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 
 @Configuration
 @EnableResourceServer
+@EnableScheduling
+@EnableAsync(proxyTargetClass = true)
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
     private final ResourceServerTokenServices tokenServices;
@@ -28,15 +31,20 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     @Override
     public void configure(final HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler())
-                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/api/swagger*").permitAll()
-                .antMatchers("/swagger-resources/**").permitAll()
-                .antMatchers("/api/**").authenticated()
-                .antMatchers("/api2/**").authenticated();
+        http.headers().frameOptions().sameOrigin().and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
+                // Can't have CSRF protection as requires session
+                .and().csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/webjars/**", "/favicon.ico", "/csrf",
+                        "/health", "/info", "/ping", "/h2-console/**",
+                        "/v2/api-docs", "/api/swagger.json",
+                        "/swagger-ui.html", "/swagger-resources", "/swagger-resources/configuration/ui",
+                        "/swagger-resources/configuration/security").permitAll()
+                .anyRequest()
+                .authenticated();
     }
 
     @Override

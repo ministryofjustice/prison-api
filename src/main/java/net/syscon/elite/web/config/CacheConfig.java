@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableCaching
+@EnableCaching(proxyTargetClass = true)
 public class CacheConfig implements CachingConfigurer {
 
     public static final String GET_AGENCY_LOCATIONS_BOOKED = "getAgencyLocationsBooked";

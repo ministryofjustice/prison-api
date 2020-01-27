@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
@@ -34,7 +35,7 @@ public class CategoryRejectionDetail {
     private LocalDate evaluationDate;
 
     @ApiModelProperty(required = true, value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'", position = 4)
-    @NotNull(message = "Department must be provided")
+    @NotEmpty(message = "Department must be provided")
     private String reviewCommitteeCode;
 
     @ApiModelProperty(value = "Overall comment", position = 5)

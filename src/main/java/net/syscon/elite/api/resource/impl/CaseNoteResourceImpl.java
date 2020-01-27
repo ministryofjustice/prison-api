@@ -3,18 +3,18 @@ package net.syscon.elite.api.resource.impl;
 import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.CaseNoteResource;
-import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CaseNoteService;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestResource
-@Path("/case-notes")
+@RestController
+@RequestMapping("${api.base.path}/case-notes")
 @AllArgsConstructor
 public class CaseNoteResourceImpl implements CaseNoteResource {
 

@@ -5,35 +5,31 @@ import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
 import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
-import net.syscon.elite.api.resource.BookingResource.GetAlertsByOffenderNosResponse;
-import net.syscon.elite.api.resource.IncidentsResource.IncidentListResponse;
 import net.syscon.elite.api.resource.OffenderResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.ProxyUser;
-import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.impl.IncidentService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
 
-@RestResource
-@Path("/offenders")
+@RestController
+@RequestMapping("${api.base.path}/offenders")
 @RequiredArgsConstructor
 public class OffenderResourceImpl implements OffenderResource {
 
@@ -47,23 +43,17 @@ public class OffenderResourceImpl implements OffenderResource {
     private final AuthenticationFacade authenticationFacade;
 
     @Override
-    public IncidentListResponse getIncidentsByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
-        return new IncidentListResponse(Response.status(200)
-                .header("Content-Type", MediaType.APPLICATION_JSON).build(),
-                incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles));
+    public  List<IncidentCase> getIncidentsByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
+        return incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
     }
 
     @Override
-    public Response getIncidentCandidates(@NotNull final LocalDateTime fromDateTime, final Long pageOffset, final Long pageLimit) {
+    public ResponseEntity<List<String>> getIncidentCandidates(@NotNull final LocalDateTime fromDateTime, final Long pageOffset, final Long pageLimit) {
         var paged = incidentService.getIncidentCandidates(fromDateTime,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 1000L));
-        return Response.status(200)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
-                .header("Total-Records", paged.getTotalRecords())
-                .header("Page-Offset", paged.getPageOffset())
-                .header("Page-Limit", paged.getPageLimit())
-                .entity(paged.getItems()).build();
+
+        return ResponseEntity.ok().headers(paged.getPaginationHeaders()).body(paged.getItems());
     }
 
     @Override
@@ -72,7 +62,7 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    public Response getAdjudicationsByOffenderNo(@NotNull final String offenderNo,
+    public ResponseEntity<AdjudicationSearchResponse> getAdjudicationsByOffenderNo(@NotNull final String offenderNo,
                                                  final String offenceId,
                                                  final String agencyId,
                                                  final LocalDate fromDate, LocalDate toDate,
@@ -90,17 +80,13 @@ public class OffenderResourceImpl implements OffenderResource {
 
         val page = adjudicationService.findAdjudications(criteria);
 
-        return Response.status(200)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
-                .header("Total-Records", page.getTotalRecords())
-                .header("Page-Offset", page.getPageOffset())
-                .header("Page-Limit", page.getPageLimit())
-                .entity(AdjudicationSearchResponse.builder()
+        return ResponseEntity.ok()
+                .headers(page.getPaginationHeaders())
+                .body(AdjudicationSearchResponse.builder()
                         .results(page.getItems())
                         .offences(adjudicationService.findAdjudicationsOffences(criteria.getOffenderNumber()))
                         .agencies(adjudicationService.findAdjudicationAgencies(criteria.getOffenderNumber()))
-                        .build())
-                .build();
+                        .build());
     }
 
     @Override
@@ -110,51 +96,42 @@ public class OffenderResourceImpl implements OffenderResource {
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "SYSTEM_READ_ONLY", "GLOBAL_SEARCH", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
-    public GetAlertsByOffenderNosResponse getAlertsByOffenderNo(@NotNull final String offenderNo, final Boolean latestOnly, final String query, final String sortFields, final Order sortOrder) {
-        final List<Alert> inmateAlertsByOffenderNos = alertService.getInmateAlertsByOffenderNos(
+    public List<Alert> getAlertsByOffenderNo(@NotNull final String offenderNo, final Boolean latestOnly, final String query, final String sortFields, final Order sortOrder) {
+        return alertService.getInmateAlertsByOffenderNos(
                 offenderNo,
                 nvl(latestOnly, true),
                 query,
                 StringUtils.defaultIfBlank(sortFields, "bookingId,alertId"),
                 nvl(sortOrder, Order.ASC));
-        return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(inmateAlertsByOffenderNos);
     }
 
     @Override
-    public Response getAlertCandidates(@NotNull final LocalDateTime fromDateTime, final Long pageOffset, final Long pageLimit) {
-        var paged = alertService.getAlertCandidates(fromDateTime,
+    public ResponseEntity<List<String>> getAlertCandidates(@NotNull final LocalDateTime fromDateTime, final Long pageOffset, final Long pageLimit) {
+        return alertService.getAlertCandidates(fromDateTime,
                 nvl(pageOffset, 0L),
-                nvl(pageLimit, 1000L));
-        return Response.status(200)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
-                .header("Total-Records", paged.getTotalRecords())
-                .header("Page-Offset", paged.getPageOffset())
-                .header("Page-Limit", paged.getPageLimit())
-                .entity(paged.getItems()).build();
+                nvl(pageLimit, 1000L)).getResponse();
     }
 
     @Override
     @VerifyOffenderAccess
-    public Response getOffenderCaseNotes(final String offenderNo, final String from, final String to, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public ResponseEntity<List<CaseNote>> getOffenderCaseNotes(final String offenderNo, final LocalDate from, final LocalDate to, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
 
         try {
             final var pagedCaseNotes = caseNoteService.getCaseNotes(
                     latestBookingByOffenderNo.getBookingId(),
                     query,
-                    fromISO8601DateString(from),
-                    fromISO8601DateString(to),
+                    from,
+                    to,
                     sortFields,
                     sortOrder,
                     nvl(pageOffset, 0L),
                     nvl(pageLimit, 10L));
 
-            return Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON)
-                    .header("Total-Records", pagedCaseNotes.getTotalRecords())
-                    .header("Page-Offset", pagedCaseNotes.getPageOffset())
-                    .header("Page-Limit", pagedCaseNotes.getPageLimit())
-                    .entity(pagedCaseNotes.getItems()).build();
+            return ResponseEntity.ok()
+                    .headers(pagedCaseNotes.getPaginationHeaders())
+                    .body(pagedCaseNotes.getItems());
+
         } catch (EntityNotFoundException e) {
             throw EntityNotFoundException.withId(offenderNo);
         }
@@ -201,23 +178,20 @@ public class OffenderResourceImpl implements OffenderResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('DELETE_OFFENDER')")
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteOffender(final String offenderNo) {
         offenderDataComplianceService.deleteOffender(offenderNo);
     }
 
     @Override
-    public Response getOffenderNumbers(final Long pageOffset, final Long pageLimit) {
+    public ResponseEntity<List<OffenderNumber>> getOffenderNumbers(final Long pageOffset, final Long pageLimit) {
 
         final var offenderNumbers = offenderDataComplianceService.getOffenderNumbers(
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 100L));
 
-        return Response.status(200)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
-                .header("Total-Records", offenderNumbers.getTotalRecords())
-                .header("Page-Offset", offenderNumbers.getPageOffset())
-                .header("Page-Limit", offenderNumbers.getPageLimit())
-                .entity(offenderNumbers.getItems()).build();
+        return ResponseEntity.ok()
+                .headers(offenderNumbers.getPaginationHeaders())
+                .body(offenderNumbers.getItems());
     }
 }

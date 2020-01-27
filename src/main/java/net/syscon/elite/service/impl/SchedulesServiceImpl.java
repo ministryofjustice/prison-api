@@ -18,10 +18,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.text.WordUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
-import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -298,7 +299,7 @@ public class SchedulesServiceImpl implements SchedulesService {
             referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.INTERNAL_LOCATION_USAGE.getDomain(),
                     usage, false);
         } catch (final EntityNotFoundException ex) {
-            throw new BadRequestException("Usage not recognised.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Usage not recognised.");
         }
     }
 }

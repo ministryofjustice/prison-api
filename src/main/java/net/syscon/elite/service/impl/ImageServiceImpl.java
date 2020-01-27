@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -46,13 +48,13 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public byte[] getImageContent(final Long imageId, final boolean fullSizeImage) {
-        return repository.getImageContent(imageId, fullSizeImage);
+    public Optional<byte[]> getImageContent(final Long imageId, final boolean fullSizeImage) {
+        return Optional.ofNullable(repository.getImageContent(imageId, fullSizeImage));
     }
 
     @Override
-    public byte[] getImageContent(final String offenderNo, final boolean fullSizeImage) {
-        return repository.getImageContent(offenderNo, fullSizeImage);
+    public Optional<byte[]> getImageContent(final String offenderNo, final boolean fullSizeImage) {
+        return Optional.ofNullable(repository.getImageContent(offenderNo, fullSizeImage));
     }
 
     private ImageDetail convertFrom(final OffenderImage image) {

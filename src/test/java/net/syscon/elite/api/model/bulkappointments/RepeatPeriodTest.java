@@ -1,8 +1,9 @@
 package net.syscon.elite.api.model.bulkappointments;
 
 import org.junit.Test;
+import org.springframework.web.client.HttpClientErrorException;
 
-import javax.ws.rs.BadRequestException;
+import javax.validation.ValidationException;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 
@@ -23,14 +24,14 @@ public class RepeatPeriodTest {
     public void endDateTimeNotDefinedForSaturdayStart() {
         assertThatThrownBy(
                 () -> RepeatPeriod.WEEKDAYS.endDateTime(SATURDAY, 0))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(ValidationException.class)
                 .hasMessage("Weekend starts not allowed for WEEKDAY repeat period, but 2019-01-05T01:01 is a Saturday or Sunday");
     }
 
     @Test
     public void endDateTimeNotDefinedForSundayStart() {
         assertThatThrownBy(() -> RepeatPeriod.WEEKDAYS.endDateTime(SUNDAY, 0))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(ValidationException.class)
                 .hasMessage("Weekend starts not allowed for WEEKDAY repeat period, but 2019-01-06T01:01 is a Saturday or Sunday");
     }
 }

@@ -56,7 +56,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
 
     @Override
     public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
-        if (movementTypes.isEmpty()) {
+        if (movementTypes == null || movementTypes.isEmpty()) {
             return jdbcTemplate.query(getQuery("GET_MOVEMENTS_BY_OFFENDERS"), createParams(
                     "offenderNumbers", offenderNumbers, "latestOnly", latestOnly),
                     MOVEMENT_MAPPER);

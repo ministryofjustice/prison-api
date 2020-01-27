@@ -9,11 +9,12 @@ import net.syscon.elite.repository.v1.model.*;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
-import javax.ws.rs.BadRequestException;
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -263,7 +264,7 @@ public class NomisApiV1Service {
 
         final var accountType = convertAccountCodeToType(accountCode);
         if (StringUtils.isEmpty(accountType)) {
-            throw new BadRequestException("Invalid account_code supplied. Should be one of cash, spends or savings");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid account_code supplied. Should be one of cash, spends or savings");
         }
 
         return financeV1Repository.getAccountTransactions(prisonId, nomsId, accountType, fromDate, toDate)
@@ -354,12 +355,12 @@ public class NomisApiV1Service {
         final var cutOffDays = 60;
         final var now = LocalDate.now();
 
-        if (fromDate.isBefore(now)) throw new BadRequestException("Start date cannot be in the past");
+        if (fromDate.isBefore(now)) throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Start date cannot be in the past");
 
-        if (toDate.isBefore(fromDate)) throw new BadRequestException("End date cannot be before the start date");
+        if (toDate.isBefore(fromDate)) throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "End date cannot be before the start date");
 
         if (toDate.isAfter(now.plusDays(cutOffDays)))
-            throw new BadRequestException("End date cannot be more than 60 days in the future");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "End date cannot be more than 60 days in the future");
     }
 
     private List<VisitRestriction> addToPerson(final List<ContactPersonSP> value) {
@@ -389,10 +390,10 @@ public class NomisApiV1Service {
 
     private List<LocalDate> validateDates(final String dates) {
         if (dates == null) {
-            throw new BadRequestException("Missing date selection");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing date selection");
         }
         return Arrays.stream(dates.split(",")).map(LocalDate::parse).peek(localDate -> {
-            if (!localDate.isAfter(LocalDate.now())) throw new BadRequestException("Dates requested must be in future");
+            if (!localDate.isAfter(LocalDate.now())) throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Dates requested must be in future");
         }).collect(Collectors.toList());
     }
 

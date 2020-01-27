@@ -1,20 +1,21 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.StaffResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.ProxyUser;
-import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.StaffService;
 import net.syscon.elite.service.StaffService.GetStaffRoleRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.Path;
 import java.util.List;
 
-@RestResource
-@Path("staff")
+@RestController
+@RequestMapping("${api.base.path}/staff")
 public class StaffResourceImpl implements StaffResource {
     private final String apiCaseloadId;
     private final StaffService staffService;
@@ -26,13 +27,13 @@ public class StaffResourceImpl implements StaffResource {
     }
 
     @Override
-    public GetStaffDetailResponse getStaffDetail(final Long staffId) {
-        return GetStaffDetailResponse.respond200WithApplicationJson(staffService.getStaffDetail(staffId));
+    public StaffDetail getStaffDetail(final Long staffId) {
+        return staffService.getStaffDetail(staffId);
     }
 
     @Override
-    public GetStaffEmailResponse getStaffEmailAddresses(final Long staffId) {
-        return GetStaffEmailResponse.respond200WithApplicationJson(staffService.getStaffEmailAddresses(staffId));
+    public List<String> getStaffEmailAddresses(final Long staffId) {
+        return staffService.getStaffEmailAddresses(staffId);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class StaffResourceImpl implements StaffResource {
     }
 
     @Override
-    public GetStaffByAgencyPositionRoleResponse getStaffByAgencyPositionRole(
+    public ResponseEntity<List<StaffLocationRole>> getStaffByAgencyPositionRole(
             final String agencyId, final String position, final String role, final String nameFilter, final Long staffId, final Boolean activeOnly,
             final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
 
@@ -52,11 +53,13 @@ public class StaffResourceImpl implements StaffResource {
 
         final var staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
 
-        return GetStaffByAgencyPositionRoleResponse.respond200WithApplicationJson(staffDetails);
+        return ResponseEntity.ok()
+                .headers(staffDetails.getPaginationHeaders())
+                .body(staffDetails.getItems());
     }
 
     @Override
-    public GetStaffByAgencyRoleResponse getStaffByAgencyRole(
+    public ResponseEntity<List<StaffLocationRole>> getStaffByAgencyRole(
             final String agencyId, final String role, final String nameFilter, final Long staffId, final Boolean activeOnly,
             final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
 
@@ -67,51 +70,47 @@ public class StaffResourceImpl implements StaffResource {
 
         final var staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
 
-        return GetStaffByAgencyRoleResponse.respond200WithApplicationJson(staffDetails);
+        return ResponseEntity.ok()
+                .headers(staffDetails.getPaginationHeaders())
+                .body(staffDetails.getItems());
     }
 
     @Override
-    public GetStaffAccessRolesResponse getStaffAccessRoles(final Long staffId) {
-        final var staffUserRoleList = staffService.getStaffRoles(staffId);
-        return GetStaffAccessRolesResponse.respond200WithApplicationJson(staffUserRoleList);
+    public List<StaffUserRole> getStaffAccessRoles(final Long staffId) {
+        return staffService.getStaffRoles(staffId);
     }
 
     @Override
-    public GetAccessRolesByCaseloadResponse getAccessRolesByCaseload(final Long staffId, final String caseload) {
-        final var staffUserRoleList = staffService.getRolesByCaseload(staffId, caseload);
-        return GetAccessRolesByCaseloadResponse.respond200WithApplicationJson(staffUserRoleList);
+    public List<StaffUserRole> getAccessRolesByCaseload(final Long staffId, final String caseload) {
+        return staffService.getRolesByCaseload(staffId, caseload);
     }
 
     @Override
-    public GetAllRolesForAgencyResponse getAllRolesForAgency(final Long staffId, final String agencyId) {
-        final var roles = staffService.getAllRolesForAgency(staffId, agencyId);
-        return GetAllRolesForAgencyResponse.respond200WithApplicationJson(roles);
-    }
-
-    @Override
-    @ProxyUser
-    public AddStaffAccessRoleForApiCaseloadResponse addStaffAccessRoleForApiCaseload(final Long staffId, final String body) {
-        final var staffUserRole = staffService.addStaffRole(staffId, apiCaseloadId, body);
-        return AddStaffAccessRoleForApiCaseloadResponse.respond201WithApplicationJson(staffUserRole);
+    public List<StaffRole>  getAllRolesForAgency(final Long staffId, final String agencyId) {
+        return staffService.getAllRolesForAgency(staffId, agencyId);
     }
 
     @Override
     @ProxyUser
-    public AddStaffAccessRoleResponse addStaffAccessRole(final Long staffId, final String caseload, final String body) {
-        final var staffUserRole = staffService.addStaffRole(staffId, caseload, body);
-        return AddStaffAccessRoleResponse.respond201WithApplicationJson(staffUserRole);
+    public StaffUserRole addStaffAccessRoleForApiCaseload(final Long staffId, final String body) {
+        return staffService.addStaffRole(staffId, apiCaseloadId, body);
     }
 
     @Override
     @ProxyUser
-    public RemoveStaffAccessRoleResponse removeStaffAccessRole(final Long staffId, final String caseload, final String roleCode) {
+    public StaffUserRole addStaffAccessRole(final Long staffId, final String caseload, final String body) {
+        return staffService.addStaffRole(staffId, caseload, body);
+    }
+
+    @Override
+    @ProxyUser
+    public ResponseEntity<Void> removeStaffAccessRole(final Long staffId, final String caseload, final String roleCode) {
         staffService.removeStaffRole(staffId, caseload, roleCode);
-        return RemoveStaffAccessRoleResponse.respond200WithApplicationJson(roleCode);
+        return ResponseEntity.ok().build();
     }
 
     @Override
-    public GetAllStaffAccessRolesForCaseloadResponse getAllStaffAccessRolesForCaseload(final String caseload, final String roleCode) {
-        final var staffUserRoleList = staffService.getAllStaffRolesForCaseload(caseload, roleCode);
-        return GetAllStaffAccessRolesForCaseloadResponse.respond200WithApplicationJson(staffUserRoleList);
+    public List<StaffUserRole> getAllStaffAccessRolesForCaseload(final String caseload, final String roleCode) {
+        return staffService.getAllStaffRolesForCaseload(caseload, roleCode);
     }
 }

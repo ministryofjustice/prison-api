@@ -22,8 +22,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
-import javax.ws.rs.BadRequestException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Month;
@@ -1094,7 +1094,7 @@ public class InmateRepositoryTest {
         assertThat((Date) results.get(0).get("EVALUATION_DATE")).isCloseTo("2019-02-27", 1000);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expected = HttpClientErrorException.class)
     @Transactional
     public void testRejectCategoryNotFound() {
         final var catDetail = CategoryRejectionDetail.builder()

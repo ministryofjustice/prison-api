@@ -2,16 +2,16 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.MovementResource;
-import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.MovementsService;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RestResource
-@Path("/movements")
+@RestController
+@RequestMapping("${api.base.path}/movements")
 public class MovementResourceImpl implements MovementResource {
 
     private final MovementsService movementsService;

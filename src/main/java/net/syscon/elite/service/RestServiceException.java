@@ -3,13 +3,14 @@ package net.syscon.elite.service;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 
-import javax.ws.rs.core.Response;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class RestServiceException extends RuntimeException {
-    private final Response.Status responseStatus;
+    private final HttpStatus responseStatus;
     private final String detailedMessage;
 
     // Reverse lookup
@@ -29,7 +30,7 @@ public class RestServiceException extends RuntimeException {
         return new RestServiceException(Exception2Status.get(ex).getResponseStatus(), simpleMessage, rootCauseMessage);
     }
 
-    public RestServiceException(final Response.Status responseStatus, final String message, final String detailedMessage) {
+    public RestServiceException(final HttpStatus responseStatus, final String message, final String detailedMessage) {
         super(message);
 
         Validate.notNull(responseStatus);
@@ -38,7 +39,7 @@ public class RestServiceException extends RuntimeException {
         this.detailedMessage = detailedMessage;
     }
 
-    public Response.Status getResponseStatus() {
+    public HttpStatus getResponseStatus() {
         return responseStatus;
     }
 
@@ -47,16 +48,16 @@ public class RestServiceException extends RuntimeException {
     }
 
     enum Exception2Status {
-        EMPTY_RESULT("org.springframework.dao.EmptyResultDataAccessException", Response.Status.NOT_FOUND),
-        INVALID_USAGE("org.springframework.dao.InvalidDataAccessApiUsageException", Response.Status.BAD_REQUEST),
-        DATA_INTEGRITY_VIOLATION("org.springframework.dao.DataIntegrityViolationException", Response.Status.BAD_REQUEST),
-        DATA_RETRIEVAL_FAILURE("org.springframework.dao.DataRetrievalFailureException", Response.Status.NOT_FOUND),
-        TOO_MANY_RESULTS("org.springframework.dao.IncorrectResultSizeDataAccessException", Response.Status.BAD_REQUEST);
+        EMPTY_RESULT("org.springframework.dao.EmptyResultDataAccessException", HttpStatus.NOT_FOUND),
+        INVALID_USAGE("org.springframework.dao.InvalidDataAccessApiUsageException", HttpStatus.BAD_REQUEST),
+        DATA_INTEGRITY_VIOLATION("org.springframework.dao.DataIntegrityViolationException", HttpStatus.BAD_REQUEST),
+        DATA_RETRIEVAL_FAILURE("org.springframework.dao.DataRetrievalFailureException", HttpStatus.NOT_FOUND),
+        TOO_MANY_RESULTS("org.springframework.dao.IncorrectResultSizeDataAccessException", HttpStatus.BAD_REQUEST);
 
         private final String exceptionName;
-        private final Response.Status responseStatus;
+        private final HttpStatus responseStatus;
 
-        Exception2Status(final String exceptionName, final Response.Status responseStatus) {
+        Exception2Status(final String exceptionName, final HttpStatus responseStatus) {
             this.exceptionName = exceptionName;
             this.responseStatus = responseStatus;
         }
@@ -65,7 +66,7 @@ public class RestServiceException extends RuntimeException {
             return exceptionName;
         }
 
-        public Response.Status getResponseStatus() {
+        public HttpStatus getResponseStatus() {
             return responseStatus;
         }
 

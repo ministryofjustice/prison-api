@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.resource.BookingResource;
-import net.syscon.elite.api.resource.IncidentsResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.ProxyUser;
-import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.*;
@@ -18,31 +16,31 @@ import net.syscon.elite.service.support.WrappedErrorResponseException;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * Implementation of Booking (/bookings) endpoint.
  */
-@RestResource
-@Path("/bookings")
+@RestController
+@RequestMapping("${api.base.path}/bookings")
 @Validated
 @AllArgsConstructor
 public class BookingResourceImpl implements BookingResource {
@@ -63,7 +61,7 @@ public class BookingResourceImpl implements BookingResource {
     private final AppointmentsService appointmentsService;
 
     @Override
-    public GetOffenderBookingsResponse getOffenderBookings(final String query, final List<Long> bookingId, final List<String> offenderNo, final boolean iepLevel, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public ResponseEntity<List<OffenderBooking>> getOffenderBookings(final String query, final List<Long> bookingId, final List<String> offenderNo, final boolean iepLevel, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var allInmates = inmateService.findAllInmates(
                 InmateSearchCriteria.builder()
                         .username(authenticationFacade.getCurrentUsername())
@@ -74,13 +72,15 @@ public class BookingResourceImpl implements BookingResource {
                         .pageRequest(new PageRequest(sortFields, sortOrder, pageOffset, pageLimit))
                         .build());
 
-        return GetOffenderBookingsResponse.respond200WithApplicationJson(allInmates);
+        return ResponseEntity.ok()
+                .headers(allInmates.getPaginationHeaders())
+                .body(allInmates.getItems());
     }
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_CREATE')")
     @ProxyUser
-    public CreateOffenderBookingResponse createOffenderBooking(@Valid final NewBooking newBooking) {
+    public ResponseEntity<OffenderSummary> createOffenderBooking(@Valid final NewBooking newBooking) {
         // Step 1.
         // This service supports idempotent request control. First step is to check for existence of a response for
         // a previous request that used the same correlationId. If no correlationId is provided, this step can be skipped.
@@ -92,17 +92,17 @@ public class BookingResourceImpl implements BookingResource {
 
             if (irc.isComplete()) {
                 // Immediately process and return response.
-                if (CREATED.getStatusCode() == irc.getResponseStatus()) {
+                if (HttpStatus.CREATED.value() == irc.getResponseStatus()) {
                     final var offenderSummary = idempotentRequestService.extractJsonResponse(irc, OffenderSummary.class);
 
-                    return CreateOffenderBookingResponse.respond201WithApplicationJson(offenderSummary);
+                    return ResponseEntity.status(HttpStatus.CREATED).body(offenderSummary);
                 } else {
                     final var errorResponse = idempotentRequestService.extractJsonResponse(irc, ErrorResponse.class);
 
                     throw new WrappedErrorResponseException(errorResponse);
                 }
             } else if (irc.isPending()) {
-                return CreateOffenderBookingResponse.respond204WithApplicationJson();
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
             }
         }
 
@@ -129,17 +129,14 @@ public class BookingResourceImpl implements BookingResource {
             idempotentRequestService.convertAndStoreResponse(correlationId, offenderSummary, 201);
         }
 
-        return CreateOffenderBookingResponse.respond201WithApplicationJson(offenderSummary);
+        return ResponseEntity.status(HttpStatus.CREATED).body(offenderSummary);
     }
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_RECALL')")
     @ProxyUser
-    public RecallOffenderBookingResponse recallOffenderBooking(@Valid final RecallBooking recallBooking) {
-        final var offenderSummary =
-                bookingMaintenanceService.recallBooking(authenticationFacade.getCurrentUsername(), recallBooking);
-
-        return RecallOffenderBookingResponse.respond200WithApplicationJson(offenderSummary);
+    public OffenderSummary recallOffenderBooking(@Valid final RecallBooking recallBooking) {
+        return bookingMaintenanceService.recallBooking(authenticationFacade.getCurrentUsername(), recallBooking);
     }
 
     @Override
@@ -148,25 +145,21 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetOffenderBookingResponse getOffenderBooking(final Long bookingId, final boolean basicInfo) {
+    public InmateDetail getOffenderBooking(final Long bookingId, final boolean basicInfo) {
 
-        final var inmate = basicInfo ?
+        return basicInfo ?
                 inmateService.getBasicInmateDetail(bookingId)
                 : inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername());
-
-        return GetOffenderBookingResponse.respond200WithApplicationJson(inmate);
     }
 
     @Override
-    public GetOffenderBookingByOffenderNoResponse getOffenderBookingByOffenderNo(final String offenderNo, final boolean fullInfo) {
+    public InmateDetail getOffenderBookingByOffenderNo(final String offenderNo, final boolean fullInfo) {
 
         final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
 
-        final var inmate = fullInfo ?
+        return fullInfo ?
                 inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername()) :
                 inmateService.getBasicInmateDetail(bookingId);
-
-        return GetOffenderBookingByOffenderNoResponse.respond200WithApplicationJson(inmate);
     }
 
     @Override
@@ -181,81 +174,77 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingActivitiesResponse getBookingActivities(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public ResponseEntity<List<ScheduledEvent>> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var activities = bookingService.getBookingActivities(
                 bookingId,
-                fromISO8601DateString(fromDate),
-                fromISO8601DateString(toDate),
+                fromDate,
+                toDate,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 sortFields,
                 sortOrder);
 
-        return GetBookingActivitiesResponse.respond200WithApplicationJson(activities);
+        return ResponseEntity.ok()
+                .headers(activities.getPaginationHeaders())
+                .body(activities.getItems());
     }
 
     @Override
-    public GetBookingActivitiesForTodayResponse getBookingActivitiesForToday(final Long bookingId, final String sortFields, final Order sortOrder) {
+    public List<ScheduledEvent> getBookingActivitiesForToday(final Long bookingId, final String sortFields, final Order sortOrder) {
         final var today = LocalDate.now();
 
-        final var activities = bookingService.getBookingActivities(
+        return bookingService.getBookingActivities(
                 bookingId,
                 today,
                 today,
                 sortFields,
                 sortOrder);
-
-        return GetBookingActivitiesForTodayResponse.respond200WithApplicationJson(activities);
     }
 
     @Override
     @ProxyUser
-    public UpdateAttendanceResponse updateAttendance(final String offenderNo, final Long activityId, final UpdateAttendance updateAttendance) {
+    public ResponseEntity<Void> updateAttendance(final String offenderNo, final Long activityId, @NotNull final UpdateAttendance updateAttendance) {
         bookingService.updateAttendance(offenderNo, activityId, updateAttendance);
-        return UpdateAttendanceResponse.respond201WithApplicationJson();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
     @ProxyUser
-    public UpdateAttendanceResponse updateAttendance(final Long bookingId, final Long activityId, final UpdateAttendance updateAttendance) {
+    public ResponseEntity<Void> updateAttendance(final Long bookingId, final Long activityId, final UpdateAttendance updateAttendance) {
         bookingService.updateAttendance(bookingId, activityId, updateAttendance);
-        return UpdateAttendanceResponse.respond201WithApplicationJson();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
-    public UpdateAttendanceResponse updateAttendanceForMultipleBookingIds(final @NotNull UpdateAttendanceBatch body) {
+    public ResponseEntity<Void> updateAttendanceForMultipleBookingIds(final @NotNull UpdateAttendanceBatch body) {
         bookingService.updateAttendanceForMultipleBookingIds(body.getBookingActivities(), UpdateAttendance
                 .builder()
                 .eventOutcome(body.getEventOutcome())
                 .performance(body.getPerformance())
                 .outcomeComment(body.getOutcomeComment())
                 .build());
-        return UpdateAttendanceResponse.respond201WithApplicationJson();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    public IncidentsResource.IncidentListResponse getIncidentsByBookingId(@NotNull final Long bookingId, final List<String> incidentTypes, final List<String> participationRoles) {
-
-        return new IncidentsResource.IncidentListResponse(Response.status(200)
-                .header("Content-Type", MediaType.APPLICATION_JSON).build(),
-                incidentService.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles));
+    public List<IncidentCase> getIncidentsByBookingId(@NotNull final Long bookingId, final List<String> incidentTypes, final List<String> participationRoles) {
+        return incidentService.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles);
     }
 
     @Override
     @ProxyUser
-    public Response postAlert(final Long bookingId, final CreateAlert alert) {
+    public ResponseEntity<AlertCreated> postAlert(final Long bookingId, final CreateAlert alert) {
         final var alertId = inmateAlertService.createNewAlert(bookingId, alert);
-        return Response.status(201).entity(new AlertCreated(alertId)).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AlertCreated(alertId));
     }
 
     @Override
     @ProxyUser
-    public Response updateAlert(final Long bookingId, final Long alertSeq, final AlertChanges alert) {
-        final var updatedAlert = inmateAlertService.updateAlert(bookingId, alertSeq, alert);
-        return Response.status(200).entity(updatedAlert).build();
+    public Alert updateAlert(final Long bookingId, final Long alertSeq, final AlertChanges alert) {
+        return inmateAlertService.updateAlert(bookingId, alertSeq, alert);
     }
 
     @Override
-    public GetOffenderAlertsResponse getOffenderAlerts(final Long bookingId, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public ResponseEntity<List<Alert>> getOffenderAlerts(final Long bookingId, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var inmateAlerts = inmateAlertService.getInmateAlerts(
                 bookingId,
                 query,
@@ -264,205 +253,142 @@ public class BookingResourceImpl implements BookingResource {
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L));
 
-        return GetOffenderAlertsResponse.respond200WithApplicationJson(inmateAlerts);
+        return ResponseEntity.ok()
+                .headers(inmateAlerts.getPaginationHeaders())
+                .body(inmateAlerts.getItems());
     }
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public GetOffenderAlertsResponse getOffenderAlertsByOffenderNo(final String offenderNo, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public ResponseEntity<List<Alert>> getOffenderAlertsByOffenderNo(final String offenderNo, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
         return getOffenderAlerts(bookingId, query, pageOffset, pageLimit, sortFields, sortOrder);
     }
 
     @Override
-    public GetOffenderAlertResponse getOffenderAlert(final Long bookingId, final Long alertId) {
-        final var inmateAlert = inmateAlertService.getInmateAlert(bookingId, alertId);
-
-        return GetOffenderAlertResponse.respond200WithApplicationJson(inmateAlert);
+    public Alert getOffenderAlert(final Long bookingId, final Long alertId) {
+        return inmateAlertService.getInmateAlert(bookingId, alertId);
     }
 
     @Override
-    public GetAlertsByOffenderNosResponse getAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
-        final var inmateAlerts = inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
-
-        return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(inmateAlerts);
+    public List<Alert> getAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
+        return inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
     }
 
     @Override
-    public GetAlertsByOffenderNosResponse getAlertsByOffenderNos(final List<String> offenderNos) {
-        final var inmateAlerts = inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, null, "bookingId,alertId", Order.ASC);
-
-        return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(inmateAlerts);
+    public List<Alert> getAlertsByOffenderNos(final List<String> offenderNos) {
+        return inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, null, "bookingId,alertId", Order.ASC);
     }
 
     @Override
-    public GetOffenderAliasesResponse getOffenderAliases(final Long bookingId, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
-        final var aliases = inmateService.findInmateAliases(
+    public ResponseEntity<List<Alias>> getOffenderAliases(final Long bookingId, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+        return inmateService.findInmateAliases(
                 bookingId,
                 sortFields,
                 sortOrder,
                 nvl(pageOffset, 0L),
-                nvl(pageLimit, 5L));
-
-        return GetOffenderAliasesResponse.respond200WithApplicationJson(aliases);
+                nvl(pageLimit, 5L)).getResponse();
     }
 
     @Override
-    public GetAssessmentByCodeResponse getAssessmentByCode(final Long bookingId, final String assessmentCode) {
-        final var inmateAssessmentByCode = inmateService.getInmateAssessmentByCode(bookingId, assessmentCode);
-
-        if (inmateAssessmentByCode.isEmpty()) {
+    public Assessment getAssessmentByCode(final Long bookingId, final String assessmentCode) {
+        return inmateService.getInmateAssessmentByCode(bookingId, assessmentCode).orElseThrow(() -> {
             throw EntityNotFoundException.withMessage("Offender does not have a [" + assessmentCode + "] assessment on record.");
-        }
-
-        return GetAssessmentByCodeResponse.respond200WithApplicationJson(inmateAssessmentByCode.get());
+        });
     }
 
     @Override
-    public GetAssessmentsResponse getAssessments(final Long bookingId) {
-        return GetAssessmentsResponse.respond200WithApplicationJson(inmateService.getAssessments(bookingId));
+    public List<Assessment> getAssessments(final Long bookingId) {
+        return inmateService.getAssessments(bookingId);
     }
 
     @Override
-    public GetOffenderCaseNotesResponse getOffenderCaseNotes(final Long bookingId, final String from, final String to,
-                                                             final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
-        final var caseNotes = caseNoteService.getCaseNotes(
+    public ResponseEntity<List<CaseNote>> getOffenderCaseNotes(final Long bookingId, final LocalDate from, final LocalDate to,
+                                                               final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+        return caseNoteService.getCaseNotes(
                 bookingId,
                 query,
-                fromISO8601DateString(from),
-                fromISO8601DateString(to),
+                from,
+                to,
                 sortFields,
                 sortOrder,
                 nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L));
-
-        return GetOffenderCaseNotesResponse.respond200WithApplicationJson(caseNotes);
+                nvl(pageLimit, 10L)).getResponse();
     }
 
     @Override
-    public GetOffenderCaseNoteResponse getOffenderCaseNote(final Long bookingId, final Long caseNoteId) {
-        final var caseNote = caseNoteService.getCaseNote(bookingId, caseNoteId);
-
-        return GetOffenderCaseNoteResponse.respond200WithApplicationJson(caseNote);
+    public CaseNote getOffenderCaseNote(final Long bookingId, final Long caseNoteId) {
+        return caseNoteService.getCaseNote(bookingId, caseNoteId);
     }
 
     @Override
-    public GetBookingIEPSummaryResponse getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
-        final var privilegeSummary = bookingService.getBookingIEPSummary(bookingId, withDetails);
-
-        return GetBookingIEPSummaryResponse.respond200WithApplicationJson(privilegeSummary);
+    public PrivilegeSummary getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
+        return bookingService.getBookingIEPSummary(bookingId, withDetails);
     }
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('MAINTAIN_IEP')")
     @ProxyUser
-    public void addIepLevel(final Long bookingId, final IepLevelAndComment iepLevel) {
+    public ResponseEntity<Void> addIepLevel(final Long bookingId, @NotNull final IepLevelAndComment iepLevel) {
         bookingService.addIepLevel(bookingId, authenticationFacade.getCurrentUsername(), iepLevel);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
-    public GetBookingIEPSummaryForOffendersResponse getBookingIEPSummaryForOffenders(final List<Long> bookings, final boolean withDetails) {
-        final var result = bookingService.getBookingIEPSummary(bookings, withDetails);
-        final var privilegeSummaries = new ArrayList<>(result.values());
+    public Collection<PrivilegeSummary> getBookingIEPSummaryForOffenders(final List<Long> bookings, final boolean withDetails) {
+        return bookingService.getBookingIEPSummary(bookings, withDetails).values();
 
-        return GetBookingIEPSummaryForOffendersResponse.respond200WithApplicationJson(privilegeSummaries);
     }
 
     @Override
-    public GetMainImageForBookingsResponse getMainImageForBookings(final Long bookingId) {
-        return GetMainImageForBookingsResponse.respond200WithApplicationJson(inmateService.getMainBookingImage(bookingId));
-    }
-
-
-    @Override
-    public GetMainBookingImageDataByNoResponse getMainBookingImageDataByNo(final String offenderNo, final boolean fullSizeImage) {
-        final var data = imageService.getImageContent(offenderNo, fullSizeImage);
-        if (data != null) {
-            try {
-                final var temp = File.createTempFile("userimage", ".tmp");
-                FileUtils.copyInputStreamToFile(new ByteArrayInputStream(data), temp);
-                return GetMainBookingImageDataByNoResponse.respond200WithApplicationJson(temp);
-            } catch (final IOException e) {
-                final var errorResponse = ErrorResponse.builder()
-                        .errorCode(500)
-                        .userMessage("An error occurred loading the image for offender No " + offenderNo)
-                        .build();
-                return GetMainBookingImageDataByNoResponse.respond500WithApplicationJson(errorResponse);
-            }
-        } else {
-            final var errorResponse = ErrorResponse.builder()
-                    .errorCode(404)
-                    .userMessage("No image was found for offender No " + offenderNo)
-                    .build();
-            return GetMainBookingImageDataByNoResponse.respond404WithApplicationJson(errorResponse);
-        }
+    public ImageDetail getMainImageForBookings(final Long bookingId) {
+        return inmateService.getMainBookingImage(bookingId);
     }
 
     @Override
-    public GetMainBookingImageDataResponse getMainBookingImageData(final Long bookingId, final boolean fullSizeImage) {
+    public ResponseEntity<byte[]> getMainBookingImageDataByNo(final String offenderNo, final boolean fullSizeImage) {
+        return imageService.getImageContent(offenderNo, fullSizeImage)
+                .map(bytes -> new ResponseEntity<>(bytes, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(NOT_FOUND));
+    }
+
+    @Override
+    public ResponseEntity<byte[]> getMainBookingImageData(final Long bookingId, final boolean fullSizeImage) {
         final var mainBookingImage = inmateService.getMainBookingImage(bookingId);
-        final var imageId = mainBookingImage.getImageId();
-        final var data = imageService.getImageContent(imageId, fullSizeImage);
-        if (data != null) {
-            try {
-                final var temp = File.createTempFile("userimage", ".tmp");
-                FileUtils.copyInputStreamToFile(new ByteArrayInputStream(data), temp);
-                return GetMainBookingImageDataResponse.respond200WithApplicationJson(temp);
-            } catch (final IOException e) {
-                final var errorResponse = ErrorResponse.builder()
-                        .errorCode(500)
-                        .userMessage("An error occurred loading the image ID " + imageId)
-                        .build();
-                return GetMainBookingImageDataResponse.respond500WithApplicationJson(errorResponse);
-            }
-        } else {
-            final var errorResponse = ErrorResponse.builder()
-                    .errorCode(404)
-                    .userMessage("No image was found with ID " + imageId)
-                    .build();
-            return GetMainBookingImageDataResponse.respond404WithApplicationJson(errorResponse);
-        }
+        return imageService.getImageContent(mainBookingImage.getImageId(), fullSizeImage)
+                .map(bytes -> new ResponseEntity<>(bytes, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(NOT_FOUND));
     }
 
     @Override
-    public GetBookingSentenceDetailResponse getBookingSentenceDetail(final Long bookingId) {
-        final var sentenceDetail = bookingService.getBookingSentenceDetail(bookingId);
+    public SentenceDetail getBookingSentenceDetail(final Long bookingId) {
+        return bookingService.getBookingSentenceDetail(bookingId);    }
 
-        return GetBookingSentenceDetailResponse.respond200WithApplicationJson(sentenceDetail);
+    @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
+    @ProxyUser
+    public CaseNote createBookingCaseNote(final Long bookingId, final NewCaseNote body) {
+        return caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
     }
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
-    public CreateBookingCaseNoteResponse createBookingCaseNote(final Long bookingId, final NewCaseNote body) {
-        final var caseNote = caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
-
-        return CreateBookingCaseNoteResponse.respond201WithApplicationJson(caseNote);
+    public CaseNote createOffenderCaseNote(final String offenderNo, final NewCaseNote body) {
+        return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
     }
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
-    public CreateOffenderCaseNoteResponse createOffenderCaseNote(final String offenderNo, final NewCaseNote body) {
-        final var caseNote = caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
-        return CreateOffenderCaseNoteResponse.respond201WithApplicationJson(caseNote);
-    }
-
-    @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
-    @ProxyUser
-    public UpdateOffenderCaseNoteResponse updateOffenderCaseNote(final Long bookingId, final Long caseNoteId, final UpdateCaseNote body) {
-        final var caseNote = caseNoteService.updateCaseNote(
+    public CaseNote updateOffenderCaseNote(final Long bookingId, final Long caseNoteId, final UpdateCaseNote body) {
+        return caseNoteService.updateCaseNote(
                 bookingId, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
-
-        return UpdateOffenderCaseNoteResponse.respond201WithApplicationJson(caseNote);
     }
 
     @Override
-    public GetBalancesResponse getBalances(final Long bookingId) {
-        final var account = financeService.getBalances(bookingId);
-
-        return GetBalancesResponse.respond200WithApplicationJson(account);
+    public Account getBalances(final Long bookingId) {
+        return financeService.getBalances(bookingId);
     }
 
     @Override
@@ -476,27 +402,23 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public Response getOffenceHistory(final String offenderNo) {
-        final var list = bookingService.getOffenceHistory(offenderNo);
-        return Response.status(200)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
-                .entity(list)
-                .build();
+    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
+        return bookingService.getOffenceHistory(offenderNo);
     }
 
     @Override
-    public GetPhysicalAttributesResponse getPhysicalAttributes(final Long bookingId) {
-        return GetPhysicalAttributesResponse.respond200WithApplicationJson(inmateService.getPhysicalAttributes(bookingId));
+    public PhysicalAttributes getPhysicalAttributes(final Long bookingId) {
+        return inmateService.getPhysicalAttributes(bookingId);
     }
 
     @Override
-    public GetPhysicalCharacteristicsResponse getPhysicalCharacteristics(final Long bookingId) {
-        return GetPhysicalCharacteristicsResponse.respond200WithApplicationJson(inmateService.getPhysicalCharacteristics(bookingId));
+    public List<PhysicalCharacteristic> getPhysicalCharacteristics(final Long bookingId) {
+        return inmateService.getPhysicalCharacteristics(bookingId);
     }
 
     @Override
-    public GetPhysicalMarksResponse getPhysicalMarks(final Long bookingId) {
-        return GetPhysicalMarksResponse.respond200WithApplicationJson(inmateService.getPhysicalMarks(bookingId));
+    public List<PhysicalMark> getPhysicalMarks(final Long bookingId) {
+        return inmateService.getPhysicalMarks(bookingId);
     }
 
     @Override
@@ -515,34 +437,30 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetProfileInformationResponse getProfileInformation(final Long bookingId) {
-        return GetProfileInformationResponse.respond200WithApplicationJson(inmateService.getProfileInformation(bookingId));
+    public List<ProfileInformation> getProfileInformation(final Long bookingId) {
+        return inmateService.getProfileInformation(bookingId);
     }
 
     @Override
-    public BookingResource.GetRelationshipsResponse getRelationships(final Long bookingId, final String relationshipType) {
-        final var relationships = contactService.getRelationships(bookingId, relationshipType, true);
-        return BookingResource.GetRelationshipsResponse.respond200WithApplicationJson(relationships);
+    public List<Contact> getRelationships(final Long bookingId, final String relationshipType) {
+        return contactService.getRelationships(bookingId, relationshipType, true);
     }
 
     @Override
-    public GetRelationshipsByOffenderNoResponse getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
-        final var relationships = contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType, true);
-        return GetRelationshipsByOffenderNoResponse.respond200WithApplicationJson(relationships);
-    }
-
-    @Override
-    @ProxyUser
-    public CreateRelationshipResponse createRelationship(final Long bookingId, final OffenderRelationship relationshipDetail) {
-        final var relationship = contactService.createRelationship(bookingId, relationshipDetail);
-        return CreateRelationshipResponse.respond201WithApplicationJson(relationship);
+    public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
+        return contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType, true);
     }
 
     @Override
     @ProxyUser
-    public CreateRelationshipByOffenderNoResponse createRelationshipByOffenderNo(final String offenderNo, final OffenderRelationship relationshipDetail) {
-        final var relationship = contactService.createRelationshipByOffenderNo(offenderNo, relationshipDetail);
-        return CreateRelationshipByOffenderNoResponse.respond201WithApplicationJson(relationship);
+    public Contact createRelationship(final Long bookingId, final OffenderRelationship relationshipDetail) {
+        return contactService.createRelationship(bookingId, relationshipDetail);
+    }
+
+    @Override
+    @ProxyUser
+    public Contact createRelationshipByOffenderNo(final String offenderNo, final OffenderRelationship relationshipDetail) {
+        return contactService.createRelationshipByOffenderNo(offenderNo, relationshipDetail);
     }
 
     @Override
@@ -551,13 +469,13 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetOffenderIdentifiersResponse getOffenderIdentifiers(final Long bookingId) {
-        return GetOffenderIdentifiersResponse.respond200WithApplicationJson(inmateService.getOffenderIdentifiers(bookingId));
+    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId) {
+        return inmateService.getOffenderIdentifiers(bookingId);
     }
 
     @Override
-    public List<ScheduledEvent> getEvents(final Long bookingId, final String fromDate, final String toDate) {
-        return bookingService.getEvents(bookingId, fromISO8601DateString(fromDate), fromISO8601DateString(toDate));
+    public List<ScheduledEvent> getEvents(final Long bookingId, final LocalDate fromDate, final LocalDate toDate) {
+        return bookingService.getEvents(bookingId, fromDate, toDate);
     }
 
     @Override
@@ -571,56 +489,48 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetContactsResponse getContacts(final Long bookingId) {
-        final var contacts = contactService.getContacts(bookingId);
-
-        return GetContactsResponse.respond200WithApplicationJson(contacts);
+    public ContactDetail getContacts(final Long bookingId) {
+        return contactService.getContacts(bookingId);
     }
 
     @Override
-    public GetCaseNoteCountResponse getCaseNoteCount(final Long bookingId, final String type, final String subType, final String fromDate, final String toDate) {
-        final var caseNoteCount = caseNoteService.getCaseNoteCount(
+    public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
+        return caseNoteService.getCaseNoteCount(
                 bookingId,
                 type,
                 subType,
-                fromISO8601DateString(fromDate),
-                fromISO8601DateString(toDate));
-
-        return GetCaseNoteCountResponse.respond200WithApplicationJson(caseNoteCount);
+                fromDate,
+                toDate);
     }
 
     @Override
-    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final String awardCutoffDate, final String adjudicationCutoffDate) {
+    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDate, final LocalDate adjudicationCutoffDate) {
         return adjudicationService.getAdjudicationSummary(bookingId,
-                fromISO8601DateString(awardCutoffDate), fromISO8601DateString(adjudicationCutoffDate));
+                awardCutoffDate, adjudicationCutoffDate);
     }
 
     @Override
-    public GetBookingVisitsResponse getBookingVisits(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
-        final var visits = bookingService.getBookingVisits(
+    public ResponseEntity<List<ScheduledEvent>> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+        return bookingService.getBookingVisits(
                 bookingId,
-                fromISO8601DateString(fromDate),
-                fromISO8601DateString(toDate),
+                fromDate,
+                toDate,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 sortFields,
-                sortOrder);
-
-        return GetBookingVisitsResponse.respond200WithApplicationJson(visits);
+                sortOrder)
+                .getResponse();
     }
 
     @Override
-    public GetBookingVisitsForTodayResponse getBookingVisitsForToday(final Long bookingId, final String sortFields, final Order sortOrder) {
+    public List<ScheduledEvent> getBookingVisitsForToday(final Long bookingId, final String sortFields, final Order sortOrder) {
         final var today = LocalDate.now();
-
-        final var visits = bookingService.getBookingVisits(
+        return bookingService.getBookingVisits(
                 bookingId,
                 today,
                 today,
                 sortFields,
                 sortOrder);
-
-        return GetBookingVisitsForTodayResponse.respond200WithApplicationJson(visits);
     }
 
     @Override
@@ -633,92 +543,76 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public GetKeyworkerByOffenderNoResponse getKeyworkerByOffenderNo(final String offenderNo) {
+    public Keyworker getKeyworkerByOffenderNo(final String offenderNo) {
         final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-
-        final var keyworker = keyworkerService.getKeyworkerDetailsByBooking(bookingId);
-        return GetKeyworkerByOffenderNoResponse.respond200WithApplicationJson(keyworker);
+        return keyworkerService.getKeyworkerDetailsByBooking(bookingId);
     }
 
     @Override
-    public GetBookingVisitsLastResponse getBookingVisitsLast(final Long bookingId) {
-        final var visit = bookingService.getBookingVisitLast(bookingId);
-
-        return GetBookingVisitsLastResponse.respond200WithApplicationJson(visit);
+    public Visit getBookingVisitsLast(final Long bookingId) {
+        return bookingService.getBookingVisitLast(bookingId);
     }
 
     @Override
-    public GetBookingVisitsNextResponse getBookingVisitsNext(final Long bookingId) {
-        final var visit = bookingService.getBookingVisitNext(bookingId);
-
-        return GetBookingVisitsNextResponse.respond200WithApplicationJson(visit);
+    public Visit getBookingVisitsNext(final Long bookingId) {
+        return bookingService.getBookingVisitNext(bookingId);
     }
 
     @Override
-    public GetBookingsBookingIdAppointmentsResponse getBookingsBookingIdAppointments(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
-        final var appointments = bookingService.getBookingAppointments(
+    public ResponseEntity<List<ScheduledEvent>> getBookingsBookingIdAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+        return bookingService.getBookingAppointments(
                 bookingId,
-                fromISO8601DateString(fromDate),
-                fromISO8601DateString(toDate),
+                fromDate,
+                toDate,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 sortFields,
-                sortOrder);
-
-        return GetBookingsBookingIdAppointmentsResponse.respond200WithApplicationJson(appointments);
+                sortOrder)
+                .getResponse();
     }
 
     @Override
-    public GetBookingAppointmentsForTodayResponse getBookingAppointmentsForToday(final Long bookingId, final String sortFields, final Order sortOrder) {
+    public List<ScheduledEvent> getBookingAppointmentsForToday(final Long bookingId, final String sortFields, final Order sortOrder) {
         final var today = LocalDate.now();
-
-        final var appointments = bookingService.getBookingAppointments(
+        return bookingService.getBookingAppointments(
                 bookingId,
                 today,
                 today,
                 sortFields,
                 sortOrder);
-
-        return GetBookingAppointmentsForTodayResponse.respond200WithApplicationJson(appointments);
     }
 
     @Override
-    public GetBookingAppointmentsForThisWeekResponse getBookingAppointmentsForThisWeek(final Long bookingId, final String sortFields, final Order sortOrder) {
+    public List<ScheduledEvent> getBookingAppointmentsForThisWeek(final Long bookingId, final String sortFields, final Order sortOrder) {
         final var fromDate = LocalDate.now();
         final var toDate = fromDate.plusDays(6);
 
-        final var appointments = bookingService.getBookingAppointments(
+        return bookingService.getBookingAppointments(
                 bookingId,
                 fromDate,
                 toDate,
                 sortFields,
                 sortOrder);
-
-        return GetBookingAppointmentsForThisWeekResponse.respond200WithApplicationJson(appointments);
     }
 
     @Override
-    public GetBookingAppointmentsForNextWeekResponse getBookingAppointmentsForNextWeek(final Long bookingId, final String sortFields, final Order sortOrder) {
+    public List<ScheduledEvent> getBookingAppointmentsForNextWeek(final Long bookingId, final String sortFields, final Order sortOrder) {
         final var fromDate = LocalDate.now().plusDays(7);
         final var toDate = fromDate.plusDays(6);
 
-        final var appointments = bookingService.getBookingAppointments(
+        return bookingService.getBookingAppointments(
                 bookingId,
                 fromDate,
                 toDate,
                 sortFields,
                 sortOrder);
-
-        return GetBookingAppointmentsForNextWeekResponse.respond200WithApplicationJson(appointments);
     }
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
-    public PostBookingsBookingIdAppointmentsResponse postBookingsBookingIdAppointments(final Long bookingId, final NewAppointment newAppointment) {
-        final var createdEvent = appointmentsService.createBookingAppointment(
+    public ScheduledEvent postBookingsBookingIdAppointments(final Long bookingId, final NewAppointment newAppointment) {
+        return appointmentsService.createBookingAppointment(
                 bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
-
-        return PostBookingsBookingIdAppointmentsResponse.respond201WithApplicationJson(createdEvent);
     }
 }

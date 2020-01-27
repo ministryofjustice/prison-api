@@ -2,8 +2,8 @@ package net.syscon.elite.api.resource.v1.impl;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-
-import javax.ws.rs.BadRequestException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Getter
 public class OffenderIdentifier {
@@ -43,9 +43,9 @@ public class OffenderIdentifier {
         }
     }
 
-    private static class OffenderIdentifierInvalidException extends BadRequestException {
+    private static class OffenderIdentifierInvalidException extends HttpClientErrorException {
         OffenderIdentifierInvalidException(final String message) {
-            super(message);
+            super(HttpStatus.BAD_REQUEST, message);
         }
     }
 }

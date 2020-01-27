@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
+import org.springframework.web.client.HttpClientErrorException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

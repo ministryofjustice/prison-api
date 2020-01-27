@@ -21,14 +21,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.BadRequestException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
@@ -164,8 +165,9 @@ public class InmateServiceImpl implements InmateService {
 
     private Set<String> loadCaseLoadsOrThrow() {
         final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
-        if (CollectionUtils.isEmpty(caseloads))
-            throw new BadRequestException("User has not active caseloads.");
+        if (CollectionUtils.isEmpty(caseloads)) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User has not active caseloads.");
+        }
 
         return caseloads;
     }
@@ -571,12 +573,12 @@ public class InmateServiceImpl implements InmateService {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
         } catch (final EntityNotFoundException ex) {
-            throw new BadRequestException("Category not recognised.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Category not recognised.");
         }
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getCommittee(), false);
         } catch (final EntityNotFoundException ex) {
-            throw new BadRequestException("Committee Code not recognised.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Committee Code not recognised.");
         }
     }
 
@@ -585,14 +587,14 @@ public class InmateServiceImpl implements InmateService {
             try {
                 referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
             } catch (final EntityNotFoundException ex) {
-                throw new BadRequestException("Category not recognised.");
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Category not recognised.");
             }
         }
         if (detail.getCommittee() != null) {
             try {
                 referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getCommittee(), false);
             } catch (final EntityNotFoundException ex) {
-                throw new BadRequestException("Committee Code not recognised.");
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Committee Code not recognised.");
             }
         }
     }
@@ -601,12 +603,12 @@ public class InmateServiceImpl implements InmateService {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
         } catch (final EntityNotFoundException ex) {
-            throw new BadRequestException("Category not recognised.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Category not recognised.");
         }
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getReviewCommitteeCode(), false);
         } catch (final EntityNotFoundException ex) {
-            throw new BadRequestException("Committee Code not recognised.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Committee Code not recognised.");
         }
     }
 
@@ -614,7 +616,7 @@ public class InmateServiceImpl implements InmateService {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getReviewCommitteeCode(), false);
         } catch (final EntityNotFoundException ex) {
-            throw new BadRequestException("Committee Code not recognised.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Committee Code not recognised.");
         }
     }
 
