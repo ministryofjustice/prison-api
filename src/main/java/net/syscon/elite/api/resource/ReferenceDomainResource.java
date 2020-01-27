@@ -6,7 +6,6 @@ import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.support.Order;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,7 +77,6 @@ public interface ReferenceDomainResource {
 
 
     @PostMapping("/domains/{domain}/codes/{code}")
-    @ResponseStatus(value = HttpStatus.CREATED, reason = "Reference Code Created")
     @ApiOperation(value = "Creates a reference code")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Created", response = ReferenceCode.class),
