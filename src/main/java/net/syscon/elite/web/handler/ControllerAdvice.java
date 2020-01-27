@@ -9,7 +9,6 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -161,13 +160,14 @@ public class ControllerAdvice {
 
     @ExceptionHandler(HttpMessageConversionException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageConversionException(final HttpMessageConversionException e) {
+        log.error("A malformed request was rejected due to exception", e.getMostSpecificCause());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
                         .builder()
-                        .userMessage(e.getMostSpecificCause().getMessage())
+                        .userMessage("Malformed request")
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .developerMessage(e.getMostSpecificCause().getMessage())
+                        .developerMessage("Malformed request")
                         .build());
     }
 
