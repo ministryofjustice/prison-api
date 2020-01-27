@@ -1,5 +1,5 @@
 {
   "status": 400,
-  "userMessage": "getPersonalCareNeeds.offenderNo: must not be empty",
-  "developerMessage": "javax.validation.ConstraintViolationException: getPersonalCareNeeds.offenderNo: must not be empty"
+  "userMessage": "getPersonalCareNeeds.offenderNo: offenderNo: must not be empty",
+  "developerMessage": "getPersonalCareNeeds.offenderNo: offenderNo: must not be empty"
 }
