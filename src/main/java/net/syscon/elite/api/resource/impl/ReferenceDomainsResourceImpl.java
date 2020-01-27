@@ -21,7 +21,7 @@ import java.util.List;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestController
-@RequestMapping("/reference-domains")
+@RequestMapping("${api.base.path}/reference-domains")
 @Validated
 public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
     private final ReferenceDomainService referenceDomainService;

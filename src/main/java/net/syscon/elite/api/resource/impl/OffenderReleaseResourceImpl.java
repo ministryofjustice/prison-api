@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/offender-sentences")
+@RequestMapping("${api.base.path}/offender-sentences")
 public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;

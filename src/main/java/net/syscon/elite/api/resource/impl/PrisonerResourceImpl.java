@@ -19,7 +19,7 @@ import java.util.List;
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 
 @RestController
-@RequestMapping("prisoners")
+@RequestMapping("${api.base.path}/prisoners")
 @Slf4j
 @AllArgsConstructor
 public class PrisonerResourceImpl implements PrisonerResource {

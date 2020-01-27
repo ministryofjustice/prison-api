@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -41,7 +40,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  * Implementation of Booking (/bookings) endpoint.
  */
 @RestController
-@RequestMapping("/bookings")
+@RequestMapping("${api.base.path}/bookings")
 @Validated
 @AllArgsConstructor
 public class BookingResourceImpl implements BookingResource {

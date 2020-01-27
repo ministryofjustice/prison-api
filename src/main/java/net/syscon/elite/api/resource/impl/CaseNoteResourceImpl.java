@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/case-notes")
+@RequestMapping("${api.base.path}/case-notes")
 @AllArgsConstructor
 public class CaseNoteResourceImpl implements CaseNoteResource {
 

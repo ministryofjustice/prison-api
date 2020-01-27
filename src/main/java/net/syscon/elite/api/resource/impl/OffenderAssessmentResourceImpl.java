@@ -22,7 +22,7 @@ import java.util.Set;
  * Implementation of Offender Assessments (/offender-assessments) endpoint.
  */
 @RestController
-@RequestMapping("/offender-assessments")
+@RequestMapping("${api.base.path}/offender-assessments")
 public class OffenderAssessmentResourceImpl implements OffenderAssessmentResource {
     private final InmateService inmateService;
 

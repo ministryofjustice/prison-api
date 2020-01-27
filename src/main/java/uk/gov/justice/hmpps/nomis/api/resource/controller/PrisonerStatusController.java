@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @Api(tags = {"/prisoners"})
-@RequestMapping(value="/prisoners", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping("${api.base.path}/prisoners")
 @AllArgsConstructor
 public class PrisonerStatusController {
 
@@ -34,8 +34,7 @@ public class PrisonerStatusController {
             @ApiResponse(code = 200, message = "OK", response = PrisonerInformation.class),
             @ApiResponse(code = 401, message = "Unauthorized.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "User not found.", response = ErrorResponse.class)})
-
-    public PrisonerInformation changePasswordRequest(@ApiParam(name = "offenderNo", value = "Offender No (NOMS ID)", required = true, example = "A1234AA")
+    public PrisonerInformation getPrisonerInformationById(@ApiParam(name = "offenderNo", value = "Offender No (NOMS ID)", required = true, example = "A1234AA")
                                                          @PathVariable("offenderNo") final String offenderNo) {
         return service.getPrisonerInformationById(offenderNo);
     }

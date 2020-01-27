@@ -108,7 +108,8 @@ public class ImageServiceImplTest {
 
         when(imageRepository.getImageContent(-1L, true)).thenReturn(data);
 
-        assertThat(service.getImageContent(-1L, true)).isEqualTo(data);
+        assertThat(service.getImageContent(-1L, true)).isNotEmpty();
+        assertThat(service.getImageContent(-1L, true)).get().isEqualTo(data);
     }
 
     @Test
@@ -118,6 +119,6 @@ public class ImageServiceImplTest {
 
         when(imageRepository.getImageContent("A1234AA", true)).thenReturn(data);
 
-        assertThat(service.getImageContent("A1234AA", true)).isEqualTo(data);
+        assertThat(service.getImageContent("A1234AA", true)).get().isEqualTo(data);
     }
 }

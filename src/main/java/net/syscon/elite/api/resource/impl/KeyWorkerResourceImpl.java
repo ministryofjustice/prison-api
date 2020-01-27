@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/key-worker")
+@RequestMapping("${api.base.path}/key-worker")
 public class KeyWorkerResourceImpl implements KeyWorkerResource {
     private final KeyWorkerAllocationService keyWorkerService;
 

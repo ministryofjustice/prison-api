@@ -16,7 +16,7 @@ import java.util.List;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestController
-@RequestMapping("/search-offenders")
+@RequestMapping("${api.base.path}/search-offenders")
 public class SearchResourceImpl implements SearchOffenderResource {
     private final AuthenticationFacade authenticationFacade;
     private final SearchOffenderService searchOffenderService;

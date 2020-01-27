@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/movements")
+@RequestMapping("${api.base.path}/movements")
 public class MovementResourceImpl implements MovementResource {
 
     private final MovementsService movementsService;

@@ -21,7 +21,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
-@RequestMapping("/images")
+@RequestMapping("${api.base.path}/images")
 @AllArgsConstructor
 public class ImagesResourceImpl implements ImageResource {
 

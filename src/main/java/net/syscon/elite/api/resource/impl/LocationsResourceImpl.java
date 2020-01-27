@@ -18,7 +18,7 @@ import java.util.List;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestController
-@RequestMapping("/locations")
+@RequestMapping("${api.base.path}/locations")
 public class LocationsResourceImpl implements LocationResource {
     private final AuthenticationFacade authenticationFacade;
     private final LocationService locationService;

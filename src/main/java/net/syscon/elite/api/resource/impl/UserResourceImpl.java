@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("${api.base.path}/users")
 public class UserResourceImpl implements UserResource {
     private final AuthenticationFacade authenticationFacade;
     private final UserService userService;

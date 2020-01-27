@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/incidents")
+@RequestMapping("${api.base.path}/incidents")
 @AllArgsConstructor
 public class IncidentsResourceImpl implements IncidentsResource {
 

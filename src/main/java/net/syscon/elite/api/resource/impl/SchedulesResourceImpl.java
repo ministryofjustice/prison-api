@@ -15,7 +15,7 @@ import java.util.List;
  * Implementation of /schedules endpoint.
  */
 @RestController
-@RequestMapping("/schedules")
+@RequestMapping("${api.base.path}/schedules")
 public class SchedulesResourceImpl implements ScheduleResource {
     private final SchedulesService schedulesService;
 

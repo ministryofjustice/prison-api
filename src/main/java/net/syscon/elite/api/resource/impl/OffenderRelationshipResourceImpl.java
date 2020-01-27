@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/offender-relationships")
+@RequestMapping("${api.base.path}/offender-relationships")
 public class OffenderRelationshipResourceImpl implements OffenderRelationshipResource {
 
     private final BookingService bookingService;

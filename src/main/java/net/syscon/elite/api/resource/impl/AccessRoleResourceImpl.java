@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/access-roles")
+@RequestMapping("${api.base.path}/access-roles")
 public class AccessRoleResourceImpl implements AccessRoleResource {
     private final AccessRoleService accessRoleService;
 

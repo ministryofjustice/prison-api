@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import static net.syscon.util.DateTimeConverter.optionalStrToLocalDateTime;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("${api.base.path}/v1")
 public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
     private final NomisApiV1Service service;

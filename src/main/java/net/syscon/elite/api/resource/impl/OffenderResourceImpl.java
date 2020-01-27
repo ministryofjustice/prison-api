@@ -30,7 +30,7 @@ import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestController
-@RequestMapping("/offenders")
+@RequestMapping("${api.base.path}/offenders")
 @RequiredArgsConstructor
 public class OffenderResourceImpl implements OffenderResource {
 

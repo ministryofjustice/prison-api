@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("persons")
+@RequestMapping("${api.base.path}/persons")
 public class PersonResourceImpl implements PersonResource {
     private final PersonService service;
 

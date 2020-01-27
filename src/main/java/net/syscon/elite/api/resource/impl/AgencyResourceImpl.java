@@ -19,7 +19,7 @@ import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestController
-@RequestMapping("/agencies")
+@RequestMapping("${api.base.path}/agencies")
 public class AgencyResourceImpl implements AgencyResource {
     private final AgencyService agencyService;
     private final LocationGroupService locationGroupService;

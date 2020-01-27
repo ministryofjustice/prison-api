@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/appointments")
+@RequestMapping("${api.base.path}/appointments")
 @AllArgsConstructor
 public class AppointmentsResourceImpl implements AppointmentsResource {
     private final AppointmentsService appointmentsService;

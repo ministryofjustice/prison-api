@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.constraints.NotNull;
 
 @RestController
-@RequestMapping("/questionnaires")
+@RequestMapping("${api.base.path}/questionnaires")
 public class QuestionnaireResourceImpl implements QuestionnaireResource {
     private final IncidentService incidentService;
 

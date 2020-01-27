@@ -23,7 +23,7 @@ import javax.validation.ValidationException;
 
 
 @RestControllerAdvice(
-        basePackages = {"net.syscon.elite.api.resource"}
+        basePackages = {"net.syscon.elite.api.resource", "uk.gov.justice.hmpps.nomis.api.resource.controller"}
 )
 @Slf4j
 public class ControllerAdvice {
@@ -97,6 +97,19 @@ public class ControllerAdvice {
                         .developerMessage(e.getMessage())
                         .build());
     }
+
+    @ExceptionHandler(javax.persistence.EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final javax.persistence.EntityNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .developerMessage(e.getCause().getMessage())
+                        .build());
+    }
+
 
     @ExceptionHandler(EntityExistsException.class)
     public ResponseEntity<ErrorResponse> handleEntityExistsException(final EntityExistsException e) {

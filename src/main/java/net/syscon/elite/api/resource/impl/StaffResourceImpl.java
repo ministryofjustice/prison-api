@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/staff")
+@RequestMapping("${api.base.path}/staff")
 public class StaffResourceImpl implements StaffResource {
     private final String apiCaseloadId;
     private final StaffService staffService;

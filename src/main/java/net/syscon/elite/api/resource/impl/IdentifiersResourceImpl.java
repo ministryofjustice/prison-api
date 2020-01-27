@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/identifiers")
+@RequestMapping("${api.base.path}/identifiers")
 public class IdentifiersResourceImpl implements IdentifiersResource {
     private final InmateService inmateService;
 

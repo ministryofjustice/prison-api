@@ -7,6 +7,7 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.builders.AuthorizationCodeGrantBuilder;
 import springfox.documentation.builders.OAuthBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -33,17 +34,13 @@ public class SwaggerConfig {
     @Bean
     public Docket nomisApi() {
         final var docket = new Docket(DocumentationType.SWAGGER_2)
-                .useDefaultResponseMessages(false)
-                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
+                .paths(PathSelectors.any())
+                .build()
                 .securitySchemes(List.of(securityScheme()))
                 .securityContexts(List.of(securityContext()))
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(Predicates
-                        .or(regex("(\\/info.*)"),
-                        regex("(\\/health.*)"),
-                        regex("(\\/api.*)")))
-                .build();
+                .apiInfo(apiInfo());
 
         docket.genericModelSubstitutes(Optional.class);
         docket.directModelSubstitute(ZonedDateTime.class, Date.class);
