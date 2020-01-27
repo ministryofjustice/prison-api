@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -112,7 +111,7 @@ public class AppointmentsServiceImplTest {
                         .appointments(Arrays.asList(new AppointmentDetails[1001]))
                         .build()))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessage("Request to create 1001 appointments exceeds limit of 1000");
+                .hasMessageContaining("Request to create 1001 appointments exceeds limit of 1000");
 
         verifyNoMoreInteractions(telemetryClient);
     }
@@ -137,7 +136,7 @@ public class AppointmentsServiceImplTest {
                                 .appointments(List.of())
                                 .build()))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessage("Location does not exist or is not in your caseload.");
+                .hasMessageContaining("Location does not exist or is not in your caseload.");
 
         verifyNoMoreInteractions(telemetryClient);
     }
@@ -160,7 +159,7 @@ public class AppointmentsServiceImplTest {
                                 .appointments(List.of())
                                 .build()))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessage("Event type not recognised.");
+                .hasMessageContaining("Event type not recognised.");
 
         verifyNoMoreInteractions(telemetryClient);
     }
@@ -205,7 +204,7 @@ public class AppointmentsServiceImplTest {
                                 .appointments(List.of(DETAILS_1))
                                 .build()))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessage("A BookingId does not exist in your caseload");
+                .hasMessageContaining("A BookingId does not exist in your caseload");
 
         verifyNoMoreInteractions(telemetryClient);
     }
@@ -264,7 +263,7 @@ public class AppointmentsServiceImplTest {
 
         assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessageStartingWith("An appointment startTime is later than the limit of ");
+                .hasMessageContaining("An appointment startTime is later than the limit of ");
     }
 
     @Test
@@ -293,7 +292,7 @@ public class AppointmentsServiceImplTest {
 
         assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessageStartingWith("An appointment endTime is later than the limit of ");
+                .hasMessageContaining("An appointment endTime is later than the limit of ");
     }
 
     @Test
@@ -317,7 +316,7 @@ public class AppointmentsServiceImplTest {
 
         assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessage("Appointment end time is before the start time.");
+                .hasMessageContaining("Appointment end time is before the start time.");
     }
 
     /**
@@ -375,7 +374,7 @@ public class AppointmentsServiceImplTest {
 
         assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessage("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
+                .hasMessageContaining("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
     }
 
     @Test
@@ -565,7 +564,7 @@ public class AppointmentsServiceImplTest {
                 .thenThrow(new EntityNotFoundException("test"));
 
         assertThatThrownBy(() -> appointmentsService.createBookingAppointment(bookingId, principal, newAppointment))
-                .isInstanceOf(HttpClientErrorException.class).hasMessage("Location does not exist or is not in your caseload.");
+                .isInstanceOf(HttpClientErrorException.class).hasMessageContaining("Location does not exist or is not in your caseload.");
     }
 
     @Test
@@ -602,7 +601,7 @@ public class AppointmentsServiceImplTest {
 
         assertThatThrownBy(() -> appointmentsService.createBookingAppointment(bookingId, principal, newAppointment))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessage("Event type not recognised.");
+                .hasMessageContaining("Event type not recognised.");
     }
 
     @Test
