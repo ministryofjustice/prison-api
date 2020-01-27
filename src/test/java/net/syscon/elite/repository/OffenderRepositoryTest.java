@@ -94,8 +94,8 @@ public class OffenderRepositoryTest {
 
     @Test
     public void getOffenderIds() {
-        var ids = repository.getOffenderIdsFor("A1234AA");
-        assertThat(ids).containsExactlyInAnyOrder(-1001L);
+        var ids = repository.getOffenderIdsFor("A1234AL");
+        assertThat(ids).containsExactlyInAnyOrder(-1012L, -1013L);
     }
 
     @Test
