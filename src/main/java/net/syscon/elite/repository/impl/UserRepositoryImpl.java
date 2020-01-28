@@ -10,7 +10,7 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
-import net.syscon.elite.service.impl.NameFilter;
+import net.syscon.elite.service.filters.NameFilter;
 import net.syscon.util.DateTimeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
