@@ -6,6 +6,7 @@ import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.UserService;
+import net.syscon.elite.service.transformers.CaseNoteTransformer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,4 +1,4 @@
-package net.syscon.elite.service.impl;
+package net.syscon.elite.service.transformers;
 
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.CaseNoteAmendment;

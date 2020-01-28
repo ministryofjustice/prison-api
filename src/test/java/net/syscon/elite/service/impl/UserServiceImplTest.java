@@ -13,6 +13,7 @@ import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
 import net.syscon.elite.service.UserService;
+import net.syscon.elite.service.filters.NameFilter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

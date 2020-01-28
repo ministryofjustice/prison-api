@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.service.QueryParamHelper;
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 

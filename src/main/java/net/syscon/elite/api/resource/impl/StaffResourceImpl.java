@@ -6,7 +6,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.service.StaffService;
-import net.syscon.elite.service.StaffService.GetStaffRoleRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;

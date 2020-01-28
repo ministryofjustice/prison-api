@@ -1,4 +1,4 @@
-package net.syscon.elite.service.impl;
+package net.syscon.elite.service.filters;
 
 import lombok.Getter;
 import lombok.Setter;

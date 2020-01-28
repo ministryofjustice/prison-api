@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.CaseNoteAmendment;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.service.UserService;
+import net.syscon.elite.service.transformers.CaseNoteTransformer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

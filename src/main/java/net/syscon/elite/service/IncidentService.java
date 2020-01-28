@@ -1,12 +1,10 @@
-package net.syscon.elite.service.impl;
+package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.api.model.Questionnaire;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.impl.IncidentCaseRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 

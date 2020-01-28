@@ -1,4 +1,4 @@
-package net.syscon.elite.service.impl;
+package net.syscon.elite.service;
 
 import com.google.common.collect.Lists;
 import net.syscon.elite.api.model.PrisonerInformation;
@@ -6,8 +6,6 @@ import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.jpa.model.PrisonerStatusInformation;
 import net.syscon.elite.repository.jpa.repository.PrisonerStatusInformationRepository;
 import net.syscon.elite.security.VerifyOffenderAccess;
-import net.syscon.elite.service.BookingService;
-
 import net.syscon.elite.service.support.InmatesHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
