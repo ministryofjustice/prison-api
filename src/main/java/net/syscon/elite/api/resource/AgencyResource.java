@@ -92,6 +92,19 @@ public interface AgencyResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<LocationGroup> getAvailableLocationGroups(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") String agencyId);
 
+    /**
+     * TODO DT-526 Delete .../locations/groupsNew once the new endpoint has been tested from whereabouts API and prisonstaffhub
+     *      UI has been changed to no longer point to this API (replaced with call to whereabouts API).
+     */
+    @GetMapping("/{agencyId}/locations/groupsNew")
+    @ApiOperation(value = "List of all available Location Groups at agency.", notes = "List of all available Location Groups at agency.", nickname = "getAvailableLocationGroupsNew")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = LocationGroup.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    List<LocationGroup> getAvailableLocationGroupsNew(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") String agencyId);
+
 
     @GetMapping("/{agencyId}/locations/whereabouts")
     @ApiOperation(value = "Whereabouts details (e.g. whether enabled) for prison.", notes = "Whereabouts details (e.g. whether enabled) for prison.", nickname = "getWhereabouts")
