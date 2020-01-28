@@ -226,7 +226,7 @@ public class CaseNoteService {
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','CASE_NOTE_EVENTS')")
-    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, @NotNull final LocalDateTime createdDate, @Min(1) @Max(5000) final Long limit) {
+    public List<CaseNoteEvent> getCaseNotesEvents(@NotEmpty final List<String> noteTypes, @NotNull final LocalDateTime createdDate, @Min(1) @Max(5000) @NotNull final Long limit) {
         final var noteTypesMap = QueryParamHelper.splitTypes(noteTypes);
 
         final var events = caseNoteRepository.getCaseNoteEvents(createdDate, noteTypesMap.keySet(), limit);

@@ -96,7 +96,7 @@ public class CaseNoteServiceImplIntTest {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null))
                 .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("noteTypes: must not be empty");
+                .hasMessageContaining("getCaseNotesEvents.createdDate: must not be null");
     }
 
     @Test
