@@ -7,6 +7,7 @@ import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.StaffRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
+import net.syscon.elite.service.support.GetStaffRoleRequest;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -35,6 +36,12 @@ public class StaffService {
         this.staffRepository = staffRepository;
         this.userRepository = userRepository;
         this.caseLoadRepository = caseLoadRepository;
+    }
+
+    public static boolean isStaffActive(final StaffDetail staffDetail) {
+        Validate.notNull(staffDetail);
+
+        return StringUtils.equals(STAFF_STATUS_ACTIVE, staffDetail.getStatus());
     }
 
     public StaffDetail getStaffDetail(@NotNull final Long staffId) {
@@ -170,4 +177,5 @@ public class StaffService {
         final var staffUserRoles = mapToStaffUserRole(staffId, username, rolesByUsername);
         return Optional.ofNullable(staffUserRoles.isEmpty() ? null : staffUserRoles.get(0));
     }
+
 }

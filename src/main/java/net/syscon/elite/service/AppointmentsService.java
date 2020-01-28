@@ -262,14 +262,14 @@ public class AppointmentsService {
         telemetryClient.trackEvent("AppointmentCreated", logMap, null);
     }
 
-    static List<AppointmentDetails> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
+    public static List<AppointmentDetails> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
         if (repeat == null) return details;
         return details.stream()
                 .flatMap(d -> withRepeats(repeat, d))
                 .collect(Collectors.toList());
     }
 
-    static Stream<AppointmentDetails> withRepeats(final Repeat repeat, final AppointmentDetails details) {
+    public static Stream<AppointmentDetails> withRepeats(final Repeat repeat, final AppointmentDetails details) {
         final var appointmentDuration = Optional
                 .ofNullable(details.getEndTime())
                 .map(endTime -> Duration.between(details.getStartTime(), endTime));
