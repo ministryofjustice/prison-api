@@ -22,9 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -223,12 +221,12 @@ public class CaseNoteService {
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','CASE_NOTE_EVENTS')")
-    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, final LocalDateTime createdDate) {
+    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, @NotNull final LocalDateTime createdDate) {
         return getCaseNotesEvents(noteTypes, createdDate, Long.MAX_VALUE);
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','CASE_NOTE_EVENTS')")
-    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, final LocalDateTime createdDate, final Long limit) {
+    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, @NotNull final LocalDateTime createdDate, @Min(1) @Max(5000) final Long limit) {
         final var noteTypesMap = QueryParamHelper.splitTypes(noteTypes);
 
         final var events = caseNoteRepository.getCaseNoteEvents(createdDate, noteTypesMap.keySet(), limit);
