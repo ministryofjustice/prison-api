@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.List;
 
-@Api(tags = {"/locations"})
+@Api(tags = {"/locations"}, description = "Offender Location information")
 public interface LocationResource {
 
     @GetMapping("/description/{locationPrefix}/inmates")
@@ -30,8 +30,8 @@ public interface LocationResource {
                                                                             @ApiParam(value = "Offenders with a DOB >= this date", example = "1970-01-02") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "fromDob", required = false) LocalDate fromDob,
                                                                             @ApiParam(value = "Offenders with a DOB <= this date", example = "1975-01-02") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDob", required = false) LocalDate toDob,
                                                                             @ApiParam(value = "alert flags to filter by") @RequestParam(value = "alerts", required = false) List<String> alerts,
-                                                                            @ApiParam(value = "return IEP data", defaultValue = "false") @RequestParam(value = "returnIep", defaultValue = "false") boolean returnIep,
-                                                                            @ApiParam(value = "return Alert data", defaultValue = "false") @RequestParam(value = "returnAlerts", defaultValue = "false") boolean returnAlerts,
+                                                                            @ApiParam(value = "return IEP data", defaultValue = "false") @RequestParam(value = "returnIep", required = false, defaultValue = "false") boolean returnIep,
+                                                                            @ApiParam(value = "return Alert data", defaultValue = "false") @RequestParam(value = "returnAlerts", required = false, defaultValue = "false") boolean returnAlerts,
                                                                             @ApiParam(value = "retrieve category classification from assessments", defaultValue = "false") @RequestParam(value = "returnCategory", defaultValue = "false") boolean returnCategory,
                                                                             @ApiParam(value = "retrieve inmates with a specific convicted status (Convicted, Remand, default: All)", defaultValue = "All") @RequestParam(value = "convictedStatus", defaultValue = "All") String convictedStatus,
                                                                             @ApiParam(value = "Requested offset of first record in returned collection of inmate records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,

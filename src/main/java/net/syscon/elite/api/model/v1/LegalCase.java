@@ -38,10 +38,10 @@ public class LegalCase {
     @JsonProperty("case_started")
     private LocalDate beginDate;
 
-    @ApiModelProperty(value = "Court", position = 4, example = "{ code: 'ABDRCT', desc: 'Aberdare County Court' }")
+    @ApiModelProperty(value = "Court", position = 4, example = "{ \"code\": \"ABDRCT\", \"desc\": \"Aberdare County Court\" }")
     private CodeDescription court;
 
-    @ApiModelProperty(value = "Legal Case Type", position = 5, example = "{ code: 'A', desc: 'Adult' }")
+    @ApiModelProperty(value = "Legal Case Type", position = 5, example = "{ \"code\": \"A\", \"desc\": \"Adult\" }")
     @JsonProperty("legal_case_type")
     private CodeDescription caseType;
 
