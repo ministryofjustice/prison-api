@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -118,7 +119,7 @@ public class OffenderCurfewService {
 
     @Transactional
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
-    public void setHdcChecks(final long bookingId, final HdcChecks hdcChecks) {
+    public void setHdcChecks(final long bookingId, @Valid final HdcChecks hdcChecks) {
         withCurrentCurfewState(bookingId).setHdcChecks(hdcChecks);
     }
 
@@ -130,7 +131,7 @@ public class OffenderCurfewService {
 
     @Transactional
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
-    public void setApprovalStatus(final long bookingId, final ApprovalStatus approvalStatus) {
+    public void setApprovalStatus(final long bookingId, @Valid final ApprovalStatus approvalStatus) {
 
         if (!referenceDomainService.isReferenceCodeActive(HDC_APPROVE_DOMAIN, approvalStatus.getApprovalStatus())) {
             throw new IllegalArgumentException(String.format("Approval status code '%1$s' is not a valid NOMIS value.", approvalStatus.getApprovalStatus()));
