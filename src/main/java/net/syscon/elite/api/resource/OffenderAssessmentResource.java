@@ -11,6 +11,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Api(tags = {"/offender-assessments"})
@@ -77,12 +78,12 @@ public interface OffenderAssessmentResource {
                                                               @ApiParam(value = "Only get the latest category for each booking", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") Boolean latestOnly);
 
     @PostMapping("/category/categorise")
-    @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record.",
+    @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record. The booking id and new sequence number is returned.",
             authorizations = {@Authorization("SYSTEM_USER"), @Authorization("CREATE_CATEGORISATION"), @Authorization("CREATE_RECATEGORISATION")})
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class)})
-    ResponseEntity<Void> createCategorisation(@ApiParam(value = "Categorisation details", required = true) @RequestBody @Valid CategorisationDetail detail);
+    ResponseEntity<Map<String, Long>> createCategorisation(@ApiParam(value = "Categorisation details", required = true) @RequestBody @Valid CategorisationDetail detail);
 
     @PutMapping("/category/categorise")
     @ApiOperation(value = "Update a pending offender categorisation.",

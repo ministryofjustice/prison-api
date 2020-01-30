@@ -250,7 +250,7 @@ public class BookingAssessmentSteps extends CommonSteps {
 
     public void verifyCategorisedPendingApproval(final long bookingId) {
         verifyNoError();
-        assertThat(offenderCatList).extracting("bookingId", "status").contains(tuple(Long.valueOf(bookingId), CategorisationStatus.AWAITING_APPROVAL));
+        assertThat(offenderCatList).extracting("bookingId", "status").contains(tuple(bookingId, CategorisationStatus.AWAITING_APPROVAL));
     }
 
     public void verifyCategorisedNotPresent(final long bookingId) {
@@ -262,6 +262,8 @@ public class BookingAssessmentSteps extends CommonSteps {
 
     public void createCategorisation(final Long bookingId, final String category, final String committee) {
         doCreateCategorisationApiCall(bookingId, category, committee);
+        assertThat(createResponse.get("bookingId")).isEqualTo(bookingId.intValue());
+        assertThat(createResponse.get("sequenceNumber")).isEqualTo(2);
     }
 
     public void approveCategorisation(final Long bookingId, final String category, final LocalDate date, final String comment) {
