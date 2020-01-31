@@ -81,8 +81,8 @@ public interface AgencyResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<Location> getAgencyLocationsByType(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
-                                                  @ApiParam(value = "Restricts list of locations returned to those of the passed type.") @PathVariable("type") String type);
+    List<Location> getAgencyLocationsByType(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") String agencyId,
+                                                  @ApiParam(value = "Restricts list of locations returned to those of the passed type.", required = true) @PathVariable("type") String type);
 
     @GetMapping("/{agencyId}/iepLevels")
     @ApiOperation(value = "List of active IEP levels for agency.", notes = "List of active IEP levels for agency.", nickname = "getAgencyIepLevels")

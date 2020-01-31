@@ -14,8 +14,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -270,21 +273,9 @@ public class AgencySteps extends CommonSteps {
     }
 
     public void verifyLocationListInAnyOrder(List<Location> expected) {
-        assertEquals(expected.size(), locations.size());
-
-        final var expectedLocations = new ArrayList<>(expected); // make the expected list modifiable so we can sort
-        locations.sort(Comparator.comparing(Location::getLocationId));
-        expectedLocations.sort(Comparator.comparing(Location::getLocationId));
-
-        final var expectedIterator = expectedLocations.iterator();
-        final var actualIterator = locations.iterator();
-        while (expectedIterator.hasNext()) {
-            final var expectedThis = expectedIterator.next();
-            final var actualThis = actualIterator.next();
-            assertEquals(expectedThis.getLocationId(), actualThis.getLocationId());
-            assertEquals(expectedThis.getDescription(), actualThis.getDescription());
-            assertEquals(expectedThis.getUserDescription(), actualThis.getUserDescription());
-        }
+        final var expectedLocations = expected.toArray(new Location[expected.size()]);
+        assertThat(locations).usingElementComparatorOnFields("locationId", "description", "userDescription")
+                .containsExactlyInAnyOrder(expectedLocations);
     }
 
     public void getAgenciesByCaseload(final String caseload) {

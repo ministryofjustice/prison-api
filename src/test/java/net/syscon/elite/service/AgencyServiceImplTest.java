@@ -93,8 +93,7 @@ public class AgencyServiceImplTest {
 
         var locations = service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
 
-        assertThat(locations.size()).isEqualTo(1);
-        assertThat(locations.get(0).getLocationId()).isEqualTo(1L);
+        assertThat(locations).extracting("locationId").containsExactly(1L);
     }
 
     private List<PrisonContactDetail> buildPrisonContactDetailsList() {
