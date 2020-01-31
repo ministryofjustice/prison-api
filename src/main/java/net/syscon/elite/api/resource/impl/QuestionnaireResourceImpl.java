@@ -2,7 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.Questionnaire;
 import net.syscon.elite.api.resource.QuestionnaireResource;
-import net.syscon.elite.service.IncidentService;
+import net.syscon.elite.service.impl.IncidentService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

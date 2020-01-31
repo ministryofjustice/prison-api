@@ -6,7 +6,7 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.service.filters.NameFilter;
+import net.syscon.elite.service.impl.NameFilter;
 
 import java.util.List;
 import java.util.Optional;

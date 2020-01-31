@@ -12,6 +12,7 @@ import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.*;
+import net.syscon.elite.service.impl.IncidentService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -4,7 +4,7 @@ import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.filters.NameFilter;
+import net.syscon.elite.service.impl.NameFilter;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;

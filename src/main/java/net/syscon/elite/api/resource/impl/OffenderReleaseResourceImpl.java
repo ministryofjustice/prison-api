@@ -7,7 +7,7 @@ import net.syscon.elite.api.resource.OffenderSentenceResource;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.curfews.OffenderCurfewService;
+import net.syscon.elite.service.OffenderCurfewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;

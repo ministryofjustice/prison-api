@@ -7,12 +7,13 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerInformation;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.service.PrisonerInformationService;
+import net.syscon.elite.service.impl.PrisonerInformationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

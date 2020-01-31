@@ -5,7 +5,6 @@ import net.syscon.elite.api.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -49,7 +48,7 @@ public interface OffenderSentenceResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
     })
-    ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") Long bookingId, @Valid @RequestBody HdcChecks hdcChecks);
+    ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") Long bookingId, @RequestBody HdcChecks hdcChecks);
 
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ApiOperation(value = "Clear the HDC checks passed flag")
@@ -67,7 +66,7 @@ public interface OffenderSentenceResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
     })
-    ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") Long bookingId, @Valid @RequestBody ApprovalStatus approvalStatus);
+    ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") Long bookingId, @RequestBody ApprovalStatus approvalStatus);
 
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ApiOperation(value = "Clear the HDC approval status")
