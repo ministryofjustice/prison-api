@@ -104,7 +104,7 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") @RequestParam("prison_id") @Length(max = 3) String prisonId,
             @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1417AE") @RequestParam(value = "offender_id", required = false) String offenderIdentifier,
             @ApiParam(name = "event_type", value = "Event Type", example = "ALERT") @RequestParam("event_type") String eventType,
-            @ApiParam(name = "from_datetime", value = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @RequestParam(value = "from_datetime", required = false) String fromDateTime,
+            @ApiParam(name = "from_datetime", value = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @RequestParam("from_datetime") String fromDateTime,
             @ApiParam(name = "limit", value = "Number of events to return", example = "100") @RequestParam("limit") Long limit);
 
     @PostMapping("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")

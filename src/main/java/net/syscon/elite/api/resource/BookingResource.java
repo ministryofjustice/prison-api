@@ -455,7 +455,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<Contact> getRelationships(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
-                                   @ApiParam(value = "filter by the relationship type") @RequestParam(value = "relationshipType", required = false) String relationshipType);
+                                   @ApiParam(value = "filter by the relationship type") @RequestParam("relationshipType") String relationshipType);
 
     @GetMapping("/{bookingId}/sentenceDetail")
     @ApiOperation(value = "Offender sentence detail (key dates and additional days awarded).", nickname = "getBookingSentenceDetail",
