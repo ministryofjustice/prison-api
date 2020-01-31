@@ -8,7 +8,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
