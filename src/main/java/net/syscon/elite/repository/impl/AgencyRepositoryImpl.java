@@ -162,6 +162,16 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
     }
 
     @Override
+    public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
+        final String initialSql = getQuery("GET_AGENCY_LOCATIONS_BY_TYPE");
+
+        return jdbcTemplate.query(
+                queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER).build(),
+                createParams("agencyId", agencyId, "type", type),
+                LOCATION_ROW_MAPPER);
+    }
+
+    @Override
     public List<IepLevel> getAgencyIepLevels(final String agencyId) {
         final var initialSql = getQuery("GET_AGENCY_IEP_LEVELS");
 

@@ -36,6 +36,8 @@ public interface AgencyRepository {
 
     List<Location> getAgencyLocations(String agencyId, List<String> eventTypes, String sortFields, Order sortOrder);
 
+    List<Location> getAgencyLocationsByType(String agencyId, String type);
+
     List<Location> getAgencyLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
 
     List<IepLevel> getAgencyIepLevels(String agencyId);
