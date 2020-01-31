@@ -8,15 +8,14 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -28,6 +27,7 @@ public class AgencySteps extends CommonSteps {
     private static final String API_REF_PREFIX = API_PREFIX + "agencies/";
     public static final String API_AGENCY_URL = API_REF_PREFIX + "{agencyId}";
     private static final String API_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/locations";
+    private static final String API_LOCATIONS_BY_TYPE_URL = API_REF_PREFIX + "{agencyId}/locations/type/{type}";
     private static final String API_IEP_LEVELS_URL = API_REF_PREFIX + "{agencyId}/iepLevels";
     private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
     private static final String API_BOOKED_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocationsBooked";
@@ -84,6 +84,27 @@ public class AgencySteps extends CommonSteps {
                     new ParameterizedTypeReference<List<Location>>() {
                     },
                     agencyId);
+
+            locations = response.getBody();
+
+            buildResourceData(response);
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchLocationsByTypeRequest(final String resourcePath, final String agencyId, final String type) {
+        init();
+
+        try {
+            final var response = restTemplate.exchange(
+                    resourcePath,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<List<Location>>() {
+                    },
+                    agencyId,
+                    type);
 
             locations = response.getBody();
 
@@ -196,6 +217,11 @@ public class AgencySteps extends CommonSteps {
         dispatchListRequest(API_LOCATIONS_URL, agencyId, eventType, headers);
     }
 
+    @Step("Submit request for agency locations by type")
+    public void getLocationsByType(final String agencyId, final String type) {
+        dispatchLocationsByTypeRequest(API_LOCATIONS_BY_TYPE_URL, agencyId, type);
+    }
+
     @Step("Submit request for any event locations")
     public void getLocationsForAnyEvents(final String agencyId) {
         dispatchListRequest(API_EVENT_LOCATIONS_URL, agencyId, null, null);
@@ -242,6 +268,24 @@ public class AgencySteps extends CommonSteps {
             assertEquals(expectedThis.getUserDescription(), actualThis.getUserDescription());
         }
         assertFalse("Too many actual events", actualIterator.hasNext());
+    }
+
+    public void verifyLocationListInAnyOrder(List<Location> expected) {
+        assertEquals(expected.size(), locations.size());
+
+        final var expectedLocations = new ArrayList<>(expected); // make the expected list modifiable so we can sort
+        locations.sort(Comparator.comparing(Location::getLocationId));
+        expectedLocations.sort(Comparator.comparing(Location::getLocationId));
+
+        final var expectedIterator = expectedLocations.iterator();
+        final var actualIterator = locations.iterator();
+        while (expectedIterator.hasNext()) {
+            final var expectedThis = expectedIterator.next();
+            final var actualThis = actualIterator.next();
+            assertEquals(expectedThis.getLocationId(), actualThis.getLocationId());
+            assertEquals(expectedThis.getDescription(), actualThis.getDescription());
+            assertEquals(expectedThis.getUserDescription(), actualThis.getUserDescription());
+        }
     }
 
     public void getAgenciesByCaseload(final String caseload) {

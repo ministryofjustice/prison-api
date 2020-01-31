@@ -105,7 +105,7 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetAgencyLocationsByType() {
-        final var locations = repository.getAgencyLocationsByType("BXI", "CELL");
+        final var locations = repository.getAgencyLocationsByType("MUL", "CELL");
         assertThat(locations).extracting("locationId").containsExactlyInAnyOrder(-202L, -204L, -207L);
     }
 

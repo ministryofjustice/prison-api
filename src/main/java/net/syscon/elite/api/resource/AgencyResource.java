@@ -74,6 +74,16 @@ public interface AgencyResource {
                                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
                                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
 
+    @GetMapping("/{agencyId}/locations/type/{type}")
+    @ApiOperation(value = "List of active internal locations for agency by type.", notes = "List of active internal locations for agency by type.", nickname = "getAgencyLocationsByType")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    List<Location> getAgencyLocationsByType(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
+                                                  @ApiParam(value = "Restricts list of locations returned to those of the passed type.") @PathVariable("type") String type);
+
     @GetMapping("/{agencyId}/iepLevels")
     @ApiOperation(value = "List of active IEP levels for agency.", notes = "List of active IEP levels for agency.", nickname = "getAgencyIepLevels")
     @ApiResponses(value = {

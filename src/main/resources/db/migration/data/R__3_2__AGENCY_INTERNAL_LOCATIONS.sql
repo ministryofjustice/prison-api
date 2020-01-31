@@ -306,12 +306,12 @@ INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_C
 -- Agency locations for testing findAgencyLocationsByType
 INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_CODE, INTERNAL_LOCATION_TYPE, AGY_LOC_ID, UNIT_TYPE, CERTIFIED_FLAG, CAPACITY, OPERATION_CAPACITY, DESCRIPTION, PARENT_INTERNAL_LOCATION_ID, USER_DESC)
 VALUES
-(-200, 'A',    'WING',  'BXI',   'NA', 'Y', 14, 13, 'BXI-A', null, 'Block A'),
-(-201, '1',    'LAND',  'BXI',   'NA', 'Y', 14, 13, 'BXI-A-1', -1, 'Landing A/1'),
-(-202, '1',    'CELL',  'BXI',   'NA', 'Y',  2,  2, 'BXI-A-1-1', -2, null),
-(-203, '2',    'LAND',  'BXI',   'NA', 'Y', 14, 13, 'BXI-A-2', -1, 'Landing A/2'),
-(-204, '21',   'CELL',  'BXI',   'NA', 'Y',  1,  1, 'BXI-A-2-1', -32, null),
-(-205, 'H',    'WING',  'BXI',   'NA', 'Y', 20, 20, 'BXI-H', null, null),
-(-206, '1',    'LAND',  'BXI',   'NA', 'Y', 20, 20, 'BXI-H-1', -13, 'Landing H/1'),
-(-207, '1',    'CELL',  'BXI',   'NA', 'Y',  1,  1, 'BXI-H-1-1', -14, null),
-(-208, 'CHAP', 'AREA',  'BXI',   'NA', 'N',  1,  1, 'BXI-CHAP', null, 'Chapel');
+(-200, 'A',    'WING',  'MUL',   'NA', 'Y', 14, 13, 'MUL-A', null, 'Block A'),
+(-201, '1',    'LAND',  'MUL',   'NA', 'Y', 14, 13, 'MUL-A-1', -1, 'Landing A/1'),
+(-202, '1',    'CELL',  'MUL',   'NA', 'Y',  2,  2, 'MUL-A-1-1', -2, 'Cell A/1-1'),
+(-203, '2',    'LAND',  'MUL',   'NA', 'Y', 14, 13, 'MUL-A-2', -1, 'Landing A/2'),
+(-204, '21',   'CELL',  'MUL',   'NA', 'Y',  1,  1, 'MUL-A-2-1', -32, 'Cell A/2-1'),
+(-205, 'H',    'WING',  'MUL',   'NA', 'Y', 20, 20, 'MUL-H', null, null),
+(-206, '1',    'LAND',  'MUL',   'NA', 'Y', 20, 20, 'MUL-H-1', -13, 'Landing H/1'),
+(-207, '1',    'CELL',  'MUL',   'NA', 'Y',  1,  1, 'MUL-H-1-1', -14, 'Cell H/1-1'),
+(-208, 'CHAP', 'AREA',  'MUL',   'NA', 'N',  1,  1, 'MUL-CHAP', null, 'Chapel');

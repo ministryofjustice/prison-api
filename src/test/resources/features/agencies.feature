@@ -2,10 +2,10 @@ Feature: Agencies
 
   Acceptance Criteria
   A logged on staff user can obtain:
-    - a list of all active agencies.
-    - details for a specified active agency.
-    - a list of all active locations associated with an active agency.
-    - a list of all active locations associated with an active agency that can be used for a specified type of event.
+  - a list of all active agencies.
+  - details for a specified active agency.
+  - a list of all active locations associated with an active agency.
+  - a list of all active locations associated with an active agency that can be used for a specified type of event.
 
   Background:
     Given a user has authenticated with the API
@@ -15,33 +15,33 @@ Feature: Agencies
     Then "11" agency records are returned
     And "11" total agency records are available
     Then the returned agencies are as follows:
-      | agencyId | agencyType | description  |
-      | ABDRCT   | CRT        | Court 2      |
-      | BMI      | INST       | BIRMINGHAM   |
-      | BXI      | INST       | BRIXTON      |
-      | COURT1   | CRT        | Court 1      |
-      | LEI      | INST       | LEEDS        |
-      | MDI      | INST       | MOORLAND     |
-      | MUL      | INST       | MUL          |
+      | agencyId | agencyType | description |
+      | ABDRCT   | CRT        | Court 2     |
+      | BMI      | INST       | BIRMINGHAM  |
+      | BXI      | INST       | BRIXTON     |
+      | COURT1   | CRT        | Court 1     |
+      | LEI      | INST       | LEEDS       |
+      | MDI      | INST       | MOORLAND    |
+      | MUL      | INST       | MUL         |
       | RNI      | INST       | RANBY (HMP) |
-      | SYI      | INST       | SHREWSBURY   |
-      | TRO      | INST       | TROOM        |
-      | WAI      | INST       | THE WEARE    |
+      | SYI      | INST       | SHREWSBURY  |
+      | TRO      | INST       | TROOM       |
+      | WAI      | INST       | THE WEARE   |
 
   Scenario: Retrieve agency by caseload for single agency
     When a request is submitted to retrieve all agencies by caseload "LEI"
     Then "1" agency records are returned
     Then the returned agencies are as follows:
-      | agencyId | agencyType | description  |
-      | LEI      | INST       | Leeds        |
+      | agencyId | agencyType | description |
+      | LEI      | INST       | Leeds       |
 
   Scenario: Retrieve agency by caseload for multi agency
     When a request is submitted to retrieve all agencies by caseload "MUL"
     Then "2" agency records are returned
     Then the returned agencies are as follows:
-      | agencyId | agencyType | description  |
-      | BXI      | INST       | Brixton      |
-      | LEI      | INST       | Leeds        |
+      | agencyId | agencyType | description |
+      | BXI      | INST       | Brixton     |
+      | LEI      | INST       | Leeds       |
 
   Scenario Outline: Retrieve agency details
     When a request is submitted to retrieve agency "<agencyId>"
@@ -86,7 +86,7 @@ Feature: Agencies
       | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
       | -26        | CARP        | Carpentry Workshop | LEI-CARP       | APP           |
-      
+
   Scenario: Retrieve locations, for an agency, that can be used for any events
     When a request is submitted to retrieve location codes for agency "LEI" for any events
     Then the returned agency locations are as follows:
@@ -108,20 +108,25 @@ Feature: Agencies
   Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date with timeslot
     When a request is submitted to retrieve locations for agency "LEI" for booked events on "2017-09-15" and timeslot "AM"
     Then the returned agency locations are as follows:
-      | locationId | description    | userDescription    |
-      | -25        | Chapel         | Chapel             |
+      | locationId | description | userDescription |
+      | -25        | Chapel      | Chapel          |
 
   Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date (appointment event_id=-15)
     When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-12-25"
-    Then the returned agency locations are as follows:
-      | locationId | description    | userDescription    |
-      | -25        | Chapel         | Chapel             |
 
   Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date (offender_visit_id=-14)
     When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-03-10"
     Then the returned agency locations are as follows:
-      | locationId | description    | userDescription    |
-      | -25        | Chapel         | Chapel             |
+      | locationId | description | userDescription |
+      | -25        | Chapel      | Chapel          |
+
+  Scenario: Retrieve agency locations of a specific type
+    When a request is submitted to retrieve locations of type "CELL" for agency "MUL"
+    Then the returned agency locations are as follows in any order:
+      | locationId | description | userDescription |
+      | -202       | A-1-1       | Cell A/1-1      |
+      | -204       | A-2-1       | Cell A/2-1      |
+      | -207       | H-1-1       | Cell H/1-1      |
 
   Scenario Outline: Retrieve whereabouts config for an agency
     When a request is submitted to retrieve whereabouts config for agency "<agencyId>"
