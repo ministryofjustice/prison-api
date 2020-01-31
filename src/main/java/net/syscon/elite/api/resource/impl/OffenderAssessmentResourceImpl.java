@@ -16,7 +16,6 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -82,11 +81,9 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     @ProxyUser
-    public ResponseEntity<Map<String, Long>> createCategorisation(final CategorisationDetail detail) {
-        final var resultMap = inmateService.createCategorisation(detail.getBookingId(), detail);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(resultMap);
+    public ResponseEntity<Void> createCategorisation(final CategorisationDetail detail) {
+        inmateService.createCategorisation(detail.getBookingId(), detail);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
