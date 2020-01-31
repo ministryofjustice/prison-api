@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@Api(tags = {"/search-offenders"}, description = "Finding Offenders by location and keyword - DEPRECATED")
+@Api(tags = {"/search-offenders"})
 @SuppressWarnings("unused")
 public interface SearchOffenderResource {
 
@@ -26,8 +26,8 @@ public interface SearchOffenderResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     ResponseEntity<List<OffenderBooking>> searchForOffendersLocationAndKeyword(@ApiParam(value = "", required = true) @PathVariable("locationPrefix") String locationPrefix,
                                                                                @ApiParam(value = "", required = true) @PathVariable("keywords") String keywords,
-                                                                               @ApiParam(value = "return IEP data", defaultValue = "false") @RequestParam(value = "returnIep", required = false, defaultValue = "false") boolean returnIep,
-                                                                               @ApiParam(value = "return Alert data", defaultValue = "false") @RequestParam(value = "returnAlerts", required = false, defaultValue = "false") boolean returnAlerts,
+                                                                               @ApiParam(value = "return IEP data", defaultValue = "false") @RequestParam("returnIep") boolean returnIep,
+                                                                               @ApiParam(value = "return Alert data", defaultValue = "false") @RequestParam("returnAlerts") boolean returnAlerts,
                                                                                @ApiParam(value = "Requested offset of first record in returned collection of search-offender records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                                                @ApiParam(value = "Requested limit to number of search-offender records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
                                                                                @ApiParam(value = "Comma separated list of one or more of the following fields - <b><<fieldsList>></b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,

@@ -13,7 +13,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@Api(tags = {"/reference-domains"}, description = "Reference Data Information")
+@Api(tags = {"/reference-domains"})
 @SuppressWarnings("unused")
 public interface ReferenceDomainResource {
 
@@ -58,7 +58,7 @@ public interface ReferenceDomainResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     ResponseEntity<List<ReferenceCode>> getReferenceCodesByDomain(@ApiParam(value = "The domain identifier/name.", required = true) @PathVariable("domain") String domain,
-                                                                @ApiParam(value = "Specify whether or not to return reference codes with their associated sub-codes.", defaultValue = "false") @RequestParam(value = "withSubCodes", required = false, defaultValue = "false") boolean withSubCodes,
+                                                                @ApiParam(value = "Specify whether or not to return reference codes with their associated sub-codes.", defaultValue = "false") @RequestParam("withSubCodes") boolean withSubCodes,
                                                                 @ApiParam(value = "Requested offset of first record in returned collection of domain records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                                 @ApiParam(value = "Requested limit to number of domain records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
                                                                 @ApiParam(value = "Comma separated list of one or more of the following fields - <b>code, description</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
@@ -73,7 +73,7 @@ public interface ReferenceDomainResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ReferenceCode getReferenceCodeByDomainAndCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathVariable("domain") String domain,
                                                                             @ApiParam(value = "The reference code.", required = true) @PathVariable("code") String code,
-                                                                            @ApiParam(value = "Specify whether or not to return the reference code with its associated sub-codes.", defaultValue = "false") @RequestParam(value = "withSubCodes", required = false, defaultValue = "false") boolean withSubCodes);
+                                                                            @ApiParam(value = "Specify whether or not to return the reference code with its associated sub-codes.", defaultValue = "false") @RequestParam("withSubCodes") boolean withSubCodes);
 
 
     @PostMapping("/domains/{domain}/codes/{code}")
