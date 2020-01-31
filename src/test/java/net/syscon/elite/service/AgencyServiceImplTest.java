@@ -2,6 +2,7 @@ package net.syscon.elite.service;
 
 import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.AgencyRepository;
@@ -81,6 +82,23 @@ public class AgencyServiceImplTest {
         assertThat(service.removeBlankAddresses(buildPrisonContactDetailsListSingleResultBlankAddress())).isEmpty();
     }
 
+    @Test
+    public void shouldCallRepositoryForAgencyLocationsByType() {
+        service.getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
+
+        verify(agencyRepo).getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
+    }
+
+    @Test
+    public void shouldReturnProcessedLocationsForAgencyLocationsByType() {
+        when(agencyRepo.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE"))
+                .thenReturn(List.of(Location.builder().locationId(1L).build()));
+
+        var locations = service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
+
+        assertThat(locations.size()).isEqualTo(1);
+        assertThat(locations.get(0).getLocationId()).isEqualTo(1L);
+    }
 
     private List<PrisonContactDetail> buildPrisonContactDetailsList() {
         return ImmutableList.of(

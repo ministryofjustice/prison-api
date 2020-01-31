@@ -133,6 +133,13 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
+    public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
+        final var rawLocations = agencyRepository.getAgencyLocationsByType(agencyId, type);
+
+        return LocationProcessor.processLocations(rawLocations);
+    }
+
+    @Override
     public List<Location> getAgencyEventLocations(final String agencyId, final String sortFields, final Order sortOrder) {
         final var orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
