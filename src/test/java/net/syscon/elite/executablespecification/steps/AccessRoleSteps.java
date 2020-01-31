@@ -5,9 +5,9 @@ import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +19,7 @@ import static org.springframework.http.HttpMethod.PUT;
  */
 public class AccessRoleSteps extends CommonSteps {
     private static final String API_ACCESS_ROLE_REQUEST_URL = API_PREFIX + "/access-roles";
-    private ResponseEntity<?> createUpdateResponse;
+    private ResponseEntity createUpdateResponse;
     private List<AccessRole> accessRoles;
 
     @Step("create access role")
@@ -30,13 +30,13 @@ public class AccessRoleSteps extends CommonSteps {
     @Step("Verify role created")
     public void verifyCreated() {
         assertThat(createUpdateResponse).isNotNull();
-            assertThat(createUpdateResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(createUpdateResponse.getStatusCode().value()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
     @Step("Verify role updated")
     public void verifyUpdated() {
         assertThat(createUpdateResponse).isNotNull();
-        assertThat(createUpdateResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(createUpdateResponse.getStatusCode().value()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Step("Verify access roles returned")
@@ -54,7 +54,7 @@ public class AccessRoleSteps extends CommonSteps {
     @Step("Verify access role not found")
     public void verifyAccessRoleNotFound() {
         assertThat(createUpdateResponse).isNull();
-        assertErrorResponse(HttpStatus.NOT_FOUND);
+        assertErrorResponse(Response.Status.NOT_FOUND);
     }
 
     private void dispatchCreateOrUpdateAccessRoleRequest(final String roleCode, final String roleName, final String parentRoleCode, final boolean create) {

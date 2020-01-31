@@ -45,7 +45,7 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
         final var type =
                 allTypes.stream().filter(x -> x.getCode().equals(value.getType())).findFirst();
 
-        if (type.isEmpty()) {
+        if (!type.isPresent()) {
             valid = false;
         } else {
             final var subType =

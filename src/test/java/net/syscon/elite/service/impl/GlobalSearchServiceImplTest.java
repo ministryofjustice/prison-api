@@ -14,8 +14,8 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.web.client.HttpClientErrorException;
 
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -233,7 +233,7 @@ public class GlobalSearchServiceImplTest {
         verify(inmateRepository, Mockito.times(1)).findOffendersWithAliases(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
     }
 
-    @Test(expected = HttpClientErrorException.class)
+    @Test(expected = BadRequestException.class)
     public void testFindOffendersAliasSearchInvalidLocationFilter() {
         criteria = PrisonerDetailSearchCriteria.builder()
                 .location("ABC")

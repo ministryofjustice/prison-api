@@ -66,7 +66,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void postPersonalCareNeedsForOffenders_missingOffenders() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of(), List.of());
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
         final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT", HttpMethod.POST, requestEntity, String.class);
         assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_offender_validation.json");
     }
@@ -76,15 +76,6 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of(), List.of("A1234AA", "A1234AB", "A1234AC"));
         final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs", HttpMethod.POST, requestEntity, String.class);
         assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_validation.json");
-    }
-
-    @Test
-    public void postPersonalCareNeedsForOffenders_emptyBody() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
-        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT", HttpMethod.POST, requestEntity, String.class);
-
-        assertThatStatus(responseEntity, 400);
-        assertThat(responseEntity.getBody()).contains("Malformed request");
     }
 
     @Test
@@ -98,22 +89,12 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void offenderAlerts_respondsWithBadRequestWhenNoOffendersNumbersSupplied() {
-        var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), List.of());
-
-        var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, noOffendersInRequest, String.class);
-
-        assertThatStatus(minimumOfOneOffenderRequiredResponse, 400);
-        assertThat(minimumOfOneOffenderRequiredResponse.getBody()).contains("A minimum of one offender number is required");
-    }
-
-    @Test
-    public void offenderAlerts_emptyBody() {
         var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), null);
 
         var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, noOffendersInRequest, String.class);
 
         assertThatStatus(minimumOfOneOffenderRequiredResponse, 400);
-        assertThat(minimumOfOneOffenderRequiredResponse.getBody()).contains("Malformed request");
+        assertThat(minimumOfOneOffenderRequiredResponse.getBody()).contains("A minimum of one offender number is required");
     }
 
     @Test

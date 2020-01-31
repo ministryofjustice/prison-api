@@ -1,15 +1,16 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.Questionnaire;
 import net.syscon.elite.api.resource.QuestionnaireResource;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.impl.IncidentService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-@RestController
-@RequestMapping("${api.base.path}/questionnaires")
+@RestResource
+@Path("/questionnaires")
 public class QuestionnaireResourceImpl implements QuestionnaireResource {
     private final IncidentService incidentService;
 
@@ -18,7 +19,8 @@ public class QuestionnaireResourceImpl implements QuestionnaireResource {
     }
 
     @Override
-    public Questionnaire getQuestionnaire(@NotNull final String category, @NotNull final String code) {
-        return incidentService.getQuestionnaire(category, code);
+    public QuestionnaireResponse getQuestionnaire(@NotNull final String category, @NotNull final String code) {
+        return new QuestionnaireResponse(Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON).build(), incidentService.getQuestionnaire(category, code));
     }
 }

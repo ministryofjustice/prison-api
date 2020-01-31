@@ -1,15 +1,15 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.OffenderIdentifier;
 import net.syscon.elite.api.resource.IdentifiersResource;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.InmateService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-@RestController
-@RequestMapping("${api.base.path}/identifiers")
+@RestResource
+@Path("/identifiers")
 public class IdentifiersResourceImpl implements IdentifiersResource {
     private final InmateService inmateService;
 
@@ -18,7 +18,9 @@ public class IdentifiersResourceImpl implements IdentifiersResource {
     }
 
     @Override
-    public List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue) {
-        return inmateService.getOffenderIdentifiersByTypeAndValue(identifierType, identifierValue);
+    public IdentifiersListResponse getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue) {
+        return new IdentifiersListResponse(Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON).build(),
+                inmateService.getOffenderIdentifiersByTypeAndValue(identifierType, identifierValue));
     }
 }

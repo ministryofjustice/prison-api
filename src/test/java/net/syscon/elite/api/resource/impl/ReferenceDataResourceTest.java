@@ -2,10 +2,12 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReferenceDataResourceTest extends ResourceTest {
     @Test
@@ -30,7 +32,7 @@ public class ReferenceDataResourceTest extends ResourceTest {
                 },
                 "TASK_SUBTYPE", "TEST1");
 
-        assertThatStatus(response, 200);
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
 
         assertThatJson(response.getBody()).isEqualTo("{domain:\"TASK_SUBTYPE\",code:\"TEST1\",description:\"TASK_TEST1\",parentDomain:\"TASK_TYPE\",parentCode:\"GEN\",activeFlag:\"N\",listSeq:88,systemDataFlag:\"Y\",expiredDate:\"2018-07-19\",\"subCodes\":[]}");
     }
@@ -57,7 +59,7 @@ public class ReferenceDataResourceTest extends ResourceTest {
                 },
                 "TASK_SUBTYPE", "ATRCC");
 
-        assertThatStatus(response, 200);
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
 
         assertThatJson(response.getBody()).isEqualTo("{domain:\"TASK_SUBTYPE\",code:\"ATRCC\",description:\"Amended Type\",parentDomain:\"TASK_TYPE\",parentCode:\"ATR\",activeFlag:\"Y\",listSeq:999,systemDataFlag:\"N\",\"subCodes\":[]}");
     }
@@ -85,7 +87,7 @@ public class ReferenceDataResourceTest extends ResourceTest {
                 },
                 "TASK_SUBTYPE", "AREH-C");
 
-        assertThatStatus(response, 200);
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
 
         assertThatJson(response.getBody()).isEqualTo("{domain:\"TASK_SUBTYPE\",code:\"AREH-C\",description:\"Alcohol Rehab - community -changed\",parentDomain:\"TASK_TYPE\",parentCode:\"ATR\",activeFlag:\"N\",listSeq:10,expiredDate: \"2019-07-19\",systemDataFlag:\"Y\",\"subCodes\":[]}");
     }

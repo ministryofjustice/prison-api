@@ -1,0 +1,96 @@
+package net.syscon.elite.web.config;
+
+import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.jaxrs.listing.ApiListingResource;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
+import net.syscon.elite.core.RestResource;
+import net.syscon.elite.web.handler.ConstraintViolationExceptionHandler;
+import net.syscon.elite.web.handler.ResourceExceptionHandler;
+import net.syscon.elite.web.listener.EndpointLoggingListener;
+import net.syscon.elite.web.provider.LocalDateProvider;
+import net.syscon.elite.web.provider.LocalDateTimeProvider;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.logging.LoggingFeature;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
+import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Singleton;
+import javax.ws.rs.ext.ExceptionMapper;
+
+@Configuration
+@EnableScheduling
+@EnableCaching(proxyTargetClass = true)
+@EnableAsync(proxyTargetClass = true)
+public class ServletContextConfigs extends ResourceConfig {
+
+    @Value("${server.servlet.context-path:}")
+    private String contextPath;
+    @Value("${spring.jersey.application-path:/api}")
+    private String apiPath;
+
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private BuildProperties buildProperties;
+
+    @Value("${api.resource.packages}")
+    private String[] apiResourcePackages;
+
+    @Autowired
+    public void setEnv(final ConfigurableEnvironment env) {
+        final var restResources = AnnotationScanner.findAnnotatedClasses(RestResource.class, apiResourcePackages);
+        registerClasses(restResources);
+        register(RequestContextFilter.class);
+        property(ServerProperties.RESPONSE_SET_STATUS_OVER_SEND_ERROR, true);
+
+        register(new EndpointLoggingListener(apiPath));
+        register(ResourceExceptionHandler.class);
+        register(LoggingFeature.class);
+        register(ApiListingResource.class);
+        register(SwaggerSerializers.class);
+        register(LocalDateProvider.class);
+        register(LocalDateTimeProvider.class);
+
+        // Override jersey built-in Validation exception mapper
+        register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(ConstraintViolationExceptionHandler.class).to(ExceptionMapper.class).in(Singleton.class);
+            }
+        });
+    }
+
+    @PostConstruct
+    public void init() {
+        final var config = new BeanConfig();
+        config.setConfigId("elite2-api");
+        config.setTitle("HMPPS Nomis API Documentation");
+        config.setVersion(getVersion());
+        config.setContact("HMPPS Sheffield Studio Development Team");
+        config.setSchemes(new String[]{"https"});
+        config.setBasePath(contextPath + apiPath);
+        config.setResourcePackage("net.syscon.elite.api");
+        config.setPrettyPrint(true);
+        config.setScan(true);
+    }
+
+    private String getVersion() {
+        return buildProperties == null ? "version not available" : buildProperties.getVersion();
+    }
+
+    @Bean
+    public Logger getLogger() {
+        return org.slf4j.LoggerFactory.getLogger("net.syscon.elite");
+    }
+}

@@ -1,31 +1,33 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
+import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.resource.UserResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import net.syscon.util.ProfileUtil;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
+import javax.ws.rs.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("${api.base.path}/users")
+@RestResource
+@Path("/users")
 public class UserResourceImpl implements UserResource {
     private final AuthenticationFacade authenticationFacade;
     private final UserService userService;
@@ -58,146 +60,160 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
-    public Set<String> getAllUsersHavingRoleAtCaseload(final String caseload, final String roleCode) {
-        return userService.getAllUsernamesForCaseloadAndRole(caseload, roleCode);
+    public GetAllUsersHavingRoleAtCaseloadResponse getAllUsersHavingRoleAtCaseload(final String caseload, final String roleCode) {
+        final var users = userService.getAllUsernamesForCaseloadAndRole(caseload, roleCode);
+        return GetAllUsersHavingRoleAtCaseloadResponse.respond200WithApplicationJson(new ArrayList<>(users));
     }
 
     @Override
-    public ResponseEntity<List<UserDetail>> getUsersByCaseLoad(final String caseload, final String nameFilter, final String accessRole, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public GetUsersByCaseLoadResponse getUsersByCaseLoad(final String caseload, final String nameFilter, final String accessRole, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
 
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
+
         final var userDetails = userService.getUsersByCaseload(caseload, nameFilter, accessRole, pageRequest);
 
-        return ResponseEntity.ok()
-                .headers(userDetails.getPaginationHeaders())
-                .body(userDetails.getItems());
+        return GetUsersByCaseLoadResponse.respond200WithApplicationJson(userDetails);
     }
 
     @Override
-    public ResponseEntity<List<UserDetail>> getStaffUsersForLocalAdministrator(final String nameFilter, final String accessRole, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public GetStaffUsersForLocalAdminstrator getStaffUsersForLocalAdministrator(final String nameFilter, final String accessRole, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
 
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
         final var userDetails = userService.getUsersAsLocalAdministrator(authenticationFacade.getCurrentUsername(), nameFilter, accessRole, pageRequest);
 
-        return ResponseEntity.ok()
-                .headers(userDetails.getPaginationHeaders())
-                .body(userDetails.getItems());
+        return GetStaffUsersForLocalAdminstrator.respond200WithApplicationJson(userDetails);
     }
 
     @Override
-    public ResponseEntity<List<UserDetail>> deprecatedPleaseRemove(final String caseload, final String nameFilter, final String accessRole, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public GetStaffUsersForLocalAdminstrator deprecatedPleaseRemove(final String caseload, final String nameFilter, final String accessRole, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         return getStaffUsersForLocalAdministrator(nameFilter, accessRole, pageOffset, pageLimit, sortFields, sortOrder);
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> removeUsersAccessRoleForCaseload(final String username, final String caseload, final String roleCode) {
+    public RemoveUsersAccessRoleForCaseloadResponse removeUsersAccessRoleForCaseload(final String username, final String caseload, final String roleCode) {
         userService.removeUsersAccessRoleForCaseload(username, caseload, roleCode);
-        return ResponseEntity.ok().build();
+        return RemoveUsersAccessRoleForCaseloadResponse.respond200WithApplicationJson();
     }
 
     @Override
-    public ResponseEntity<List<UserDetail>> getUsers(final String nameFilter, final String accessRole, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public GetUsersResponse getUsers(final String nameFilter, final String accessRole, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
         final var userDetails = userService.getUsers(nameFilter, accessRole, pageRequest);
 
-        return ResponseEntity.ok()
-                .headers(userDetails.getPaginationHeaders())
-                .body(userDetails.getItems());
+        return GetUsersResponse.respond200WithApplicationJson(userDetails);
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> addAccessRole(final String username, final String roleCode) {
+    public AddAccessRoleResponse addAccessRole(final String username, final String roleCode) {
         final var added = userService.addAccessRole(username, roleCode);
-        return added ? ResponseEntity.status(HttpStatus.CREATED).build() : ResponseEntity.ok().build();
+        return added ? AddAccessRoleResponse.respond201WithApplicationJson() : AddAccessRoleResponse.respond200WithApplicationJson();
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> addAccessRoleByCaseload(final String username, final String caseload, final String roleCode) {
+    public AddAccessRoleByCaseloadResponse addAccessRoleByCaseload(final String username, final String caseload, final String roleCode) {
         final var added = userService.addAccessRole(username, roleCode, caseload);
-        return added ? ResponseEntity.status(HttpStatus.CREATED).build() : ResponseEntity.ok().build();
+        return added ? AddAccessRoleByCaseloadResponse.respond201WithApplicationJson() : AddAccessRoleByCaseloadResponse.respond200WithApplicationJson();
     }
 
     @Override
-    public UserDetail getMyUserInformation() {
-        return userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+    public GetMyUserInformationResponse getMyUserInformation() {
+        final var user = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+
+        return GetMyUserInformationResponse.respond200WithApplicationJson(user);
     }
 
     @Override
-    public List<CaseLoad> getMyCaseLoads(final boolean allCaseloads) {
-        return userService.getCaseLoads(authenticationFacade.getCurrentUsername(), allCaseloads);
+    public GetMyCaseLoadsResponse getMyCaseLoads(final boolean allCaseloads) {
+        final var caseLoads = userService.getCaseLoads(authenticationFacade.getCurrentUsername(), allCaseloads);
+
+        return GetMyCaseLoadsResponse.respond200WithApplicationJson(caseLoads);
     }
 
     @Override
-    public List<ReferenceCode>  getMyCaseNoteTypes(final String sortFields, final Order sortOrder) {
+    public GetMyCaseNoteTypesResponse getMyCaseNoteTypes(final String sortFields, final Order sortOrder) {
         final var currentCaseLoad =
                 caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
 
         final var caseLoadType = currentCaseLoad.isPresent() ? currentCaseLoad.get().getType() : "BOTH";
-        return caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
+
+        final var caseNoteTypes = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
+
+        return GetMyCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes);
     }
 
     @Override
-    public List<Location> getMyLocations() {
-        return locationService.getUserLocations(authenticationFacade.getCurrentUsername());
+    public GetMyLocationsResponse getMyLocations() {
+        final var userLocations = locationService.getUserLocations(authenticationFacade.getCurrentUsername());
+
+        return GetMyLocationsResponse.respond200WithApplicationJson(userLocations);
     }
 
     @Override
-    public List<UserRole> getMyRoles(final boolean allRoles) {
-        return userService.getRolesByUsername(authenticationFacade.getCurrentUsername(), allRoles);
+    public GetMyRolesResponse getMyRoles(final boolean allRoles) {
+        final var rolesByUsername = userService.getRolesByUsername(authenticationFacade.getCurrentUsername(), allRoles);
+
+        return GetMyRolesResponse.respond200WithApplicationJson(rolesByUsername);
     }
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
-    public ResponseEntity<?> updateMyActiveCaseLoad(final CaseLoad caseLoad) {
+    public UpdateMyActiveCaseLoadResponse updateMyActiveCaseLoad(final CaseLoad caseLoad) {
         try {
             userService.setActiveCaseLoad(authenticationFacade.getCurrentUsername(), caseLoad.getCaseLoadId());
         } catch (final AccessDeniedException ex) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ErrorResponse.builder()
+            return UpdateMyActiveCaseLoadResponse.respond403WithApplicationJson(ErrorResponse.builder()
                     .userMessage("Not Authorized")
                     .developerMessage("The current user does not have acess to this CaseLoad")
                     .build());
         }
-        return ResponseEntity.ok().build();
+
+        return null;
     }
 
     @Override
-    public StaffDetail getStaffDetail(final Long staffId) {
-        return staffService.getStaffDetail(staffId);
+    public GetStaffDetailResponse getStaffDetail(final Long staffId) {
+        return GetStaffDetailResponse.respond200WithApplicationJson(staffService.getStaffDetail(staffId));
     }
 
     @Override
-    public UserDetail getUserDetails(final String username) {
-        return userService.getUserByUsername(username.toUpperCase());
+    public GetUserDetailsResponse getUserDetails(final String username) {
+        final var userByUsername = userService.getUserByUsername(username.toUpperCase());
+
+        return GetUserDetailsResponse.respond200WithApplicationJson(userByUsername);
     }
 
     @Override
-    public List<UserDetail> getUserDetailsList(final Set<String> usernames) {
-        return userService.getUserListByUsernames(usernames);
-   }
+    public PostUserDetailsListResponse getUserDetailsList(final Set<String> usernames) {
+        final var users = userService.getUserListByUsernames(usernames);
+
+        return PostUserDetailsListResponse.respond200WithApplicationJson(users);
+    }
 
     @Override
-    public List<AccessRole> getRolesForUserAndCaseload(final String username, final String caseload, final boolean includeAdmin) {
-        return userService.getAccessRolesByUserAndCaseload(username, caseload, includeAdmin);
+    public GetRolesForUserAndCaseloadResponse getRolesForUserAndCaseload(final String username, final String caseload, final boolean includeAdmin) {
+        final var roles = userService.getAccessRolesByUserAndCaseload(username, caseload, includeAdmin);
+
+        return GetRolesForUserAndCaseloadResponse.respond200WithApplicationJson(roles);
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<CaseloadUpdate> addApiAccessForCaseload(final String caseload) {
+    public AddApiAccessForCaseloadResponse addApiAccessForCaseload(final String caseload) {
         final var caseloadUpdate = userService.addDefaultCaseloadForPrison(caseload);
         if (caseloadUpdate.getNumUsersEnabled() > 0) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(caseloadUpdate);
+            return AddApiAccessForCaseloadResponse.respond201WithApplicationJson(caseloadUpdate);
         }
-        return ResponseEntity.ok().body(caseloadUpdate);    }
+        return AddApiAccessForCaseloadResponse.respond200WithApplicationJson(caseloadUpdate);
+    }
 
     @Override
-    public ResponseEntity<List<OffenderBooking>> getMyAssignments(final Long pageOffset, final Long pageLimit) {
+    public GetMyAssignmentsResponse getMyAssignments(final Long pageOffset, final Long pageLimit) {
         final var nomisProfile = ProfileUtil.isNomisProfile(env);
         var iepLevel = false;
         List<Long> bookingIds = null;
@@ -224,9 +240,7 @@ public class UserResourceImpl implements UserResource {
                             .pageRequest(pageRequest)
                             .build());
         }
-        return ResponseEntity.ok()
-                .headers(assignments.getPaginationHeaders())
-                .body(assignments.getItems());
+        return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments);
     }
 
 }

@@ -1,27 +1,23 @@
 package net.syscon.elite.api.resource.impl;
 
-
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.resource.ReferenceDomainResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.ReferenceDomainService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.List;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Path;
 
 import static net.syscon.util.ResourceUtils.nvl;
 
-@RestController
-@RequestMapping("${api.base.path}/reference-domains")
+@RestResource
+@Path("/reference-domains")
 @Validated
 public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
     private final ReferenceDomainService referenceDomainService;
@@ -33,7 +29,7 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
     }
 
     @Override
-    public ResponseEntity<List<ReferenceCode>> getAlertTypes(final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public GetAlertTypesResponse getAlertTypes(final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var referenceCodes =
                 referenceDomainService.getAlertTypes(
                         sortFields,
@@ -41,13 +37,11 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
                         nvl(pageOffset, 0L),
                         nvl(pageLimit, 10L));
 
-        return ResponseEntity.ok()
-                .headers(referenceCodes.getPaginationHeaders())
-                .body(referenceCodes.getItems());
+        return GetAlertTypesResponse.respond200WithApplicationJson(referenceCodes);
     }
 
     @Override
-    public ResponseEntity<List<ReferenceCode>> getCaseNoteSources(final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public GetCaseNoteSourcesResponse getCaseNoteSources(final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var caseNoteSources =
                 referenceDomainService.getCaseNoteSources(
                         sortFields,
@@ -55,16 +49,18 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
                         nvl(pageOffset, 0L),
                         nvl(pageLimit, 10L));
 
-        return ResponseEntity.ok().headers(caseNoteSources.getPaginationHeaders()).body(caseNoteSources.getItems());
+        return GetCaseNoteSourcesResponse.respond200WithApplicationJson(caseNoteSources);
     }
 
     @Override
-    public  List<ReferenceCode> getCaseNoteTypes() {
-        return caseNoteService.getUsedCaseNoteTypesWithSubTypes();
+    public GetCaseNoteTypesResponse getCaseNoteTypes() {
+        final var caseNoteTypes = caseNoteService.getUsedCaseNoteTypesWithSubTypes();
+
+        return GetCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes);
     }
 
     @Override
-    public ResponseEntity<List<ReferenceCode>> getReferenceCodesByDomain(final String domain, final boolean withSubCodes, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public GetReferenceCodesByDomainResponse getReferenceCodesByDomain(final String domain, final boolean withSubCodes, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var referenceCodes =
                 referenceDomainService.getReferenceCodesByDomain(
                         domain,
@@ -74,22 +70,24 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
                         nvl(pageOffset, 0L),
                         nvl(pageLimit, 10L));
 
-        return ResponseEntity.ok().headers(referenceCodes.getPaginationHeaders()).body(referenceCodes.getItems());
+        return GetReferenceCodesByDomainResponse.respond200WithApplicationJson(referenceCodes);
     }
 
     @Override
-    public ReferenceCode getReferenceCodeByDomainAndCode(final String domain, final String code, final boolean withSubCodes) {
-        return referenceDomainService
-                .getReferenceCodeByDomainAndCode(domain, code, withSubCodes).orElseThrow( () -> {
+    public GetReferenceCodeByDomainAndCodeResponse getReferenceCodeByDomainAndCode(final String domain, final String code, final boolean withSubCodes) {
+        final var referenceCode = referenceDomainService
+                .getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
 
-                    // If no exception thrown in service layer, we know that reference code exists for specified domain and code.
-                    // However, if sub-codes were requested but reference code does not have any sub-codes, response from service
-                    // layer will be empty - this is a bad request.
+        // If no exception thrown in service layer, we know that reference code exists for specified domain and code.
+        // However, if sub-codes were requested but reference code does not have any sub-codes, response from service
+        // layer will be empty - this is a bad request.
+        if (referenceCode.isEmpty()) {
+            final var message = String.format("Reference code for domain [%s] and code [%s] does not have sub-codes.", domain, code);
 
-                    final var message = String.format("Reference code for domain [%s] and code [%s] does not have sub-codes.", domain, code);
-                    throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, message);
-                });
+            throw new BadRequestException(message);
+        }
 
+        return GetReferenceCodeByDomainAndCodeResponse.respond200WithApplicationJson(referenceCode.get());
     }
 
     @Override
@@ -107,8 +105,10 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
     }
 
     @Override
-    public List<ReferenceCode> getScheduleReasons(final String eventType) {
-        return referenceDomainService.getScheduleReasons(eventType);
+    public GetScheduleReasonsResponse getScheduleReasons(final String eventType) {
+        final var result = referenceDomainService.getScheduleReasons(eventType);
+
+        return GetScheduleReasonsResponse.respond200WithApplicationJson(result);
     }
 
 

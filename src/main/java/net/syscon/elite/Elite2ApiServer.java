@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication(scanBasePackages = { "net.syscon", "uk.gov.justice.hmpps" })
+@SpringBootApplication(scanBasePackages = "net.syscon")
 @EnableScheduling
 @EnableJpaRepositories
 public class Elite2ApiServer {

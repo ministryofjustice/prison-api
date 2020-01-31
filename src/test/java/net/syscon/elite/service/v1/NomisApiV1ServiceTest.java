@@ -6,8 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.web.client.HttpClientErrorException;
 
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -46,7 +46,7 @@ public class NomisApiV1ServiceTest {
         final var from = LocalDate.now().minusDays(1);
         final var to = LocalDate.now().plusDays(1);
         assertThatThrownBy(() -> service.getVisitAvailableDates(12345L, from, to))
-                .isInstanceOf(HttpClientErrorException.class)
+                .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Start date cannot be in the past");
     }
 
@@ -55,7 +55,7 @@ public class NomisApiV1ServiceTest {
         final var from = LocalDate.now().plusDays(5);
         final var to = LocalDate.now().plusDays(1);
         assertThatThrownBy(() -> service.getVisitAvailableDates(12345L, from, to))
-                .isInstanceOf(HttpClientErrorException.class)
+                .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("End date cannot be before the start date");
     }
 
@@ -64,7 +64,7 @@ public class NomisApiV1ServiceTest {
         final var from = LocalDate.now().plusDays(60);
         final var to = LocalDate.now().plusDays(61);
         assertThatThrownBy(() -> service.getVisitAvailableDates(12345L, from, to))
-                .isInstanceOf(HttpClientErrorException.class)
+                .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("End date cannot be more than 60 days in the future");
     }
 

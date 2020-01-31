@@ -3,15 +3,20 @@ package net.syscon.elite.api.resource;
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.IncidentCase;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import net.syscon.elite.api.support.ResponseDelegate;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Api(tags = {"/incidents"})
 public interface IncidentsResource {
 
-    @GetMapping("/{incidentId}")
+    @GET
+    @Path("/{incidentId}")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
     @ApiOperation(value = "Return an Incident for a given incident ID", notes = "System access only",
             authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
     @ApiResponses(value = {
@@ -19,6 +24,18 @@ public interface IncidentsResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    IncidentCase getIncident(@ApiParam(value = "Incident Id", required = true) @PathVariable("incidentId") @NotNull Long incidentId);
+    IncidentResponse getIncident(@ApiParam(value = "Incident Id", required = true) @PathParam("incidentId") @NotNull Long incidentId);
+
+    class IncidentResponse extends ResponseDelegate {
+        public IncidentResponse(final Response response, final IncidentCase incidentCase) {
+            super(response, incidentCase);
+        }
+    }
+
+    class IncidentListResponse extends ResponseDelegate {
+        public IncidentListResponse(final Response response, final List<IncidentCase> incidentCase) {
+            super(response, incidentCase);
+        }
+    }
 
 }

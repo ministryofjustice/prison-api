@@ -23,13 +23,12 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.HttpClientErrorException;
 
+import javax.ws.rs.BadRequestException;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -734,7 +733,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "reviewDate", detail.getNextReviewDate(),
                         "assessCommitteeCode", detail.getCommittee()));
         if (result != 1) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("No pending category assessment found, category %.10s, booking %d, seq %d",
+            throw new BadRequestException(String.format("No pending category assessment found, category %.10s, booking %d, seq %d",
                     detail.getCategory(),
                     detail.getBookingId(),
                     detail.getAssessmentSeq()));
@@ -753,7 +752,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "statuses", Arrays.asList("A", "P")),
                 SingleColumnRowMapper.newInstance(Integer.class));
         if (CollectionUtils.isEmpty(sequences)) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("No category assessment found, category %.10s, booking %d",
+            throw new BadRequestException(String.format("No category assessment found, category %.10s, booking %d",
                     detail.getCategory(),
                     detail.getBookingId()));
         }
@@ -782,7 +781,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 )
         );
         if (approvalResult != 1) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("No pending category assessment found, category %.10s, booking %d, seq %d",
+            throw new BadRequestException(String.format("No pending category assessment found, category %.10s, booking %d, seq %d",
                     detail.getCategory(),
                     detail.getBookingId(),
                     maxSequence));
@@ -798,7 +797,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                     )
             );
             if (updatePreviousResult < 1) {
-                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("Previous category assessment not found, booking %d, seq %s",
+                throw new BadRequestException(String.format("Previous category assessment not found, booking %d, seq %s",
                         detail.getBookingId(),
                         previousSequences));
             }
@@ -820,7 +819,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 )
         );
         if (result != 1) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("Category assessment not found, booking %d, seq %d",
+            throw new BadRequestException(String.format("Category assessment not found, booking %d, seq %d",
                     detail.getBookingId(),
                     detail.getAssessmentSeq()));
         }

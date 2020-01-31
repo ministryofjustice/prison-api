@@ -75,15 +75,15 @@ public class PersistenceConfigs {
 
         final var maxPoolSize = environment.getProperty(String.format("%s.hikari.maximum-pool-size", dataSourcePrefix));
         if (StringUtils.isNotBlank(maxPoolSize)) {
-            hikariConfig.setMaximumPoolSize(Integer.parseInt(maxPoolSize));
+            hikariConfig.setMaximumPoolSize(Integer.valueOf(maxPoolSize));
         }
         final var connectionTimeout = environment.getProperty(String.format("%s.hikari.connectionTimeout", dataSourcePrefix));
         if (StringUtils.isNotBlank(connectionTimeout)) {
-            hikariConfig.setConnectionTimeout(Integer.parseInt(connectionTimeout));
+            hikariConfig.setConnectionTimeout(Integer.valueOf(connectionTimeout));
         }
         final var validationTimeout = environment.getProperty(String.format("%s.hikari.validationTimeout", dataSourcePrefix));
         if (StringUtils.isNotBlank(validationTimeout)) {
-            hikariConfig.setValidationTimeout(Integer.parseInt(validationTimeout));
+            hikariConfig.setValidationTimeout(Integer.valueOf(validationTimeout));
         }
 
         hikariConfig.setReadOnly(readonly);

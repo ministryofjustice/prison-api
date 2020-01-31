@@ -16,18 +16,17 @@ import net.syscon.elite.service.UserService;
 import net.syscon.elite.service.validation.CaseNoteTypeSubTypeValid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -143,7 +142,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
                     "Amendments can no longer be made due to the maximum character limit being reached" :
                     format("Length should not exceed %d characters", spaceLeft);
 
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errorMessage);
+            throw new BadRequestException(errorMessage);
         }
 
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
@@ -171,7 +170,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
         // Validate date range
         if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid date range: toDate is before fromDate.");
+            throw new BadRequestException("Invalid date range: toDate is before fromDate.");
         }
 
         final var count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);

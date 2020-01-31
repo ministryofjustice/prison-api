@@ -7,7 +7,7 @@ import net.syscon.elite.repository.jpa.model.PrisonerStatusInformation;
 import net.syscon.elite.repository.jpa.repository.PrisonerStatusInformationRepository;
 import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.BookingService;
-
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.InmatesHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -17,13 +17,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
 
 @Service
 @Transactional(readOnly = true)
@@ -60,7 +57,7 @@ public class PrisonerInformationService {
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public PrisonerInformation getPrisonerInformationById(final @NotNull String offenderNo) {
-        final var entity = prisonerStatusInformationRepository.getByNomsId(offenderNo).orElseThrow(() -> new EntityNotFoundException(format("Resource with id [%s] not found.", offenderNo)));
+        final var entity = prisonerStatusInformationRepository.getByNomsId(offenderNo).orElseThrow(() -> EntityNotFoundException.withId(offenderNo));
 
         final PrisonerInformation prisonerInformation = transform(entity);
 
@@ -85,7 +82,7 @@ public class PrisonerInformationService {
                 .admissionDate(entity.getAdmissionDate())
                 .bookingBeginDate(entity.getBookingBeginDate())
                 .englishSpeaking("Y".equals(entity.getEnglishSpeakingFlag()))
-                .communityStatus(format("%s %s", "Y".equals(entity.getActiveFlag()) ? "ACTIVE" : "INACTIVE", entity.getInOutStatus()))
+                .communityStatus(String.format("%s %s", "Y".equals(entity.getActiveFlag()) ? "ACTIVE" : "INACTIVE", entity.getInOutStatus()))
                 .build();
         prisonerInformation.deriveLegalStatus(entity.getBandCode());
         prisonerInformation.deriveUnitCodes(entity.getCellLocation());

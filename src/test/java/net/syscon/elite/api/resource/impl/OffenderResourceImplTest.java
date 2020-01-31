@@ -8,7 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.web.client.HttpClientErrorException;
+
+import javax.ws.rs.BadRequestException;
 
 import static org.mockito.Mockito.verify;
 
@@ -23,7 +24,7 @@ public class OffenderResourceImplTest {
         offenderAssessmentResource = new OffenderAssessmentResourceImpl(inmateService);
     }
 
-    @Test(expected = HttpClientErrorException.class)
+    @Test(expected = BadRequestException.class)
     public void getOffenderCategorisationsInvalidType() {
         offenderAssessmentResource.getOffenderCategorisations("LEI", "INVALID_CAT_TYPE", null);
     }

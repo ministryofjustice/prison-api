@@ -1,24 +1,27 @@
 package net.syscon.elite.api.resource.impl;
 
-import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
 import net.syscon.elite.api.resource.AppointmentsResource;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AppointmentsService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("${api.base.path}/appointments")
-@AllArgsConstructor
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+
+@RestResource
+@Path("/appointments")
 public class AppointmentsResourceImpl implements AppointmentsResource {
     private final AppointmentsService appointmentsService;
 
+    AppointmentsResourceImpl(final AppointmentsService appointmentsService) {
+        this.appointmentsService = appointmentsService;
+    }
+
     @Override
     @ProxyUser
-    public ResponseEntity<Void> createAppointments(final AppointmentsToCreate createAppointmentsRequest) {
+    public Response createAppointments(final AppointmentsToCreate createAppointmentsRequest) {
         appointmentsService.createAppointments(createAppointmentsRequest);
-        return ResponseEntity.ok().build();
+        return Response.ok().build();
     }
 }

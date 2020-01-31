@@ -2,32 +2,31 @@ package net.syscon.elite.api.resource.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.resource.PrisonerResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.GlobalSearchService;
-import org.springframework.http.ResponseEntity;
+import net.syscon.elite.service.impl.PrisonerInformationService;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
+import javax.ws.rs.Path;
 import java.util.List;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 
-@RestController
-@RequestMapping("${api.base.path}/prisoners")
+@RestResource
+@Path("prisoners")
 @Slf4j
 @AllArgsConstructor
 public class PrisonerResourceImpl implements PrisonerResource {
     private final GlobalSearchService globalSearchService;
+    private final PrisonerInformationService prisonerInformationService;
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public ResponseEntity<List<PrisonerDetail>> getPrisoners(
+    public GetPrisonersResponse getPrisoners(
             final boolean includeAliases,
             final List<String> offenderNos,
             final String pncNumber,
@@ -35,9 +34,9 @@ public class PrisonerResourceImpl implements PrisonerResource {
             final String firstName,
             final String middleNames,
             final String lastName,
-            final LocalDate dob,
-            final LocalDate dobFrom,
-            final LocalDate dobTo,
+            final String dob,
+            final String dobFrom,
+            final String dobTo,
             final String location,
             final String genderCode,
             final boolean partialNameMatch,
@@ -58,9 +57,9 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .croNumber(croNumber)
                 .location(location)
                 .gender(genderCode)
-                .dob(dob)
-                .dobFrom(dobFrom)
-                .dobTo(dobTo)
+                .dob(fromISO8601DateString(dob))
+                .dobFrom(fromISO8601DateString(dobFrom))
+                .dobTo(fromISO8601DateString(dobTo))
                 .partialNameMatch(partialNameMatch)
                 .anyMatch(anyMatch)
                 .prioritisedMatch(prioritisedMatch)
@@ -71,13 +70,11 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 criteria,
                 new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
         log.info("Global Search returned {} records", offenders.getTotalRecords());
-        return ResponseEntity.ok()
-                .headers(offenders.getPaginationHeaders())
-                .body(offenders.getItems());
+        return GetPrisonersResponse.respond200WithApplicationJson(offenders);
     }
 
     @Override
-    public List<PrisonerDetail> getPrisonersOffenderNo(final String offenderNo) {
+    public GetPrisonersOffenderNoResponse getPrisonersOffenderNo(final String offenderNo) {
 
         final var criteria = PrisonerDetailSearchCriteria.builder()
                 .offenderNos(List.of(offenderNo))
@@ -88,24 +85,22 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 criteria,
                 new PageRequest(null, null, 0L, 1000L));
         log.debug("Global Search returned {} records", offenders.getTotalRecords());
-        return offenders.getItems();
+        return GetPrisonersOffenderNoResponse.respond200WithApplicationJson(offenders.getItems());
     }
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public ResponseEntity<List<PrisonerDetail>> getPrisoners(final PrisonerDetailSearchCriteria criteria,
-                                                             final Long pageOffset,
-                                                             final Long pageLimit,
-                                                             final String sortFields,
-                                                             final Order sortOrder) {
+    public GetPrisonersResponse getPrisoners(final PrisonerDetailSearchCriteria criteria,
+                                             final Long pageOffset,
+                                             final Long pageLimit,
+                                             final String sortFields,
+                                             final Order sortOrder) {
         log.info("Global Search with search criteria: {}", criteria);
         final var offenders = globalSearchService.findOffenders(
                 criteria,
                 new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
         log.debug("Global Search returned {} records", offenders.getTotalRecords());
-        return ResponseEntity.ok()
-                .headers(offenders.getPaginationHeaders())
-                .body(offenders.getItems());
+        return GetPrisonersResponse.respond200WithApplicationJson(offenders);
     }
 
 }

@@ -3,14 +3,14 @@ package net.syscon.elite.api.resource.v1.impl;
 import net.syscon.elite.api.model.v1.*;
 import net.syscon.elite.api.resource.v1.NomisApiV1Resource;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.v1.NomisApiV1Service;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.SortedMap;
@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 
 import static net.syscon.util.DateTimeConverter.optionalStrToLocalDateTime;
 
-@RestController
-@RequestMapping("${api.base.path}/v1")
+@RestResource
+@Path("/v1")
 public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
     private final NomisApiV1Service service;
@@ -32,11 +32,13 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     @Override
     public Offender getOffender(@NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
         return service.getOffender(nomsId);
+
     }
 
     @Override
     public Image getOffenderImage(@NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
         return service.getOffenderImage(nomsId);
+
     }
 
     @Override
@@ -98,6 +100,7 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     @Override
     public List<Hold> getHolds(final String clientName, final String prisonId, final String nomsId, final String clientUniqueRef) {
         final var uniqueClientId = getUniqueClientId(clientName, clientUniqueRef);
+
         return service.getHolds(prisonId, nomsId, uniqueClientId, clientName);
     }
 
@@ -115,6 +118,7 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
     @Override
     public Event getOffenderPssDetail(final String nomsId) {
+
         return service.getOffenderPssDetail(nomsId);
     }
 
@@ -122,16 +126,19 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
     public PaymentResponse storePayment(final String prisonId, final String nomsId, final StorePaymentRequest payment) {
+
         return service.storePayment(prisonId, nomsId, payment.getType(), payment.getDescription(), payment.getAmountInPounds(), LocalDate.now(), payment.getClientTransactionId());
     }
 
     @Override
     public AccountBalance getAccountBalance(final String prisonId, final String nomsId) {
+
         return service.getAccountBalances(prisonId, nomsId);
     }
 
     @Override
     public AccountTransactions getAccountTransactions(final String prisonId, final String nomsId, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
+
         final var transactions = service.getAccountTransactions(prisonId, nomsId, accountCode, fromDate, toDate);
         return new AccountTransactions(transactions);
     }
@@ -145,26 +152,32 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
 
     @Override
     public ActiveOffender getActiveOffender(final String nomsId, final LocalDate birthDate) {
+
         return service.getActiveOffender(nomsId, birthDate);
     }
 
     @Override
     public AvailableDates getVisitAvailableDates(final Long offenderId, final LocalDate fromDate, final LocalDate toDate) {
+
         return service.getVisitAvailableDates(offenderId, fromDate, toDate);
     }
 
     @Override
     public ContactList getVisitContactList(final Long offenderId) {
+
         return service.getVisitContactList(offenderId);
     }
 
     @Override
     public SortedMap<String, UnavailabilityReason> getVisitUnavailability(final Long offenderId, final String dates) {
+
         return service.getVisitUnavailability(offenderId, dates);
     }
 
+
     @Override
     public VisitSlots getVisitSlotsWithCapacity(final String prisonId, final LocalDate fromDate, final LocalDate toDate) {
+
         return service.getVisitSlotsWithCapacity(prisonId, fromDate, toDate);
     }
 }

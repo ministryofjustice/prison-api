@@ -27,7 +27,7 @@ public class AccessRoleServiceImplTest {
 
     @Before
     public void init() {
-        accessRoleService = new AccessRoleService(accessRoleRepository);
+        accessRoleService = new AccessRoleServiceImpl(accessRoleRepository);
     }
 
     @Test

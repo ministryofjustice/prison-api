@@ -15,12 +15,11 @@ import net.syscon.elite.service.OffenderIepReviewSearchCriteria;
 import net.syscon.util.DateTimeConverter;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.client.HttpClientErrorException;
 
+import javax.ws.rs.BadRequestException;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.Period;
@@ -205,7 +204,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                     start = bookedOnDay.atTime(17, 0);
                     break;
                 default:
-                    throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Unrecognised timeslot: " + bookedOnPeriod);
+                    throw new BadRequestException("Unrecognised timeslot: " + bookedOnPeriod);
             }
         }
         end = end.minus(1, ChronoUnit.SECONDS);

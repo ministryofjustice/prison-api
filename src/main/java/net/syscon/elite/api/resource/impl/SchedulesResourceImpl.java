@@ -4,18 +4,18 @@ import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.resource.ScheduleResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.SchedulesService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
+import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.util.List;
 
 /**
  * Implementation of /schedules endpoint.
  */
-@RestController
-@RequestMapping("${api.base.path}/schedules")
+@RestResource
+@Path("/schedules")
 public class SchedulesResourceImpl implements ScheduleResource {
     private final SchedulesService schedulesService;
 

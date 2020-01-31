@@ -1,20 +1,16 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
-import net.syscon.elite.api.model.Keyworker;
-import net.syscon.elite.api.model.OffenderKeyWorker;
 import net.syscon.elite.api.resource.KeyWorkerResource;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
+import javax.ws.rs.Path;
 import java.util.Collections;
 import java.util.List;
 
-@RestController
-@RequestMapping("${api.base.path}/key-worker")
+@RestResource
+@Path("/key-worker")
 public class KeyWorkerResourceImpl implements KeyWorkerResource {
     private final KeyWorkerAllocationService keyWorkerService;
 
@@ -23,42 +19,50 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
     }
 
     @Override
-    public List<Keyworker> getAvailableKeyworkers(final String agencyId) {
-        return keyWorkerService.getAvailableKeyworkers(agencyId);
+    public GetAvailableKeyworkersResponse getAvailableKeyworkers(final String agencyId) {
+        final var availableKeyworkers = keyWorkerService.getAvailableKeyworkers(agencyId);
+
+        return GetAvailableKeyworkersResponse.respond200WithApplicationJson(availableKeyworkers);
     }
 
     @Override
-    public List<KeyWorkerAllocationDetail> getAllocationsForKeyworker(final Long staffId, final String agencyId) {
-        return keyWorkerService.getAllocationDetailsForKeyworkers(Collections.singletonList(staffId), agencyId);
+    public GetAllocationsForKeyworkerResponse getAllocationsForKeyworker(final Long staffId, final String agencyId) {
+        final var allocationDetails = keyWorkerService.getAllocationDetailsForKeyworkers(Collections.singletonList(staffId), agencyId);
+
+        return GetAllocationsForKeyworkerResponse.respond200WithApplicationJson(allocationDetails);
     }
 
     @Override
-    public List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocations(final String agencyId, final List<Long> staffIds) {
-        return keyWorkerService.getAllocationDetailsForKeyworkers(staffIds, agencyId);
+    public PostKeyWorkerAgencyIdCurrentAllocationsResponse postKeyWorkerAgencyIdCurrentAllocations(final String agencyId, final List<Long> staffIds) {
+        final var allocationDetails = keyWorkerService.getAllocationDetailsForKeyworkers(staffIds, agencyId);
+
+        return PostKeyWorkerAgencyIdCurrentAllocationsResponse.respond200WithApplicationJson(allocationDetails);
     }
 
     @Override
-    public List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocationsOffenders(final String agencyId, final List<String> offenderNos) {
-        return keyWorkerService.getAllocationDetailsForOffenders(offenderNos, agencyId);
+    public PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse postKeyWorkerAgencyIdCurrentAllocationsOffenders(final String agencyId, final List<String> offenderNos) {
+        final var allocationDetails = keyWorkerService.getAllocationDetailsForOffenders(offenderNos, agencyId);
+
+        return PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse.respond200WithApplicationJson(allocationDetails);
     }
 
     @Override
-    public List<OffenderKeyWorker> postKeyWorkerOffendersAllocationHistory(final List<String> offenderNos) {
-        return keyWorkerService.getAllocationHistoryByOffenderNos(offenderNos);
+    public PostKeyWorkerOffendersAllocationHistoryResponse postKeyWorkerOffendersAllocationHistory(final List<String> offenderNos) {
+        final var allocHistory = keyWorkerService.getAllocationHistoryByOffenderNos(offenderNos);
+        return PostKeyWorkerOffendersAllocationHistoryResponse.respond200WithApplicationJson(allocHistory);
     }
 
     @Override
-    public List<OffenderKeyWorker> postKeyWorkerStaffAllocationHistory(final List<Long> staffIds) {
-        return keyWorkerService.getAllocationHistoryByStaffIds(staffIds);
+    public PostKeyWorkerStaffAllocationHistoryResponse postKeyWorkerStaffAllocationHistory(final List<Long> staffIds) {
+        final var allocHistory = keyWorkerService.getAllocationHistoryByStaffIds(staffIds);
+        return PostKeyWorkerStaffAllocationHistoryResponse.respond200WithApplicationJson(allocHistory);
     }
 
     @Override
-    public ResponseEntity<List<OffenderKeyWorker>> getAllocationHistory(final String agencyId, final Long pageOffset, final Long pageLimit) {
+    public GetAllocationHistoryResponse getAllocationHistory(final String agencyId, final Long pageOffset, final Long pageLimit) {
         final var pageRequest = new PageRequest(pageOffset, pageLimit);
         final var allocations = keyWorkerService.getAllocationHistoryByAgency(agencyId, pageRequest);
 
-        return ResponseEntity.ok()
-                .headers(allocations.getPaginationHeaders())
-                .body(allocations.getItems());
+        return GetAllocationHistoryResponse.respond200WithApplicationJson(allocations);
     }
 }

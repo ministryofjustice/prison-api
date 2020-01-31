@@ -1,5 +1,5 @@
 {
   "status": 400,
-  "userMessage": "Required Long parameter 'limit' is not present",
-  "developerMessage": "Required Long parameter 'limit' is not present"
+  "userMessage": "getCaseNotesEvents.limit: must not be null",
+  "developerMessage": "javax.validation.ConstraintViolationException: getCaseNotesEvents.limit: must not be null"
 }

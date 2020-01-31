@@ -3,16 +3,13 @@ package net.syscon.elite.api.resource.impl;
 import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.api.resource.AccessRoleResource;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AccessRoleService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import javax.ws.rs.Path;
 
-@RestController
-@RequestMapping("${api.base.path}/access-roles")
+@RestResource
+@Path("/access-roles")
 public class AccessRoleResourceImpl implements AccessRoleResource {
     private final AccessRoleService accessRoleService;
 
@@ -21,22 +18,26 @@ public class AccessRoleResourceImpl implements AccessRoleResource {
     }
 
     @Override
-    public List<AccessRole> getAccessRoles(final boolean includeAdmin) {
-        return accessRoleService.getAccessRoles(includeAdmin);
+    public GetAccessRolesResponse getAccessRoles(final boolean includeAdmin) {
+
+        final var accessRoles = accessRoleService.getAccessRoles(includeAdmin);
+        return GetAccessRolesResponse.respond200WithApplicationJson(accessRoles);
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> createAccessRole(final AccessRole newAccessRole) {
+    public CreateAccessRoleResponse createAccessRole(final AccessRole newAccessRole) {
         accessRoleService.createAccessRole(newAccessRole);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        return CreateAccessRoleResponse.respond201WithApplicationJson();
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void>  updateAccessRole(final AccessRole accessRole) {
+    public UpdateAccessRoleResponse updateAccessRole(final AccessRole accessRole) {
         accessRoleService.updateAccessRole(accessRole);
-        return ResponseEntity.ok().build();
+
+        return UpdateAccessRoleResponse.respond200WithApplicationJson();
     }
 
 }

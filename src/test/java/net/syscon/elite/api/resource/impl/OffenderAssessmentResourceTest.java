@@ -41,7 +41,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 },
                 "-1", "2018-06-05");
 
-        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 },
                 "-1", "2018-06-05");
 
-        assertThatStatus(response, HttpStatus.FORBIDDEN.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 },
                 "-56", "2018-06-05");
 
-        assertThatStatus(response, HttpStatus.NOT_FOUND.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 },
                 "-34");
 
-        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
@@ -111,7 +111,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 },
                 "-31");
 
-        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
@@ -128,7 +128,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 },
                 "-34");
 
-        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(response.getBody()).contains("Assessment status type is invalid: OTHER");
     }
 
@@ -145,7 +145,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 }, "-1");
 
-        assertThatStatus(response, HttpStatus.FORBIDDEN.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -161,7 +161,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
         assertThatJson(response.getBody()).isArray().hasSize(1);
         assertThatJson(response.getBody()).node("[0].bookingId").isEqualTo(value(-1));
     }
@@ -179,7 +179,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
         assertThatJson(response.getBody()).isArray().hasSize(6);
         assertThatJson(response.getBody()).node("[0].bookingId").isEqualTo(value(-1));
         assertThatJson(response.getBody()).node("[1].bookingId").isEqualTo(value(-3));
@@ -209,7 +209,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -38 AND ASSESSMENT_SEQ = 3");
 
@@ -252,7 +252,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.FORBIDDEN.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -268,11 +268,11 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         final var body = response.getBody();
-        assertThatJson(body).node("userMessage").asString().contains("bookingId must be provided");
-        assertThatJson(body).node("userMessage").asString().contains("Sequence number must be provided");
-        assertThatJson(body).node("userMessage").asString().contains("Comment text must be a maximum of 4000 characters");
+        assertThatJson(body).node("userMessage").asString().contains("updateCategorisation.body.bookingId: bookingId must be provided");
+        assertThatJson(body).node("userMessage").asString().contains("updateCategorisation.body.assessmentSeq: Sequence number must be provided");
+        assertThatJson(body).node("userMessage").asString().contains("updateCategorisation.body.comment: Comment text must be a maximum of 4000 characters");
     }
 
     @Test
@@ -291,7 +291,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThatJson(response.getBody()).node("userMessage").isEqualTo("Category not recognised.");
     }
 
@@ -311,7 +311,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThatJson(response.getBody()).node("userMessage").isEqualTo("Committee Code not recognised.");
     }
 
@@ -334,7 +334,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.CREATED.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -38 AND ASSESSMENT_SEQ = 3");
         assertThat(results).asList()
@@ -365,7 +365,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.FORBIDDEN.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -383,13 +383,13 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         final var body = response.getBody();
-        assertThatJson(body).node("userMessage").asString().contains("bookingId must be provided");
-        assertThatJson(body).node("userMessage").asString().contains("Sequence number must be provided");
-        assertThatJson(body).node("userMessage").asString().contains("Comment text must be a maximum of 240 characters");
-        assertThatJson(body).node("userMessage").asString().contains("Department must be provided");
-        assertThatJson(body).node("userMessage").asString().contains("Date of rejection must be provided");
+        assertThatJson(body).node("userMessage").asString().contains("rejectCategorisation.body.bookingId: bookingId must be provided");
+        assertThatJson(body).node("userMessage").asString().contains("rejectCategorisation.body.assessmentSeq: Sequence number must be provided");
+        assertThatJson(body).node("userMessage").asString().contains("rejectCategorisation.body.committeeCommentText: Comment text must be a maximum of 240 characters");
+        assertThatJson(body).node("userMessage").asString().contains("rejectCategorisation.body.reviewCommitteeCode: Department must be provided");
+        assertThatJson(body).node("userMessage").asString().contains("rejectCategorisation.body.evaluationDate: Date of rejection must be provided");
     }
 
     @Test
@@ -411,7 +411,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThatJson(response.getBody()).node("userMessage").isEqualTo("Committee Code not recognised.");
     }
 }

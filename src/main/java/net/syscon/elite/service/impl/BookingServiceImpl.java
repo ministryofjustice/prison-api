@@ -16,15 +16,14 @@ import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -412,7 +411,7 @@ public class BookingServiceImpl implements BookingService {
     private void validateScheduledEventsRequest(final LocalDate fromDate, final LocalDate toDate) {
         // Validate date range
         if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid date range: toDate is before fromDate.");
+            throw new BadRequestException("Invalid date range: toDate is before fromDate.");
         }
     }
 
@@ -699,7 +698,7 @@ public class BookingServiceImpl implements BookingService {
         final var viewAllBookings = isViewAllBookings();
         final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
 
-        if (offenderNos == null || offenderNos.isEmpty()) {
+        if (offenderNos.isEmpty()) {
             return offenderSentenceSummaries(agencyId, caseLoadIdsForUser, !viewAllBookings);
         } else {
             return offenderSentenceSummaries(offenderNos, caseLoadIdsForUser, !viewAllBookings);
@@ -709,7 +708,7 @@ public class BookingServiceImpl implements BookingService {
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final Set<String> caseloads, final boolean filterByCaseloads) {
         final var query = buildAgencyQuery(agencyId, authenticationFacade.getCurrentUsername());
         if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Request must be restricted to either a caseload, agency or list of offenders");
+            throw new BadRequestException("Request must be restricted to either a caseload, agency or list of offenders");
         }
         return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings());
     }

@@ -1,22 +1,18 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.resource.SearchOffenderResource;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.SearchOffenderService;
 import net.syscon.elite.service.support.SearchOffenderRequest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import javax.ws.rs.Path;
 
 import static net.syscon.util.ResourceUtils.nvl;
 
-@RestController
-@RequestMapping("${api.base.path}/search-offenders")
+@RestResource
+@Path("search-offenders")
 public class SearchResourceImpl implements SearchOffenderResource {
     private final AuthenticationFacade authenticationFacade;
     private final SearchOffenderService searchOffenderService;
@@ -27,7 +23,7 @@ public class SearchResourceImpl implements SearchOffenderResource {
     }
 
     @Override
-    public ResponseEntity<List<OffenderBooking>> searchForOffendersLocationAndKeyword(final String locationPrefix, final String keywords, final boolean returnIep, final boolean returnAlerts, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+    public SearchForOffendersLocationAndKeywordResponse searchForOffendersLocationAndKeyword(final String locationPrefix, final String keywords, final boolean returnIep, final boolean returnAlerts, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var request = SearchOffenderRequest.builder()
                 .username(authenticationFacade.getCurrentUsername())
                 .keywords(keywords)
@@ -40,15 +36,8 @@ public class SearchResourceImpl implements SearchOffenderResource {
                 .limit(nvl(pageLimit, 10L))
                 .build();
 
-        final var offendersPaged = searchOffenderService.findOffenders(request);
+        final var offenders = searchOffenderService.findOffenders(request);
 
-        final var responseHeaders = new HttpHeaders();
-        responseHeaders.set("Total-Records", String.valueOf(offendersPaged.getTotalRecords()));
-        responseHeaders.set("Page-Offset",   String.valueOf(offendersPaged.getPageOffset()));
-        responseHeaders.set("Page-Limit",    String.valueOf(offendersPaged.getPageLimit()));
-
-        return ResponseEntity.ok()
-                .headers(responseHeaders)
-                .body(offendersPaged.getItems());
+        return SearchForOffendersLocationAndKeywordResponse.respond200WithApplicationJson(offenders);
     }
 }

@@ -2,23 +2,26 @@ package net.syscon.elite.api.resource.impl;
 
 import io.jsonwebtoken.lang.Collections;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.*;
+import lombok.val;
+import net.syscon.elite.api.model.ApprovalStatus;
+import net.syscon.elite.api.model.HdcChecks;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.OffenderCurfewService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Slf4j
-@RestController
-@RequestMapping("${api.base.path}/offender-sentences")
+@RestResource
+@Path("/offender-sentences")
 public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
@@ -34,64 +37,77 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     @Override
-    public List<OffenderSentenceDetail> getOffenderSentences(final String agencyId, final List<String> offenderNos) {
-        return bookingService.getOffenderSentencesSummary(
+    public GetOffenderSentencesResponse getOffenderSentences(final String agencyId, final List<String> offenderNos) {
+        final var sentences = bookingService.getOffenderSentencesSummary(
                 agencyId,
                 offenderNos);
+
+        return GetOffenderSentencesResponse.respond200WithApplicationJson(sentences);
     }
 
     @Override
-    public List<OffenderSentenceCalc> getOffenderSentencesHomeDetentionCurfewCandidates() {
-        return offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
+    public Response getOffenderSentencesHomeDetentionCurfewCandidates() {
+        return Response.ok(
+                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername()),
+                MediaType.APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @Override
-    public HomeDetentionCurfew getLatestHomeDetentionCurfew(Long bookingId) {
-        return offenderCurfewService.getLatestHomeDetentionCurfew(bookingId);
+    public Response getLatestHomeDetentionCurfew(Long bookingId) {
+        return Response.ok(
+                offenderCurfewService.getLatestHomeDetentionCurfew(bookingId),
+                MediaType.APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> setCurfewChecks(final Long bookingId, final HdcChecks hdcChecks) {
+    public Response setCurfewChecks(final Long bookingId, final HdcChecks hdcChecks) {
         offenderCurfewService.setHdcChecks(bookingId, hdcChecks);
-        return ResponseEntity.noContent().build();
+        return Response.noContent().build();
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> clearCurfewChecks(Long bookingId) {
+    public Response clearCurfewChecks(Long bookingId) {
         offenderCurfewService.deleteHdcChecks(bookingId);
-        return ResponseEntity.noContent().build();
+        return Response.noContent().build();
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> setApprovalStatus(final Long bookingId, final ApprovalStatus approvalStatus) {
+    public Response setApprovalStatus(final Long bookingId, final ApprovalStatus approvalStatus) {
 
         offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
-        return ResponseEntity.noContent().build();
+        return Response.noContent().build();
     }
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> clearApprovalStatus(Long bookingId) {
+    public Response clearApprovalStatus(Long bookingId) {
         offenderCurfewService.deleteApprovalStatus(bookingId);
-        return ResponseEntity.noContent().build();
+        return Response.noContent().build();
     }
 
     @Override
-    public List<OffenderSentenceDetail> postOffenderSentences(final List<String> offenderNos) {
+    public PostOffenderSentencesResponse postOffenderSentences(final List<String> offenderNos) {
         validateOffenderList(offenderNos);
 
         //no agency id filter required here as offenderNos will always be provided
-        return bookingService.getOffenderSentencesSummary(null, offenderNos);
+        val sentences = bookingService.getOffenderSentencesSummary(
+                null, offenderNos);
 
+        return PostOffenderSentencesResponse.respond200WithApplicationJson(sentences);
     }
 
     @Override
-    public List<OffenderSentenceDetail> postOffenderSentencesBookings(final List<Long> bookingIds) {
+    public PostOffenderSentencesBookingsResponse postOffenderSentencesBookings(final List<Long> bookingIds) {
         validateOffenderList(bookingIds);
-        return bookingService.getBookingSentencesSummary(bookingIds);
+
+        val sentences = bookingService.getBookingSentencesSummary(bookingIds);
+
+        return PostOffenderSentencesBookingsResponse.respond200WithApplicationJson(sentences);
     }
 
     @Override
@@ -99,9 +115,9 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
         return bookingService.getOffenderSentenceTerms(bookingId);
     }
 
-    private void validateOffenderList(final List<?> offenderList) {
+    private void validateOffenderList(final List offenderList) {
         if (Collections.isEmpty(offenderList)) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "List of Offender Ids must be provided");
+            throw new BadRequestException("List of Offender Ids must be provided");
         }
     }
 }
