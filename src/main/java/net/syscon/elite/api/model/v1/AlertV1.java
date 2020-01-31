@@ -22,11 +22,11 @@ import java.time.LocalDate;
 @JsonPropertyOrder({"alert_type", "alert_sub_type", "alert_date", "expiry_date", "status", "comment"})
 public class AlertV1 {
 
-    @ApiModelProperty(value = "Code and description identifying the type of alert", required = true, example = "{ \"code\": \"FX\", \"desc\": \"Security\" }")
+    @ApiModelProperty(value = "Code and description identifying the type of alert", required = true, example = "{ code: 'X', desc: 'Security' }")
     @JsonProperty("alert_type")
     private CodeDescription type;
 
-    @ApiModelProperty(value = "Code and description identifying the sub type of alert", position = 1, required = true, example = "{ \"code\": \"XEL\", \"desc\": \"Escape List\" }")
+    @ApiModelProperty(value = "Code and description identifying the sub type of alert", position = 1, required = true, example = "{ code: 'XEL', desc: 'Escape List' }")
     @JsonProperty("alert_sub_type")
     private CodeDescription subType;
 

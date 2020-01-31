@@ -22,10 +22,10 @@ public class Charge {
     @JsonIgnore
     private Long offenderChargeId;
 
-    @ApiModelProperty(value = "Statute", position = 1, example = "{ \"code\": \"PL96\", \"desc\": \"Police Act 1996\" }")
+    @ApiModelProperty(value = "Statute", position = 1, example = "{ code: 'PL96', desc: 'Police Act 1996' }")
     private CodeDescription statute;
 
-    @ApiModelProperty(value = "Offence", position = 2, example = "{ \"code\": \"PL96001\", \"desc\": \"Assault a constable in the execution of his / her duty\" }")
+    @ApiModelProperty(value = "Offence", position = 2, example = "{ code: 'PL96001', desc: 'Assault a constable in the execution of his / her duty' }")
     private CodeDescription offence;
 
     @ApiModelProperty(value = "Number of Offences", position = 3, example = "2")
@@ -44,20 +44,20 @@ public class Charge {
     @JsonProperty("severity_ranking")
     private String severityRanking;
 
-    @ApiModelProperty(value = "Result", position = 7, example = "{ \"code\": \"1002\", \"desc\": \"Imprisonment\" }")
+    @ApiModelProperty(value = "Result", position = 7, example = "{ code: '1002', desc: 'Imprisonment' }")
     private CodeDescription result;
 
-    @ApiModelProperty(value = "Disposition", position = 8, example = "{ \"code\": \"F\", \"desc\": \"Final\" }")
+    @ApiModelProperty(value = "Disposition", position = 8, example = "{ code: 'F', desc: 'Final' }")
     private CodeDescription disposition;
 
     @ApiModelProperty(value = "Convicted", position = 9, example = "true")
     private boolean convicted;
 
-    @ApiModelProperty(value = "Imprisonment Status", position = 10, example = "{ \"code\": \"UNK_SENT\", \"desc\": \"Unknown Sentenced\" }")
+    @ApiModelProperty(value = "Imprisonment Status", position = 10, example = "{ code: 'UNK_SENT', desc: 'Unknown Sentenced' }")
     @JsonProperty("imprisonment_status")
     private CodeDescription imprisonmentStatus;
 
-    @ApiModelProperty(value = "Band", position = 11, example = "{ \"code\": \"1\", \"desc\": \"Sent-Determinate NonFine\" }")
+    @ApiModelProperty(value = "Band", position = 11, example = "{ code: '1', desc: 'Sent-Determinate NonFine' }")
     private CodeDescription band;
 
 
