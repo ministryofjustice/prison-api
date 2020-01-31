@@ -1,18 +1,37 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.repository.CaseLoadRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public interface CaseLoadService {
+@Service
+@Transactional(readOnly = true)
+public class CaseLoadService {
+    private final CaseLoadRepository caseLoadRepository;
 
-    Optional<CaseLoad> getCaseLoad(String caseLoadId);
+    public CaseLoadService(final CaseLoadRepository caseLoadRepository) {
+        this.caseLoadRepository = caseLoadRepository;
+    }
 
-    List<CaseLoad> getCaseLoadsForUser(String username, boolean allCaseloads);
+    public Optional<CaseLoad> getCaseLoad(final String caseLoadId) {
+        return caseLoadRepository.getCaseLoad(caseLoadId);
+    }
 
-    Optional<CaseLoad> getWorkingCaseLoadForUser(String username);
+    public List<CaseLoad> getCaseLoadsForUser(final String username, final boolean allCaseloads) {
+        return allCaseloads ? caseLoadRepository.getAllCaseLoadsByUsername(username) : caseLoadRepository.getCaseLoadsByUsername(username);
+    }
 
-    Set<String> getCaseLoadIdsForUser(String username, boolean allCaseloads);
+    public Optional<CaseLoad> getWorkingCaseLoadForUser(final String username) {
+        return caseLoadRepository.getWorkingCaseLoadByUsername(username);
+    }
+
+    public Set<String> getCaseLoadIdsForUser(final String username, final boolean allCaseloads) {
+        return getCaseLoadsForUser(username, allCaseloads).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
+    }
 }

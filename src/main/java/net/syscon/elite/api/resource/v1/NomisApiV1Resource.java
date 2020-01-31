@@ -80,7 +80,7 @@ public interface NomisApiV1Resource {
     Alerts getAlerts(@ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1583AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
                      @ApiParam(name = "alert_type", value = "Alert Type, if alert_type is specified then only alerts of that type are returned", example = "H") @RequestParam(value = "alert_type", required = false) String alertType,
                      @ApiParam(name = "modified_since", value = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @RequestParam(value = "modified_since", required = false) String modifiedSince,
-                     @ApiParam(name = "include_inactive", value = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true", defaultValue = "false") @RequestParam(value = "include_inactive", defaultValue = "false") boolean includeInactive);
+                     @ApiParam(name = "include_inactive", value = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true", defaultValue = "false") @RequestParam(value = "include_inactive", required = false, defaultValue = "false") boolean includeInactive);
 
     @GetMapping("/offenders/events")
     @ApiOperation(value = "Fetch events",
@@ -103,9 +103,9 @@ public interface NomisApiV1Resource {
     Events getOffenderEvents(
             @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") @RequestParam("prison_id") @Length(max = 3) String prisonId,
             @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1417AE") @RequestParam(value = "offender_id", required = false) String offenderIdentifier,
-            @ApiParam(name = "event_type", value = "Event Type", example = "ALERT") @RequestParam("event_type") String eventType,
+            @ApiParam(name = "event_type", value = "Event Type", example = "ALERT") @RequestParam(value = "event_type", required = false) String eventType,
             @ApiParam(name = "from_datetime", value = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") @RequestParam("from_datetime") String fromDateTime,
-            @ApiParam(name = "limit", value = "Number of events to return", example = "100") @RequestParam("limit") Long limit);
+            @ApiParam(name = "limit", value = "Number of events to return", example = "100") @RequestParam(value = "limit", required = false) Long limit);
 
     @PostMapping("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
     @ApiOperation(value = "Record transaction at previous Prison.",

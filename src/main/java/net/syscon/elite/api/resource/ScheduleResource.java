@@ -54,11 +54,11 @@ public interface ScheduleResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<PrisonerSchedule> getActivitiesAtLocation(
             @ApiParam(value = "The location id where activity is held.", required = true) @PathVariable("locationId") Long locationId,
-            @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") LocalDate date,
+            @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
             @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
             @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
             @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder,
-            @ApiParam(value = "Include suspended scheduled activity - defaults to false") @RequestParam("includeSuspended") boolean includeSuspended);
+            @ApiParam(value = "Include suspended scheduled activity - defaults to false") @RequestParam(value = "includeSuspended", required = false) boolean includeSuspended);
 
     @GetMapping("/{agencyId}/activities")
 
@@ -69,7 +69,7 @@ public interface ScheduleResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<PrisonerSchedule> getActivitiesAtAllLocations(@ApiParam(value = "The prison.", required = true) @PathVariable("agencyId") String agencyId,
-                                                       @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") LocalDate date,
+                                                       @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                                        @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
                                                        @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
                                                        @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
@@ -83,8 +83,8 @@ public interface ScheduleResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<PrisonerSchedule> getActivitiesAtAllLocationsByDateRange(@ApiParam(value = "The prison.", required = true) @PathVariable("agencyId") String agencyId,
-                                                                  @ApiParam(value = "From date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("fromDate") LocalDate fromDate,
-                                                                  @ApiParam(value = "To Date of whereabouts list, default from date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("toDate") LocalDate toDate,
+                                                                  @ApiParam(value = "From date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+                                                                  @ApiParam(value = "To Date of whereabouts list, default from date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate,
                                                                   @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
                                                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
                                                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
@@ -95,7 +95,7 @@ public interface ScheduleResource {
             @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
     List<PrisonerSchedule> getActivities(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                          @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
-                                         @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") LocalDate date,
+                                         @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                          @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
                                          @ApiParam(value = "Whether to include 'excluded' activities in the results", defaultValue = "false") @RequestParam(value = "includeExcluded", required = false, defaultValue = "false") boolean includeExcluded);
 
@@ -105,7 +105,7 @@ public interface ScheduleResource {
             @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
     List<PrisonerSchedule> getAppointments(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                            @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
-                                           @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") LocalDate date,
+                                           @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                            @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot);
 
     @PostMapping("/{agencyId}/courtEvents")
@@ -114,7 +114,7 @@ public interface ScheduleResource {
             @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
     List<PrisonerSchedule> getCourtEvents(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                           @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
-                                          @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") LocalDate date,
+                                          @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                           @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot);
 
     @PostMapping("/{agencyId}/externalTransfers")
@@ -131,7 +131,7 @@ public interface ScheduleResource {
             @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
     List<PrisonerSchedule> getVisits(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                      @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
-                                     @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") LocalDate date,
+                                     @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                      @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot);
 
 
