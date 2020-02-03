@@ -18,8 +18,6 @@ import javax.persistence.Table;
 @AllArgsConstructor
 public class Staff {
 
-    private static final String STAFF_STATUS_ACTIVE = "ACTIVE";
-
     @Id()
     @Column(name = "STAFF_ID", nullable = false)
     private Long staffId;

@@ -29,7 +29,6 @@ public class AuthUserResourceIntTest extends ResourceTest {
 
         final var responseEntity = testRestTemplate.exchange("/auth/user/bob", HttpMethod.GET, requestEntity, String.class);
 
-        assertThatStatus(responseEntity, 200);
         assertThatJsonFileAndStatus(responseEntity, 200, "user-person-details.json");
     }
 

@@ -30,7 +30,7 @@ public class AuthUserResourceTest {
 
         when(service.getNomisUserByUsername(anyString())).thenReturn(UserPersonDetails.builder().build());
         authUserResource.getAuthUserDetails("bob");
-        verify(service).getNomisUserByUsername(anyString());
+        verify(service).getNomisUserByUsername("BOB");
         verifyNoMoreInteractions(service);
     }
 
