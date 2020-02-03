@@ -60,4 +60,46 @@ public class AgencyResourceImplIntTest extends ResourceTest {
         assertThatStatus(responseEntity, 404);
         assertThat(responseEntity.getBody().getUserMessage()).isEqualTo("test ex");
     }
+
+    @Test
+    public void locationsByType_singleResult_returnsSuccessAndData() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/agencies/MUL/locations/type/AREA", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<Location>>() {});
+
+        assertThatStatus(responseEntity, 200);
+        final var expected = Location.builder().locationId(-208L).locationType("AREA").agencyId("MUL").operationalCapacity(1)
+                .description("CHAP").userDescription("Chapel").locationPrefix("MUL-CHAP").currentOccupancy(0).build();
+        assertThat(responseEntity.getBody()).containsExactlyInAnyOrder(expected);
+    }
+
+    @Test
+    public void locationsByType_multipleResults_returnsAllLocations() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/agencies/MUL/locations/type/CELL", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<Location>>() {});
+
+        assertThatStatus(responseEntity, 200);
+        assertThat(responseEntity.getBody()).extracting("locationId").containsExactlyInAnyOrder(-202L, -204L, -207L);
+    }
+
+    @Test
+    public void locationsByType_agencyNotFound_returnsNotFound() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/agencies/XYZ/locations/type/AREA", HttpMethod.GET, requestEntity, ErrorResponse.class);
+
+        assertThatStatus(responseEntity, 404);
+        assertThat(responseEntity.getBody().getUserMessage()).contains("XYZ");
+    }
+
+    @Test
+    public void locationsByType_locationTypeNotFound_returnsNotFound() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/agencies/MUL/locations/type/WXYZ", HttpMethod.GET, requestEntity, ErrorResponse.class);
+
+        assertThatStatus(responseEntity, 404);
+        assertThat(responseEntity.getBody().getUserMessage()).contains("WXYZ");
+    }
 }

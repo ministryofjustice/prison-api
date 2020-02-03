@@ -138,6 +138,10 @@ public class AgencyServiceImpl implements AgencyService {
     public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
         final var rawLocations = agencyRepositoryJpa.getAgencyLocationsByType(agencyId, type);
 
+        if (rawLocations.size() == 0) {
+            throw EntityNotFoundException.withMessage(String.format("Locations of type %s in agency %s not found", type, agencyId));
+        }
+
         return LocationProcessor.processLocations(rawLocations);
     }
 

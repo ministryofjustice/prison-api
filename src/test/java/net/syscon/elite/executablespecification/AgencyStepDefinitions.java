@@ -95,21 +95,10 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
         agencySteps.getBookedLocations(agencyId, bookedOnDay, timeSlot);
     }
 
-    @When("^a request is submitted to retrieve locations of type \"([^\"]*)\" for agency \"([^\"]*)\"$")
-    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyByType(final String type, final String agencyId) {
-        agencySteps.getLocationsByType(agencyId, type);
-    }
-
     @Then("^the returned agency locations are as follows:$")
     public void locationCodesAreReturnedAsFollows(final DataTable table) throws Throwable {
         final var expected = table.asList(Location.class);
         agencySteps.verifyLocationList(expected);
-    }
-
-    @Then("^the returned agency locations are as follows in any order:$")
-    public void locationCodesAreReturnedAsFollowsAnyOrder(final DataTable table) throws Throwable {
-        final var expected = table.asList(Location.class);
-        agencySteps.verifyLocationListInAnyOrder(expected);
     }
 
     @Then("^\"([^\"]*)\" location records are returned for agency$")

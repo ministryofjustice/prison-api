@@ -15,9 +15,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
 import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -84,19 +86,30 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldCallRepositoryForAgencyLocationsByType() {
+        when(agencyRepositoryJpa.getAgencyLocationsByType("SOME AGENCY", "SOME TYPE"))
+                .thenReturn(List.of(Location.builder().locationId(1L).build()));
+
         service.getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
 
         verify(agencyRepositoryJpa).getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
     }
 
     @Test
-    public void shouldReturnProcessedLocationsForAgencyLocationsByType() {
+    public void shouldReturnLocationsForAgencyLocationsByType() {
         when(agencyRepositoryJpa.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE"))
                 .thenReturn(List.of(Location.builder().locationId(1L).build()));
 
         var locations = service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
 
         assertThat(locations).extracting("locationId").containsExactly(1L);
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void shouldThrowNotFoundIfNoAgencyLocationsByType() {
+        when(agencyRepositoryJpa.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE"))
+                .thenReturn(emptyList());
+
+        service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
     }
 
     private List<PrisonContactDetail> buildPrisonContactDetailsList() {
