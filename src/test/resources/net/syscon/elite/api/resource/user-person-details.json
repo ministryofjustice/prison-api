@@ -1,0 +1,21 @@
+{
+  "username": "BOB",
+  "staff": {
+    "staffId": 1234567,
+    "firstName": "BOB",
+    "lastName": "SMITH",
+    "status": "ACTIVE"
+  },
+  "type": "SPECIAL",
+  "activeCaseLoadId": "SOME",
+  "roles": [
+    "Role1",
+    "Role2"
+  ],
+  "accountDetail": {
+    "username": "BOB",
+    "accountStatus": "OPEN",
+    "profile": "TAG",
+    "passwordExpiry": "2021-02-01T10:11:12"
+  }
+}
