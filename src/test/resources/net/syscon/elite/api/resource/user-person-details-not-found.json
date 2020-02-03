@@ -1,0 +1,5 @@
+{
+  "status": 404,
+  "userMessage": "Resource with id [BAD_JOHN] not found.",
+  "developerMessage": "Resource with id [BAD_JOHN] not found."
+}
