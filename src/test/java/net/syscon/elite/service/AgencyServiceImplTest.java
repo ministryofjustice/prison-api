@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.AgencyRepository;
+import net.syscon.elite.repository.jpa.repository.AgencyRepositoryJpa;
 import net.syscon.elite.security.AuthenticationFacade;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,10 +34,12 @@ public class AgencyServiceImplTest {
     private AgencyRepository agencyRepo;
     @Mock
     private ReferenceDomainService referenceDomainService;
+    @Mock
+    private AgencyRepositoryJpa agencyRepositoryJpa;
 
     @Before
     public void setUp() {
-        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, referenceDomainService);
+        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, referenceDomainService, agencyRepositoryJpa);
         when(agencyRepo.getPrisonContactDetails(eq(null))).thenReturn(buildPrisonContactDetailsList());
         when(agencyRepo.getPrisonContactDetails(eq("ABC"))).thenReturn(buildPrisonContactDetailsListSingleResult());
         when(agencyRepo.getPrisonContactDetails(eq("BLANK"))).thenReturn(buildPrisonContactDetailsListSingleResultBlankAddress());
@@ -83,12 +86,12 @@ public class AgencyServiceImplTest {
     public void shouldCallRepositoryForAgencyLocationsByType() {
         service.getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
 
-        verify(agencyRepo).getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
+        verify(agencyRepositoryJpa).getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
     }
 
     @Test
     public void shouldReturnProcessedLocationsForAgencyLocationsByType() {
-        when(agencyRepo.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE"))
+        when(agencyRepositoryJpa.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE"))
                 .thenReturn(List.of(Location.builder().locationId(1L).build()));
 
         var locations = service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");

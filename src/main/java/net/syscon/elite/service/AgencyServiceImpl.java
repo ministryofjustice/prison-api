@@ -7,9 +7,9 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
+import net.syscon.elite.repository.jpa.repository.AgencyRepositoryJpa;
 import net.syscon.elite.repository.support.StatusFilter;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AlphaNumericComparator;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
@@ -44,12 +44,14 @@ public class AgencyServiceImpl implements AgencyService {
     private final AuthenticationFacade authenticationFacade;
     private final AgencyRepository agencyRepository;
     private final ReferenceDomainService referenceDomainService;
+    private final AgencyRepositoryJpa agencyRepositoryJpa;
 
     public AgencyServiceImpl(final AuthenticationFacade authenticationFacade, final AgencyRepository agencyRepository,
-                             final ReferenceDomainService referenceDomainService) {
+                             final ReferenceDomainService referenceDomainService, final AgencyRepositoryJpa agencyRepositoryJpa) {
         this.authenticationFacade = authenticationFacade;
         this.agencyRepository = agencyRepository;
         this.referenceDomainService = referenceDomainService;
+        this.agencyRepositoryJpa = agencyRepositoryJpa;
     }
 
     @Override
@@ -134,7 +136,7 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
-        final var rawLocations = agencyRepository.getAgencyLocationsByType(agencyId, type);
+        final var rawLocations = agencyRepositoryJpa.getAgencyLocationsByType(agencyId, type);
 
         return LocationProcessor.processLocations(rawLocations);
     }

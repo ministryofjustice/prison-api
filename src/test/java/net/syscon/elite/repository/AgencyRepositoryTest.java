@@ -104,12 +104,6 @@ public class AgencyRepositoryTest {
     }
 
     @Test
-    public void testGetAgencyLocationsByType() {
-        final var locations = repository.getAgencyLocationsByType("MUL", "CELL");
-        assertThat(locations).extracting("locationId").containsExactlyInAnyOrder(-202L, -204L, -207L);
-    }
-
-    @Test
     public void testGetAgencyIepLevels() {
         final var iepLevels = repository.getAgencyIepLevels("LEI");
         assertThat(iepLevels).extracting("iepDescription").contains("Entry", "Basic", "Standard", "Enhanced");
