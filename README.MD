@@ -45,7 +45,7 @@ gradlew bootRun
 There are a few different styles in this project due to historical reasons and the accumulation of technical debt.
 
 The preferred patterns going forward are:
-- Use SpringMVC with the default Tomcat configuration
+- Use Spring Rest Controllers for APIs
 - Use thin controllers and apply business logic in an associated service 
 - Use SpringJPA for database access
 - Use TestRestTemplate for integration testing (e.g. extend ResourceTest, do not use Cucumber)

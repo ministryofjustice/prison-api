@@ -8,10 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -25,12 +21,9 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Entity
-@Table(name = "AGENCY_INTERNAL_LOCATIONS")
 public class Location {
     @ApiModelProperty(required = true, value = "Location identifier.")
     @NotNull
-    @Id
     private Long locationId;
 
     @ApiModelProperty(required = true, value = "Location type.")
@@ -42,8 +35,6 @@ public class Location {
     private String description;
 
     @ApiModelProperty(value = "What events this room can be used for.")
-    @JsonInclude
-    @Transient
     private String locationUsage;
 
     @ApiModelProperty(required = true, value = "Identifier of Agency this location is associated with.")
@@ -57,8 +48,6 @@ public class Location {
     private Integer currentOccupancy;
 
     @ApiModelProperty(value = "Location prefix. Defines search prefix that will constrain search to this location and its subordinate locations.")
-    @JsonInclude
-    @Transient
     private String locationPrefix;
 
     @ApiModelProperty(value = "Operational capacity of the location.")
@@ -67,7 +56,5 @@ public class Location {
     @ApiModelProperty(value = "User-friendly location description.")
     private String userDescription;
 
-    @JsonInclude
-    @Transient
     private String internalLocationCode;
 }

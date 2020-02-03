@@ -2,11 +2,12 @@ package net.syscon.elite.service;
 
 import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.AgencyRepository;
-import net.syscon.elite.repository.jpa.repository.AgencyRepositoryJpa;
+import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,11 +37,11 @@ public class AgencyServiceImplTest {
     @Mock
     private ReferenceDomainService referenceDomainService;
     @Mock
-    private AgencyRepositoryJpa agencyRepositoryJpa;
+    private AgencyInternalLocationRepository agencyInternalLocationRepository;
 
     @Before
     public void setUp() {
-        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, referenceDomainService, agencyRepositoryJpa);
+        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, referenceDomainService, agencyInternalLocationRepository);
         when(agencyRepo.getPrisonContactDetails(eq(null))).thenReturn(buildPrisonContactDetailsList());
         when(agencyRepo.getPrisonContactDetails(eq("ABC"))).thenReturn(buildPrisonContactDetailsListSingleResult());
         when(agencyRepo.getPrisonContactDetails(eq("BLANK"))).thenReturn(buildPrisonContactDetailsListSingleResultBlankAddress());
@@ -85,18 +86,18 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldCallRepositoryForAgencyLocationsByType() {
-        when(agencyRepositoryJpa.getAgencyLocationsByType("SOME AGENCY", "SOME TYPE"))
-                .thenReturn(List.of(Location.builder().locationId(1L).build()));
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("SOME AGENCY", "SOME TYPE", ActiveFlag.Y))
+                .thenReturn(List.of(AgencyInternalLocation.builder().locationId(1L).build()));
 
         service.getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
 
-        verify(agencyRepositoryJpa).getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
+        verify(agencyInternalLocationRepository).findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("SOME AGENCY", "SOME TYPE", ActiveFlag.Y);
     }
 
     @Test
     public void shouldReturnLocationsForAgencyLocationsByType() {
-        when(agencyRepositoryJpa.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE"))
-                .thenReturn(List.of(Location.builder().locationId(1L).build()));
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("ANY AGENCY", "ANY TYPE", ActiveFlag.Y))
+                .thenReturn(List.of(AgencyInternalLocation.builder().locationId(1L).build()));
 
         var locations = service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
 
@@ -105,7 +106,7 @@ public class AgencyServiceImplTest {
 
     @Test(expected = EntityNotFoundException.class)
     public void shouldThrowNotFoundIfNoAgencyLocationsByType() {
-        when(agencyRepositoryJpa.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE"))
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("ANY AGENCY", "ANY TYPE", ActiveFlag.Y))
                 .thenReturn(emptyList());
 
         service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");

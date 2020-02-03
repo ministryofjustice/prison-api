@@ -65,12 +65,9 @@ public class AgencyResourceImplIntTest extends ResourceTest {
     public void locationsByType_singleResult_returnsSuccessAndData() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
 
-        final var responseEntity = testRestTemplate.exchange("/api/agencies/SYI/locations/type/AREA", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<Location>>() {});
+        final var responseEntity = testRestTemplate.exchange("/api/agencies/SYI/locations/type/AREA", HttpMethod.GET, requestEntity, String.class);
 
-        assertThatStatus(responseEntity, 200);
-        final var expected = Location.builder().locationId(-208L).locationType("AREA").agencyId("SYI").operationalCapacity(1)
-                .description("CHAP").userDescription("Chapel").locationPrefix("SYI-CHAP").currentOccupancy(0).build();
-        assertThat(responseEntity.getBody()).containsExactlyInAnyOrder(expected);
+        assertThatJsonFileAndStatus(responseEntity, 200, "get_locations_for_agency_by_type.json");
     }
 
     @Test
