@@ -10,6 +10,7 @@ import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.jpa.repository.AgencyRepositoryJpa;
 import net.syscon.elite.repository.support.StatusFilter;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.support.AlphaNumericComparator;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
@@ -135,6 +136,7 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
+    @VerifyAgencyAccess
     public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
         final var rawLocations = agencyRepositoryJpa.getAgencyLocationsByType(agencyId, type);
 
