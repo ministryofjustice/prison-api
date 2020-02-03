@@ -29,6 +29,6 @@ public class AccountDetail {
     @Column(name = "PROFILE")
     private String profile;
 
-    @Column(name = "expiry_date")
+    @Column(name = "EXPIRY_DATE")
     private LocalDateTime passwordExpiry;
 }

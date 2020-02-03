@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,39 +32,20 @@ public class AuthServiceTest {
     public void getUserPersonDetails() {
         when(repository.findById(anyString())).thenReturn(buildStaffUserAccountRepositoryResponse());
 
-        authService.getNomisUserByUsername("BOB");
+        authService.getNomisUserByUsername("ITAG_USER");
 
-        verify(repository).findById("BOB");
+        verify(repository).findById("ITAG_USER");
     }
 
 
-    Optional<StaffUserAccount> buildStaffUserAccountRepositoryResponse() {
+    private Optional<StaffUserAccount> buildStaffUserAccountRepositoryResponse() {
         return Optional.ofNullable(StaffUserAccount.builder()
-                .username("BOB")
-                .staff(Staff.builder()
-                        .staffId(1234567L)
-                        .firstName("BOB")
-                        .lastName("SMITH")
-                        .status("ACTIVE")
-                        .build())
-                .type("SPECIAL")
-                .activeCaseLoadId("SOME")
+                .staff(new Staff())
                 .roles(List.of(UserCaseloadRole.builder()
-                                .id(UserCaseloadRoleIdentity.builder()
-                                        .username("BOB").caseload("WEB").roleId(1L).build())
-                                .role(Role.builder().id(1L).code("Role1").build())
-                                .build(),
-                        UserCaseloadRole.builder()
-                                .id(UserCaseloadRoleIdentity.builder()
-                                        .username("BOB").caseload("WEB").roleId(2L).build())
-                                .role(Role.builder().id(2L).code("Role2").build())
-                                .build()
+                        .role(Role.builder().code("Role1").build())
+                        .build()
                 ))
-                .accountDetail(AccountDetail.builder()
-                        .username("BOB")
-                        .accountStatus("OPEN")
-                        .profile("TAG")
-                        .passwordExpiry(LocalDateTime.of(2021, 2, 1, 10, 11, 12)).build())
+                .accountDetail(new AccountDetail())
                 .build());
     }
 }

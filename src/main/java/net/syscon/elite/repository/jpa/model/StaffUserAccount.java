@@ -17,7 +17,7 @@ import java.util.List;
 public class StaffUserAccount {
 
     @Id
-    @Column(name = "USERNAME", nullable = false)
+    @Column(nullable = false)
     private String username;
 
     @ManyToOne

@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 public class AccountDetail {
 
-    private String username;
+    private final String username;
 
-    private String accountStatus;
+    private final String accountStatus;
 
-    private String profile;
+    private final String profile;
 
-    private LocalDateTime passwordExpiry;
+    private final LocalDateTime passwordExpiry;
 }

@@ -9,11 +9,11 @@ import lombok.Getter;
 @Builder
 public class Staff {
 
-    private Long staffId;
+    private final Long staffId;
 
-    private String firstName;
+    private final String firstName;
 
-    private String lastName;
+    private final String lastName;
 
-    private String status;
+    private final String status;
 }

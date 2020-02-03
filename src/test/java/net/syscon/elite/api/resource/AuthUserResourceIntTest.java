@@ -70,7 +70,7 @@ public class AuthUserResourceIntTest extends ResourceTest {
                         .username("BOB")
                         .accountStatus("OPEN")
                         .profile("TAG")
-                        .passwordExpiry(LocalDateTime.of(2021, 2, 1, 10, 11, 12)).build())
+                        .passwordExpiry(LocalDateTime.parse("2021-02-01T10:11:12")).build())
                 .build());
     }
 }

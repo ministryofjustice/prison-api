@@ -11,15 +11,15 @@ import java.util.List;
 @Getter
 public class UserPersonDetails {
 
-    private String username;
+    private final String username;
 
-    private Staff staff;
+    private final Staff staff;
 
-    private String type;
+    private final String type;
 
-    private String activeCaseLoadId;
+    private final String activeCaseLoadId;
 
-    private List<String> roles;
+    private final List<String> roles;
 
-    private AccountDetail accountDetail;
+    private final AccountDetail accountDetail;
 }

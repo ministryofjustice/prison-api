@@ -24,6 +24,4 @@ public class AuthUserResource {
     public UserPersonDetails getAuthUserDetails(@PathVariable("username") final String username) {
         return authService.getNomisUserByUsername(username.toUpperCase());
     }
-
-    ;
 }

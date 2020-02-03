@@ -34,7 +34,6 @@ public class AuthService {
         List<String> userCaseloadRoleList = user.getRoles().stream().map(userCaseloadRole ->
                 userCaseloadRole.getRole().getCode()).collect(Collectors.toList());
 
-
         return UserPersonDetails.builder()
                 .username(user.getUsername())
                 .staff(Staff.builder()
