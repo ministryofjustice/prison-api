@@ -22,7 +22,7 @@ public class AgencyRepositoryJpaTest {
 
     @Test
     public void testGetAgencyLocationsByType() {
-        final var locations = agencyRepositoryJpa.getAgencyLocationsByType("MUL", "CELL");
+        final var locations = agencyRepositoryJpa.getAgencyLocationsByType("SYI", "CELL");
         assertThat(locations).extracting("locationId").containsExactlyInAnyOrder(-202L, -204L, -207L);
     }
 }
