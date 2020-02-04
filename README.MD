@@ -41,6 +41,19 @@ gradlew bootRun
 ./gradlew bootRun --args='--spring.profiles.active=nomis-hsqldb'
 ```
 
+### Coding Standards
+There are a few different styles in this project due to historical reasons and the accumulation of technical debt.
+
+The preferred patterns going forward are:
+- Use Spring Rest Controllers for APIs
+- Use thin controllers and apply business logic in an associated service 
+- Use SpringJPA for database access
+- Use TestRestTemplate for integration testing (e.g. extend ResourceTest, do not use Cucumber)
+- Use ControllerAdvice for error handling
+- Do not create interfaces with single implementations
+
+There are some recent examples around PrisonStatusController and OffenderImageRepository and AgencyResourceImplIntTest.
+  
 #### Health
 
 - `/ping`: will respond `pong` to all requests.  This should be used by dependent systems to check connectivity to elite 2,

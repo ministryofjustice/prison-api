@@ -33,6 +33,8 @@ public interface AgencyService {
 
     List<Location> getAgencyLocations(String agencyId, String eventType, String sortFields, Order sortOrder);
 
+    List<Location> getAgencyLocationsByType(String agencyId, String type);
+
     List<Location> getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder);
 
     List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);

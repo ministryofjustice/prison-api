@@ -7,9 +7,12 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
+import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
+import net.syscon.elite.repository.jpa.transform.LocationTransformer;
 import net.syscon.elite.repository.support.StatusFilter;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.*;
+import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.support.AlphaNumericComparator;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
@@ -44,12 +47,14 @@ public class AgencyServiceImpl implements AgencyService {
     private final AuthenticationFacade authenticationFacade;
     private final AgencyRepository agencyRepository;
     private final ReferenceDomainService referenceDomainService;
+    private final AgencyInternalLocationRepository agencyInternalLocationRepository;
 
     public AgencyServiceImpl(final AuthenticationFacade authenticationFacade, final AgencyRepository agencyRepository,
-                             final ReferenceDomainService referenceDomainService) {
+                             final ReferenceDomainService referenceDomainService, final AgencyInternalLocationRepository agencyInternalLocationRepository) {
         this.authenticationFacade = authenticationFacade;
         this.agencyRepository = agencyRepository;
         this.referenceDomainService = referenceDomainService;
+        this.agencyInternalLocationRepository = agencyInternalLocationRepository;
     }
 
     @Override
@@ -130,6 +135,18 @@ public class AgencyServiceImpl implements AgencyService {
         final var rawLocations = agencyRepository.getAgencyLocations(agencyId, eventTypes, orderBy, order);
 
         return LocationProcessor.processLocations(rawLocations);
+    }
+
+    @Override
+    @VerifyAgencyAccess
+    public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
+        final var agencyInternalLocations = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag(agencyId, type, ActiveFlag.Y);
+
+        if (agencyInternalLocations.size() == 0) {
+            throw EntityNotFoundException.withMessage(String.format("Locations of type %s in agency %s not found", type, agencyId));
+        }
+
+        return agencyInternalLocations.stream().map(LocationTransformer::fromAgencyInternalLocation).collect(Collectors.toList());
     }
 
     @Override

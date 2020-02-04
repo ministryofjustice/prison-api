@@ -63,6 +63,11 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
+    public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
+        return agencyService.getAgencyLocationsByType(agencyId, type);
+    }
+
+    @Override
     public List<IepLevel> getAgencyIepLevels(final String agencyId) {
         return agencyService.getAgencyIepLevels(agencyId);
     }
