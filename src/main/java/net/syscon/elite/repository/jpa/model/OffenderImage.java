@@ -8,14 +8,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
-@Getter
-@ToString
-@EqualsAndHashCode
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
-@Data
 @Table(name = "OFFENDER_IMAGES")
 public class OffenderImage {
     @Id
