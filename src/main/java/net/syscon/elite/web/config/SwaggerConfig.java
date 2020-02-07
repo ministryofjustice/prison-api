@@ -1,38 +1,39 @@
 package net.syscon.elite.web.config;
 
-import com.google.common.base.Predicates;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
-import springfox.documentation.builders.AuthorizationCodeGrantBuilder;
-import springfox.documentation.builders.OAuthBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.*;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
+import springfox.documentation.service.StringVendorExtension;
+import springfox.documentation.service.VendorExtension;
 import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.*;
-
-import static springfox.documentation.builders.PathSelectors.regex;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Optional;
 
 @Configuration
 @EnableSwagger2
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
 
-    @Autowired(required = false)
-    private BuildProperties buildProperties;
+    private final BuildProperties buildProperties;
+
+    public SwaggerConfig(@Autowired(required = false) final BuildProperties buildProperties) {
+        this.buildProperties = buildProperties;
+    }
 
     @Bean
     public Docket nomisApi() {
@@ -41,44 +42,13 @@ public class SwaggerConfig {
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build()
-                .securitySchemes(List.of(securityScheme()))
-                .securityContexts(List.of(securityContext()))
                 .apiInfo(apiInfo());
 
         docket.genericModelSubstitutes(Optional.class);
         docket.directModelSubstitute(ZonedDateTime.class, Date.class);
         docket.directModelSubstitute(LocalDateTime.class, Date.class);
 
-
         return docket;
-    }
-
-    private SecurityScheme securityScheme() {
-        final var grantType = new AuthorizationCodeGrantBuilder()
-                .tokenEndpoint(new TokenEndpoint("http://localhost:9090/auth/oauth" + "/token", "oauthtoken"))
-                .tokenRequestEndpoint(
-                        new TokenRequestEndpoint("http://localhost:9090/auth/oauth" + "/authorize", "swagger-client", "clientsecret"))
-                .build();
-
-        return new OAuthBuilder().name("spring_oauth")
-                .grantTypes(List.of(grantType))
-                .scopes(List.of(scopes()))
-                .build();
-    }
-
-    private AuthorizationScope[] scopes() {
-        return new AuthorizationScope[]{
-                new AuthorizationScope("read", "for read operations"),
-                new AuthorizationScope("write", "for write operations")
-        };
-    }
-
-    private SecurityContext securityContext() {
-        return SecurityContext.builder()
-                .securityReferences(
-                        List.of(new SecurityReference("spring_oauth", scopes())))
-                .forPaths(PathSelectors.regex("/.*"))
-                .build();
     }
 
     private String getVersion() {
@@ -100,13 +70,12 @@ public class SwaggerConfig {
 
         return new ApiInfo(
                 "HMPPS NOMIS API Documentation",
-                "A RESTful API service for accessing HMPPS Custody Information.",
+                "A RESTful API service for accessing HMPPS NOMIS Information.",
                 getVersion(),
                 "https://gateway.nomis-api.service.justice.gov.uk/auth/terms",
                 contactInfo(),
                 "Open Government Licence v3.0", "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/", vendorExtensions);
     }
-
 
 
 }
