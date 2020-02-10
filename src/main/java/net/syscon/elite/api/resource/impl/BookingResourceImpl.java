@@ -464,8 +464,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId) {
-        return inmateService.getOffenderIdentifiers(bookingId);
+    public List<OffenderIdentifier> getOffenderIdentifiers(@NotNull final Long bookingId, final String identifierType) {
+        return inmateService.getOffenderIdentifiers(bookingId, identifierType);
     }
 
     @Override

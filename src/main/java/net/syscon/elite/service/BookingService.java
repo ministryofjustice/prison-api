@@ -568,7 +568,6 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId) {
-
         return bookingRepository.getOffenderSentenceTerms(bookingId, "IMP");
     }
 

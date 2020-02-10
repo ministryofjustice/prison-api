@@ -32,8 +32,6 @@ public interface OffenderResource {
                                                   @ApiParam(value = "participationRoles", example = "ASSIAL", allowMultiple = true, allowableValues = "ACTINV,ASSIAL,FIGHT,IMPED,PERP,SUSASS,SUSINV,VICT,AI,PAS,AO") @RequestParam("participationRoles") List<String> participationRoles);
 
     @GetMapping("/incidents/candidates")
-
-
     @ApiOperation(value = "Return a list of offender nos across the estate for which an incident has recently occurred or changed",
             notes = "This query is slow and can take several minutes",
             authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
@@ -44,8 +42,6 @@ public interface OffenderResource {
                                                        @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) Long pageLimit);
 
     @GetMapping("/{offenderNo}/addresses")
-
-
     @ApiOperation(value = "Return a list of addresses for a given offender, most recent first.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderAddress.class, responseContainer = "List"),
@@ -55,8 +51,6 @@ public interface OffenderResource {
     List<OffenderAddress> getAddressesByOffenderNo(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo);
 
     @GetMapping("/{offenderNo}/adjudications")
-
-
     @ApiOperation(value = "Return a list of adjudications for a given offender")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = AdjudicationSearchResponse.class),
@@ -72,8 +66,6 @@ public interface OffenderResource {
                                           @ApiParam(value = "Requested limit to number of adjudications returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit);
 
     @GetMapping("/{offenderNo}/adjudications/{adjudicationNo}")
-
-
     @ApiOperation(value = "Return a specific adjudication")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = AdjudicationDetail.class),
@@ -84,8 +76,6 @@ public interface OffenderResource {
                                        @ApiParam(value = "adjudicationNo", required = true) @PathVariable("adjudicationNo") @NotNull long adjudicationNo);
 
     @GetMapping("/{offenderNo}/alerts")
-
-
     @ApiOperation(value = "Return a list of alerts for a given offender No.", notes = "System or cat tool access only",
             authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY"), @Authorization("CREATE_CATEGORISATION"), @Authorization("APPROVE_CATEGORISATION")})
     @ApiResponses(value = {
@@ -97,7 +87,7 @@ public interface OffenderResource {
                                                          @ApiParam(value = "Only get alerts for the latest booking (prison term)") @RequestParam(value = "latestOnly", defaultValue = "true", required = false) Boolean latestOnly,
                                                          @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - " +
                                                                  "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active</p> ",
-                                                                 required = true, example = "alertCode:eq:'XA',or:alertCode:eq:'RSS'") @RequestParam(value = "query", required = false) String query,
+                                                                 required = false, example = "alertCode:eq:'XA',or:alertCode:eq:'RSS'") @RequestParam(value = "query", required = false) String query,
                                                          @ApiParam(value = "Comma separated list of one or more Alert fields",
                                                                  allowableValues = "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active",
                                                                  defaultValue = "bookingId,alertType") @RequestHeader(value = "Sort-Fields", defaultValue = "bookingId,alertType", required = false) String sortFields,
@@ -114,8 +104,6 @@ public interface OffenderResource {
                                 @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) Long pageLimit);
 
     @GetMapping("/{offenderNo}/case-notes")
-
-
     @ApiOperation(value = "Offender case notes", notes = "Retrieve an offenders case notes for latest booking", nickname = "getOffenderCaseNotes")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = CaseNote.class, responseContainer = "List")})
@@ -136,16 +124,12 @@ public interface OffenderResource {
                                  @ApiParam(value = "The case note id", required = true) @PathVariable("caseNoteId") Long caseNoteId);
 
     @GetMapping("/{offenderNo}/sentences")
-
-
     @ApiOperation(value = "Offender Sentence Details", notes = "Retrieve an single offender sentence details", nickname = "getOffenderSentenceDetails")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = OffenderSentenceDetail.class)})
     OffenderSentenceDetail getOffenderSentenceDetail(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) @PathVariable("offenderNo") String offenderNo);
 
     @PostMapping("/{offenderNo}/case-notes")
-
-
     @ApiOperation(value = "Create case note for offender.", notes = "Create case note for offender. Will attach to the latest booking", nickname = "createOffenderCaseNote")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
@@ -176,8 +160,6 @@ public interface OffenderResource {
     void deleteOffender(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo);
 
     @GetMapping("/ids")
-
-
     @ApiOperation(value = "Return a list of all unique Noms IDs (also called Prisoner number and offenderNo).")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderNumber.class, responseContainer = "List"),

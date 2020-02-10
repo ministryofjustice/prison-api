@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
@@ -8,7 +9,10 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
+import net.syscon.elite.repository.jpa.repository.AgencyLocationFilter;
+import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.transform.LocationTransformer;
 import net.syscon.elite.repository.support.StatusFilter;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -29,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
+import static net.syscon.elite.repository.support.StatusFilter.INACTIVE_ONLY;
 import static net.syscon.elite.web.config.CacheConfig.GET_AGENCY_LOCATIONS_BOOKED;
 
 /**
@@ -37,36 +42,54 @@ import static net.syscon.elite.web.config.CacheConfig.GET_AGENCY_LOCATIONS_BOOKE
 @Service
 @Transactional(readOnly = true)
 @Slf4j
+@AllArgsConstructor
 public class AgencyServiceImpl implements AgencyService {
 
     private static final Comparator<Location> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
             Location::getDescription,
             new AlphaNumericComparator());
 
-
     private final AuthenticationFacade authenticationFacade;
     private final AgencyRepository agencyRepository;
+    private final AgencyLocationRepository agencyLocationRepository;
     private final ReferenceDomainService referenceDomainService;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
 
-    public AgencyServiceImpl(final AuthenticationFacade authenticationFacade, final AgencyRepository agencyRepository,
-                             final ReferenceDomainService referenceDomainService, final AgencyInternalLocationRepository agencyInternalLocationRepository) {
-        this.authenticationFacade = authenticationFacade;
-        this.agencyRepository = agencyRepository;
-        this.referenceDomainService = referenceDomainService;
-        this.agencyInternalLocationRepository = agencyInternalLocationRepository;
-    }
-
     @Override
     public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
-        final var agency = agencyRepository.findAgency(agencyId, filter, agencyType).orElseThrow(EntityNotFoundException.withId(agencyId));
-        agency.setDescription(LocationProcessor.formatLocation(agency.getDescription()));
-        return agency;
+        final var criteria = AgencyLocationFilter.builder()
+                .id(agencyId)
+                .type(agencyType)
+                .activeFlag(filter == ACTIVE_ONLY ? ActiveFlag.Y : filter == INACTIVE_ONLY ? ActiveFlag.N : null)
+                .build();
+
+       return agencyLocationRepository.findAll(criteria)
+          .stream()
+                .findFirst()
+                .map(this::transformToAgency).orElseThrow(EntityNotFoundException.withId(agencyId));
     }
 
     @Override
-    public List<Agency> getAgenciesByType(final String agencyType) {
-        return agencyRepository.getAgenciesByType(agencyType);
+    public List<Agency> getAgenciesByType(final String agencyType, final boolean activeOnly) {
+
+        final var filter = AgencyLocationFilter.builder()
+                .activeFlag(activeOnly ? ActiveFlag.Y : null)
+                .type(agencyType)
+                .build();
+
+        return agencyLocationRepository.findAll(filter)
+                .stream()
+                .map(this::transformToAgency)
+                .collect(Collectors.toList());
+    }
+
+    private Agency transformToAgency(final AgencyLocation agency) {
+        return Agency.builder()
+                .agencyId(agency.getId())
+                .description(LocationProcessor.formatLocation(agency.getDescription()))
+                .agencyType(agency.getType())
+                .active(agency.getActiveFlag() != null && agency.getActiveFlag().isActive())
+        .build();
     }
 
     @Override

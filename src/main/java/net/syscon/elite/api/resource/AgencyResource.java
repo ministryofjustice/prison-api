@@ -29,6 +29,16 @@ public interface AgencyResource {
     ResponseEntity<List<Agency>> getAgencies(@ApiParam(value = "Requested offset of first record in returned collection of agency records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                     @ApiParam(value = "Requested limit to number of agency records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit);
 
+    @GetMapping("/by-type/{type}")
+    @ApiOperation(value = "List of agencies by type", notes = "List of active agencies by type")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Agency.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    List<Agency> getAgenciesByType(@ApiParam(value = "Agency Type") @PathVariable(value = "type") final String type,
+                                   @ApiParam(value = "Only return active agencies") @RequestParam(value = "activeOnly", defaultValue = "true", required = false) boolean activeOnly);
+
     @GetMapping("/{agencyId}")
     @ApiOperation(value = "Agency detail.", notes = "Agency detail.", nickname = "getAgency")
     @ApiResponses(value = {

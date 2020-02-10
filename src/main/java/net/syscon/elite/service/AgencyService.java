@@ -21,7 +21,7 @@ public interface AgencyService {
 
     void checkAgencyExists(String agencyId);
 
-    List<Agency> getAgenciesByType(String agencyType);
+    List<Agency> getAgenciesByType(String agencyType, boolean activeOnly);
 
     Page<Agency> getAgencies(long offset, long limit);
 
