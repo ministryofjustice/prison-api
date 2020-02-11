@@ -1,5 +1,9 @@
 # Elite2 API server #
 
+
+[![CircleCI](https://circleci.com/gh/ministryofjustice/elite2-api/tree/master.svg?style=svg)](https://circleci.com/gh/ministryofjustice/elite2-api)
+[![Known Vulnerabilities](https://snyk.io/test/github/ministryofjustice/elite2-api/badge.svg)](https://snyk.io/test/github/ministryofjustice/elite2-api)
+
 ### How do I get set up? ###
 
 * If using Intellij, install [Lombok](http://projectlombok.org/download)
