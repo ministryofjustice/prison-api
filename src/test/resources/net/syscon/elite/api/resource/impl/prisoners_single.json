@@ -16,6 +16,7 @@
     "ethnicity": "White: British",
     "religion": "Anglican",
     "convictedStatus": "Convicted",
-    "imprisonmentStatus": "SENT"
+    "imprisonmentStatus": "SENT",
+    "imprisonmentStatusDesc": "Adult Imprisonment Without Option"
   }
 ]
