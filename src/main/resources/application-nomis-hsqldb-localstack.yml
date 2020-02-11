@@ -22,8 +22,7 @@ offender.deletion:
   sqs:
     provider: localstack
     queue.name: elite2_api_queue
-    dlq.name: elite2_api_dead_letter_queue
-    endpoint.url: http://localhost:4576
+    endpoint.url: http://localstack:4576
     region: eu-west-2
 
 graceful:
