@@ -283,7 +283,7 @@ Feature: Booking Details
 
  Scenario: Request for offender identifiers
     When offender identifiers are requested for Booking Id "-4"
-    Then "1" row of offender identifiers is returned
+    Then "2" row of offender identifiers is returned
 
   Scenario: Request for profile information
     When profile information is requested for Booking Id "-1"
