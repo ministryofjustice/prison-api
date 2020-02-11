@@ -39,8 +39,6 @@ public interface AgencyService {
 
     List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
 
-    List<Location> getAgencyEventLocationsBookedNonCached(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
-
     List<IepLevel> getAgencyIepLevels(String agencyId);
 
     List<PrisonContactDetail> getPrisonContactDetail();
