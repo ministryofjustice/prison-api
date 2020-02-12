@@ -266,4 +266,18 @@ public class BookingResourceTest extends ResourceTest {
         assertThat(response.getBody().getFromAgency()).isEqualTo("LEI");
         assertThat(response.getBody().getToAgency()).isEqualTo("BMI");
     }
+
+    @Test
+    public void testGetMovementForBookingNoResults() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/movement/{sequenceNumber}",
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                Movement.class, "-29", "999");
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+    }
+
 }

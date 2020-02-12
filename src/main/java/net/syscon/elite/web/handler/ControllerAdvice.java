@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.NoContentException;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,6 +89,18 @@ public class ControllerAdvice {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final EntityNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<ErrorResponse> handleEmptyResultDataAccessException(final EmptyResultDataAccessException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ErrorResponse

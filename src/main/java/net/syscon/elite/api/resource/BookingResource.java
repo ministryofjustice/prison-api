@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.io.File;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -117,7 +115,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     ResponseEntity<List<Alert>> getOffenderAlertsByOffenderNo(@ApiParam(value = "The offender no of the offender", required = true) @PathVariable("offenderNo") String offenderNo,
-                                                              @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - alertType, alertCode, dateCreated, dateExpires</p> ", required = true) @RequestParam(value = "query", required = false) String query,
+                                                              @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - alertType, alertCode, dateCreated, dateExpires</p> ", required = false) @RequestParam(value = "query", required = false) String query,
                                                               @ApiParam(value = "Requested offset of first record in returned collection of alert records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                               @ApiParam(value = "Requested limit to number of alert records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
                                                               @ApiParam(value = "Comma separated list of one or more of the following fields - <b>alertType, alertCode, dateCreated, dateExpires</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
@@ -307,7 +305,8 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<OffenderIdentifier> getOffenderIdentifiers(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+    List<OffenderIdentifier> getOffenderIdentifiers(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") @NotNull Long bookingId,
+                                                  @ApiParam(value = "Filter By Type", required = false, example = "PNC") @RequestParam(value = "identifierType", required = false) final String identifierType);
 
     @GetMapping("/{bookingId}/iepSummary")
     @ApiOperation(value = "Offender IEP (Incentives & Earned Privileges) summary.", notes = "Offender IEP (Incentives & Earned Privileges) summary.", nickname = "getBookingIEPSummary")

@@ -45,11 +45,12 @@ public class AgencyResourceImpl implements AgencyResource {
 
     @Override
     public ResponseEntity<List<Agency>> getAgencies(final Long pageOffset, final Long pageLimit) {
-        final var agencies = agencyService.getAgencies(nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+        return agencyService.getAgencies(pageOffset, pageLimit).getResponse();
+    }
 
-        return ResponseEntity.ok()
-                .headers(agencies.getPaginationHeaders())
-                .body(agencies.getItems());
+    @Override
+    public List<Agency> getAgenciesByType(final String agencyType, boolean activeOnly) {
+        return agencyService.getAgenciesByType(agencyType, activeOnly);
     }
 
     @Override

@@ -60,14 +60,26 @@ public class SchedulesService {
         this.maxBatchSize = maxBatchSize;
     }
 
+    /*
+     * TODO DT-526 Remove this when endpoint GET /schedules/{agencyId}/groups/{name} is replaced with POST /schedules/{agencyId}/events-by-location-ids
+     *      NOTE switch all tests to getLocationGroupEventsByLocationId when removing this method
+     */
     @VerifyAgencyAccess
     public List<PrisonerSchedule> getLocationGroupEvents(final String agencyId, final String groupName, final LocalDate date, final TimeSlot timeSlot,
                                                          final String sortFields, final Order sortOrder) {
 
+        final var locationIds = locationIdsForGroup(agencyId, groupName);
+        return getLocationGroupEventsByLocationId(agencyId, locationIds, date, timeSlot, sortFields, sortOrder);
+    }
+
+    @VerifyAgencyAccess
+    public List<PrisonerSchedule> getLocationGroupEventsByLocationId(final String agencyId, final List<Long> locationIds, final LocalDate date,
+                                                                     final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
+
         final var inmates = inmateService.findInmatesByLocation(
                 authenticationFacade.getCurrentUsername(),
                 agencyId,
-                locationIdsForGroup(agencyId, groupName));
+                locationIds);
 
         if (inmates.isEmpty()) {
             return Collections.emptyList();

@@ -28,4 +28,7 @@ public class Agency {
     @NotBlank
     @ApiModelProperty(required = true, value = "Agency type.", example = "INST")
     private String agencyType;
+
+    @ApiModelProperty(value = "Agency is active", example = "true")
+    private boolean active;
 }

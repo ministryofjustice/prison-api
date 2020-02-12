@@ -1,11 +1,13 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,5 +63,141 @@ public class SchedulesResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
         assertThat(activities).hasSize(1);
+    }
+
+    /*
+     * /api/schedules/{agencyId}/events-by-location-ids
+     */
+
+    @Test
+    public void schedulesAgencyIdActivitiesByLocationId_NoLocationGroupScheduleEvents_ReturnsEmptyList() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var locationIds = getLocationIdsNoSchedules();
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/RNI/events-by-location-ids",
+                HttpMethod.POST,
+                createHttpEntity(token, locationIds),
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                });
+
+        final var schedules = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(schedules).isEmpty();
+
+    }
+
+    @Test
+    public void schedulesAgencyIdActivitiesByLocationId_LocationGroupScheduleEventsInOrder_OffenderSchedulesAreInOrder() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var locationIds = getLocationIdsWithSchedules();
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/events-by-location-ids",
+                HttpMethod.POST,
+                createHttpEntity(token, locationIds),
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                });
+
+        final var schedules = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(schedules).extracting("cellLocation").isSorted();
+        assertThat(schedules).extracting("cellLocation").containsOnly("LEI-A-1-1", "LEI-A-1-10");
+
+    }
+
+    @Test
+    public void schedulesAgencyIdActivitiesByLocationId_AmTimeslot_MorningSchedulesOnly() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var locationIds = getLocationIdsWithSchedules();
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/events-by-location-ids?timeSlot=AM",
+                HttpMethod.POST,
+                createHttpEntity(token, locationIds),
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                });
+
+        final var schedules = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(schedules).allSatisfy(s ->
+                assertThat(s.getStartTime().toLocalTime()).isBefore(LocalTime.of(12, 0))
+        );
+
+    }
+
+    @Test
+    public void schedulesAgencyIdActivitiesByLocationId_PmTimeslot_SchedulesBetween1200and1700Only() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var locationIds = getLocationIdsWithSchedules();
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/events-by-location-ids?timeSlot=PM",
+                HttpMethod.POST,
+                createHttpEntity(token, locationIds),
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                });
+
+        final var schedules = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(schedules).allSatisfy(s ->
+                assertThat(s.getStartTime().toLocalTime()).isAfterOrEqualTo(LocalTime.of(12, 0))
+        );
+        assertThat(schedules).allSatisfy(s ->
+                assertThat(s.getStartTime().toLocalTime()).isBeforeOrEqualTo(LocalTime.of(17, 0))
+        );
+
+    }
+
+    @Test
+    public void schedulesAgencyIdActivitiesByLocationId_EveningTimeslot_EveningSchedulesOnly() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var locationIds = getLocationIdsWithSchedules();
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/events-by-location-ids?timeSlot=ED",
+                HttpMethod.POST,
+                createHttpEntity(token, locationIds),
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                });
+
+        final var schedules = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(schedules).allSatisfy(s ->
+                assertThat(s.getStartTime().toLocalTime()).isAfter(LocalTime.of(17, 0))
+        );
+
+    }
+
+    @Test
+    public void schedulesAgencyIdActivitiesByLocationId_AgencyNotAccessible_ReturnsNotFound() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var notAnAgency = "ZZGHI";
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/ZZGHI/events-by-location-ids",
+                HttpMethod.POST,
+                createHttpEntity(token, List.of()),
+                ErrorResponse.class);
+
+        final var error = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+        assertThat(error.getUserMessage()).contains(notAnAgency).contains("not found");
+
+    }
+
+    private List<Long> getLocationIdsNoSchedules() {
+        return List.of(108582L, 108583L);
+    }
+
+    private List<Long> getLocationIdsWithSchedules() {
+        return List.of(-3L, -12L, -1101L, -1002L, -1003L, -1004L, -1005L, -1006L, -1007L, -1008L, -4L,
+                -5L, -6L, -7L, -8L, -9L, -10L, -11L, -33L);
     }
 }
