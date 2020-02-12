@@ -1,19 +1,19 @@
 package net.syscon.elite.service;
 
-import com.microsoft.applicationinsights.TelemetryClient;
-import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.jpa.model.OffenderBooking;
+import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,37 +29,30 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Test cases for {@link BookingServiceImpl}.
+ * Test cases for {@link BookingService}.
  */
-@RunWith(MockitoJUnitRunner.class)
-public class BookingServiceImplTest {
+@ExtendWith(SpringExtension.class)
+public class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
-
+    @Mock
+    private OffenderBookingRepository offenderBookingRepository;
     @Mock
     private AgencyService agencyService;
-
     @Mock
     private ReferenceDomainService referenceDomainService;
-
-    @Mock
-    private LocationService locationService;
-
-    @Mock
-    private TelemetryClient telemetryClient;
-
     @Mock
     private AuthenticationFacade securityUtils;
-
     @Mock
     private AuthenticationFacade authenticationFacade;
 
     private BookingService bookingService;
 
-    @Before
+    @BeforeEach
     public void init() {
         bookingService = new BookingService(
                 bookingRepository,
+                offenderBookingRepository,
                 null,
                 agencyService,
                 null,
@@ -138,12 +131,12 @@ public class BookingServiceImplTest {
 
     @Test
     public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
-        val bookingId = 1L;
+        final var bookingId = 1L;
 
         when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
         when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "STD", "ENH"));
 
-        val iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
 
         bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment);
 
@@ -152,11 +145,11 @@ public class BookingServiceImplTest {
 
     @Test
     public void givenInvalidIepLevel_whenIepLevelAdded() {
-        val bookingId = 1L;
+        final var bookingId = 1L;
 
         when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(false);
 
-        val iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
         assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("IEP Level 'STD' is not a valid NOMIS value.");
@@ -164,12 +157,12 @@ public class BookingServiceImplTest {
 
     @Test
     public void givenValidIepLevel_whenIepLevelNotValidForAgencyAssociatedWithBooking() {
-        val bookingId = 1L;
+        final var bookingId = 1L;
 
         when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
         when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "ENH"));
 
-        val iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
         assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("IEP Level 'STD' is not active for this booking's agency: Booking Id 1.");
@@ -177,8 +170,8 @@ public class BookingServiceImplTest {
 
     @Test
     public void testThatUpdateAttendanceIsCalledForEachBooking() {
-        val bookingIds = Set.of(1L, 2L, 3L);
-        val activityId = 2L;
+        final var bookingIds = Set.of(1L, 2L, 3L);
+        final var activityId = 2L;
 
         when(bookingRepository.getLatestBookingByBookingId(anyLong()))
                 .thenReturn(Optional.of(OffenderSummary.builder().bookingId(1L).build()))
@@ -195,19 +188,19 @@ public class BookingServiceImplTest {
                         .paid(true)
                         .build());
 
-        val updateAttendance = UpdateAttendance
+        final var updateAttendance = UpdateAttendance
                 .builder()
                 .eventOutcome("ATT")
                 .performance("STANDARD")
                 .build();
 
-        val bookingActivities = bookingIds.stream()
+        final var bookingActivities = bookingIds.stream()
                 .map(bookingId -> BookingActivity.builder().bookingId(bookingId).activityId(activityId).build())
                 .collect(Collectors.toSet());
 
         bookingService.updateAttendanceForMultipleBookingIds(bookingActivities, updateAttendance);
 
-        val expectedOutcome = UpdateAttendance.builder().performance("STANDARD").eventOutcome("ATT").build();
+        final var expectedOutcome = UpdateAttendance.builder().performance("STANDARD").eventOutcome("ATT").build();
 
         bookingIds.forEach(bookingId -> verify(bookingRepository).updateAttendance(bookingId, activityId, expectedOutcome, true, false));
     }
@@ -309,6 +302,65 @@ public class BookingServiceImplTest {
         );
         final var events = bookingService.getEvents(bookingId, from, to);
         assertThat(events).extracting(ScheduledEvent::getEventType).containsExactly("act08:59:50", "app09:02:03", "act10:11:12", "visnull");
+    }
+
+    @Test
+    public void getMilitaryRecords_map() {
+        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder()
+                .militaryRecords(List.of(
+                        OffenderMilitaryRecord.builder()
+                                .startDate(LocalDate.parse("2000-01-01"))
+                                .endDate(LocalDate.parse("2020-10-17"))
+                                .militaryDischarge(new MilitaryDischarge("DIS", "Dishonourable"))
+                                .warZone(new WarZone("AFG", "Afghanistan"))
+                                .militaryBranch(new MilitaryBranch("ARM", "Army"))
+                                .description("left")
+                                .unitNumber("auno")
+                                .enlistmentLocation("Somewhere")
+                                .militaryRank(new MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
+                                .serviceNumber("asno")
+                                .disciplinaryAction(new DisciplinaryAction("CM", "Court Martial"))
+                                .dischargeLocation("Sheffield")
+                                .build(),
+                        OffenderMilitaryRecord.builder()
+                                .startDate(LocalDate.parse("2001-01-01"))
+                                .militaryBranch(new MilitaryBranch("NAV", "Navy"))
+                                .description("second record")
+                                .build()))
+                .build()));
+        final var militaryRecords = bookingService.getMilitaryRecords(-1L);
+        assertThat(militaryRecords).usingRecursiveComparison().isEqualTo(new MilitaryRecords(List.of(
+                MilitaryRecord.builder()
+                        .startDate(LocalDate.parse("2000-01-01"))
+                        .endDate(LocalDate.parse("2020-10-17"))
+                        .militaryDischargeCode("DIS")
+                        .militaryDischargeDescription("Dishonourable")
+                        .warZoneCode("AFG")
+                        .warZoneDescription("Afghanistan")
+                        .militaryBranchCode("ARM")
+                        .militaryBranchDescription("Army")
+                        .description("left")
+                        .unitNumber("auno")
+                        .enlistmentLocation("Somewhere")
+                        .militaryRankCode("LCPL_RMA")
+                        .militaryRankDescription("Lance Corporal  (Royal Marines)")
+                        .serviceNumber("asno")
+                        .disciplinaryActionCode("CM")
+                        .disciplinaryActionDescription("Court Martial")
+                        .dischargeLocation("Sheffield")
+                        .build(),
+                MilitaryRecord.builder()
+                        .startDate(LocalDate.parse("2001-01-01"))
+                        .militaryBranchCode("NAV")
+                        .militaryBranchDescription("Navy")
+                        .description("second record")
+                        .build())));
+    }
+
+    @Test
+    public void getMilitaryRecords_notfound() {
+        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {

@@ -417,6 +417,15 @@ public interface BookingResource {
     PersonalCareNeeds getPersonalCareNeeds(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
                                            @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
 
+    @GetMapping("/{bookingId}/military-records")
+    @ApiOperation(value = "Military Records", notes = "Military Records", nickname = "getMilitaryRecords")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PersonalCareNeeds.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    MilitaryRecords getMilitaryRecords(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+
     @PostMapping("/offenderNo/personal-care-needs")
     @ApiOperation(value = "Personal Care Needs  - POST version to allow for large numbers of offenders", notes = "Personal Care Needs", nickname = "getPersonalCareNeeds")
     @ApiResponses(value = {

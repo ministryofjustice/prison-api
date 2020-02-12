@@ -28,4 +28,12 @@ public abstract class ReferenceCode implements Serializable {
     public static final String MLTY_DSCHRG = "MLTY_DSCHRG";
     public static final String MLTY_DISCP = "MLTY_DISCP";
     public static final String MLTY_RANK = "MLTY_RANK";
+
+    public static String getDescriptionOrNull(final ReferenceCode referenceCode) {
+        return referenceCode != null ? referenceCode.getDescription() : null;
+    }
+
+    public static String getCodeOrNull(final ReferenceCode referenceCode) {
+        return referenceCode != null ? referenceCode.getCode() : null;
+    }
 }

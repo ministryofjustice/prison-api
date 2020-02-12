@@ -1,0 +1,31 @@
+{
+  "militaryRecords": [
+    {
+      "warZoneCode": "AFG",
+      "warZoneDescription": "Afghanistan",
+      "startDate": "2000-01-01",
+      "endDate": "2020-10-17",
+      "militaryDischargeCode": "DIS",
+      "militaryDischargeDescription": "Dishonourable",
+      "militaryBranchCode": "ARM",
+      "militaryBranchDescription": "Army",
+      "description": "left",
+      "unitNumber": "auno",
+      "enlistmentLocation": "Somewhere",
+      "dischargeLocation": "Sheffield",
+      "selectiveServicesFlag": false,
+      "militaryRankCode": "LCPL_RMA",
+      "militaryRankDescription": "Lance Corporal  (Royal Marines)",
+      "serviceNumber": "asno",
+      "disciplinaryActionCode": "CM",
+      "disciplinaryActionDescription": "Court Martial"
+    },
+    {
+      "startDate": "2001-01-01",
+      "militaryBranchCode": "NAV",
+      "militaryBranchDescription": "Navy",
+      "description": "second record",
+      "selectiveServicesFlag": false
+    }
+  ]
+}
