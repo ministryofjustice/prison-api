@@ -5,6 +5,8 @@ import net.syscon.elite.api.model.ReasonableAdjustment;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -28,6 +30,8 @@ public class BookingResourceImplIntTest extends ResourceTest {
     private InmateRepository inmateRepository;
     @SpyBean
     private BookingRepository bookingRepository;
+    @MockBean
+    private OffenderBookingRepository offenderBookingRepository;
 
     @Test
     public void getPersonalCareNeeds() {
@@ -89,18 +93,18 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void offenderAlerts_respondsWithOKWhenOffenderNumberSupplied() {
-        var oneOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), List.of("A1234AA"));
+        final var oneOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), List.of("A1234AA"));
 
-        var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, oneOffendersInRequest, String.class);
+        final var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, oneOffendersInRequest, String.class);
 
         assertThatStatus(minimumOfOneOffenderRequiredResponse, 200);
     }
 
     @Test
     public void offenderAlerts_respondsWithBadRequestWhenNoOffendersNumbersSupplied() {
-        var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), List.of());
+        final var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), List.of());
 
-        var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, noOffendersInRequest, String.class);
+        final var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, noOffendersInRequest, String.class);
 
         assertThatStatus(minimumOfOneOffenderRequiredResponse, 400);
         assertThat(minimumOfOneOffenderRequiredResponse.getBody()).contains("A minimum of one offender number is required");
@@ -108,9 +112,9 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void offenderAlerts_emptyBody() {
-        var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), null);
+        final var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), null);
 
-        var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, noOffendersInRequest, String.class);
+        final var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, noOffendersInRequest, String.class);
 
         assertThatStatus(minimumOfOneOffenderRequiredResponse, 400);
         assertThat(minimumOfOneOffenderRequiredResponse.getBody()).contains("Malformed request");
@@ -202,6 +206,36 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/events", HttpMethod.GET, requestEntity, String.class);
 
         assertThatJsonFileAndStatus(responseEntity, 200, "events.json");
+    }
+
+    @Test
+    public void getMilitaryRecords() {
+        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder()
+                .militaryRecords(List.of(
+                        OffenderMilitaryRecord.builder()
+                                .startDate(LocalDate.parse("2000-01-01"))
+                                .endDate(LocalDate.parse("2020-10-17"))
+                                .militaryDischarge(new MilitaryDischarge("DIS", "Dishonourable"))
+                                .warZone(new WarZone("AFG", "Afghanistan"))
+                                .militaryBranch(new MilitaryBranch("ARM", "Army"))
+                                .description("left")
+                                .unitNumber("auno")
+                                .enlistmentLocation("Somewhere")
+                                .militaryRank(new MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
+                                .serviceNumber("asno")
+                                .disciplinaryAction(new DisciplinaryAction("CM", "Court Martial"))
+                                .dischargeLocation("Sheffield")
+                                .build(),
+                        OffenderMilitaryRecord.builder()
+                                .startDate(LocalDate.parse("2001-01-01"))
+                                .militaryBranch(new MilitaryBranch("NAV", "Navy"))
+                                .description("second record")
+                                .build()))
+                .build()));
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/military-records", HttpMethod.GET, requestEntity, String.class);
+        System.out.println(responseEntity.getBody());
+        assertThatJsonFileAndStatus(responseEntity, 200, "military_records.json");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {

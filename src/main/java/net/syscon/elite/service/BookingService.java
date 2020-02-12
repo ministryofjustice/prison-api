@@ -6,6 +6,8 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.repository.jpa.model.ReferenceCode;
+import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.LocationProcessor;
@@ -51,6 +53,7 @@ public class BookingService {
     private final Comparator<ScheduledEvent> startTimeComparator = Comparator.comparing(ScheduledEvent::getStartTime, nullsLast(naturalOrder()));
 
     private final BookingRepository bookingRepository;
+    private final OffenderBookingRepository offenderBookingRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
@@ -62,15 +65,18 @@ public class BookingService {
     private final int maxBatchSize;
 
     public BookingService(final BookingRepository bookingRepository,
-                              final SentenceRepository sentenceRepository, final AgencyService agencyService,
-                              final CaseLoadService caseLoadService,
-                              final ReferenceDomainService referenceDomainService,
-                              final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
-                              final AuthenticationFacade securityUtils,
-                              final AuthenticationFacade authenticationFacade,
-                              @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
-                              @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                          final OffenderBookingRepository offenderBookingRepository,
+                          final SentenceRepository sentenceRepository,
+                          final AgencyService agencyService,
+                          final CaseLoadService caseLoadService,
+                          final ReferenceDomainService referenceDomainService,
+                          final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
+                          final AuthenticationFacade securityUtils,
+                          final AuthenticationFacade authenticationFacade,
+                          @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
+                          @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
+        this.offenderBookingRepository = offenderBookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
@@ -588,6 +594,34 @@ public class BookingService {
                 !isViewAllBookings(), isViewInactiveBookings()))
                 .stream()
                 .findFirst();
+    }
+
+    @VerifyBookingAccess
+    public MilitaryRecords getMilitaryRecords(final Long bookingId) {
+        return offenderBookingRepository.findById(bookingId).map(b ->
+                new MilitaryRecords(b.getMilitaryRecords().stream().map(mr ->
+                        MilitaryRecord.builder()
+                                .warZoneCode(ReferenceCode.getCodeOrNull(mr.getWarZone()))
+                                .warZoneDescription(ReferenceCode.getDescriptionOrNull(mr.getWarZone()))
+                                .startDate(mr.getStartDate())
+                                .endDate(mr.getEndDate())
+                                .militaryDischargeCode(ReferenceCode.getCodeOrNull(mr.getMilitaryDischarge()))
+                                .militaryDischargeDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryDischarge()))
+                                .militaryBranchCode(ReferenceCode.getCodeOrNull(mr.getMilitaryBranch()))
+                                .militaryBranchDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryBranch()))
+                                .description(mr.getDescription())
+                                .unitNumber(mr.getUnitNumber())
+                                .enlistmentLocation(mr.getEnlistmentLocation())
+                                .dischargeLocation(mr.getDischargeLocation())
+                                .selectiveServicesFlag(mr.getSelectiveServicesFlag())
+                                .militaryRankCode(ReferenceCode.getCodeOrNull(mr.getMilitaryRank()))
+                                .militaryRankDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryRank()))
+                                .serviceNumber(mr.getServiceNumber())
+                                .disciplinaryActionCode(ReferenceCode.getCodeOrNull(mr.getDisciplinaryAction()))
+                                .disciplinaryActionDescription(ReferenceCode.getDescriptionOrNull(mr.getDisciplinaryAction()))
+                                .build())
+                        .collect(Collectors.toUnmodifiableList())
+                )).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {

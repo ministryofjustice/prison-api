@@ -422,6 +422,11 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public MilitaryRecords getMilitaryRecords(final Long bookingId) {
+        return bookingService.getMilitaryRecords(bookingId);
+    }
+
+    @Override
     public List<PersonalCareNeeds> getPersonalCareNeeds(final List<String> offenderNos, final List<String> problemTypes) {
         return inmateService.getPersonalCareNeeds(offenderNos, problemTypes);
     }
