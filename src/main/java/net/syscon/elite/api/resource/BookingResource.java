@@ -420,7 +420,7 @@ public interface BookingResource {
     @GetMapping("/{bookingId}/military-records")
     @ApiOperation(value = "Military Records", notes = "Military Records", nickname = "getMilitaryRecords")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PersonalCareNeeds.class),
+            @ApiResponse(code = 200, message = "OK", response = MilitaryRecords.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
