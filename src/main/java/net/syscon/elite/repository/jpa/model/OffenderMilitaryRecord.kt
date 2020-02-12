@@ -1,7 +1,5 @@
 package net.syscon.elite.repository.jpa.model
 
-import lombok.AllArgsConstructor
-import lombok.NoArgsConstructor
 import net.syscon.elite.repository.jpa.model.ReferenceCode.Companion.MLTY_BRANCH
 import net.syscon.elite.repository.jpa.model.ReferenceCode.Companion.MLTY_DISCP
 import net.syscon.elite.repository.jpa.model.ReferenceCode.Companion.MLTY_DSCHRG
@@ -15,8 +13,6 @@ import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 
 @Embeddable
-@NoArgsConstructor
-@AllArgsConstructor
 data class OffenderMilitaryRecord(
     @ManyToOne
     @NotFound(action = IGNORE)
