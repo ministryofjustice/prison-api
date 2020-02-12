@@ -2,31 +2,22 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
-import net.syscon.elite.repository.OffenderDeletionRepository;
 import org.junit.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken.ELITE2_API_USER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 public class OffendersResourceTest extends ResourceTest {
 
     private final String OFFENDER_NUMBER = "A1234AB";
-
-    @MockBean
-    private OffenderDeletionRepository offenderDeletionRepository;
 
     @Test
     public void testCanRetrieveSentenceDetailsForOffender() {
@@ -247,31 +238,6 @@ public class OffendersResourceTest extends ResourceTest {
                 });
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
-    }
-
-    @Test
-    public void deleteOffender() {
-
-        assertThatStatus(
-                deleteOffenderWithRoles("ROLE_DELETE_OFFENDER"),
-                204);
-
-        verify(offenderDeletionRepository).deleteOffender(OFFENDER_NUMBER);
-    }
-
-    @Test
-    public void deleteOffenderForbiddenWithoutCorrectRole() {
-
-        assertThatStatus(
-                deleteOffenderWithRoles("ROLE_IS_INCORRECT"),
-                403);
-
-        verify(offenderDeletionRepository, never()).deleteOffender(any());
-    }
-
-    private ResponseEntity<Void> deleteOffenderWithRoles(final String... roles) {
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("SOME_USER", asList(roles), Map.of());
-        return testRestTemplate.exchange("/api/offenders/" + OFFENDER_NUMBER, HttpMethod.DELETE, requestEntity, Void.class);
     }
 
     @Test
