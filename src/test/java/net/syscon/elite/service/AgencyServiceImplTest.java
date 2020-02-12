@@ -7,7 +7,10 @@ import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
+import net.syscon.elite.repository.jpa.repository.AgencyLocationFilter;
+import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,10 +41,12 @@ public class AgencyServiceImplTest {
     private ReferenceDomainService referenceDomainService;
     @Mock
     private AgencyInternalLocationRepository agencyInternalLocationRepository;
+    @Mock
+    private AgencyLocationRepository agencyLocationRepository;
 
     @Before
     public void setUp() {
-        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, referenceDomainService, agencyInternalLocationRepository);
+        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyInternalLocationRepository);
         when(agencyRepo.getPrisonContactDetails(eq(null))).thenReturn(buildPrisonContactDetailsList());
         when(agencyRepo.getPrisonContactDetails(eq("ABC"))).thenReturn(buildPrisonContactDetailsListSingleResult());
         when(agencyRepo.getPrisonContactDetails(eq("BLANK"))).thenReturn(buildPrisonContactDetailsListSingleResultBlankAddress());
@@ -50,9 +55,9 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldCallGetAgency() {
-        when(agencyRepo.findAgency(Mockito.anyString(), any(), isNull())).thenReturn(Optional.of(Agency.builder().build()));
+        when(agencyLocationRepository.findAll(isA(AgencyLocationFilter.class))).thenReturn(List.of(AgencyLocation.builder().id("LEI").build()));
         service.getAgency("LEI", ALL, null);
-        verify(agencyRepo).findAgency("LEI", ALL, null);
+        verify(agencyLocationRepository).findAll(isA(AgencyLocationFilter.class));
     }
 
     @Test

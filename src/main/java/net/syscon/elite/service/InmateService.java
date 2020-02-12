@@ -344,8 +344,11 @@ public class InmateService {
     }
 
     @VerifyBookingAccess
-    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId) {
-        return repository.getOffenderIdentifiers(bookingId);
+    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, final String identifierType) {
+        return repository.getOffenderIdentifiers(bookingId)
+                .stream()
+                    .filter( i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))
+                    .collect(Collectors.toList());
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
