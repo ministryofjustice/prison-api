@@ -79,6 +79,8 @@ public class PrisonerDetail {
 
     private String imprisonmentStatus;
 
+    private String imprisonmentStatusDesc;
+
     private LocalDate receptionDate;
 
     private String maritalStatus;
@@ -388,6 +390,20 @@ public class PrisonerDetail {
     public void setImprisonmentStatus(final String imprisonmentStatus) {
         this.imprisonmentStatus = imprisonmentStatus;
     }
+
+    /**
+     * The prisoner's imprisonment status description.
+     */
+    @ApiModelProperty(value = "The prisoner's imprisonment status description.")
+    @JsonProperty("imprisonmentStatusDesc")
+    public String getImprisonmentStatusDesc() {
+        return imprisonmentStatusDesc;
+    }
+
+    public void setImprisonmentStatusDesc(final String imprisonmentStatusDesc) {
+        this.imprisonmentStatusDesc = imprisonmentStatusDesc;
+    }
+
 
     /**
      * Date prisoner was received into the prison.

@@ -21,7 +21,7 @@ public interface AgencyService {
 
     void checkAgencyExists(String agencyId);
 
-    List<Agency> getAgenciesByType(String agencyType);
+    List<Agency> getAgenciesByType(String agencyType, boolean activeOnly);
 
     Page<Agency> getAgencies(long offset, long limit);
 
@@ -38,8 +38,6 @@ public interface AgencyService {
     List<Location> getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder);
 
     List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
-
-    List<Location> getAgencyEventLocationsBookedNonCached(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
 
     List<IepLevel> getAgencyIepLevels(String agencyId);
 
