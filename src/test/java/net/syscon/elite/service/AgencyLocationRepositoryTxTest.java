@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,8 +24,9 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
-@SpringBootTest()
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Transactional
+@WithAnonymousUser
 public class AgencyLocationRepositoryTxTest {
 
     public static final String TEST_AGY_ID = "TEST";
@@ -33,7 +35,6 @@ public class AgencyLocationRepositoryTxTest {
     private AgencyLocationRepository repository;
 
     @Test
-    @WithUserDetails("ITAG_USER")
     public void testPersistingAgency() throws NoSuchFieldException, IllegalAccessException {
         final var newAgency = AgencyLocation.builder()
                 .id(TEST_AGY_ID)
@@ -56,7 +57,7 @@ public class AgencyLocationRepositoryTxTest {
 
         // Check that the user name and timestamp is set
         final var createUserId = ReflectionTestUtils.getField(retrievedAgency, AgencyLocation.class, "createUserId");
-        Assertions.assertThat(createUserId).isEqualTo("ITAG_USER");
+        Assertions.assertThat(createUserId).isEqualTo("anonymous");
 
         final var createDatetime = ReflectionTestUtils.getField(retrievedAgency, AgencyLocation.class, "createDatetime");
         Assertions.assertThat(createDatetime).isNotNull();
