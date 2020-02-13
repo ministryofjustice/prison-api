@@ -1,29 +1,25 @@
 package net.syscon.elite.repository.jpa.repository;
 
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
-import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.web.config.AuditorAwareImpl;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.transaction.TestTransaction;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = NONE)
+@Import({AuthenticationFacade.class, AuditorAwareImpl.class})
+@WithMockUser
 public class AgencyLocationRepositoryTest {
 
     @Autowired
@@ -93,6 +89,7 @@ public class AgencyLocationRepositoryTest {
         final var retrievedAgency = repository.findById("TEST").orElseThrow();
 
         assertThat(retrievedAgency).isEqualTo(createdAgency);
+        assertThat(retrievedAgency).extracting("createUserId").isEqualTo("user");
     }
 
 }
