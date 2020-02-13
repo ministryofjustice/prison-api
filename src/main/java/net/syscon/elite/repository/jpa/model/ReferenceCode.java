@@ -21,14 +21,16 @@ public abstract class ReferenceCode implements Serializable {
     private String domain;
     @Id
     private String code;
+
     private String description;
 
-    public static final String LEG_CASE_TYP = "LEG_CASE_TYP";
-    public static final String MLTY_BRANCH = "MLTY_BRANCH";
-    public static final String MLTY_WZONE = "MLTY_WZONE";
-    public static final String MLTY_DSCHRG = "MLTY_DSCHRG";
-    public static final String MLTY_DISCP = "MLTY_DISCP";
-    public static final String MLTY_RANK = "MLTY_RANK";
+    static final String CASE_STATUS = "CASE_STATUS";
+    static final String LEG_CASE_TYP = "LEG_CASE_TYP";
+    static final String MLTY_BRANCH = "MLTY_BRANCH";
+    static final String MLTY_WZONE = "MLTY_WZONE";
+    static final String MLTY_DSCHRG = "MLTY_DSCHRG";
+    static final String MLTY_DISCP = "MLTY_DISCP";
+    static final String MLTY_RANK = "MLTY_RANK";
 
     public static String getDescriptionOrNull(final ReferenceCode referenceCode) {
         return referenceCode != null ? referenceCode.getDescription() : null;

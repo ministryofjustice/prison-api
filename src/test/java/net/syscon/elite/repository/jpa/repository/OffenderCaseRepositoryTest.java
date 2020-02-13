@@ -22,22 +22,19 @@ public class OffenderCaseRepositoryTest {
     private OffenderCaseRepository repository;
 
     @Test
-    public void findsCase_ByBookingId() {
-        var expectedCase = repository.findByBookingId(-1L);
-
-        assertThat(expectedCase).hasSize(1);
-        assertThat(expectedCase).extracting(OffenderCase::getAgencyLocation).isNotNull();
-        assertThat(expectedCase).extracting(OffenderCase::getLegalCaseType).isNotNull();
-        assertThat(expectedCase).extracting(OffenderCase::getBookingId).containsOnly(-1L);
+    public void findsCases_ByBookingId() {
+        assertOnFindByBookingId(-1);
+        assertOnFindByBookingId(-2);
+        assertOnFindByBookingId(-3);
     }
 
-    @Test
-    public void findsAnotherCase_ByBookingId() {
-        var expectedCase = repository.findByBookingId(-2L);
+    private void assertOnFindByBookingId(final long bookingId) {
+        var expectedCase = repository.findByBookingId(bookingId);
 
         assertThat(expectedCase).hasSize(1);
         assertThat(expectedCase).extracting(OffenderCase::getAgencyLocation).isNotNull();
         assertThat(expectedCase).extracting(OffenderCase::getLegalCaseType).isNotNull();
-        assertThat(expectedCase).extracting(OffenderCase::getBookingId).containsOnly(-2L);
+        assertThat(expectedCase).extracting(OffenderCase::getCaseStatus).isNotNull();
+        assertThat(expectedCase).extracting(OffenderCase::getBookingId).containsOnly(bookingId);
     }
 }

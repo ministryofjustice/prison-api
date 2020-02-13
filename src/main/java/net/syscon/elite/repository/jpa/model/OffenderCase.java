@@ -9,6 +9,7 @@ import org.hibernate.annotations.NotFound;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static net.syscon.elite.repository.jpa.model.ReferenceCode.CASE_STATUS;
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.LEG_CASE_TYP;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -50,10 +51,16 @@ public class OffenderCase extends AuditableEntity {
     private String caseInfoPrefix;
 
     @Column(name = "CASE_INFO_NUMBER")
+
     private String caseInfoNumber;
 
-    @Column(name = "CASE_STATUS")
-    private String caseStatus;
+    @ManyToOne
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CASE_STATUS + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(column = @JoinColumn(name = "CASE_STATUS", referencedColumnName = "code"))
+    })
+    private CaseStatus caseStatus;
 
     @Column(name = "COMBINED_CASE_ID")
     private Long combinedCaseId;
