@@ -2,11 +2,11 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.repository.jpa.model.*;
 import net.syscon.elite.repository.jpa.repository.StaffUserAccountRepository;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AuthServiceTest {
 
     @Mock
@@ -23,7 +23,7 @@ public class AuthServiceTest {
 
     private AuthService authService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         authService = new AuthService(repository);
     }

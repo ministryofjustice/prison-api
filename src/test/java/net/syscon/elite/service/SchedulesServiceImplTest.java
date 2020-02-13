@@ -10,11 +10,11 @@ import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.ScheduleRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.InmateDto;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class SchedulesServiceImplTest {
 
     @Mock
@@ -56,7 +56,7 @@ public class SchedulesServiceImplTest {
     private final static LocalDateTime TIME_1040 = LocalDateTime.of(DATE, LocalTime.of(10, 40));
     private final static int MAX_BATCH_SIZE = 500;
 
-    @Before
+    @BeforeEach
     public void init() {
         schedulesService = new SchedulesService(locationService, inmateService, bookingService, referenceDomainService, scheduleRepository, authenticationFacade, MAX_BATCH_SIZE);
         when(authenticationFacade.getCurrentUsername()).thenReturn("me");

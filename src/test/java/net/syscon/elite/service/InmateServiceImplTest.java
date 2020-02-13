@@ -7,19 +7,18 @@ import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
@@ -34,7 +33,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class InmateServiceImplTest {
     @Mock
     private InmateAlertService inmateAlertService;
@@ -63,7 +62,7 @@ public class InmateServiceImplTest {
 
     private InmateService serviceToTest;
 
-    @Before
+    @BeforeEach
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
                 referenceDomainService, bookingService, userService, userRepository, authenticationFacade,

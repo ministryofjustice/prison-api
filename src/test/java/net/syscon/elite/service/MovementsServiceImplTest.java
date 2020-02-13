@@ -3,12 +3,11 @@ package net.syscon.elite.service;
 import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
-import net.syscon.elite.service.MovementsService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
@@ -21,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class MovementsServiceImplTest {
     private static final String TEST_OFFENDER_NO = "AA1234A";
     @Mock
@@ -29,7 +28,7 @@ public class MovementsServiceImplTest {
 
     private MovementsService movementsService;
 
-    @Before
+    @BeforeEach
     public void init() {
         movementsService = new MovementsService(movementsRepository, 1);
     }

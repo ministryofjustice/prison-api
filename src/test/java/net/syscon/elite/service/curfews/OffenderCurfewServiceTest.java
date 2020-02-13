@@ -7,11 +7,11 @@ import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseloadToAgencyMappingService;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.OffenderCurfew;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -22,11 +22,11 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static net.syscon.elite.service.curfews.OffenderCurfewService.currentOffenderCurfews;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 
 public class OffenderCurfewServiceTest {
 
@@ -51,7 +51,7 @@ public class OffenderCurfewServiceTest {
     @Mock
     private ReferenceDomainService referenceDomainService;
 
-    @Before
+    @BeforeEach
     public void configureService() {
         offenderCurfewService = new OffenderCurfewService(
                 offenderCurfewRepository,

@@ -1,13 +1,12 @@
 package net.syscon.elite.service.whereabouts;
 
-import net.syscon.elite.service.whereabouts.LocationGroupPropertiesConfiguration;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -17,8 +16,8 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {LocationGroupPropertiesConfiguration.class})
+@ExtendWith(SpringExtension.class)
 public class LocationGroupPropertiesConfigurationTest {
 
     @Autowired

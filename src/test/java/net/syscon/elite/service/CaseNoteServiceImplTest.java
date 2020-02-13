@@ -3,15 +3,12 @@ package net.syscon.elite.service;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.CaseNoteService;
-import net.syscon.elite.service.UserService;
 import net.syscon.elite.service.transformers.CaseNoteTransformer;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,7 +22,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class CaseNoteServiceImplTest {
     @Mock
     private CaseNoteRepository repository;
@@ -41,7 +38,7 @@ public class CaseNoteServiceImplTest {
 
     private CaseNoteService caseNoteService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         caseNoteService = new CaseNoteService(repository, new CaseNoteTransformer(userService, null), userService, authenticationFacade, bookingService, 10);
     }

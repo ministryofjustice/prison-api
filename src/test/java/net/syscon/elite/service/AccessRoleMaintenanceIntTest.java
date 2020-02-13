@@ -1,20 +1,16 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.StaffUserRole;
-import net.syscon.elite.service.StaffService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 @SpringBootTest
 public class AccessRoleMaintenanceIntTest {
 
