@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import org.hibernate.annotations.ListIndexBase;
 
 import javax.persistence.*;
@@ -22,7 +23,11 @@ public class OffenderBooking {
 
     @OrderColumn(name = "MILITARY_SEQ")
     @ListIndexBase(1)
-    @ElementCollection
-    @CollectionTable(name = "OFFENDER_MILITARY_RECORDS", joinColumns = @JoinColumn(name = "OFFENDER_BOOK_ID"))
+    @OneToMany(mappedBy = "bookingAndSequence.offenderBooking", cascade = CascadeType.ALL)
     private List<OffenderMilitaryRecord> militaryRecords;
+
+    public void addOffenderMilitaryRecord(final OffenderMilitaryRecord omr) {
+        militaryRecords.add(omr);
+        omr.setBookingAndSequence(new BookingAndSequence(this, militaryRecords.size()));
+    }
 }
