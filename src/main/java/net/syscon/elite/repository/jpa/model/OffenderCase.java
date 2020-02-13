@@ -1,13 +1,23 @@
 package net.syscon.elite.repository.jpa.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import java.time.LocalDate;
 
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.CASE_STATUS;
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.LEG_CASE_TYP;
@@ -26,17 +36,18 @@ public class OffenderCase extends AuditableEntity {
     @Column(name = "CASE_ID", nullable = false)
     private Long id;
 
-    @Column(name = "OFFENDER_BOOK_ID")
-    private Long bookingId;
+    @OneToOne
+    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    private OffenderBooking offenderBooking;
 
-    @Column(name = "CASE_SEQ")
+    @Column(name = "CASE_SEQ", nullable = false)
     private Long caseSeq;
 
-    @Column(name = "BEGIN_DATE")
-    private LocalDateTime beginDate;
+    @Column(name = "BEGIN_DATE", nullable = false)
+    private LocalDate beginDate;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "AGY_LOC_ID")
+    @OneToOne
+    @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation agencyLocation;
 
     @ManyToOne
@@ -51,7 +62,6 @@ public class OffenderCase extends AuditableEntity {
     private String caseInfoPrefix;
 
     @Column(name = "CASE_INFO_NUMBER")
-
     private String caseInfoNumber;
 
     @ManyToOne
@@ -62,6 +72,7 @@ public class OffenderCase extends AuditableEntity {
     })
     private CaseStatus caseStatus;
 
-    @Column(name = "COMBINED_CASE_ID")
-    private Long combinedCaseId;
+    @OneToOne
+    @JoinColumn(name = "COMBINED_CASE_ID")
+    private OffenderCase combinedCase;
 }
