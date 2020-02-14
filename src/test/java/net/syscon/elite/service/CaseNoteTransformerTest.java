@@ -3,13 +3,12 @@ package net.syscon.elite.service;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.CaseNoteAmendment;
 import net.syscon.elite.api.model.UserDetail;
-import net.syscon.elite.service.UserService;
 import net.syscon.elite.service.transformers.CaseNoteTransformer;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class CaseNoteTransformerTest {
 
     @Mock
@@ -28,7 +27,7 @@ public class CaseNoteTransformerTest {
     private CaseNoteTransformer transformer;
     private CaseNote caseNote;
 
-    @Before
+    @BeforeEach
     public void init() {
         transformer = new CaseNoteTransformer(userService, "yyyy/MM/dd HH:mm:ss");
         caseNote = CaseNote.builder().amendments(new ArrayList<>()).build();

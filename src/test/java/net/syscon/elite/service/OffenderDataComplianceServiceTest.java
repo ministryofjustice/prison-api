@@ -6,12 +6,11 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import net.syscon.elite.repository.OffenderRepository;
-import net.syscon.elite.service.OffenderDataComplianceService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class OffenderDataComplianceServiceTest {
 
     private static final String OFFENDER_NUMBER = "A1234AA";
@@ -38,7 +37,7 @@ public class OffenderDataComplianceServiceTest {
 
     private OffenderDataComplianceService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = new OffenderDataComplianceService(offenderRepository, offenderDeletionRepository, telemetryClient);
     }

@@ -4,14 +4,11 @@ import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.StaffRepository;
 import net.syscon.elite.repository.UserRepository;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.NoContentException;
-import net.syscon.elite.service.StaffService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -22,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class StaffServiceImplTest {
 
     private static final Long ID_MULTIPLE = 8888L;
@@ -45,7 +42,7 @@ public class StaffServiceImplTest {
 
     private StaffService staffService;
 
-    @Before
+    @BeforeEach
     public void init() {
         staffService = new StaffService(staffRepository, userRepository, caseLoadRepository);
     }

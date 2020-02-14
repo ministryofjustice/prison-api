@@ -2,13 +2,11 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.OffenderAddress;
 import net.syscon.elite.repository.OffenderAddressRepository;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.OffenderAddressService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
@@ -16,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class OffenderAddressServiceImplTest {
 
     @Mock
@@ -24,7 +22,7 @@ public class OffenderAddressServiceImplTest {
 
     private OffenderAddressService offenderAddressService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         offenderAddressService = new OffenderAddressService(offenderAddressRepository);
     }

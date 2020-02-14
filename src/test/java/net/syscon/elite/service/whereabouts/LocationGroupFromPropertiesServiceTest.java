@@ -5,8 +5,8 @@ import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.LocationGroup;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationGroupService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,13 +18,14 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LocationGroupFromPropertiesServiceTest {
 
     private Properties groupsProperties;
     private LocationGroupService service;
 
-    @Before
+    @BeforeEach
     public void initialiseTest() {
         groupsProperties = new Properties();
         service = new LocationGroupFromPropertiesService(groupsProperties);
@@ -168,22 +169,22 @@ public class LocationGroupFromPropertiesServiceTest {
         assertThat(applyPredicatesToLocations(predicates, "1", "11", "2")).containsExactly("1");
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void givenCriteriaDoNotMatchAgencyThenEntityNotFoundExceptionIsThrown() {
         groupsProperties.setProperty("MDI_1_A", "1");
-        service.locationGroupFilter("XXX", "1");
+        assertThatThrownBy(() -> service.locationGroupFilter("XXX", "1")).isInstanceOf(EntityNotFoundException.class);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void givenCriteriaDoNotMatchGroupThenEntityNotFoundExceptionIsThrown() {
         groupsProperties.setProperty("MDI_1_A", "1");
-        service.locationGroupFilter("MDI", "2");
+        assertThatThrownBy(() -> service.locationGroupFilter("MDI", "2")).isInstanceOf(EntityNotFoundException.class);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void givenCriteriaDoNotMatchSubGroupThenEntityNotFoundExceptionIsThrown() {
         groupsProperties.setProperty("MDI_1", "1");
-        service.locationGroupFilter("MDI", "1_A");
+        assertThatThrownBy(() -> service.locationGroupFilter("MDI", "1_A")).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -205,11 +206,11 @@ public class LocationGroupFromPropertiesServiceTest {
     }
 
 
-    @Test(expected = PatternSyntaxException.class)
+    @Test
     public void givenInvalidPatternThenRequestingFilterThrowsException() {
         groupsProperties.setProperty("MDI_1", "1|[");
 
-        service.locationGroupFilter("MDI", "1");
+        assertThatThrownBy(() -> service.locationGroupFilter("MDI", "1")).isInstanceOf(PatternSyntaxException.class);
     }
 
     @Test
