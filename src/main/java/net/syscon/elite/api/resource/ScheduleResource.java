@@ -8,7 +8,6 @@ import net.syscon.elite.api.support.TimeSlot;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.List;
 
