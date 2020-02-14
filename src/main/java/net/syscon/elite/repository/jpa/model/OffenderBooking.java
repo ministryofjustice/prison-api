@@ -21,6 +21,10 @@ public class OffenderBooking {
     @Column(name = "OFFENDER_BOOK_ID")
     private Long bookingId;
 
+    @Column(name = "ACTIVE_FLAG")
+    @Enumerated(EnumType.STRING)
+    private ActiveFlag activeFlag;
+
     @OrderColumn(name = "MILITARY_SEQ")
     @ListIndexBase(1)
     @OneToMany(mappedBy = "bookingAndSequence.offenderBooking", cascade = CascadeType.ALL)
