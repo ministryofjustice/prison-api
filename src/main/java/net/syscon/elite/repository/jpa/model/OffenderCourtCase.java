@@ -30,7 +30,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "OFFENDER_CASES")
-public class OffenderCase extends AuditableEntity {
+public class OffenderCourtCase extends AuditableEntity {
 
     @Id
     @Column(name = "CASE_ID", nullable = false)
@@ -74,5 +74,5 @@ public class OffenderCase extends AuditableEntity {
 
     @OneToOne
     @JoinColumn(name = "COMBINED_CASE_ID")
-    private OffenderCase combinedCase;
+    private OffenderCourtCase combinedCase;
 }
