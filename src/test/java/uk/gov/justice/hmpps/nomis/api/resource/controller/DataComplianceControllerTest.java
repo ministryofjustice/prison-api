@@ -1,6 +1,7 @@
-package net.syscon.elite.api.resource.impl;
+package uk.gov.justice.hmpps.nomis.api.resource.controller;
 
 import net.syscon.elite.api.model.PendingDeletionRequest;
+import net.syscon.elite.api.resource.impl.ResourceTest;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ import static org.eclipse.jetty.http.HttpStatus.ACCEPTED_202;
 import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;
 import static org.springframework.http.HttpMethod.POST;
 
-public class DataComplianceResourceTest extends ResourceTest {
+public class DataComplianceControllerTest extends ResourceTest {
 
     @Test
     public void requestOffenderPendingDeletions() {
