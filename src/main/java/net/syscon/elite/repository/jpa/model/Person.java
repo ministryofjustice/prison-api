@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -30,5 +31,9 @@ public class Person {
 
     @Column(name = "BIRTHDATE")
     private LocalDate dateOfBirth;
+
+    @OneToMany
+    @JoinColumn(name = "PERSON_ID")
+    private List<OffenderContactPerson> contacts;
 
 }

@@ -12,6 +12,7 @@ import org.hibernate.annotations.NotFound;
 import javax.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.*;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
@@ -38,6 +39,10 @@ public class OffenderVisit {
 
     @Column(name = "END_TIME")
     private LocalDateTime endTime;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "OFFENDER_VISIT_ID")
+    private List<OffenderVisitVisitor> visitors;
 
     @ManyToOne
     @NotFound(action = IGNORE)

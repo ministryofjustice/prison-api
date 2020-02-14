@@ -20,7 +20,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @AllArgsConstructor
 @Entity
 @Table(name = "OFFENDER_CONTACT_PERSONS")
-public class OffenderContactPersons {
+public class OffenderContactPerson {
     @Id
     @Column(name = "OFFENDER_CONTACT_PERSON_ID", nullable = false)
     private Long contactPersonId;

@@ -11,6 +11,8 @@ import org.hibernate.annotations.NotFound;
 
 import javax.persistence.*;
 
+import java.util.List;
+
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.*;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -59,7 +61,8 @@ public class OffenderVisitVisitor {
     })
     private OutcomeReason outcomeReason;
 
-
-
+    @OneToOne
+    @JoinColumn(name = "PERSON_ID")
+    private Person person;
 
 }
