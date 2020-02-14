@@ -31,6 +31,11 @@ public abstract class ReferenceCode implements Serializable {
     static final String MLTY_DSCHRG = "MLTY_DSCHRG";
     static final String MLTY_DISCP = "MLTY_DISCP";
     static final String MLTY_RANK = "MLTY_RANK";
+    static final String RELATIONSHIP = "RELATIONSHIP";
+    static final String EVENT_STS = "EVENT_STS";
+    static final String OUTCOMES = "OUTCOMES";
+    static final String VISIT_TYPE = "VISIT_TYPE";
+    static final String MOVE_CANC_RS = "MOVE_CANC_RS";
 
     public static String getDescriptionOrNull(final ReferenceCode referenceCode) {
         return referenceCode != null ? referenceCode.getDescription() : null;
