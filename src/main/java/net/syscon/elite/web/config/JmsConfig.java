@@ -60,8 +60,8 @@ public class JmsConfig {
 
     @Bean
     @ConditionalOnProperty(name = "offender.deletion.sqs.provider", havingValue = "aws")
-    public AmazonSQS awsSqsDlqClient(@Value("${offender.deletion.sqs.aws.dlq.access.key.id}") final String accessKey,
-                                     @Value("${offender.deletion.sqs.aws.dlq.secret.access.key}") final String secretKey,
+    public AmazonSQS awsSqsDlqClient(@Value("${offender.deletion.sqs.dlq.aws.access.key.id}") final String accessKey,
+                                     @Value("${offender.deletion.sqs.dlq.aws.secret.access.key}") final String secretKey,
                                      @Value("${offender.deletion.sqs.region}") final String region) {
 
         log.info("Creating AWS SQS client for DLQ");
