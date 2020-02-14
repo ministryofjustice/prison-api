@@ -4,9 +4,6 @@ import net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-
-import java.util.Map;
 
 public class IdentitiesResourceTest extends ResourceTest {
 
@@ -17,7 +14,7 @@ public class IdentitiesResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/identifiers?identifierType={identifierType}",
+                "/api/bookings/{bookingId}/identifiers?type={type}",
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {

@@ -306,7 +306,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<OffenderIdentifier> getOffenderIdentifiers(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") @NotNull Long bookingId,
-                                                  @ApiParam(value = "Filter By Type", required = false, example = "PNC") @RequestParam(value = "identifierType", required = false) final String identifierType);
+                                                    @ApiParam(value = "Filter By Type", example = "PNC") @RequestParam(value = "type", required = false) final String type);
 
     @GetMapping("/{bookingId}/iepSummary")
     @ApiOperation(value = "Offender IEP (Incentives & Earned Privileges) summary.", notes = "Offender IEP (Incentives & Earned Privileges) summary.", nickname = "getBookingIEPSummary")
