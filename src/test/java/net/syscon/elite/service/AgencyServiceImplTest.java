@@ -1,7 +1,6 @@
 package net.syscon.elite.service;
 
 import com.google.common.collect.ImmutableList;
-import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.AgencyRepository;
@@ -12,24 +11,25 @@ import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationReposito
 import net.syscon.elite.repository.jpa.repository.AgencyLocationFilter;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AgencyServiceImplTest {
     private AgencyServiceImpl service;
 
@@ -44,7 +44,7 @@ public class AgencyServiceImplTest {
     @Mock
     private AgencyLocationRepository agencyLocationRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = new AgencyServiceImpl(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyInternalLocationRepository);
         when(agencyRepo.getPrisonContactDetails(eq(null))).thenReturn(buildPrisonContactDetailsList());
@@ -61,29 +61,29 @@ public class AgencyServiceImplTest {
     }
 
     @Test
-    public void shouldCallCollaboratorsForFullPrisonList() throws Exception {
+    public void shouldCallCollaboratorsForFullPrisonList() {
         service.getPrisonContactDetail();
         verify(agencyRepo, Mockito.times(1)).getPrisonContactDetails(null);
     }
 
     @Test
-    public void shouldCallCollaboratorsForSinglePrison() throws Exception {
+    public void shouldCallCollaboratorsForSinglePrison() {
         service.getPrisonContactDetail("ABC");
         verify(agencyRepo, Mockito.times(1)).getPrisonContactDetails("ABC");
     }
 
-    @Test(expected = EntityNotFoundException.class)
-    public void shouldReturnEntityNotFoundForSinglePrisonWithBlankAddress() throws Exception {
-        service.getPrisonContactDetail("BLANK");
+    @Test
+    public void shouldReturnEntityNotFoundForSinglePrisonWithBlankAddress() {
+        assertThatThrownBy(() -> service.getPrisonContactDetail("BLANK")).isInstanceOf(EntityNotFoundException.class);
     }
 
-    @Test(expected = EntityNotFoundException.class)
-    public void shouldReturnEntityNotFoundForEmptyResult() throws Exception {
-        service.getPrisonContactDetail("NOADDRESS");
+    @Test
+    public void shouldReturnEntityNotFoundForEmptyResult() {
+        assertThatThrownBy(() -> service.getPrisonContactDetail("NOADDRESS")).isInstanceOf(EntityNotFoundException.class);
     }
 
-    @Test()
-    public void shouldIdentifyBlankAddress() throws Exception {
+    @Test
+    public void shouldIdentifyBlankAddress() {
         assertThat(service.removeBlankAddresses(buildPrisonContactDetailsList())).hasSize(2);
         assertThat(service.removeBlankAddresses(buildPrisonContactDetailsListSingleResult())).hasSize(1);
         assertThat(service.removeBlankAddresses(buildPrisonContactDetailsListSingleResultBlankAddress())).isEmpty();
@@ -109,12 +109,12 @@ public class AgencyServiceImplTest {
         assertThat(locations).extracting("locationId").containsExactly(1L);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void shouldThrowNotFoundIfNoAgencyLocationsByType() {
         when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("ANY AGENCY", "ANY TYPE", ActiveFlag.Y))
                 .thenReturn(emptyList());
 
-        service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
+        assertThatThrownBy(() -> service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE")).isInstanceOf(EntityNotFoundException.class);
     }
 
     private List<PrisonContactDetail> buildPrisonContactDetailsList() {

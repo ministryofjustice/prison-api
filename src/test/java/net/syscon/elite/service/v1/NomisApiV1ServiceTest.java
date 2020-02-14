@@ -1,11 +1,11 @@
 package net.syscon.elite.service.v1;
 
 import net.syscon.elite.repository.v1.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class NomisApiV1ServiceTest {
     @Mock
     private BookingV1Repository bookingV1Repository;
@@ -36,7 +36,7 @@ public class NomisApiV1ServiceTest {
 
     private NomisApiV1Service service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = new NomisApiV1Service(bookingV1Repository, offenderV1Repository, legalV1Repository, financeV1Repository, alertV1Repository, eventsV1Repository, prisonV1Repository, coreV1Repository, visitV1Repository);
     }

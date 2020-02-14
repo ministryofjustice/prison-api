@@ -5,12 +5,11 @@ import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.LocationRepository;
-import net.syscon.elite.service.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
 import java.util.function.Function;
@@ -19,17 +18,18 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
 
 /**
- * Test cases for {@link LocationServiceImpl}.
+ * Test cases for {@link LocationService}.
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class LocationServiceImplTest {
 
-    private static Function<String, Predicate<Location>> filterFactory = (String s) -> (Location l) -> s.equals(l.getLocationPrefix());
+    private static final Function<String, Predicate<Location>> filterFactory = (String s) -> (Location l) -> s.equals(l.getLocationPrefix());
 
     @Mock
     private LocationRepository locationRepository;
@@ -41,12 +41,12 @@ public class LocationServiceImplTest {
     private CaseLoadService caseLoadService;
 
     private LocationService locationService;
-    private Location cell1 = Location.builder().locationPrefix("cell1").build();
-    private Location cell2 = Location.builder().locationPrefix("cell2").build();
-    private Location cell3 = Location.builder().locationPrefix("cell3").build();
-    private Location cell4 = Location.builder().locationPrefix("cell4").build();
+    private final Location cell1 = Location.builder().locationPrefix("cell1").build();
+    private final Location cell2 = Location.builder().locationPrefix("cell2").build();
+    private final Location cell3 = Location.builder().locationPrefix("cell3").build();
+    private final Location cell4 = Location.builder().locationPrefix("cell4").build();
 
-    @Before
+    @BeforeEach
     public void init() {
         locationService = new LocationService(agencyRepository, locationRepository, null, caseLoadService, locationGroupService, "WING");
     }
@@ -119,34 +119,30 @@ public class LocationServiceImplTest {
         assertThat(group).asList().containsExactlyInAnyOrder(cell4, cell1, cell3);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void testLocationGroupFilterThrowsEntityNotFoundException() {
 
         when(locationGroupService.locationGroupFilter("LEI", "does-not-exist")).thenThrow(EntityNotFoundException.class);
 
-        locationService.getCellLocationsForGroup("LEI", "does-not-exist");
+        assertThatThrownBy(() -> locationService.getCellLocationsForGroup("LEI", "does-not-exist")).isInstanceOf(EntityNotFoundException.class);
     }
 
 
-    @Test(expected = PatternSyntaxException.class)
+    @Test
     public void testLocationGroupFilterThrowsPatternSyntaxException() {
 
         when(locationGroupService.locationGroupFilter("LEI", "mylist")).thenThrow(PatternSyntaxException.class);
 
-        locationService.getCellLocationsForGroup("LEI", "mylist");
+        assertThatThrownBy(() -> locationService.getCellLocationsForGroup("LEI", "mylist")).isInstanceOf(PatternSyntaxException.class);
     }
 
-    @Test(expected = ConfigException.class)
+    @Test
     public void testGetGroupNoCells() {
         when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
                 .thenReturn(Arrays.asList(cell1, cell2, cell3, cell4));
 
         when(locationGroupService.locationGroupFilter("LEI", "mylist")).thenReturn(l -> false);
 
-        locationService.getCellLocationsForGroup("LEI", "mylist");
-    }
-
-    private Set<String> setOf(final String... values) {
-        return new HashSet<>(Arrays.asList(values));
+        assertThatThrownBy(() -> locationService.getCellLocationsForGroup("LEI", "mylist")).isInstanceOf(ConfigException.class);
     }
 }

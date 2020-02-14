@@ -2,19 +2,18 @@ package net.syscon.elite.service.whereabouts;
 
 import net.syscon.elite.api.model.LocationGroup;
 import net.syscon.elite.service.LocationGroupService;
-import net.syscon.elite.service.whereabouts.LocationGroupServiceSelector;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
+@ExtendWith(SpringExtension.class)
 public class LocationGroupServiceSelectorTest {
 
     private static final LocationGroup LG1 = LocationGroup.builder().key("A").name("A").build();
@@ -27,7 +26,7 @@ public class LocationGroupServiceSelectorTest {
 
     private LocationGroupService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = new LocationGroupServiceSelector(defaultService, overrideService);
     }

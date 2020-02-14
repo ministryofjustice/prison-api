@@ -5,16 +5,13 @@ import net.syscon.elite.repository.ImageRepository;
 import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.repository.jpa.model.OffenderImage;
 import net.syscon.elite.repository.jpa.repository.OffenderImageRepository;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.ImageService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ImageServiceImplTest {
 
     private static final LocalDateTime DATETIME = LocalDateTime.now();
@@ -42,7 +39,7 @@ public class ImageServiceImplTest {
 
     private ImageService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = new ImageService(imageRepository, offenderImageRepository, offenderRepository);
     }

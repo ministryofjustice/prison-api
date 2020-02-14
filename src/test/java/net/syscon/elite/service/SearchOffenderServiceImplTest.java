@@ -5,14 +5,11 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.OffenderBookingSearchRequest;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.SearchOffenderService;
-import net.syscon.elite.service.UserService;
 import net.syscon.elite.service.support.SearchOffenderRequest;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
@@ -20,7 +17,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class SearchOffenderServiceImplTest {
 
     @Mock

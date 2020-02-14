@@ -8,14 +8,10 @@ import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.bulkappointments.*;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.AppointmentsService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.LocationService;
-import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.ReferenceDomain;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -81,7 +77,7 @@ public class AppointmentsServiceImplTest {
 
     private AppointmentsService appointmentsService;
 
-    @Before
+    @BeforeEach
     public void initMocks() {
         SecurityContextHolder.createEmptyContext();
         ensureRoles(BULK_APPOINTMENTS_ROLE);
@@ -95,7 +91,7 @@ public class AppointmentsServiceImplTest {
         );
     }
 
-    @After
+    @AfterEach
     public void clearSecurityContext() {
         SecurityContextHolder.clearContext();
     }
