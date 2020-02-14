@@ -6,12 +6,15 @@ import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.List;
 
 @Api(tags = {"/schedules"})
+@Validated
 @SuppressWarnings("unused")
 public interface ScheduleResource {
 
@@ -41,7 +44,7 @@ public interface ScheduleResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<PrisonerSchedule> getEventsByLocationId(@ApiParam(value = "The prison.", required = true) @PathVariable("agencyId") String agencyId,
-                                                 @ApiParam(value = "The required location ids", required = true) @RequestBody List<Long> body,
+                                                 @ApiParam(value = "The required location ids", required = true) @RequestBody @NotEmpty List<Long> body,
                                                  @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)  @RequestParam(value = "date", required = false) LocalDate date,
                                                  @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
                                                  @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
