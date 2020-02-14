@@ -178,11 +178,12 @@ public class SchedulesResourceTest extends ResourceTest {
     public void schedulesAgencyIdActivitiesByLocationId_AgencyNotAccessible_ReturnsNotFound() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
         final var notAnAgency = "ZZGHI";
+        final var locationIds = getLocationIdsWithSchedules();
 
         final var response = testRestTemplate.exchange(
                 "/api/schedules/ZZGHI/events-by-location-ids",
                 HttpMethod.POST,
-                createHttpEntity(token, List.of()),
+                createHttpEntity(token, locationIds),
                 ErrorResponse.class);
 
         final var error = response.getBody();
@@ -190,6 +191,22 @@ public class SchedulesResourceTest extends ResourceTest {
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
         assertThat(error.getUserMessage()).contains(notAnAgency).contains("not found");
 
+    }
+
+    @Test
+    public void schedulesAgencyIdActivitiesByLocationId_NoLocationsPassed_ReturnsBadRequest() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/events-by-location-ids",
+                HttpMethod.POST,
+                createHttpEntity(token, List.of()),
+                ErrorResponse.class);
+
+        final var error = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        assertThat(error.getUserMessage()).contains("must not be empty");
     }
 
     private List<Long> getLocationIdsNoSchedules() {
