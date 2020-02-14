@@ -15,8 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
@@ -24,12 +23,11 @@ import static java.util.Collections.emptyList;
 import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class AgencyServiceImplTest {
     private AgencyServiceImpl service;
 
@@ -47,10 +45,6 @@ public class AgencyServiceImplTest {
     @BeforeEach
     public void setUp() {
         service = new AgencyServiceImpl(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyInternalLocationRepository);
-        when(agencyRepo.getPrisonContactDetails(eq(null))).thenReturn(buildPrisonContactDetailsList());
-        when(agencyRepo.getPrisonContactDetails(eq("ABC"))).thenReturn(buildPrisonContactDetailsListSingleResult());
-        when(agencyRepo.getPrisonContactDetails(eq("BLANK"))).thenReturn(buildPrisonContactDetailsListSingleResultBlankAddress());
-        when(agencyRepo.getPrisonContactDetails(eq("NOADDRESS"))).thenReturn(ImmutableList.of());
     }
 
     @Test
@@ -63,13 +57,14 @@ public class AgencyServiceImplTest {
     @Test
     public void shouldCallCollaboratorsForFullPrisonList() {
         service.getPrisonContactDetail();
-        verify(agencyRepo, Mockito.times(1)).getPrisonContactDetails(null);
+        verify(agencyRepo).getPrisonContactDetails(null);
     }
 
     @Test
     public void shouldCallCollaboratorsForSinglePrison() {
+        when(agencyRepo.getPrisonContactDetails("ABC")).thenReturn(buildPrisonContactDetailsListSingleResult());
         service.getPrisonContactDetail("ABC");
-        verify(agencyRepo, Mockito.times(1)).getPrisonContactDetails("ABC");
+        verify(agencyRepo).getPrisonContactDetails("ABC");
     }
 
     @Test
@@ -104,7 +99,7 @@ public class AgencyServiceImplTest {
         when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("ANY AGENCY", "ANY TYPE", ActiveFlag.Y))
                 .thenReturn(List.of(AgencyInternalLocation.builder().locationId(1L).build()));
 
-        var locations = service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
+        final var locations = service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
 
         assertThat(locations).extracting("locationId").containsExactly(1L);
     }
