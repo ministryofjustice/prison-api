@@ -10,7 +10,6 @@ import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.*;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
@@ -51,6 +50,14 @@ public class OffenderVisitVisitor {
             @JoinColumnOrFormula(column = @JoinColumn(name = "OUTCOMES", referencedColumnName = "code"))
     })
     private EventOutcome eventOutcome;
+
+    @ManyToOne
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + MOVE_CANC_RS + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(column = @JoinColumn(name = "MOVE_CANC_RS", referencedColumnName = "code"))
+    })
+    private OutcomeReason outcomeReason;
 
 
 
