@@ -192,6 +192,22 @@ public class SchedulesResourceTest extends ResourceTest {
 
     }
 
+    @Test
+    public void schedulesAgencyIdActivitiesByLocationId_NoLocationsPassed_ReturnsEmptyList() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/events-by-location-ids",
+                HttpMethod.POST,
+                createHttpEntity(token, List.of()),
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {});
+
+        final var schedules = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(schedules).isEmpty();
+    }
+
     private List<Long> getLocationIdsNoSchedules() {
         return List.of(108582L, 108583L);
     }

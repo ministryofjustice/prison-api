@@ -35,6 +35,9 @@ public class SchedulesResourceImpl implements ScheduleResource {
     public List<PrisonerSchedule> getEventsByLocationId(final String agencyId, final List<Long> locationIds,
                                                         final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
+        if (locationIds.isEmpty()) {
+            return List.of();
+        }
         return schedulesService.getLocationGroupEventsByLocationId(agencyId, locationIds,
                 date, timeSlot, sortFields, sortOrder);
     }
