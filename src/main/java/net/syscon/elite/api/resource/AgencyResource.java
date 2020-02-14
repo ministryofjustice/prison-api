@@ -29,7 +29,7 @@ public interface AgencyResource {
     ResponseEntity<List<Agency>> getAgencies(@ApiParam(value = "Requested offset of first record in returned collection of agency records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                     @ApiParam(value = "Requested limit to number of agency records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit);
 
-    @GetMapping("/by-type/{type}")
+    @GetMapping("/type/{type}")
     @ApiOperation(value = "List of agencies by type", notes = "List of active agencies by type")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = Agency.class, responseContainer = "List"),
