@@ -149,16 +149,6 @@ public interface OffenderResource {
                                     @ApiParam(value = "The case note id", required = true, example = "1212134") @PathVariable("caseNoteId") Long caseNoteId,
                                     @ApiParam(value = "", required = true) @RequestBody UpdateCaseNote body);
 
-    @ApiIgnore("WIP, to be used as part of the GDPR project")
-    @DeleteMapping("/{offenderNo}")
-    @ApiOperation( value = "Delete an offender", notes = "Deletes an offender and all associated data", nickname = "deleteOffender")
-    @ApiResponses(value = {
-            @ApiResponse(code = 204, message = "Offender deleted successfully."),
-            @ApiResponse(code = 403, message = "Forbidden - user not authorised to delete offender.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Resource not found - offender does not exist or is not accessible to user.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    void deleteOffender(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo);
-
     @GetMapping("/ids")
     @ApiOperation(value = "Return a list of all unique Noms IDs (also called Prisoner number and offenderNo).")
     @ApiResponses(value = {
