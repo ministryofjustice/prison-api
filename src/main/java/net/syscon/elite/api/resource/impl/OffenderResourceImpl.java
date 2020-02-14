@@ -176,13 +176,6 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write') && hasRole('DELETE_OFFENDER')")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOffender(final String offenderNo) {
-        offenderDataComplianceService.deleteOffender(offenderNo);
-    }
-
-    @Override
     public ResponseEntity<List<OffenderNumber>> getOffenderNumbers(final Long pageOffset, final Long pageLimit) {
 
         final var offenderNumbers = offenderDataComplianceService.getOffenderNumbers(
