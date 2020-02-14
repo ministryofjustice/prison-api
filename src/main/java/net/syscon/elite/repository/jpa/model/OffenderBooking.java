@@ -7,7 +7,13 @@ import lombok.NoArgsConstructor;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import org.hibernate.annotations.ListIndexBase;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
 import java.util.List;
 
 @Data
@@ -26,8 +32,18 @@ public class OffenderBooking {
     @OneToMany(mappedBy = "bookingAndSequence.offenderBooking", cascade = CascadeType.ALL)
     private List<OffenderMilitaryRecord> militaryRecords;
 
-    public void addOffenderMilitaryRecord(final OffenderMilitaryRecord omr) {
+    @OrderColumn(name = "CASE_SEQ")
+    @ListIndexBase(1)
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    private List<OffenderCourtCase> courtCases;
+
+    public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
         omr.setBookingAndSequence(new BookingAndSequence(this, militaryRecords.size()));
+    }
+
+    public void add(final OffenderCourtCase courtCase) {
+        courtCases.add(courtCase);
+        courtCase.setOffenderBooking(this);
     }
 }
