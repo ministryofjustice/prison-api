@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 /**
  * Test cases for {@link BookingService}.
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
@@ -107,11 +107,18 @@ public class BookingServiceTest {
 
     @Test
     public void verifyCanViewSensitiveBookingInfo_systemUser() {
-        when(securityUtils.isOverrideRole()).thenReturn(true);
+        when(securityUtils.isOverrideRole(any())).thenReturn(true);
 
         when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(-1L));
 
         bookingService.verifyCanViewSensitiveBookingInfo("off-1");
+
+        verify(securityUtils).isOverrideRole(
+                "SYSTEM_USER",
+                "GLOBAL_SEARCH",
+                "CREATE_CATEGORISATION",
+                "APPROVE_CATEGORISATION"
+        );
     }
 
     @Test
