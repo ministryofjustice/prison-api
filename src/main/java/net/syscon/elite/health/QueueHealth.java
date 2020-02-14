@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
@@ -78,36 +77,37 @@ public class QueueHealth implements HealthIndicator {
 
         if (!attributes.getAttributes().containsKey("RedrivePolicy")) {
             log.error("Queue '{}' is missing a RedrivePolicy attribute indicating it does not have a dead letter queue", queueName);
-            return mainQueueHealth(attributes)
-                    .down().withDetail("dlqStatus", NOT_ATTACHED.description).build();
+            return down()
+                    .withDetails(mainQueueDetails(attributes))
+                    .withDetail("dlqStatus", NOT_ATTACHED.description)
+                    .build();
         }
 
         try {
-            return mainQueueHealth(attributes)
+            return up()
+                    .withDetails(mainQueueDetails(attributes))
                     .withDetails(dlqDetails())
                     .build();
 
         } catch (QueueDoesNotExistException e) {
             log.error("Unable to retrieve dead letter queue URL for queue '{}' due to exception:", queueName, e);
-            return unhealthyDlq(attributes, e)
-                    .withDetail("dlqStatus", NOT_FOUND.description).build();
+            return down(e)
+                    .withDetails(mainQueueDetails(attributes))
+                    .withDetail("dlqStatus", NOT_FOUND.description)
+                    .build();
+
         } catch (Exception e){
             log.error("Unable to retrieve dead letter queue attributes for queue '{}' due to exception:", queueName, e);
-            return unhealthyDlq(attributes, e)
+            return down(e)
+                    .withDetails(mainQueueDetails(attributes))
                     .withDetail("dlqStatus", NOT_AVAILABLE.description).build();
         }
     }
 
-    private Builder unhealthyDlq(final GetQueueAttributesResult attributes, final Exception e) {
-        return mainQueueHealth(attributes).down(e);
-    }
-
-    private Builder mainQueueHealth(final GetQueueAttributesResult attributes) {
-        final var details = Map.of(
+    private Map<String, String> mainQueueDetails(final GetQueueAttributesResult attributes) {
+        return Map.of(
                 MESSAGES_ON_QUEUE.healthName, attributes.getAttributes().get(MESSAGES_ON_QUEUE.awsName),
                 MESSAGES_IN_FLIGHT.healthName, attributes.getAttributes().get(MESSAGES_IN_FLIGHT.awsName));
-
-        return up().withDetails(details);
     }
 
     private Map<String, String> dlqDetails() {
