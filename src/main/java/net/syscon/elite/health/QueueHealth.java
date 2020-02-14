@@ -67,8 +67,7 @@ public class QueueHealth implements HealthIndicator {
     public Health health() {
 
         try {
-            final var url = awsSqsClient.getQueueUrl(queueName);
-            return queueHealth(awsSqsClient.getQueueAttributes(getQueueAttributesRequest(url)));
+            return queueHealth(getQueueAttributes(awsSqsClient, queueName));
         } catch (Exception e) {
             log.error("Unable to retrieve queue attributes for queue '{}' due to exception:", queueName, e);
             return down().withException(e).build();
@@ -77,36 +76,54 @@ public class QueueHealth implements HealthIndicator {
 
     private Health queueHealth(final GetQueueAttributesResult attributes) {
 
-        final var details = Map.of(
-                MESSAGES_ON_QUEUE.healthName, attributes.getAttributes().get(MESSAGES_ON_QUEUE.awsName),
-                MESSAGES_IN_FLIGHT.healthName, attributes.getAttributes().get(MESSAGES_IN_FLIGHT.awsName));
-
-        return withDlqCheck(up().withDetails(details), attributes);
-    }
-
-    public Health withDlqCheck(final Builder health, final GetQueueAttributesResult mainQueueAttributes) {
-
-        if (!mainQueueAttributes.getAttributes().containsKey("RedrivePolicy")) {
+        if (!attributes.getAttributes().containsKey("RedrivePolicy")) {
             log.error("Queue '{}' is missing a RedrivePolicy attribute indicating it does not have a dead letter queue", queueName);
-            return health.down().withDetail("dlqStatus", NOT_ATTACHED.description).build();
+            return mainQueueHealth(attributes)
+                    .down().withDetail("dlqStatus", NOT_ATTACHED.description).build();
         }
 
         try {
-            final var url = awsSqsDlqClient.getQueueUrl(dlqName);
-            final var dlqAttributes = awsSqsDlqClient.getQueueAttributes(getQueueAttributesRequest(url));
-
-            return health
-                    .withDetail("dlqStatus", UP.description)
-                    .withDetail(MESSAGES_ON_DLQ.healthName, dlqAttributes.getAttributes().get(MESSAGES_ON_DLQ.awsName))
+            return mainQueueHealth(attributes)
+                    .withDetails(dlqDetails())
                     .build();
 
         } catch (QueueDoesNotExistException e) {
             log.error("Unable to retrieve dead letter queue URL for queue '{}' due to exception:", queueName, e);
-            return health.down(e).withDetail("dlqStatus", NOT_FOUND.description).build();
+            return unhealthyDlq(attributes, e)
+                    .withDetail("dlqStatus", NOT_FOUND.description).build();
         } catch (Exception e){
             log.error("Unable to retrieve dead letter queue attributes for queue '{}' due to exception:", queueName, e);
-            return health.down(e).withDetail("dlqStatus", NOT_AVAILABLE.description).build();
+            return unhealthyDlq(attributes, e)
+                    .withDetail("dlqStatus", NOT_AVAILABLE.description).build();
         }
+    }
+
+    private Builder unhealthyDlq(final GetQueueAttributesResult attributes, final Exception e) {
+        return mainQueueHealth(attributes).down(e);
+    }
+
+    private Builder mainQueueHealth(final GetQueueAttributesResult attributes) {
+        final var details = Map.of(
+                MESSAGES_ON_QUEUE.healthName, attributes.getAttributes().get(MESSAGES_ON_QUEUE.awsName),
+                MESSAGES_IN_FLIGHT.healthName, attributes.getAttributes().get(MESSAGES_IN_FLIGHT.awsName));
+
+        return up().withDetails(details);
+    }
+
+    private Map<String, String> dlqDetails() {
+
+        final var messagesOnDlq = getQueueAttributes(awsSqsDlqClient, dlqName)
+                .getAttributes()
+                .get(MESSAGES_ON_DLQ.awsName);
+
+        return Map.of(
+                "dlqStatus", UP.description,
+                MESSAGES_ON_DLQ.healthName, messagesOnDlq);
+    }
+
+    private GetQueueAttributesResult getQueueAttributes(final AmazonSQS client, final String queueName) {
+        final var url = client.getQueueUrl(queueName);
+        return client.getQueueAttributes(getQueueAttributesRequest(url));
     }
 
     private GetQueueAttributesRequest getQueueAttributesRequest(final GetQueueUrlResult url) {
