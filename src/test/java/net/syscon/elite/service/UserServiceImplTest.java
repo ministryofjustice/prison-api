@@ -9,18 +9,14 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.CaseLoadService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.StaffService;
-import net.syscon.elite.service.UserService;
 import net.syscon.elite.service.filters.NameFilter;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +25,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 /**
- * Test cases for {@link BookingServiceImpl}.
+ * Test cases for {@link UserService}.
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class UserServiceImplTest {
     private static final String USERNAME_GEN = "HH_GEN";
     private static final String LEEDS_CASELOAD_ID = "LEI";
@@ -55,7 +52,7 @@ public class UserServiceImplTest {
 
     private UserService userService;
 
-    @Before
+    @BeforeEach
     public void init() {
         userService = new UserService(caseLoadService, staffService, userRepository, securityUtils, API_CASELOAD_ID, 100);
     }
@@ -107,15 +104,15 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).findAccessRolesByUsernameAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void testGetRolesByUserAndCaseloadCaseloadDoesNotExist() {
         when(caseLoadService.getCaseLoad(Mockito.eq(LEEDS_CASELOAD_ID))).thenReturn(Optional.empty());
-        userService.getAccessRolesByUserAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true);
+        assertThatThrownBy(() -> userService.getAccessRolesByUserAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true)).isInstanceOf(EntityNotFoundException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetRolesByUserAndCaseloadUsernameNotProvided() {
-        userService.getAccessRolesByUserAndCaseload("", LEEDS_CASELOAD_ID, false);
+        assertThatThrownBy(() -> userService.getAccessRolesByUserAndCaseload("", LEEDS_CASELOAD_ID, false)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -161,7 +158,7 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).addRole(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void testaddAccessRoleForCaseloadWithoutUserAccessibleCaseloadEntry() {
         final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
         when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
@@ -170,22 +167,22 @@ public class UserServiceImplTest {
         when(userRepository.isUserAssessibleCaseloadAvailable(LEEDS_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
 
 
-        userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID);
+        assertThatThrownBy(() -> userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID)).isInstanceOf(EntityNotFoundException.class);
     }
 
-    @Test(expected = AccessDeniedException.class)
+    @Test
     public void testaddAdminAccessRoleWithoutCorrectPriviledges() {
         final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("ADMIN").build();
         when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
 
-        userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID);
-        verify(securityUtils.isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN"), times(1));
+        assertThatThrownBy(() -> userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID)).isInstanceOf(AccessDeniedException.class);
+        verify(securityUtils).isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN");
     }
 
     @Test
     public void testGetOffenderCategorisationsBatching() {
 
-        var setOf150Strings = Stream.iterate("1", n -> String.valueOf(Integer.valueOf(n) + 1))
+        final var setOf150Strings = Stream.iterate("1", n -> String.valueOf(Integer.parseInt(n) + 1))
                 .limit(150)
                 .collect(Collectors.toSet());
 
@@ -198,7 +195,7 @@ public class UserServiceImplTest {
 
         assertThat(results).hasSize(4);
 
-        Mockito.verify(userRepository, Mockito.times(2)).getUserListByUsernames(anyList());
+        verify(userRepository, times(2)).getUserListByUsernames(anyList());
     }
 
     private Page<UserDetail> pageResponse(final int userCount) {

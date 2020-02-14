@@ -4,12 +4,11 @@ import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.LocationGroup;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.support.LocationProcessor;
-import net.syscon.elite.service.whereabouts.LocationGroupFromDBService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Set;
@@ -18,7 +17,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
+@ExtendWith(SpringExtension.class)
 public class LocationGroupFromDBServiceTest {
 
     private final Location L1 = Location.builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("BLOCK A").internalLocationCode("A").build();
@@ -95,7 +94,7 @@ public class LocationGroupFromDBServiceTest {
                 .containsExactlyInAnyOrder(locationStream(CELL_A_1, CELL_A_3).toArray(Location[]::new));
     }
 
-    private static Stream<Location> locationStream(Location... locations) {
+    private static Stream<Location> locationStream(final Location... locations) {
         return Stream
                 .of(locations)
                 .map(LocationProcessor::processLocation); // Munge description into locationPrefix... Yuk.

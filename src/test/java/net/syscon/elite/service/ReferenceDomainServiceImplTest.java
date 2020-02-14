@@ -2,13 +2,12 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.repository.ReferenceCodeRepository;
-import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.ReferenceDomain;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -18,7 +17,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ReferenceDomainServiceImplTest {
 
     @Mock
@@ -26,7 +25,7 @@ public class ReferenceDomainServiceImplTest {
 
     private ReferenceDomainService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         initMocks(repository);
         service = new ReferenceDomainService(repository);

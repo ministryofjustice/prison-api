@@ -12,15 +12,11 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.AdjudicationsRepository;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.LocationRepository;
-import net.syscon.elite.service.AdjudicationSearchCriteria;
-import net.syscon.elite.service.AdjudicationService;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.EntityNotFoundException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +28,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AdjudicationServiceImplTest {
 
     @Mock
@@ -45,7 +41,7 @@ public class AdjudicationServiceImplTest {
     private BookingService bookingService;
     private AdjudicationService adjudicationService;
 
-    @Before
+    @BeforeEach
     public void setup() {
         adjudicationService = new AdjudicationService(adjudicationsRepository, agencyRepository, locationRepository, bookingService);
     }

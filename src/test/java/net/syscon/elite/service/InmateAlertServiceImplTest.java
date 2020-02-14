@@ -8,14 +8,12 @@ import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.InmateAlertService;
-import net.syscon.elite.service.ReferenceDomainService;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -29,7 +27,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(SpringExtension.class)
 public class InmateAlertServiceImplTest {
     @Mock
     private InmateAlertRepository inmateAlertRepository;
@@ -45,7 +43,7 @@ public class InmateAlertServiceImplTest {
 
     private InmateAlertService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = new InmateAlertService(
                 inmateAlertRepository,

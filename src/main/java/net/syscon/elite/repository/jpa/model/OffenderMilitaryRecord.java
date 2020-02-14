@@ -1,26 +1,28 @@
 package net.syscon.elite.repository.jpa.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 import lombok.Builder.Default;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.*;
 
-import javax.persistence.Embeddable;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.Entity;
+import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.*;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
-@Embeddable
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OffenderMilitaryRecord {
+@Entity(name = "OFFENDER_MILITARY_RECORDS")
+@EqualsAndHashCode(exclude = "bookingAndSequence", callSuper = false)
+@ToString(exclude = "bookingAndSequence")
+public class OffenderMilitaryRecord extends AuditableEntity implements Serializable {
+    @EmbeddedId
+    private BookingAndSequence bookingAndSequence;
+
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
@@ -70,4 +72,17 @@ public class OffenderMilitaryRecord {
             @JoinColumnOrFormula(column = @JoinColumn(name = "DISCIPLINARY_ACTION_CODE", referencedColumnName = "code"))
     })
     private DisciplinaryAction disciplinaryAction;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Embeddable
+    public static class BookingAndSequence implements Serializable {
+        @ManyToOne(optional = false)
+        @JoinColumn(name = "OFFENDER_BOOK_ID")
+        private OffenderBooking offenderBooking;
+
+        @Column(name = "MILITARY_SEQ", nullable = false)
+        private Integer sequence;
+    }
 }

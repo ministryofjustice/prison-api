@@ -1,8 +1,7 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.service.QueryParamHelper;
 import org.assertj.core.data.MapEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 

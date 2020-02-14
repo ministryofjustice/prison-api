@@ -1,7 +1,7 @@
 package net.syscon.elite.service.support;
 
 import net.syscon.elite.api.model.Location;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
