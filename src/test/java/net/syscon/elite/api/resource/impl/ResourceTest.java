@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.Elite2ApiServer;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import net.syscon.elite.util.JwtAuthenticationHelper;
 import net.syscon.elite.util.JwtParameters;
@@ -28,7 +29,7 @@ import static org.springframework.core.ResolvableType.forType;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @RunWith(SpringRunner.class)
 @ActiveProfiles(value = "test")
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = Elite2ApiServer.class)
 public abstract class ResourceTest {
 
     @Autowired
