@@ -16,30 +16,20 @@ import java.util.List;
 
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
 import static net.syscon.elite.repository.support.StatusFilter.ALL;
-import static net.syscon.util.ResourceUtils.nvl;
-
-/**
- * TODO DT-526 Replace locationGroupService with newLocationGroupService once the new endpoint has been tested from whereabouts
- *      API and prisonstaffhub UI has been changed to no longer point to this API (replaced with call to whereabouts API).
- *      At the same time LocationGroupServiceSelector and LocationGroupFromDbService can be deleted.
- */
 
 @RestController
 @RequestMapping("${api.base.path}/agencies")
 public class AgencyResourceImpl implements AgencyResource {
     private final AgencyService agencyService;
     private final LocationGroupService locationGroupService;
-    private final LocationGroupService newLocationGroupService;
     private final WhereaboutsEnabledService whereaboutsEnabledService;
 
     public AgencyResourceImpl(
             final AgencyService agencyService,
-            @Qualifier("locationGroupServiceSelector") final LocationGroupService locationGroupService,
-            @Qualifier("defaultLocationGroupService") final LocationGroupService newLocationGroupService,
+            @Qualifier("defaultLocationGroupService") final LocationGroupService locationGroupService,
             WhereaboutsEnabledService whereaboutsEnabledService) {
         this.agencyService = agencyService;
         this.locationGroupService = locationGroupService;
-        this.newLocationGroupService = newLocationGroupService;
         this.whereaboutsEnabledService = whereaboutsEnabledService;
     }
 
@@ -76,11 +66,6 @@ public class AgencyResourceImpl implements AgencyResource {
     @Override
     public List<LocationGroup> getAvailableLocationGroups(final String agencyId) {
         return locationGroupService.getLocationGroupsForAgency(agencyId);
-    }
-
-    @Override
-    public List<LocationGroup> getAvailableLocationGroupsNew(final String agencyId) {
-        return newLocationGroupService.getLocationGroupsForAgency(agencyId);
     }
 
     @Override
