@@ -1,4 +1,4 @@
-package net.syscon.elite.events;
+package net.syscon.elite.events.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

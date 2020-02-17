@@ -1,15 +1,18 @@
 package net.syscon.elite.events.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+/**
+ * This event signifies that an offender's
+ * data is eligible for deletion, subject to
+ * further checks by the Data Compliance Service.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class OffenderDeletionEvent {
+public class OffenderPendingDeletionEvent {
     private String offenderIdDisplay;
 }
 
