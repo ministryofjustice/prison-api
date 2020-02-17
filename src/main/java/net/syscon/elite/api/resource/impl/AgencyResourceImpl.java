@@ -68,6 +68,14 @@ public class AgencyResourceImpl implements AgencyResource {
         return locationGroupService.getLocationGroupsForAgency(agencyId);
     }
 
+    /*
+     * TODO DT-527 Remove this - it only exists to ease the transition to the new service in Whereabouts
+     */
+    @Override
+    public List<LocationGroup> getAvailableLocationGroupsNew(final String agencyId) {
+        return getAvailableLocationGroups(agencyId);
+    }
+
     @Override
     public WhereaboutsConfig getWhereabouts(final String agencyId) {
         return WhereaboutsConfig.builder().enabled(whereaboutsEnabledService.isEnabled(agencyId)).build();
