@@ -1,11 +1,10 @@
-package net.syscon.elite.events;
+package uk.gov.justice.hmpps.nomis.datacompliance.events.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.events.dto.OffenderDeletionEvent;
-import net.syscon.elite.events.dto.SqsEvent;
-import net.syscon.elite.service.OffenderDataComplianceService;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.SqsEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 @Slf4j
 @Service
-@AllArgsConstructor
 @ConditionalOnExpression("'${offender.deletion.sqs.provider}'.equals('aws') or '${offender.deletion.sqs.provider}'.equals('localstack')")
 public class OffenderDeletionListener {
 
@@ -25,6 +23,15 @@ public class OffenderDeletionListener {
 
     private final OffenderDataComplianceService offenderDataComplianceService;
     private final ObjectMapper objectMapper;
+
+    public OffenderDeletionListener(final OffenderDataComplianceService offenderDataComplianceService,
+                                    final ObjectMapper objectMapper) {
+
+        log.info("Configured to listen to Offender Deletion events");
+
+        this.offenderDataComplianceService = offenderDataComplianceService;
+        this.objectMapper = objectMapper;
+    }
 
     @JmsListener(destination = "${offender.deletion.sqs.queue.name}")
     public void handleOffenderDeletionEvent(final String requestJson) {

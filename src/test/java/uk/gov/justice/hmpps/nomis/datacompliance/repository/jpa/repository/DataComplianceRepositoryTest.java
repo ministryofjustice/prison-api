@@ -1,6 +1,8 @@
-package net.syscon.elite.repository.jpa.repository;
+package uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository;
 
-import net.syscon.elite.repository.jpa.model.OffenderToDelete;
+import net.syscon.elite.Elite2ApiServer;
+import org.springframework.test.context.ContextConfiguration;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderToDelete;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = NONE)
+@ContextConfiguration(classes = { Elite2ApiServer.class })
 public class DataComplianceRepositoryTest {
 
     private static final LocalDate SENTENCE_END_DATE = LocalDate.of(2020, 3, 24);

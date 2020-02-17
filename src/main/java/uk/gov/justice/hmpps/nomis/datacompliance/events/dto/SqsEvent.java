@@ -1,4 +1,4 @@
-package net.syscon.elite.events.dto;
+package uk.gov.justice.hmpps.nomis.datacompliance.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

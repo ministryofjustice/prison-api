@@ -1,13 +1,13 @@
-package net.syscon.elite.events;
+package uk.gov.justice.hmpps.nomis.datacompliance.events.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.syscon.elite.service.OffenderDataComplianceService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 
@@ -15,8 +15,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OffenderDeletionListenerTest {
+@ExtendWith(MockitoExtension.class)
+class OffenderDeletionListenerTest {
 
     @Mock
     private OffenderDataComplianceService offenderDataComplianceService;
@@ -24,14 +24,14 @@ public class OffenderDeletionListenerTest {
     private ObjectMapper objectMapper;
     private OffenderDeletionListener listener;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         objectMapper = new ObjectMapper();
         listener = new OffenderDeletionListener(offenderDataComplianceService, objectMapper);
     }
 
     @Test
-    public void handleOffenderDeletionEvent() throws Exception {
+    void handleOffenderDeletionEvent() throws Exception {
 
         listener.handleOffenderDeletionEvent(getJson("offender-deletion-request.json"));
 
@@ -39,7 +39,7 @@ public class OffenderDeletionListenerTest {
     }
 
     @Test
-    public void handleOffenderDeletionEventThrowsIfMessageAttributesNotPresent() {
+    void handleOffenderDeletionEventThrowsIfMessageAttributesNotPresent() {
         assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-no-attributes.json")))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("Event has no attributes");
@@ -48,7 +48,7 @@ public class OffenderDeletionListenerTest {
     }
 
     @Test
-    public void handleOffenderDeletionEventThrowsIfEventTypeUnexpected() {
+    void handleOffenderDeletionEventThrowsIfEventTypeUnexpected() {
         assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-bad-event-type.json")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Unexpected message event type: 'UNEXPECTED!', expecting: 'DATA_COMPLIANCE_DELETE-OFFENDER'");
@@ -57,7 +57,7 @@ public class OffenderDeletionListenerTest {
     }
 
     @Test
-    public void handleOffenderDeletionEventThrowsIfMessageNotPresent() {
+    void handleOffenderDeletionEventThrowsIfMessageNotPresent() {
         assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-no-message.json")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("argument \"content\" is null");
@@ -66,7 +66,7 @@ public class OffenderDeletionListenerTest {
     }
 
     @Test
-    public void handleOffenderDeletionEventThrowsIfMessageUnparsable() {
+    void handleOffenderDeletionEventThrowsIfMessageUnparsable() {
 
         assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(
                 getJson("offender-deletion-request-bad-message.json")))
@@ -77,7 +77,7 @@ public class OffenderDeletionListenerTest {
     }
 
     @Test
-    public void handleOffenderDeletionEventThrowsIfOffenderIdDisplayEmpty() {
+    void handleOffenderDeletionEventThrowsIfOffenderIdDisplayEmpty() {
 
         assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(
                 getJson("offender-deletion-request-empty.json")))
