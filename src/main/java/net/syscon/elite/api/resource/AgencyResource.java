@@ -112,9 +112,8 @@ public interface AgencyResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<LocationGroup> getAvailableLocationGroups(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") String agencyId);
 
-    /**
-     * TODO DT-526 Delete .../locations/groupsNew once the new endpoint has been tested from whereabouts API and prisonstaffhub
-     *      UI has been changed to no longer point to this API (replaced with call to whereabouts API).
+    /*
+     * TODO DT-527 Remove this - it only exists to ease the transition to the new service in Whereabouts
      */
     @GetMapping("/{agencyId}/locations/groupsNew")
     @ApiOperation(value = "List of all available Location Groups at agency.", notes = "List of all available Location Groups at agency.", nickname = "getAvailableLocationGroupsNew")
