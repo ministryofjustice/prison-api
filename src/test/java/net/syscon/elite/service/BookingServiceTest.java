@@ -3,8 +3,8 @@ package net.syscon.elite.service;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
@@ -368,6 +368,52 @@ public class BookingServiceTest {
     public void getMilitaryRecords_notfound() {
         when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
+    }
+
+    @Test
+    void getOffenderCourtCases_mapped() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
+                .courtCases(List.of(OffenderCourtCase.builder()
+                        .id(-1L)
+                        .caseSeq(-2L)
+                        .beginDate(LocalDate.EPOCH)
+                        .agencyLocation(AgencyLocation.builder()
+                                .id("agency_id")
+                                .activeFlag(ActiveFlag.Y)
+                                .type("CRT")
+                                .description("The agency description")
+                                .build())
+                        .legalCaseType(new LegalCaseType("A", "Adult"))
+                        .caseInfoPrefix("cip")
+                        .caseInfoNumber("cin")
+                        .caseStatus(new CaseStatus("A", "Active"))
+                        .build()))
+                .build()));
+
+        var courtCases = bookingService.getOffenderCourtCases(-1L);
+
+        assertThat(courtCases).usingRecursiveComparison().isEqualTo(new CourtCases(List.of(
+                CourtCase.builder()
+                        .id(-1L)
+                        .caseSeq(-2L)
+                        .beginDate(LocalDate.EPOCH)
+                        .agency(Agency.builder()
+                                .agencyId("agency_id")
+                                .active(true)
+                                .agencyType("CRT")
+                                .description("The agency description")
+                                .build())
+                        .caseType("Adult")
+                        .caseInfoPrefix("cip")
+                        .caseInfoNumber("cin")
+                        .caseStatus("Active")
+                        .build())));
+    }
+
+    @Test
+    void getOffenderCourtCases_notfound() {
+        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {
