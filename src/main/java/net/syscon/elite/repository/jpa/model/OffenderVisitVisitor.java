@@ -30,9 +30,6 @@ public class OffenderVisitVisitor {
     @Column(name = "OFFENDER_VISIT_ID", nullable = false)
     private Long visitId;
 
-    @Column(name = "PERSON_ID", nullable = false)
-    private Long personId;
-
     @Column(name = "GROUP_LEADER_FLAG", nullable = false)
     @Enumerated(EnumType.STRING)
     private GroupLeaderFlag groupLeaderFlag;

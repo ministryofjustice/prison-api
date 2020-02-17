@@ -18,6 +18,11 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class Visitor {
 
+    @ApiModelProperty(value = "Person id of visitor")
+    @JsonProperty("personId")
+    @NotBlank
+    private Long personId;
+
     @ApiModelProperty(value = "Last name of visitor")
     @JsonProperty("lastName")
     @NotBlank
@@ -34,7 +39,7 @@ public class Visitor {
     private LocalDate dateOfBirth;
 
     @ApiModelProperty(value = "Flag marking the visitor as main or not", example = "true")
-    @JsonProperty("dateOfBirth")
+    @JsonProperty("leadVisitor")
     @NotBlank
     private boolean leadVisitor;
 
