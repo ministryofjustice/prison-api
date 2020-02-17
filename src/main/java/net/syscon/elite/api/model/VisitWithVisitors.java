@@ -21,5 +21,6 @@ public class VisitWithVisitors<V extends Visit> {
     private List<Visitor> visitors;
 
     @ApiModelProperty(value = "Visit Information")
+    @JsonProperty("visitDetails")
     private V visitDetail;
 }

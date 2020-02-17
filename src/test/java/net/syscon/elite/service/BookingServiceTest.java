@@ -5,7 +5,11 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.model.Visit;
+import net.syscon.elite.repository.jpa.model.Visitor;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.repository.jpa.repository.VisitRepository;
+import net.syscon.elite.repository.jpa.repository.VisitorRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +42,10 @@ public class BookingServiceTest {
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
     @Mock
+    private VisitRepository visitRepository;
+    @Mock
+    private VisitorRepository visitorRepository;
+    @Mock
     private AgencyService agencyService;
     @Mock
     private ReferenceDomainService referenceDomainService;
@@ -53,6 +61,8 @@ public class BookingServiceTest {
         bookingService = new BookingService(
                 bookingRepository,
                 offenderBookingRepository,
+                visitorRepository,
+                visitRepository,
                 null,
                 agencyService,
                 null,
@@ -361,6 +371,96 @@ public class BookingServiceTest {
     public void getMilitaryRecords_notfound() {
         when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
+    }
+
+
+    @Test
+    public void getBookingVisitsWithVisitor() {
+        when(visitRepository.getVisits(anyLong())).thenReturn(List.of(
+                Visit
+                .builder()
+                .visitId(-1L)
+                .cancellationReason(null)
+                .cancelReasonDescription(null)
+                .eventStatus("ATT")
+                .eventStatusDescription("Attended")
+                .eventOutcome("ATT")
+                .eventOutcomeDescription("Attended")
+                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                .location("Visits")
+                .visitType("SOC")
+                .visitTypeDescription("Social")
+                .leadVisitor("John Smith")
+                .relationship("UNC")
+                .relationshipDescription("Uncle")
+                .build()));
+
+        when(visitorRepository.getVisitorsForVisitAndBooking(anyLong(), anyLong())).thenReturn(List.of(
+                Visitor
+                .builder()
+                .birthdate(LocalDate.parse("1980-10-01"))
+                .firstName("John")
+                .lastName("Smith")
+                .leadVisitor("Y")
+                .personId(-1L)
+                .relationship("Uncle")
+                .visitId(-1L)
+                .build(),
+                Visitor
+                .builder()
+                .birthdate(LocalDate.parse("2010-10-01"))
+                .firstName("Jenny")
+                .lastName("Smith")
+                .leadVisitor("N")
+                .personId(-2L)
+                .relationship("Niece")
+                .visitId(-1L)
+                .build()
+
+        ));
+
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L);
+        assertThat(visitsWithVisitors).containsOnly(
+                VisitWithVisitors.builder()
+                        .visitDetail(
+                                net.syscon.elite.api.model.Visit
+                                .builder()
+                                .cancellationReason(null)
+                                .cancelReasonDescription(null)
+                                .eventStatus("ATT")
+                                .eventStatusDescription("Attended")
+                                .eventOutcome("ATT")
+                                .eventOutcomeDescription("Attended")
+                                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                                .location("Visits")
+                                .visitType("SOC")
+                                .visitTypeDescription("Social")
+                                .leadVisitor("John Smith")
+                                .relationship("UNC")
+                                .relationshipDescription("Uncle")
+                                .build())
+                        .visitors(List.of(net.syscon.elite.api.model.Visitor
+                                        .builder()
+                                        .dateOfBirth(LocalDate.parse("1980-10-01"))
+                                        .firstName("John")
+                                        .lastName("Smith")
+                                        .leadVisitor(true)
+                                        .personId(-1L)
+                                        .relationship("Uncle")
+                                        .build(),
+                                net.syscon.elite.api.model.Visitor
+                                        .builder()
+                                        .dateOfBirth(LocalDate.parse("2010-10-01"))
+                                        .firstName("Jenny")
+                                        .lastName("Smith")
+                                        .leadVisitor(false)
+                                        .personId(-2L)
+                                        .relationship("Niece")
+                                        .build()))
+                        .build());
+
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {

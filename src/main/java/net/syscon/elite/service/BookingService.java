@@ -8,6 +8,8 @@ import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.repository.jpa.repository.VisitRepository;
+import net.syscon.elite.repository.jpa.repository.VisitorRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.LocationProcessor;
@@ -54,6 +56,8 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final OffenderBookingRepository offenderBookingRepository;
+    private final VisitRepository visitRepository;
+    private final VisitorRepository visitorRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
@@ -66,6 +70,8 @@ public class BookingService {
 
     public BookingService(final BookingRepository bookingRepository,
                           final OffenderBookingRepository offenderBookingRepository,
+                          final VisitorRepository visitorRepository,
+                          final VisitRepository visitRepository,
                           final SentenceRepository sentenceRepository,
                           final AgencyService agencyService,
                           final CaseLoadService caseLoadService,
@@ -77,6 +83,8 @@ public class BookingService {
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
         this.offenderBookingRepository = offenderBookingRepository;
+        this.visitRepository = visitRepository;
+        this.visitorRepository = visitorRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
@@ -299,6 +307,47 @@ public class BookingService {
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    @VerifyBookingAccess
+    public List<VisitWithVisitors> getBookingVisitsWithVisitor(final Long bookingId) {
+        final var visits = visitRepository.getVisits(bookingId);
+
+        return visits.stream().map(v -> {
+            var visit = Visit.builder()
+                    .visitType(v.getVisitType())
+                    .visitTypeDescription(v.getVisitTypeDescription())
+                    .cancellationReason(v.getCancellationReason())
+                    .cancelReasonDescription(v.getCancelReasonDescription())
+                    .endTime(v.getEndTime())
+                    .startTime(v.getStartTime())
+                    .eventOutcome(v.getEventOutcome())
+                    .eventOutcomeDescription(v.getEventOutcomeDescription())
+                    .eventStatus(v.getEventStatus())
+                    .eventStatusDescription(v.getEventStatusDescription())
+                    .leadVisitor(v.getLeadVisitor())
+                    .location(v.getLocation())
+                    .relationship(v.getRelationship())
+                    .relationshipDescription(v.getRelationshipDescription())
+                    .build();
+
+            var visitorsList = visitorRepository.getVisitorsForVisitAndBooking(v.getVisitId(), bookingId)
+                    .stream()
+                    .map(visitor ->
+                        Visitor.builder()
+                        .dateOfBirth(visitor.getBirthdate())
+                        .firstName(visitor.getFirstName())
+                        .lastName(visitor.getLastName())
+                        .leadVisitor(visitor.getLeadVisitor().equals("Y"))
+                        .personId(visitor.getPersonId())
+                        .relationship(visitor.getRelationship())
+                        .build())
+                    .collect(Collectors.toList());
+            
+            return VisitWithVisitors.builder()
+                    .visitDetail(visit)
+                    .visitors(visitorsList);
+        }).collect(Collectors.toList());
     }
 
     @VerifyBookingAccess
