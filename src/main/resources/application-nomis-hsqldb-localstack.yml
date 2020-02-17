@@ -26,6 +26,11 @@ offender.deletion:
     endpoint.url: http://localhost:4576
     region: eu-west-2
 
+  sns:
+    provider: localstack
+    endpoint.url: http://localhost:4575
+    region: eu-west-2
+
 graceful:
   shutdown:
     enabled: false
