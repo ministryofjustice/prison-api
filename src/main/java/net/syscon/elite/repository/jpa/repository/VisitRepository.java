@@ -13,6 +13,7 @@ public interface VisitRepository extends PagingAndSortingRepository<Visit, Strin
     @Query(value =
             "SELECT * FROM" +
                     "(SELECT VISIT.OFFENDER_VISIT_ID VISIT_ID," +
+                    "VISIT.OFFENDER_BOOK_ID BOOKING_ID," +
                     "VISITOR.OUTCOME_REASON_CODE CANCELLATION_REASON," +
                     "RC5.DESCRIPTION CANCEL_REASON_DESCRIPTION," +
                     "VISITOR.EVENT_STATUS," +

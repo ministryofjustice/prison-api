@@ -26,13 +26,13 @@ public class VisitorRepositoryTest {
 
     @Test
     public void getVisits() {
-        var visits = repository.getVisitorsForVisit(-3L);
+        var visits = repository.getVisitorsForVisitAndBooking(-15L, -1L);
 
-        assertThat(visits).hasSize(1);
-        assertThat(visits).extracting(Visitor::getPersonId).containsOnly(-1L);
-        assertThat(visits).extracting(Visitor::getFirstName).containsOnly("JESSY");
-        assertThat(visits).extracting(Visitor::getLastName).containsOnly("SMITH1");
-        assertThat(visits).extracting(Visitor::getRelationship).containsOnly("Uncle");
+        assertThat(visits).hasSize(2);
+        assertThat(visits).extracting(Visitor::getPersonId).containsOnly(-1L, -2L);
+        assertThat(visits).extracting(Visitor::getFirstName).containsOnly("JESSY", "John");
+        assertThat(visits).extracting(Visitor::getLastName).containsOnly("SMITH1", "Smith");
+        assertThat(visits).extracting(Visitor::getRelationship).containsOnly("Uncle", "Community Offender Manager");
     }
 }
 

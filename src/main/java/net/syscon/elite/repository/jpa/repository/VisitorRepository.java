@@ -20,11 +20,10 @@ public interface VisitorRepository extends PagingAndSortingRepository<Visitor, S
                     "RC1.DESCRIPTION RELATIONSHIP," +
                     "VISITOR.GROUP_LEADER_FLAG LEAD_VISITOR " +
                     "FROM OFFENDER_VISIT_VISITORS VISITOR " +
-                    "LEFT JOIN OFFENDER_CONTACT_PERSONS OCP ON VISITOR.PERSON_ID = OCP.PERSON_ID " +
+                    "LEFT JOIN OFFENDER_CONTACT_PERSONS OCP ON VISITOR.PERSON_ID = OCP.PERSON_ID AND OCP.OFFENDER_BOOK_ID = :bookingId " +
                     "LEFT JOIN REFERENCE_CODES RC1 ON RC1.DOMAIN = 'RELATIONSHIP' AND RC1.CODE = OCP.RELATIONSHIP_TYPE " +
                     "LEFT JOIN PERSONS P ON P.PERSON_ID = VISITOR.PERSON_ID " +
-                    "WHERE VISITOR.OFFENDER_VISIT_ID = :visitId " +
-                    "ORDER BY P.BIRTHDATE DESC)",
+                    "WHERE VISITOR.OFFENDER_VISIT_ID = :visitId)",
             nativeQuery = true)
-    List<Visitor> getVisitorsForVisit(@Param("visitId") final Long visitId);;
+    List<Visitor> getVisitorsForVisitAndBooking(@Param("visitId") final Long visitId, @Param("bookingId") final Long bookingId);;
 }

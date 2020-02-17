@@ -32,25 +32,21 @@ public class VisitRepositoryTest {
 
         assertThat(visits).hasSize(15);
         assertThat(visits).extracting(Visit::getVisitId).containsOnly(-3L, -2L, -4L, -5L, -1L, -6L, -8L, -7L, -10L, -9L, -13L, -14L, -12L, -11L, -15L);
-//        assertThat(visits).containsExactly(
-//                Visit.builder()
-//                .visitId(-28L)
-//                .cancellationReason(null)
-//                .cancelReasonDescription(null)
-//                .eventStatus("ATT")
-//                .eventStatusDescription("Attended")
-//                .eventOutcome("ATT")
-//                .eventOutcomeDescription("Attended")
-//                .startTime(LocalDateTime.now())
-//                .endTime(LocalDateTime.now())
-//                .location("Visits")
-//                .visitType("SOC")
-//                .visitTypeDescription("Social")
-//                .leadVisitor("John Smith")
-//                .relationship("BRO")
-//                .relationshipDescription("Brother")
-//                .build()
-//        );
+        assertThat(visits).extracting(Visit::getCancellationReason).containsOnly("NSHOW",  null,  null,  null,  null,  null,  null,  null,  null,  null,  null,  null,  null,  null,  "NSHOW");
+        assertThat(visits).extracting(Visit::getCancelReasonDescription).containsOnly("Visitor Did Not Arrive",   null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   "Visitor Did Not Arrive");
+        assertThat(visits).extracting(Visit::getEventStatus).containsOnly("CANC", null, null, null, null, null, null, null, null, null, null, null, null, null, "CANC");
+        assertThat(visits).extracting(Visit::getEventStatusDescription).containsOnly("Cancelled", null, null, null, null, null, null, null, null, null, null, null, null, null, "Cancelled");
+        assertThat(visits).extracting(Visit::getEventOutcome).containsOnly("ABS", "ATT", "ATT", "ATT", "ATT", "ATT", "ATT", "ATT", "ATT", "ATT", "ATT", "ATT", "ATT", "ATT", "ABS");
+        assertThat(visits).extracting(Visit::getEventOutcomeDescription).containsOnly("Absence",  "Attended",  "Attended",  "Attended",  "Attended",  "Attended",  "Attended",  "Attended",  "Attended",  "Attended",  "Attended",  "Attended",  "Attended",  "Attended",  "Absence");
+        assertThat(visits).extracting(Visit::getStartTime).containsOnly(LocalDateTime.parse("2017-12-10T14:30"), LocalDateTime.parse("2017-11-13T14:30"), LocalDateTime.parse("2017-10-13T14:30"), LocalDateTime.parse("2017-09-15T14:00"), LocalDateTime.parse("2017-09-12T14:30"), LocalDateTime.parse("2017-09-10T14:30"), LocalDateTime.parse("2017-08-10T14:30"), LocalDateTime.parse("2017-07-10T14:30"), LocalDateTime.parse("2017-06-10T14:30"), LocalDateTime.parse("2017-05-10T14:30"), LocalDateTime.parse("2017-04-10T14:30"), LocalDateTime.parse("2017-03-10T14:30"), LocalDateTime.parse("2017-02-10T14:30"), LocalDateTime.parse("2017-01-10T14:30"), LocalDateTime.parse("2016-12-11T14:30"));
+        assertThat(visits).extracting(Visit::getEndTime).containsOnly(LocalDateTime.parse("2017-12-10T15:30"),LocalDateTime.parse("2017-11-13T15:30"),LocalDateTime.parse("2017-10-13T15:30"),LocalDateTime.parse("2017-09-15T16:00"),LocalDateTime.parse("2017-09-12T15:30"),LocalDateTime.parse("2017-09-10T15:30"),LocalDateTime.parse("2017-08-10T15:30"),LocalDateTime.parse("2017-07-10T15:30"),LocalDateTime.parse("2017-06-10T15:30"),LocalDateTime.parse("2017-05-10T16:30"),LocalDateTime.parse("2017-04-10T15:30"),LocalDateTime.parse("2017-03-10T16:30"),LocalDateTime.parse("2017-02-10T15:30"),LocalDateTime.parse("2017-01-10T15:30"),LocalDateTime.parse("2016-12-11T15:30"));
+        assertThat(visits).extracting(Visit::getLocation).containsOnly("Visiting Room", "Visiting Room", "Visiting Room", "Chapel", "Visiting Room", "Visiting Room", "Visiting Room", "Visiting Room", "Visiting Room", "Chapel", "Visiting Room", "Chapel", "Visiting Room", "Visiting Room", "Visiting Room");
+        assertThat(visits).extracting(Visit::getVisitType).containsOnly("SCON", "SCON", "SCON", "OFFI", "SCON", "SCON", "SCON", "SCON", "SCON", "OFFI", "SCON", "OFFI", "SCON", "SCON", "SCON");
+        assertThat(visits).extracting(Visit::getVisitTypeDescription).containsOnly("Social Contact", "Social Contact", "Social Contact", "Official Visit", "Social Contact", "Social Contact", "Social Contact", "Social Contact", "Social Contact", "Official Visit", "Social Contact", "Official Visit", "Social Contact", "Social Contact", "Social Contact");
+        assertThat(visits).extracting(Visit::getLeadVisitor).containsOnly("JESSY SMITH1", null, null, null, null, null, null, null, null, null, null, null, null, null, "JESSY SMITH1");
+        assertThat(visits).extracting(Visit::getRelationship).containsOnly("UN", null, null, null, null, null, null, null, null, null, null, null, null, null, "UN");
+        assertThat(visits).extracting(Visit::getRelationshipDescription).containsOnly("Uncle", null, null, null, null, null, null, null, null, null, null, null, null, null, "Uncle");
+
     }
 }
 

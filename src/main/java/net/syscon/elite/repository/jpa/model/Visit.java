@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class Visit {
     @Id
     private Long visitId;
+    private Long bookingId;
     private String cancellationReason;
     private String cancelReasonDescription;
     private String eventStatus;
