@@ -392,8 +392,7 @@ public class BookingServiceTest {
 
         var courtCases = bookingService.getOffenderCourtCases(-1L);
 
-        assertThat(courtCases).usingRecursiveComparison().isEqualTo(new CourtCases(List.of(
-                CourtCase.builder()
+        assertThat(courtCases).containsExactly(CourtCase.builder()
                         .id(-1L)
                         .caseSeq(-2L)
                         .beginDate(LocalDate.EPOCH)
@@ -407,7 +406,7 @@ public class BookingServiceTest {
                         .caseInfoPrefix("cip")
                         .caseInfoNumber("cin")
                         .caseStatus("Active")
-                        .build())));
+                        .build());
     }
 
     @Test

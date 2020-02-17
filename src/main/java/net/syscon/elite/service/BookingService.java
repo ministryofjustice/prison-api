@@ -626,10 +626,11 @@ public class BookingService {
                 )).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
-    public CourtCases getOffenderCourtCases(final Long bookingId) {
+    @VerifyBookingAccess
+    public List<CourtCase> getOffenderCourtCases(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId)
                 .map(booking ->
-                        new CourtCases(booking.getCourtCases().stream().map(courtCase ->
+                        booking.getCourtCases().stream().map(courtCase ->
                                 CourtCase.builder()
                                         .id(courtCase.getId())
                                         .caseSeq(courtCase.getCaseSeq())
@@ -645,7 +646,7 @@ public class BookingService {
                                         .caseInfoNumber(courtCase.getCaseInfoNumber())
                                         .caseStatus(courtCase.getCaseStatus().map(CaseStatus::getDescription).orElse(null))
                                         .build())
-                                .collect(Collectors.toUnmodifiableList())))
+                                .collect(Collectors.toUnmodifiableList()))
                 .orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
