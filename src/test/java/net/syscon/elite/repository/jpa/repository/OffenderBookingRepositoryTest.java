@@ -1,7 +1,13 @@
 package net.syscon.elite.repository.jpa.repository;
 
-import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
+import net.syscon.elite.repository.jpa.model.MilitaryBranch;
+import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
+import net.syscon.elite.repository.jpa.model.MilitaryRank;
+import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
+import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
 import org.junit.jupiter.api.Test;
@@ -28,8 +34,11 @@ public class OffenderBookingRepositoryTest {
     @Autowired
     private OffenderBookingRepository repository;
 
+    @Autowired
+    private AgencyLocationRepository agencyLocationRepository;
+
     @Test
-    public void getMilitaryRecords() {
+    void getMilitaryRecords() {
         final var booking = repository.findById(-1L).orElseThrow();
 
         assertThat(booking.getMilitaryRecords()).containsExactly(
@@ -57,11 +66,13 @@ public class OffenderBookingRepositoryTest {
     }
 
     @Test
-    public void saveMilitaryRecords() {
+    void saveMilitaryRecords() {
         final var booking = repository.findById(-2L).orElseThrow();
         final var militaryRecords = booking.getMilitaryRecords();
-        assertThat(militaryRecords).hasSize(0);
-        booking.addOffenderMilitaryRecord(
+
+        assertThat(militaryRecords).isEmpty();
+
+        booking.add(
                 OffenderMilitaryRecord.builder()
                         .startDate(LocalDate.parse("2000-01-01"))
                         .militaryBranch(new MilitaryBranch("ARM", "Army"))
@@ -74,6 +85,7 @@ public class OffenderBookingRepositoryTest {
         TestTransaction.start();
 
         final var persistedBooking = repository.findById(-2L).orElseThrow();
+
         assertThat(persistedBooking.getMilitaryRecords()).containsExactly(
                 OffenderMilitaryRecord.builder()
                         .bookingAndSequence(new BookingAndSequence(booking, 1))
@@ -88,17 +100,19 @@ public class OffenderBookingRepositoryTest {
     }
 
     @Test
-    public void saveMultipleMilitaryRecords() {
+    void saveMultipleMilitaryRecords() {
         final var booking = repository.findById(-3L).orElseThrow();
         final var militaryRecords = booking.getMilitaryRecords();
-        assertThat(militaryRecords).hasSize(0);
-        booking.addOffenderMilitaryRecord(
+
+        assertThat(militaryRecords).isEmpty();
+
+        booking.add(
                 OffenderMilitaryRecord.builder()
                         .startDate(LocalDate.parse("2000-01-01"))
                         .militaryBranch(new MilitaryBranch("ARM", "Army"))
                         .description("First record")
                         .build());
-        booking.addOffenderMilitaryRecord(
+        booking.add(
                 OffenderMilitaryRecord.builder()
                         .startDate(LocalDate.parse("2000-01-01"))
                         .militaryBranch(new MilitaryBranch("ARM", "Army"))
@@ -113,6 +127,40 @@ public class OffenderBookingRepositoryTest {
         final var persistedBooking = repository.findById(-3L).orElseThrow();
 
         assertThat(persistedBooking.getMilitaryRecords()).extracting(OffenderMilitaryRecord::getDescription).containsExactly("First record", "Second record");
+    }
+
+    @Test
+    void getOffendersCourtCase() {
+        assertThat(repository.findById(-1L).orElseThrow().getCourtCases()).extracting(OffenderCourtCase::getId).containsOnly(-1L);
+    }
+
+    @Test
+    void saveOffenderCourtCases() {
+        var booking = repository.findById(-2L).orElseThrow();
+
+        assertThat(booking.getCourtCases()).extracting(OffenderCourtCase::getId).containsOnly(-2L);
+
+        booking.add(offenderCourtCase(-98L));
+        booking.add(offenderCourtCase(-99L));
+
+        repository.save(booking);
+
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
+
+        var persistedBooking = repository.findById(-2L).orElseThrow();
+
+        assertThat(persistedBooking.getCourtCases()).extracting(OffenderCourtCase::getId).containsExactly(-2L, -98L, -99L);
+    }
+
+    private OffenderCourtCase offenderCourtCase(final Long caseIdentifier) {
+        return OffenderCourtCase.builder()
+                .id(caseIdentifier)
+                .beginDate(LocalDate.EPOCH)
+                .caseSeq(caseIdentifier)
+                .agencyLocation(agencyLocationRepository.findById("COURT1").orElseThrow())
+                .build();
     }
 }
 
