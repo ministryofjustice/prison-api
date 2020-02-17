@@ -25,7 +25,7 @@ public class OffenderPendingDeletionAwsEventPusher implements OffenderPendingDel
                                                  @Value("${offender.deletion.sns.topic.arn}") final String topicArn,
                                                  final ObjectMapper objectMapper) {
 
-        log.info("Configured to push offender deletion events to SNS topic: {}", topicArn);
+        log.info("Configured to push offender pending deletion events to SNS topic: {}", topicArn);
 
         this.objectMapper = objectMapper;
         this.snsClient = snsClient;
@@ -33,20 +33,20 @@ public class OffenderPendingDeletionAwsEventPusher implements OffenderPendingDel
     }
 
     @Override
-    public void sendEvent(final String offenderDisplayId) {
+    public void sendEvent(final String offenderNo) {
 
-        log.debug("Sending request for offender deletion: {}", offenderDisplayId);
+        log.debug("Sending referral of offender pending deletion: {}", offenderNo);
 
-        snsClient.publish(generateRequest(offenderDisplayId));
+        snsClient.publish(generateRequest(offenderNo));
     }
 
-    private PublishRequest generateRequest(final String offenderDisplayId) {
+    private PublishRequest generateRequest(final String offenderNo) {
         return new PublishRequest()
                 .withTopicArn(topicArn)
                 .withMessageAttributes(Map.of(
                         "eventType", stringAttribute("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION"),
                         "contentType", stringAttribute("text/plain;charset=UTF-8")))
-                .withMessage(toJson(new OffenderPendingDeletionEvent(offenderDisplayId)));
+                .withMessage(toJson(new OffenderPendingDeletionEvent(offenderNo)));
     }
 
     private MessageAttributeValue stringAttribute(final String value) {

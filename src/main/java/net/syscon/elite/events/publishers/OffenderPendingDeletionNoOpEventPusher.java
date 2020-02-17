@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class OffenderPendingDeletionNoOpEventPusher implements OffenderPendingDeletionEventPusher {
 
     public OffenderPendingDeletionNoOpEventPusher() {
-        log.info("Configured to ignore offender deletion events");
+        log.info("Configured to ignore offender pending deletion events");
     }
 
     @Override
