@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.CASE_STATUS;
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.LEG_CASE_TYP;
@@ -74,4 +75,12 @@ public class OffenderCourtCase extends AuditableEntity {
     @OneToOne
     @JoinColumn(name = "COMBINED_CASE_ID")
     private OffenderCourtCase combinedCase;
+
+    public Optional<LegalCaseType> getLegalCaseType() {
+        return Optional.ofNullable(legalCaseType);
+    }
+
+    public Optional<CaseStatus> getCaseStatus() {
+        return Optional.ofNullable(caseStatus);
+    }
 }
