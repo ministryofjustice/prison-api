@@ -59,26 +59,6 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.givenSchedulesAreOnlyForOffendersLocated();
     }
 
-    @When("^schedules are requested for agency and location group$")
-    public void schedulesAreRequested() {
-        schedulesSteps.getSchedulesForLocationGroup();
-    }
-
-    @When("^schedules are requested for a valid agency and location group$")
-    public void schedulesAreRequestedForValidAgencyAndLocationGroup() {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "A");
-    }
-
-    @When("^schedules are requested for a valid agency and location group with 'timeSlot' = '([APMED]+)'$")
-    public void schedulesAreRequestedForValidAgencyAndLocationGroupwithTimeSlot(final TimeSlot timeSlot) {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "A", null, timeSlot);
-    }
-
-    @When("^schedules are requested for a valid agency and location group with date = '([0-9-]+)' and 'timeSlot' = '([APMED]+)'$")
-    public void schedulesAreRequestedForValidAgencyAndLocationGroupwithTimeSlot(final String date, final TimeSlot timeSlot) {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "A", date, timeSlot);
-    }
-
     @Then("^response is a list of offender's schedules with size ([0-9]+)$")
     public void listOfOffendersSchedulesForCurrentDay(final int size) throws Throwable {
         schedulesSteps.verifyListOfOffendersSchedules(size);

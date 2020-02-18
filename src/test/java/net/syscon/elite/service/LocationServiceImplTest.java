@@ -11,14 +11,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
  * Test cases for {@link LocationService}.
  */
 @ExtendWith(MockitoExtension.class)
-public class LocationServiceImplTest {
+class LocationServiceImplTest {
 
     private static final Function<String, Predicate<Location>> filterFactory = (String s) -> (Location l) -> s.equals(l.getLocationPrefix());
 
@@ -47,12 +47,12 @@ public class LocationServiceImplTest {
     private final Location cell4 = Location.builder().locationPrefix("cell4").build();
 
     @BeforeEach
-    public void init() {
-        locationService = new LocationService(agencyRepository, locationRepository, null, caseLoadService, locationGroupService, "WING");
+    void init() {
+        locationService = new LocationService(agencyRepository, locationRepository, null, caseLoadService, "WING");
     }
 
     @Test
-    public void getUserLocations() {
+    void getUserLocations() {
 
         final var agencies = Collections.singletonList(Agency.builder().agencyId("LEI").build());
 
@@ -76,7 +76,7 @@ public class LocationServiceImplTest {
     }
 
     @Test
-    public void getUserLocationsWithCentralOnly() {
+    void getUserLocationsWithCentralOnly() {
 
         when(caseLoadService.getWorkingCaseLoadForUser("admin")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("CADM_I").type("ADMIN").build()));
         final var returnedLocations = locationService.getUserLocations("admin");
@@ -85,7 +85,7 @@ public class LocationServiceImplTest {
     }
 
     @Test
-    public void getUserLocationsWithNoCaseload() {
+    void getUserLocationsWithNoCaseload() {
 
         when(caseLoadService.getWorkingCaseLoadForUser("noone")).thenReturn(Optional.empty());
         final var returnedLocations = locationService.getUserLocations("noone");
@@ -102,47 +102,5 @@ public class LocationServiceImplTest {
         location.setDescription("LEI-A");
 
         return location;
-    }
-
-    @Test
-    public void testGetCellLocationsForGroup() {
-
-        when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
-                .thenReturn(Arrays.asList(cell1, cell2, cell3, cell4));
-
-        when(locationGroupService.locationGroupFilter("LEI", "mylist"))
-                .thenReturn(Stream.of("cell4", "cell1", "cell3").map(filterFactory).reduce(Predicate::or).get());
-
-        final var group = locationService.getCellLocationsForGroup("LEI", "mylist");
-
-        // Note that the result order no longer matters.
-        assertThat(group).asList().containsExactlyInAnyOrder(cell4, cell1, cell3);
-    }
-
-    @Test
-    public void testLocationGroupFilterThrowsEntityNotFoundException() {
-
-        when(locationGroupService.locationGroupFilter("LEI", "does-not-exist")).thenThrow(EntityNotFoundException.class);
-
-        assertThatThrownBy(() -> locationService.getCellLocationsForGroup("LEI", "does-not-exist")).isInstanceOf(EntityNotFoundException.class);
-    }
-
-
-    @Test
-    public void testLocationGroupFilterThrowsPatternSyntaxException() {
-
-        when(locationGroupService.locationGroupFilter("LEI", "mylist")).thenThrow(PatternSyntaxException.class);
-
-        assertThatThrownBy(() -> locationService.getCellLocationsForGroup("LEI", "mylist")).isInstanceOf(PatternSyntaxException.class);
-    }
-
-    @Test
-    public void testGetGroupNoCells() {
-        when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
-                .thenReturn(Arrays.asList(cell1, cell2, cell3, cell4));
-
-        when(locationGroupService.locationGroupFilter("LEI", "mylist")).thenReturn(l -> false);
-
-        assertThatThrownBy(() -> locationService.getCellLocationsForGroup("LEI", "mylist")).isInstanceOf(ConfigException.class);
     }
 }

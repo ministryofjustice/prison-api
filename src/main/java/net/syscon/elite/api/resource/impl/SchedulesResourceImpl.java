@@ -24,14 +24,6 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
-    public List<PrisonerSchedule> getGroupEvents(final String agencyId, final String name,
-                                                 final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
-
-        return schedulesService.getLocationGroupEvents(agencyId, name,
-                date, timeSlot, sortFields, sortOrder);
-    }
-
-    @Override
     public List<PrisonerSchedule> getEventsByLocationId(final String agencyId, final List<Long> locationIds,
                                                         final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 

@@ -112,28 +112,6 @@ public interface AgencyResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<LocationGroup> getAvailableLocationGroups(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") String agencyId);
 
-    /*
-     * TODO DT-527 Remove this - it only exists to ease the transition to the new service in Whereabouts
-     */
-    @GetMapping("/{agencyId}/locations/groupsNew")
-    @ApiOperation(value = "List of all available Location Groups at agency.", notes = "List of all available Location Groups at agency.", nickname = "getAvailableLocationGroupsNew")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = LocationGroup.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<LocationGroup> getAvailableLocationGroupsNew(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") String agencyId);
-
-
-    @GetMapping("/{agencyId}/locations/whereabouts")
-    @ApiOperation(value = "Whereabouts details (e.g. whether enabled) for prison.", notes = "Whereabouts details (e.g. whether enabled) for prison.", nickname = "getWhereabouts")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = WhereaboutsConfig.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    WhereaboutsConfig getWhereabouts(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") String agencyId);
-
     @GetMapping("/caseload/{caseload}")
     @ApiOperation(value = "List of agencies for caseload.", notes = "List of agencies for caseload.", nickname = "getAgenciesByCaseload")
     @ApiResponses(value = {

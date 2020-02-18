@@ -106,16 +106,6 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
         agencySteps.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
-    @When("^a request is submitted to retrieve whereabouts config for agency \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveAllGroups(final String agencyId) throws Throwable {
-        agencySteps.aRequestIsMadeToGetWhereabouts(agencyId);
-    }
-
-    @Then("^the returned enabled flag is \"([^\"]*)\"$")
-    public void theEnabledFlagIs(final String value) throws ReflectiveOperationException {
-        agencySteps.verifyWhereaboutsField("enabled", value);
-    }
-
     @Then("^the agency is found$")
     public void theAgencyIsFound() {
         agencySteps.verifyNoError();

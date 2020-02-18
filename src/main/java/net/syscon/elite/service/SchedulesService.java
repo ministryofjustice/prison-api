@@ -60,18 +60,6 @@ public class SchedulesService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    /*
-     * TODO DT-526 Remove this when endpoint GET /schedules/{agencyId}/groups/{name} is replaced with POST /schedules/{agencyId}/events-by-location-ids
-     *      NOTE switch all tests to getLocationGroupEventsByLocationId when removing this method
-     */
-    @VerifyAgencyAccess
-    public List<PrisonerSchedule> getLocationGroupEvents(final String agencyId, final String groupName, final LocalDate date, final TimeSlot timeSlot,
-                                                         final String sortFields, final Order sortOrder) {
-
-        final var locationIds = locationIdsForGroup(agencyId, groupName);
-        return getLocationGroupEventsByLocationId(agencyId, locationIds, date, timeSlot, sortFields, sortOrder);
-    }
-
     @VerifyAgencyAccess
     public List<PrisonerSchedule> getLocationGroupEventsByLocationId(final String agencyId, final List<Long> locationIds, final LocalDate date,
                                                                      final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
@@ -103,18 +91,6 @@ public class SchedulesService {
         }
         comparator = comparator.thenComparing(PrisonerSchedule::getStartTime);
         return comparator;
-    }
-
-    private List<Long> locationIdsForGroup(final String agencyId, final String groupName) {
-        final var locations = locationService.getCellLocationsForGroup(agencyId, groupName);
-        return idsOfLocations(locations);
-    }
-
-    private List<Long> idsOfLocations(final List<Location> locations) {
-        return locations
-                .stream()
-                .map(Location::getLocationId)
-                .collect(Collectors.toList());
     }
 
     private List<PrisonerSchedule> prisonerSchedules(final Collection<InmateDto> inmates, final TimeSlot timeSlot, final LocalDate date) {
