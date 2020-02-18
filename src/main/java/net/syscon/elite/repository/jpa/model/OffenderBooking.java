@@ -34,8 +34,19 @@ public class OffenderBooking {
     @JoinColumn(name = "OFFENDER_BOOK_ID")
     private List<OffenderVisit> visits;
 
-    public void addOffenderMilitaryRecord(final OffenderMilitaryRecord omr) {
+    @OrderColumn(name = "CASE_SEQ")
+    @ListIndexBase(1)
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    private List<OffenderCourtCase> courtCases;
+
+
+    public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
         omr.setBookingAndSequence(new BookingAndSequence(this, militaryRecords.size()));
+    }
+
+    public void add(final OffenderCourtCase courtCase) {
+        courtCases.add(courtCase);
+        courtCase.setOffenderBooking(this);
     }
 }

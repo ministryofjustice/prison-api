@@ -4,9 +4,6 @@ import net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-
-import java.util.Map;
 
 public class AgencyResourceTest extends ResourceTest {
 
@@ -17,7 +14,7 @@ public class AgencyResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/agencies/by-type/INST",
+                "/api/agencies/type/INST",
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
@@ -33,7 +30,7 @@ public class AgencyResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/agencies/by-type/INST?activeOnly={activeOnly}",
+                "/api/agencies/type/INST?activeOnly={activeOnly}",
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {

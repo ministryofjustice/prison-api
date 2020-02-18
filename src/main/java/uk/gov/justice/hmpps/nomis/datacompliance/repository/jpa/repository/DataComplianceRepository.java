@@ -1,7 +1,7 @@
-package net.syscon.elite.repository.jpa.repository;
+package uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository;
 
 
-import net.syscon.elite.repository.jpa.model.OffenderToDelete;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderToDelete;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

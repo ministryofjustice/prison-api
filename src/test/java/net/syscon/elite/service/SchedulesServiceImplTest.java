@@ -14,14 +14,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class SchedulesServiceImplTest {
 
     @Mock
@@ -59,7 +58,6 @@ public class SchedulesServiceImplTest {
     @BeforeEach
     public void init() {
         schedulesService = new SchedulesService(locationService, inmateService, bookingService, referenceDomainService, scheduleRepository, authenticationFacade, MAX_BATCH_SIZE);
-        when(authenticationFacade.getCurrentUsername()).thenReturn("me");
     }
 
     @Test
@@ -187,18 +185,19 @@ public class SchedulesServiceImplTest {
     }
 
     private void setupGroupExpectations() {
-        final var inmatesOnMyWing = Arrays.asList(
+        final var inmatesOnMyWing = List.of(
                 InmateDto.builder().bookingId(-10L).offenderNo("A10").locationDescription("M0").firstName("Joe").lastName("Bloggs").build(),
                 InmateDto.builder().bookingId(-11L).locationDescription("H1").lastName("Zed").build(),
                 InmateDto.builder().bookingId(-12L).locationDescription("H2").lastName("Anderson").build(),
                 InmateDto.builder().bookingId(-13L).offenderNo("B11").locationDescription("M0").firstName("Second").lastName("InSameCell").build()
         );
+        when(authenticationFacade.getCurrentUsername()).thenReturn("me");
         when(inmateService.findInmatesByLocation("me",
-                "LEI", Arrays.asList(-100L, -101L))).thenReturn(inmatesOnMyWing);
+                "LEI", List.of(-100L, -101L))).thenReturn(inmatesOnMyWing);
 
         // group 'myWing' consists of 2 locations:
         when(locationService.getCellLocationsForGroup("LEI", "myWing")).thenReturn(
-                Arrays.asList(
+                List.of(
                         Location.builder().locationId(-100L).build(),
                         Location.builder().locationId(-101L).build()
                 ));
@@ -211,22 +210,22 @@ public class SchedulesServiceImplTest {
                 .eventSubType("APP sub type")
                 .eventSubTypeDesc("Morning-10")
                 .build();
-        final var eventsFor10 = Arrays.asList(
+        final var eventsFor10 = List.of(
                 complete,
                 ScheduledEvent.builder().bookingId(-10L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 30))).eventSubTypeDesc("Eve2-10").eventType("PRISON_ACT").build(),
                 ScheduledEvent.builder().bookingId(-10L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 0))).eventSubTypeDesc("Eve1-10").eventType("PRISON_ACT").build()
         );
-        final var eventsFor11 = Arrays.asList(
+        final var eventsFor11 = List.of(
                 ScheduledEvent.builder().bookingId(-11L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(12, 0))).eventSubTypeDesc("Afternoon-11").eventType("VISIT").build(),
                 ScheduledEvent.builder().bookingId(-11L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(17, 0))).eventSubTypeDesc("Eve-11").eventType("VISIT").build(),
                 ScheduledEvent.builder().bookingId(-11L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(11, 0))).eventSubTypeDesc("Morning-11").eventType("VISIT").build()
         );
-        final var eventsFor12 = Arrays.asList(
+        final var eventsFor12 = List.of(
                 ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(9, 0))).eventSubTypeDesc("Morning-12").eventType("APP").build(),
                 ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 30))).eventSubTypeDesc("Eve-12").eventType("APP").build(),
                 ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(14, 0))).eventSubTypeDesc("Afternoon-12").eventType("APP").build()
         );
-        final var eventsFor13 = Arrays.asList(
+        final var eventsFor13 = List.of(
                 ScheduledEvent.builder().bookingId(-13L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(19, 0))).eventSubTypeDesc("Eve-13").eventType("APP").build()
         );
 
@@ -242,7 +241,7 @@ public class SchedulesServiceImplTest {
                 .startTime(TIME_1000)
                 .event("APP")
                 .build();
-        final var apps = Arrays.asList(app);
+        final var apps = List.of(app);
         when(scheduleRepository.getLocationAppointments(-100L, DATE, DATE, "lastName", Order.ASC)).thenReturn(apps);
 
         final var results = schedulesService.getLocationEvents("LEI", -100L, "APP", DATE, TimeSlot.AM, null, null);
@@ -257,7 +256,7 @@ public class SchedulesServiceImplTest {
                 .startTime(LocalDateTime.of(DATE, LocalTime.of(14, 0)))
                 .event("VISIT")
                 .build();
-        final var visits = Arrays.asList(visit);
+        final var visits = List.of(visit);
         when(scheduleRepository.getLocationVisits(-100L, DATE, DATE, "lastName", Order.ASC)).thenReturn(visits);
 
         final var results = schedulesService.getLocationEvents("LEI", -100L, "VISIT", DATE, TimeSlot.PM, null, null);
@@ -272,7 +271,7 @@ public class SchedulesServiceImplTest {
                 .startTime(LocalDateTime.of(DATE, LocalTime.of(21, 0)))
                 .event("PROG")
                 .build();
-        final var visits = Arrays.asList(visit);
+        final var visits = List.of(visit);
         when(scheduleRepository.getActivitiesAtLocation(-100L, DATE, DATE, "lastName", Order.ASC, false)).thenReturn(visits);
 
         final var results = schedulesService.getLocationEvents("LEI", -100L, "PROG", DATE, TimeSlot.ED, null, null);

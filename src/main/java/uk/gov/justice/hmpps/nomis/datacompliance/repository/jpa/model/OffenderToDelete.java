@@ -1,4 +1,4 @@
-package net.syscon.elite.repository.jpa.model;
+package uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model;
 
 import lombok.*;
 
