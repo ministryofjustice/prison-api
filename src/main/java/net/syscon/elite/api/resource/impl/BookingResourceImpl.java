@@ -523,6 +523,11 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public List<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final Long bookingId) {
+        return bookingService.getBookingVisitsWithVisitor(bookingId);
+    }
+
+    @Override
     public List<ScheduledEvent> getBookingVisitsForToday(final Long bookingId, final String sortFields, final Order sortOrder) {
         final var today = LocalDate.now();
         return bookingService.getBookingVisits(

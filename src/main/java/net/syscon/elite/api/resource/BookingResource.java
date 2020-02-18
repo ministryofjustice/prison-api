@@ -490,6 +490,15 @@ public interface BookingResource {
                                                           @ApiParam(value = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
                                                           @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
 
+    @GetMapping("/{bookingId}/visits-with-visitors")
+    @ApiOperation(value = "All visits for offender.", notes = "All visits for offender.", nickname = "getBookingVisitsWithVisitor")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = VisitWithVisitors.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    List<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+
     @GetMapping("/{bookingId}/visits/last")
     @ApiOperation(value = "The most recent visit for the offender.", notes = "The most recent visit for the offender.", nickname = "getBookingVisitsLast")
     @ApiResponses(value = {
