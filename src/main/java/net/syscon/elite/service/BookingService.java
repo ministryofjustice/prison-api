@@ -6,6 +6,8 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.repository.jpa.model.CaseStatus;
+import net.syscon.elite.repository.jpa.model.LegalCaseType;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -622,6 +624,30 @@ public class BookingService {
                                 .build())
                         .collect(Collectors.toUnmodifiableList())
                 )).orElseThrow(EntityNotFoundException.withId(bookingId));
+    }
+
+    @VerifyBookingAccess
+    public List<CourtCase> getOffenderCourtCases(final Long bookingId) {
+        return offenderBookingRepository.findById(bookingId)
+                .map(booking ->
+                        booking.getCourtCases().stream().map(courtCase ->
+                                CourtCase.builder()
+                                        .id(courtCase.getId())
+                                        .caseSeq(courtCase.getCaseSeq())
+                                        .beginDate(courtCase.getBeginDate())
+                                        .agency(Agency.builder()
+                                                .agencyId(courtCase.getAgencyLocation().getId())
+                                                .agencyType(courtCase.getAgencyLocation().getType())
+                                                .active(courtCase.getAgencyLocation().getActiveFlag().isActive())
+                                                .description(courtCase.getAgencyLocation().getDescription())
+                                                .build())
+                                        .caseType(courtCase.getLegalCaseType().map(LegalCaseType::getDescription).orElse(null))
+                                        .caseInfoPrefix(courtCase.getCaseInfoPrefix())
+                                        .caseInfoNumber(courtCase.getCaseInfoNumber())
+                                        .caseStatus(courtCase.getCaseStatus().map(CaseStatus::getDescription).orElse(null))
+                                        .build())
+                                .collect(Collectors.toUnmodifiableList()))
+                .orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
