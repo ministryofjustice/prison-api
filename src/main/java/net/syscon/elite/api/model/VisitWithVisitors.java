@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
+
 import java.util.List;
 
 @ApiModel(description = "List of visitors for a visit")
@@ -14,13 +16,14 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 public class VisitWithVisitors<V extends Visit> {
-    @ApiModelProperty(value = "List of visitors on visit")
+    @ApiModelProperty(value = "List of visitors on visit", required = true)
     @JsonProperty("visitors")
+    @NotBlank
     private List<Visitor> visitors;
 
-    @ApiModelProperty(value = "Visit Information")
+    @ApiModelProperty(value = "Visit Information", required = true)
     @JsonProperty("visitDetails")
+    @NotBlank
     private V visitDetail;
 }

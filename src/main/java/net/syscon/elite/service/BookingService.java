@@ -310,27 +310,10 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public List<VisitWithVisitors> getBookingVisitsWithVisitor(final Long bookingId) {
+    public List<VisitWithVisitors<? extends Visit>> getBookingVisitsWithVisitor(final Long bookingId) {
         final var visits = visitRepository.getVisits(bookingId);
 
         return visits.stream().map(v -> {
-            var visit = Visit.builder()
-                    .visitType(v.getVisitType())
-                    .visitTypeDescription(v.getVisitTypeDescription())
-                    .cancellationReason(v.getCancellationReason())
-                    .cancelReasonDescription(v.getCancelReasonDescription())
-                    .endTime(v.getEndTime())
-                    .startTime(v.getStartTime())
-                    .eventOutcome(v.getEventOutcome())
-                    .eventOutcomeDescription(v.getEventOutcomeDescription())
-                    .eventStatus(v.getEventStatus())
-                    .eventStatusDescription(v.getEventStatusDescription())
-                    .leadVisitor(v.getLeadVisitor())
-                    .location(v.getLocation())
-                    .relationship(v.getRelationship())
-                    .relationshipDescription(v.getRelationshipDescription())
-                    .build();
-
             var visitorsList = visitorRepository.getVisitorsForVisitAndBooking(v.getVisitId(), bookingId)
                     .stream()
                     .map(visitor ->
@@ -343,10 +326,27 @@ public class BookingService {
                         .relationship(visitor.getRelationship())
                         .build())
                     .collect(Collectors.toList());
-            
+
             return VisitWithVisitors.builder()
-                    .visitDetail(visit)
-                    .visitors(visitorsList);
+                    .visitDetail(
+                            Visit.builder()
+                            .visitType(v.getVisitType())
+                            .visitTypeDescription(v.getVisitTypeDescription())
+                            .cancellationReason(v.getCancellationReason())
+                            .cancelReasonDescription(v.getCancelReasonDescription())
+                            .endTime(v.getEndTime())
+                            .startTime(v.getStartTime())
+                            .eventOutcome(v.getEventOutcome())
+                            .eventOutcomeDescription(v.getEventOutcomeDescription())
+                            .eventStatus(v.getEventStatus())
+                            .eventStatusDescription(v.getEventStatusDescription())
+                            .leadVisitor(v.getLeadVisitor())
+                            .location(v.getLocation())
+                            .relationship(v.getRelationship())
+                            .relationshipDescription(v.getRelationshipDescription())
+                            .build())
+                    .visitors(visitorsList)
+                    .build();
         }).collect(Collectors.toList());
     }
 
