@@ -1,4 +1,4 @@
-package net.syscon.elite.service.whereabouts;
+package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.LocationGroup;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class LocationGroupFromDBServiceTest {
+class LocationGroupServiceTest {
 
     private final Location L1 = Location.builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("BLOCK A").internalLocationCode("A").build();
     private final Location L2 = Location.builder().locationId(-13L).locationType("WING").description("LEI-H").internalLocationCode("H").build();
@@ -42,34 +42,34 @@ public class LocationGroupFromDBServiceTest {
     private LocationRepository repository;
 
     @InjectMocks
-    private LocationGroupFromDBService service;
+    private LocationGroupService service;
 
     @Test
-    public void noGroups() {
+    void noGroups() {
         assertThat(service.getLocationGroups("LEI")).isEmpty();
     }
 
     @Test
-    public void oneGroup() {
+    void oneGroup() {
         when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1));
         assertThat(service.getLocationGroups("LEI")).contains(LG1);
     }
 
     @Test
-    public void twoGroups() {
+    void twoGroups() {
         when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L2, L1));
         assertThat(service.getLocationGroups("LEI")).containsExactly(LG1, LG2);
     }
 
     @Test
-    public void oneGroupOneSubGroupRemoved() {
+    void oneGroupOneSubGroupRemoved() {
         when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1));
         when(repository.getSubLocationGroupData(Set.of(-1L))).thenReturn(List.of(SL2));
         assertThat(service.getLocationGroups("LEI")).contains(LG1);
     }
 
     @Test
-    public void oneGroupTwoSubGroups() {
+    void oneGroupTwoSubGroups() {
         when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1));
         when(repository.getSubLocationGroupData(Set.of(-1L))).thenReturn(List.of(SL3, SL2));
         assertThat(service.getLocationGroups("LEI")).contains(
@@ -78,7 +78,7 @@ public class LocationGroupFromDBServiceTest {
     }
 
     @Test
-    public void twoGroupWithSubGroups() {
+    void twoGroupWithSubGroups() {
         when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1, L2));
         when(repository.getSubLocationGroupData(Set.of(-1L, -13L))).thenReturn(List.of(SL1, SL2, SL3));
         assertThat(service.getLocationGroups("LEI")).contains(
@@ -88,7 +88,7 @@ public class LocationGroupFromDBServiceTest {
     }
 
     @Test
-    public void locationGroupFilters() {
+    void locationGroupFilters() {
         final var filter = service.locationGroupFilter("LEI", "A");
         assertThat(locationStream(CELL_A_1, CELL_A_3, CELL_B_1, CELL_AA_1).filter(filter))
                 .containsExactlyInAnyOrder(locationStream(CELL_A_1, CELL_A_3).toArray(Location[]::new));

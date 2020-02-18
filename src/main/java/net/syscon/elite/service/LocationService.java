@@ -32,7 +32,6 @@ public class LocationService {
     private final LocationRepository locationRepository;
     private final InmateRepository inmateRepository;
     private final CaseLoadService caseLoadService;
-    private final LocationGroupService locationGroupService;
     private final String locationTypeGranularity;
 
     public LocationService(
@@ -40,12 +39,10 @@ public class LocationService {
             final LocationRepository locationRepository,
             final InmateRepository inmateRepository,
             final CaseLoadService caseLoadService,
-            @Qualifier("locationGroupServiceSelector") final LocationGroupService locationGroupService,
             @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity) {
         this.locationRepository = locationRepository;
         this.inmateRepository = inmateRepository;
         this.caseLoadService = caseLoadService;
-        this.locationGroupService = locationGroupService;
         this.agencyRepository = agencyRepository;
         this.locationTypeGranularity = locationTypeGranularity;
     }
@@ -95,26 +92,6 @@ public class LocationService {
 
     public Location getLocation(final long locationId) {
         return locationRepository.findLocation(locationId).orElseThrow(EntityNotFoundException.withId(locationId));
-    }
-
-    /**
-     * Get all cells for the prison/agency then filter them using the named pattern
-     * defined in the whereabouts/*.properties files.
-     */
-    @VerifyAgencyAccess
-    public List<Location> getCellLocationsForGroup(final String agencyId, final String groupName) {
-
-        val cellLocations = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", false)
-                .stream()
-                .filter(locationGroupService.locationGroupFilter(agencyId, groupName))
-                // At this point description may be userDescription, or if absent description with the agencyId prefix removed.
-                .peek(c -> c.setDescription(LocationProcessor.formatLocation(c.getDescription())))
-                .collect(Collectors.toList());
-
-        if (cellLocations.isEmpty()) {
-            throw ConfigException.withMessage("There are no cells set up for location '%s'", groupName);
-        }
-        return cellLocations;
     }
 
     private String getWorkingCaseLoad(final String username) {

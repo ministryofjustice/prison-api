@@ -39,16 +39,6 @@ public interface LocationResource {
                                                                             @ApiParam(value = "Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") @RequestHeader(value = "Sort-Fields", defaultValue = "lastName,firstName,bookingId", required = false) String sortFields,
                                                                             @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
 
-    @GetMapping("/groups/{agencyId}/{name}")
-    @ApiOperation(value = "List of cell locations by group at agency location.", notes = "List of cell locations by group at agency location.", nickname = "getLocationGroup")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<Location> getLocationGroup(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") String agencyId,
-                                    @ApiParam(value = "The group name", required = true) @PathVariable("name") String name);
-
     @GetMapping("/{locationId}")
     @ApiOperation(value = "Location detail.", notes = "Location detail.", nickname = "getLocation")
     @ApiResponses(value = {

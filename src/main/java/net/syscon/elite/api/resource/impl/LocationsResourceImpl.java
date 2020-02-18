@@ -79,9 +79,4 @@ public class LocationsResourceImpl implements LocationResource {
                 .headers(inmates.getPaginationHeaders())
                 .body(inmates.getItems());
     }
-
-    @Override
-    public List<Location> getLocationGroup(final String agencyId, final String name) {
-        return locationService.getCellLocationsForGroup(agencyId, name);
-    }
 }

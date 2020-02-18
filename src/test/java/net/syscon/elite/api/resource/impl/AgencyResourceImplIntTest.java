@@ -28,7 +28,6 @@ public class AgencyResourceImplIntTest extends ResourceTest {
     private LocationRepository repository;
 
     @SpyBean
-    @Qualifier("defaultLocationGroupService")
     private LocationGroupService locationGroupService;
 
     @Test

@@ -163,11 +163,6 @@ public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
         bookingActivities.verifyNoError();
     }
 
-    @And("^the saved attendance details can be retrieved correctly$")
-    public void verifySavedDetails() throws Throwable {
-        bookingActivities.verifySavedDetails();
-    }
-
     @Then("^the booking activity is rejected as offender has already been paid for \"([^\"]*)\"$")
     public void offenderAlreadyPaid(final String paidActivity) throws Throwable {
         bookingActivities.verifyOffenderAlreadyPaid(paidActivity);
