@@ -64,16 +64,6 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
         location.verifyLocationIdList(list);
     }
 
-    @When("^a request is made at agency \"([^\"]*)\" to retrieve all the groups$")
-    public void aRequestIsMadeToRetrieveAllGroups(final String agencyId) throws Throwable {
-        location.aRequestIsMadeToRetrieveAllGroups(agencyId);
-    }
-
-    @Then("^location groups are \"([^\"]*)\"$")
-    public void groupsAre(final String list) throws Throwable {
-        location.groupsAre(list);
-    }
-
     @When("^a request is made at agency \"([^\"]*)\" to retrieve a list of inmates$")
     public void retrieveListOfInmates(final String agency) {
         location.retrieveListOfInmates(agency);

@@ -41,19 +41,6 @@ Feature: Locations
     When a request is made at agency "RNI" to retrieve the list named "nonexistant"
     Then resource not found response is received from locations API
 
-  Scenario: Retrieve all groups for agency
-    When a request is made at agency "MDI" to retrieve all the groups
-   # Then location groups are "1,1_A,1_B,1_C,2,2_A,2_B,2_C,3,3_A,3_B,3_C,4,4_A,4_B,4_C,5,5_A,5_B,6,6_A,6_B,7,Casu"
-    Then location groups are "Casu,Houseblock 1,Houseblock 1_A-Wing,Houseblock 1_B-Wing,Houseblock 1_C-Wing,Houseblock 2,Houseblock 2_A-Wing,Houseblock 2_B-Wing,Houseblock 2_C-Wing,Houseblock 3,Houseblock 3_A-Wing,Houseblock 3_B-Wing,Houseblock 3_C-Wing,Houseblock 4,Houseblock 4_A-Wing,Houseblock 4_B-Wing,Houseblock 4_C-Wing,Houseblock 5,Houseblock 5_A-Wing,Houseblock 5_B-Wing,Houseblock 6,Houseblock 6_A-Wing,Houseblock 6_B-Wing,Houseblock 7"
-
-  Scenario: Retrieve groups for agency which is not in caseload
-    When a request is made at agency "ZZGHI" to retrieve all the groups
-    Then resource not found response is received from locations API
-
-  Scenario: Retrieve groups for agency which does not exist
-    When a request is made at agency "XXXX" to retrieve all the groups
-    Then resource not found response is received from locations API
-
   Scenario Outline: Retrieve a list of inmates at a specific agency location
     When a request is made at agency "<agencyCode>" to retrieve a list of inmates
     Then there are "<countInmates>" offenders returned

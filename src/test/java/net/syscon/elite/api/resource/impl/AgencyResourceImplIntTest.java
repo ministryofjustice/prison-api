@@ -20,11 +20,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * TODO DT-526 Replace calls to .../locations/groupsNew with .../locations/groups once the new endpoint has been tested from whereabouts
- *      API and prisonstaffhub UI has been changed to no longer point to this API (replaced with call to whereabouts API).
- */
-
 public class AgencyResourceImplIntTest extends ResourceTest {
 
     private final Location L1 = Location.builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("BLOCK A").internalLocationCode("A").build();
@@ -42,7 +37,7 @@ public class AgencyResourceImplIntTest extends ResourceTest {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
 
-        final var responseEntity = testRestTemplate.exchange("/api/agencies/LEI/locations/groupsNew", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<LocationGroup>>() {});
+        final var responseEntity = testRestTemplate.exchange("/api/agencies/LEI/locations/groups", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<LocationGroup>>() {});
 
         assertThatStatus(responseEntity, 200);
         assertThat(responseEntity.getBody()).containsExactly(LocationGroup.builder().key("A").name("Block A").build());
@@ -55,7 +50,7 @@ public class AgencyResourceImplIntTest extends ResourceTest {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
 
-        final var responseEntity = testRestTemplate.exchange("/api/agencies/LEI/locations/groupsNew", HttpMethod.GET, requestEntity, ErrorResponse.class);
+        final var responseEntity = testRestTemplate.exchange("/api/agencies/LEI/locations/groups", HttpMethod.GET, requestEntity, ErrorResponse.class);
 
         assertThatStatus(responseEntity, 404);
         assertThat(responseEntity.getBody().getUserMessage()).isEqualTo("test ex");
