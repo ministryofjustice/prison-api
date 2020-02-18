@@ -1,6 +1,6 @@
 package net.syscon.elite.repository.jpa.repository;
 
-import net.syscon.elite.repository.jpa.model.Visit;
+import net.syscon.elite.repository.jpa.model.VisitInformation;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface VisitRepository extends PagingAndSortingRepository<Visit, String> {
+public interface VisitRepository extends PagingAndSortingRepository<VisitInformation, String> {
     @Query(value =
             "SELECT * FROM" +
                     "(SELECT VISIT.OFFENDER_VISIT_ID VISIT_ID," +
@@ -43,5 +43,5 @@ public interface VisitRepository extends PagingAndSortingRepository<Visit, Strin
                     "WHERE VISIT.OFFENDER_BOOK_ID = :bookingId " +
                     "ORDER BY VISIT.START_TIME DESC, VISIT.OFFENDER_VISIT_ID DESC)",
             nativeQuery = true)
-    List<Visit> getVisits(@Param("bookingId") final Long bookingId);;
+    List<VisitInformation> getVisits(@Param("bookingId") final Long bookingId);;
 }

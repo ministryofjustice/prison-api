@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class Visitor {
+public class VisitorInformation {
     @Id
     private Long personId;
     private Long visitId;

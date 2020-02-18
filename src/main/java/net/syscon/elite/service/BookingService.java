@@ -310,7 +310,7 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public List<VisitWithVisitors<? extends Visit>> getBookingVisitsWithVisitor(final Long bookingId) {
+    public List<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final Long bookingId) {
         final var visits = visitRepository.getVisits(bookingId);
 
         return visits.stream().map(v -> {

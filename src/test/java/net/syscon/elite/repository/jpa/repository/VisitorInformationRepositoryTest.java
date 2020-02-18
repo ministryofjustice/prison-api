@@ -1,6 +1,6 @@
 package net.syscon.elite.repository.jpa.repository;
 
-import net.syscon.elite.repository.jpa.model.Visitor;
+import net.syscon.elite.repository.jpa.model.VisitorInformation;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
 @WithMockUser
-public class VisitorRepositoryTest {
+public class VisitorInformationRepositoryTest {
 
     @Autowired
     private VisitorRepository repository;
@@ -29,10 +29,10 @@ public class VisitorRepositoryTest {
         var visits = repository.getVisitorsForVisitAndBooking(-15L, -1L);
 
         assertThat(visits).hasSize(2);
-        assertThat(visits).extracting(Visitor::getPersonId).containsOnly(-1L, -2L);
-        assertThat(visits).extracting(Visitor::getFirstName).containsOnly("JESSY", "John");
-        assertThat(visits).extracting(Visitor::getLastName).containsOnly("SMITH1", "Smith");
-        assertThat(visits).extracting(Visitor::getRelationship).containsOnly("Uncle", "Community Offender Manager");
+        assertThat(visits).extracting(VisitorInformation::getPersonId).containsOnly(-1L, -2L);
+        assertThat(visits).extracting(VisitorInformation::getFirstName).containsOnly("JESSY", "John");
+        assertThat(visits).extracting(VisitorInformation::getLastName).containsOnly("SMITH1", "Smith");
+        assertThat(visits).extracting(VisitorInformation::getRelationship).containsOnly("Uncle", "Community Offender Manager");
     }
 }
 

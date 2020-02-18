@@ -5,8 +5,8 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.*;
-import net.syscon.elite.repository.jpa.model.Visit;
-import net.syscon.elite.repository.jpa.model.Visitor;
+import net.syscon.elite.repository.jpa.model.VisitInformation;
+import net.syscon.elite.repository.jpa.model.VisitorInformation;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.VisitRepository;
 import net.syscon.elite.repository.jpa.repository.VisitorRepository;
@@ -384,7 +384,7 @@ public class BookingServiceTest {
     @Test
     public void getBookingVisitsWithVisitor() {
         when(visitRepository.getVisits(anyLong())).thenReturn(List.of(
-                Visit
+                VisitInformation
                 .builder()
                 .visitId(-1L)
                 .cancellationReason(null)
@@ -404,7 +404,7 @@ public class BookingServiceTest {
                 .build()));
 
         when(visitorRepository.getVisitorsForVisitAndBooking(anyLong(), anyLong())).thenReturn(List.of(
-                Visitor
+                VisitorInformation
                 .builder()
                 .birthdate(LocalDate.parse("1980-10-01"))
                 .firstName("John")
@@ -414,7 +414,7 @@ public class BookingServiceTest {
                 .relationship("Uncle")
                 .visitId(-1L)
                 .build(),
-                Visitor
+                VisitorInformation
                 .builder()
                 .birthdate(LocalDate.parse("2010-10-01"))
                 .firstName("Jenny")
@@ -431,7 +431,7 @@ public class BookingServiceTest {
         assertThat(visitsWithVisitors).containsOnly(
                 VisitWithVisitors.builder()
                         .visitDetail(
-                                net.syscon.elite.api.model.Visit
+                                Visit
                                 .builder()
                                 .cancellationReason(null)
                                 .cancelReasonDescription(null)
@@ -457,7 +457,7 @@ public class BookingServiceTest {
                                         .personId(-1L)
                                         .relationship("Uncle")
                                         .build(),
-                                net.syscon.elite.api.model.Visitor
+                                Visitor
                                         .builder()
                                         .dateOfBirth(LocalDate.parse("2010-10-01"))
                                         .firstName("Jenny")
