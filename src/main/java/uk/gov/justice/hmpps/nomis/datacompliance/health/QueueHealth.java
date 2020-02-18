@@ -4,13 +4,8 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
@@ -22,9 +17,7 @@ import static org.springframework.boot.actuate.health.Health.down;
 import static org.springframework.boot.actuate.health.Health.up;
 
 @Slf4j
-@Component
-@ConditionalOnExpression("'${offender.deletion.sqs.provider}'.equals('aws') or '${offender.deletion.sqs.provider}'.equals('localstack')")
-public class QueueHealth implements HealthIndicator {
+public abstract class QueueHealth implements HealthIndicator {
 
     @AllArgsConstructor
     enum DlqStatus {
@@ -51,10 +44,10 @@ public class QueueHealth implements HealthIndicator {
     private final String queueName;
     private final String dlqName;
 
-    public QueueHealth(@Autowired @Qualifier("awsSqsClient") final AmazonSQS awsSqsClient,
-                       @Autowired @Qualifier("awsSqsDlqClient") final AmazonSQS awsSqsDlqClient,
-                       @Value("${offender.deletion.sqs.queue.name}") final String queueName,
-                       @Value("${offender.deletion.sqs.dlq.name}") final String dlqName) {
+    public QueueHealth(final AmazonSQS awsSqsClient,
+                       final AmazonSQS awsSqsDlqClient,
+                       final String queueName,
+                       final String dlqName) {
 
         this.awsSqsClient = awsSqsClient;
         this.awsSqsDlqClient = awsSqsDlqClient;
