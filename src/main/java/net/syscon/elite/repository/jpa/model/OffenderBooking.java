@@ -21,18 +21,10 @@ public class OffenderBooking {
     @Column(name = "OFFENDER_BOOK_ID")
     private Long bookingId;
 
-    @Column(name = "ACTIVE_FLAG")
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag activeFlag;
-
     @OrderColumn(name = "MILITARY_SEQ")
     @ListIndexBase(1)
     @OneToMany(mappedBy = "bookingAndSequence.offenderBooking", cascade = CascadeType.ALL)
     private List<OffenderMilitaryRecord> militaryRecords;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "OFFENDER_BOOK_ID")
-    private List<OffenderVisit> visits;
 
     @OrderColumn(name = "CASE_SEQ")
     @ListIndexBase(1)
