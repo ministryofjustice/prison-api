@@ -156,7 +156,8 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
             if (isValidLocation) return appointmentLocation.getAgencyId();
 
-        } catch (final EntityNotFoundException ignored) { }
+        } catch (final EntityNotFoundException ignored) {
+        }
 
         throw new BadRequestException("Location does not exist or is not in your caseload.");
     }
@@ -197,6 +198,9 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
     private void assertAllBookingIdsInCaseload(final List<AppointmentDetails> appointments, final String agencyId) {
+        final var skipBookingIdInCaseLoadCheck = authenticationFacade.isOverrideRole("SYSTEM_USER", "GLOBAL_APPOINTMENT");
+        if (skipBookingIdInCaseLoadCheck) return;
+
         final var bookingIds = appointments.stream().map(AppointmentDetails::getBookingId).collect(Collectors.toList());
         final var bookingIdsInAgency = bookingRepository.findBookingsIdsInAgency(bookingIds, agencyId);
         if (bookingIdsInAgency.size() < bookingIds.size()) {
@@ -229,6 +233,10 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     private Optional<Location> findLocationInUserLocations(final long locationId) {
 
         final var appointmentLocation = locationService.getLocation(locationId);
+        final var skipLocationAgencyCheck = authenticationFacade.isOverrideRole("SYSTEM_USER", "GLOBAL_APPOINTMENT");
+
+        if (skipLocationAgencyCheck) return Optional.of(appointmentLocation);
+
         final var userLocations = locationService.getUserLocations(authenticationFacade.getCurrentUsername());
 
         for (final var location : userLocations) {

@@ -142,6 +142,40 @@ public class AppointmentsServiceImplTest {
     }
 
     @Test
+    public void skipLocationNotInCaseloadCheck() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        ensureRoles("GLOBAL_APPOINTMENT");
+
+        final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(LocalDateTime.now().plusHours(1L))
+                                .build())
+                .appointments(List.of(DETAILS_1))
+                .repeat(Repeat
+                        .builder()
+                        .count(13)
+                        .repeatPeriod(RepeatPeriod.MONTHLY)
+                        .build())
+                .build();
+
+        appointmentsService.createAppointments(appointmentsToCreate);
+
+        verify(bookingRepository)
+                .createMultipleAppointments(
+                        appointmentsToCreate.withDefaults(),
+                        appointmentsToCreate.getAppointmentDefaults(),
+                        LOCATION_B.getAgencyId());
+
+        verify(telemetryClient).trackEvent(eq("AppointmentsCreated"), anyMap(), isNull());
+    }
+
+    @Test
     public void unknownAppointmentType() {
         stubLocation(LOCATION_B);
 
