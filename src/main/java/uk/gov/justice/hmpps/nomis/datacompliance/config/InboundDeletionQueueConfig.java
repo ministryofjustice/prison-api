@@ -8,6 +8,7 @@ import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,14 +23,14 @@ import javax.jms.Session;
 @Slf4j
 @EnableJms
 @Configuration
-@ConditionalOnExpression("'${offender.deletion.sqs.provider}'.equals('aws') or '${offender.deletion.sqs.provider}'.equals('localstack')")
-public class JmsConfig {
+@ConditionalOnExpression("{'aws', 'localstack'}.contains('${data.compliance.inbound.deletion.sqs.provider}')")
+public class InboundDeletionQueueConfig {
 
     @Bean
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(
-            final AmazonSQS awsSqsClient,
-            @Value("${offender.deletion.sqs.concurrency:1}") final String concurrency) {
+            @Qualifier("inboundDeletionSqsClient") final AmazonSQS awsSqsClient,
+            @Value("${data.compliance.inbound.deletion.sqs.concurrency:1}") final String concurrency) {
 
         final var factory = new DefaultJmsListenerContainerFactory();
 
@@ -43,12 +44,13 @@ public class JmsConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "offender.deletion.sqs.provider", havingValue = "aws")
-    public AmazonSQS awsSqsClient(@Value("${offender.deletion.sqs.aws.access.key.id}") final String accessKey,
-                                  @Value("${offender.deletion.sqs.aws.secret.access.key}") final String secretKey,
-                                  @Value("${offender.deletion.sqs.region}") final String region) {
+    @ConditionalOnProperty(name = "data.compliance.inbound.deletion.sqs.provider", havingValue = "aws")
+    public AmazonSQS inboundDeletionSqsClient(
+            @Value("${data.compliance.inbound.deletion.sqs.aws.access.key.id}") final String accessKey,
+            @Value("${data.compliance.inbound.deletion.sqs.aws.secret.access.key}") final String secretKey,
+            @Value("${data.compliance.inbound.deletion.sqs.region}") final String region) {
 
-        log.info("Creating AWS SQS client");
+        log.info("Creating AWS inbound deletion SQS client");
 
         var credentials = new BasicAWSCredentials(accessKey, secretKey);
 
@@ -59,12 +61,13 @@ public class JmsConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "offender.deletion.sqs.provider", havingValue = "aws")
-    public AmazonSQS awsSqsDlqClient(@Value("${offender.deletion.sqs.dlq.aws.access.key.id}") final String accessKey,
-                                     @Value("${offender.deletion.sqs.dlq.aws.secret.access.key}") final String secretKey,
-                                     @Value("${offender.deletion.sqs.region}") final String region) {
+    @ConditionalOnProperty(name = "data.compliance.inbound.deletion.sqs.provider", havingValue = "aws")
+    public AmazonSQS inboundDeletionSqsDlqClient(
+            @Value("${data.compliance.inbound.deletion.sqs.dlq.aws.access.key.id}") final String accessKey,
+            @Value("${data.compliance.inbound.deletion.sqs.dlq.aws.secret.access.key}") final String secretKey,
+            @Value("${data.compliance.inbound.deletion.sqs.region}") final String region) {
 
-        log.info("Creating AWS SQS client for DLQ");
+        log.info("Creating AWS inbound deletion SQS client for DLQ");
 
         var credentials = new BasicAWSCredentials(accessKey, secretKey);
 
@@ -74,24 +77,26 @@ public class JmsConfig {
                 .build();
     }
 
-    @Bean("awsSqsClient")
-    @ConditionalOnProperty(name = "offender.deletion.sqs.provider", havingValue = "localstack")
-    public AmazonSQS awsSqsClientLocalstack(@Value("${offender.deletion.sqs.endpoint.url}") final String serviceEndpoint,
-                                            @Value("${offender.deletion.sqs.region}") final String region) {
+    @Bean("inboundDeletionSqsClient")
+    @ConditionalOnProperty(name = "data.compliance.inbound.deletion.sqs.provider", havingValue = "localstack")
+    public AmazonSQS sqsClientLocalstack(
+            @Value("${data.compliance.inbound.deletion.sqs.endpoint.url}") final String serviceEndpoint,
+            @Value("${data.compliance.inbound.deletion.sqs.region}") final String region) {
 
-        log.info("Creating Localstack SQS client");
+        log.info("Creating Localstack inbound deletion SQS client");
 
         return AmazonSQSAsyncClientBuilder.standard()
                 .withEndpointConfiguration(new EndpointConfiguration(serviceEndpoint, region))
                 .build();
     }
 
-    @Bean("awsSqsDlqClient")
-    @ConditionalOnProperty(name = "offender.deletion.sqs.provider", havingValue = "localstack")
-    public AmazonSQS awsSqsDlqClientLocalstack(@Value("${offender.deletion.sqs.endpoint.url}") final String serviceEndpoint,
-                                               @Value("${offender.deletion.sqs.region}") final String region) {
+    @Bean("inboundDeletionSqsDlqClient")
+    @ConditionalOnProperty(name = "data.compliance.inbound.deletion.sqs.provider", havingValue = "localstack")
+    public AmazonSQS sqsDlqClientLocalstack(
+            @Value("${data.compliance.inbound.deletion.sqs.endpoint.url}") final String serviceEndpoint,
+            @Value("${data.compliance.inbound.deletion.sqs.region}") final String region) {
 
-        log.info("Creating Localstack SQS client for DLQ");
+        log.info("Creating Localstack inbound deletion SQS client for DLQ");
 
         return AmazonSQSAsyncClientBuilder.standard()
                 .withEndpointConfiguration(new EndpointConfiguration(serviceEndpoint, region))

@@ -12,7 +12,7 @@ import java.util.*;
 @Slf4j
 public class OffenderDeletionRepositoryImpl extends RepositoryBase implements OffenderDeletionRepository {
 
-    @Value("${offender.deletion.db.enable.parallel.hints:false}")
+    @Value("${data.compliance.db.enable.parallel.hints:true}")
     private boolean enableParallelHints;
 
     @Override

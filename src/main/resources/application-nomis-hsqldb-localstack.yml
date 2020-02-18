@@ -14,22 +14,27 @@ spring:
   profiles:
     include: dev
 
-offender.deletion:
+data.compliance:
 
   db:
     enable.parallel.hints: false
 
-  sqs:
-    provider: localstack
-    queue.name: elite2_api_queue
-    dlq.name: elite2_api_dead_letter_queue
-    endpoint.url: http://localhost:4576
-    region: eu-west-2
+  outbound.referral:
+    sqs:
+      provider: localstack
+      queue.name: outbound_referral_queue
+      queue.url: http://localstack:4576/queue/outbound_referral_queue
+      dlq.name: outbound_referral_dead_letter_queue
+      endpoint.url: http://localstack:4576
+      region: eu-west-2
 
-  sns:
-    provider: localstack
-    endpoint.url: http://localhost:4575
-    region: eu-west-2
+  inbound.deletion:
+    sqs:
+      provider: localstack
+      queue.name: inbound_deletion_queue
+      dlq.name: inbound_deletion_dead_letter_queue
+      endpoint.url: http://localstack:4576
+      region: eu-west-2
 
 graceful:
   shutdown:
