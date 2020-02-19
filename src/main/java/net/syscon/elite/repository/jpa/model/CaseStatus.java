@@ -6,10 +6,10 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue(ReferenceCode.CASE_STATUS)
+@DiscriminatorValue(ReferenceCode.CASE_STS)
 @NoArgsConstructor
 public class CaseStatus extends ReferenceCode {
     public CaseStatus(final String code, final String description) {
-        super(ReferenceCode.CASE_STATUS, code, description);
+        super(ReferenceCode.CASE_STS, code, description);
     }
 }

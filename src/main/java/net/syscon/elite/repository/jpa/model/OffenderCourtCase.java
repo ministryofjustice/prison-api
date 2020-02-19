@@ -21,7 +21,7 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static net.syscon.elite.repository.jpa.model.ReferenceCode.CASE_STATUS;
+import static net.syscon.elite.repository.jpa.model.ReferenceCode.CASE_STS;
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.LEG_CASE_TYP;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -67,7 +67,7 @@ public class OffenderCourtCase extends AuditableEntity {
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
-            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CASE_STATUS + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CASE_STS + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "CASE_STATUS", referencedColumnName = "code"))
     })
     private CaseStatus caseStatus;
