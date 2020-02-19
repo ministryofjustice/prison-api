@@ -1,13 +1,7 @@
 package net.syscon.elite.repository.jpa.repository;
 
-import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
-import net.syscon.elite.repository.jpa.model.MilitaryBranch;
-import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
-import net.syscon.elite.repository.jpa.model.MilitaryRank;
-import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
-import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
+import net.syscon.elite.repository.jpa.model.*;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
-import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
 import org.junit.jupiter.api.Test;
@@ -20,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.transaction.TestTransaction;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -131,7 +126,21 @@ public class OffenderBookingRepositoryTest {
 
     @Test
     void getOffendersCourtCase() {
-        assertThat(repository.findById(-1L).orElseThrow().getCourtCases()).extracting(OffenderCourtCase::getId).containsOnly(-1L);
+        assertThat(repository.findById(-1L).orElseThrow().getCourtCases()).flatExtracting(
+                OffenderCourtCase::getId,
+                OffenderCourtCase::getCaseStatus,
+                OffenderCourtCase::getLegalCaseType,
+                OffenderCourtCase::getAgencyLocation)
+                .containsOnly(
+                        -1L,
+                        Optional.of(new CaseStatus("A", "Active")),
+                        Optional.of(new LegalCaseType("A", "Adult")),
+                        AgencyLocation.builder()
+                                .id("COURT1")
+                                .description("Court 1")
+                                .type("CRT")
+                                .activeFlag(ActiveFlag.Y)
+                                .build());
     }
 
     @Test

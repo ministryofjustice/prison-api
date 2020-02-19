@@ -24,7 +24,7 @@ public abstract class ReferenceCode implements Serializable {
 
     private String description;
 
-    static final String CASE_STATUS = "CASE_STATUS";
+    static final String CASE_STS = "CASE_STS";
     static final String LEG_CASE_TYP = "LEG_CASE_TYP";
     static final String MLTY_BRANCH = "MLTY_BRANCH";
     static final String MLTY_WZONE = "MLTY_WZONE";
