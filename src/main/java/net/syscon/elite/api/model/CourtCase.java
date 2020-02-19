@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 
@@ -36,6 +37,10 @@ public class CourtCase {
     @ApiModelProperty(value = "The case information number", position = 7, example = "TD20177010")
     private String caseInfoNumber;
 
-    @ApiModelProperty(value = "The case status", position = 8, example = "Active")
+    @ApiModelProperty(value = "The case status", position = 8, example = "ACTIVE, COMBINED, INACTIVE")
     private String caseStatus;
+
+    public String getCaseStatus() {
+        return StringUtils.isNotBlank(caseStatus) ? caseStatus.toUpperCase() : null;
+    }
 }

@@ -615,4 +615,9 @@ public class BookingResourceImpl implements BookingResource {
         return appointmentsService.createBookingAppointment(
                 bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
     }
+
+    @Override
+    public List<CourtCase> getCourtCases(final Long bookingId) {
+        return bookingService.getOffenderCourtCases(bookingId);
+    }
 }
