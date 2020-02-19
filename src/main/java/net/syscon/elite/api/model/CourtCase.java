@@ -37,7 +37,7 @@ public class CourtCase {
     @ApiModelProperty(value = "The case information number", position = 7, example = "TD20177010")
     private String caseInfoNumber;
 
-    @ApiModelProperty(value = "The case status", position = 8, example = "ACTIVE, COMBINED, INACTIVE")
+    @ApiModelProperty(value = "The case status", position = 8, example = "ACTIVE", allowableValues = "ACTIVE, COMBINED, INACTIVE")
     private String caseStatus;
 
     public String getCaseStatus() {
