@@ -261,8 +261,6 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
         final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases", HttpMethod.GET, requestEntity, String.class);
 
-        System.out.println(responseEntity.getBody());
-
         assertThatJsonFileAndStatus(responseEntity, 200, "court_cases.json");
     }
 
