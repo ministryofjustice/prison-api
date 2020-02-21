@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @ApiModel(description = "Represents the data required to schedule a prison to court event for an offender.")
 @Builder
 @AllArgsConstructor
@@ -26,5 +28,5 @@ public class PrisonToCourtEvent {
     private String toCourtLocation;
 
     @ApiModelProperty(required = true, value = "The date and time of the court event.", position = 4, example = "2020-02-28T14:40:00.000Z")
-    private String courtEventDateTime;
+    private LocalDateTime courtEventDateTime;
 }
