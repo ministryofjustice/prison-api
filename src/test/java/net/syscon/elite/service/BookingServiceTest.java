@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,6 +47,8 @@ public class BookingServiceTest {
     private AuthenticationFacade securityUtils;
     @Mock
     private AuthenticationFacade authenticationFacade;
+    @Mock
+    private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
 
     private BookingService bookingService;
 
@@ -57,7 +61,7 @@ public class BookingServiceTest {
                 agencyService,
                 null,
                 referenceDomainService,
-                null,
+                caseloadToAgencyMappingService,
                 securityUtils, authenticationFacade, "1",
                 10);
     }
@@ -419,5 +423,13 @@ public class BookingServiceTest {
         return ScheduledEvent.builder().bookingId(-1L)
                 .startTime(Optional.ofNullable(time).map(t -> "2019-01-02T" + t).map(LocalDateTime::parse).orElse(null))
                 .eventType(type + time).build();
+    }
+
+    @Test
+    public void getOffenderSentenceSummaries_forOveriddenRole() {
+        when(securityUtils.isOverrideRole(any())).thenReturn(true);
+        when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
+        assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
+                .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
     }
 }
