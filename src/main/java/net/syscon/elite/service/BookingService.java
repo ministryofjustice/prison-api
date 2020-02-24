@@ -651,7 +651,7 @@ public class BookingService {
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
-        return isViewAllBookings() ? null : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        return isViewAllBookings() ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
     }
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
