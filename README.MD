@@ -151,74 +151,34 @@ To run all feature tests in IntelliJ, avoiding known @wip or @broken tests, add 
 |api.db.target   | nomis                         | 
 |cucumber.options| --tags 'not(@wip or @broken)' |
 
-### Running localstack
-```bash
-TMPDIR=/private$TMPDIR docker-compose -f docker-compose-data-compliance.yml up localstack
-```
+### Running with Data Compliance Queues
 
-#### Creating the Topic and Queue
-Simpliest way is running the following script
-```bash
-./setup-queue.bash
-```
+Elite2 API is currently being used to retrieve data from the NOMIS database for assessing
+an offender's eligibility of deletion under data compliance law.
 
-Or you can run the scripts individually as shown below.
+A suite of services can be started with docker-compose that will also attach Elite2 API to
+a couple of queues used to communicate deletions and deletion referrals.
 
-#### Creating a topic and queue on localstack
+To do this, simply run:
 
 ```bash
-aws --endpoint-url=http://localhost:4575 sns create-topic --name offender_events
+TMPDIR=/private$TMPDIR docker-compose -f docker-compose-data-compliance.yml up
 ```
 
-Results in:
-```json
-{
-    "TopicArn": "arn:aws:sns:eu-west-2:000000000000:offender_events"
-}
-
-```
-
-#### Creating a queue
-```bash
-aws --endpoint-url=http://localhost:4576 sqs create-queue --queue-name elite2_api_queue
-```
-
-Results in:
-```json
-{
-   "QueueUrl": "http://localhost:4576/queue/elite2_api_queue"
-}
-```
-
-#### Creating a subscription
-```bash
-aws --endpoint-url=http://localhost:4575 sns subscribe \
-    --topic-arn arn:aws:sns:eu-west-2:000000000000:offender_events \
-    --protocol sqs \
-    --notification-endpoint http://localhost:4576/queue/elite2_api_queue \
-    --attributes '{"FilterPolicy":"{\"eventType\":[\"DATA_COMPLIANCE_DELETE-OFFENDER\"]}"}'
-```
-
-Results in:
-```json
-{
-    "SubscriptionArn": "arn:aws:sns:eu-west-2:000000000000:offender_events:074545bd-393c-4a43-ad62-95b1809534f0"
-}
-```
-
-#### Publish to the queue
+#### To publish to the inbound deletion queue:
 (Warning, if configured, this will prompt Elite2 to delete the Offender provided)
 ```bash
-aws --endpoint-url=http://localhost:4575 sns publish \
-    --topic-arn arn:aws:sns:eu-west-2:000000000000:offender_events \
-    --message '{"offenderIdDisplay":"SOME_OFFENDER_ID_DISPLAY"}' \ 
-    --message-attributes "eventType={StringValue=DATA_COMPLIANCE_DELETE-OFFENDER,DataType=String}"
+
+aws --endpoint-url=http://localhost:4576 sqs send-message \
+    --queue-url http://localstack:4576/queue/inbound_deletion_queue \
+    --message-body '{"offenderIdDisplay":"A1234AA"}' \
+    --message-attributes "eventType={StringValue=DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED,DataType=String}"
 ```
 
-#### Read off the queue
+#### To read off the outbound referral queue: 
 ```bash
 aws --endpoint-url=http://localhost:4576 sqs receive-message \
-    --queue-url http://localhost:4576/queue/elite2_api_queue
+    --queue-url http://localhost:4576/queue/outbound_referral_queue
 ```
 
 ### Project related links ###

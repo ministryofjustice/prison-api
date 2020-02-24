@@ -39,7 +39,7 @@ class OffenderPendingDeletionEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendEvent("offender1");
+        eventPusher.sendPendingDeletionEvent("offender1");
 
         assertThat(request.getValue().getMessageBody()).isEqualTo("{\"offenderIdDisplay\":\"offender1\"}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
@@ -49,6 +49,6 @@ class OffenderPendingDeletionEventPusherTest {
     @Test
     void sendEventPropagatesException() {
         when(client.sendMessage(any())).thenThrow(RuntimeException.class);
-        assertThatThrownBy(() -> eventPusher.sendEvent("offender1")).isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> eventPusher.sendPendingDeletionEvent("offender1")).isInstanceOf(RuntimeException.class);
     }
 }

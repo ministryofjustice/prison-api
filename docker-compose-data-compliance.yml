@@ -1,6 +1,19 @@
 version: '3.1'
 services:
 
+  oauth-server:
+    image: mojdigitalstudio/nomis-oauth2-server:latest
+    container_name: oauth-server
+    networks:
+      - hmpps
+    ports:
+      - "9090:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
+
   elite2-api:
     image: mojdigitalstudio/elite2-api:latest
     container_name: elite2-api
@@ -15,8 +28,6 @@ services:
     environment:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=nomis-hsqldb-localstack
-      - AWS_ACCESS_KEY_ID=arbitrary
-      - AWS_SECRET_ACCESS_KEY=arbitrary
 
   localstack:
     image: localstack/localstack
@@ -40,6 +51,7 @@ services:
     volumes:
       - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - $PWD/localstack:/docker-entrypoint-initaws.d
 
 networks:
   hmpps:
