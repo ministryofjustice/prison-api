@@ -1,0 +1,470 @@
+[{
+  "bookingId": -8,
+  "offenderNo": "A1234AH",
+  "firstName": "HARRY",
+  "lastName": "JONES",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2018-05-31",
+    "automaticReleaseDate": "2018-02-28",
+    "postRecallReleaseDate": "2018-03-31",
+    "actualParoleDate": "2017-12-23",
+    "earlyTermDate": "2017-11-30",
+    "midTermDate": "2017-12-31",
+    "lateTermDate": "2018-01-31",
+    "bookingId": -8,
+    "sentenceStartDate": "2017-09-01",
+    "nonDtoReleaseDate": "2018-03-31",
+    "nonDtoReleaseDateType": "PRRD",
+    "releaseDate": "2017-12-23"
+  },
+  "dateOfBirth": "1986-06-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-4",
+  "facialImageId": -8
+}, {
+  "bookingId": -29,
+  "offenderNo": "A6676RS",
+  "firstName": "NEIL",
+  "lastName": "BRADLEY",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2023-08-07",
+    "nonParoleDate": "2017-12-31",
+    "licenceExpiryDate": "2020-08-07",
+    "paroleEligibilityDate": "2021-05-05",
+    "bookingId": -29,
+    "sentenceStartDate": "2017-02-08",
+    "nonDtoReleaseDate": "2017-12-31",
+    "nonDtoReleaseDateType": "NPD",
+    "releaseDate": "2017-12-31"
+  },
+  "dateOfBirth": "1945-01-10",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1"
+}, {
+  "bookingId": -7,
+  "offenderNo": "A1234AG",
+  "firstName": "GILES",
+  "lastName": "SMITH",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2018-05-31",
+    "automaticReleaseDate": "2018-02-28",
+    "nonParoleDate": "2017-12-31",
+    "earlyTermDate": "2017-11-30",
+    "midTermDate": "2017-12-31",
+    "lateTermDate": "2018-01-31",
+    "topupSupervisionExpiryDate": "2021-03-31",
+    "bookingId": -7,
+    "sentenceStartDate": "2017-09-01",
+    "nonDtoReleaseDate": "2018-02-28",
+    "nonDtoReleaseDateType": "ARD",
+    "confirmedReleaseDate": "2018-01-05",
+    "releaseDate": "2018-01-05"
+  },
+  "dateOfBirth": "1977-01-02",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-3",
+  "facialImageId": -7
+}, {
+  "bookingId": -9,
+  "offenderNo": "A1234AI",
+  "firstName": "CHESTER",
+  "lastName": "THOMPSON",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2018-05-31",
+    "conditionalReleaseDate": "2018-01-31",
+    "nonParoleDate": "2017-12-31",
+    "homeDetentionCurfewActualDate": "2018-01-15",
+    "earlyTermDate": "2017-11-30",
+    "midTermDate": "2017-12-31",
+    "lateTermDate": "2018-01-31",
+    "bookingId": -9,
+    "sentenceStartDate": "2017-09-01",
+    "nonDtoReleaseDate": "2018-01-31",
+    "nonDtoReleaseDateType": "CRD",
+    "confirmedReleaseDate": "2018-01-13",
+    "releaseDate": "2018-01-13"
+  },
+  "dateOfBirth": "1970-03-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-5",
+  "facialImageId": -9
+}, {
+  "bookingId": -17,
+  "offenderNo": "Z0017ZZ",
+  "firstName": "MICHEAL",
+  "lastName": "PETERS",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "bookingId": -17,
+    "sentenceStartDate": "2015-05-05",
+    "confirmedReleaseDate": "2018-01-16",
+    "releaseDate": "2018-01-16"
+  },
+  "dateOfBirth": "1972-01-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1",
+  "facialImageId": -17
+}, {
+  "bookingId": -10,
+  "offenderNo": "A1234AJ",
+  "firstName": "DANIEL",
+  "lastName": "SMITH",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2018-05-31",
+    "conditionalReleaseDate": "2018-01-31",
+    "postRecallReleaseDate": "2018-03-31",
+    "actualParoleDate": "2018-02-22",
+    "bookingId": -10,
+    "sentenceStartDate": "2017-09-01",
+    "nonDtoReleaseDate": "2018-03-31",
+    "nonDtoReleaseDateType": "PRRD",
+    "releaseDate": "2018-02-22"
+  },
+  "dateOfBirth": "1958-01-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-6",
+  "facialImageId": -10
+}, {
+  "bookingId": -3,
+  "offenderNo": "A1234AC",
+  "firstName": "NORMAN",
+  "lastName": "BATES",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2020-03-15",
+    "earlyTermDate": "2017-09-15",
+    "midTermDate": "2018-03-15",
+    "lateTermDate": "2018-09-15",
+    "bookingId": -3,
+    "sentenceStartDate": "2015-03-16",
+    "releaseDate": "2018-03-15"
+  },
+  "dateOfBirth": "1999-10-27",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-1",
+  "facialImageId": -3
+}, {
+  "bookingId": -12,
+  "offenderNo": "A1234AL",
+  "firstName": "DANIEL",
+  "lastName": "SMELLEY",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2018-05-31",
+    "postRecallReleaseDate": "2018-03-31",
+    "bookingId": -12,
+    "sentenceStartDate": "2017-09-01",
+    "nonDtoReleaseDate": "2018-03-31",
+    "nonDtoReleaseDateType": "PRRD",
+    "releaseDate": "2018-03-31"
+  },
+  "dateOfBirth": "1968-01-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "AABCW-1",
+  "facialImageId": -12
+}, {
+  "bookingId": -11,
+  "offenderNo": "A1234AK",
+  "firstName": "DARIUS",
+  "lastName": "SMITH",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2018-05-31",
+    "nonParoleDate": "2017-12-31",
+    "postRecallReleaseDate": "2018-03-31",
+    "bookingId": -11,
+    "sentenceStartDate": "2017-09-01",
+    "nonDtoReleaseDate": "2018-03-31",
+    "nonDtoReleaseDateType": "PRRD",
+    "releaseDate": "2018-03-31"
+  },
+  "dateOfBirth": "1979-12-31",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-7",
+  "facialImageId": -11
+}, {
+  "bookingId": -2,
+  "offenderNo": "A1234AB",
+  "firstName": "GILLIAN",
+  "lastName": "ANDERSON",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2019-05-21",
+    "automaticReleaseDate": "2018-05-21",
+    "releaseOnTemporaryLicenceDate": "2018-02-25",
+    "bookingId": -2,
+    "sentenceStartDate": "2017-05-22",
+    "automaticReleaseOverrideDate": "2018-04-21",
+    "nonDtoReleaseDate": "2018-04-21",
+    "nonDtoReleaseDateType": "ARD",
+    "confirmedReleaseDate": "2018-04-19",
+    "releaseDate": "2018-04-19"
+  },
+  "dateOfBirth": "1998-08-28",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1-5",
+  "facialImageId": -2
+}, {
+  "bookingId": -1,
+  "offenderNo": "A1234AA",
+  "firstName": "ARTHUR",
+  "lastName": "ANDERSON",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2020-03-24",
+    "conditionalReleaseDate": "2019-03-24",
+    "actualParoleDate": "2018-09-27",
+    "bookingId": -1,
+    "sentenceStartDate": "2017-03-25",
+    "additionalDaysAwarded": 12,
+    "nonDtoReleaseDate": "2019-03-24",
+    "nonDtoReleaseDateType": "CRD",
+    "confirmedReleaseDate": "2018-04-23",
+    "releaseDate": "2018-04-23"
+  },
+  "dateOfBirth": "1969-12-30",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-1",
+  "facialImageId": -1
+}, {
+  "bookingId": -6,
+  "offenderNo": "A1234AF",
+  "firstName": "ANTHONY",
+  "lastName": "ANDREWS",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2018-05-31",
+    "automaticReleaseDate": "2018-02-28",
+    "conditionalReleaseDate": "2018-01-31",
+    "homeDetentionCurfewActualDate": "2018-05-15",
+    "topupSupervisionExpiryDate": "2021-03-30",
+    "bookingId": -6,
+    "sentenceStartDate": "2017-09-01",
+    "additionalDaysAwarded": 17,
+    "nonDtoReleaseDate": "2018-02-28",
+    "nonDtoReleaseDateType": "ARD",
+    "releaseDate": "2018-05-15"
+  },
+  "dateOfBirth": "1964-12-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-2",
+  "facialImageId": -6
+}, {
+  "bookingId": -18,
+  "offenderNo": "Z0018ZZ",
+  "firstName": "NICK",
+  "lastName": "TALBOT",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "homeDetentionCurfewActualDate": "2019-09-19",
+    "bookingId": -18,
+    "sentenceStartDate": "2016-11-17",
+    "releaseDate": "2019-09-19"
+  },
+  "dateOfBirth": "1970-01-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1",
+  "facialImageId": -18
+}, {
+  "bookingId": -30,
+  "offenderNo": "A4476RS",
+  "firstName": "NEIL",
+  "lastName": "SARLY",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2022-10-20",
+    "licenceExpiryDate": "2021-09-24",
+    "homeDetentionCurfewEligibilityDate": "2020-12-30",
+    "actualParoleDate": "2021-01-02",
+    "earlyTermDate": "2021-02-28",
+    "midTermDate": "2021-03-25",
+    "lateTermDate": "2021-04-28",
+    "bookingId": -30,
+    "sentenceStartDate": "2007-10-16",
+    "releaseDate": "2021-01-02"
+  },
+  "dateOfBirth": "1945-01-10",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1"
+}, {
+  "bookingId": -4,
+  "offenderNo": "A1234AD",
+  "firstName": "CHARLES",
+  "lastName": "CHAPLIN",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2022-10-20",
+    "automaticReleaseDate": "2021-05-06",
+    "postRecallReleaseDate": "2021-08-29",
+    "earlyRemovalSchemeEligibilityDate": "2019-09-01",
+    "bookingId": -4,
+    "sentenceStartDate": "2007-10-16",
+    "additionalDaysAwarded": 5,
+    "postRecallReleaseOverrideDate": "2021-08-31",
+    "nonDtoReleaseDate": "2021-08-31",
+    "nonDtoReleaseDateType": "PRRD",
+    "releaseDate": "2021-08-31"
+  },
+  "dateOfBirth": "1970-01-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1",
+  "facialImageId": -4
+}, {
+  "bookingId": -24,
+  "offenderNo": "Z0024ZZ",
+  "firstName": "LUCIUS",
+  "lastName": "FOX",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "actualParoleDate": "2022-06-06",
+    "bookingId": -24,
+    "sentenceStartDate": "2017-07-07",
+    "confirmedReleaseDate": "2022-02-02",
+    "releaseDate": "2022-02-02"
+  },
+  "dateOfBirth": "1958-01-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1",
+  "facialImageId": -24
+}, {
+  "bookingId": -25,
+  "offenderNo": "Z0025ZZ",
+  "firstName": "MATTHEW",
+  "lastName": "SMITH",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "actualParoleDate": "2019-09-08",
+    "earlyTermDate": "2023-09-08",
+    "midTermDate": "2024-09-08",
+    "lateTermDate": "2025-09-08",
+    "bookingId": -25,
+    "sentenceStartDate": "2009-09-09",
+    "confirmedReleaseDate": "2023-03-03",
+    "releaseDate": "2023-03-03"
+  },
+  "dateOfBirth": "1974-01-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1",
+  "facialImageId": -25
+}, {
+  "bookingId": -5,
+  "offenderNo": "A1234AE",
+  "firstName": "DONALD",
+  "lastName": "MATTHEWS",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2023-08-07",
+    "conditionalReleaseDate": "2023-02-07",
+    "nonParoleDate": "2022-02-15",
+    "homeDetentionCurfewEligibilityDate": "2019-06-02",
+    "paroleEligibilityDate": "2019-06-01",
+    "earlyTermDate": "2023-02-07",
+    "midTermDate": "2023-05-07",
+    "lateTermDate": "2023-08-07",
+    "bookingId": -5,
+    "sentenceStartDate": "2017-02-08",
+    "additionalDaysAwarded": 14,
+    "nonParoleOverrideDate": "2022-02-02",
+    "nonDtoReleaseDate": "2023-02-07",
+    "nonDtoReleaseDateType": "CRD",
+    "releaseDate": "2023-05-07"
+  },
+  "dateOfBirth": "1956-02-28",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-10",
+  "facialImageId": 1
+}, {
+  "bookingId": -28,
+  "offenderNo": "A9876RS",
+  "firstName": "RODERICK",
+  "lastName": "STEWART",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "tariffDate": "2031-03-08",
+    "bookingId": -28,
+    "sentenceStartDate": "2014-09-09"
+  },
+  "dateOfBirth": "1945-01-10",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1"
+}, {
+  "bookingId": -27,
+  "offenderNo": "A9876EC",
+  "firstName": "ERIC",
+  "lastName": "CLAPTON",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "tariffDate": "2029-09-08",
+    "bookingId": -27,
+    "sentenceStartDate": "2014-09-09"
+  },
+  "dateOfBirth": "1945-03-30",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1"
+}, {
+  "bookingId": -34,
+  "offenderNo": "A1178RS",
+  "firstName": "FRED",
+  "lastName": "QUIMBY",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "bookingId": -34
+  },
+  "dateOfBirth": "1945-01-10",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1"
+}, {
+  "bookingId": -33,
+  "offenderNo": "A5577RS",
+  "firstName": "HAROLD",
+  "lastName": "LLOYD",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "bookingId": -33
+  },
+  "dateOfBirth": "1945-01-10",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1"
+}, {
+  "bookingId": -32,
+  "offenderNo": "A1176RS",
+  "firstName": "FRED",
+  "lastName": "JAMES",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "bookingId": -32
+  },
+  "dateOfBirth": "1945-01-09",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1"
+}, {
+  "bookingId": -31,
+  "offenderNo": "A5576RS",
+  "firstName": "HARRY",
+  "lastName": "SARLY",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "bookingId": -31
+  },
+  "dateOfBirth": "1945-01-10",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1"
+}, {
+  "bookingId": -19,
+  "offenderNo": "Z0019ZZ",
+  "firstName": "STEPHEN",
+  "lastName": "STRUDWICK",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "bookingId": -19
+  },
+  "dateOfBirth": "1968-01-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "H-1",
+  "facialImageId": -19
+}]
