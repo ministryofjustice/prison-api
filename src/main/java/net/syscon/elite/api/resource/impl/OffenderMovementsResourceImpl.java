@@ -9,6 +9,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("${api.base.path}/movements")
 @Validated
@@ -21,6 +23,24 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
         //
         // TODO - WIP this is currently a stubbed response
         //
-        return ResponseEntity.status(HttpStatus.CREATED).body(CourtEvent.builder().commentText("This is a stubbed response.").build());
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                CourtEvent.builder()
+                        .bookingActiveFlag(true)
+                        .commentText(event.getComments())
+                        .createDateTime(LocalDateTime.now())
+                        .directionCode("OUT")
+                        .fromAgency(event.getFromPrisonLocation())
+                        .fromAgencyDescription(event.getFromPrisonLocation() + " - fake description")
+                        .eventClass("EXT_MOV")
+                        .eventDate(event.getCourtEventDateTime().toLocalDate())
+                        .startTime(event.getCourtEventDateTime())
+                        .eventId(-1L)
+                        .eventStatus("SCH")
+                        .eventType("CRT")
+                        .judgeName("")
+                        .offenderNo("NOMSID")
+                        .toAgency(event.getToCourtLocation())
+                        .toAgencyDescription(event.getToCourtLocation() + " - fake description")
+                        .build());
     }
 }
