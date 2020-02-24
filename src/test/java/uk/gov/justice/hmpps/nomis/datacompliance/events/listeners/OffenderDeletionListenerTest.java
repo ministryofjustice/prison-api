@@ -47,8 +47,8 @@ class OffenderDeletionListenerTest {
     void handleOffenderDeletionEventThrowsIfMessageAttributesNotPresent() {
 
         assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\"}", Map.of()))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Event has no attributes");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Unexpected message event type: 'null', expecting: 'DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED'");
 
         verifyNoInteractions(offenderDataComplianceService);
     }
@@ -99,8 +99,8 @@ class OffenderDeletionListenerTest {
     @SuppressWarnings("unchecked")
     private Message<String> mockMessage(final String payload, final Map<String, Object> headers) {
         final var message = mock(Message.class);
-        when(message.getPayload()).thenReturn(payload);
         when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
+        lenient().when(message.getPayload()).thenReturn(payload);
         return message;
     }
 }
