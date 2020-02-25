@@ -28,7 +28,7 @@ class OffenderPendingDeletionEventPusherTest {
 
     @BeforeEach
     void setUp() {
-        eventPusher = new OffenderPendingDeletionAwsEventPusher(client, "topic.arn", OBJECT_MAPPER);
+        eventPusher = new OffenderPendingDeletionAwsEventPusher(client, "queue.url", OBJECT_MAPPER);
     }
 
     @Test
@@ -41,6 +41,7 @@ class OffenderPendingDeletionEventPusherTest {
 
         eventPusher.sendPendingDeletionEvent("offender1");
 
+        assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
         assertThat(request.getValue().getMessageBody()).isEqualTo("{\"offenderIdDisplay\":\"offender1\"}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
                 .isEqualTo("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION");
