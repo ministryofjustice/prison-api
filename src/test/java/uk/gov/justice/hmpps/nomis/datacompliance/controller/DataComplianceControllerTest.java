@@ -17,6 +17,7 @@ import static org.springframework.http.HttpMethod.POST;
 
 public class DataComplianceControllerTest extends ResourceTest {
 
+    private static final String REQUEST_ID = "123";
     private static final LocalDateTime WINDOW_START = LocalDateTime.now();
     private static final LocalDateTime WINDOW_END = WINDOW_START.plusDays(1);
 
@@ -28,6 +29,7 @@ public class DataComplianceControllerTest extends ResourceTest {
 
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER),
                 PendingDeletionRequest.builder()
+                        .requestId(REQUEST_ID)
                         .dueForDeletionWindowStart(WINDOW_START)
                         .dueForDeletionWindowEnd(WINDOW_END)
                         .build());
@@ -35,7 +37,7 @@ public class DataComplianceControllerTest extends ResourceTest {
         final var response = testRestTemplate.exchange("/api/data-compliance/offenders/pending-deletions", POST, requestEntity, Void.class);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(ACCEPTED_202);
-        verify(offenderDataComplianceService).acceptOffendersPendingDeletionRequest(WINDOW_START, WINDOW_END);
+        verify(offenderDataComplianceService).acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END);
     }
 
     @Test

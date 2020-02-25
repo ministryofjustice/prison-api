@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +26,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class OffenderDataComplianceServiceTest {
 
+    private static final String REQUEST_ID = "123";
     private static final LocalDateTime WINDOW_START = LocalDateTime.now();
     private static final LocalDateTime WINDOW_END = WINDOW_START.plusDays(1);
 
@@ -92,10 +92,11 @@ public class OffenderDataComplianceServiceTest {
                         new OffenderToDelete(OFFENDER_NUMBER_1),
                         new OffenderToDelete(OFFENDER_NUMBER_2)));
 
-        service.acceptOffendersPendingDeletionRequest(WINDOW_START, WINDOW_END).get();
+        service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get();
 
-        verify(eventPusher).sendEvent(OFFENDER_NUMBER_1);
-        verify(eventPusher).sendEvent(OFFENDER_NUMBER_2);
+        verify(eventPusher).sendPendingDeletionEvent(OFFENDER_NUMBER_1);
+        verify(eventPusher).sendPendingDeletionEvent(OFFENDER_NUMBER_2);
+        verify(eventPusher).sendProcessCompletedEvent(REQUEST_ID);
         verifyNoMoreInteractions(eventPusher);
     }
 }

@@ -46,12 +46,13 @@ public class OffenderDataComplianceService {
         return offenderRepository.listAllOffenders(new PageRequest(offset, limit));
     }
 
-    public Future<Void> acceptOffendersPendingDeletionRequest(final LocalDateTime from, final LocalDateTime to) {
+    public Future<Void> acceptOffendersPendingDeletionRequest(final String requestId,
+                                                              final LocalDateTime from,
+                                                              final LocalDateTime to) {
         return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to))
                 .thenAccept(offenders -> offenders.forEach(offenderNumber ->
-                        offenderPendingDeletionEventPusher.sendEvent(offenderNumber.getOffenderNumber())));
-
-        // TODO GDPR-41 Publish an event to indicate the process has completed.
+                        offenderPendingDeletionEventPusher.sendPendingDeletionEvent(offenderNumber.getOffenderNumber())))
+                .thenRun(() -> offenderPendingDeletionEventPusher.sendProcessCompletedEvent(requestId));
     }
 
     private List<OffenderNumber> getOffendersPendingDeletion(final LocalDateTime from,

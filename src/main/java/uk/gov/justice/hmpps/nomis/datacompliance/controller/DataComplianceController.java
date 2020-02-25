@@ -31,6 +31,7 @@ public class DataComplianceController {
     ResponseEntity<Void> requestOffenderPendingDeletions(@Valid @NotNull @RequestBody PendingDeletionRequest request) {
 
         offenderDataComplianceService.acceptOffendersPendingDeletionRequest(
+                request.getRequestId(),
                 request.getDueForDeletionWindowStart(),
                 request.getDueForDeletionWindowEnd());
 

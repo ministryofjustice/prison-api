@@ -24,6 +24,10 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 @ApiModel(description = "PendingDeletionRequest")
 public class PendingDeletionRequest {
 
+    @ApiModelProperty(value = "A UUID uniquely identifying the request")
+    @JsonProperty("requestId")
+    private String requestId;
+
     @Builder.Default
     @DateTimeFormat(iso = DATE)
     @ApiModelProperty(value = "The start of the deletion-due-date window (defaults to epoch)")

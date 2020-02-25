@@ -15,7 +15,12 @@ public class OffenderPendingDeletionNoOpEventPusher implements OffenderPendingDe
     }
 
     @Override
-    public void sendEvent(final String offenderIdDisplay) {
-        log.warn("Pretending to push pending offender deletion for {} to event topic", offenderIdDisplay);
+    public void sendPendingDeletionEvent(final String offenderIdDisplay) {
+        log.warn("Pretending to push pending offender deletion for '{}' to queue", offenderIdDisplay);
+    }
+
+    @Override
+    public void sendProcessCompletedEvent(final String requestId) {
+        log.warn("Pretending to push process completed event for request '{}' to queue", requestId);
     }
 }

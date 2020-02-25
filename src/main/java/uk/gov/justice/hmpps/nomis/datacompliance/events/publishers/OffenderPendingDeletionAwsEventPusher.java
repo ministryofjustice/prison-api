@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionProcessCompleteEvent;
 
 import java.util.Map;
 
@@ -36,20 +37,37 @@ public class OffenderPendingDeletionAwsEventPusher implements OffenderPendingDel
     }
 
     @Override
-    public void sendEvent(final String offenderNo) {
+    public void sendPendingDeletionEvent(final String offenderNo) {
 
-        log.debug("Sending referral of offender pending deletion: {}", offenderNo);
+        log.trace("Sending referral of offender pending deletion: {}", offenderNo);
 
-        sqsClient.sendMessage(generateRequest(offenderNo));
+        sqsClient.sendMessage(generatePendingDeletionRequest(offenderNo));
     }
 
-    private SendMessageRequest generateRequest(final String offenderNo) {
+    @Override
+    public void sendProcessCompletedEvent(final String requestId) {
+
+        log.trace("Sending process completed event for request: {}", requestId);
+
+        sqsClient.sendMessage(generateProcessCompleteRequest(requestId));
+    }
+
+    private SendMessageRequest generatePendingDeletionRequest(final String offenderNo) {
         return new SendMessageRequest()
                 .withQueueUrl(queueUrl)
                 .withMessageAttributes(Map.of(
                         "eventType", stringAttribute("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION"),
-                        "contentType", stringAttribute("text/plain;charset=UTF-8")))
+                        "contentType", stringAttribute("application/json;charset=UTF-8")))
                 .withMessageBody(toJson(new OffenderPendingDeletionEvent(offenderNo)));
+    }
+
+    private SendMessageRequest generateProcessCompleteRequest(final String requestId) {
+        return new SendMessageRequest()
+                .withQueueUrl(queueUrl)
+                .withMessageAttributes(Map.of(
+                        "eventType", stringAttribute("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-COMPLETE"),
+                        "contentType", stringAttribute("application/json;charset=UTF-8")))
+                .withMessageBody(toJson(new OffenderPendingDeletionProcessCompleteEvent(requestId)));
     }
 
     private MessageAttributeValue stringAttribute(final String value) {
@@ -58,7 +76,7 @@ public class OffenderPendingDeletionAwsEventPusher implements OffenderPendingDel
                 .withStringValue(value);
     }
 
-    private String toJson(final OffenderPendingDeletionEvent event) {
+    private String toJson(final Object event) {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (final Exception e) {
