@@ -17,7 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 import static net.syscon.elite.repository.jpa.model.EventStatus.EVENT_STS;
 import static net.syscon.elite.repository.jpa.model.EventType.EVENT_TYPE;
@@ -48,7 +48,7 @@ public class CourtEvent extends AuditableEntity {
     private LocalDate eventDate;
 
     @Column(name = "START_TIME", nullable = false)
-    private LocalTime startTime;
+    private LocalDateTime startTime;
 
     @ManyToOne
     @NotFound(action = IGNORE)
