@@ -36,6 +36,12 @@ data.compliance:
       endpoint.url: http://localstack:4576
       region: eu-west-2
 
+  sns:
+    provider: localstack
+    topic.arn: arn:aws:sns:eu-west-2:000000000000:offender_events
+    endpoint.url: http://localstack:4575
+    region: eu-west-2
+
 graceful:
   shutdown:
     enabled: false

@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.nomis.datacompliance.events.publishers;
+package uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.deletion.pending;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.MessageAttributeValue;

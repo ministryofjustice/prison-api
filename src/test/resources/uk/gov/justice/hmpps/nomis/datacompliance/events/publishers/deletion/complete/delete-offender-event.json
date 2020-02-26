@@ -1,0 +1,19 @@
+{
+  "offenderIdDisplay": "offender1",
+  "offenders": [
+    {
+      "offenderId": 1,
+      "bookings": [
+        {"offenderBookId": 11},
+        {"offenderBookId": 12}
+      ]
+    },
+    {
+      "offenderId": 2,
+      "bookings": [
+        {"offenderBookId":21},
+        {"offenderBookId":22}
+      ]
+    }
+  ]
+}

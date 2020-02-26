@@ -4,7 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.deletion.pending.OffenderPendingDeletionEventPusher;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import net.syscon.elite.repository.OffenderRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderToDelete;

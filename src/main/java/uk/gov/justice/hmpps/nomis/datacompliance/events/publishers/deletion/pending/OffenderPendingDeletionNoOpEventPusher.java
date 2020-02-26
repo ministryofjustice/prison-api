@@ -1,8 +1,7 @@
-package uk.gov.justice.hmpps.nomis.datacompliance.events.publishers;
+package uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.deletion.pending;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Slf4j
