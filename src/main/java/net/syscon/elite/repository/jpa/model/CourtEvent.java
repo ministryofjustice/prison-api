@@ -1,0 +1,84 @@
+package net.syscon.elite.repository.jpa.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+import static net.syscon.elite.repository.jpa.model.EventStatus.EVENT_STS;
+import static net.syscon.elite.repository.jpa.model.EventType.EVENT_TYPE;
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
+
+@Data
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id", callSuper = false)
+@Table(name = "COURT_EVENTS")
+public class CourtEvent extends AuditableEntity {
+
+    @Id
+    @Column(name = "EVENT_ID", nullable = false)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "CASE_ID", nullable = false)
+    private OffenderCourtCase offenderCourtCase;
+
+    @ManyToOne
+    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    private OffenderBooking offenderBooking;
+
+    @Column(name = "EVENT_DATE", nullable = false)
+    private LocalDate eventDate;
+
+    @Column(name = "START_TIME", nullable = false)
+    private LocalTime startTime;
+
+    @ManyToOne
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EVENT_TYPE + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(column = @JoinColumn(name = "COURT_EVENT_TYPE", referencedColumnName = "code"))
+    })
+    private EventType courtEventType;
+
+    @ManyToOne
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EVENT_STS + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(column = @JoinColumn(name = "EVENT_STATUS", referencedColumnName = "code"))
+    })
+    private EventStatus eventStatus;
+
+    @ManyToOne
+    @JoinColumn(name = "AGY_LOC_ID", nullable = false)
+    private AgencyLocation courtLocation;
+
+    @Column(name = "COMMENT_TEXT", length = 240)
+    private String commentText;
+
+    @Column(name = "NEXT_EVENT_REQUEST_FLAG", length = 1)
+    private String nextEventRequestFlag;
+
+    @Column(name = "ORDER_REQUESTED_FLAG", length = 1)
+    private String orderRequestedFlag;
+
+    @Column(name = "DIRECTION_CODE", length = 12)
+    private String directionCode;
+}
