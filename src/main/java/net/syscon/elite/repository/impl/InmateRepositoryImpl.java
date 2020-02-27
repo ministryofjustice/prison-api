@@ -633,7 +633,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("findInmate")
     public Optional<InmateDetail> findInmate(final Long bookingId) {
         final var builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATE_DETAIL"), inmateDetailsMapping);
         final var sql = builder.build();
