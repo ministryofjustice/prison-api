@@ -72,7 +72,6 @@ public class CacheConfig implements CachingConfigurer {
 
         config.addCache(config("findLocationsByAgencyAndType", 1000, locationTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("searchForOffenderBookings", 1000, offenderSearchTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("findInmate", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("basicInmateDetail", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("bookingAssessments", 200, assessmentTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
