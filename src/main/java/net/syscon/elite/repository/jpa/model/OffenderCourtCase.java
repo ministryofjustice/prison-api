@@ -11,14 +11,17 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static net.syscon.elite.repository.jpa.model.ReferenceCode.CASE_STS;
@@ -76,11 +79,21 @@ public class OffenderCourtCase extends AuditableEntity {
     @JoinColumn(name = "COMBINED_CASE_ID")
     private OffenderCourtCase combinedCase;
 
+    @OneToMany(mappedBy = "offenderCourtCase", cascade = CascadeType.ALL)
+    private List<CourtEvent> courtEvents;
+
     public Optional<LegalCaseType> getLegalCaseType() {
         return Optional.ofNullable(legalCaseType);
     }
 
     public Optional<CaseStatus> getCaseStatus() {
         return Optional.ofNullable(caseStatus);
+    }
+
+    public void add(final CourtEvent courtEvent) {
+        this.courtEvents.add(courtEvent);
+
+        courtEvent.setOffenderCourtCase(this);
+        courtEvent.setOffenderBooking(getOffenderBooking());
     }
 }

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -30,6 +31,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "COURT_EVENTS")
+@ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 public class CourtEvent extends AuditableEntity {
 
     @Id
