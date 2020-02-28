@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,6 +48,8 @@ public class CourtCaseTransformerTest {
 
     @Test
     void transform() {
+        // TODO include court events in test
+
         var transformed = CourtCaseTransformer.transform(offenderCourtCase);
 
         assertThat(transformed).isEqualTo(
@@ -64,6 +67,7 @@ public class CourtCaseTransformerTest {
                                 .build())
                         .caseStatus(CASE_STATUS.getDescription())
                         .caseType(LEGAL_CASE_TYPE.getDescription())
+                        .courtEvents(Collections.emptyList())
                         .build());
     }
 }

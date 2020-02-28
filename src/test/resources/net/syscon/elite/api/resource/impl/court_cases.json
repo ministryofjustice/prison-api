@@ -12,6 +12,8 @@
     "caseType": "Adult",
     "caseInfoPrefix": "CIP",
     "caseInfoNumber": "CIN20177010",
-    "caseStatus": "ACTIVE"
+    "caseStatus": "ACTIVE",
+    "courtEvents": [
+    ]
   }
 ]

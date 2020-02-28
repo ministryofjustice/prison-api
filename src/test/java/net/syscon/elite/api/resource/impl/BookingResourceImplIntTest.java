@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -239,6 +240,8 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void getCourtCases_returnsMatchingCourtCase() {
+        // TODO include court events in test
+
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(-1L)

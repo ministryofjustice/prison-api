@@ -6,6 +6,7 @@ import net.syscon.elite.repository.jpa.model.LegalCaseType;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,7 @@ public class CourtCaseTransformer {
                 .caseInfoPrefix(courtCase.getCaseInfoPrefix())
                 .caseInfoNumber(courtCase.getCaseInfoNumber())
                 .caseStatus(courtCase.getCaseStatus().map(CaseStatus::getDescription).orElse(null))
+                .courtEvents(CourtEventTransformer.transform(courtCase.getCourtEvents()))
                 .build();
     }
 

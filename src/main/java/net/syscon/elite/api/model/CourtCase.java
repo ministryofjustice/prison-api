@@ -9,6 +9,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @ApiModel(description = "Offender court case details")
 @Builder
@@ -39,6 +40,9 @@ public class CourtCase {
 
     @ApiModelProperty(value = "The case status", position = 8, example = "ACTIVE", allowableValues = "ACTIVE, CLOSED, INACTIVE")
     private String caseStatus;
+
+    @ApiModelProperty(value = "Court events associated with the court case", position = 9)
+    private final List<CourtEvent> courtEvents;
 
     public String getCaseStatus() {
         return StringUtils.isNotBlank(caseStatus) ? caseStatus.toUpperCase() : null;

@@ -3,8 +3,8 @@ package net.syscon.elite.service;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.jpa.model.*;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
+import net.syscon.elite.repository.jpa.model.*;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -376,6 +376,8 @@ public class BookingServiceTest {
 
     @Test
     void getOffenderCourtCases_mapped() {
+        // TODO include court events in test
+
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(-1L)
@@ -397,20 +399,21 @@ public class BookingServiceTest {
         var courtCases = bookingService.getOffenderCourtCases(-1L);
 
         assertThat(courtCases).containsExactly(CourtCase.builder()
-                        .id(-1L)
-                        .caseSeq(-2L)
-                        .beginDate(LocalDate.EPOCH)
-                        .agency(Agency.builder()
-                                .agencyId("agency_id")
-                                .active(true)
-                                .agencyType("CRT")
-                                .description("The Agency Description")
-                                .build())
-                        .caseType("Adult")
-                        .caseInfoPrefix("cip")
-                        .caseInfoNumber("cin")
-                        .caseStatus("Active")
-                        .build());
+                .id(-1L)
+                .caseSeq(-2L)
+                .beginDate(LocalDate.EPOCH)
+                .agency(Agency.builder()
+                        .agencyId("agency_id")
+                        .active(true)
+                        .agencyType("CRT")
+                        .description("The Agency Description")
+                        .build())
+                .caseType("Adult")
+                .caseInfoPrefix("cip")
+                .caseInfoNumber("cin")
+                .caseStatus("Active")
+                .courtEvents(Collections.emptyList())
+                .build());
     }
 
     @Test
