@@ -404,7 +404,7 @@ public class BookingServiceTest {
                                 .agencyId("agency_id")
                                 .active(true)
                                 .agencyType("CRT")
-                                .description("The agency description")
+                                .description("The Agency Description")
                                 .build())
                         .caseType("Adult")
                         .caseInfoPrefix("cip")

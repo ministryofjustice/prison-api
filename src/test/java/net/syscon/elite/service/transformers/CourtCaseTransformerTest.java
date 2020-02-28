@@ -49,33 +49,21 @@ public class CourtCaseTransformerTest {
     void transform() {
         var transformed = CourtCaseTransformer.transform(offenderCourtCase);
 
-        assertThat(transformed)
-                .extracting(
-                        CourtCase::getId,
-                        CourtCase::getCaseSeq,
-                        CourtCase::getBeginDate,
-                        CourtCase::getCaseInfoPrefix,
-                        CourtCase::getCaseInfoNumber)
-                .containsOnly(
-                        -1L,
-                        -2L,
-                        LocalDate.EPOCH,
-                        "CIP",
-                        "CIN20177010");
-
-        assertThat(transformed.getAgency())
-                .extracting(
-                        Agency::getAgencyId,
-                        Agency::getAgencyType,
-                        Agency::getDescription)
-                .containsOnly(
-                        agencyLocation.getId(),
-                        agencyLocation.getType(),
-                        agencyLocation.getDescription()
-                );
-
-        assertThat(transformed.getCaseStatus()).isEqualToIgnoringCase(CASE_STATUS.getDescription());
-
-        assertThat(transformed.getCaseType()).isEqualToIgnoringCase(LEGAL_CASE_TYPE.getDescription());
+        assertThat(transformed).isEqualTo(
+                CourtCase.builder()
+                        .id(-1L)
+                        .caseSeq(-2L)
+                        .beginDate(LocalDate.EPOCH)
+                        .caseInfoPrefix("CIP")
+                        .caseInfoNumber("CIN20177010")
+                        .agency(Agency.builder()
+                                .agencyId(agencyLocation.getId())
+                                .agencyType(agencyLocation.getType())
+                                .description(agencyLocation.getDescription())
+                                .active(true)
+                                .build())
+                        .caseStatus(CASE_STATUS.getDescription())
+                        .caseType(LEGAL_CASE_TYPE.getDescription())
+                        .build());
     }
 }
