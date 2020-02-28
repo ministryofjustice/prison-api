@@ -46,6 +46,12 @@ public class OffenderDeletionRepositoryTest {
                 .containsExactly("-1001");
 
         assertOffenderDataDeleted();
+
+        // GL_TRANSACTIONS should still have the anonymised data:
+        assertThat(jdbcTemplate.queryForList(
+                "SELECT txn_id FROM gl_transactions WHERE txn_id = 301826802 and gl_entry_seq = 1",
+                String.class))
+                .isNotEmpty();
     }
 
     @Test
@@ -75,43 +81,43 @@ public class OffenderDeletionRepositoryTest {
         queryByProgramId("OFFENDER_PRG_PRF_PAY_BANDS").is(condition);
         queryByProgramId("OFFENDER_PROGRAM_PROFILES").is(condition);
 
+        queryByOffenderBookId("BED_ASSIGNMENT_HISTORIES").is(condition);
+        queryByOffenderBookId("COURT_EVENTS").is(condition);
         queryByOffenderBookId("INCIDENT_CASE_PARTIES").is(condition);
+        queryByOffenderBookId("OFFENDER_ALERTS").is(condition);
+        queryByOffenderBookId("OFFENDER_ASSESSMENTS").is(condition);
+        queryByOffenderBookId("OFFENDER_BOOKING_DETAILS").is(condition);
+        queryByOffenderBookId("OFFENDER_CASE_NOTES").is(condition);
+        queryByOffenderBookId("OFFENDER_CASES").is(condition);
+        queryByOffenderBookId("OFFENDER_CONTACT_PERSONS").is(condition);
         queryByOffenderBookId("OFFENDER_CURFEWS").is(condition);
+        queryByOffenderBookId("OFFENDER_EXTERNAL_MOVEMENTS").is(condition);
+        queryByOffenderBookId("OFFENDER_IEP_LEVELS").is(condition);
+        queryByOffenderBookId("OFFENDER_IMPRISON_STATUSES").is(condition);
+        queryByOffenderBookId("OFFENDER_IND_SCHEDULES").is(condition);
+        queryByOffenderBookId("OFFENDER_KEY_DATE_ADJUSTS").is(condition);
+        queryByOffenderBookId("OFFENDER_KEY_WORKERS").is(condition);
         queryByOffenderBookId("OFFENDER_LANGUAGES").is(condition);
+        queryByOffenderBookId("OFFENDER_OIC_SANCTIONS").is(condition);
+        queryByOffenderBookId("OFFENDER_PHYSICAL_ATTRIBUTES").is(condition);
+        queryByOffenderBookId("OFFENDER_PRG_OBLIGATIONS").is(condition);
+        queryByOffenderBookId("OFFENDER_PROFILE_DETAILS").is(condition);
+        queryByOffenderBookId("OFFENDER_RELEASE_DETAILS").is(condition);
+        queryByOffenderBookId("OFFENDER_SENT_CALCULATIONS").is(condition);
         queryByOffenderBookId("OFFENDER_VISIT_VISITORS").is(condition);
         queryByOffenderBookId("OFFENDER_VISITS").is(condition);
         queryByOffenderBookId("OFFENDER_VISIT_BALANCES").is(condition);
-        queryByOffenderBookId("OFFENDER_OIC_SANCTIONS").is(condition);
-        queryByOffenderBookId("OFFENDER_CONTACT_PERSONS").is(condition);
-        queryByOffenderBookId("OFFENDER_KEY_WORKERS").is(condition);
-        queryByOffenderBookId("OFFENDER_PHYSICAL_ATTRIBUTES").is(condition);
-        queryByOffenderBookId("OFFENDER_IND_SCHEDULES").is(condition);
-        queryByOffenderBookId("OFFENDER_SENT_CALCULATIONS").is(condition);
-        queryByOffenderBookId("COURT_EVENTS").is(condition);
         queryByOffenderBookId("OFFENDER_CHARGES").is(condition);
         queryByOffenderBookId("OFFENDER_SENTENCE_TERMS").is(condition);
         queryByOffenderBookId("OFFENDER_SENTENCES").is(condition);
         queryByOffenderBookId("ORDERS").is(condition);
-        queryByOffenderBookId("OFFENDER_CASES").is(condition);
-        queryByOffenderBookId("OFFENDER_RELEASE_DETAILS").is(condition);
-        queryByOffenderBookId("OFFENDER_ALERTS").is(condition);
-        queryByOffenderBookId("OFFENDER_CASE_NOTES").is(condition);
-        queryByOffenderBookId("OFFENDER_ASSESSMENTS").is(condition);
-        queryByOffenderBookId("OFFENDER_PROFILE_DETAILS").is(condition);
-        queryByOffenderBookId("OFFENDER_KEY_DATE_ADJUSTS").is(condition);
-        queryByOffenderBookId("BED_ASSIGNMENT_HISTORIES").is(condition);
-        queryByOffenderBookId("OFFENDER_IMPRISON_STATUSES").is(condition);
-        queryByOffenderBookId("OFFENDER_IEP_LEVELS").is(condition);
-        queryByOffenderBookId("OFFENDER_EXTERNAL_MOVEMENTS").is(condition);
-        queryByOffenderBookId("OFFENDER_PRG_OBLIGATIONS").is(condition);
-        queryByOffenderBookId("OFFENDER_BOOKING_DETAILS").is(condition);
 
-        queryByOffenderId("OFFENDER_TRANSACTIONS").is(condition);
         queryByOffenderId("GL_TRANSACTIONS").is(condition);
-        queryByOffenderId("OFFENDER_SUB_ACCOUNTS").is(condition);
-        queryByOffenderId("OFFENDER_TRUST_ACCOUNTS").is(condition);
-        queryByOffenderId("OFFENDER_IDENTIFIERS").is(condition);
         queryByOffenderId("OFFENDER_BOOKINGS").is(condition);
+        queryByOffenderId("OFFENDER_IDENTIFIERS").is(condition);
+        queryByOffenderId("OFFENDER_SUB_ACCOUNTS").is(condition);
+        queryByOffenderId("OFFENDER_TRANSACTIONS").is(condition);
+        queryByOffenderId("OFFENDER_TRUST_ACCOUNTS").is(condition);
         queryByOffenderId("OFFENDERS").is(condition);
     }
 
