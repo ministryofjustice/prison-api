@@ -1,6 +1,5 @@
 package net.syscon.elite.service.transformers;
 
-import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.CourtCase;
 import net.syscon.elite.repository.jpa.model.CaseStatus;
 import net.syscon.elite.repository.jpa.model.LegalCaseType;
@@ -20,12 +19,7 @@ public class CourtCaseTransformer {
                 .id(courtCase.getId())
                 .caseSeq(courtCase.getCaseSeq())
                 .beginDate(courtCase.getBeginDate())
-                .agency(Agency.builder()
-                        .agencyId(courtCase.getAgencyLocation().getId())
-                        .agencyType(courtCase.getAgencyLocation().getType())
-                        .active(courtCase.getAgencyLocation().getActiveFlag().isActive())
-                        .description(courtCase.getAgencyLocation().getDescription())
-                        .build())
+                .agency(AgencyTransformer.transform(courtCase.getAgencyLocation()))
                 .caseType(courtCase.getLegalCaseType().map(LegalCaseType::getDescription).orElse(null))
                 .caseInfoPrefix(courtCase.getCaseInfoPrefix())
                 .caseInfoNumber(courtCase.getCaseInfoNumber())
