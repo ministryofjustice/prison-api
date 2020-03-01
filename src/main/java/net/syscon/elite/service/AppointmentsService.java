@@ -9,7 +9,10 @@ import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
 import net.syscon.elite.api.model.bulkappointments.Repeat;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
+import net.syscon.elite.repository.jpa.repository.ScheduledEventRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.ReferenceDomain;
@@ -23,11 +26,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,18 +48,20 @@ public class AppointmentsService {
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
     private final TelemetryClient telemetryClient;
+    private final ScheduledEventRepository scheduledEventRepository;
 
     public AppointmentsService(
             final BookingRepository bookingRepository,
             final AuthenticationFacade authenticationFacade,
             final LocationService locationService,
             final ReferenceDomainService referenceDomainService,
-            final TelemetryClient telemetryClient) {
+            final TelemetryClient telemetryClient, ScheduledEventRepository scheduledEventRepository) {
         this.bookingRepository = bookingRepository;
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
         this.telemetryClient = telemetryClient;
+        this.scheduledEventRepository = scheduledEventRepository;
     }
 
     /**
@@ -106,6 +109,12 @@ public class AppointmentsService {
         trackSingleAppointmentCreation(username, newAppointment);
 
         return bookingRepository.getBookingAppointment(bookingId, eventId);
+    }
+
+    public List<ScheduledAppointment> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
+       final var appointments = scheduledEventRepository.findAllAppointments(agencyId, date, locationId);
+
+       return Collections.emptyList();
     }
 
 
@@ -291,4 +300,5 @@ public class AppointmentsService {
         bookingRepository.createMultipleAppointments(details, defaults, agencyId);
         trackAppointmentsCreated(details, defaults);
     }
+
 }

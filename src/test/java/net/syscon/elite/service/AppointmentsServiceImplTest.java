@@ -7,6 +7,7 @@ import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.bulkappointments.*;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.jpa.repository.ScheduledEventRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.jupiter.api.AfterEach;
@@ -73,6 +74,9 @@ public class AppointmentsServiceImplTest {
     private ReferenceDomainService referenceDomainService;
 
     @Mock
+    private ScheduledEventRepository scheduledEventRepository;
+
+    @Mock
     private TelemetryClient telemetryClient;
 
     private AppointmentsService appointmentsService;
@@ -87,8 +91,8 @@ public class AppointmentsServiceImplTest {
                 new AuthenticationFacade(),
                 locationService,
                 referenceDomainService,
-                telemetryClient
-        );
+                telemetryClient,
+                scheduledEventRepository);
     }
 
     @AfterEach

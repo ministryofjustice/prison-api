@@ -1,9 +1,11 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.PrisonerSchedule;
+import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
 import net.syscon.elite.api.resource.ScheduleResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
+import net.syscon.elite.service.AppointmentsService;
 import net.syscon.elite.service.SchedulesService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,9 +20,11 @@ import java.util.List;
 @RequestMapping("${api.base.path}/schedules")
 public class SchedulesResourceImpl implements ScheduleResource {
     private final SchedulesService schedulesService;
+    private final AppointmentsService appointmentsService;
 
-    public SchedulesResourceImpl(final SchedulesService schedulesService) {
+    public SchedulesResourceImpl(final SchedulesService schedulesService, final AppointmentsService appointmentsService) {
         this.schedulesService = schedulesService;
+        this.appointmentsService = appointmentsService;
     }
 
     @Override
@@ -56,9 +60,14 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
-    public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getAppointmentsForOffenders(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
         return schedulesService.getAppointments(agencyId, body, date, timeSlot);
 
+    }
+
+    @Override
+    public List<ScheduledAppointment> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
+        return appointmentsService.getAppointments(agencyId, date, locationId, timeSlot);
     }
 
     @Override
