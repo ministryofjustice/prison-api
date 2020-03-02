@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 public class AuthAwareAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-    private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+    private final Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
-    public AuthAwareAuthenticationToken convert(Jwt jwt) {
+    public AuthAwareAuthenticationToken convert(final Jwt jwt) {
         Map<String, Object> map = jwt.getClaims();
 
         final var principal = map.get("user_name");
@@ -28,8 +28,8 @@ public class AuthAwareAuthenticationConverter implements Converter<Jwt, Abstract
     }
 
     @SuppressWarnings("ConstantConditions")
-    private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-        var authorities = new HashSet<>(this.jwtGrantedAuthoritiesConverter.convert(jwt));
+    private Collection<GrantedAuthority> extractAuthorities(final Jwt jwt) {
+        final var authorities = new HashSet<>(this.jwtGrantedAuthoritiesConverter.convert(jwt));
         if (jwt.getClaims().containsKey("authorities")) {
             authorities.addAll(((Collection<String>) jwt.getClaims().get("authorities")).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet()));
         }

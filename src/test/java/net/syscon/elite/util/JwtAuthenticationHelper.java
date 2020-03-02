@@ -58,7 +58,7 @@ public class JwtAuthenticationHelper {
                 .compact();
     }
 
-    private KeyPair getKeyPair(Resource resource, String alias, char[] password) {
+    private KeyPair getKeyPair(final Resource resource, final String alias, final char[] password) {
         InputStream inputStream = null;
         KeyStore store;
         try {

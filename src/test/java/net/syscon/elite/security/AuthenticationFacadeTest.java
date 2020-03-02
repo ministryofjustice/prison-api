@@ -58,7 +58,7 @@ public class AuthenticationFacadeTest {
     }
 
     private void setAuthentication(final String source, boolean proxyUser) {
-        Authentication auth = new AuthAwareAuthenticationToken(mock(Jwt.class), "client", source, emptySet());
+        final Authentication auth = new AuthAwareAuthenticationToken(mock(Jwt.class), "client", source, emptySet());
         SecurityContextHolder.getContext().setAuthentication(auth);
         if (proxyUser) {
             MDC.put(PROXY_USER, "client");
