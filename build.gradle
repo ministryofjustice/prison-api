@@ -6,7 +6,7 @@ import java.time.LocalDate
 plugins {
     id 'java'
     id 'groovy'
-    id 'org.springframework.boot' version '2.2.4.RELEASE' // remove pinning of tomcat version to 9.0.30 when next upgrading
+    id 'org.springframework.boot' version '2.2.4.RELEASE'
     id 'org.owasp.dependencycheck' version '5.3.0'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'com.github.ben-manes.versions' version '0.27.0'
@@ -101,8 +101,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-devtools'
 
-    implementation 'org.springframework.security.oauth:spring-security-oauth2:2.4.0.RELEASE'
-    implementation 'org.springframework.security:spring-security-jwt:1.1.0.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
     implementation 'org.hibernate:hibernate-java8:5.4.10.Final'
     implementation 'org.springframework:spring-jms:5.2.3.RELEASE'
