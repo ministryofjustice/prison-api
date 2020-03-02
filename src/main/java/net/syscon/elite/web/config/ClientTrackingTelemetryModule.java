@@ -12,9 +12,11 @@ import net.syscon.util.IpAddressHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -30,12 +32,16 @@ import static net.syscon.util.MdcUtility.IP_ADDRESS;
 @Slf4j
 @Configuration
 public class ClientTrackingTelemetryModule implements WebTelemetryModule, TelemetryModule {
-    private final String jwtPublicKey;
+    private final JwkClient jwkClient;
 
     @Autowired
-    public ClientTrackingTelemetryModule(
-            @Value("${jwt.public.key}") final String jwtPublicKey) {
-        this.jwtPublicKey = jwtPublicKey;
+    public ClientTrackingTelemetryModule(final JwkClient jwkClient) {
+        this.jwkClient = jwkClient;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplateBuilder().build();
     }
 
     @Override
@@ -64,7 +70,7 @@ public class ClientTrackingTelemetryModule implements WebTelemetryModule, Teleme
     }
 
     private Claims getClaimsFromJWT(final String token) throws ExpiredJwtException, IOException, GeneralSecurityException {
-
+        String jwtPublicKey =
         return Jwts.parser()
                 .setSigningKey(getPublicKeyFromString(jwtPublicKey))
                 .parseClaimsJws(token.substring(7))
