@@ -376,8 +376,6 @@ public class BookingServiceTest {
 
     @Test
     void getOffenderCourtCases_mapped() {
-        // TODO include court events in test
-
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(-1L)
@@ -412,7 +410,7 @@ public class BookingServiceTest {
                 .caseInfoPrefix("cip")
                 .caseInfoNumber("cin")
                 .caseStatus("Active")
-                .courtEvents(Collections.emptyList())
+                .courtHearings(Collections.emptyList())
                 .build());
     }
 

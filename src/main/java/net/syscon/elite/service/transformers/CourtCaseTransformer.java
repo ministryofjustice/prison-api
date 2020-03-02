@@ -1,12 +1,12 @@
 package net.syscon.elite.service.transformers;
 
 import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.repository.jpa.model.CaseStatus;
 import net.syscon.elite.repository.jpa.model.LegalCaseType;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,8 +25,19 @@ public class CourtCaseTransformer {
                 .caseInfoPrefix(courtCase.getCaseInfoPrefix())
                 .caseInfoNumber(courtCase.getCaseInfoNumber())
                 .caseStatus(courtCase.getCaseStatus().map(CaseStatus::getDescription).orElse(null))
-                .courtEvents(CourtEventTransformer.transform(courtCase.getCourtEvents()))
+                .courtHearings(courtHearingsFor(courtCase))
                 .build();
+    }
+
+    private static List<CourtHearing> courtHearingsFor(final OffenderCourtCase courtCase) {
+        return courtCase.getCourtEvents().stream()
+                .map(ce -> CourtHearing.builder()
+                        .id(ce.getId())
+                        .location(AgencyTransformer.transform(ce.getCourtLocation()))
+                        .date(ce.getEventDate())
+                        .time(ce.getStartTime().toLocalTime())
+                        .build())
+                .collect(Collectors.toUnmodifiableList());
     }
 
     public static List<CourtCase> transform(final Collection<OffenderCourtCase> courtCases) {

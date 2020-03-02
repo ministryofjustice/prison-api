@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
@@ -14,11 +15,12 @@ import java.util.List;
 @ApiModel(description = "Offender court case details")
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CourtCase {
     @ApiModelProperty(value = "The case identifier", position = 1, example = "1")
-    private final Long id;
+    private Long id;
 
     @ApiModelProperty(value = "The case sequence number for the offender", position = 2, example = "1")
     private Long caseSeq;
@@ -41,8 +43,8 @@ public class CourtCase {
     @ApiModelProperty(value = "The case status", position = 8, example = "ACTIVE", allowableValues = "ACTIVE, CLOSED, INACTIVE")
     private String caseStatus;
 
-    @ApiModelProperty(value = "Court events associated with the court case", position = 9)
-    private final List<CourtEvent> courtEvents;
+    @ApiModelProperty(value = "Court hearings associated with the court case", position = 9)
+    private List<CourtHearing> courtHearings;
 
     public String getCaseStatus() {
         return StringUtils.isNotBlank(caseStatus) ? caseStatus.toUpperCase() : null;
