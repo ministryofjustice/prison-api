@@ -2,6 +2,7 @@ package net.syscon.elite.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,7 +82,8 @@ public class OffenderCourtCase extends AuditableEntity {
     private OffenderCourtCase combinedCase;
 
     @OneToMany(mappedBy = "offenderCourtCase", cascade = CascadeType.ALL)
-    private List<CourtEvent> courtEvents;
+    @Default
+    private List<CourtEvent> courtEvents = new ArrayList<>();
 
     public Optional<LegalCaseType> getLegalCaseType() {
         return Optional.ofNullable(legalCaseType);
