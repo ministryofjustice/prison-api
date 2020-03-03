@@ -119,7 +119,7 @@ public class ScheduleRepositoryTest {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
         final var results = repository.getLocationAppointments(-28L, date, toDate, null, null);
-        assertThat(results).hasSize(4);
+        assertThat(results).hasSize(5);
         assertThat(results.get(0).getLastName()).isEqualTo("ANDERSON");
         assertThat(results.get(1).getLastName()).isEqualTo("BATES");
         assertThat(results.get(2).getLastName()).isEqualTo("MATTHEWS");
