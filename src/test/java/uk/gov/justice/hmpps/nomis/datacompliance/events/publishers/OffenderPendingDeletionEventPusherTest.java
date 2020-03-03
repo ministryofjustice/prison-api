@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,10 +40,10 @@ class OffenderPendingDeletionEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendPendingDeletionEvent("offender1");
+        eventPusher.sendPendingDeletionEvent(OffenderPendingDeletionEvent.builder().offenderIdDisplay("offender1").build());
 
         assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
-        assertThat(request.getValue().getMessageBody()).isEqualTo("{\"offenderIdDisplay\":\"offender1\"}");
+        assertThat(request.getValue().getMessageBody()).isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"offenders\":[]}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
                 .isEqualTo("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION");
     }
@@ -50,6 +51,9 @@ class OffenderPendingDeletionEventPusherTest {
     @Test
     void sendEventPropagatesException() {
         when(client.sendMessage(any())).thenThrow(RuntimeException.class);
-        assertThatThrownBy(() -> eventPusher.sendPendingDeletionEvent("offender1")).isInstanceOf(RuntimeException.class);
+
+        assertThatThrownBy(() -> eventPusher.sendPendingDeletionEvent(
+                OffenderPendingDeletionEvent.builder().offenderIdDisplay("offender1").build()))
+                .isInstanceOf(RuntimeException.class);
     }
 }
