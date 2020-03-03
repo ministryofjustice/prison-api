@@ -44,7 +44,7 @@ public class PrisonerInformationService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public Page<PrisonerInformation> getPrisonerInformationByPrison(final @NotNull String agencyId, final Pageable pageable) {
 
         final var page = prisonerStatusInformationRepository.findAllByEstablishmentCode(agencyId, pageable);
