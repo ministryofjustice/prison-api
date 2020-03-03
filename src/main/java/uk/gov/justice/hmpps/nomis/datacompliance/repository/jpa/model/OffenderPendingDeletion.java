@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @Entity
 @Table(name = "OFFENDERS")
-public class OffenderToDelete {
+public class OffenderPendingDeletion {
     @Id
     @Column(name = "OFFENDER_ID_DISPLAY")
     private String offenderNumber;
