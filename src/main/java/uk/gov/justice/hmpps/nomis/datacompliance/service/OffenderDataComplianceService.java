@@ -80,6 +80,7 @@ public class OffenderDataComplianceService {
     }
 
     private OffenderNumber transform(final OffenderPendingDeletion entity) {
+
         return OffenderNumber.builder()
                 .offenderNumber(entity.getOffenderNumber())
                 .build();
