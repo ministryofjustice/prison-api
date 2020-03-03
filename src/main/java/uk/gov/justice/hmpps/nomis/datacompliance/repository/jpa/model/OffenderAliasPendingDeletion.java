@@ -4,7 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,6 +38,6 @@ public class OffenderAliasPendingDeletion {
     @Column(name = "BIRTH_DATE")
     private LocalDate birthDate;
 
-    @OneToMany(mappedBy = "offenderAlias", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "offenderAlias")
     private List<OffenderBookingPendingDeletion> offenderBookings;
 }
