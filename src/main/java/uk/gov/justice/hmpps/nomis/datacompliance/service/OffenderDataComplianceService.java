@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import net.syscon.elite.repository.OffenderRepository;
@@ -50,9 +52,22 @@ public class OffenderDataComplianceService {
                                                               final LocalDateTime from,
                                                               final LocalDateTime to) {
         return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to))
+
                 .thenAccept(offenders -> offenders.forEach(offenderNumber ->
-                        offenderPendingDeletionEventPusher.sendPendingDeletionEvent(offenderNumber.getOffenderNumber())))
-                .thenRun(() -> offenderPendingDeletionEventPusher.sendProcessCompletedEvent(requestId));
+                        offenderPendingDeletionEventPusher.sendPendingDeletionEvent(
+                                generateOffenderPendingDeletionEvent(offenderNumber))))
+
+                .thenRun(() -> offenderPendingDeletionEventPusher.sendReferralCompleteEvent(
+                        new OffenderPendingDeletionReferralCompleteEvent(requestId)));
+    }
+
+    private OffenderPendingDeletionEvent generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber) {
+
+        // TODO GDPR-88 populate the rest of the event using request from db
+
+        return OffenderPendingDeletionEvent.builder()
+                .offenderIdDisplay(offenderNumber.getOffenderNumber())
+                .build();
     }
 
     private List<OffenderNumber> getOffendersPendingDeletion(final LocalDateTime from,

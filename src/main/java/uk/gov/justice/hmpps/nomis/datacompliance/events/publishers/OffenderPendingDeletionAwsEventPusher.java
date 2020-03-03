@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionProcessCompleteEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
 
 import java.util.Map;
 
@@ -37,37 +37,36 @@ public class OffenderPendingDeletionAwsEventPusher implements OffenderPendingDel
     }
 
     @Override
-    public void sendPendingDeletionEvent(final String offenderNo) {
+    public void sendPendingDeletionEvent(final OffenderPendingDeletionEvent event) {
 
-        log.trace("Sending referral of offender pending deletion: {}", offenderNo);
+        log.trace("Sending referral of offender pending deletion: {}", event.getOffenderIdDisplay());
 
-        sqsClient.sendMessage(generatePendingDeletionRequest(offenderNo));
+        sqsClient.sendMessage(generatePendingDeletionRequest(event));
     }
 
     @Override
-    public void sendProcessCompletedEvent(final String requestId) {
+    public void sendReferralCompleteEvent(final OffenderPendingDeletionReferralCompleteEvent event) {
 
-        log.trace("Sending process completed event for request: {}", requestId);
+        log.trace("Sending process completed event for request: {}", event.getRequestId());
 
-        sqsClient.sendMessage(generateProcessCompleteRequest(requestId));
+        sqsClient.sendMessage(generateReferralCompleteRequest(event));
     }
 
-    private SendMessageRequest generatePendingDeletionRequest(final String offenderNo) {
+    private SendMessageRequest generatePendingDeletionRequest(final OffenderPendingDeletionEvent event) {
+        return generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION", event);
+    }
+
+    private SendMessageRequest generateReferralCompleteRequest(final OffenderPendingDeletionReferralCompleteEvent event) {
+        return generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-REFERRAL-COMPLETE", event);
+    }
+
+    private SendMessageRequest generateRequest(final String eventType, final Object messageBody) {
         return new SendMessageRequest()
                 .withQueueUrl(queueUrl)
                 .withMessageAttributes(Map.of(
-                        "eventType", stringAttribute("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION"),
+                        "eventType", stringAttribute(eventType),
                         "contentType", stringAttribute("application/json;charset=UTF-8")))
-                .withMessageBody(toJson(new OffenderPendingDeletionEvent(offenderNo)));
-    }
-
-    private SendMessageRequest generateProcessCompleteRequest(final String requestId) {
-        return new SendMessageRequest()
-                .withQueueUrl(queueUrl)
-                .withMessageAttributes(Map.of(
-                        "eventType", stringAttribute("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-COMPLETE"),
-                        "contentType", stringAttribute("application/json;charset=UTF-8")))
-                .withMessageBody(toJson(new OffenderPendingDeletionProcessCompleteEvent(requestId)));
+                .withMessageBody(toJson(messageBody));
     }
 
     private MessageAttributeValue stringAttribute(final String value) {

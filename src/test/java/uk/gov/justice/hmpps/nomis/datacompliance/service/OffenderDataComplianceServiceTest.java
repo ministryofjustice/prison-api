@@ -4,6 +4,8 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import net.syscon.elite.repository.OffenderRepository;
@@ -94,9 +96,19 @@ public class OffenderDataComplianceServiceTest {
 
         service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get();
 
-        verify(eventPusher).sendPendingDeletionEvent(OFFENDER_NUMBER_1);
-        verify(eventPusher).sendPendingDeletionEvent(OFFENDER_NUMBER_2);
-        verify(eventPusher).sendProcessCompletedEvent(REQUEST_ID);
+        verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(OFFENDER_NUMBER_1));
+        verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(OFFENDER_NUMBER_2));
+        verify(eventPusher).sendReferralCompleteEvent(expectedReferralCompleteEvent(REQUEST_ID));
         verifyNoMoreInteractions(eventPusher);
+    }
+
+    private OffenderPendingDeletionEvent expectedPendingDeletionEvent(final String offenderNumber) {
+        return OffenderPendingDeletionEvent.builder()
+                .offenderIdDisplay(offenderNumber)
+                .build();
+    }
+
+    private OffenderPendingDeletionReferralCompleteEvent expectedReferralCompleteEvent(final String requestId) {
+        return new OffenderPendingDeletionReferralCompleteEvent(requestId);
     }
 }
