@@ -5,7 +5,6 @@ import net.syscon.elite.api.resource.UserResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
@@ -15,6 +14,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -152,7 +152,7 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
-    @HasWriteScope
+    @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
     public ResponseEntity<?> updateMyActiveCaseLoad(final CaseLoad caseLoad) {
         try {

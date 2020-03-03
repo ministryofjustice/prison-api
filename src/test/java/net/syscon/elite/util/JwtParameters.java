@@ -13,8 +13,4 @@ public class JwtParameters {
     private List<String> scope;
     private List<String> roles;
     private Duration expiryTime;
-    @Builder.Default
-    private String clientId = "elite2apiclient";
-    @Builder.Default
-    private boolean internalUser = true;
 }

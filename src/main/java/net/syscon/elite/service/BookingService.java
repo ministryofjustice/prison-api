@@ -503,7 +503,7 @@ public class BookingService {
         return sentenceRepository.getMainOffenceDetails(bookingId);
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY')")
     public List<Offence> getMainOffenceDetails(final Set<Long> bookingIds) {
 
         final List<Offence> results = new ArrayList<>();
@@ -517,7 +517,7 @@ public class BookingService {
         return results;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION')")
     public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
         return sentenceRepository.getOffenceHistory(offenderNo);
     }
