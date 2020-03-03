@@ -47,7 +47,7 @@ public class ScheduledAppointmentRepositoryTest {
                         "offenderNo", "firstName", "lastName", "eventDate", "startTime", "endTime",
                         "appointmentTypeDescription", "appointmentTypeCode", "locationDescription", "locationId", "auditUserId", "agencyId"
                 ).containsExactly(
-                Tuple.tuple("A1234AA", "ARTHUR", "ANDERSON", date, getLocalDateTime(2017, 1, 2, 18, 0), getLocalDateTime(2017, 1, 2, 18, 30), "Medical - Dentist", "MEDE", "Medical Centre", -29L, "staff 1", "LEI"),
+                Tuple.tuple("A1234AB", "GILLIAN", "ANDERSON", date, getLocalDateTime(2017, 1, 2, 18, 0), getLocalDateTime(2017, 1, 2, 18, 30), "Medical - Dentist", "MEDE", "Medical Centre", -29L, "staff 1", "LEI"),
                 Tuple.tuple("A1234AB", "GILLIAN", "ANDERSON", date, getLocalDateTime(2017, 1, 2, 19, 30), getLocalDateTime(2017, 1, 2, 20, 30), "Medical - Dentist", "MEDE", "Visiting Room", -28L, "staff 2", "LEI"));
     }
 
