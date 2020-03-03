@@ -11,6 +11,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
@@ -36,6 +38,10 @@ public class OffenderBooking {
     @ListIndexBase(1)
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     private List<OffenderCourtCase> courtCases;
+
+    @ManyToOne
+    @JoinColumn(name = "AGY_LOC_ID", nullable = false)
+    private AgencyLocation location;
 
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
