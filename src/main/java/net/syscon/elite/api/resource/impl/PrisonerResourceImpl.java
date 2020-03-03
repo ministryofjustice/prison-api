@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 
-import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
-
 @RestController
 @RequestMapping("${api.base.path}/prisoners")
 @Slf4j
@@ -26,7 +24,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
     private final GlobalSearchService globalSearchService;
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
     public ResponseEntity<List<PrisonerDetail>> getPrisoners(
             final boolean includeAliases,
             final List<String> offenderNos,
@@ -92,7 +90,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
     public ResponseEntity<List<PrisonerDetail>> getPrisoners(final PrisonerDetailSearchCriteria criteria,
                                                              final Long pageOffset,
                                                              final Long pageLimit,
