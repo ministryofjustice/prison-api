@@ -10,6 +10,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
@@ -17,15 +20,15 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
 @WithMockUser
-public class ScheduledEventRepositoryTest {
+public class ScheduledAppointmentRepositoryTest {
 
     @Autowired
-    private ScheduledEventRepository scheduledEventRepository;
+    private ScheduledAppointmentRepository scheduledAppointmentRepository;
 
     @Test
     public void getAppointments() {
-        //final var events = scheduledEventRepository.findAll();
+      final var appointments = scheduledAppointmentRepository.findByAgencyIdAndEventDate("LEI", LocalDate.now());
 
-   //     assertThat(events).isNotEmpty();
+      assertThat(appointments).isNotEmpty();
     }
 }

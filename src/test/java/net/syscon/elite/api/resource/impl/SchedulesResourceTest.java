@@ -2,7 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerSchedule;
-import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
+import net.syscon.elite.api.model.ScheduledAppointmentDto;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
@@ -222,12 +222,12 @@ public class SchedulesResourceTest extends ResourceTest {
                 "/api/schedules/LEI/appointments?date={date}",
                 HttpMethod.GET,
                 createHttpEntity(token, locationIds),
-                new ParameterizedTypeReference<List<ScheduledAppointment>>() {}, today);
+                new ParameterizedTypeReference<List<ScheduledAppointmentDto>>() {}, today);
 
         final var appointments = response.getBody();
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(Objects.requireNonNull(appointments).size()).isEqualTo(1);
+        assertThat(Objects.requireNonNull(appointments).size()).isEqualTo(4);
     }
 
     private List<Long> getLocationIdsNoSchedules() {

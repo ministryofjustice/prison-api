@@ -6,10 +6,13 @@ import net.syscon.elite.api.model.NewAppointment;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.bulkappointments.*;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.jpa.repository.ScheduledEventRepository;
+import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
+import net.syscon.elite.repository.jpa.repository.ScheduledAppointmentRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.ReferenceDomain;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,8 +66,6 @@ public class AppointmentsServiceImplTest {
             .code("T")
             .domain(ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain())
             .build();
-
-
     @Mock
     private BookingRepository bookingRepository;
 
@@ -74,7 +76,7 @@ public class AppointmentsServiceImplTest {
     private ReferenceDomainService referenceDomainService;
 
     @Mock
-    private ScheduledEventRepository scheduledEventRepository;
+    private ScheduledAppointmentRepository scheduledAppointmentRepository;
 
     @Mock
     private TelemetryClient telemetryClient;
@@ -92,7 +94,7 @@ public class AppointmentsServiceImplTest {
                 locationService,
                 referenceDomainService,
                 telemetryClient,
-                scheduledEventRepository);
+                scheduledAppointmentRepository);
     }
 
     @AfterEach
@@ -508,7 +510,7 @@ public class AppointmentsServiceImplTest {
         try {
             appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (final HttpClientErrorException e){
+        } catch (final HttpClientErrorException e) {
             assertThat(e.getStatusText()).isEqualTo("Appointment time is in the past.");
         }
     }
@@ -640,6 +642,88 @@ public class AppointmentsServiceImplTest {
         verify(locationService, never()).getUserLocations(principal);
     }
 
+    @Test
+    public void testFindByAgencyIdAndEventDateAndLocationId_IsCalledCorrectly() {
+        final var today = LocalDate.now();
+        final var locationId = 1L;
+
+        when(scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(any(), any(), anyLong())).thenReturn(Collections.emptyList());
+
+        appointmentsService.getAppointments("LEI", today, locationId, null);
+
+        verify(scheduledAppointmentRepository).findByAgencyIdAndEventDateAndLocationId("LEI", today, locationId);
+    }
+
+    @Test
+    public void testFindByAgencyIdAndEventDate_IsCalledCorrectly_IsCalledCorrectly() {
+        final var today = LocalDate.now();
+
+        when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
+                .thenReturn(Collections.emptyList());
+
+        appointmentsService.getAppointments("LEI", today, null, null);
+
+        verify(scheduledAppointmentRepository).findByAgencyIdAndEventDate("LEI", today);
+
+    }
+
+    @Test
+    public void testAMScheduledAppointmentDtos_AreReturned() {
+        final var today = LocalDate.now();
+        final var startTime = LocalDateTime.now();
+        final var endTime = LocalDateTime.now();
+
+        when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
+                .thenReturn(List.of(new ScheduledAppointment(
+                        1L,
+                        "A12345",
+                        "firstName1",
+                        "lastName1",
+                        today,
+                        startTime.withHour(11),
+                        endTime.withHour(11),
+                        "appointmentTypeDescription1",
+                        "appointmentTypeCode1",
+                        "locationDescription1",
+                        1L,
+                        "Staff user 1",
+                        "LEI"
+                ), new ScheduledAppointment(
+                        1L,
+                        "A12346",
+                        "firstName2",
+                        "lastName2",
+                        today,
+                        startTime.withHour(23),
+                        endTime.withHour(23),
+                        "appointmentTypeDescription2",
+                        "appointmentTypeCode2",
+                        "locationDescription2",
+                        2L,
+                        "Staff user 2",
+                        "LEI"
+                )));
+
+        final var appointmentDtos = appointmentsService.getAppointments("LEI", today, null, TimeSlot.AM);
+
+        assertThat(appointmentDtos)
+                .extracting(
+                        "offenderNo",
+                        "firstName",
+                        "lastName",
+                        "eventDate",
+                        "startTime",
+                        "endTime",
+                        "appointmentTypeDescription",
+                        "appointmentTypeCode",
+                        "locationDescription",
+                        "locationId",
+                        "auditUserId",
+                        "agencyId"
+                ).containsExactly(Tuple.tuple("A12345", "firstName1", "lastName1", today, startTime.withHour(11), endTime.withHour(11),
+                "appointmentTypeDescription1", "appointmentTypeCode1", "locationDescription1", 1L, "Staff user 1", "LEI"));
+    }
+
     private void stubValidBookingIds(final String agencyId, final long... bookingIds) {
         final var ids = Arrays.stream(bookingIds).boxed().collect(Collectors.toList());
         when(bookingRepository.findBookingsIdsInAgency(ids, agencyId)).thenReturn(ids);
@@ -659,3 +743,4 @@ public class AppointmentsServiceImplTest {
         when(locationService.getLocation(location.getLocationId())).thenReturn(location);
     }
 }
+
