@@ -1,20 +1,17 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.events.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
 
-import java.io.IOException;
 import java.util.Map;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
