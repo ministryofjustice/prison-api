@@ -13,15 +13,15 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-@ApiModel(description = "Represents the data required to schedule a prison to court event for an offender.")
+@ApiModel(description = "Represents the data required to schedule a prison to court hearing for an offender.")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PrisonToCourtEvent {
+public class PrisonToCourtHearing {
 
-    @ApiModelProperty(required = true, value = "The court case identifier to link the event to.", position = 1, example = "1")
+    @ApiModelProperty(required = true, value = "The court case identifier to link the hearing to.", position = 1, example = "1")
     @NotNull(message = "The court case identifier must be provided.")
     private Long courtCaseId;
 
@@ -35,9 +35,9 @@ public class PrisonToCourtEvent {
     @Size(max = 6, message = "To location must be a maximum of 6 characters.")
     private String toCourtLocation;
 
-    @ApiModelProperty(required = true, value = "The date and time of the court event.", position = 4, example = "2020-02-28T14:40:00.000Z")
-    @NotBlank(message = "The court event date time must be provided.")
-    private LocalDateTime courtEventDateTime;
+    @ApiModelProperty(required = true, value = "The date and time of the court hearing.", position = 4, example = "2020-02-28T14:40:00.000Z")
+    @NotBlank(message = "The court hearing date time must be provided.")
+    private LocalDateTime courtHearingDateTime;
 
     @ApiModelProperty(value = "Any comments related to the court case.", position = 5, example = "Restricted access to parking level.")
     @Size(max = 240, message = "Comment text must be a maximum of 240 characters.")
