@@ -17,6 +17,15 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${oauth.endpoint.url}/issuer
+          jwk-set-uri: ${oauth.endpoint.url}/.well-known/jwks.json
+
+oauth.endpoint.url: http://localhost:8080/auth
+
 logging:
   level:
     org.springframework.security: INFO
