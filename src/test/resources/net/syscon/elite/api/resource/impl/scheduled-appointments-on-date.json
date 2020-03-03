@@ -1,9 +1,10 @@
 [
   {
+    "id": -30,
     "offenderNo":"A1234AA",
     "firstName":"ARTHUR",
     "lastName":"ANDERSON",
-    "eventDate":"2017-01-02",
+    "date":"2017-01-02",
     "startTime":"2017-01-02T18:00:00",
     "endTime":"2017-01-02T18:30:00",
     "appointmentTypeDescription":"Medical - Dentist",
@@ -14,10 +15,11 @@
     "agencyId":"LEI"
   },
   {
+    "id": -31,
     "offenderNo":"A1234AB",
     "firstName":"GILLIAN",
     "lastName":"ANDERSON",
-    "eventDate":"2017-01-02",
+    "date":"2017-01-02",
     "startTime":"2017-01-02T19:30:00",
     "endTime":"2017-01-02T20:30:00",
     "appointmentTypeDescription":"Medical - Dentist",

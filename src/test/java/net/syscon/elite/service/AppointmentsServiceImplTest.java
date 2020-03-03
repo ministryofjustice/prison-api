@@ -689,7 +689,7 @@ public class AppointmentsServiceImplTest {
                         "Staff user 1",
                         "LEI"
                 ), new ScheduledAppointment(
-                        1L,
+                        2L,
                         "A12346",
                         "firstName2",
                         "lastName2",
@@ -708,10 +708,11 @@ public class AppointmentsServiceImplTest {
 
         assertThat(appointmentDtos)
                 .extracting(
+                        "id",
                         "offenderNo",
                         "firstName",
                         "lastName",
-                        "eventDate",
+                        "date",
                         "startTime",
                         "endTime",
                         "appointmentTypeDescription",
@@ -720,7 +721,7 @@ public class AppointmentsServiceImplTest {
                         "locationId",
                         "auditUserId",
                         "agencyId"
-                ).containsExactly(Tuple.tuple("A12345", "firstName1", "lastName1", today, startTime.withHour(11), endTime.withHour(11),
+                ).containsExactly(Tuple.tuple(1L,"A12345", "firstName1", "lastName1", today, startTime.withHour(11), endTime.withHour(11),
                 "appointmentTypeDescription1", "appointmentTypeCode1", "locationDescription1", 1L, "Staff user 1", "LEI"));
     }
 

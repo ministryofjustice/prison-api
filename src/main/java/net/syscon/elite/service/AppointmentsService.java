@@ -55,7 +55,8 @@ public class AppointmentsService {
             final AuthenticationFacade authenticationFacade,
             final LocationService locationService,
             final ReferenceDomainService referenceDomainService,
-            final TelemetryClient telemetryClient, ScheduledAppointmentRepository scheduledAppointmentRepository) {
+            final TelemetryClient telemetryClient,
+            final ScheduledAppointmentRepository scheduledAppointmentRepository) {
         this.bookingRepository = bookingRepository;
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
@@ -120,10 +121,11 @@ public class AppointmentsService {
                 .map(scheduledAppointment ->
                         ScheduledAppointmentDto
                                 .builder()
+                                .id(scheduledAppointment.getEventId())
                                 .offenderNo(scheduledAppointment.getOffenderNo())
                                 .firstName(scheduledAppointment.getFirstName())
                                 .lastName(scheduledAppointment.getLastName())
-                                .eventDate(scheduledAppointment.getEventDate())
+                                .date(scheduledAppointment.getEventDate())
                                 .startTime(scheduledAppointment.getStartTime())
                                 .endTime(scheduledAppointment.getEndTime())
                                 .appointmentTypeDescription(scheduledAppointment.getAppointmentTypeDescription())
