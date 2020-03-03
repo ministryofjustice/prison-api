@@ -15,7 +15,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.controller.DataComplianceContro
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class OffenderPendingDeletionProcessCompleteEvent {
+public class OffenderPendingDeletionReferralCompleteEvent {
     private String requestId;
 }
 

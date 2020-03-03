@@ -254,6 +254,17 @@ public class BookingResourceImplIntTest extends ResourceTest {
                         .caseInfoPrefix("CIP")
                         .caseInfoNumber("CIN20177010")
                         .caseStatus(new CaseStatus("A", "Active"))
+                        .courtEvents(List.of(CourtEvent.builder()
+                                .id(-1L)
+                                .eventDate(LocalDate.EPOCH)
+                                .startTime(LocalDate.EPOCH.atStartOfDay())
+                                .courtLocation(AgencyLocation.builder()
+                                        .id("COURT1")
+                                        .description("Court 1")
+                                        .type("CRT")
+                                        .activeFlag(ActiveFlag.Y)
+                                        .build())
+                                .build()))
                         .build()))
                 .build()));
 

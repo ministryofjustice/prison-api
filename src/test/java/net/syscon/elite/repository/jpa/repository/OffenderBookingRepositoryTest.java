@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,11 +27,16 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @WithMockUser
 public class OffenderBookingRepositoryTest {
 
+    private static final Long BOOKING_WITH_COURT_CASE_BUT_NO_EVENTS = -8L;
+
     @Autowired
     private OffenderBookingRepository repository;
 
     @Autowired
     private AgencyLocationRepository agencyLocationRepository;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Test
     void getMilitaryRecords() {
@@ -161,6 +167,80 @@ public class OffenderBookingRepositoryTest {
         var persistedBooking = repository.findById(-2L).orElseThrow();
 
         assertThat(persistedBooking.getCourtCases()).extracting(OffenderCourtCase::getId).containsExactly(-2L, -98L, -99L);
+    }
+
+    @Test
+    void saveCourtCaseEvent() {
+        var offenderBooking = repository.findById(BOOKING_WITH_COURT_CASE_BUT_NO_EVENTS).orElseThrow();
+
+        assertThat(offenderBooking.getCourtCases()).hasSize(1);
+
+        var offenderCourtCase = offenderBooking.getCourtCases().stream().findFirst().orElseThrow();
+
+        assertThat(offenderCourtCase.getCourtEvents()).isEmpty();
+
+        CourtEvent courtEvent = courtEventFor(offenderCourtCase);
+
+        offenderCourtCase.add(courtEvent);
+
+        repository.save(offenderBooking);
+
+        entityManager.flush();
+
+        var persistedBooking = repository.findById(BOOKING_WITH_COURT_CASE_BUT_NO_EVENTS).orElseThrow();
+
+        assertThat(persistedBooking.getCourtCases().get(0).getCourtEvents()).hasSize(1);
+
+        CourtEvent persistedCourtEvent = persistedBooking.getCourtCases().stream()
+                .map(OffenderCourtCase::getCourtEvents).findFirst().orElseThrow().get(0);
+
+        assertThat(persistedCourtEvent)
+                .extracting(
+                        CourtEvent::getId,
+                        CourtEvent::getCommentText,
+                        CourtEvent::getCourtEventType,
+                        CourtEvent::getCourtLocation,
+                        CourtEvent::getDirectionCode,
+                        CourtEvent::getEventDate,
+                        CourtEvent::getEventStatus,
+                        CourtEvent::getNextEventRequestFlag,
+                        CourtEvent::getOffenderBooking,
+                        CourtEvent::getOffenderCourtCase,
+                        CourtEvent::getOrderRequestedFlag,
+                        CourtEvent::getStartTime)
+                .containsOnly(
+                        courtEvent.getId(),
+                        courtEvent.getCommentText(),
+                        courtEvent.getCourtEventType(),
+                        courtEvent.getCourtLocation(),
+                        courtEvent.getDirectionCode(),
+                        courtEvent.getEventDate(),
+                        courtEvent.getEventStatus(),
+                        courtEvent.getNextEventRequestFlag(),
+                        courtEvent.getOffenderBooking(),
+                        courtEvent.getOffenderCourtCase(),
+                        courtEvent.getOrderRequestedFlag(),
+                        courtEvent.getStartTime());
+    }
+
+    private CourtEvent courtEventFor(final OffenderCourtCase courtCase) {
+        var eventDate = LocalDate.now();
+
+        return CourtEvent.builder()
+                .id(999L)
+                .commentText("Comment text for court event")
+                .courtEventType(new EventType("CRT", "Court Action"))
+                .courtLocation(agencyLocationRepository.findById("COURT1").orElseThrow())
+                .directionCode("OUT")
+                .eventDate(eventDate)
+                .eventStatus(new EventStatus("SCH", "Scheduled (Approved)"))
+                .nextEventRequestFlag("X")
+                .offenderBooking(courtCase.getOffenderBooking())
+                .offenderCourtCase(courtCase)
+                .orderRequestedFlag("Y")
+                .startTime(eventDate.atTime(12, 0))
+                .build();
+
     }
 
     private OffenderCourtCase offenderCourtCase(final Long caseIdentifier) {
