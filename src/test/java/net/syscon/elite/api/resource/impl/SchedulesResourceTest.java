@@ -2,7 +2,6 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerSchedule;
-import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpMethod;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -216,18 +214,15 @@ public class SchedulesResourceTest extends ResourceTest {
     public void scheduledAppointmentsReturned() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
         final var locationIds = getLocationIdsWithSchedules();
-        final var today = LocalDate.now();
+        final var date = LocalDate.of(2017, 1, 2);
 
         final var response = testRestTemplate.exchange(
                 "/api/schedules/LEI/appointments?date={date}",
                 HttpMethod.GET,
                 createHttpEntity(token, locationIds),
-                new ParameterizedTypeReference<List<ScheduledAppointment>>() {}, today);
+                new ParameterizedTypeReference<String>() {}, date);
 
-        final var appointments = response.getBody();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(Objects.requireNonNull(appointments).size()).isEqualTo(1);
+        assertThatJsonFileAndStatus(response, 200, "scheduled-appointments-on-date.json");
     }
 
     private List<Long> getLocationIdsNoSchedules() {

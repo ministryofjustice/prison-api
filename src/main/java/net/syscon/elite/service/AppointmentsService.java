@@ -1,21 +1,18 @@
 package net.syscon.elite.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
 import net.syscon.elite.api.model.bulkappointments.Repeat;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
-import net.syscon.elite.repository.jpa.repository.ScheduledEventRepository;
+import net.syscon.elite.repository.jpa.repository.ScheduledAppointmentRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.util.CalcDateRanges;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -28,7 +25,10 @@ import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,20 +48,20 @@ public class AppointmentsService {
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
     private final TelemetryClient telemetryClient;
-    private final ScheduledEventRepository scheduledEventRepository;
+    private final ScheduledAppointmentRepository scheduledAppointmentRepository;
 
     public AppointmentsService(
             final BookingRepository bookingRepository,
             final AuthenticationFacade authenticationFacade,
             final LocationService locationService,
             final ReferenceDomainService referenceDomainService,
-            final TelemetryClient telemetryClient, ScheduledEventRepository scheduledEventRepository) {
+            final TelemetryClient telemetryClient, ScheduledAppointmentRepository scheduledAppointmentRepository) {
         this.bookingRepository = bookingRepository;
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
         this.telemetryClient = telemetryClient;
-        this.scheduledEventRepository = scheduledEventRepository;
+        this.scheduledAppointmentRepository = scheduledAppointmentRepository;
     }
 
     /**
@@ -111,10 +111,33 @@ public class AppointmentsService {
         return bookingRepository.getBookingAppointment(bookingId, eventId);
     }
 
-    public List<ScheduledAppointment> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
-       final var appointments = scheduledEventRepository.findAllAppointments(agencyId, date, locationId);
+    public List<ScheduledAppointmentDto> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
+        final var appointmentStream = locationId != null ?
+                scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(agencyId, date, locationId).stream() :
+                scheduledAppointmentRepository.findByAgencyIdAndEventDate(agencyId, date).stream();
 
-       return Collections.emptyList();
+        final var appointmentDtos =  appointmentStream
+                .map(scheduledAppointment ->
+                        ScheduledAppointmentDto
+                                .builder()
+                                .offenderNo(scheduledAppointment.getOffenderNo())
+                                .firstName(scheduledAppointment.getFirstName())
+                                .lastName(scheduledAppointment.getLastName())
+                                .eventDate(scheduledAppointment.getEventDate())
+                                .startTime(scheduledAppointment.getStartTime())
+                                .endTime(scheduledAppointment.getEndTime())
+                                .appointmentTypeDescription(scheduledAppointment.getAppointmentTypeDescription())
+                                .appointmentTypeCode(scheduledAppointment.getAppointmentTypeCode())
+                                .locationDescription(scheduledAppointment.getLocationDescription())
+                                .locationId(scheduledAppointment.getLocationId())
+                                .auditUserId(scheduledAppointment.getAuditUserId())
+                                .agencyId(scheduledAppointment.getAgencyId())
+                                .build()
+                );
+
+        return timeSlot != null ?
+                appointmentDtos.filter(appointment -> CalcDateRanges.eventStartsInTimeslot(appointment.getStartTime(), timeSlot)).collect(Collectors.toList()) :
+                appointmentDtos.collect(Collectors.toList());
     }
 
 
@@ -160,7 +183,8 @@ public class AppointmentsService {
 
             if (isValidLocation) return appointmentLocation.getAgencyId();
 
-        } catch (final EntityNotFoundException ignored) { }
+        } catch (final EntityNotFoundException ignored) {
+        }
 
         throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload.");
     }

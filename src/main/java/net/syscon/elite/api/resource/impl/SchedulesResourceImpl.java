@@ -1,7 +1,7 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.PrisonerSchedule;
-import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
+import net.syscon.elite.api.model.ScheduledAppointmentDto;
 import net.syscon.elite.api.resource.ScheduleResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
@@ -66,7 +66,7 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
-    public List<ScheduledAppointment> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
+    public List<ScheduledAppointmentDto> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
         return appointmentsService.getAppointments(agencyId, date, locationId, timeSlot);
     }
 

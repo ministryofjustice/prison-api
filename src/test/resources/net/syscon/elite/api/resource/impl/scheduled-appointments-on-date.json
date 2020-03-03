@@ -1,0 +1,30 @@
+[
+  {
+    "offenderNo":"A1234AA",
+    "firstName":"ARTHUR",
+    "lastName":"ANDERSON",
+    "eventDate":"2017-01-02",
+    "startTime":"2017-01-02T18:00:00",
+    "endTime":"2017-01-02T18:30:00",
+    "appointmentTypeDescription":"Medical - Dentist",
+    "appointmentTypeCode":"MEDE",
+    "locationDescription":"Medical Centre",
+    "locationId":-29,
+    "auditUserId":"staff 1",
+    "agencyId":"LEI"
+  },
+  {
+    "offenderNo":"A1234AB",
+    "firstName":"GILLIAN",
+    "lastName":"ANDERSON",
+    "eventDate":"2017-01-02",
+    "startTime":"2017-01-02T19:30:00",
+    "endTime":"2017-01-02T20:30:00",
+    "appointmentTypeDescription":"Medical - Dentist",
+    "appointmentTypeCode":"MEDE",
+    "locationDescription":"Visiting Room",
+    "locationId":-28,
+    "auditUserId":"staff 2",
+    "agencyId":"LEI"
+  }
+]
