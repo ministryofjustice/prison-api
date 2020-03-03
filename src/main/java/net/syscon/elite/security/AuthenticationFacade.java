@@ -4,10 +4,10 @@ import net.syscon.elite.web.config.AuthAwareAuthenticationToken;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -48,9 +48,12 @@ public class AuthenticationFacade {
         final var auth = getAuthentication();
         return StringUtils.isNotBlank(MDC.get(PROXY_USER))
                 && Optional.ofNullable(auth).
+                filter(OAuth2Authentication.class::isInstance).
+                map(OAuth2Authentication.class::cast).
+                filter(OAuth2Authentication::isAuthenticated).
+                map(OAuth2Authentication::getUserAuthentication).
                 filter(AuthAwareAuthenticationToken.class::isInstance).
                 map(AuthAwareAuthenticationToken.class::cast).
-                filter(AbstractAuthenticationToken::isAuthenticated).
                 map(AuthAwareAuthenticationToken::isNomisSource).orElse(Boolean.FALSE);
     }
 

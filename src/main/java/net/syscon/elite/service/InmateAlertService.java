@@ -84,7 +84,7 @@ public class InmateAlertService {
         return alerts;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER','CREATE_CATEGORISATION','APPROVE_CATEGORISATION','GLOBAL_SEARCH')")
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION', 'GLOBAL_SEARCH')")
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
 
         final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly, query, orderByField, order);
@@ -100,7 +100,7 @@ public class InmateAlertService {
         return alerts;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
     public Page<String> getAlertCandidates(final LocalDateTime cutoffTimestamp, final long offset, final long limit) {
         return inmateAlertRepository.getAlertCandidates(cutoffTimestamp, offset, limit);
     }
