@@ -2,8 +2,9 @@ package uk.gov.justice.hmpps.nomis.datacompliance.events.publishers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
 
 @Slf4j
 @Component
@@ -15,12 +16,12 @@ public class OffenderPendingDeletionNoOpEventPusher implements OffenderPendingDe
     }
 
     @Override
-    public void sendPendingDeletionEvent(final String offenderIdDisplay) {
-        log.warn("Pretending to push pending offender deletion for '{}' to queue", offenderIdDisplay);
+    public void sendPendingDeletionEvent(final OffenderPendingDeletionEvent event) {
+        log.warn("Pretending to push pending offender deletion for '{}' to queue", event.getOffenderIdDisplay());
     }
 
     @Override
-    public void sendProcessCompletedEvent(final String requestId) {
-        log.warn("Pretending to push process completed event for request '{}' to queue", requestId);
+    public void sendReferralCompleteEvent(final OffenderPendingDeletionReferralCompleteEvent event) {
+        log.warn("Pretending to push process completed event for request '{}' to queue", event.getRequestId());
     }
 }

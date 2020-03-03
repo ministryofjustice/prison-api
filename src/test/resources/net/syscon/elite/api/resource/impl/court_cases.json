@@ -12,6 +12,19 @@
     "caseType": "Adult",
     "caseInfoPrefix": "CIP",
     "caseInfoNumber": "CIN20177010",
-    "caseStatus": "ACTIVE"
+    "caseStatus": "ACTIVE",
+    "courtHearings": [
+      {
+        "id": -1,
+        "date": "1970-01-01",
+        "time": "00:00:00",
+        "location": {
+          "agencyId": "COURT1",
+          "description": "Court 1",
+          "agencyType": "CRT",
+          "active": true
+        }
+      }
+    ]
   }
 ]
