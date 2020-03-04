@@ -33,10 +33,10 @@ public class ScheduledAppointmentDto {
     @ApiModelProperty(value = "Date the appointment is scheduled")
     private LocalDate date;
 
-    @ApiModelProperty(value = "Date and time at which event starts")
+    @ApiModelProperty(value = "Date and time at which appointment starts")
     private LocalDateTime startTime;
 
-    @ApiModelProperty(value = "Date and time at which event ends")
+    @ApiModelProperty(value = "Date and time at which appointment ends")
     private LocalDateTime endTime;
 
     @ApiModelProperty(value = "Description of appointment type")
