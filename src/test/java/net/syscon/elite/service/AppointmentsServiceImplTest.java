@@ -729,10 +729,10 @@ public class AppointmentsServiceImplTest {
 
         when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
                 .thenReturn(List.of(
-                        ScheduledAppointment.builder().eventId(1L).startTime(baseDateTime.minusDays(1).withHour(23)).locationDescription("Gym").build(),
-                        ScheduledAppointment.builder().eventId(2L).startTime(baseDateTime.minusDays(1).withHour(11)).locationDescription("Room 2").build(),
-                        ScheduledAppointment.builder().eventId(3L).startTime(baseDateTime.minusDays(1).withHour(10)).locationDescription("Z").build(),
-                        ScheduledAppointment.builder().eventId(4L).startTime(baseDateTime.minusDays(1).withHour(10)).locationDescription("A").build()
+                        ScheduledAppointment.builder().eventId(1L).startTime(baseDateTime.withHour(23)).locationDescription("Gym").build(),
+                        ScheduledAppointment.builder().eventId(2L).startTime(baseDateTime.withHour(11)).locationDescription("Room 2").build(),
+                        ScheduledAppointment.builder().eventId(3L).startTime(baseDateTime.withHour(10)).locationDescription("Z").build(),
+                        ScheduledAppointment.builder().eventId(4L).startTime(baseDateTime.withHour(10)).locationDescription("A").build()
                 ));
 
         final var appointmentDtos = appointmentsService.getAppointments("LEI", LocalDate.now(), null, null);

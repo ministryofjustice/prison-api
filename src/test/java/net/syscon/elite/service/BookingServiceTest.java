@@ -1,7 +1,6 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
