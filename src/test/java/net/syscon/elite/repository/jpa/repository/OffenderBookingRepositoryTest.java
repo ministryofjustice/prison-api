@@ -137,7 +137,7 @@ public class OffenderBookingRepositoryTest {
                 OffenderCourtCase::getCaseStatus,
                 OffenderCourtCase::getLegalCaseType,
                 OffenderCourtCase::getAgencyLocation)
-                .containsOnly(
+                .containsExactly(
                         -1L,
                         Optional.of(new CaseStatus("A", "Active")),
                         Optional.of(new LegalCaseType("A", "Adult")),
@@ -208,7 +208,7 @@ public class OffenderBookingRepositoryTest {
                         CourtEvent::getOffenderCourtCase,
                         CourtEvent::getOrderRequestedFlag,
                         CourtEvent::getStartTime)
-                .containsOnly(
+                .containsExactly(
                         courtEvent.getId(),
                         courtEvent.getCommentText(),
                         courtEvent.getCourtEventType(),

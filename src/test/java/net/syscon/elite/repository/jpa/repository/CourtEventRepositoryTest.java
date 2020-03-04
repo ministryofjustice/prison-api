@@ -39,7 +39,7 @@ public class CourtEventRepositoryTest {
     private TestEntityManager entityManager;
 
     @Test
-    public void court_event_can_be_saved_and_retrieved() {
+    void court_event_can_be_saved_and_retrieved() {
         var id = 999L;
         var commentText = "Comment text for court event";
         var courtLocation = agencyRepository.findById("COURT1").orElseThrow();
@@ -72,32 +72,19 @@ public class CourtEventRepositoryTest {
 
         var persistedCourtEvent = courtEventRepository.findById(999L).orElseThrow();
 
-        assertThat(persistedCourtEvent)
-                .extracting(
-                        CourtEvent::getId,
-                        CourtEvent::getCommentText,
-                        CourtEvent::getCourtEventType,
-                        CourtEvent::getCourtLocation,
-                        CourtEvent::getDirectionCode,
-                        CourtEvent::getEventDate,
-                        CourtEvent::getEventStatus,
-                        CourtEvent::getNextEventRequestFlag,
-                        CourtEvent::getOffenderBooking,
-                        CourtEvent::getOffenderCourtCase,
-                        CourtEvent::getOrderRequestedFlag,
-                        CourtEvent::getStartTime)
-                .containsOnly(
-                        id,
-                        commentText,
-                        courtEventType,
-                        courtLocation,
-                        directionCode,
-                        eventDate,
-                        nextEventRequestFlag,
-                        eventStatus,
-                        offenderBooking,
-                        offenderCourtCase,
-                        orderRequestedFlag,
-                        startTime);
+        assertThat(persistedCourtEvent).isEqualTo(CourtEvent.builder()
+                .id(id)
+                .commentText(commentText)
+                .courtEventType(courtEventType)
+                .courtLocation(courtLocation)
+                .directionCode(directionCode)
+                .eventDate(eventDate)
+                .eventStatus(eventStatus)
+                .nextEventRequestFlag(nextEventRequestFlag)
+                .offenderBooking(offenderBooking)
+                .offenderCourtCase(offenderCourtCase)
+                .orderRequestedFlag(orderRequestedFlag)
+                .startTime(startTime)
+                .build());
     }
 }
