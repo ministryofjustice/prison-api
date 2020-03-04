@@ -77,13 +77,7 @@ public class AppointmentsService {
 
         final var defaults = appointments.getAppointmentDefaults();
 
-        final var agencyId = findLocationInUserL* DT-370 Add auth URL to elite2 secrets
-
-* DT-370 Fix typo
-
-* DT-370 Use env var rather than secret for auth url
-
-* DT-370 Use env var rather than secret for auth urlocations(defaults.getLocationId())
+        final var agencyId = findLocationInUserLocations(defaults.getLocationId())
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload."))
                 .getAgencyId();
 
