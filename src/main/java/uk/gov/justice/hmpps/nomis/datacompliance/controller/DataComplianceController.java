@@ -42,7 +42,11 @@ public class DataComplianceController {
         offenderDataComplianceService.acceptOffendersPendingDeletionRequest(
                 request.getRequestId(),
                 request.getDueForDeletionWindowStart(),
-                request.getDueForDeletionWindowEnd());
+                request.getDueForDeletionWindowEnd())
+                .exceptionally(error -> {
+                    log.error("Failed to handle pending deletion request", error);
+                    return null;
+                });
 
         return ResponseEntity.accepted().build();
     }

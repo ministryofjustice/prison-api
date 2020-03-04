@@ -35,6 +35,7 @@ public class OffenderAliasPendingDeletionRepositoryTest {
 
         assertThat(offender.getOffenderNumber()).isEqualTo("A1234AA");
         assertThat(offender.getOffenderId()).isEqualTo(-1001L);
+        assertThat(offender.getRootOffenderId()).isEqualTo(-1001L);
         assertThat(offender.getFirstName()).isEqualTo("ARTHUR");
         assertThat(offender.getMiddleName()).isEqualTo("BORIS");
         assertThat(offender.getLastName()).isEqualTo("ANDERSON");
