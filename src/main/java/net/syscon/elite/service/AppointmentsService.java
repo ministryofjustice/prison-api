@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
 import net.syscon.elite.api.model.bulkappointments.Repeat;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.jpa.repository.ScheduledAppointmentRepository;
@@ -14,7 +15,6 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.ReferenceDomain;
 import net.syscon.util.CalcDateRanges;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -68,7 +68,7 @@ public class AppointmentsService {
      *
      * @param appointments Details of the new appointments to be created.
      */
-    @PreAuthorize("#oauth2.hasScope('write')")
+    @HasWriteScope
     @Transactional
     public void createAppointments(@NotNull @Valid final AppointmentsToCreate appointments) {
 

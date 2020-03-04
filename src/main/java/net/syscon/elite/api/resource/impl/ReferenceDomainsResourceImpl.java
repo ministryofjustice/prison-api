@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.resource.ReferenceDomainResource;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.ReferenceDomainService;
@@ -93,14 +94,16 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write') && hasAnyRole('MAINTAIN_REF_DATA', 'SYSTEM_USER')")
+    @HasWriteScope
+    @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA','SYSTEM_USER')")
     @ProxyUser
     public ReferenceCode createReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
         return referenceDomainService.createReferenceCode(domain, code, referenceData);
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write') && hasAnyRole('MAINTAIN_REF_DATA', 'SYSTEM_USER')")
+    @HasWriteScope
+    @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA','SYSTEM_USER')")
     @ProxyUser
     public ReferenceCode updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
         return referenceDomainService.updateReferenceCode(domain, code, referenceData);
