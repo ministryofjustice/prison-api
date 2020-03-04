@@ -9,8 +9,8 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDelet
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import net.syscon.elite.repository.OffenderRepository;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderToDelete;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.DataComplianceRepository;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +43,7 @@ public class OffenderDataComplianceServiceTest {
     private OffenderDeletionRepository offenderDeletionRepository;
 
     @Mock
-    private DataComplianceRepository dataComplianceRepository;
+    private OffenderPendingDeletionRepository offenderPendingDeletionRepository;
 
     @Mock
     private TelemetryClient telemetryClient;
@@ -58,7 +58,7 @@ public class OffenderDataComplianceServiceTest {
         service = new OffenderDataComplianceService(
                 offenderRepository,
                 offenderDeletionRepository,
-                dataComplianceRepository,
+                offenderPendingDeletionRepository,
                 telemetryClient,
                 eventPusher);
     }
@@ -88,11 +88,11 @@ public class OffenderDataComplianceServiceTest {
     @Test
     public void acceptOffendersPendingDeletion() throws Exception {
 
-        when(dataComplianceRepository
+        when(offenderPendingDeletionRepository
                 .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate()))
                 .thenReturn(List.of(
-                        new OffenderToDelete(OFFENDER_NUMBER_1),
-                        new OffenderToDelete(OFFENDER_NUMBER_2)));
+                        new OffenderPendingDeletion(OFFENDER_NUMBER_1),
+                        new OffenderPendingDeletion(OFFENDER_NUMBER_2)));
 
         service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get();
 

@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository;
 
 import net.syscon.elite.Elite2ApiServer;
 import org.springframework.test.context.ContextConfiguration;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderToDelete;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,13 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = { Elite2ApiServer.class })
-public class DataComplianceRepositoryTest {
+public class OffenderPendingDeletionRepositoryTest {
 
     private static final LocalDate SENTENCE_END_DATE = LocalDate.of(2020, 3, 24);
     private static final LocalDate DELETION_DUE_DATE = SENTENCE_END_DATE.plusYears(7);
 
     @Autowired
-    private DataComplianceRepository repository;
+    private OffenderPendingDeletionRepository repository;
 
     @Test
     public void getOffendersDueForDeletion() {
@@ -35,7 +35,7 @@ public class DataComplianceRepositoryTest {
         var offenders = repository.getOffendersDueForDeletionBetween(DELETION_DUE_DATE.minusDays(1), DELETION_DUE_DATE.plusDays(1));
 
         assertThat(offenders).hasSize(1);
-        assertThat(offenders).extracting(OffenderToDelete::getOffenderNumber).containsOnly("Z0020ZZ");
+        assertThat(offenders).extracting(OffenderPendingDeletion::getOffenderNumber).containsOnly("Z0020ZZ");
     }
 
     @Test
@@ -44,7 +44,7 @@ public class DataComplianceRepositoryTest {
         var offenders = repository.getOffendersDueForDeletionBetween(DELETION_DUE_DATE, DELETION_DUE_DATE);
 
         assertThat(offenders).hasSize(1);
-        assertThat(offenders).extracting(OffenderToDelete::getOffenderNumber).containsOnly("Z0020ZZ");
+        assertThat(offenders).extracting(OffenderPendingDeletion::getOffenderNumber).containsOnly("Z0020ZZ");
     }
 
     @Test

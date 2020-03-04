@@ -2,7 +2,13 @@ package uk.gov.justice.hmpps.nomis.datacompliance.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Singular;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
