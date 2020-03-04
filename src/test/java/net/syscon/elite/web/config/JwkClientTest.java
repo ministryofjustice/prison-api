@@ -25,7 +25,7 @@ public class JwkClientTest {
     public void getJwkSets_test() throws ParseException, JOSEException {
         when(restTemplate.exchange(URL, GET, null, String.class)).thenReturn(jwkSetResponse());
 
-        JwkClient jwkClient = new JwkClient(restTemplate, URL);
+        JwkClient jwkClient = new JwkClient(URL);
 
         assertThat(jwkClient.getPublicKeyForKeyId("dps-client-key")).isNotNull();
     }
