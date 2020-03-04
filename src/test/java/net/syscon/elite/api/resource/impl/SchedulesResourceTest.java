@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -207,6 +208,21 @@ public class SchedulesResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
         assertThat(error.getUserMessage()).contains("must not be empty");
+    }
+
+    @Test
+    public void scheduledAppointmentsReturned() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var locationIds = getLocationIdsWithSchedules();
+        final var date = LocalDate.of(2017, 1, 2);
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/appointments?date={date}",
+                HttpMethod.GET,
+                createHttpEntity(token, locationIds),
+                new ParameterizedTypeReference<String>() {}, date);
+
+        assertThatJsonFileAndStatus(response, 200, "scheduled-appointments-on-date.json");
     }
 
     private List<Long> getLocationIdsNoSchedules() {

@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository;
 
 
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderToDelete;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface DataComplianceRepository extends CrudRepository<OffenderToDelete, String> {
+public interface OffenderPendingDeletionRepository extends CrudRepository<OffenderPendingDeletion, String> {
 
     /**
      * The following query finds offenders that satisfy the following requirements.
@@ -83,6 +83,6 @@ public interface DataComplianceRepository extends CrudRepository<OffenderToDelet
                     "    AND OA.ALERT_CODE = 'XTACT'" +
                     ")",
             nativeQuery = true)
-    List<OffenderToDelete> getOffendersDueForDeletionBetween(@Param("fromDate") final LocalDate fromDate,
-                                                             @Param("toDate") final LocalDate toDate);
+    List<OffenderPendingDeletion> getOffendersDueForDeletionBetween(@Param("fromDate") final LocalDate fromDate,
+                                                                    @Param("toDate") final LocalDate toDate);
 }

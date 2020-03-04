@@ -11,8 +11,8 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDelet
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import net.syscon.elite.repository.OffenderRepository;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderToDelete;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.DataComplianceRepository;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +31,7 @@ public class OffenderDataComplianceService {
 
     private final OffenderRepository offenderRepository;
     private final OffenderDeletionRepository offenderDeletionRepository;
-    private final DataComplianceRepository dataComplianceRepository;
+    private final OffenderPendingDeletionRepository offenderPendingDeletionRepository;
     private final TelemetryClient telemetryClient;
     private final OffenderPendingDeletionEventPusher offenderPendingDeletionEventPusher;
 
@@ -72,14 +72,14 @@ public class OffenderDataComplianceService {
 
     private List<OffenderNumber> getOffendersPendingDeletion(final LocalDateTime from,
                                                             final LocalDateTime to) {
-        return dataComplianceRepository
+        return offenderPendingDeletionRepository
                 .getOffendersDueForDeletionBetween(from.toLocalDate(), to.toLocalDate())
                 .stream()
                 .map(this::transform)
                 .collect(toList());
     }
 
-    private OffenderNumber transform(final OffenderToDelete entity) {
+    private OffenderNumber transform(final OffenderPendingDeletion entity) {
         return OffenderNumber.builder()
                 .offenderNumber(entity.getOffenderNumber())
                 .build();

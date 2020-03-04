@@ -3,6 +3,7 @@ package net.syscon.elite.api.resource;
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerSchedule;
+import net.syscon.elite.api.model.ScheduledAppointmentDto;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -103,13 +104,23 @@ public interface ScheduleResource {
                                          @ApiParam(value = "Whether to include 'excluded' activities in the results", defaultValue = "false") @RequestParam(value = "includeExcluded", required = false, defaultValue = "false") boolean includeExcluded);
 
     @PostMapping("/{agencyId}/appointments")
-    @ApiOperation(value = "", nickname = "getAppointments")
+    @ApiOperation(value = "", nickname = "getAppointmentsForOffenders")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
-    List<PrisonerSchedule> getAppointments(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
+    List<PrisonerSchedule> getAppointmentsForOffenders(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                            @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
                                            @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                            @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot);
+
+
+    @GetMapping("/{agencyId}/appointments")
+    @ApiOperation(value = "", nickname = "getAppointments")
+    @ApiResponses(value = {
+    @ApiResponse(code = 200, message = "", response = ScheduledAppointmentDto.class, responseContainer = "List")})
+    List<ScheduledAppointmentDto> getAppointments(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
+                                                  @ApiParam(value = "Date the appointments are scheduled", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date") LocalDate date,
+                                                  @ApiParam(value = "Location id") @RequestParam(value = "locationId", required = false) Long locationId,
+                                                  @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot);
 
     @PostMapping("/{agencyId}/courtEvents")
     @ApiOperation(value = "", nickname = "getCourtEvents")
