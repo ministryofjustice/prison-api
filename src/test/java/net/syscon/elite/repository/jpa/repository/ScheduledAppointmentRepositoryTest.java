@@ -1,6 +1,6 @@
 package net.syscon.elite.repository.jpa.repository;
 
-import org.assertj.core.groups.Tuple;
+import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,36 +29,65 @@ public class ScheduledAppointmentRepositoryTest {
         final var date = LocalDate.of(2017, 1, 2);
         final var appointments = scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId("LEI", date, -28L);
 
-        assertThat(appointments)
-                .extracting(
-                        "offenderNo", "firstName", "lastName", "eventDate", "startTime", "endTime",
-                        "appointmentTypeDescription", "appointmentTypeCode", "locationDescription", "locationId", "auditUserId", "agencyId"
-                ).containsExactly(Tuple.tuple("A1234AB", "GILLIAN", "ANDERSON", date, getLocalDateTime(2017,1,2,19,30), getLocalDateTime(2017,1,2,20,30), "Medical - Dentist", "MEDE", "Visiting Room", -28L, "staff 2", "LEI"));
+        final var scheduledAppointment = ScheduledAppointment
+                .builder()
+                .eventId(-31L)
+                .offenderNo("A1234AB")
+                .firstName("GILLIAN")
+                .lastName("ANDERSON")
+                .eventDate(date)
+                .startTime(LocalDateTime.parse("2017-01-02T19:30"))
+                .endTime(LocalDateTime.parse("2017-01-02T20:30"))
+                .appointmentTypeDescription("Medical - Dentist")
+                .appointmentTypeCode("MEDE")
+                .locationDescription("Visiting Room")
+                .locationId(-28L)
+                .agencyId("LEI")
+                .auditUserId("staff 2")
+                .build();
+
+        assertThat(appointments).containsOnly(scheduledAppointment);
     }
 
     @Test
     public void returnScheduledAppointmentsByAgencyAndDate() {
         final var date = LocalDate.of(2017, 1, 2);
-
         final var appointments = scheduledAppointmentRepository.findByAgencyIdAndEventDate("LEI", date);
 
-        assertThat(appointments)
-                .extracting(
-                        "offenderNo", "firstName", "lastName", "eventDate", "startTime", "endTime",
-                        "appointmentTypeDescription", "appointmentTypeCode", "locationDescription", "locationId", "auditUserId", "agencyId"
-                ).containsExactly(
-                Tuple.tuple("A1234AB", "GILLIAN", "ANDERSON", date, getLocalDateTime(2017, 1, 2, 18, 0), getLocalDateTime(2017, 1, 2, 18, 30), "Medical - Dentist", "MEDE", "Medical Centre", -29L, "staff 1", "LEI"),
-                Tuple.tuple("A1234AB", "GILLIAN", "ANDERSON", date, getLocalDateTime(2017, 1, 2, 19, 30), getLocalDateTime(2017, 1, 2, 20, 30), "Medical - Dentist", "MEDE", "Visiting Room", -28L, "staff 2", "LEI"));
+        assertThat(appointments).containsExactly(
+                ScheduledAppointment
+                        .builder()
+                        .eventId(-31L)
+                        .offenderNo("A1234AB")
+                        .firstName("GILLIAN")
+                        .lastName("ANDERSON")
+                        .eventDate(date)
+                        .startTime(LocalDateTime.parse("2017-01-02T18:00"))
+                        .endTime(LocalDateTime.parse("2017-01-02T18:30"))
+                        .appointmentTypeDescription("Medical - Dentist")
+                        .appointmentTypeCode("MEDE")
+                        .locationDescription("Medical Centre")
+                        .locationId(-29L)
+                        .agencyId("LEI")
+                        .auditUserId("staff 1")
+                        .build(),
+                ScheduledAppointment
+                        .builder()
+                        .eventId(-31L)
+                        .offenderNo("A1234AB")
+                        .firstName("GILLIAN")
+                        .lastName("ANDERSON")
+                        .eventDate(date)
+                        .startTime(LocalDateTime.parse("2017-01-02T19:30"))
+                        .endTime(LocalDateTime.parse("2017-01-02T20:30"))
+                        .appointmentTypeDescription("Medical - Dentist")
+                        .appointmentTypeCode("MEDE")
+                        .locationDescription("Visiting Room")
+                        .locationId(-28L)
+                        .agencyId("LEI")
+                        .auditUserId("staff 2")
+                        .build()
+        );
     }
 
-    private LocalDateTime getLocalDateTime(final int year, final int month, final int day, final int hour, final int minute) {
-        return LocalDateTime.now()
-                .withYear(year)
-                .withMonth(month)
-                .withDayOfMonth(day)
-                .withHour(hour)
-                .withMinute(minute)
-                .withSecond(0)
-                .withNano(0);
-    }
 }

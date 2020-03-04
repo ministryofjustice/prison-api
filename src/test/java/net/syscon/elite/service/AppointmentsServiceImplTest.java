@@ -1,10 +1,7 @@
 package net.syscon.elite.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.bulkappointments.*;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
@@ -672,55 +669,60 @@ public class AppointmentsServiceImplTest {
         final var endTime = LocalDateTime.now();
 
         when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
-                .thenReturn(List.of(new ScheduledAppointment(
-                        1L,
-                        "A12345",
-                        "firstName1",
-                        "lastName1",
-                        today,
-                        startTime.withHour(11),
-                        endTime.withHour(11),
-                        "appointmentTypeDescription1",
-                        "appointmentTypeCode1",
-                        "locationDescription1",
-                        1L,
-                        "Staff user 1",
-                        "LEI"
-                ), new ScheduledAppointment(
-                        2L,
-                        "A12346",
-                        "firstName2",
-                        "lastName2",
-                        today,
-                        startTime.withHour(23),
-                        endTime.withHour(23),
-                        "appointmentTypeDescription2",
-                        "appointmentTypeCode2",
-                        "locationDescription2",
-                        2L,
-                        "Staff user 2",
-                        "LEI"
-                )));
+                .thenReturn(List.of(
+                        ScheduledAppointment
+                                .builder()
+                                .eventId(1L)
+                                .offenderNo("A12345")
+                                .firstName("firstName1")
+                                .lastName("lastName1")
+                                .eventDate(today)
+                                .startTime(startTime.withHour(11))
+                                .endTime(endTime.withHour(11))
+                                .appointmentTypeDescription("appointmentTypeDescription1")
+                                .appointmentTypeCode("appointmentTypeCode1")
+                                .locationDescription("locationDescription1")
+                                .locationId(1L)
+                                .auditUserId("Staff user 1")
+                                .agencyId("LEI")
+                                .build(),
+                        ScheduledAppointment
+                                .builder()
+                                .eventId(2L)
+                                .offenderNo("A12346")
+                                .firstName("firstName2")
+                                .lastName("lastName2")
+                                .eventDate(today)
+                                .startTime(startTime.withHour(23))
+                                .endTime(endTime.withHour(23))
+                                .appointmentTypeDescription("appointmentTypeDescription2")
+                                .appointmentTypeCode("appointmentTypeCode2")
+                                .locationDescription("locationDescription2")
+                                .locationId(2L)
+                                .auditUserId("Staff user 2")
+                                .agencyId("LEI")
+                                .build()
+                ));
 
         final var appointmentDtos = appointmentsService.getAppointments("LEI", today, null, TimeSlot.AM);
 
-        assertThat(appointmentDtos)
-                .extracting(
-                        "id",
-                        "offenderNo",
-                        "firstName",
-                        "lastName",
-                        "date",
-                        "startTime",
-                        "endTime",
-                        "appointmentTypeDescription",
-                        "appointmentTypeCode",
-                        "locationDescription",
-                        "locationId",
-                        "auditUserId",
-                        "agencyId"
-                ).containsExactly(Tuple.tuple(1L, "A12345", "firstName1", "lastName1", today, startTime.withHour(11), endTime.withHour(11),
-                "appointmentTypeDescription1", "appointmentTypeCode1", "locationDescription1", 1L, "Staff user 1", "LEI"));
+        assertThat(appointmentDtos).containsOnly(
+                ScheduledAppointmentDto
+                .builder()
+                .id(1L)
+                .offenderNo("A12345")
+                .firstName("firstName1")
+                .lastName("lastName1")
+                .date(today)
+                .startTime(startTime.withHour(11))
+                .endTime(endTime.withHour(11))
+                .appointmentTypeDescription("appointmentTypeDescription1")
+                .appointmentTypeCode("appointmentTypeCode1")
+                .locationDescription("locationDescription1")
+                .locationId(1L)
+                .auditUserId("Staff user 1")
+                .agencyId("LEI")
+                .build());
     }
 
     @Test
@@ -739,9 +741,9 @@ public class AppointmentsServiceImplTest {
 
         assertThat(appointmentDtos)
                 .extracting(
-                        "id",
-                        "locationDescription"
-                ).containsExactly(Tuple.tuple(4L,"A"), Tuple.tuple(3L, "Z"), Tuple.tuple(2L, "Room 2"), Tuple.tuple(1L, "Gym"));
+                        ScheduledAppointmentDto::getId,
+                        ScheduledAppointmentDto::getLocationDescription
+                ).containsExactly(Tuple.tuple(4L, "A"), Tuple.tuple(3L, "Z"), Tuple.tuple(2L, "Room 2"), Tuple.tuple(1L, "Gym"));
     }
 
     private void stubValidBookingIds(final String agencyId, final long... bookingIds) {

@@ -1,9 +1,6 @@
 package net.syscon.elite.repository.jpa.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Subselect;
 import org.springframework.data.annotation.Immutable;
 
@@ -39,6 +36,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = {"eventId"})
+@ToString(exclude = {"eventId"})
 public class ScheduledAppointment {
     @Id
     private Long eventId;
