@@ -2,17 +2,18 @@ package uk.gov.justice.hmpps.nomis.datacompliance.controller;
 
 import net.syscon.elite.api.model.PendingDeletionRequest;
 import net.syscon.elite.api.resource.impl.ResourceTest;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.CompletableFuture;
 
 import static net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken.ELITE2_API_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jetty.http.HttpStatus.ACCEPTED_202;
 import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpMethod.POST;
 
 public class DataComplianceControllerTest extends ResourceTest {
@@ -34,10 +35,12 @@ public class DataComplianceControllerTest extends ResourceTest {
                         .dueForDeletionWindowEnd(WINDOW_END)
                         .build());
 
+        when(offenderDataComplianceService.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END))
+                .thenReturn(CompletableFuture.completedFuture(null));
+
         final var response = testRestTemplate.exchange("/api/data-compliance/offenders/pending-deletions", POST, requestEntity, Void.class);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(ACCEPTED_202);
-        verify(offenderDataComplianceService).acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END);
     }
 
     @Test
