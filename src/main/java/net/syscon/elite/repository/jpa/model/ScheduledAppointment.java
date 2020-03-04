@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Subselect;
@@ -37,6 +38,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ScheduledAppointment {
     @Id
     private Long eventId;

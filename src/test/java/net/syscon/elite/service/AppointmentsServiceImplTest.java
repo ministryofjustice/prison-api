@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -39,7 +38,6 @@ import static org.mockito.Mockito.*;
 public class AppointmentsServiceImplTest {
     private static final String USERNAME = "username";
     private static final String BULK_APPOINTMENTS_ROLE = "BULK_APPOINTMENTS";
-    private static final Authentication AUTHENTICATION_NO_ROLES = new TestingAuthenticationToken(USERNAME, null);
 
     private static final Location LOCATION_A = Location.builder().locationId(0L).agencyId("A").build();
     private static final Location LOCATION_B = Location.builder().locationId(1L).agencyId("B").build();
@@ -721,8 +719,29 @@ public class AppointmentsServiceImplTest {
                         "locationId",
                         "auditUserId",
                         "agencyId"
-                ).containsExactly(Tuple.tuple(1L,"A12345", "firstName1", "lastName1", today, startTime.withHour(11), endTime.withHour(11),
+                ).containsExactly(Tuple.tuple(1L, "A12345", "firstName1", "lastName1", today, startTime.withHour(11), endTime.withHour(11),
                 "appointmentTypeDescription1", "appointmentTypeCode1", "locationDescription1", 1L, "Staff user 1", "LEI"));
+    }
+
+    @Test
+    public void testScheduledAppointmentsOrderedByStartTimeThenByLocation() {
+        final var baseDateTime = LocalDateTime.now().minusDays(1);
+
+        when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
+                .thenReturn(List.of(
+                        ScheduledAppointment.builder().eventId(1L).startTime(baseDateTime.minusDays(1).withHour(23)).locationDescription("Gym").build(),
+                        ScheduledAppointment.builder().eventId(2L).startTime(baseDateTime.minusDays(1).withHour(11)).locationDescription("Room 2").build(),
+                        ScheduledAppointment.builder().eventId(3L).startTime(baseDateTime.minusDays(1).withHour(10)).locationDescription("Z").build(),
+                        ScheduledAppointment.builder().eventId(4L).startTime(baseDateTime.minusDays(1).withHour(10)).locationDescription("A").build()
+                ));
+
+        final var appointmentDtos = appointmentsService.getAppointments("LEI", LocalDate.now(), null, null);
+
+        assertThat(appointmentDtos)
+                .extracting(
+                        "id",
+                        "locationDescription"
+                ).containsExactly(Tuple.tuple(4L,"A"), Tuple.tuple(3L, "Z"), Tuple.tuple(2L, "Room 2"), Tuple.tuple(1L, "Gym"));
     }
 
     private void stubValidBookingIds(final String agencyId, final long... bookingIds) {

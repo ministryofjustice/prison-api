@@ -40,7 +40,7 @@ public class MovementsService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
         return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
@@ -56,7 +56,7 @@ public class MovementsService {
                 .build();
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','GLOBAL_SEARCH')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY', 'GLOBAL_SEARCH')")
     public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
         final var movements = Lists.partition(offenderNumbers, maxBatchSize)
                 .stream()
@@ -173,7 +173,7 @@ public class MovementsService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public TransferSummary getTransferMovementsForAgencies(final List<String> agencyIds,
                                                            final LocalDateTime fromDateTime, final LocalDateTime toDateTime,
                                                            final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents, final boolean movements) {

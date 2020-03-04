@@ -422,7 +422,7 @@ public class InmateService {
         return doGetOffenderCategorisations(agencyId, bookingIds, latestOnly);
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
     public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
         return doGetOffenderCategorisations(null, bookingIds, latestOnly);
     }

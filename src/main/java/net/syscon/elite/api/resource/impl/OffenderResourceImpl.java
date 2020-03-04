@@ -8,13 +8,13 @@ import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.resource.OffenderResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
@@ -147,7 +147,7 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    @HasWriteScope
+    @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
     public CaseNote createOffenderCaseNote(final String offenderNo, final NewCaseNote body) {
         try {
@@ -158,7 +158,7 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    @HasWriteScope
+    @PreAuthorize("#oauth2.hasScope('write')")
     @ProxyUser
     public CaseNote updateOffenderCaseNote(final String offenderNo, final Long caseNoteId, final UpdateCaseNote body) {
         try {
