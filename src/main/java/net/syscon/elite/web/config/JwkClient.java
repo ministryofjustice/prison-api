@@ -29,13 +29,13 @@ public class JwkClient {
         this.jwkUrl = jwkUrl;
     }
 
-    PublicKey getPublicKeyForKeyId(String keyId) {
+    PublicKey getPublicKeyForKeyId(final String keyId) {
         return publicKeysById
                 .map(keys -> keys.get(keyId))
                 .orElse(retrieveKeysAndFind(keyId));
     }
 
-    private PublicKey retrieveKeysAndFind(String keyId) {
+    private PublicKey retrieveKeysAndFind(final String keyId) {
         publicKeysById = Optional.of(getPublicKeysById());
         return publicKeysById.get().get(keyId);
     }
@@ -56,7 +56,7 @@ public class JwkClient {
         return emptyList();
     }
 
-    private Optional<PublicKey> toPublicKey(JWK jwk) {
+    private Optional<PublicKey> toPublicKey(final JWK jwk) {
         try {
             return Optional.of(((RSAKey) jwk).toPublicKey());
         } catch (JOSEException e) {
