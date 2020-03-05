@@ -70,6 +70,7 @@ public class BookingAppointmentSteps extends ScheduledEventSteps {
     @Step("Verify created appointment")
     public void verifyCreatedAppointment() {
         assertThat(scheduledEvent).isNotNull();
+        assertThat(scheduledEvent.getEventId()).isNotZero();
         assertThat(scheduledEvent.getBookingId()).isEqualTo(-4L);
         assertThat(scheduledEvent.getEventDate()).isEqualTo(LocalDate.now().plusDays(1));
         assertThat(scheduledEvent.getEventLocation()).isEqualTo("Visiting Room");
