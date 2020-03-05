@@ -55,6 +55,7 @@ public class JwtAuthenticationHelper {
                 .signWith(SignatureAlgorithm.RS256, keyPair.getPrivate())
                 .setIssuer("http://localhost:8080/auth/issuer")
                 .setHeaderParam("typ", "JWT")
+                .setHeaderParam("kid", "dps-client-key")
                 .compact();
     }
 
