@@ -2,10 +2,12 @@ package net.syscon.elite.web.config;
 
 import com.microsoft.applicationinsights.web.internal.RequestTelemetryContext;
 import com.microsoft.applicationinsights.web.internal.ThreadContext;
+import net.syscon.elite.api.resource.OauthMockServer;
 import net.syscon.elite.util.JwtAuthenticationHelper;
 import net.syscon.elite.util.JwtParameters;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@Import({JwtAuthenticationHelper.class, ClientTrackingTelemetryModule.class})
+@Import({JwtAuthenticationHelper.class, ClientTrackingTelemetryModule.class, JwkClient.class})
 @ContextConfiguration(initializers = {ConfigFileApplicationContextInitializer.class})
 @ActiveProfiles("test")
 public class ClientTrackingTelemetryModuleTest {
@@ -35,9 +37,14 @@ public class ClientTrackingTelemetryModuleTest {
     @Autowired
     private JwtAuthenticationHelper jwtAuthenticationHelper;
 
+    @ClassRule
+    public static OauthMockServer oauthMockServer = new OauthMockServer(8080);
+
     @Before
     public void setup() {
         ThreadContext.setRequestTelemetryContext(new RequestTelemetryContext(1L));
+        oauthMockServer.resetAll();
+        oauthMockServer.stubJwkServer();
     }
 
     @After
