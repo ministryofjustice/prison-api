@@ -13,9 +13,11 @@ import org.hibernate.annotations.NotFound;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,6 +36,8 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 public class CourtEvent extends AuditableEntity {
 
+    @SequenceGenerator(name = "EVENT_ID", sequenceName = "EVENT_ID", allocationSize = 1)
+    @GeneratedValue(generator = "EVENT_ID")
     @Id
     @Column(name = "EVENT_ID", nullable = false)
     private Long id;

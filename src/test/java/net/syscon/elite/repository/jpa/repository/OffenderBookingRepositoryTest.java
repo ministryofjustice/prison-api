@@ -196,7 +196,6 @@ public class OffenderBookingRepositoryTest {
 
         assertThat(persistedCourtEvent)
                 .extracting(
-                        CourtEvent::getId,
                         CourtEvent::getCommentText,
                         CourtEvent::getCourtEventType,
                         CourtEvent::getCourtLocation,
@@ -209,7 +208,6 @@ public class OffenderBookingRepositoryTest {
                         CourtEvent::getOrderRequestedFlag,
                         CourtEvent::getStartTime)
                 .containsExactly(
-                        courtEvent.getId(),
                         courtEvent.getCommentText(),
                         courtEvent.getCourtEventType(),
                         courtEvent.getCourtLocation(),
@@ -227,7 +225,6 @@ public class OffenderBookingRepositoryTest {
         var eventDate = LocalDate.now();
 
         return CourtEvent.builder()
-                .id(999L)
                 .commentText("Comment text for court event")
                 .courtEventType(new EventType("CRT", "Court Action"))
                 .courtLocation(agencyLocationRepository.findById("COURT1").orElseThrow())

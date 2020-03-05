@@ -7,6 +7,7 @@ import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CourtEvent;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
+import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.CourtEventRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.service.transformers.AgencyTransformer;
@@ -40,8 +41,8 @@ public class CourtHearingsServiceTest {
     private static final AgencyLocation COURT_LOCATION = AgencyLocation.builder()
             .activeFlag(ActiveFlag.Y)
             .description("Agency Description")
-            .id("AGENCY_ID")
-            .type("AGENCY_TYPE")
+            .id("COURT")
+            .type("COURT_AGENCY_TYPE")
             .build();
 
     private static final CourtEvent.CourtEventBuilder COURT_EVENT_BUILDER = CourtEvent.builder()
@@ -60,6 +61,15 @@ public class CourtHearingsServiceTest {
     private CourtEventRepository courtEventRepository;
 
     @Mock
+    private AgencyLocationRepository agencyLocationRepository;
+
+    @Mock
+    private AgencyLocation fromPrison;
+
+    @Mock
+    private AgencyLocation toCourt;
+
+    @Mock
     private OffenderBooking offenderBooking;
 
     @Mock
@@ -69,7 +79,7 @@ public class CourtHearingsServiceTest {
 
     @BeforeEach
     void setup() {
-        courtHearingsService = new CourtHearingsService(offenderBookingRepository, courtEventRepository);
+        courtHearingsService = new CourtHearingsService(offenderBookingRepository, courtEventRepository, agencyLocationRepository);
     }
 
     @Test
@@ -77,6 +87,10 @@ public class CourtHearingsServiceTest {
         when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(offenderBooking));
 
         when(offenderBooking.getCourtCaseBy(COURT_HEARING.getCourtCaseId())).thenReturn(Optional.of(offenderCourtCase));
+
+        when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
+
+        when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(COURT_LOCATION));
 
         when(courtEventRepository.save(UN_PERSISTED_COURT_EVENT)).thenReturn(PERSISTED_COURT_EVENT);
 
@@ -91,6 +105,10 @@ public class CourtHearingsServiceTest {
     }
 
     // TODO add test for non-matching booking
+
+    // TODO add test for non-matching prison agency location (aslo verify is is actually a prison????!!!
+
+    // TODO add test for non-matching court agency location (also verify it is actually a court!!!
 
     // TODO add test for non-matching court case
 }

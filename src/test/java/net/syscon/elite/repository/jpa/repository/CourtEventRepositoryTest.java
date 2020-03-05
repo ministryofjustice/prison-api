@@ -40,7 +40,6 @@ public class CourtEventRepositoryTest {
 
     @Test
     void court_event_can_be_saved_and_retrieved() {
-        var id = 999L;
         var commentText = "Comment text for court event";
         var courtLocation = agencyRepository.findById("COURT1").orElseThrow();
         var courtEventType = new EventType("CRT", "Court Action");
@@ -53,8 +52,7 @@ public class CourtEventRepositoryTest {
         var offenderCourtCase = offenderBooking.getCourtCases().stream().findFirst().orElseThrow();
         var orderRequestedFlag = "Y";
 
-        courtEventRepository.save(CourtEvent.builder()
-                .id(id)
+        CourtEvent savedCourtEvent = courtEventRepository.save(CourtEvent.builder()
                 .commentText(commentText)
                 .courtEventType(courtEventType)
                 .courtLocation(courtLocation)
@@ -70,21 +68,6 @@ public class CourtEventRepositoryTest {
 
         entityManager.flush();
 
-        var persistedCourtEvent = courtEventRepository.findById(999L).orElseThrow();
-
-        assertThat(persistedCourtEvent).isEqualTo(CourtEvent.builder()
-                .id(id)
-                .commentText(commentText)
-                .courtEventType(courtEventType)
-                .courtLocation(courtLocation)
-                .directionCode(directionCode)
-                .eventDate(eventDate)
-                .eventStatus(eventStatus)
-                .nextEventRequestFlag(nextEventRequestFlag)
-                .offenderBooking(offenderBooking)
-                .offenderCourtCase(offenderCourtCase)
-                .orderRequestedFlag(orderRequestedFlag)
-                .startTime(startTime)
-                .build());
+        assertThat(courtEventRepository.findById(savedCourtEvent.getId()).orElseThrow()).isEqualTo(savedCourtEvent);
     }
 }
