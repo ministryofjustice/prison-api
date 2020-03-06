@@ -1,15 +1,32 @@
 package net.syscon.elite.repository.jpa.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Builder.Default;
-import org.hibernate.annotations.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.Type;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.*;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import static net.syscon.elite.repository.jpa.model.ReferenceCode.*;
+import static net.syscon.elite.repository.jpa.model.DisciplinaryAction.MLTY_DISCP;
+import static net.syscon.elite.repository.jpa.model.MilitaryBranch.MLTY_BRANCH;
+import static net.syscon.elite.repository.jpa.model.MilitaryDischarge.MLTY_DSCHRG;
+import static net.syscon.elite.repository.jpa.model.MilitaryRank.MLTY_RANK;
+import static net.syscon.elite.repository.jpa.model.WarZone.MLTY_WZONE;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
