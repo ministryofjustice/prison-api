@@ -47,16 +47,9 @@ gradlew bootRun
 
 #### Authenticating with JWT when running locally
 
-Since moving to Spring Security 5 the following applies when running locally without an Auth server:
+When running locally with the profile `dev` any JWT generated from a local Auth server will be valid.  This works by spinning up a Mock JWK Set server in `StubJwkServer` which provides the public key to verify the JWT signature.
 
-* Any token issued by a local Auth server will continue to be valid
-* **But** the local Auth server's `server.port` must be the same as in the property `spring.security.oauth.resource.jwt.issuer-uri` (default is `9090`)
-
-*Why?*
-
-Since moving to Spring Security 5 the JWT verification public key is now served by Auth rather than hardcoded in `application.properties`. To allow elite2 to run locally without the Auth server, class `StubJwkServer` stubs the JWK Set endpoint in the `dev` profile. In this way we can continue to validate any JWTs issued by the local Auth server.
-
-However, we also check that the issuer of the JWT matches the issuer configured in property `spring.security.oauth.resource.jwt.issuer-uri`. Therefore the Auth server issuing the JWT must be running on the same port for it to match.
+If you start this app locally without the profile `dev` then you must also spin up an Auth server and make sure that `spring.security.oauth.resource.jwt.jwk-set-uri` points to the local Auth server (e.g. http://localhost:9090/auth/.well-known/jwks.json).
 
 ### Coding Standards
 There are a few different styles in this project due to historical reasons and the accumulation of technical debt.

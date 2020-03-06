@@ -21,10 +21,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${oauth.endpoint.url}/issuer
-          jwk-set-uri: ${oauth.endpoint.url}/.well-known/jwks.json
-
-oauth.endpoint.url: http://localhost:9090/auth
+          jwk-set-uri: http://localhost:9090/auth/.well-known/jwks.json
 
 logging:
   level:
