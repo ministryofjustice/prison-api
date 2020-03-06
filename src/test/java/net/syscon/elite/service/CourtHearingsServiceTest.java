@@ -5,11 +5,14 @@ import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CourtEvent;
+import net.syscon.elite.repository.jpa.model.EventStatus;
+import net.syscon.elite.repository.jpa.model.EventType;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.CourtEventRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
 import net.syscon.elite.service.transformers.AgencyTransformer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,10 +67,13 @@ public class CourtHearingsServiceTest {
     private AgencyLocationRepository agencyLocationRepository;
 
     @Mock
-    private AgencyLocation fromPrison;
+    private ReferenceCodeRepository<EventType> eventTypeRepository;
 
     @Mock
-    private AgencyLocation toCourt;
+    private ReferenceCodeRepository<EventStatus> eventStatusRepository;
+
+    @Mock
+    private AgencyLocation fromPrison;
 
     @Mock
     private OffenderBooking offenderBooking;
@@ -75,25 +81,34 @@ public class CourtHearingsServiceTest {
     @Mock
     private OffenderCourtCase offenderCourtCase;
 
+    @Mock
+    private EventType eventType;
+
+    @Mock
+    private EventStatus eventStatus;
+
     private CourtHearingsService courtHearingsService;
 
     @BeforeEach
     void setup() {
-        courtHearingsService = new CourtHearingsService(offenderBookingRepository, courtEventRepository, agencyLocationRepository);
+        courtHearingsService = new CourtHearingsService(
+                offenderBookingRepository,
+                courtEventRepository,
+                agencyLocationRepository,
+                eventTypeRepository,
+                eventStatusRepository);
+
+        when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(offenderBooking));
+        when(offenderBooking.getCourtCaseBy(COURT_HEARING.getCourtCaseId())).thenReturn(Optional.of(offenderCourtCase));
+        when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
+        when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(COURT_LOCATION));
+        when(courtEventRepository.save(UN_PERSISTED_COURT_EVENT)).thenReturn(PERSISTED_COURT_EVENT);
+        when(eventTypeRepository.findById(EventType.COURT)).thenReturn(Optional.of(eventType));
+        when(eventStatusRepository.findById(EventStatus.SCHEDULED)).thenReturn(Optional.of(eventStatus));
     }
 
     @Test
     void scheduling_of_court_hearing() {
-        when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(offenderBooking));
-
-        when(offenderBooking.getCourtCaseBy(COURT_HEARING.getCourtCaseId())).thenReturn(Optional.of(offenderCourtCase));
-
-        when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
-
-        when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(COURT_LOCATION));
-
-        when(courtEventRepository.save(UN_PERSISTED_COURT_EVENT)).thenReturn(PERSISTED_COURT_EVENT);
-
         CourtHearing courtHearing = courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, COURT_HEARING);
 
         assertThat(courtHearing).isEqualTo(CourtHearing.builder()

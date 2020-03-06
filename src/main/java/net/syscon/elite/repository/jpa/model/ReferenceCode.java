@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Inheritance;
 import java.io.Serializable;
 
@@ -16,16 +18,26 @@ import java.io.Serializable;
 @Entity(name = "REFERENCE_CODES")
 @DiscriminatorColumn(name = "domain")
 @Inheritance
+@IdClass(ReferenceCode.Pk.class)
 public abstract class ReferenceCode implements Serializable {
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Pk implements Serializable {
+        private String domain;
+
+        private String code;
+    }
+
     @Id
+    @Column(insertable = false, updatable = false)
     private String domain;
+
     @Id
     private String code;
 
     private String description;
 
-    static final String CASE_STS = "CASE_STS";
-    static final String LEG_CASE_TYP = "LEG_CASE_TYP";
     static final String MLTY_BRANCH = "MLTY_BRANCH";
     static final String MLTY_WZONE = "MLTY_WZONE";
     static final String MLTY_DSCHRG = "MLTY_DSCHRG";

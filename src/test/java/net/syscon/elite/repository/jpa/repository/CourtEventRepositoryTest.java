@@ -36,16 +36,22 @@ public class CourtEventRepositoryTest {
     private AgencyLocationRepository agencyRepository;
 
     @Autowired
+    private ReferenceCodeRepository<EventStatus> eventStatusRepository;
+
+    @Autowired
+    private ReferenceCodeRepository<EventType> eventTypeRepository;
+
+    @Autowired
     private TestEntityManager entityManager;
 
     @Test
     void court_event_can_be_saved_and_retrieved() {
         var commentText = "Comment text for court event";
         var courtLocation = agencyRepository.findById("COURT1").orElseThrow();
-        var courtEventType = new EventType("CRT", "Court Action");
+        var courtEventType = eventTypeRepository.findById(EventType.COURT).orElseThrow();
         var directionCode = "OUT";
         var eventDate = LocalDate.now();
-        var eventStatus = new EventStatus("SCH", "Scheduled (Approved)");
+        var eventStatus = eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow();
         var startTime = eventDate.atTime(12, 0);
         var nextEventRequestFlag = "X";
         var offenderBooking = offenderBookingRepository.findById(-1L).orElseThrow();
