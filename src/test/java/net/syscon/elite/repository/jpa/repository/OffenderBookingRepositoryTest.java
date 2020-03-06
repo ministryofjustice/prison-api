@@ -36,6 +36,18 @@ public class OffenderBookingRepositoryTest {
     private AgencyLocationRepository agencyLocationRepository;
 
     @Autowired
+    private ReferenceCodeRepository<EventStatus> eventStatusRepository;
+
+    @Autowired
+    private ReferenceCodeRepository<EventType> eventTypeRepository;
+
+    @Autowired
+    private ReferenceCodeRepository<MilitaryBranch> militaryBranchRepository;
+
+    @Autowired
+    private ReferenceCodeRepository<DisciplinaryAction> disciplinaryActionRepository;
+
+    @Autowired
     private TestEntityManager entityManager;
 
     @Test
@@ -76,9 +88,9 @@ public class OffenderBookingRepositoryTest {
         booking.add(
                 OffenderMilitaryRecord.builder()
                         .startDate(LocalDate.parse("2000-01-01"))
-                        .militaryBranch(new MilitaryBranch("ARM", "Army"))
+                        .militaryBranch(militaryBranchRepository.findById(MilitaryBranch.ARMY).orElseThrow())
                         .dischargeLocation("Somewhere")
-                        .disciplinaryAction(new DisciplinaryAction("CM", "Court Martial"))
+                        .disciplinaryAction(disciplinaryActionRepository.findById(DisciplinaryAction.COURT_MARTIAL).orElseThrow())
                         .build());
         repository.save(booking);
         TestTransaction.flagForCommit();
@@ -91,7 +103,7 @@ public class OffenderBookingRepositoryTest {
                 OffenderMilitaryRecord.builder()
                         .bookingAndSequence(new BookingAndSequence(booking, 1))
                         .startDate(LocalDate.parse("2000-01-01"))
-                        .militaryBranch(new MilitaryBranch("ARM", "Army"))
+                        .militaryBranch(militaryBranchRepository.findById(MilitaryBranch.ARMY).orElseThrow())
                         .dischargeLocation("Somewhere")
                         .disciplinaryAction(new DisciplinaryAction("CM", "Court Martial"))
                         .build());
@@ -110,13 +122,13 @@ public class OffenderBookingRepositoryTest {
         booking.add(
                 OffenderMilitaryRecord.builder()
                         .startDate(LocalDate.parse("2000-01-01"))
-                        .militaryBranch(new MilitaryBranch("ARM", "Army"))
+                        .militaryBranch(militaryBranchRepository.findById(MilitaryBranch.ARMY).orElseThrow())
                         .description("First record")
                         .build());
         booking.add(
                 OffenderMilitaryRecord.builder()
                         .startDate(LocalDate.parse("2000-01-01"))
-                        .militaryBranch(new MilitaryBranch("ARM", "Army"))
+                        .militaryBranch(militaryBranchRepository.findById(MilitaryBranch.ARMY).orElseThrow())
                         .description("Second record")
                         .build());
 
@@ -226,11 +238,11 @@ public class OffenderBookingRepositoryTest {
 
         return CourtEvent.builder()
                 .commentText("Comment text for court event")
-                .courtEventType(new EventType("CRT", "Court Action"))
+                .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
                 .courtLocation(agencyLocationRepository.findById("COURT1").orElseThrow())
                 .directionCode("OUT")
                 .eventDate(eventDate)
-                .eventStatus(new EventStatus("SCH", "Scheduled (Approved)"))
+                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
                 .nextEventRequestFlag("X")
                 .offenderBooking(courtCase.getOffenderBooking())
                 .offenderCourtCase(courtCase)

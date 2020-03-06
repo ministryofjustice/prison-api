@@ -3,13 +3,13 @@ package net.syscon.elite.service;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
-import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CourtEvent;
 import net.syscon.elite.repository.jpa.model.EventStatus;
 import net.syscon.elite.repository.jpa.model.EventType;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.CourtEventRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
 import net.syscon.elite.service.transformers.AgencyTransformer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,12 +27,20 @@ public class CourtHearingsService {
 
     private final AgencyLocationRepository agencyLocationRepository;
 
+    private final ReferenceCodeRepository<EventType> eventTypeRepository;
+
+    private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
+
     public CourtHearingsService(final OffenderBookingRepository offenderBookingRepository,
                                 final CourtEventRepository courtEventRepository,
-                                final AgencyLocationRepository agencyLocationRepository) {
+                                final AgencyLocationRepository agencyLocationRepository,
+                                final ReferenceCodeRepository<EventType> eventTypeRepository,
+                                final ReferenceCodeRepository<EventStatus> eventStatusRepository) {
         this.offenderBookingRepository = offenderBookingRepository;
         this.courtEventRepository = courtEventRepository;
         this.agencyLocationRepository = agencyLocationRepository;
+        this.eventTypeRepository = eventTypeRepository;
+        this.eventStatusRepository = eventStatusRepository;
     }
 
     @Transactional
@@ -40,22 +48,22 @@ public class CourtHearingsService {
         // TODO throw entity not found exception
         var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow();
 
-        // TODO throw entity not found exception
+        // TODO throw entity not found exception (check is active)
         var courtCase = offenderBooking.getCourtCaseBy(hearing.getCourtCaseId()).orElseThrow();
 
         // TODO throw entity not found exception (check is prison?)
-        AgencyLocation fromPrison = agencyLocationRepository.findById(hearing.getFromPrisonLocation()).orElseThrow();
+        var locationOfPrison = agencyLocationRepository.findById(hearing.getFromPrisonLocation()).orElseThrow();
 
         // TODO throw entity not found exception (check is court)
-        AgencyLocation toCourt = agencyLocationRepository.findById(hearing.getToCourtLocation()).orElseThrow();
+        var locationOfCourt = agencyLocationRepository.findById(hearing.getToCourtLocation()).orElseThrow();
 
         // TODO sort out reference codes!!!
         CourtEvent courtEvent = CourtEvent.builder()
-                .courtEventType(new EventType("CRT", "Court Action"))
-                .courtLocation(toCourt)
+                .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
+                .courtLocation(locationOfCourt)
                 .directionCode("OUT")
                 .eventDate(hearing.getCourtHearingDateTime().toLocalDate())
-                .eventStatus(new EventStatus("SCH", "Scheduled (Approved)"))
+                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
                 .offenderCourtCase(courtCase)
                 .offenderBooking(offenderBooking)
                 .startTime(hearing.getCourtHearingDateTime())

@@ -10,6 +10,9 @@ import javax.persistence.Entity;
 @DiscriminatorValue(ReferenceCode.MLTY_DISCP)
 @NoArgsConstructor
 public class DisciplinaryAction extends ReferenceCode {
+
+    public static final ReferenceCode.Pk COURT_MARTIAL = new ReferenceCode.Pk(ReferenceCode.MLTY_DISCP, "CM");
+
     public DisciplinaryAction(final String code, final String description) {
         super(ReferenceCode.MLTY_DISCP, code, description);
     }

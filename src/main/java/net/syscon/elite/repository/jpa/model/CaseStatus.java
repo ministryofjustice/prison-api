@@ -5,11 +5,16 @@ import lombok.NoArgsConstructor;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import static net.syscon.elite.repository.jpa.model.CaseStatus.CASE_STS;
+
 @Entity
-@DiscriminatorValue(ReferenceCode.CASE_STS)
+@DiscriminatorValue(CASE_STS)
 @NoArgsConstructor
 public class CaseStatus extends ReferenceCode {
+
+    static final String CASE_STS = "CASE_STS";
+
     public CaseStatus(final String code, final String description) {
-        super(ReferenceCode.CASE_STS, code, description);
+        super(CASE_STS, code, description);
     }
 }

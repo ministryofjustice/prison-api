@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static net.syscon.elite.repository.jpa.model.ReferenceCode.CASE_STS;
-import static net.syscon.elite.repository.jpa.model.ReferenceCode.LEG_CASE_TYP;
+import static net.syscon.elite.repository.jpa.model.CaseStatus.CASE_STS;
+import static net.syscon.elite.repository.jpa.model.LegalCaseType.LEG_CASE_TYP;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
