@@ -7,10 +7,13 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue(ReferenceCode.MLTY_DSCHRG)
+@DiscriminatorValue(MilitaryDischarge.MLTY_DSCHRG)
 @NoArgsConstructor
 public class MilitaryDischarge extends ReferenceCode {
+
+    static final String MLTY_DSCHRG = "MLTY_DSCHRG";
+
     public MilitaryDischarge(final String code, final String description) {
-        super(ReferenceCode.MLTY_DSCHRG, code, description);
+        super(MLTY_DSCHRG, code, description);
     }
 }

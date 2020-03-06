@@ -7,13 +7,15 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue(ReferenceCode.MLTY_DISCP)
+@DiscriminatorValue(DisciplinaryAction.MLTY_DISCP)
 @NoArgsConstructor
 public class DisciplinaryAction extends ReferenceCode {
 
-    public static final ReferenceCode.Pk COURT_MARTIAL = new ReferenceCode.Pk(ReferenceCode.MLTY_DISCP, "CM");
+    static final String MLTY_DISCP = "MLTY_DISCP";
+
+    public static final ReferenceCode.Pk COURT_MARTIAL = new ReferenceCode.Pk(MLTY_DISCP, "CM");
 
     public DisciplinaryAction(final String code, final String description) {
-        super(ReferenceCode.MLTY_DISCP, code, description);
+        super(MLTY_DISCP, code, description);
     }
 }

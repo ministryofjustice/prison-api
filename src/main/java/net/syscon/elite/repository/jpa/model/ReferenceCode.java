@@ -38,12 +38,6 @@ public abstract class ReferenceCode implements Serializable {
 
     private String description;
 
-    static final String MLTY_BRANCH = "MLTY_BRANCH";
-    static final String MLTY_WZONE = "MLTY_WZONE";
-    static final String MLTY_DSCHRG = "MLTY_DSCHRG";
-    static final String MLTY_DISCP = "MLTY_DISCP";
-    static final String MLTY_RANK = "MLTY_RANK";
-
     public static String getDescriptionOrNull(final ReferenceCode referenceCode) {
         return referenceCode != null ? referenceCode.getDescription() : null;
     }

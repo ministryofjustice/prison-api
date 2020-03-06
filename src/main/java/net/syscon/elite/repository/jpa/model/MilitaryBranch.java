@@ -6,13 +6,15 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue(ReferenceCode.MLTY_BRANCH)
+@DiscriminatorValue(MilitaryBranch.MLTY_BRANCH)
 @NoArgsConstructor
 public class MilitaryBranch extends ReferenceCode {
 
-    public static final ReferenceCode.Pk ARMY = new ReferenceCode.Pk(ReferenceCode.MLTY_BRANCH, "ARM");
+    static final String MLTY_BRANCH = "MLTY_BRANCH";
+
+    public static final ReferenceCode.Pk ARMY = new ReferenceCode.Pk(MLTY_BRANCH, "ARM");
 
     public MilitaryBranch(final String code, final String description) {
-        super(ReferenceCode.MLTY_BRANCH, code, description);
+        super(MLTY_BRANCH, code, description);
     }
 }
