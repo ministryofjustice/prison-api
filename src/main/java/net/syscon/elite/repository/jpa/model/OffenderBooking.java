@@ -17,6 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Builder
@@ -51,5 +52,9 @@ public class OffenderBooking {
     public void add(final OffenderCourtCase courtCase) {
         courtCases.add(courtCase);
         courtCase.setOffenderBooking(this);
+    }
+
+    public Optional<OffenderCourtCase> getCourtCaseBy(final Long courtCaseId) {
+        return courtCases == null ? Optional.empty() : courtCases.stream().filter(cc -> cc.getId().equals(courtCaseId)).findFirst();
     }
 }

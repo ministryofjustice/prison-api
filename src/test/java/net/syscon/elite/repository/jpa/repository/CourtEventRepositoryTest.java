@@ -39,8 +39,7 @@ public class CourtEventRepositoryTest {
     private TestEntityManager entityManager;
 
     @Test
-    public void court_event_can_be_saved_and_retrieved() {
-        var id = 999L;
+    void court_event_can_be_saved_and_retrieved() {
         var commentText = "Comment text for court event";
         var courtLocation = agencyRepository.findById("COURT1").orElseThrow();
         var courtEventType = new EventType("CRT", "Court Action");
@@ -53,8 +52,7 @@ public class CourtEventRepositoryTest {
         var offenderCourtCase = offenderBooking.getCourtCases().stream().findFirst().orElseThrow();
         var orderRequestedFlag = "Y";
 
-        courtEventRepository.save(CourtEvent.builder()
-                .id(id)
+        CourtEvent savedCourtEvent = courtEventRepository.save(CourtEvent.builder()
                 .commentText(commentText)
                 .courtEventType(courtEventType)
                 .courtLocation(courtLocation)
@@ -70,34 +68,6 @@ public class CourtEventRepositoryTest {
 
         entityManager.flush();
 
-        var persistedCourtEvent = courtEventRepository.findById(999L).orElseThrow();
-
-        assertThat(persistedCourtEvent)
-                .extracting(
-                        CourtEvent::getId,
-                        CourtEvent::getCommentText,
-                        CourtEvent::getCourtEventType,
-                        CourtEvent::getCourtLocation,
-                        CourtEvent::getDirectionCode,
-                        CourtEvent::getEventDate,
-                        CourtEvent::getEventStatus,
-                        CourtEvent::getNextEventRequestFlag,
-                        CourtEvent::getOffenderBooking,
-                        CourtEvent::getOffenderCourtCase,
-                        CourtEvent::getOrderRequestedFlag,
-                        CourtEvent::getStartTime)
-                .containsOnly(
-                        id,
-                        commentText,
-                        courtEventType,
-                        courtLocation,
-                        directionCode,
-                        eventDate,
-                        nextEventRequestFlag,
-                        eventStatus,
-                        offenderBooking,
-                        offenderCourtCase,
-                        orderRequestedFlag,
-                        startTime);
+        assertThat(courtEventRepository.findById(savedCourtEvent.getId()).orElseThrow()).isEqualTo(savedCourtEvent);
     }
 }
