@@ -17,11 +17,7 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://localhost:9090/auth/.well-known/jwks.json
+oauth.endpoint.url: http://localhost:9090/auth
 
 logging:
   level:

@@ -47,9 +47,7 @@ gradlew bootRun
 
 #### Authenticating with JWT when running locally
 
-When running locally with the profile `dev` any JWT generated from a local Auth server will be valid.  This works by spinning up a Mock JWK Set server in `StubJwkServer` which provides the public key to verify the JWT signature.
-
-If you start this app locally without the profile `dev` then you must also spin up an Auth server and make sure that `spring.security.oauth.resource.jwt.jwk-set-uri` points to the local Auth server (e.g. http://localhost:9090/auth/.well-known/jwks.json).
+When running locally with the profile `dev` JWTs are verified against resources/local-public-key.pem.  When deployed to t3, t2, preprod or prod, JWTs are verified against the public key hosted by the auth server at https://<auth-server>/auth/.well-known/jwks.json.
 
 ### Coding Standards
 There are a few different styles in this project due to historical reasons and the accumulation of technical debt.

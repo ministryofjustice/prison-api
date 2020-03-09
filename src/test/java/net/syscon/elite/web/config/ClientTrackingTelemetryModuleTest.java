@@ -26,7 +26,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@Import({JwtAuthenticationHelper.class, ClientTrackingTelemetryModule.class, JwkClient.class})
+@Import({JwtAuthenticationHelper.class, ClientTrackingTelemetryModule.class, PublicKeyClient.class})
 @ContextConfiguration(initializers = {ConfigFileApplicationContextInitializer.class})
 @ActiveProfiles("test")
 public class ClientTrackingTelemetryModuleTest {

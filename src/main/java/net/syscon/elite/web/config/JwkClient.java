@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -20,7 +21,8 @@ import static java.util.Collections.emptyList;
 
 @Component
 @Slf4j
-public class JwkClient {
+@ConditionalOnProperty("spring.security.oauth2.resourceserver.jwt.jwk-set-uri")
+public class JwkClient implements PublicKeySupplier {
 
     private final String jwkUrl;
     private Optional<Map<String, PublicKey>> publicKeysById = Optional.empty();
@@ -29,7 +31,7 @@ public class JwkClient {
         this.jwkUrl = jwkUrl;
     }
 
-    PublicKey getPublicKeyForKeyId(final String keyId) {
+    public PublicKey getPublicKeyForKeyId(final String keyId) {
         return publicKeysById
                 .map(keys -> keys.get(keyId))
                 .orElse(retrieveKeysAndFind(keyId));
