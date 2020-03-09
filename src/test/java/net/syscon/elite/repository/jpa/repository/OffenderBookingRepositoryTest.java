@@ -115,6 +115,7 @@ public class OffenderBookingRepositoryTest {
     @Test
     void saveMultipleMilitaryRecords() {
         final var booking = repository.findById(-3L).orElseThrow();
+
         final var militaryRecords = booking.getMilitaryRecords();
 
         assertThat(militaryRecords).isEmpty();

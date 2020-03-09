@@ -1,9 +1,11 @@
 package net.syscon.elite.repository.jpa.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import org.hibernate.annotations.ListIndexBase;
 
@@ -26,6 +28,9 @@ import java.util.Optional;
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
 public class OffenderBooking {
+
+    private static final Integer ACTIVE_BOOKING = 1;
+
     @Id
     @Column(name = "OFFENDER_BOOK_ID")
     private Long bookingId;
@@ -44,6 +49,10 @@ public class OffenderBooking {
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation location;
 
+    @Setter(AccessLevel.NONE)
+    @Column(name = "BOOKING_SEQ", nullable = false)
+    private Integer bookingSequence;
+
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
         omr.setBookingAndSequence(new BookingAndSequence(this, militaryRecords.size()));
@@ -56,5 +65,9 @@ public class OffenderBooking {
 
     public Optional<OffenderCourtCase> getCourtCaseBy(final Long courtCaseId) {
         return courtCases == null ? Optional.empty() : courtCases.stream().filter(cc -> cc.getId().equals(courtCaseId)).findFirst();
+    }
+
+    public boolean isActive() {
+        return ACTIVE_BOOKING.equals(bookingSequence);
     }
 }
