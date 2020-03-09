@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
@@ -14,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 import static java.lang.String.format;
 
@@ -24,10 +24,10 @@ public class PublicKeyClient implements PublicKeySupplier {
 
     private PublicKey publicKey;
 
-    public PublicKeyClient(@Value("${spring.security.oauth2.resourceserver.jwt.public-key-location}") String publicKeyLocation) {
-        Resource publicKeyResource = new DefaultResourceLoader().getResource(publicKeyLocation);
+    public PublicKeyClient(@Value("${spring.security.oauth2.resourceserver.jwt.public-key-location}") final String publicKeyLocation) {
+        final var publicKeyResource = new DefaultResourceLoader().getResource(publicKeyLocation);
         try (InputStream inputStream = publicKeyResource.getInputStream()) {
-            String publicKeyString = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+            final var publicKeyString = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             publicKey = KeyFactory.getInstance("RSA")
                     .generatePublic(new X509EncodedKeySpec(getKeySpec(publicKeyString)));
 
@@ -36,13 +36,13 @@ public class PublicKeyClient implements PublicKeySupplier {
         }
 
     }
-    private byte[] getKeySpec(String keyValue) {
-        keyValue = keyValue.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "");
-        return java.util.Base64.getMimeDecoder().decode(keyValue);
+    private byte[] getKeySpec(final String keyValue) {
+        final var rawKeyValue = keyValue.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "");
+        return Base64.getMimeDecoder().decode(rawKeyValue);
     }
 
     @Override
-    public PublicKey getPublicKeyForKeyId(String keyId) {
+    public PublicKey getPublicKeyForKeyId(final String keyId) {
         return publicKey;
     }
 

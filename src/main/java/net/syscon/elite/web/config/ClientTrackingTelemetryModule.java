@@ -65,7 +65,7 @@ public class ClientTrackingTelemetryModule implements WebTelemetryModule, Teleme
                 .getBody();
     }
 
-    private PublicKey getPublicKey(String token) throws ParseException {
+    private PublicKey getPublicKey(final String token) throws ParseException {
         final var signedJWT = SignedJWT.parse(token.replace("Bearer ", ""));
         final var kid = signedJWT.getHeader().getKeyID();
         return publicKeySupplier.getPublicKeyForKeyId(kid);
