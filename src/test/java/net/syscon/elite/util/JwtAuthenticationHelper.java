@@ -53,7 +53,6 @@ public class JwtAuthenticationHelper {
                 .addClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + parameters.getExpiryTime().toMillis()))
                 .signWith(SignatureAlgorithm.RS256, keyPair.getPrivate())
-                .setIssuer("http://localhost:8080/auth/issuer")
                 .setHeaderParam("typ", "JWT")
                 .setHeaderParam("kid", "dps-client-key")
                 .compact();

@@ -1,12 +1,9 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.Elite2ApiServer;
-import net.syscon.elite.api.resource.OauthMockServer;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import net.syscon.elite.util.JwtAuthenticationHelper;
 import net.syscon.elite.util.JwtParameters;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,15 +40,6 @@ public abstract class ResourceTest {
 
     @Autowired
     protected AuthTokenHelper authTokenHelper;
-
-    @ClassRule
-    public static OauthMockServer oauthMockServer = new OauthMockServer(8080);
-
-    @Before
-    public void setUp() {
-        oauthMockServer.resetAll();
-        oauthMockServer.stubJwkServer();
-    }
 
     protected HttpEntity<?> createHttpEntity(final String bearerToken, final Object body) {
         return createHttpEntity(bearerToken, body, Collections.emptyMap());

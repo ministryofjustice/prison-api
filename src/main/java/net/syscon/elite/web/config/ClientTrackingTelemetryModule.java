@@ -26,11 +26,11 @@ import static net.syscon.util.MdcUtility.IP_ADDRESS;
 @Slf4j
 @Configuration
 public class ClientTrackingTelemetryModule implements WebTelemetryModule, TelemetryModule {
-    private final JwkClient jwkClient;
+    private final PublicKeySupplier publicKeySupplier;
 
     @Autowired
-    public ClientTrackingTelemetryModule(final JwkClient jwkClient) {
-        this.jwkClient = jwkClient;
+    public ClientTrackingTelemetryModule(final PublicKeySupplier publicKeySupplier) {
+        this.publicKeySupplier = publicKeySupplier;
     }
 
     @Override
@@ -65,10 +65,10 @@ public class ClientTrackingTelemetryModule implements WebTelemetryModule, Teleme
                 .getBody();
     }
 
-    private PublicKey getPublicKey(String token) throws ParseException {
+    private PublicKey getPublicKey(final String token) throws ParseException {
         final var signedJWT = SignedJWT.parse(token.replace("Bearer ", ""));
         final var kid = signedJWT.getHeader().getKeyID();
-        return jwkClient.getPublicKeyForKeyId(kid);
+        return publicKeySupplier.getPublicKeyForKeyId(kid);
     }
 
     @Override
