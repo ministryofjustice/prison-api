@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import static java.lang.String.format;
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Service
 @Transactional(readOnly = true)
@@ -67,46 +67,42 @@ public class CourtHearingsService {
                 .startTime(hearing.getCourtHearingDateTime())
                 .build();
 
-        return toCourtHearing(courtEventRepository.save(courtEvent));
+        final var courtHearing = toCourtHearing(courtEventRepository.save(courtEvent));
+
+        log.debug("created court hearing with id '{} for court case id {} and booking id {}", courtHearing.getId(), courtCase.getId(), offenderBooking.getBookingId());
+
+        return courtHearing;
     }
 
     private OffenderBooking getActiveOffenderBookingFor(final Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
-        if (offenderBooking.isActive()) {
-            return offenderBooking;
-        }
+        checkArgument(offenderBooking.isActive(),"Offender booking with id %s is not active.", bookingId);
 
-        throw new IllegalArgumentException(format("Offender booking with id [%d] is not active.", bookingId));
+        return offenderBooking;
     }
 
     private OffenderCourtCase getActiveCourtCaseFor(final Long caseId, final OffenderBooking offenderBooking) {
         final var courtCase = offenderBooking.getCourtCaseBy(caseId).orElseThrow(EntityNotFoundException.withId(caseId));
 
-        if (courtCase.isActive()) {
-            return courtCase;
-        }
+        checkArgument(courtCase.isActive(), "Court case with id %s is not active.", caseId);
 
-        throw new IllegalArgumentException(format("Court case with id [%d] is not active.", caseId));
+        return courtCase;
     }
 
     private void checkPrisonLocationSameAsOffenderBooking(final String prisonLocation, final OffenderBooking booking) {
         var agency = agencyLocationRepository.findById(prisonLocation).orElseThrow(EntityNotFoundException.withId(prisonLocation));
 
-        if (!booking.getLocation().equals(agency)) {
-            throw new IllegalArgumentException("Prison location does not match the bookings location.");
-        }
+        checkArgument(booking.getLocation().equals(agency),"Prison location does not match the bookings location.");
     }
 
     // TODO check if court is active.
     private AgencyLocation getCourtFor(final String courtLocation) {
         var agency = agencyLocationRepository.findById(courtLocation).orElseThrow(EntityNotFoundException.withId(courtLocation));
 
-        if (agency.getType().equalsIgnoreCase("CRT")) {
-            return agency;
-        }
+        checkArgument(agency.getType().equalsIgnoreCase("CRT"),"Supplied court location wih id %s is not a valid court location.", courtLocation);
 
-        throw new IllegalArgumentException(format("Supplied court location wih id %s is not a valid court location.", courtLocation));
+        return agency;
     }
 
     private CourtHearing toCourtHearing(final CourtEvent event) {
