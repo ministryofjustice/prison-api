@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Service
@@ -36,20 +39,26 @@ public class CourtHearingsService {
 
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
 
+    private final Clock clock;
+
     public CourtHearingsService(final OffenderBookingRepository offenderBookingRepository,
                                 final CourtEventRepository courtEventRepository,
                                 final AgencyLocationRepository agencyLocationRepository,
                                 final ReferenceCodeRepository<EventType> eventTypeRepository,
-                                final ReferenceCodeRepository<EventStatus> eventStatusRepository) {
+                                final ReferenceCodeRepository<EventStatus> eventStatusRepository,
+                                final Clock clock) {
         this.offenderBookingRepository = offenderBookingRepository;
         this.courtEventRepository = courtEventRepository;
         this.agencyLocationRepository = agencyLocationRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.eventStatusRepository = eventStatusRepository;
+        this.clock = clock;
     }
 
     @Transactional
     public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
+        checkHearingIsInFuture(hearing.getCourtHearingDateTime());
+
         final var offenderBooking = getActiveOffenderBookingFor(bookingId);
 
         final var courtCase = getActiveCourtCaseFor(hearing.getCourtCaseId(), offenderBooking);
@@ -57,7 +66,7 @@ public class CourtHearingsService {
         checkPrisonLocationSameAsOffenderBooking(hearing.getFromPrisonLocation(), offenderBooking);
 
         CourtEvent courtEvent = CourtEvent.builder()
-                .courtLocation(getCourtFor(hearing.getToCourtLocation()))
+                .courtLocation(getActiveCourtFor(hearing.getToCourtLocation()))
                 .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
                 .directionCode("OUT")
                 .eventDate(hearing.getCourtHearingDateTime().toLocalDate())
@@ -72,6 +81,10 @@ public class CourtHearingsService {
         log.debug("created court hearing with id '{} for court case id {} and booking id {}", courtHearing.getId(), courtCase.getId(), offenderBooking.getBookingId());
 
         return courtHearing;
+    }
+
+    private void checkHearingIsInFuture(final LocalDateTime courtHearingDateTime) {
+        checkArgument(courtHearingDateTime.isAfter(LocalDateTime.now(clock)), "Court hearing must be in the future.");
     }
 
     private OffenderBooking getActiveOffenderBookingFor(final Long bookingId) {
@@ -96,11 +109,11 @@ public class CourtHearingsService {
         checkArgument(booking.getLocation().equals(agency),"Prison location does not match the bookings location.");
     }
 
-    // TODO check if court is active.
-    private AgencyLocation getCourtFor(final String courtLocation) {
+    private AgencyLocation getActiveCourtFor(final String courtLocation) {
         var agency = agencyLocationRepository.findById(courtLocation).orElseThrow(EntityNotFoundException.withId(courtLocation));
 
         checkArgument(agency.getType().equalsIgnoreCase("CRT"),"Supplied court location wih id %s is not a valid court location.", courtLocation);
+        checkArgument(agency.getActiveFlag().isActive(), "Supplied court location wih id %s is not active.", courtLocation);
 
         return agency;
     }
