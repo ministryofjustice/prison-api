@@ -21,11 +21,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
+import static java.time.Instant.ofEpochMilli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -84,6 +87,8 @@ public class CourtHearingsServiceTest {
     @Mock
     private EventStatus eventStatus;
 
+    private final Clock startOfEpochClock = Clock.fixed(ofEpochMilli(0), ZoneId.systemDefault());
+
     private OffenderBooking offenderBooking;
 
     private CourtHearingsService courtHearingsService;
@@ -95,7 +100,8 @@ public class CourtHearingsServiceTest {
                 courtEventRepository,
                 agencyLocationRepository,
                 eventTypeRepository,
-                eventStatusRepository);
+                eventStatusRepository,
+                startOfEpochClock);
     }
 
     @Test
@@ -259,6 +265,38 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
+    void scheduleHearing_errors_when_court_is_not_currently_active() {
+        givenProvidedCourtIsNotActive();
+
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, PRISON_TO_COURT_HEARING))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Supplied court location wih id %s is not active.", PRISON_TO_COURT_HEARING.getToCourtLocation());
+    }
+
+    private void givenProvidedCourtIsNotActive() {
+        offenderBooking = OffenderBooking
+                .builder()
+                .bookingId(OFFENDER_BOOKING_ID)
+                .bookingSequence(1)
+                .location(fromPrison)
+                .courtCases(List.of(OffenderCourtCase.builder()
+                        .id(1L)
+                        .caseSeq(1L)
+                        .caseStatus(new CaseStatus("active", "description"))
+                        .build()))
+                .build();
+
+        when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
+        when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
+        when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(AgencyLocation.builder()
+                .activeFlag(ActiveFlag.N)
+                .description("Agency Description")
+                .id("COURT")
+                .type("CRT")
+                .build()));
+    }
+
+    @Test
     void scheduleHearing_errors_when_supplied_court_is_not_court() {
         givenProvidedCourtLocationIsNotACourt();
 
@@ -310,5 +348,14 @@ public class CourtHearingsServiceTest {
 
         when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
         when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
+    }
+
+    @Test
+    void scheduleHearing_errors_when_hearing_date_not_in_future() {
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, PrisonToCourtHearing.builder()
+                .courtHearingDateTime(LocalDateTime.now(startOfEpochClock))
+                .build()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Court hearing must be in the future.");
     }
 }
