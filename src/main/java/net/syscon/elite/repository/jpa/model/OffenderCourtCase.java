@@ -40,6 +40,8 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @ToString(exclude = "offenderBooking")
 public class OffenderCourtCase extends AuditableEntity {
 
+    private static final String ACTIVE = "active";
+
     @Id
     @Column(name = "CASE_ID", nullable = false)
     private Long id;
@@ -98,5 +100,9 @@ public class OffenderCourtCase extends AuditableEntity {
 
         courtEvent.setOffenderCourtCase(this);
         courtEvent.setOffenderBooking(getOffenderBooking());
+    }
+
+    public boolean isActive() {
+        return caseStatus != null && caseStatus.isActive();
     }
 }

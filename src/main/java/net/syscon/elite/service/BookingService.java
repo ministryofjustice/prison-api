@@ -6,8 +6,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
-import net.syscon.elite.repository.jpa.model.CaseStatus;
-import net.syscon.elite.repository.jpa.model.LegalCaseType;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
