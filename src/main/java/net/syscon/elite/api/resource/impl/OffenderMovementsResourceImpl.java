@@ -3,6 +3,7 @@ package net.syscon.elite.api.resource.impl;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.service.CourtHearingsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +23,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
         this.courtHearingsService = courtHearingsService;
     }
 
+    @ProxyUser
     @Override
     public ResponseEntity<CourtHearing> prisonToCourtHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
         return ResponseEntity.status(CREATED).body(courtHearingsService.scheduleHearing(bookingId, hearing));

@@ -3,6 +3,7 @@ package net.syscon.elite.service;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CourtEvent;
 import net.syscon.elite.repository.jpa.model.EventStatus;
@@ -58,6 +59,7 @@ public class CourtHearingsService {
 
     @Transactional
     @VerifyBookingAccess
+    @HasWriteScope
     public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
