@@ -12,9 +12,15 @@ import static net.syscon.elite.repository.jpa.model.CaseStatus.CASE_STS;
 @NoArgsConstructor
 public class CaseStatus extends ReferenceCode {
 
+    private static final String ACTIVE_CODE = "active";
+
     static final String CASE_STS = "CASE_STS";
 
     public CaseStatus(final String code, final String description) {
         super(CASE_STS, code, description);
+    }
+
+    boolean isActive() {
+        return ACTIVE_CODE.equalsIgnoreCase(this.getCode());
     }
 }
