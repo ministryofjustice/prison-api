@@ -63,6 +63,10 @@ public class CourtHearingsServiceTest {
 
     private static final CourtEvent PERSISTED_COURT_EVENT = COURT_EVENT_BUILDER.id(COURT_EVENT_ID).build();
 
+    private static final CaseStatus ACTIVE_CASE_STATUS = new CaseStatus("A", "Active");
+
+    private static final CaseStatus INACTIVE_CASE_STATUS = new CaseStatus("I", "Inactive");
+
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
 
@@ -127,7 +131,7 @@ public class CourtHearingsServiceTest {
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(1L)
                         .caseSeq(1L)
-                        .caseStatus(new CaseStatus("active", "description"))
+                        .caseStatus(ACTIVE_CASE_STATUS)
                         .build()))
                 .build();
 
@@ -204,7 +208,7 @@ public class CourtHearingsServiceTest {
                 .location(fromPrison)
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(PRISON_TO_COURT_HEARING.getCourtCaseId())
-                        .caseStatus(new CaseStatus("inactive", "description"))
+                        .caseStatus(INACTIVE_CASE_STATUS)
                         .build()))
                 .build();
 
@@ -229,7 +233,7 @@ public class CourtHearingsServiceTest {
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(1L)
                         .caseSeq(1L)
-                        .caseStatus(new CaseStatus("active", "description"))
+                        .caseStatus(ACTIVE_CASE_STATUS)
                         .build()))
                 .build();
 
@@ -255,7 +259,7 @@ public class CourtHearingsServiceTest {
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(1L)
                         .caseSeq(1L)
-                        .caseStatus(new CaseStatus("active", "description"))
+                        .caseStatus(ACTIVE_CASE_STATUS)
                         .build()))
                 .build();
 
@@ -282,7 +286,7 @@ public class CourtHearingsServiceTest {
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(1L)
                         .caseSeq(1L)
-                        .caseStatus(new CaseStatus("active", "description"))
+                        .caseStatus(ACTIVE_CASE_STATUS)
                         .build()))
                 .build();
 
@@ -314,7 +318,7 @@ public class CourtHearingsServiceTest {
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(1L)
                         .caseSeq(1L)
-                        .caseStatus(new CaseStatus("active", "description"))
+                        .caseStatus(ACTIVE_CASE_STATUS)
                         .build()))
                 .build();
 
@@ -342,7 +346,7 @@ public class CourtHearingsServiceTest {
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(1L)
                         .caseSeq(1L)
-                        .caseStatus(new CaseStatus("active", "description"))
+                        .caseStatus(ACTIVE_CASE_STATUS)
                         .build()))
                 .build();
 

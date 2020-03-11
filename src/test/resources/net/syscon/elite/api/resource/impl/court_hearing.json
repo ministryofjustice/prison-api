@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "date": "2030-03-11",
+  "time": "14:00:00",
+  "location": {
+    "active": true,
+    "agencyId": "COURT1",
+    "agencyType": "CRT",
+    "description": "Court 1"
+  }
+}
+

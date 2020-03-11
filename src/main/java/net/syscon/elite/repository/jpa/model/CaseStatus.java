@@ -12,7 +12,7 @@ import static net.syscon.elite.repository.jpa.model.CaseStatus.CASE_STS;
 @NoArgsConstructor
 public class CaseStatus extends ReferenceCode {
 
-    private static final String ACTIVE_CODE = "active";
+    private static final String ACTIVE_CODE = "A";
 
     static final String CASE_STS = "CASE_STS";
 

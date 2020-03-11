@@ -13,11 +13,11 @@ public class OffenderCourtCaseTest {
 
     @Test
     void case_is_not_active() {
-        assertThat(OffenderCourtCase.builder().caseStatus(new CaseStatus("garbage", "description")).build().isActive()).isFalse();
+        assertThat(OffenderCourtCase.builder().caseStatus(new CaseStatus("I", "not active")).build().isActive()).isFalse();
     }
 
     @Test
     void case_is_active() {
-        assertThat(OffenderCourtCase.builder().caseStatus(new CaseStatus("active", "description")).build().isActive()).isTrue();
+        assertThat(OffenderCourtCase.builder().caseStatus(new CaseStatus("A", "active")).build().isActive()).isTrue();
     }
 }

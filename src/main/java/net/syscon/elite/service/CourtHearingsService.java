@@ -13,6 +13,7 @@ import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.CourtEventRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
+import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.transformers.AgencyTransformer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,7 @@ public class CourtHearingsService {
     }
 
     @Transactional
+    @VerifyBookingAccess
     public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
@@ -104,13 +106,13 @@ public class CourtHearingsService {
     }
 
     private void checkPrisonLocationSameAsOffenderBooking(final String prisonLocation, final OffenderBooking booking) {
-        var agency = agencyLocationRepository.findById(prisonLocation).orElseThrow(EntityNotFoundException.withId(prisonLocation));
+        final var agency = agencyLocationRepository.findById(prisonLocation).orElseThrow(EntityNotFoundException.withId(prisonLocation));
 
         checkArgument(booking.getLocation().equals(agency),"Prison location does not match the bookings location.");
     }
 
     private AgencyLocation getActiveCourtFor(final String courtLocation) {
-        var agency = agencyLocationRepository.findById(courtLocation).orElseThrow(EntityNotFoundException.withId(courtLocation));
+        final var agency = agencyLocationRepository.findById(courtLocation).orElseThrow(EntityNotFoundException.withId(courtLocation));
 
         checkArgument(agency.getType().equalsIgnoreCase("CRT"),"Supplied court location wih id %s is not a valid court location.", courtLocation);
         checkArgument(agency.getActiveFlag().isActive(), "Supplied court location wih id %s is not active.", courtLocation);
