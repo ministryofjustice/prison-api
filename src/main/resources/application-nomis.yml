@@ -32,5 +32,4 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${oauth.endpoint.url}/issuer
           jwk-set-uri: ${oauth.endpoint.url}/.well-known/jwks.json
