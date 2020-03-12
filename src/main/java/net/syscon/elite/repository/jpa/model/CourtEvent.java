@@ -31,7 +31,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id", callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "COURT_EVENTS")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 public class CourtEvent extends AuditableEntity {

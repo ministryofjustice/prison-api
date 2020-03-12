@@ -31,6 +31,8 @@ import java.util.Optional;
 import static java.time.Instant.ofEpochMilli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +46,8 @@ public class CourtHearingsServiceTest {
             .courtCaseId(1L)
             .fromPrisonLocation("PRISON")
             .toCourtLocation("COURT")
-            .courtHearingDateTime(LocalDateTime.now())
+            .courtHearingDateTime(LocalDateTime.of(2020, 3, 13, 12, 0))
+            .comments("some comments related to the court hearing.")
             .build();
 
     private static final AgencyLocation COURT_LOCATION = AgencyLocation.builder()
@@ -54,18 +57,26 @@ public class CourtHearingsServiceTest {
             .type("CRT")
             .build();
 
-    private static final CourtEvent.CourtEventBuilder COURT_EVENT_BUILDER = CourtEvent.builder()
+    private static final CourtEvent PERSISTED_COURT_EVENT = CourtEvent.builder()
+            .id(COURT_EVENT_ID)
             .courtLocation(COURT_LOCATION)
-            .eventDate(LocalDate.EPOCH)
-            .startTime(LocalDate.EPOCH.atStartOfDay());
-
-    private static final CourtEvent UN_PERSISTED_COURT_EVENT = COURT_EVENT_BUILDER.build();
-
-    private static final CourtEvent PERSISTED_COURT_EVENT = COURT_EVENT_BUILDER.id(COURT_EVENT_ID).build();
+            .eventDate(LocalDate.of(2020, 3, 13))
+            .startTime(LocalDateTime.of(2020, 3, 13, 12, 0))
+            .build();
 
     private static final CaseStatus ACTIVE_CASE_STATUS = new CaseStatus("A", "Active");
 
     private static final CaseStatus INACTIVE_CASE_STATUS = new CaseStatus("I", "Inactive");
+
+    private static final OffenderCourtCase ACTIVE_COURT_CASE = OffenderCourtCase.builder()
+            .id(1L)
+            .caseSeq(1L)
+            .caseStatus(ACTIVE_CASE_STATUS)
+            .build();
+
+    private static final EventType EVENT_TYPE = new EventType("EVENT_TYPE_CODE", "EVENT_TYPE_DESCRIPTION");
+
+    private static final EventStatus EVENT_STATUS = new EventStatus("EVENT_STATUS_CODE", "EVENT_STATUS_DESCRIPTION");
 
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
@@ -84,12 +95,6 @@ public class CourtHearingsServiceTest {
 
     @Mock
     private AgencyLocation fromPrison;
-
-    @Mock
-    private EventType eventType;
-
-    @Mock
-    private EventStatus eventStatus;
 
     private final Clock startOfEpochClock = Clock.fixed(ofEpochMilli(0), ZoneId.systemDefault());
 
@@ -112,13 +117,23 @@ public class CourtHearingsServiceTest {
     void scheduleHearing_schedules_a_court_hearing() {
         givenValidBookingCourtCaseAndLocations();
 
-        CourtHearing courtHearing = courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING);
-
-        assertThat(courtHearing).isEqualTo(CourtHearing.builder()
+        assertThat(courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING)).isEqualTo(CourtHearing.builder()
                 .id(COURT_EVENT_ID)
-                .date(LocalDate.EPOCH)
+                .date(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalDate())
                 .location(AgencyTransformer.transform(COURT_LOCATION))
-                .time(LocalDate.EPOCH.atStartOfDay().toLocalTime())
+                .time(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalTime())
+                .build());
+
+        verify(courtEventRepository).save(CourtEvent.builder()
+                .courtLocation(COURT_LOCATION)
+                .courtEventType(EVENT_TYPE)
+                .directionCode("OUT")
+                .eventDate(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalDate())
+                .eventStatus(EVENT_STATUS)
+                .offenderBooking(offenderBooking)
+                .offenderCourtCase(ACTIVE_COURT_CASE)
+                .startTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
+                .commentText(PRISON_TO_COURT_HEARING.getComments())
                 .build());
     }
 
@@ -128,19 +143,15 @@ public class CourtHearingsServiceTest {
                 .bookingId(OFFENDER_BOOKING_ID)
                 .bookingSequence(1)
                 .location(fromPrison)
-                .courtCases(List.of(OffenderCourtCase.builder()
-                        .id(1L)
-                        .caseSeq(1L)
-                        .caseStatus(ACTIVE_CASE_STATUS)
-                        .build()))
+                .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
 
         when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
         when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
         when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(COURT_LOCATION));
-        when(courtEventRepository.save(UN_PERSISTED_COURT_EVENT)).thenReturn(PERSISTED_COURT_EVENT);
-        when(eventTypeRepository.findById(EventType.COURT)).thenReturn(Optional.of(eventType));
-        when(eventStatusRepository.findById(EventStatus.SCHEDULED)).thenReturn(Optional.of(eventStatus));
+        when(courtEventRepository.save(any())).thenReturn(PERSISTED_COURT_EVENT);
+        when(eventTypeRepository.findById(EventType.COURT)).thenReturn(Optional.of(EVENT_TYPE));
+        when(eventStatusRepository.findById(EventStatus.SCHEDULED)).thenReturn(Optional.of(EVENT_STATUS));
     }
 
     @Test
@@ -230,11 +241,7 @@ public class CourtHearingsServiceTest {
                 .bookingId(OFFENDER_BOOKING_ID)
                 .bookingSequence(1)
                 .location(fromPrison)
-                .courtCases(List.of(OffenderCourtCase.builder()
-                        .id(1L)
-                        .caseSeq(1L)
-                        .caseStatus(ACTIVE_CASE_STATUS)
-                        .build()))
+                .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
 
         when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(offenderBooking));
@@ -256,11 +263,7 @@ public class CourtHearingsServiceTest {
                 .bookingId(OFFENDER_BOOKING_ID)
                 .bookingSequence(1)
                 .location(fromPrison)
-                .courtCases(List.of(OffenderCourtCase.builder()
-                        .id(1L)
-                        .caseSeq(1L)
-                        .caseStatus(ACTIVE_CASE_STATUS)
-                        .build()))
+                .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
 
         when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
@@ -283,11 +286,7 @@ public class CourtHearingsServiceTest {
                 .bookingId(OFFENDER_BOOKING_ID)
                 .bookingSequence(1)
                 .location(fromPrison)
-                .courtCases(List.of(OffenderCourtCase.builder()
-                        .id(1L)
-                        .caseSeq(1L)
-                        .caseStatus(ACTIVE_CASE_STATUS)
-                        .build()))
+                .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
 
         when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
@@ -315,11 +314,7 @@ public class CourtHearingsServiceTest {
                 .bookingId(OFFENDER_BOOKING_ID)
                 .bookingSequence(1)
                 .location(fromPrison)
-                .courtCases(List.of(OffenderCourtCase.builder()
-                        .id(1L)
-                        .caseSeq(1L)
-                        .caseStatus(ACTIVE_CASE_STATUS)
-                        .build()))
+                .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
 
         when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
@@ -343,11 +338,7 @@ public class CourtHearingsServiceTest {
                 .bookingId(OFFENDER_BOOKING_ID)
                 .bookingSequence(1)
                 .location(COURT_LOCATION)
-                .courtCases(List.of(OffenderCourtCase.builder()
-                        .id(1L)
-                        .caseSeq(1L)
-                        .caseStatus(ACTIVE_CASE_STATUS)
-                        .build()))
+                .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
 
         when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
