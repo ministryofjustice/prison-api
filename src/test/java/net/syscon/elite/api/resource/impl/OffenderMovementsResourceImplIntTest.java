@@ -132,4 +132,28 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
                         .developerMessage("Resource with id [8888888] not found.")
                         .build());
     }
+
+    @Test
+    public void schedule_court_hearing_fails_when_unauthorised() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.RENEGADE_USER);
+
+        final var request = createHttpEntity(token, Map.of(
+                "courtCaseId", -1,
+                "fromPrisonLocation", "LEI",
+                "toCourtLocation", "COURT1",
+                "courtHearingDateTime", "2030-03-11T14:00:00.000Z"
+        ));
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-1/prison-to-court-hearings",
+                HttpMethod.POST,
+                request,
+                ErrorResponse.class);
+
+        assertThat(response.getBody()).isEqualTo(
+                ErrorResponse.builder()
+                        .status(403)
+                        .userMessage("Access is denied")
+                        .build());
+    }
 }
