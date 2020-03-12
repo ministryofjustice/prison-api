@@ -58,7 +58,7 @@ public class ClientTrackingTelemetryModuleTest_JwkClient {
     }
 
     @Test
-    public void shouldAddClientIdAndUserNameToInsightTelemetry() {
+    public void shouldAddClientIdAndUserNameAndClientIpToInsightTelemetry() {
 
         final var token = createJwt("bob", List.of(), 1L);
 
@@ -77,7 +77,7 @@ public class ClientTrackingTelemetryModuleTest_JwkClient {
     }
 
     @Test
-    public void shouldNotAddClientIdAndUserNameToInsightTelemetryAsTokenExpired() {
+    public void shouldNotAddUserDetailsToInsightTelemetryAsTokenExpired() {
 
         final var token = createJwt("Fred", List.of(), -1L);
 

@@ -40,8 +40,7 @@ public class JwkClient implements PublicKeySupplier {
     public PublicKey getPublicKeyForKeyId(final String keyId) {
         final var jwkSelector = new JWKSelector(new JWKMatcher.Builder().keyID(keyId).build());
         final var jwk = getJwk(jwkSelector);
-        return jwk.map(this::toPublicKey)
-                .map(Optional::get)
+        return jwk.flatMap(this::toPublicKey)
                 .orElseGet(null);
     }
 
@@ -54,11 +53,11 @@ public class JwkClient implements PublicKeySupplier {
         }
     }
 
-    private Optional<PublicKey> toPublicKey(final JWK jwk) {
+    public Optional<PublicKey> toPublicKey(final JWK jwk) {
         try {
             return Optional.of(((RSAKey) jwk).toPublicKey());
         } catch (JOSEException e) {
-            log.error(format("Failed to retrieve public key from JWK %s due to exception", jwk), e);
+            log.error("Failed to retrieve public key from JWK {} due to exception", jwk, e);
         }
         return Optional.empty();
     }
