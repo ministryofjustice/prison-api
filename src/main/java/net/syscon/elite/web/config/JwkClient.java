@@ -34,7 +34,7 @@ public class JwkClient implements PublicKeySupplier {
     public PublicKey getPublicKeyForKeyId(final String keyId) {
         return publicKeysById
                 .map(keys -> keys.get(keyId))
-                .orElse(retrieveKeysAndFind(keyId));
+                .orElseGet(() -> retrieveKeysAndFind(keyId));
     }
 
     private PublicKey retrieveKeysAndFind(final String keyId) {
