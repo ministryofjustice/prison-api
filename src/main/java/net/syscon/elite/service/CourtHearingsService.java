@@ -78,6 +78,7 @@ public class CourtHearingsService {
                 .offenderBooking(offenderBooking)
                 .offenderCourtCase(courtCase)
                 .startTime(hearing.getCourtHearingDateTime())
+                .commentText(hearing.getComments())
                 .build();
 
         final var courtHearing = toCourtHearing(courtEventRepository.save(courtEvent));
