@@ -1,68 +1,64 @@
 package net.syscon.elite.web.config;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.JWKMatcher;
+import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.DefaultJWKSetCache;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.proc.JWKSecurityContext;
+import com.nimbusds.jose.util.DefaultResourceRetriever;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.PublicKey;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
+import static java.lang.String.format;
 
 @Component
 @Slf4j
 @ConditionalOnProperty("spring.security.oauth2.resourceserver.jwt.jwk-set-uri")
 public class JwkClient implements PublicKeySupplier {
 
-    private final String jwkUrl;
-    private Optional<Map<String, PublicKey>> publicKeysById = Optional.empty();
+    private RemoteJWKSet<JWKSecurityContext> remoteJWKSet;
 
     public JwkClient(@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkUrl) {
-        this.jwkUrl = jwkUrl;
+        try {
+            remoteJWKSet = new RemoteJWKSet<>(new URL(jwkUrl), new DefaultResourceRetriever(), new DefaultJWKSetCache());
+        } catch (MalformedURLException e) {
+            log.error(format("Unable to load JWK Set from URL %s due to", jwkUrl), e);
+        }
     }
 
     public PublicKey getPublicKeyForKeyId(final String keyId) {
-        return publicKeysById
-                .map(keys -> keys.get(keyId))
-                .orElseGet(() -> retrieveKeysAndFind(keyId));
+        final var jwkSelector = new JWKSelector(new JWKMatcher.Builder().keyID(keyId).build());
+        final var jwk = getJwk(jwkSelector);
+        return jwk.map(this::toPublicKey)
+                .map(Optional::get)
+                .orElseGet(null);
     }
 
-    private PublicKey retrieveKeysAndFind(final String keyId) {
-        publicKeysById = Optional.of(getPublicKeysById());
-        return publicKeysById.get().get(keyId);
-    }
-
-    private Map<String, PublicKey> getPublicKeysById() {
-        return loadJwkKeys().stream()
-                .map(jwk -> Pair.of(jwk.getKeyID(), toPublicKey(jwk)))
-                .filter(pair -> pair.getRight().isPresent())
-                .collect(Collectors.toUnmodifiableMap(Pair::getLeft, pair -> pair.getRight().get()));
-    }
-
-    private List<JWK> loadJwkKeys() {
+    private Optional<JWK> getJwk(JWKSelector jwkSelector) {
         try {
-            return JWKSet.load(new URL(jwkUrl)).getKeys();
-        } catch (Exception e) {
-            log.error(String.format("Failed to retrieve JWK set from %s due to exception", jwkUrl), e);
+            return Optional.of(remoteJWKSet.get(jwkSelector, null).get(0));
+        } catch (RemoteKeySourceException e) {
+            log.error("Unable to retrieve JWK set due to", e);
+            return Optional.empty();
         }
-        return emptyList();
     }
 
     private Optional<PublicKey> toPublicKey(final JWK jwk) {
         try {
             return Optional.of(((RSAKey) jwk).toPublicKey());
         } catch (JOSEException e) {
-            log.info(String.format("Failed to retrieve public key from JWK %s due to exception", jwk), e);
+            log.error(format("Failed to retrieve public key from JWK %s due to exception", jwk), e);
         }
         return Optional.empty();
     }
