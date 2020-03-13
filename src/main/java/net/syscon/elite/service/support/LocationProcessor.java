@@ -155,12 +155,12 @@ public class LocationProcessor {
         // e.g. HMP Moorland VCC Room 1
         // By using the string buffer and the appendReplacement method
         // we ensure that all the matching groups are replaced accordingly
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
         while (matcher.find()) {
             var matched = matcher.group(1);
-            matcher.appendReplacement(stringBuffer, matched.toUpperCase());
+            matcher.appendReplacement(stringBuilder, matched.toUpperCase());
         }
-        matcher.appendTail(stringBuffer);
-        return stringBuffer.toString();
+        matcher.appendTail(stringBuilder);
+        return stringBuilder.toString();
     }
 }
