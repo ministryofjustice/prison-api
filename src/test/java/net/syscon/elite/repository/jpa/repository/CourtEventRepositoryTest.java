@@ -5,6 +5,7 @@ import net.syscon.elite.repository.jpa.model.EventStatus;
 import net.syscon.elite.repository.jpa.model.EventType;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -44,36 +45,52 @@ public class CourtEventRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    @Test
-    void court_event_can_be_saved_and_retrieved() {
-        var commentText = "Comment text for court event";
-        var courtLocation = agencyRepository.findById("COURT1").orElseThrow();
-        var courtEventType = eventTypeRepository.findById(EventType.COURT).orElseThrow();
-        var directionCode = "OUT";
-        var eventDate = LocalDate.now();
-        var eventStatus = eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow();
-        var startTime = eventDate.atTime(12, 0);
-        var nextEventRequestFlag = "X";
-        var offenderBooking = offenderBookingRepository.findById(-1L).orElseThrow();
-        var offenderCourtCase = offenderBooking.getCourtCases().stream().findFirst().orElseThrow();
-        var orderRequestedFlag = "Y";
+    private final CourtEvent.CourtEventBuilder builder = CourtEvent.builder();
 
-        CourtEvent savedCourtEvent = courtEventRepository.save(CourtEvent.builder()
-                .commentText(commentText)
-                .courtEventType(courtEventType)
-                .courtLocation(courtLocation)
-                .directionCode(directionCode)
+    @BeforeEach
+    void setup() {
+        final var eventDate = LocalDate.now();
+        final var startTime = eventDate.atTime(12, 0);
+        final var offenderBooking = offenderBookingRepository.findById(-1L).orElseThrow();
+
+        builder
+                .commentText("Comment text for court event")
+                .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
+                .courtLocation(agencyRepository.findById("COURT1").orElseThrow())
+                .directionCode("OUT")
                 .eventDate(eventDate)
-                .eventStatus(eventStatus)
-                .nextEventRequestFlag(nextEventRequestFlag)
+                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
                 .offenderBooking(offenderBooking)
-                .offenderCourtCase(offenderCourtCase)
-                .orderRequestedFlag(orderRequestedFlag)
-                .startTime(startTime)
+                .offenderCourtCase(offenderBooking.getCourtCases().stream().findFirst().orElseThrow())
+                .startTime(startTime);
+    }
+
+    @Test
+    void court_event_can_be_saved_and_retrieved_with_defaults_populated() {
+        final var savedCourtEvent = courtEventRepository.save(builder.build());
+
+        entityManager.flush();
+
+        assertThat(courtEventRepository.findById(savedCourtEvent.getId()).orElseThrow()).isEqualTo(savedCourtEvent);
+
+        // defaults populated
+        assertThat(savedCourtEvent.getNextEventRequestFlag()).isEqualTo("N");
+        assertThat(savedCourtEvent.getOrderRequestedFlag()).isEqualTo("N");
+    }
+
+    @Test
+    void court_event_can_be_saved_and_retrieved_with_defaults_overridden() {
+        final var savedCourtEvent = courtEventRepository.save(builder
+                .nextEventRequestFlag("X")
+                .orderRequestedFlag("Y")
                 .build());
 
         entityManager.flush();
 
         assertThat(courtEventRepository.findById(savedCourtEvent.getId()).orElseThrow()).isEqualTo(savedCourtEvent);
+
+        // defaults overridden
+        assertThat(savedCourtEvent.getNextEventRequestFlag()).isEqualTo("X");
+        assertThat(savedCourtEvent.getOrderRequestedFlag()).isEqualTo("Y");
     }
 }
