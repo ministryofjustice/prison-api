@@ -69,6 +69,7 @@ public class LocationProcessor {
      * @throws {@code NullPointerException} if no location provided for processing.
      */
     public static List<Location> processLocations(final List<Location> locations, final boolean preferUserDescription) {
+        System.out.println(locations);
         Objects.requireNonNull(locations);
 
         return locations.stream().map(loc -> processLocation(loc, preferUserDescription)).collect(Collectors.toList());
@@ -139,6 +140,10 @@ public class LocationProcessor {
      *
      */
     public static String formatLocation(final String locationDescription) {
+        // Handle the possibility of the userDescription being empty
+        if (locationDescription == null) {
+            return null;
+        }
         var description = WordUtils.capitalizeFully(locationDescription);
         // Using word boundaries to find the right string ensures we catch the strings
         // wherever they appear in the description, while also avoiding replacing
