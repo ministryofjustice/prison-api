@@ -151,6 +151,14 @@ public class LocationProcessorTest {
         assertThat(processedLocations.get(1).getUserDescription()).isNull();
     }
 
+    @Test
+    public void formatLocationAbbreviations() {
+        // Assert that all abbreviations are unchanged, even when there a multiple ones in a string
+        final var abbreviationsString = String.join(", ", LocationProcessor.ABBREVIATIONS);
+        assertThat(LocationProcessor.formatLocation(abbreviationsString)).isEqualTo(abbreviationsString);
+
+    }
+
     private Location buildTestLocation(final String userDescription) {
         return Location.builder()
                 .agencyId(TEST_AGENCY_ID)

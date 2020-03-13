@@ -7,12 +7,19 @@ import org.apache.commons.text.WordUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * Utility class containing methods for processing of {@link net.syscon.elite.api.model.Location} objects.
  */
 public class LocationProcessor {
+    /**
+     * List of the abbreviations that should remain in all capitals after location description processing
+     */
+    public static final List<String> ABBREVIATIONS = List.of("HMP", "YOI", "VCC", "CSC", "CSU", "CASU", "MCASU", "MDT", "VDT", "OMU", "ITQ", "SPU", "CES", "UK", "ROTL", "SOTP", "IMB", "RAPT", "PICTA", "HCC", "AIC", "BICS", "IPSO", "IAG", "IPD", "PACT", "PIPE", "DART", "VP");
+
     /**
      * Strips agency id from description if agency id is used as prefix for description. If either description or agency
      * id are {@code null}, agency id is not stripped and unaltered description is returned.
@@ -125,10 +132,31 @@ public class LocationProcessor {
         }
     }
 
+    /**
+     *
+     * @param locationDescription string to convert
+     * @return new location with correct titlecase
+     *
+     */
     public static String formatLocation(final String locationDescription) {
         var description = WordUtils.capitalizeFully(locationDescription);
-        description = RegExUtils.replaceAll(description, "hmp|Hmp", "HMP");
-        description = RegExUtils.replaceAll(description, "yoi|Yoi", "YOI");
-        return description;
+        // Using word boundaries to find the right string ensures we catch the strings
+        // wherever they appear in the description, while also avoiding replacing
+        // the letter sequence should it appear in the middle of a word
+        // e.g. this will not match 'mosaic' even though AIC is one of the abbreviations
+        Pattern pattern = Pattern.compile("\\b(" + String.join("|", ABBREVIATIONS) + ")\\b", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(description);
+
+        // There could be more than one abbreviation in a string,
+        // e.g. HMP Moorland VCC Room 1
+        // By using the string buffer and the appendReplacement method
+        // we ensure that all the matching groups are replaced accordingly
+        StringBuffer stringBuffer = new StringBuffer();
+        while (matcher.find()) {
+            var matched = matcher.group(1);
+            matcher.appendReplacement(stringBuffer, matched.toUpperCase());
+        }
+        matcher.appendTail(stringBuffer);
+        return stringBuffer.toString();
     }
 }
