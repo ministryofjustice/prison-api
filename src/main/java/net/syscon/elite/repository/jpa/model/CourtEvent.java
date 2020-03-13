@@ -2,6 +2,7 @@ package net.syscon.elite.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -79,11 +80,13 @@ public class CourtEvent extends AuditableEntity {
     @Column(name = "COMMENT_TEXT", length = 240)
     private String commentText;
 
+    @Default
     @Column(name = "NEXT_EVENT_REQUEST_FLAG", length = 1)
-    private String nextEventRequestFlag;
+    private String nextEventRequestFlag = "N";
 
+    @Default
     @Column(name = "ORDER_REQUESTED_FLAG", length = 1)
-    private String orderRequestedFlag;
+    private String orderRequestedFlag = "N";
 
     @Column(name = "DIRECTION_CODE", length = 12)
     private String directionCode;
