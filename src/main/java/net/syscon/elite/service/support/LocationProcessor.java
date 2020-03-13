@@ -69,7 +69,6 @@ public class LocationProcessor {
      * @throws {@code NullPointerException} if no location provided for processing.
      */
     public static List<Location> processLocations(final List<Location> locations, final boolean preferUserDescription) {
-        System.out.println(locations);
         Objects.requireNonNull(locations);
 
         return locations.stream().map(loc -> processLocation(loc, preferUserDescription)).collect(Collectors.toList());
