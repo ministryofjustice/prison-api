@@ -44,6 +44,7 @@ public class ScheduledAppointmentRepositoryTest {
                 .locationId(-28L)
                 .agencyId("LEI")
                 .auditUserId("staff 2")
+                .createUserId("SA")
                 .build();
 
         assertThat(appointments).containsOnly(scheduledAppointment);
@@ -70,6 +71,7 @@ public class ScheduledAppointmentRepositoryTest {
                         .locationId(-29L)
                         .agencyId("LEI")
                         .auditUserId("staff 1")
+                        .createUserId("SA")
                         .build(),
                 ScheduledAppointment
                         .builder()
@@ -86,6 +88,7 @@ public class ScheduledAppointmentRepositoryTest {
                         .locationId(-28L)
                         .agencyId("LEI")
                         .auditUserId("staff 2")
+                        .createUserId("SA")
                         .build()
         );
     }

@@ -23,7 +23,8 @@ import java.time.LocalDateTime;
     "       OIS.TO_INTERNAL_LOCATION_ID AS LOCATION_ID," +
     "       COALESCE(AIL.USER_DESC, AIL.DESCRIPTION) AS LOCATION_DESCRIPTION," +
     "       OIS.AGY_LOC_ID AS AGENCY_ID," +
-    "       OIS.AUDIT_USER_ID AS AUDIT_USER_ID" +
+    "       OIS.AUDIT_USER_ID AS AUDIT_USER_ID," +
+    "       OIS.CREATE_USER_ID AS CREATE_USER_ID" +
     "       FROM OFFENDER_IND_SCHEDULES OIS" +
     "         INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OIS.OFFENDER_BOOK_ID AND OB.ACTIVE_FLAG = 'Y'" +
     "         INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID" +
@@ -52,6 +53,7 @@ public class ScheduledAppointment {
     private String locationDescription;
     private Long locationId;
     private String auditUserId;
+    private String createUserId;
     private String agencyId;
 }
 
