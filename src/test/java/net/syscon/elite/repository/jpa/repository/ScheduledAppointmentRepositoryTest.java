@@ -43,7 +43,6 @@ public class ScheduledAppointmentRepositoryTest {
                 .locationDescription("Visiting Room")
                 .locationId(-28L)
                 .agencyId("LEI")
-                .auditUserId("staff 2")
                 .createUserId("SA")
                 .build();
 
@@ -70,7 +69,6 @@ public class ScheduledAppointmentRepositoryTest {
                         .locationDescription("Medical Centre")
                         .locationId(-29L)
                         .agencyId("LEI")
-                        .auditUserId("staff 1")
                         .createUserId("SA")
                         .build(),
                 ScheduledAppointment
@@ -87,7 +85,6 @@ public class ScheduledAppointmentRepositoryTest {
                         .locationDescription("Visiting Room")
                         .locationId(-28L)
                         .agencyId("LEI")
-                        .auditUserId("staff 2")
                         .createUserId("SA")
                         .build()
         );

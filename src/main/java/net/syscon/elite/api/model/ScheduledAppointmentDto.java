@@ -52,7 +52,7 @@ public class ScheduledAppointmentDto {
     private Long locationId;
 
     @ApiModelProperty(value = "Staff member who created the appointment")
-    private String auditUserId;
+    private String createUserId;
 
     @ApiModelProperty(value = "Agency the appointment belongs to")
     private String agencyId;
