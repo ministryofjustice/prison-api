@@ -255,7 +255,7 @@ public class AppointmentsService {
                                 .appointmentTypeCode(scheduledAppointment.getAppointmentTypeCode())
                                 .locationDescription(scheduledAppointment.getLocationDescription())
                                 .locationId(scheduledAppointment.getLocationId())
-                                .auditUserId(scheduledAppointment.getAuditUserId())
+                                .createUserId(scheduledAppointment.getCreateUserId())
                                 .agencyId(scheduledAppointment.getAgencyId())
                                 .build()
                 );

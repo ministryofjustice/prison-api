@@ -11,7 +11,7 @@
     "appointmentTypeCode":"MEDE",
     "locationDescription":"Medical Centre",
     "locationId":-29,
-    "auditUserId":"staff 1",
+    "createUserId":"SA",
     "agencyId":"LEI"
   },
   {
@@ -26,7 +26,7 @@
     "appointmentTypeCode":"MEDE",
     "locationDescription":"Visiting Room",
     "locationId":-28,
-    "auditUserId":"staff 2",
+    "createUserId":"SA",
     "agencyId":"LEI"
   }
 ]

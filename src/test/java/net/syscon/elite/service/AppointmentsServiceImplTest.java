@@ -683,7 +683,7 @@ public class AppointmentsServiceImplTest {
                                 .appointmentTypeCode("appointmentTypeCode1")
                                 .locationDescription("locationDescription1")
                                 .locationId(1L)
-                                .auditUserId("Staff user 1")
+                                .createUserId("Staff user 1")
                                 .agencyId("LEI")
                                 .build(),
                         ScheduledAppointment
@@ -699,7 +699,7 @@ public class AppointmentsServiceImplTest {
                                 .appointmentTypeCode("appointmentTypeCode2")
                                 .locationDescription("locationDescription2")
                                 .locationId(2L)
-                                .auditUserId("Staff user 2")
+                                .createUserId("Staff user 2")
                                 .agencyId("LEI")
                                 .build()
                 ));
@@ -720,7 +720,7 @@ public class AppointmentsServiceImplTest {
                 .appointmentTypeCode("appointmentTypeCode1")
                 .locationDescription("locationDescription1")
                 .locationId(1L)
-                .auditUserId("Staff user 1")
+                .createUserId("Staff user 1")
                 .agencyId("LEI")
                 .build());
     }
