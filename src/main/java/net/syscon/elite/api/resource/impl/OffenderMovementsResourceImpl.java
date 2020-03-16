@@ -22,7 +22,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
 
     @ProxyUser
     @Override
-    public CourtHearing prisonToCourtHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
-        return courtHearingsService.scheduleHearing(bookingId, hearing);
+    public CourtHearing prisonToCourt(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
+        return courtHearingsService.scheduleHearing(bookingId, courtCaseId, hearing);
     }
 }
