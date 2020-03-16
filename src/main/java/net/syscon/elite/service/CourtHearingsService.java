@@ -60,12 +60,12 @@ public class CourtHearingsService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
+    public CourtHearing scheduleHearing(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
         final var offenderBooking = getActiveOffenderBookingFor(bookingId);
 
-        final var courtCase = getActiveCourtCaseFor(hearing.getCourtCaseId(), offenderBooking);
+        final var courtCase = getActiveCourtCaseFor(courtCaseId, offenderBooking);
 
         checkPrisonLocationSameAsOffenderBooking(hearing.getFromPrisonLocation(), offenderBooking);
 
@@ -95,7 +95,7 @@ public class CourtHearingsService {
     private OffenderBooking getActiveOffenderBookingFor(final Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
-        checkArgument(offenderBooking.isActive(),"Offender booking with id %s is not active.", bookingId);
+        checkArgument(offenderBooking.isActive(), "Offender booking with id %s is not active.", bookingId);
 
         return offenderBooking;
     }
@@ -111,13 +111,13 @@ public class CourtHearingsService {
     private void checkPrisonLocationSameAsOffenderBooking(final String prisonLocation, final OffenderBooking booking) {
         final var agency = agencyLocationRepository.findById(prisonLocation).orElseThrow(EntityNotFoundException.withId(prisonLocation));
 
-        checkArgument(booking.getLocation().equals(agency),"Prison location does not match the bookings location.");
+        checkArgument(booking.getLocation().equals(agency), "Prison location does not match the bookings location.");
     }
 
     private AgencyLocation getActiveCourtFor(final String courtLocation) {
         final var agency = agencyLocationRepository.findById(courtLocation).orElseThrow(EntityNotFoundException.withId(courtLocation));
 
-        checkArgument(agency.getType().equalsIgnoreCase("CRT"),"Supplied court location wih id %s is not a valid court location.", courtLocation);
+        checkArgument(agency.getType().equalsIgnoreCase("CRT"), "Supplied court location wih id %s is not a valid court location.", courtLocation);
         checkArgument(agency.getActiveFlag().isActive(), "Supplied court location wih id %s is not active.", courtLocation);
 
         return agency;

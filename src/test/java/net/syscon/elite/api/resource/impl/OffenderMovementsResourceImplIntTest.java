@@ -17,14 +17,13 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, Map.of(
-                "courtCaseId", -1,
                 "fromPrisonLocation", "LEI",
                 "toCourtLocation", "COURT1",
                 "courtHearingDateTime", "2030-03-11T14:00:00.000Z"
         ));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-1/prison-to-court-hearings",
+                "/api/bookings/-1/court-cases/-1/prison-to-court-hearings",
                 HttpMethod.POST,
                 request,
                 new ParameterizedTypeReference<String>() {
@@ -38,14 +37,13 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, Map.of(
-                "courtCaseId", -1,
                 "fromPrisonLocation", "LEI",
                 "toCourtLocation", "COURT1",
                 "courtHearingDateTime", "2030-03-11T14:00:00.000Z"
         ));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/9999999/prison-to-court-hearings",
+                "/api/bookings/9999999/court-cases/-1/prison-to-court-hearings",
                 HttpMethod.POST,
                 request,
                 ErrorResponse.class);
@@ -63,14 +61,13 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, Map.of(
-                "courtCaseId", -1,
                 "fromPrisonLocation", "UNKNOWN_PRISON",
                 "toCourtLocation", "COURT1",
                 "courtHearingDateTime", "2030-03-11T14:00:00.000Z"
         ));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-1/prison-to-court-hearings",
+                "/api/bookings/-1/court-cases/-1/prison-to-court-hearings",
                 HttpMethod.POST,
                 request,
                 ErrorResponse.class);
@@ -88,14 +85,13 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, Map.of(
-                "courtCaseId", -1,
                 "fromPrisonLocation", "LEI",
                 "toCourtLocation", "UNKNOWN_COURT",
                 "courtHearingDateTime", "2030-03-11T14:00:00.000Z"
         ));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-1/prison-to-court-hearings",
+                "/api/bookings/-1/court-cases/-1/prison-to-court-hearings",
                 HttpMethod.POST,
                 request,
                 ErrorResponse.class);
@@ -113,14 +109,13 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, Map.of(
-                "courtCaseId", 8888888,
                 "fromPrisonLocation", "LEI",
                 "toCourtLocation", "COURT1",
                 "courtHearingDateTime", "2030-03-11T14:00:00.000Z"
         ));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-1/prison-to-court-hearings",
+                "/api/bookings/-1/court-cases/8888888/prison-to-court-hearings",
                 HttpMethod.POST,
                 request,
                 ErrorResponse.class);
@@ -138,14 +133,13 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.RENEGADE_USER);
 
         final var request = createHttpEntity(token, Map.of(
-                "courtCaseId", -1,
                 "fromPrisonLocation", "LEI",
                 "toCourtLocation", "COURT1",
                 "courtHearingDateTime", "2030-03-11T14:00:00.000Z"
         ));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-1/prison-to-court-hearings",
+                "/api/bookings/-1/court-cases/-1/prison-to-court-hearings",
                 HttpMethod.POST,
                 request,
                 ErrorResponse.class);
