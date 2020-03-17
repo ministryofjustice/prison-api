@@ -17,6 +17,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static java.time.LocalDate.EPOCH;
+import static java.time.LocalTime.MIDNIGHT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CourtCaseTransformerTest {
@@ -50,7 +52,7 @@ public class CourtCaseTransformerTest {
         offenderCourtCase = OffenderCourtCase.builder()
                 .id(-1L)
                 .caseSeq(-2L)
-                .beginDate(LocalDate.EPOCH)
+                .beginDate(EPOCH)
                 .agencyLocation(courtLocation)
                 .legalCaseType(LEGAL_CASE_TYPE)
                 .caseInfoPrefix("CIP")
@@ -59,8 +61,8 @@ public class CourtCaseTransformerTest {
                 .courtEvents(List.of(CourtEvent.builder()
                         .id(-1L)
                         .offenderBooking(booking)
-                        .eventDate(LocalDate.EPOCH)
-                        .startTime(LocalDate.EPOCH.atStartOfDay())
+                        .eventDate(EPOCH)
+                        .startTime(EPOCH.atStartOfDay())
                         .courtLocation(courtLocation)
                         .build()))
                 .offenderBooking(booking)
@@ -75,7 +77,7 @@ public class CourtCaseTransformerTest {
                 CourtCase.builder()
                         .id(-1L)
                         .caseSeq(-2L)
-                        .beginDate(LocalDate.EPOCH)
+                        .beginDate(EPOCH)
                         .caseInfoPrefix("CIP")
                         .caseInfoNumber("CIN20177010")
                         .agency(Agency.builder()
@@ -88,8 +90,7 @@ public class CourtCaseTransformerTest {
                         .caseType(LEGAL_CASE_TYPE.getDescription())
                         .courtHearings(List.of(CourtHearing.builder()
                                 .id(-1L)
-                                .date(LocalDate.EPOCH)
-                                .time(LocalTime.MIDNIGHT)
+                                .dateTime(EPOCH.atTime(MIDNIGHT))
                                 .location(Agency.builder()
                                         .agencyId(courtLocation.getId())
                                         .description(courtLocation.getDescription())

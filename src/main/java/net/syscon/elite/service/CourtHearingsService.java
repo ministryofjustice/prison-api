@@ -3,6 +3,7 @@ package net.syscon.elite.service;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.api.model.CourtHearings;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CourtEvent;
@@ -22,6 +23,8 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -88,6 +91,12 @@ public class CourtHearingsService {
         return courtHearing;
     }
 
+    // TODO - WIP DT-651
+    @VerifyBookingAccess
+    public CourtHearings getCourtHearingsFor(final Long bookingId) {
+        return CourtHearings.builder().build();
+    }
+
     private void checkHearingIsInFuture(final LocalDateTime courtHearingDateTime) {
         checkArgument(courtHearingDateTime.isAfter(LocalDateTime.now(clock)), "Court hearing must be in the future.");
     }
@@ -127,8 +136,7 @@ public class CourtHearingsService {
         return CourtHearing.builder()
                 .id(event.getId())
                 .location(AgencyTransformer.transform(event.getCourtLocation()))
-                .date(event.getEventDate())
-                .time(event.getStartTime().toLocalTime())
+                .dateTime(event.getEventDateTime())
                 .build();
     }
 }

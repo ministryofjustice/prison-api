@@ -90,4 +90,8 @@ public class CourtEvent extends AuditableEntity {
 
     @Column(name = "DIRECTION_CODE", length = 12)
     private String directionCode;
+
+    public LocalDateTime getEventDateTime() {
+        return eventDate.atTime(startTime.toLocalTime());
+    }
 }

@@ -34,8 +34,7 @@ public class CourtCaseTransformer {
                 .map(ce -> CourtHearing.builder()
                         .id(ce.getId())
                         .location(AgencyTransformer.transform(ce.getCourtLocation()))
-                        .date(ce.getEventDate())
-                        .time(ce.getStartTime().toLocalTime())
+                        .dateTime(ce.getEventDateTime())
                         .build())
                 .collect(Collectors.toUnmodifiableList());
     }
