@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.time.Instant.ofEpochMilli;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -351,4 +352,85 @@ public class CourtHearingsServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Court hearing must be in the future.");
     }
+
+    @Test
+    void getCourtHearingsFor_retrieves_single_hearing_for_booking() {
+        final var hearing = CourtEvent.builder()
+                .id(1L)
+                .courtLocation(COURT_LOCATION)
+                .eventDate(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalDate())
+                .offenderBooking(offenderBooking)
+                .offenderCourtCase(ACTIVE_COURT_CASE)
+                .startTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
+                .build();
+
+        givenValidBookingValidCourtCaseWithCourtHearings(1L, hearing(hearing.getId()));
+
+        final var hearings = courtHearingsService.getCourtHearingsFor(1L);
+
+        assertThat(hearings.getHearings())
+                .containsExactly(
+                        CourtHearing.builder()
+                                .id(hearing.getId())
+                                .dateTime(hearing.getEventDateTime())
+                                .location(AgencyTransformer.transform(hearing.getCourtLocation()))
+                                .build());
+    }
+
+    @Test
+    void getCourtHearingsFor_retrieves_multiple_hearings_for_booking() {
+        final var hearing1 = CourtEvent.builder()
+                .id(1L)
+                .courtLocation(COURT_LOCATION)
+                .eventDate(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalDate())
+                .offenderBooking(offenderBooking)
+                .offenderCourtCase(ACTIVE_COURT_CASE)
+                .startTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
+                .build();
+
+        final var hearing2 = CourtEvent.builder()
+                .id(2L)
+                .courtLocation(COURT_LOCATION)
+                .eventDate(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalDate())
+                .offenderBooking(offenderBooking)
+                .offenderCourtCase(ACTIVE_COURT_CASE)
+                .startTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
+                .build();
+
+        givenValidBookingValidCourtCaseWithCourtHearings(2L, hearing(hearing1.getId()), hearing(hearing2.getId()));
+
+        final var hearings = courtHearingsService.getCourtHearingsFor(2L);
+
+        assertThat(hearings.getHearings())
+                .containsExactly(
+                        CourtHearing.builder()
+                                .id(hearing1.getId())
+                                .dateTime(hearing1.getEventDateTime())
+                                .location(AgencyTransformer.transform(hearing1.getCourtLocation()))
+                                .build(),
+                        CourtHearing.builder()
+                                .id(hearing2.getId())
+                                .dateTime(hearing2.getEventDateTime())
+                                .location(AgencyTransformer.transform(hearing2.getCourtLocation()))
+                                .build()
+                        );
+    }
+
+
+    private void givenValidBookingValidCourtCaseWithCourtHearings(final Long bookingId, final CourtEvent... events) {
+        when(courtEventRepository.findByOffenderBooking_BookingId(bookingId)).thenReturn(asList(events));
+    }
+
+    private CourtEvent hearing(final Long hearingId) {
+        return CourtEvent.builder()
+                .id(hearingId)
+                .courtLocation(COURT_LOCATION)
+                .eventDate(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalDate())
+                .offenderBooking(offenderBooking)
+                .offenderCourtCase(ACTIVE_COURT_CASE)
+                .startTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
+                .build();
+    }
+
+    // TODO - WIP DT-651 needs filtering param tests to be added.
 }

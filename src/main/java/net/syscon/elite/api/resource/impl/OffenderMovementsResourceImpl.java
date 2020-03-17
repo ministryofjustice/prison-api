@@ -27,7 +27,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
         return courtHearingsService.scheduleHearing(bookingId, courtCaseId, hearing);
     }
 
-    // TODO - WIP DT-651
+    // TODO - WIP DT-651 needs filtering params to be added.
     @Override
     public CourtHearings getCourtHearings(final Long bookingId) {
         return courtHearingsService.getCourtHearingsFor(bookingId);
