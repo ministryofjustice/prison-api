@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.api.model.CourtHearings;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.service.CourtHearingsService;
@@ -24,5 +25,11 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     @Override
     public CourtHearing prisonToCourt(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
         return courtHearingsService.scheduleHearing(bookingId, courtCaseId, hearing);
+    }
+
+    // TODO - WIP DT-651
+    @Override
+    public CourtHearings getCourtHearings(final Long bookingId) {
+        return courtHearingsService.getCourtHearingsFor(bookingId);
     }
 }

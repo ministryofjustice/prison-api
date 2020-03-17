@@ -118,9 +118,8 @@ public class CourtHearingsServiceTest {
 
         assertThat(courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING)).isEqualTo(CourtHearing.builder()
                 .id(COURT_EVENT_ID)
-                .date(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalDate())
+                .dateTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
                 .location(AgencyTransformer.transform(COURT_LOCATION))
-                .time(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalTime())
                 .build());
 
         verify(courtEventRepository).save(CourtEvent.builder()
