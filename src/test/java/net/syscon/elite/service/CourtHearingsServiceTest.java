@@ -364,7 +364,7 @@ public class CourtHearingsServiceTest {
                 .startTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
                 .build();
 
-        givenValidBookingValidCourtCaseWithCourtHearings(1L, hearing(hearing.getId()));
+        givenValidBookingWithOneOrMoreCourtHearings(1L, hearing(hearing.getId()));
 
         final var hearings = courtHearingsService.getCourtHearingsFor(1L);
 
@@ -397,7 +397,7 @@ public class CourtHearingsServiceTest {
                 .startTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
                 .build();
 
-        givenValidBookingValidCourtCaseWithCourtHearings(2L, hearing(hearing1.getId()), hearing(hearing2.getId()));
+        givenValidBookingWithOneOrMoreCourtHearings(2L, hearing(hearing1.getId()), hearing(hearing2.getId()));
 
         final var hearings = courtHearingsService.getCourtHearingsFor(2L);
 
@@ -417,7 +417,7 @@ public class CourtHearingsServiceTest {
     }
 
 
-    private void givenValidBookingValidCourtCaseWithCourtHearings(final Long bookingId, final CourtEvent... events) {
+    private void givenValidBookingWithOneOrMoreCourtHearings(final Long bookingId, final CourtEvent... events) {
         when(courtEventRepository.findByOffenderBooking_BookingId(bookingId)).thenReturn(asList(events));
     }
 
