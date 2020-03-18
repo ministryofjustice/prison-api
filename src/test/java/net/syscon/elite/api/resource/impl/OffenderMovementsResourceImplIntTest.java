@@ -29,7 +29,7 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatJsonFileAndStatus(response, 201, "court_hearing.json");
+        assertThatJsonFileAndStatus(response, 201, "schedule_court_hearing.json");
     }
 
     @Test
@@ -149,5 +149,56 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
                         .status(403)
                         .userMessage("Access is denied")
                         .build());
+    }
+
+    @Test
+    public void get_court_hearings_for_booking_returns_no_court_hearings() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var request = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-41/court-hearings",
+                HttpMethod.GET,
+                request,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatJsonFileAndStatus(response, 200, "get_court_hearings_for_booking_none_found.json");
+    }
+
+    @Test
+    public void get_court_hearings_for_booking_returns_court_hearings() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var request = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-2/court-hearings",
+                HttpMethod.GET,
+                request,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatJsonFileAndStatus(response, 200, "get_court_hearings_for_booking.json");
+    }
+
+    @Test
+    public void get_court_hearings_fails_when_no_matching_booking() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var request = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/666/court-hearings",
+                HttpMethod.GET,
+                request,
+                ErrorResponse.class);
+
+        assertThat(response.getBody()).isEqualTo(ErrorResponse.builder()
+                .status(404)
+                .userMessage("Resource with id [666] not found.")
+                .developerMessage("Resource with id [666] not found.")
+                .build());
     }
 }

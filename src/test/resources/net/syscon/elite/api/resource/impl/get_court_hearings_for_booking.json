@@ -1,0 +1,25 @@
+{
+  "hearings": [
+    {
+      "id": -102,
+      "dateTime": "2017-02-17T18:00:00",
+      "location": {
+        "agencyId": "LEI",
+        "description": "Leeds",
+        "agencyType": "INST",
+        "active": true
+      }
+    },
+    {
+      "id": -202,
+      "dateTime": "2017-02-20T10:11:00",
+      "location": {
+        "agencyId": "ABDRCT",
+        "description": "Court 2",
+        "agencyType": "CRT",
+        "active": true
+      }
+    }
+  ]
+}
+
