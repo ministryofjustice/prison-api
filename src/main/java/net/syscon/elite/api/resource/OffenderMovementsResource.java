@@ -32,6 +32,7 @@ public interface OffenderMovementsResource {
                                @ApiParam(value = "The court case to associate the hearing with.", required = true) @PathVariable("courtCaseId") Long courtCaseId,
                                @ApiParam(value = "The prison to court hearing to be scheduled for the offender booking.", required = true) @RequestBody PrisonToCourtHearing hearing);
 
+    // TODO - WIP DT-651 needs filtering params to be added.
     @ApiIgnore
     @GetMapping("{bookingId}/court-hearings")
     @ApiResponses(value = {

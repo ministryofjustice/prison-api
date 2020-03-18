@@ -6,12 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Singular;
+
+import java.util.List;
 
 @ApiModel(description = "Represents court hearings for an offender booking.")
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CourtHearings {
-    // TODO - WIP DT-651
+    @Singular
+    private List<CourtHearing> hearings;
 }

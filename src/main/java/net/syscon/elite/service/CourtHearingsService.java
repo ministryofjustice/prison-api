@@ -2,8 +2,8 @@ package net.syscon.elite.service;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
-import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
+import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CourtEvent;
@@ -23,10 +23,10 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Comparator.comparing;
 
 @Service
 @Transactional(readOnly = true)
@@ -66,7 +66,7 @@ public class CourtHearingsService {
     public CourtHearing scheduleHearing(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
-        final var offenderBooking = getActiveOffenderBookingFor(bookingId);
+        final var offenderBooking = activeOffenderBookingFor(bookingId);
 
         final var courtCase = getActiveCourtCaseFor(courtCaseId, offenderBooking);
 
@@ -91,17 +91,36 @@ public class CourtHearingsService {
         return courtHearing;
     }
 
-    // TODO - WIP DT-651
+    /**
+     * Returns all court hearings for a given booking ID.
+     */
     @VerifyBookingAccess
     public CourtHearings getCourtHearingsFor(final Long bookingId) {
-        return CourtHearings.builder().build();
+        final var courtHearingsBuilder = CourtHearings.builder();
+
+        courtEventRepository.findByOffenderBooking_BookingId(bookingId).stream()
+                .sorted(comparing(CourtEvent::getEventDateTime))
+                .forEach(ce ->
+                        courtHearingsBuilder.hearing(
+                                CourtHearing.builder()
+                                        .id(ce.getId())
+                                        .dateTime(ce.getEventDateTime())
+                                        .location(AgencyTransformer.transform(ce.getCourtLocation()))
+                                        .build())
+                );
+
+        return courtHearingsBuilder.build();
+    }
+
+    private Stream<OffenderCourtCase> activeCourtCasesFor(final OffenderBooking booking) {
+        return booking.getCourtCases().stream().filter(OffenderCourtCase::isActive);
     }
 
     private void checkHearingIsInFuture(final LocalDateTime courtHearingDateTime) {
         checkArgument(courtHearingDateTime.isAfter(LocalDateTime.now(clock)), "Court hearing must be in the future.");
     }
 
-    private OffenderBooking getActiveOffenderBookingFor(final Long bookingId) {
+    private OffenderBooking activeOffenderBookingFor(final Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
         checkArgument(offenderBooking.isActive(), "Offender booking with id %s is not active.", bookingId);
