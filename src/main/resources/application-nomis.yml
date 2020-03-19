@@ -8,8 +8,7 @@ server:
 
 spring:
   profiles:
-#    include: nomis-local,logstash,ai
-    include: nomis-local,ai
+    include: nomis-local,logstash,ai
 
   jpa:
     properties:
