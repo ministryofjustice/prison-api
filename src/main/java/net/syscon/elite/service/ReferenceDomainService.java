@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.ReferenceCodeRepository;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.elite.service.support.StringWithAbbreviationsProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
@@ -151,7 +152,7 @@ public class ReferenceDomainService {
         return refCodes.stream()
                 .map(p -> ReferenceCode.builder()
                         .code(p.getCode())
-                        .description(WordUtils.capitalizeFully(p.getDescription()))
+                        .description(StringWithAbbreviationsProcessor.format(p.getDescription()))
                         .build())
                 .sorted(Comparator.comparing(ReferenceCode::getDescription))
                 .collect(Collectors.toList());
