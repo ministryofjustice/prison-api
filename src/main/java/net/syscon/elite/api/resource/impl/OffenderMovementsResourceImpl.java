@@ -1,14 +1,16 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.CourtHearing;
-import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
+import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.service.CourtHearingsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("${api.base.path}/bookings")
@@ -27,9 +29,8 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
         return courtHearingsService.scheduleHearing(bookingId, courtCaseId, hearing);
     }
 
-    // TODO - WIP DT-651 needs filtering params to be added.
     @Override
-    public CourtHearings getCourtHearings(final Long bookingId) {
-        return courtHearingsService.getCourtHearingsFor(bookingId);
+    public CourtHearings getCourtHearings(final Long bookingId, final LocalDate fromDate, final LocalDate toDate) {
+        return courtHearingsService.getCourtHearingsFor(bookingId, fromDate, toDate);
     }
 }

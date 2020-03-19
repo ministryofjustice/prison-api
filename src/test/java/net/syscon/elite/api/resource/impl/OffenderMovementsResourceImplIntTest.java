@@ -168,7 +168,7 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
     }
 
     @Test
-    public void get_court_hearings_for_booking_returns_court_hearings() {
+    public void get_court_hearings_for_booking_returns_2_court_hearings_when_no_dates_supplied() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, null);
@@ -180,7 +180,39 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatJsonFileAndStatus(response, 200, "get_court_hearings_for_booking.json");
+        assertThatJsonFileAndStatus(response, 200, "get_court_hearings_2_for_booking.json");
+    }
+
+    @Test
+    public void get_court_hearings_for_booking_returns_1_court_hearing_when_from_date_limits_results() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var request = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-2/court-hearings?fromDate=2017-02-18",
+                HttpMethod.GET,
+                request,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatJsonFileAndStatus(response, 200, "get_court_hearings_1_for_booking.json");
+    }
+
+    @Test
+    public void get_court_hearings_for_booking_returns_no_bookings_when_none_in_date_range() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var request = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-2/court-hearings?toDate=2016-02-18",
+                HttpMethod.GET,
+                request,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatJsonFileAndStatus(response, 200, "get_court_hearings_for_booking_none_found.json");
     }
 
     @Test
