@@ -19,8 +19,9 @@ public class HsqlConnectionAspect extends AbstractConnectionAspect {
 
     @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
-        if (authenticationFacade.isIdentifiedAuthentication()) {
-            log.trace("Configuring Hsql Proxy Session.");
+        final var proxyUserAuthSource = authenticationFacade.getProxyUserAuthenticationSource();
+        if (proxyUserAuthSource.equals("nomis")) {
+            log.debug("Configuring Hsql Proxy Session.");
             return openAndConfigureProxySessionForConnection(pooledConnection);
         }
         return pooledConnection;

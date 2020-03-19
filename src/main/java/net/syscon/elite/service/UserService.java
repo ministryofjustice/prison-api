@@ -29,7 +29,7 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 public class UserService {
     public final static String STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION = "GENERAL";
-    
+
     private static final String ROLE_FUNCTION_ADMIN = "ADMIN";
     private static final CaseLoad EMPTY_CASELOAD = CaseLoad.builder()
             .caseLoadId("___")
