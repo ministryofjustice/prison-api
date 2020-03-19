@@ -26,7 +26,6 @@ public class StringWithAbbreviationsProcessor {
         // wherever they appear in the description, while also avoiding replacing
         // the letter sequence should it appear in the middle of a word
         // e.g. this will not match 'mosaic' even though AIC is one of the abbreviations
-        Pattern pattern = Pattern.compile("\\b(" + String.join("|", ABBREVIATIONS) + ")\\b", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(description);
 
         // There could be more than one abbreviation in a string,
@@ -81,4 +80,6 @@ public class StringWithAbbreviationsProcessor {
             "VP",
             "YOI"
     );
+
+    private static final Pattern pattern = Pattern.compile("\\b(" + String.join("|", ABBREVIATIONS) + ")\\b", Pattern.CASE_INSENSITIVE);
 }
