@@ -139,28 +139,6 @@ public class LocationProcessor {
      *
      */
     public static String formatLocation(final String locationDescription) {
-        // Handle the possibility of the userDescription being empty
-        if (locationDescription == null) {
-            return null;
-        }
-        var description = WordUtils.capitalizeFully(locationDescription);
-        // Using word boundaries to find the right string ensures we catch the strings
-        // wherever they appear in the description, while also avoiding replacing
-        // the letter sequence should it appear in the middle of a word
-        // e.g. this will not match 'mosaic' even though AIC is one of the abbreviations
-        Pattern pattern = Pattern.compile("\\b(" + String.join("|", ABBREVIATIONS) + ")\\b", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(description);
-
-        // There could be more than one abbreviation in a string,
-        // e.g. HMP Moorland VCC Room 1
-        // By using the string buffer and the appendReplacement method
-        // we ensure that all the matching groups are replaced accordingly
-        StringBuilder stringBuilder = new StringBuilder();
-        while (matcher.find()) {
-            var matched = matcher.group(1);
-            matcher.appendReplacement(stringBuilder, matched.toUpperCase());
-        }
-        matcher.appendTail(stringBuilder);
-        return stringBuilder.toString();
+        return StringWithAbbreviationsProcessor.format(locationDescription);
     }
 }

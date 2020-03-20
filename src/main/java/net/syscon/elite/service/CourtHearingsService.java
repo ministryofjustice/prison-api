@@ -23,7 +23,6 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
@@ -110,10 +109,6 @@ public class CourtHearingsService {
                 );
 
         return courtHearingsBuilder.build();
-    }
-
-    private Stream<OffenderCourtCase> activeCourtCasesFor(final OffenderBooking booking) {
-        return booking.getCourtCases().stream().filter(OffenderCourtCase::isActive);
     }
 
     private void checkHearingIsInFuture(final LocalDateTime courtHearingDateTime) {
