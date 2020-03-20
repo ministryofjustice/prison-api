@@ -12,6 +12,7 @@ import net.syscon.elite.repository.jpa.model.EventType;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
+import net.syscon.elite.repository.jpa.repository.CourtEventFilter;
 import net.syscon.elite.repository.jpa.repository.CourtEventRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -91,13 +93,18 @@ public class CourtHearingsService {
     }
 
     /**
-     * Returns all court hearings for a given booking ID.
+     * Returns all court hearings for a given booking ID for the given date range.
      */
     @VerifyBookingAccess
-    public CourtHearings getCourtHearingsFor(final Long bookingId) {
+    public CourtHearings getCourtHearingsFor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate) {
         final var courtHearingsBuilder = CourtHearings.builder();
 
-        courtEventRepository.findByOffenderBooking_BookingId(bookingId).stream()
+        courtEventRepository.findAll(CourtEventFilter.builder()
+                .bookingId(bookingId)
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .build())
+                .stream()
                 .sorted(comparing(CourtEvent::getEventDateTime))
                 .forEach(ce ->
                         courtHearingsBuilder.hearing(
