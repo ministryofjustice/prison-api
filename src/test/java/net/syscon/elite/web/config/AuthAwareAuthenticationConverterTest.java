@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static net.syscon.elite.security.AuthSource.AUTH;
+import static net.syscon.elite.security.AuthSource.NOMIS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,12 +27,12 @@ public class AuthAwareAuthenticationConverterTest {
 
     @Test
     public void convert_basicAttributes_attributesCopied() {
-        when(jwt.getClaims()).thenReturn(claims("some_user", "some_auth_source", "ROLE_some"));
+        when(jwt.getClaims()).thenReturn(claims("some_user", "auth", "ROLE_some"));
 
         final var authToken = authenticationConverter.convert(jwt);
 
         assertThat(authToken.getPrincipal()).isEqualTo("some_user");
-        assertThat(authToken.getAuthSource()).isEqualTo("some_auth_source");
+        assertThat(authToken.getAuthSource()).isEqualTo(AUTH);
         assertThat(authToken.getAuthorities()).containsExactlyInAnyOrder(new SimpleGrantedAuthority("ROLE_some"));
     }
 
@@ -49,7 +51,7 @@ public class AuthAwareAuthenticationConverterTest {
 
         final var authToken = authenticationConverter.convert(jwt);
 
-        assertThat(authToken.getAuthSource()).isEqualTo("nomis");
+        assertThat(authToken.getAuthSource()).isEqualTo(NOMIS);
     }
 
     @Test

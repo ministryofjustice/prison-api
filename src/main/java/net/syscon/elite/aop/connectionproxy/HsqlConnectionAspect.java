@@ -8,6 +8,8 @@ import org.springframework.util.Assert;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static net.syscon.elite.security.AuthSource.NOMIS;
+
 @Aspect
 @Slf4j
 public class HsqlConnectionAspect extends AbstractConnectionAspect {
@@ -20,8 +22,8 @@ public class HsqlConnectionAspect extends AbstractConnectionAspect {
     @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
         final var proxyUserAuthSource = authenticationFacade.getProxyUserAuthenticationSource();
-        if (proxyUserAuthSource.equals("nomis")) {
-            log.debug("Configuring Hsql Proxy Session.");
+        if (proxyUserAuthSource.equals(NOMIS)) {
+            log.trace("Configuring Hsql Proxy Session.");
             return openAndConfigureProxySessionForConnection(pooledConnection);
         }
         return pooledConnection;

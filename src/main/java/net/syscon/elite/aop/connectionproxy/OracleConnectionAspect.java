@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import static java.lang.String.format;
+import static net.syscon.elite.security.AuthSource.NOMIS;
+import static net.syscon.elite.security.AuthSource.NONE;
 import static net.syscon.util.MdcUtility.*;
 
 @Aspect
@@ -35,12 +37,12 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
     @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
         final var proxyUserAuthSource = authenticationFacade.getProxyUserAuthenticationSource();
-        if (proxyUserAuthSource.equals("nomis")) {
-            log.debug("Configuring Oracle Proxy Session for Nomis user {}", pooledConnection);
+        if (proxyUserAuthSource.equals(NOMIS)) {
+            log.trace("Configuring Oracle Proxy Session for Nomis user {}", pooledConnection);
             return openAndConfigureProxySessionForConnection(pooledConnection);
         }
         setDefaultSchema(pooledConnection);
-        if (!proxyUserAuthSource.equals("none")) {
+        if (!proxyUserAuthSource.equals(NONE)) {
             setContext(pooledConnection);
         }
         return pooledConnection;

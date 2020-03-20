@@ -44,7 +44,7 @@ public class AuthenticationFacade {
         return username;
     }
 
-    public String getProxyUserAuthenticationSource() {
+    public AuthSource getProxyUserAuthenticationSource() {
         final var auth = getAuthentication();
         return Optional.ofNullable(auth).
                 filter(a -> StringUtils.isNotBlank(MDC.get(PROXY_USER))).
@@ -52,7 +52,7 @@ public class AuthenticationFacade {
                 map(AuthAwareAuthenticationToken.class::cast).
                 filter(AbstractAuthenticationToken::isAuthenticated).
                 map(AuthAwareAuthenticationToken::getAuthSource).
-                orElse("none");
+                orElse(AuthSource.NONE);
     }
 
     public static boolean hasRoles(final String... allowedRoles) {
