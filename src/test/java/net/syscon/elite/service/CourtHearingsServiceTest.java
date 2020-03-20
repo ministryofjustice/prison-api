@@ -11,6 +11,7 @@ import net.syscon.elite.repository.jpa.model.EventType;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
+import net.syscon.elite.repository.jpa.repository.CourtEventFilter;
 import net.syscon.elite.repository.jpa.repository.CourtEventRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
@@ -366,7 +367,7 @@ public class CourtHearingsServiceTest {
 
         givenValidBookingWithOneOrMoreCourtHearings(1L, hearing(hearing.getId()));
 
-        final var hearings = courtHearingsService.getCourtHearingsFor(1L);
+        final var hearings = courtHearingsService.getCourtHearingsFor(1L, null, null);
 
         assertThat(hearings.getHearings())
                 .containsExactly(
@@ -399,7 +400,7 @@ public class CourtHearingsServiceTest {
 
         givenValidBookingWithOneOrMoreCourtHearings(2L, hearing(hearing1.getId()), hearing(hearing2.getId()));
 
-        final var hearings = courtHearingsService.getCourtHearingsFor(2L);
+        final var hearings = courtHearingsService.getCourtHearingsFor(2L, null, null);
 
         assertThat(hearings.getHearings())
                 .containsExactly(
@@ -413,12 +414,12 @@ public class CourtHearingsServiceTest {
                                 .dateTime(hearing2.getEventDateTime())
                                 .location(AgencyTransformer.transform(hearing2.getCourtLocation()))
                                 .build()
-                        );
+                );
     }
 
 
     private void givenValidBookingWithOneOrMoreCourtHearings(final Long bookingId, final CourtEvent... events) {
-        when(courtEventRepository.findByOffenderBooking_BookingId(bookingId)).thenReturn(asList(events));
+        when(courtEventRepository.findAll(CourtEventFilter.builder().bookingId(bookingId).build())).thenReturn(asList(events));
     }
 
     private CourtEvent hearing(final Long hearingId) {
@@ -431,6 +432,4 @@ public class CourtHearingsServiceTest {
                 .startTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
                 .build();
     }
-
-    // TODO - WIP DT-651 needs filtering param tests to be added.
 }
