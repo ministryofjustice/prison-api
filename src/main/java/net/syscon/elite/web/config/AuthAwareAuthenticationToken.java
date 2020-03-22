@@ -8,8 +8,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 import java.util.Collection;
 
-import static net.syscon.elite.security.AuthSource.NOMIS;
-
 @Getter
 public class AuthAwareAuthenticationToken extends JwtAuthenticationToken {
     private final AuthSource authSource;
@@ -19,9 +17,5 @@ public class AuthAwareAuthenticationToken extends JwtAuthenticationToken {
         super(jwt, authorities);
         this.authSource = AuthSource.fromName(authSource);
         this.principal = principal;
-    }
-
-    public boolean isNomisSource() {
-        return NOMIS.equals(authSource);
     }
 }

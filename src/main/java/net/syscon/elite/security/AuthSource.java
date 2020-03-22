@@ -26,7 +26,7 @@ public enum AuthSource {
     }
 
     public static AuthSource fromName(final String name) {
-        return byName.getOrDefault(name, NOMIS);
+        return byName.getOrDefault(name, NONE);
     }
 
 }

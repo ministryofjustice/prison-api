@@ -13,7 +13,6 @@ import java.util.Properties;
 
 import static java.lang.String.format;
 import static net.syscon.elite.security.AuthSource.NOMIS;
-import static net.syscon.elite.security.AuthSource.NONE;
 import static net.syscon.util.MdcUtility.*;
 
 @Aspect
@@ -41,11 +40,8 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
             log.trace("Configuring Oracle Proxy Session for Nomis user {}", pooledConnection);
             return openAndConfigureProxySessionForConnection(pooledConnection);
         }
-        setDefaultSchema(pooledConnection);
-        if (!proxyUserAuthSource.equals(NONE)) {
-            setContext(pooledConnection);
-        }
-        return pooledConnection;
+
+        return configureConnection(pooledConnection);
     }
 
     private Connection openAndConfigureProxySessionForConnection(final Connection pooledConnection) throws SQLException {
@@ -54,13 +50,17 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
 
         final Connection wrappedConnection = new ProxySessionClosingConnection(pooledConnection);
 
-        setDefaultSchema(wrappedConnection);
-
         roleConfigurer.setRoleForConnection(oracleConnection);
 
-        setContext(wrappedConnection);
+        configureConnection(wrappedConnection);
 
         return wrappedConnection;
+    }
+
+    private Connection configureConnection(Connection pooledConnection) throws SQLException {
+        setDefaultSchema(pooledConnection);
+        setContext(pooledConnection);
+        return pooledConnection;
     }
 
     private OracleConnection openProxySessionForCurrentUsername(final Connection pooledConnection) throws SQLException {

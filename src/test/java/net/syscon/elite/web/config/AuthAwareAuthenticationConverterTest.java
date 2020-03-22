@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static net.syscon.elite.security.AuthSource.AUTH;
-import static net.syscon.elite.security.AuthSource.NOMIS;
+import static net.syscon.elite.security.AuthSource.NONE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -46,12 +46,12 @@ public class AuthAwareAuthenticationConverterTest {
     }
 
     @Test
-    public void convert_missingAuthSource_authSourceIsNomis() {
+    public void convert_missingAuthSource_authSourceIsNone() {
         when(jwt.getClaims()).thenReturn(claims("some_user", null, "ROLE_some"));
 
         final var authToken = authenticationConverter.convert(jwt);
 
-        assertThat(authToken.getAuthSource()).isEqualTo(NOMIS);
+        assertThat(authToken.getAuthSource()).isEqualTo(NONE);
     }
 
     @Test

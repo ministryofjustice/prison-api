@@ -31,7 +31,7 @@ public class AuthenticationFacadeTest {
     @Test
     public void getProxyUserAuthenticationSource_AuthSource_null() {
         setAuthentication(null, true);
-        assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(NOMIS);
+        assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(NONE);
     }
 
     @Test
