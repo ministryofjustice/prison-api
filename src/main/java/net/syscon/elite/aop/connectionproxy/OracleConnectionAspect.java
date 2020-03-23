@@ -50,9 +50,11 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
 
         final Connection wrappedConnection = new ProxySessionClosingConnection(pooledConnection);
 
+        setDefaultSchema(wrappedConnection);
+
         roleConfigurer.setRoleForConnection(oracleConnection);
 
-        configureConnection(wrappedConnection);
+        setContext(pooledConnection);
 
         return wrappedConnection;
     }
