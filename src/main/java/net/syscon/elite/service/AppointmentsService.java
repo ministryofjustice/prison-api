@@ -13,6 +13,7 @@ import net.syscon.elite.repository.jpa.repository.ScheduledAppointmentRepository
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.elite.service.support.StringWithAbbreviationsProcessor;
 import net.syscon.util.CalcDateRanges;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -251,9 +252,9 @@ public class AppointmentsService {
                                 .date(scheduledAppointment.getEventDate())
                                 .startTime(scheduledAppointment.getStartTime())
                                 .endTime(scheduledAppointment.getEndTime())
-                                .appointmentTypeDescription(scheduledAppointment.getAppointmentTypeDescription())
+                                .appointmentTypeDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getAppointmentTypeDescription()))
                                 .appointmentTypeCode(scheduledAppointment.getAppointmentTypeCode())
-                                .locationDescription(scheduledAppointment.getLocationDescription())
+                                .locationDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getLocationDescription()))
                                 .locationId(scheduledAppointment.getLocationId())
                                 .createUserId(scheduledAppointment.getCreateUserId())
                                 .agencyId(scheduledAppointment.getAgencyId())
