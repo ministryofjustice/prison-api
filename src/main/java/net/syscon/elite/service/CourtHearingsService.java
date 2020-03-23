@@ -97,6 +97,8 @@ public class CourtHearingsService {
      */
     @VerifyBookingAccess
     public CourtHearings getCourtHearingsFor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate) {
+        checkFromAndToDatesAreValid(fromDate, toDate);
+
         final var courtHearingsBuilder = CourtHearings.builder();
 
         courtEventRepository.findAll(CourtEventFilter.builder()
@@ -116,6 +118,16 @@ public class CourtHearingsService {
                 );
 
         return courtHearingsBuilder.build();
+    }
+
+    private void checkFromAndToDatesAreValid(final LocalDate from, final LocalDate to) {
+        if (from == null || to == null) {
+            return;
+        }
+
+        if (to.isBefore(from)) {
+            throw new BadRequestException("Invalid date range: toDate is before fromDate.");
+        }
     }
 
     private void checkHearingIsInFuture(final LocalDateTime courtHearingDateTime) {

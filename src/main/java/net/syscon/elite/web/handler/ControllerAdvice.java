@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.NoContentException;
+import net.syscon.elite.service.BadRequestException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -235,4 +236,16 @@ public class ControllerAdvice {
                         .build());
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleServiceException(final BadRequestException e) {
+        log.debug("Bad Request (400) returned", e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
 }
