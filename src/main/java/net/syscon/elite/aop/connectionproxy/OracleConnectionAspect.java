@@ -41,7 +41,8 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
             return openAndConfigureProxySessionForConnection(pooledConnection);
         }
 
-        return configureConnection(pooledConnection);
+        setDefaultSchema(pooledConnection);
+        return pooledConnection;
     }
 
     private Connection openAndConfigureProxySessionForConnection(final Connection pooledConnection) throws SQLException {
