@@ -44,14 +44,15 @@ public class AuthenticationFacade {
         return username;
     }
 
-    public boolean isIdentifiedAuthentication() {
+    public AuthSource getProxyUserAuthenticationSource() {
         final var auth = getAuthentication();
-        return StringUtils.isNotBlank(MDC.get(PROXY_USER))
-                && Optional.ofNullable(auth).
+        return Optional.ofNullable(auth).
+                filter(a -> StringUtils.isNotBlank(MDC.get(PROXY_USER))).
                 filter(AuthAwareAuthenticationToken.class::isInstance).
                 map(AuthAwareAuthenticationToken.class::cast).
                 filter(AbstractAuthenticationToken::isAuthenticated).
-                map(AuthAwareAuthenticationToken::isNomisSource).orElse(Boolean.FALSE);
+                map(AuthAwareAuthenticationToken::getAuthSource).
+                orElse(AuthSource.NONE);
     }
 
     public static boolean hasRoles(final String... allowedRoles) {

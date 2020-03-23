@@ -49,17 +49,18 @@ public class UserMdcFilter implements Filter {
             if (currentUsername != null) {
                 MDC.put(USER_ID_HEADER, currentUsername);
                 telemetryClient.getContext().getUser().setId(currentUsername);
-                telemetryClient.getContext().getComponent().setVersion(getVersion());
-                final var ip = IpAddressHelper.retrieveIpFromRemoteAddr((HttpServletRequest) request);
-                MDC.put(IP_ADDRESS, ip);
-                telemetryClient.getContext().getLocation().setIp(ip);
             }
+            telemetryClient.getContext().getComponent().setVersion(getVersion());
+            final var ip = IpAddressHelper.retrieveIpFromRemoteAddr((HttpServletRequest) request);
+            MDC.put(IP_ADDRESS, ip);
+            telemetryClient.getContext().getLocation().setIp(ip);
+
             chain.doFilter(request, response);
         } finally {
             if (currentUsername != null) {
                 MDC.remove(USER_ID_HEADER);
-                MDC.remove(IP_ADDRESS);
             }
+            MDC.remove(IP_ADDRESS);
         }
     }
 
