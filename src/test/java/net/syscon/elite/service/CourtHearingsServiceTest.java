@@ -31,8 +31,7 @@ import java.util.Optional;
 
 import static java.time.Instant.ofEpochMilli;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -417,6 +416,21 @@ public class CourtHearingsServiceTest {
                 );
     }
 
+    @Test
+    void getCourtHearings_throws_service_exception_for_invalid_dates() {
+        assertThatThrownBy(() -> courtHearingsService.getCourtHearingsFor(-1L, LocalDate.of(2020, 3, 23), LocalDate.of(2020, 3, 22)))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Invalid date range: toDate is before fromDate.");
+    }
+
+    @Test
+    void getCourtHearings_does_not_throw_service_exception_for_valid_dates() {
+        assertThatCode(() -> courtHearingsService.getCourtHearingsFor(-1L, LocalDate.of(2020, 3, 22), LocalDate.of(2020, 3, 23)))
+                .doesNotThrowAnyException();
+
+        assertThatCode(() -> courtHearingsService.getCourtHearingsFor(-1L, LocalDate.of(2020, 3, 22), LocalDate.of(2020, 3, 22)))
+                .doesNotThrowAnyException();
+    }
 
     private void givenValidBookingWithOneOrMoreCourtHearings(final Long bookingId, final CourtEvent... events) {
         when(courtEventRepository.findAll(CourtEventFilter.builder().bookingId(bookingId).build())).thenReturn(asList(events));

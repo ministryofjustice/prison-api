@@ -233,4 +233,22 @@ public class OffenderMovementsResourceImplIntTest extends ResourceTest {
                 .developerMessage("Resource with id [666] not found.")
                 .build());
     }
+
+    @Test
+    public void get_court_hearings_for_booking_fails_on_invalid_date_range() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var request = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-1/court-hearings?fromDate=2020-03-23&toDate=2020-03-22",
+                HttpMethod.GET,
+                request,ErrorResponse.class);
+
+        assertThat(response.getBody()).isEqualTo(ErrorResponse.builder()
+                .status(400)
+                .userMessage("Invalid date range: toDate is before fromDate.")
+                .developerMessage("Invalid date range: toDate is before fromDate.")
+                .build());
+    }
 }
