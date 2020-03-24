@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import com.amazonaws.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
@@ -9,6 +10,7 @@ import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.service.CourtHearingsService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.MovementUpdateService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,9 +27,11 @@ import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 public class OffenderMovementsResourceImpl implements OffenderMovementsResource {
 
     private final CourtHearingsService courtHearingsService;
+    private final MovementUpdateService movementUpdateService;
 
-    public OffenderMovementsResourceImpl(final CourtHearingsService courtHearingsService) {
+    public OffenderMovementsResourceImpl(CourtHearingsService courtHearingsService, MovementUpdateService movementUpdateService) {
         this.courtHearingsService = courtHearingsService;
+        this.movementUpdateService = movementUpdateService;
     }
 
     @ProxyUser
@@ -49,23 +53,33 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
                 reasonCode,
                 dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
 
-        // TODO DT-235 Just done enough here to write tests for the API - implement the cell movement in a new service, MovementUpdateService
+        validateMoveToCellRequest(reasonCode);
+        final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now();
 
-        if (bookingId == 404L) {
-            throw new EntityNotFoundException("Simulating a not found for bookingId 404");
+        // TODO DT-235 Just done enough here to write tests for the API - remove once MovementUpdateService has been implemented
+
+        if (bookingId == 123L) {
+            throw new EntityNotFoundException("Simulating a not found for bookingId 123");
         }
 
-        if (livingUnitId == 404L) {
-            throw new EntityNotFoundException("Simulating a not found for livingUnitId 404");
+        if (bookingId == 456L) {
+            throw new RuntimeException("Simulating a server error");
         }
 
-        if (reasonCode.equals("404")) {
-            throw new EntityNotFoundException("Simulating a not found for reasonCode '404'");
+        if (livingUnitId == 123L) {
+            throw new EntityNotFoundException("Simulating a not found for livingUnitId 123");
         }
 
-        return OffenderBooking.builder()
-                .bookingId(bookingId)
-                .assignedLivingUnitId(livingUnitId)
-                .build();
+        if (reasonCode.equals("123")) {
+            throw new EntityNotFoundException("Simulating a not found for reasonCode '123'");
+        }
+
+        return movementUpdateService.moveToCell(bookingId, livingUnitId, reasonCode, movementDateTime);
+    }
+
+    private void validateMoveToCellRequest(final String reasonCode) {
+        if (StringUtils.isNullOrEmpty(reasonCode)) {
+            throw new IllegalArgumentException("Reason code is mandatory");
+        }
     }
 }

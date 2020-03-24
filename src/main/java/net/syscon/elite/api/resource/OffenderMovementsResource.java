@@ -48,9 +48,9 @@ public interface OffenderMovementsResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     OffenderBooking moveToCell(
-            @ApiParam(value = "The offender booking id") @PathVariable("bookingId") Long bookingId,
-            @ApiParam(value = "The cell location the offender has been moved to") @PathVariable("livingUnitId") Long livingUnitId,
-            @ApiParam(value = "The reason code for the move", required = true) @RequestParam("reasonCode") String reasonCode,
-            @ApiParam(value = "The date time of the move (defaults to current)") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("dateTime") LocalDateTime dateTime
+            @ApiParam(value = "The offender booking id", example = "1200866") @PathVariable("bookingId") Long bookingId,
+            @ApiParam(value = "The cell location the offender has been moved to", example = "123123") @PathVariable("livingUnitId") Long livingUnitId,
+            @ApiParam(value = "The reason code for the move", example = "ADM", required = true) @RequestParam("reasonCode") String reasonCode, // TODO DT-235 Find out hwo the reason code is validated and mention it in the API docs
+            @ApiParam(value = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(value = "dateTime", required = false) LocalDateTime dateTime
     );
 }
