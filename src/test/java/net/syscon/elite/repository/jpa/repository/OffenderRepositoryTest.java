@@ -46,7 +46,7 @@ public class OffenderRepositoryTest {
 
         entityManager.flush();
 
-        assertThat(repository.findById(maleOffender.getId())).isNotNull();
+        assertThat(repository.findById(maleOffender.getId()).orElseThrow()).isEqualTo(maleOffender);
     }
 
     @Test
@@ -61,6 +61,6 @@ public class OffenderRepositoryTest {
 
         entityManager.flush();
 
-        assertThat(repository.findById(femaleOffender.getId())).isNotNull();
+        assertThat(repository.findById(femaleOffender.getId()).orElseThrow()).isEqualTo(femaleOffender);
     }
 }
