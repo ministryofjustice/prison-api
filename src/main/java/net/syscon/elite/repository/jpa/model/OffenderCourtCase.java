@@ -46,7 +46,7 @@ public class OffenderCourtCase extends AuditableEntity {
     @Column(name = "CASE_ID", nullable = false)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
@@ -55,7 +55,7 @@ public class OffenderCourtCase extends AuditableEntity {
 
     private LocalDate beginDate;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation agencyLocation;
 

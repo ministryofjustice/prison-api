@@ -45,13 +45,17 @@ public class OffenderBooking {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     private List<OffenderCourtCase> courtCases;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation location;
 
     @Setter(AccessLevel.NONE)
     @Column(name = "BOOKING_SEQ", nullable = false)
     private Integer bookingSequence;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "OFFENDER_ID", nullable = false)
+    private Offender offender;
 
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);

@@ -8,6 +8,7 @@ import net.syscon.elite.repository.jpa.model.CaseStatus;
 import net.syscon.elite.repository.jpa.model.CourtEvent;
 import net.syscon.elite.repository.jpa.model.EventStatus;
 import net.syscon.elite.repository.jpa.model.EventType;
+import net.syscon.elite.repository.jpa.model.Offender;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
@@ -96,6 +97,9 @@ public class CourtHearingsServiceTest {
     @Mock
     private AgencyLocation fromPrison;
 
+    @Mock
+    private Offender offender;
+
     private final Clock startOfEpochClock = Clock.fixed(ofEpochMilli(0), ZoneId.systemDefault());
 
     private OffenderBooking offenderBooking;
@@ -143,8 +147,10 @@ public class CourtHearingsServiceTest {
                 .bookingSequence(1)
                 .location(fromPrison)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
+                .offender(offender)
                 .build();
 
+        when(offender.getId()).thenReturn(-1L);
         when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
         when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
         when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(COURT_LOCATION));
