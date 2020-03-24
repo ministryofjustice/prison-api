@@ -43,11 +43,11 @@ public class CourtEvent extends AuditableEntity {
     @Column(name = "EVENT_ID", nullable = false)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "CASE_ID", nullable = false)
     private OffenderCourtCase offenderCourtCase;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
@@ -73,7 +73,7 @@ public class CourtEvent extends AuditableEntity {
     })
     private EventStatus eventStatus;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation courtLocation;
 

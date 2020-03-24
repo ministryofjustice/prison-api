@@ -87,7 +87,8 @@ public class CourtHearingsService {
 
         final var courtHearing = toCourtHearing(courtEventRepository.save(courtEvent));
 
-        log.debug("created court hearing with id '{} for court case id {} and booking id {}", courtHearing.getId(), courtCase.getId(), offenderBooking.getBookingId());
+        log.debug("created court hearing id '{}', court case id '{}', booking id '{}', offender id '{}'",
+                courtHearing.getId(), courtCase.getId(), offenderBooking.getBookingId(), offenderBooking.getOffender().getId());
 
         return courtHearing;
     }
