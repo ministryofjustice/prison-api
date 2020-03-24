@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -31,6 +32,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @NoArgsConstructor
 @Entity
 @Table(name = "OFFENDERS")
+@ToString
 public class Offender extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_ID", sequenceName = "OFFENDER_ID", allocationSize = 1)
