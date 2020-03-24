@@ -3,7 +3,7 @@ package net.syscon.elite.aop.connectionproxy;
 import net.syscon.elite.security.AuthSource;
 import net.syscon.elite.security.AuthenticationFacade;
 import oracle.jdbc.driver.OracleConnection;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.sql.Connection;
@@ -14,7 +14,7 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class OracleConnectionAspectTest {
+class OracleConnectionAspectTest {
 
     private final AuthenticationFacade authenticationFacade = mock(AuthenticationFacade.class);
     private final RoleConfigurer roleConfigurer = mock(RoleConfigurer.class);
@@ -27,7 +27,7 @@ public class OracleConnectionAspectTest {
     private final OracleConnectionAspect connectionAspect = new OracleConnectionAspect(authenticationFacade, roleConfigurer, defaultSchema);
 
     @Test
-    public void openProxySessionIfIdentifiedAuthentication_nomisUser_opensProxyConnection() throws SQLException {
+    void openProxySessionIfIdentifiedAuthentication_nomisUser_opensProxyConnection() throws SQLException {
         configureMocks(AuthSource.NOMIS);
 
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
@@ -38,7 +38,7 @@ public class OracleConnectionAspectTest {
     }
 
     @Test
-    public void openProxySessionIfIdentifiedAuthentication_nomisUser_setSchemaAndContext() throws SQLException {
+    void openProxySessionIfIdentifiedAuthentication_nomisUser_setSchemaAndContext() throws SQLException {
         configureMocks(AuthSource.NOMIS);
 
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
@@ -50,7 +50,7 @@ public class OracleConnectionAspectTest {
     }
 
     @Test
-    public void openProxySessionIfIdentifiedAuthentication_notANomisUser_doesntOpenProxyConnection() throws SQLException {
+    void openProxySessionIfIdentifiedAuthentication_notANomisUser_doesntOpenProxyConnection() throws SQLException {
         configureMocks(AuthSource.NONE);
 
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
@@ -59,7 +59,7 @@ public class OracleConnectionAspectTest {
     }
 
     @Test
-    public void openProxySessionIfIdentifiedAuthentication_notANomisUser_setSchemaButNotContext() throws SQLException {
+    void openProxySessionIfIdentifiedAuthentication_notANomisUser_setSchemaButNotContext() throws SQLException {
         configureMocks(AuthSource.NONE);
 
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
