@@ -14,7 +14,7 @@ public interface ScheduleRepository {
     List<PrisonerSchedule> getLocationVisits(Long locationId, LocalDate fromDate, LocalDate toDate,
                                              String orderByFields, Order order);
 
-    List<PrisonerSchedule> getAllActivitiesAtAgency(String agencyId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+    List<PrisonerSchedule> getAllActivitiesAtAgency(String agencyId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order,  boolean includeSuspended);
 
     List<PrisonerSchedule> getActivitiesAtLocation(Long locationId, LocalDate fromDate, LocalDate toDate,
                                                    String orderByFields, Order order, boolean includeSuspended);

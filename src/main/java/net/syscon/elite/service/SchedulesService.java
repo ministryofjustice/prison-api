@@ -155,7 +155,7 @@ public class SchedulesService {
     }
 
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
+    public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot, final String sortFields, final Order sortOrder, final boolean includeSuspended) {
 
         final var startDate = fromDate == null ? LocalDate.now() : fromDate;
         final var endDate = toDate == null ? fromDate : toDate;
@@ -163,7 +163,7 @@ public class SchedulesService {
         final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
-        final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, startDate, endDate, orderByFields, order);
+        final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, startDate, endDate, orderByFields, order, includeSuspended);
 
         return filterByTimeSlot(timeSlot, activities);
     }
