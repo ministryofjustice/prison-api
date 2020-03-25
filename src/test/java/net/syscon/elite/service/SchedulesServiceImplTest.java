@@ -101,16 +101,16 @@ class SchedulesServiceImplTest {
         final var today = LocalDate.now();
         final var sortFields = "lastName,startTime";
 
-        schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, sortFields, Order.ASC);
+        schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, sortFields, Order.ASC, true);
 
-        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", today, today, sortFields, Order.ASC);
+        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", today, today, sortFields, Order.ASC, true);
     }
 
     @Test
     void testGeActivitiesAtAllLocations_appliesTimeSlotFiltering() {
         final var today = LocalDate.now();
 
-        when(scheduleRepository.getAllActivitiesAtAgency(eq("LEI"), eq(today), eq(today), eq("lastName"), eq(Order.ASC)))
+        when(scheduleRepository.getAllActivitiesAtAgency(eq("LEI"), eq(today), eq(today), eq("lastName"), eq(Order.ASC), eq(false)))
                 .thenReturn(List.of(
                         PrisonerSchedule
                                 .builder()
@@ -132,7 +132,7 @@ class SchedulesServiceImplTest {
                                 .build()
                 ));
 
-        final var activities = schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, null, Order.ASC);
+        final var activities = schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, null, Order.ASC, false);
 
         assertThat(activities).hasSize(1);
     }
@@ -185,9 +185,9 @@ class SchedulesServiceImplTest {
 
         final var sortFields = "lastName,startTime";
 
-        schedulesService.getActivitiesAtAllLocations("LEI", from, to, TimeSlot.AM, sortFields, Order.ASC);
+        schedulesService.getActivitiesAtAllLocations("LEI", from, to, TimeSlot.AM, sortFields, Order.ASC, false);
 
-        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, to, sortFields, Order.ASC);
+        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, to, sortFields, Order.ASC, false);
     }
 
     @Test
@@ -195,9 +195,9 @@ class SchedulesServiceImplTest {
         final var from = LocalDate.now().plusDays(-10);
         final var sortFields = "lastName,startTime";
 
-        schedulesService.getActivitiesAtAllLocations("LEI", from, null, TimeSlot.AM, sortFields, Order.ASC);
+        schedulesService.getActivitiesAtAllLocations("LEI", from, null, TimeSlot.AM, sortFields, Order.ASC, false);
 
-        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, from, sortFields, Order.ASC);
+        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, from, sortFields, Order.ASC, false);
     }
 
     @Test

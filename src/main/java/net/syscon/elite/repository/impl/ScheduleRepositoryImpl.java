@@ -21,7 +21,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     private static final StandardBeanPropertyRowMapper<PrisonerSchedule> EVENT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerSchedule.class);
 
     @Override
-    public List<PrisonerSchedule> getAllActivitiesAtAgency(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
+    public List<PrisonerSchedule> getAllActivitiesAtAgency(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order, boolean includeSuspended) {
         final var initialSql = getQuery("GET_ALL_ACTIVITIES_AT_AGENCY");
 
         final var sql = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap())
@@ -32,7 +32,8 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                 sql,
                 createParams("agencyId", agencyId,
                         "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
+                        "includeSuspended", includeSuspended ? Set.of("Y", "N") : Set.of("N")),
                 EVENT_ROW_MAPPER);
     }
 
