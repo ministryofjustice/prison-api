@@ -5,20 +5,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import net.syscon.elite.api.model.CourtHearing;
-import net.syscon.elite.api.model.CourtHearings;
-import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.api.model.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Api(tags = {"/bookings"})
 public interface OffenderMovementsResource {
@@ -46,5 +39,18 @@ public interface OffenderMovementsResource {
             @ApiParam(value = "The offender booking linked to the court hearings.", required = true) @PathVariable("bookingId") Long bookingId,
             @ApiParam(value = "Return court hearings on or after this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
             @ApiParam(value = "Return court hearings on or before this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate
+    );
+
+    @PutMapping("/{bookingId}/living-unit/{livingUnitId}")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    OffenderBooking moveToCell(
+            @ApiParam(value = "The offender booking id", example = "1200866") @PathVariable("bookingId") Long bookingId,
+            @ApiParam(value = "The cell location the offender has been moved to", example = "123123") @PathVariable("livingUnitId") Long livingUnitId,
+            @ApiParam(value = "The reason code for the move", example = "ADM", required = true) @RequestParam("reasonCode") String reasonCode, // TODO DT-235 Find out hwo the reason code is validated and mention it in the API docs
+            @ApiParam(value = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(value = "dateTime", required = false) LocalDateTime dateTime
     );
 }
