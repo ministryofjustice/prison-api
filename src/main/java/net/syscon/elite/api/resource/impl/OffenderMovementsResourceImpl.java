@@ -29,7 +29,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     private final CourtHearingsService courtHearingsService;
     private final MovementUpdateService movementUpdateService;
 
-    public OffenderMovementsResourceImpl(CourtHearingsService courtHearingsService, MovementUpdateService movementUpdateService) {
+    public OffenderMovementsResourceImpl(final CourtHearingsService courtHearingsService, final MovementUpdateService movementUpdateService) {
         this.courtHearingsService = courtHearingsService;
         this.movementUpdateService = movementUpdateService;
     }
