@@ -13,7 +13,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
@@ -107,6 +109,25 @@ public class NomisApiV1ResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/v1/prison/CKI/offenders/G1408GC/transfer_transactions", HttpMethod.POST, requestEntity, String.class);
 
         assertThatJson(responseEntity.getBody()).isEqualTo("{current_location: {code: \"someLoc\", desc: \"someDesc\"}, transaction: {id:\"someId-someSeq\"}}");
+    }
+
+    @Test
+    public void transferTransaction_duplicate() {
+        final var transaction = new CreateTransaction();
+        transaction.setAmount(1234L);
+        transaction.setClientUniqueRef("clientRef");
+        transaction.setDescription("desc");
+        transaction.setType("type");
+        transaction.setClientTransactionId("transId");
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), transaction);
+
+        when(postTransfer.execute(any(SqlParameterSource.class))).thenThrow(new DuplicateKeyException("Duplicate key"));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/CKI/offenders/G1408GC/transfer_transactions", HttpMethod.POST, requestEntity, String.class);
+
+        assertThatJson(responseEntity.getBody()).isEqualTo("{status: 409, userMessage: \"Duplicate key\", developerMessage: \"Duplicate key\"}");
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test
