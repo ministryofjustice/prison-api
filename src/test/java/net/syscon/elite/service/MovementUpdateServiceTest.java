@@ -27,6 +27,9 @@ class MovementUpdateServiceTest {
     private static final Long NEW_LIVING_UNIT_ID = 3L;
     private static final String OLD_LIVING_UNIT_DESC = "Old cell";
     private static final String NEW_LIVING_UNIT_DESC = "New cell";
+    private static final String SOME_AGENCY_ID = "MDI";
+    private static final String DIFFERENT_AGENCY_ID = "NOT_MDI";
+    private static final String SOME_REASON_CODE = "ADM";
 
     private final ReferenceDomainService referenceDomainService = mock(ReferenceDomainService.class);
     private final BookingService bookingService = mock(BookingService.class);
@@ -53,9 +56,10 @@ class MovementUpdateServiceTest {
             final var badBookingId = SOME_BOOKING_ID;
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(ArgumentMatchers.anyLong())).thenReturn(null);
+            when(bookingService.getLatestBookingByBookingId(ArgumentMatchers.anyLong()))
+                    .thenReturn(null);
 
-            assertThatThrownBy(() -> service.moveToCell(badBookingId, NEW_LIVING_UNIT_ID, "ADM", LocalDateTime.now()))
+            assertThatThrownBy(() -> service.moveToCell(badBookingId, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, LocalDateTime.now()))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining(format(" %d ", badBookingId))
                     .hasMessageContaining("booking id");
@@ -66,10 +70,12 @@ class MovementUpdateServiceTest {
             final var badLivingUnitId = NEW_LIVING_UNIT_ID;
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(ArgumentMatchers.anyLong())).thenReturn(mock(OffenderSummary.class));
-            when(locationService.getLocation(badLivingUnitId)).thenThrow(EntityNotFoundException.withId(badLivingUnitId));
+            when(bookingService.getLatestBookingByBookingId(ArgumentMatchers.anyLong()))
+                    .thenReturn(mock(OffenderSummary.class));
+            when(locationService.getLocation(badLivingUnitId))
+                    .thenThrow(EntityNotFoundException.withId(badLivingUnitId));
 
-            assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, badLivingUnitId, "ADM", LocalDateTime.now()))
+            assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, badLivingUnitId, SOME_REASON_CODE, LocalDateTime.now()))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining(String.valueOf(badLivingUnitId));
         }
@@ -79,12 +85,13 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(bookingService.getLatestBookingByBookingId(ArgumentMatchers.anyLong()))
-                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, "MDI", OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
-            when(locationService.getLocation(NEW_LIVING_UNIT_ID)).thenReturn(locationForAgency("not_MDI"));
+                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
+            when(locationService.getLocation(NEW_LIVING_UNIT_ID))
+                    .thenReturn(locationForAgency(DIFFERENT_AGENCY_ID));
 
-            assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, "ADM", LocalDateTime.now()))
+            assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, LocalDateTime.now()))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Move to living unit in prison not_MDI invalid for offender in prison MDI");
+                    .hasMessage(format("Move to living unit in prison %s invalid for offender in prison %s", DIFFERENT_AGENCY_ID, SOME_AGENCY_ID));
         }
     }
 
@@ -93,42 +100,40 @@ class MovementUpdateServiceTest {
 
         @Test
         void updatesBooking() {
-            when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
-                    .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(ArgumentMatchers.anyLong()))
-                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, "MDI", OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
-            when(locationService.getLocation(NEW_LIVING_UNIT_ID)).thenReturn(locationForAgency("MDI"));
+            mockSuccess();
 
-            service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, "ADM", LocalDateTime.now());
+            service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, LocalDateTime.now());
 
             verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID);
         }
 
         @Test
         void writesToBedAssignmentHistories() {
-            when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
-                    .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(ArgumentMatchers.anyLong())).thenReturn(anOffenderSummary(SOME_BOOKING_ID, "MDI", OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
-            when(locationService.getLocation(NEW_LIVING_UNIT_ID)).thenReturn(locationForAgency("MDI"));
+            mockSuccess();
 
-            service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, "ADM", LocalDateTime.now());
+            service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, LocalDateTime.now());
 
             verify(locationService).addBedAssignmentHistory(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID);
         }
 
         @Test
         void returnsUpdatedOffenderSummary() {
-            when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
-                    .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(ArgumentMatchers.anyLong()))
-                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, "MDI", OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC))
-                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, "MDI", NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC));
-            when(locationService.getLocation(NEW_LIVING_UNIT_ID)).thenReturn(locationForAgency("MDI"));
+            mockSuccess();
 
-            final var offenderSummary = service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, "ADM", LocalDateTime.now());
+            final var offenderSummary = service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, LocalDateTime.now());
 
             assertThat(offenderSummary.getInternalLocationId()).isEqualTo(String.valueOf(NEW_LIVING_UNIT_ID));
             assertThat(offenderSummary.getInternalLocationDesc()).isEqualTo(NEW_LIVING_UNIT_DESC);
+        }
+
+        private void mockSuccess() {
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
+                    .thenReturn(Optional.of(mock(ReferenceCode.class)));
+            when(bookingService.getLatestBookingByBookingId(ArgumentMatchers.anyLong()))
+                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC))
+                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC));
+            when(locationService.getLocation(NEW_LIVING_UNIT_ID))
+                    .thenReturn(locationForAgency(SOME_AGENCY_ID));
         }
     }
 
