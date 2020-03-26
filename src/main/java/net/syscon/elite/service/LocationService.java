@@ -94,6 +94,11 @@ public class LocationService {
         return locationRepository.findLocation(locationId).orElseThrow(EntityNotFoundException.withId(locationId));
     }
 
+    @Transactional
+    public void addBedAssignmentHistory(final Long bookingId, final Long livingUnitId) {
+        // TODO DT-235 Implement adding a new record to BED_ASSIGNMENT_HISTORIES
+    }
+
     private String getWorkingCaseLoad(final String username) {
         final var workingCaseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
         return workingCaseLoad.map(CaseLoad::getCaseLoadId).orElse(null);

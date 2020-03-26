@@ -634,6 +634,11 @@ public class BookingService {
                 .orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
+    @Transactional
+    public void updateLivingUnit(final Long bookingId, final Long livingUnitId) {
+        // TODO DT-235 implement this
+    }
+
     private Set<String> getCaseLoadIdForUserIfRequired() {
         return isViewAllBookings() ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
     }
