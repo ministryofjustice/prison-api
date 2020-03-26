@@ -1,0 +1,6 @@
+Application is running at:
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+  https://{{ .host }}{{ $.Values.ingress.path }}
+{{- end }}
+{{- end }}

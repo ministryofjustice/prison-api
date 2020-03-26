@@ -1,0 +1,26 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+image:
+  repository: quay.io/hmpps/elite2-api
+  tag: latest
+  pullPolicy: Always
+  port: 8080
+
+ingress:
+  enabled: true
+  enable_whitelist: true
+  hosts:
+    - host: elite2-api.devtest.assessment-api.hmpps.dsd.io
+      cert_secret: elite2-api-cert
+  path: /
+
+whitelist:
+  office: "217.33.148.210/32"
+  health-kick: "35.177.252.195/32"
+  mojvpn: "81.134.202.29/32"
+  cloudplatform-live1-1: "35.178.209.113/32"
+  cloudplatform-live1-2: "3.8.51.207/32"
+  cloudplatform-live1-3: "35.177.252.54/32"

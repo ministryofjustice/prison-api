@@ -51,7 +51,7 @@ group 'net.syscon.elite'
 
 def today = Instant.now()
 def todaysDate = LocalDate.now().format('yyyy-MM-dd')
-version = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
+version = System.getenv().containsKey("BUILD_NUMBER") ? System.getenv("BUILD_NUMBER") : todaysDate
 
 jar {
     baseName = rootProject.name
@@ -71,7 +71,6 @@ springBoot {
             additional = [
                     by                   : System.properties['user.name'],
                     operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
-                    continuousIntegration: System.getenv('CI') ? true : false,
                     machine              : InetAddress.localHost.hostName
             ]
         }
