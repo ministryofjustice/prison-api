@@ -189,9 +189,6 @@ public class BookingServiceTest {
                 .thenReturn(Optional.of(OffenderSummary.builder().bookingId(2L).build()))
                 .thenReturn(Optional.of(OffenderSummary.builder().bookingId(3L).build()));
 
-        when(agencyService.getAgencyIds()).thenReturn(Set.of("MDI"));
-        when(bookingRepository.verifyBookingAccess(anyLong(), anySet())).thenReturn(true);
-
         when(bookingRepository.getAttendanceEventDate(anyLong())).thenReturn(LocalDate.now());
         when(bookingRepository.getPayableAttendanceOutcome(anyString(), anyString()))
                 .thenReturn(PayableAttendanceOutcomeDto

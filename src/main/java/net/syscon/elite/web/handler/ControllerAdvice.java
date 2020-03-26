@@ -6,6 +6,7 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.NoContentException;
 import net.syscon.elite.service.BadRequestException;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
@@ -245,6 +246,19 @@ public class ControllerAdvice {
                         .builder()
                         .userMessage(e.getMessage())
                         .status(HttpStatus.BAD_REQUEST.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ErrorResponse> handleServiceException(final DuplicateKeyException e) {
+        log.debug("Conflict (409) returned", e);
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
+                        .status(HttpStatus.CONFLICT.value())
                         .developerMessage(e.getMessage())
                         .build());
     }
