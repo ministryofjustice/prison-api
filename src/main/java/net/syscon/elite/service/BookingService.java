@@ -266,7 +266,6 @@ public class BookingService {
     }
 
     private void updateAttendance(final Long activityId, final UpdateAttendance updateAttendance, final OffenderSummary offenderSummary) {
-        verifyBookingAccess(offenderSummary.getBookingId());
         validateActivity(activityId);
 
         // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
