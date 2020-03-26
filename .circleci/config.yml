@@ -68,7 +68,7 @@ workflows:
           filters:
             branches:
               only:
-                - test_k8s_deploy
+                - k8s_deploy
       - dps/deploy_env:
           name: deploy_dev
           env: "dev"
@@ -76,7 +76,7 @@ workflows:
           filters:
             branches:
               only:
-                - test_k8s_deploy
+                - k8s_deploy
           requires:
             - build_docker
             - build
