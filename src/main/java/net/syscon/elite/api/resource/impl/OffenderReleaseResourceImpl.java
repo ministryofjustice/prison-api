@@ -1,6 +1,5 @@
 package net.syscon.elite.api.resource.impl;
 
-import io.jsonwebtoken.lang.Collections;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
@@ -10,10 +9,12 @@ import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.curfews.OffenderCurfewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -100,7 +101,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     private void validateOffenderList(final List<?> offenderList) {
-        if (Collections.isEmpty(offenderList)) {
+        if (CollectionUtils.isEmpty(offenderList)) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "List of Offender Ids must be provided");
         }
     }

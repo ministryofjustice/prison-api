@@ -7,7 +7,7 @@ plugins {
     id 'java'
     id 'groovy'
     id 'org.springframework.boot' version '2.2.6.RELEASE'
-    id 'org.owasp.dependencycheck' version '5.3.1'
+    id 'org.owasp.dependencycheck' version '5.3.2'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'com.github.ben-manes.versions' version '0.28.0'
     id 'se.patrikerdes.use-latest-versions' version '0.2.13'
@@ -53,10 +53,9 @@ def today = Instant.now()
 def todaysDate = LocalDate.now().format('yyyy-MM-dd')
 version = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
 
-jar {
-    baseName = rootProject.name
+bootJar {
     manifest {
-        attributes 'Implementation-Title': rootProject.name, 'Implementation-Version': version
+        attributes 'Implementation-Title': rootProject.name, 'Implementation-Version': rootProject.version
     }
 }
 
@@ -135,7 +134,6 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.3'
     implementation 'com.github.jsqlparser:jsqlparser:3.1'
     implementation 'net.sf.ehcache:ehcache:2.10.6'
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'com.zaxxer:HikariCP:3.4.2'
 
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
@@ -171,7 +169,7 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-junit4:2.0.6'
 
     testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.16.1'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.16.2'
 
     testImplementation 'net.serenity-bdd:serenity-core:2.1.8'
     testImplementation 'net.serenity-bdd:serenity-junit:2.1.8'
@@ -179,6 +177,7 @@ dependencies {
     testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.51'
     testImplementation 'org.slf4j:slf4j-api:1.7.30'
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.26.3'
+    testImplementation 'io.jsonwebtoken:jjwt:0.9.1'
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
 }
 

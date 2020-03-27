@@ -22,16 +22,19 @@ import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 @RunWith(SpringRunner.class)
-@Import({JwtAuthenticationHelper.class, ClientTrackingTelemetryModule.class, PublicKeyClient.class})
+@Import({JwtAuthenticationHelper.class, ClientTrackingTelemetryModule.class})
 @ContextConfiguration(initializers = {ConfigFileApplicationContextInitializer.class})
 @ActiveProfiles("test")
 public class ClientTrackingTelemetryModuleTest {
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private ClientTrackingTelemetryModule clientTrackingTelemetryModule;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private JwtAuthenticationHelper jwtAuthenticationHelper;
 
@@ -50,37 +53,34 @@ public class ClientTrackingTelemetryModuleTest {
 
         final var token = createJwt("bob", List.of(), 1L);
 
-        MockHttpServletRequest req = new MockHttpServletRequest();
+        final var req = new MockHttpServletRequest();
         req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        MockHttpServletResponse res = new MockHttpServletResponse();
+        final var res = new MockHttpServletResponse();
 
         clientTrackingTelemetryModule.onBeginRequest(req, res);
 
         final var insightTelemetry = ThreadContext.getRequestTelemetryContext().getHttpRequestTelemetry().getProperties();
 
-        assertThat(insightTelemetry).hasSize(3);
-        assertThat(insightTelemetry.get("username")).isEqualTo("bob");
-        assertThat(insightTelemetry.get("clientId")).isEqualTo("elite2apiclient");
-        assertThat(insightTelemetry.get("clientIpAddress")).isEqualTo("127.0.0.1");
+        assertThat(insightTelemetry).containsOnly(entry("username", "bob"), entry("clientId", "elite2apiclient"), entry("clientIpAddress", "127.0.0.1"));
     }
 
     @Test
-    public void shouldNotAddClientIdAndUserNameToInsightTelemetryAsTokenExpired() {
+    public void shouldAddClientIdAndUserNameToInsightTelemetryEvenIfTokenExpired() {
 
         final var token = createJwt("Fred", List.of(), -1L);
 
-        MockHttpServletRequest req = new MockHttpServletRequest();
+        final var req = new MockHttpServletRequest();
         req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        MockHttpServletResponse res = new MockHttpServletResponse();
+        final var res = new MockHttpServletResponse();
 
         clientTrackingTelemetryModule.onBeginRequest(req, res);
 
         final var insightTelemetry = ThreadContext.getRequestTelemetryContext().getHttpRequestTelemetry().getProperties();
 
-        assertThat(insightTelemetry).isEmpty();
+        assertThat(insightTelemetry).containsOnly(entry("username", "Fred"), entry("clientId", "elite2apiclient"), entry("clientIpAddress", "127.0.0.1"));
     }
 
-    private String createJwt(final String user, final List<String> roles, Long duration) {
+    private String createJwt(final String user, final List<String> roles, final Long duration) {
         return jwtAuthenticationHelper.createJwt(JwtParameters.builder()
                 .username(user)
                 .roles(roles)
