@@ -372,28 +372,44 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getOffenderCourtCases_mapped() {
+    void getOffenderCourtCases_active_only_mapped() {
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
-                .courtCases(List.of(OffenderCourtCase.builder()
-                        .id(-1L)
-                        .caseSeq(-2L)
-                        .beginDate(LocalDate.EPOCH)
-                        .agencyLocation(AgencyLocation.builder()
-                                .id("agency_id")
-                                .activeFlag(ActiveFlag.Y)
-                                .type("CRT")
-                                .description("The agency description")
-                                .build())
-                        .legalCaseType(new LegalCaseType("A", "Adult"))
-                        .caseInfoPrefix("cip")
-                        .caseInfoNumber("cin")
-                        .caseStatus(new CaseStatus("A", "Active"))
-                        .build()))
+                .courtCases(List.of(
+                        OffenderCourtCase.builder()
+                                .id(-1L)
+                                .caseSeq(-2L)
+                                .beginDate(LocalDate.EPOCH)
+                                .agencyLocation(AgencyLocation.builder()
+                                        .id("agency_id")
+                                        .activeFlag(ActiveFlag.Y)
+                                        .type("CRT")
+                                        .description("The agency description")
+                                        .build())
+                                .legalCaseType(new LegalCaseType("A", "Adult"))
+                                .caseInfoPrefix("cip")
+                                .caseInfoNumber("cin")
+                                .caseStatus(new CaseStatus("A", "Active"))
+                                .build(),
+                        OffenderCourtCase.builder()
+                                .id(-2L)
+                                .caseSeq(-2L)
+                                .beginDate(LocalDate.EPOCH)
+                                .agencyLocation(AgencyLocation.builder()
+                                        .id("agency_id")
+                                        .activeFlag(ActiveFlag.Y)
+                                        .type("CRT")
+                                        .description("The agency description")
+                                        .build())
+                                .legalCaseType(new LegalCaseType("A", "Adult"))
+                                .caseInfoPrefix("cip")
+                                .caseInfoNumber("cin")
+                                .caseStatus(new CaseStatus("I", "Inactive"))
+                                .build()))
                 .build()));
 
-        var courtCases = bookingService.getOffenderCourtCases(-1L);
+        var activeOnlyCourtCases = bookingService.getOffenderCourtCases(-1L, true);
 
-        assertThat(courtCases).containsExactly(CourtCase.builder()
+        assertThat(activeOnlyCourtCases).containsExactly(CourtCase.builder()
                 .id(-1L)
                 .caseSeq(-2L)
                 .beginDate(LocalDate.EPOCH)
@@ -412,9 +428,82 @@ public class BookingServiceTest {
     }
 
     @Test
+    void getOffenderCourtCases_all_mapped() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
+                .courtCases(List.of(
+                        OffenderCourtCase.builder()
+                                .id(-1L)
+                                .caseSeq(-1L)
+                                .beginDate(LocalDate.EPOCH)
+                                .agencyLocation(AgencyLocation.builder()
+                                        .id("agency_id")
+                                        .activeFlag(ActiveFlag.Y)
+                                        .type("CRT")
+                                        .description("The agency description")
+                                        .build())
+                                .legalCaseType(new LegalCaseType("A", "Adult"))
+                                .caseInfoPrefix("cip")
+                                .caseInfoNumber("cin")
+                                .caseStatus(new CaseStatus("A", "Active"))
+                                .build(),
+                        OffenderCourtCase.builder()
+                                .id(-2L)
+                                .caseSeq(-2L)
+                                .beginDate(LocalDate.EPOCH)
+                                .agencyLocation(AgencyLocation.builder()
+                                        .id("agency_id")
+                                        .activeFlag(ActiveFlag.Y)
+                                        .type("CRT")
+                                        .description("The agency description")
+                                        .build())
+                                .legalCaseType(new LegalCaseType("A", "Adult"))
+                                .caseInfoPrefix("cip")
+                                .caseInfoNumber("cin")
+                                .caseStatus(new CaseStatus("I", "Inactive"))
+                                .build()))
+                .build()));
+
+        var allCourtCases = bookingService.getOffenderCourtCases(-1L, false);
+
+        assertThat(allCourtCases).containsExactly(
+                CourtCase.builder()
+                        .id(-1L)
+                        .caseSeq(-1L)
+                        .beginDate(LocalDate.EPOCH)
+                        .agency(Agency.builder()
+                                .agencyId("agency_id")
+                                .active(true)
+                                .agencyType("CRT")
+                                .description("The Agency Description")
+                                .build())
+                        .caseType("Adult")
+                        .caseInfoPrefix("cip")
+                        .caseInfoNumber("cin")
+                        .caseStatus("Active")
+                        .courtHearings(Collections.emptyList())
+                        .build(),
+                CourtCase.builder()
+                        .id(-2L)
+                        .caseSeq(-2L)
+                        .beginDate(LocalDate.EPOCH)
+                        .agency(Agency.builder()
+                                .agencyId("agency_id")
+                                .active(true)
+                                .agencyType("CRT")
+                                .description("The Agency Description")
+                                .build())
+                        .caseType("Adult")
+                        .caseInfoPrefix("cip")
+                        .caseInfoNumber("cin")
+                        .caseStatus("Inactive")
+                        .courtHearings(Collections.emptyList())
+                        .build());
+    }
+
+    @Test
     void getOffenderCourtCases_notfound() {
         when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
+        assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L, false)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {

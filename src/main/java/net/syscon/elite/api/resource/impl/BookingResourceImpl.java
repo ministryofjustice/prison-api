@@ -622,7 +622,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<CourtCase> getCourtCases(final Long bookingId) {
-        return bookingService.getOffenderCourtCases(bookingId);
+    public List<CourtCase> getCourtCases(final Long bookingId, final boolean activeOnly) {
+        return bookingService.getOffenderCourtCases(bookingId, activeOnly);
     }
 }
