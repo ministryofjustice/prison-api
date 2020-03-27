@@ -33,9 +33,12 @@ public class MovementUpdateService {
             throw new IllegalArgumentException(format("Move to living unit in prison %s invalid for offender in prison %s", location.getAgencyId(), offenderSummary.getAgencyLocationId()));
         }
 
+        if (offenderSummary.getInternalLocationId().equals(String.valueOf(livingUnitId))) {
+            return offenderSummary;
+        }
+
         bookingService.updateLivingUnit(bookingId, livingUnitId);
         locationService.addBedAssignmentHistory(bookingId, livingUnitId);
-
         return getOffenderSummary(bookingId);
     }
 
