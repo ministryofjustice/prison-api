@@ -4,7 +4,7 @@ import com.amazonaws.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
-import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
@@ -46,7 +46,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     }
 
     @Override
-    public OffenderBooking moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
+    public OffenderSummary moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
         log.debug("Received moveToCell request for booking id {}, cell location {}, reasonCode {}, date/time {}",
                 bookingId,
                 livingUnitId,

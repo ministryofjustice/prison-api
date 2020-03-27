@@ -1,6 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.service.MovementUpdateService;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -15,13 +15,18 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
 
-// TODO DT-235 These tests are here to help define the API, but currently using canned data.  Once MovementUpdateService is implemented, replace below with real data.
+// TODO DT-235 These tests are here to help define the API, but currently using canned data.  Once MovementUpdateService and dependencies are implemented, replace below with real data.
 public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
 
     @Autowired
@@ -33,19 +38,19 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
     @Test
     public void validRequest() {
         when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
-                .thenReturn(anOffenderBooking(1L, 2L));
+                .thenReturn(anOffenderSummary(1L, 2L));
 
         final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/2?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(1);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(2);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.internalLocationId").isEqualTo("2");
     }
 
     @Test
     public void validRequest_passesParametersToService() {
         when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
-                .thenReturn(anOffenderBooking(1L, 2L));
+                .thenReturn(anOffenderSummary(1L, 2L));
 
         final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/2?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
@@ -70,7 +75,7 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
     @Test
     public void validRequest_missingOptionalDateTime_defaultsToToday() {
         when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
-                .thenReturn(anOffenderBooking(1L, 2L));
+                .thenReturn(anOffenderSummary(1L, 2L));
 
         final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/2?reasonCode=ADM", PUT, anEntity(), String.class);
 
@@ -181,10 +186,10 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
         return createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
     }
 
-    private OffenderBooking anOffenderBooking(final Long bookingId, final Long livingUnitId) {
-        return OffenderBooking.builder()
+    private OffenderSummary anOffenderSummary(final Long bookingId, final Long livingUnitId) {
+        return OffenderSummary.builder()
                 .bookingId(bookingId)
-                .assignedLivingUnitId(livingUnitId)
+                .internalLocationId(String.valueOf(livingUnitId))
                 .build();
 
     }
