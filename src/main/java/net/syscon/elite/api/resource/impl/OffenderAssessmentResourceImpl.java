@@ -1,6 +1,5 @@
 package net.syscon.elite.api.resource.impl;
 
-import io.jsonwebtoken.lang.Collections;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.OffenderAssessmentResource;
 import net.syscon.elite.api.support.AssessmentStatusType;
@@ -9,6 +8,7 @@ import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.service.InmateService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -133,7 +133,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     private void validateOffenderList(final List<?> offenderList) {
-        if (Collections.isEmpty(offenderList)) {
+        if (CollectionUtils.isEmpty(offenderList)) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "List of Offender Ids must be provided.");
         }
     }
