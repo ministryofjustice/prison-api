@@ -30,7 +30,6 @@ class MovementUpdateServiceTest {
     private static final String OLD_LIVING_UNIT_DESC = "Old cell";
     private static final String NEW_LIVING_UNIT_DESC = "New cell";
     private static final String SOME_AGENCY_ID = "MDI";
-    private static final String DIFFERENT_AGENCY_ID = "NOT_MDI";
     private static final String SOME_REASON_CODE = "ADM";
 
     private final ReferenceDomainService referenceDomainService = mock(ReferenceDomainService.class);
@@ -68,34 +67,15 @@ class MovementUpdateServiceTest {
         }
 
         @Test
-        void livingUnitIdNotFound_throwsNotFound() {
-            final var badLivingUnitId = NEW_LIVING_UNIT_ID;
+        void exceptionFromBookingService_propogates() {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(bookingService.getLatestBookingByBookingId(anyLong()))
-                    .thenReturn(mock(OffenderSummary.class));
-            when(locationService.getLocation(badLivingUnitId))
-                    .thenThrow(EntityNotFoundException.withId(badLivingUnitId));
-
-            assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, badLivingUnitId, SOME_REASON_CODE, LocalDateTime.now()))
-                    .isInstanceOf(EntityNotFoundException.class)
-                    .hasMessageContaining(String.valueOf(badLivingUnitId));
-        }
-
-        @Test
-        void livingUnitIdDiffPrison_throwsIllegalArgumentException() {
-            when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
-                    .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(anyLong()))
-                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
-            when(locationService.getLocation(NEW_LIVING_UNIT_ID))
-                    .thenReturn(locationForAgency(DIFFERENT_AGENCY_ID));
+                    .thenThrow(new RuntimeException("Fake runtime exception"));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, LocalDateTime.now()))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("invalid")
-                    .hasMessageContaining(DIFFERENT_AGENCY_ID)
-                    .hasMessageContaining(SOME_AGENCY_ID);
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Fake runtime exception");
         }
     }
 
@@ -157,8 +137,6 @@ class MovementUpdateServiceTest {
             when(bookingService.getLatestBookingByBookingId(anyLong()))
                     .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC))
                     .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC));
-            when(locationService.getLocation(NEW_LIVING_UNIT_ID))
-                    .thenReturn(locationForAgency(SOME_AGENCY_ID));
         }
 
         private void mockCellNotChanged() {
@@ -166,8 +144,6 @@ class MovementUpdateServiceTest {
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(bookingService.getLatestBookingByBookingId(SOME_BOOKING_ID))
                     .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
-            when(locationService.getLocation(OLD_LIVING_UNIT_ID))
-                    .thenReturn(locationForAgency(SOME_AGENCY_ID));
         }
     }
 

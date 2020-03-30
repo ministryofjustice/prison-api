@@ -1,16 +1,39 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.BookingActivity;
+import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.MilitaryRecord;
+import net.syscon.elite.api.model.MilitaryRecords;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PrivilegeDetail;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.AgencyLocation;
+import net.syscon.elite.repository.jpa.model.CaseStatus;
+import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
+import net.syscon.elite.repository.jpa.model.LegalCaseType;
+import net.syscon.elite.repository.jpa.model.MilitaryBranch;
+import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
+import net.syscon.elite.repository.jpa.model.MilitaryRank;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
-import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
+import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
+import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.HttpClientErrorException;
@@ -24,8 +47,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static java.lang.String.valueOf;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +70,8 @@ public class BookingServiceTest {
     private AgencyService agencyService;
     @Mock
     private ReferenceDomainService referenceDomainService;
+    @Mock
+    private LocationService locationService;
     @Mock
     private AuthenticationFacade securityUtils;
     @Mock
@@ -61,6 +91,7 @@ public class BookingServiceTest {
                 null,
                 referenceDomainService,
                 caseloadToAgencyMappingService,
+                locationService,
                 securityUtils, authenticationFacade, "1",
                 10);
     }
@@ -476,5 +507,71 @@ public class BookingServiceTest {
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
         assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
                 .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
+    }
+
+    @Nested
+    class UpdateLivingUnit {
+
+        final Long SOME_BOOKING_ID = 1L;
+        final Long BAD_BOOKING_ID = 2L;
+        final Long OLD_LIVING_UNIT_ID = 11L;
+        final Long NEW_LIVING_UNIT_ID = 12L;
+        final String SOME_AGENCY_ID = "MDI";
+        final String DIFFERENT_AGENCY_ID = "NOT_MDI";
+
+        @Test
+        void bookingNotFound_throws() {
+            when(offenderBookingRepository.findById(BAD_BOOKING_ID)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, NEW_LIVING_UNIT_ID))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining(valueOf(BAD_BOOKING_ID));
+        }
+
+        @Test
+        void livingUnitNotFound_throws() {
+            when(locationService.getLocation(NEW_LIVING_UNIT_ID)).thenThrow(EntityNotFoundException.withId(OLD_LIVING_UNIT_ID));
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining(valueOf(OLD_LIVING_UNIT_ID));
+        }
+
+        @Test
+        void differentAgency_throws() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(locationService.getLocation(NEW_LIVING_UNIT_ID)).thenReturn(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID));
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining(SOME_AGENCY_ID)
+                    .hasMessageContaining(DIFFERENT_AGENCY_ID);
+        }
+
+        @Test
+        void ok_updatesRepo() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(locationService.getLocation(NEW_LIVING_UNIT_ID)).thenReturn(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID));
+
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID);
+
+            ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
+            verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
+            assertThat(updatedOffenderBooking.getValue().getLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
+        }
+
+        private Optional<OffenderBooking> anOffenderBooking(Long bookingId, Long livingUnitId, String agencyId) {
+            final var agencyLocation = AgencyLocation.builder().id(agencyId).build();
+            return Optional.of(
+                    OffenderBooking.builder()
+                            .bookingId(bookingId)
+                            .livingUnitId(livingUnitId)
+                            .location(agencyLocation)
+                            .build());
+        }
+
+        private Location aLocation(Long locationId, String agencyId) {
+            return Location.builder().locationId(locationId).agencyId(agencyId).build();
+        }
     }
 }

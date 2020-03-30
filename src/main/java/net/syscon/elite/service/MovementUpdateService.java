@@ -13,11 +13,11 @@ import static net.syscon.elite.service.support.ReferenceDomain.CELL_MOVE_REASON;
 @Transactional
 public class MovementUpdateService {
 
-    private ReferenceDomainService referenceDomainService;
-    private LocationService locationService;
-    private BookingService bookingService;
+    private final ReferenceDomainService referenceDomainService;
+    private final LocationService locationService;
+    private final BookingService bookingService;
 
-    public MovementUpdateService(ReferenceDomainService referenceDomainService, LocationService locationService, BookingService bookingService) {
+    public MovementUpdateService(final ReferenceDomainService referenceDomainService, final LocationService locationService, final BookingService bookingService) {
         this.referenceDomainService = referenceDomainService;
         this.locationService = locationService;
         this.bookingService = bookingService;
@@ -27,11 +27,6 @@ public class MovementUpdateService {
     public OffenderSummary moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
         referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
         final var offenderSummary = getOffenderSummary(bookingId);
-        final var location = locationService.getLocation(livingUnitId);
-
-        if (!offenderSummary.getAgencyLocationId().equals(location.getAgencyId())) {
-            throw new IllegalArgumentException(format("Move to living unit in prison %s invalid for offender in prison %s", location.getAgencyId(), offenderSummary.getAgencyLocationId()));
-        }
 
         if (offenderSummary.getInternalLocationId().equals(String.valueOf(livingUnitId))) {
             return offenderSummary;
@@ -42,7 +37,7 @@ public class MovementUpdateService {
         return getOffenderSummary(bookingId);
     }
 
-    private OffenderSummary getOffenderSummary(Long bookingId) {
+    private OffenderSummary getOffenderSummary(final Long bookingId) {
         final var offenderSummary = bookingService.getLatestBookingByBookingId(bookingId);
         if (offenderSummary == null) {
             throw new EntityNotFoundException(format("Offender summary for booking id %d not found", bookingId));
