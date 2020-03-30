@@ -6,7 +6,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
-import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -628,13 +627,9 @@ public class BookingService {
     @VerifyBookingAccess
     public List<CourtCase> getOffenderCourtCases(final Long bookingId, final boolean activeOnly) {
         return offenderBookingRepository.findById(bookingId)
-                .map(booking -> activeOnly ? active(booking.getCourtCases()) : booking.getCourtCases())
+                .map(booking -> activeOnly ? booking.getActiveCourtCases() : booking.getCourtCases())
                 .map(CourtCaseTransformer::transform)
                 .orElseThrow(EntityNotFoundException.withId(bookingId));
-    }
-
-    private Collection<OffenderCourtCase> active(final Collection<OffenderCourtCase> courtCases) {
-        return courtCases.stream().filter(OffenderCourtCase::isActive).collect(Collectors.toUnmodifiableList());
     }
 
     @Transactional

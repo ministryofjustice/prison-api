@@ -20,6 +20,9 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Data
 @Builder
@@ -73,5 +76,9 @@ public class OffenderBooking {
 
     public boolean isActive() {
         return ACTIVE_BOOKING.equals(bookingSequence);
+    }
+
+    public List<OffenderCourtCase> getActiveCourtCases() {
+        return courtCases.stream().filter(OffenderCourtCase::isActive).collect(toUnmodifiableList());
     }
 }
