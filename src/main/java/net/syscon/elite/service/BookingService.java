@@ -1,7 +1,27 @@
 package net.syscon.elite.service;
 
 import com.google.common.collect.Lists;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.BookingActivity;
+import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.MilitaryRecord;
+import net.syscon.elite.api.model.MilitaryRecords;
+import net.syscon.elite.api.model.Offence;
+import net.syscon.elite.api.model.OffenceDetail;
+import net.syscon.elite.api.model.OffenceHistoryDetail;
+import net.syscon.elite.api.model.OffenderSentenceCalculation;
+import net.syscon.elite.api.model.OffenderSentenceDetail;
+import net.syscon.elite.api.model.OffenderSentenceDetailDto;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PrivilegeDetail;
+import net.syscon.elite.api.model.PrivilegeSummary;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
@@ -28,7 +48,16 @@ import org.springframework.web.client.HttpClientErrorException;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,6 +89,7 @@ public class BookingService {
     private final CaseLoadService caseLoadService;
     private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
+    private final LocationService locationService;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -72,6 +102,7 @@ public class BookingService {
                           final CaseLoadService caseLoadService,
                           final ReferenceDomainService referenceDomainService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
+                          final LocationService locationService,
                           final AuthenticationFacade securityUtils,
                           final AuthenticationFacade authenticationFacade,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
@@ -83,6 +114,7 @@ public class BookingService {
         this.caseLoadService = caseLoadService;
         this.referenceDomainService = referenceDomainService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
+        this.locationService = locationService;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;
@@ -634,7 +666,16 @@ public class BookingService {
 
     @Transactional
     public void updateLivingUnit(final Long bookingId, final Long livingUnitId) {
-        // TODO DT-235 implement this
+        final var location = locationService.getLocation(livingUnitId);
+        var offenderBooking = offenderBookingRepository.findById(bookingId)
+                .orElseThrow(new EntityNotFoundException(format("Offender booking for booking id %d not found", bookingId)));
+
+        if (!offenderBooking.getLocation().getId().equals(location.getAgencyId())) {
+            throw new IllegalArgumentException(format("Move to living unit in prison %s invalid for offender in prison %s", location.getAgencyId(), offenderBooking.getLocation().getId()));
+        }
+
+        offenderBooking.setLivingUnitId(livingUnitId);
+        offenderBookingRepository.save(offenderBooking);
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {

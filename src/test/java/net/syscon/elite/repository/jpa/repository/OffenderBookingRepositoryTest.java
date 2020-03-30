@@ -1,7 +1,20 @@
 package net.syscon.elite.repository.jpa.repository;
 
-import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.AgencyLocation;
+import net.syscon.elite.repository.jpa.model.CaseStatus;
+import net.syscon.elite.repository.jpa.model.CourtEvent;
+import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
+import net.syscon.elite.repository.jpa.model.EventStatus;
+import net.syscon.elite.repository.jpa.model.EventType;
+import net.syscon.elite.repository.jpa.model.LegalCaseType;
+import net.syscon.elite.repository.jpa.model.MilitaryBranch;
+import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
+import net.syscon.elite.repository.jpa.model.MilitaryRank;
+import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
+import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
 import org.junit.jupiter.api.Test;
@@ -260,6 +273,19 @@ public class OffenderBookingRepositoryTest {
                 .caseSeq(caseIdentifier)
                 .agencyLocation(agencyLocationRepository.findById("COURT1").orElseThrow())
                 .build();
+    }
+
+    @Test
+    void updateLivingUnitId() {
+        var offenderBooking = repository.findById(-1L).orElseThrow();
+        offenderBooking.setLivingUnitId(22L);
+        repository.save(offenderBooking);
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+
+        TestTransaction.start();
+        final var result = repository.findById(-1L).orElseThrow();
+        assertThat(result.getLivingUnitId()).isEqualTo(22L);
     }
 }
 

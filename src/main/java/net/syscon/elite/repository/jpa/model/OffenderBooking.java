@@ -20,7 +20,6 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -59,6 +58,9 @@ public class OffenderBooking {
     @ManyToOne(optional = false)
     @JoinColumn(name = "OFFENDER_ID", nullable = false)
     private Offender offender;
+
+    @Column(name = "LIVING_UNIT_ID")
+    private Long livingUnitId;
 
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
