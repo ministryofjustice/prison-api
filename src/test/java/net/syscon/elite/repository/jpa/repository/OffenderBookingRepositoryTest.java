@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.jpa.repository;
 
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CaseStatus;
 import net.syscon.elite.repository.jpa.model.CourtEvent;
@@ -276,16 +277,17 @@ public class OffenderBookingRepositoryTest {
     }
 
     @Test
-    void updateLivingUnitId() {
+    void updateLivingUnit() {
+        final var agencyInternalLocation = AgencyInternalLocation.builder().locationId(22L).build();
         var offenderBooking = repository.findById(-1L).orElseThrow();
-        offenderBooking.setLivingUnitId(22L);
+        offenderBooking.setAgencyInternalLocation(agencyInternalLocation);
         repository.save(offenderBooking);
         TestTransaction.flagForCommit();
         TestTransaction.end();
 
         TestTransaction.start();
         final var result = repository.findById(-1L).orElseThrow();
-        assertThat(result.getLivingUnitId()).isEqualTo(22L);
+        assertThat(result.getAgencyInternalLocation()).isEqualTo(22L);
     }
 }
 
