@@ -27,6 +27,10 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @WithMockUser
 public class CourtEventRepositoryTest {
 
+    private static final long BOOKING_WITH_COURT_CASE = -1L;
+
+    private static final long BOOKING_WITHOUT_COURT_CASE = -31L;
+
     @Autowired
     private CourtEventRepository courtEventRepository;
 
@@ -51,7 +55,7 @@ public class CourtEventRepositoryTest {
     void setup() {
         final var eventDate = LocalDate.now();
         final var startTime = eventDate.atTime(12, 0);
-        final var offenderBooking = offenderBookingRepository.findById(-1L).orElseThrow();
+        final var bookingWithCourtCase = offenderBookingRepository.findById(BOOKING_WITH_COURT_CASE).orElseThrow();
 
         builder
                 .commentText("Comment text for court event")
@@ -60,37 +64,51 @@ public class CourtEventRepositoryTest {
                 .directionCode("OUT")
                 .eventDate(eventDate)
                 .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
-                .offenderBooking(offenderBooking)
-                .offenderCourtCase(offenderBooking.getCourtCases().stream().findFirst().orElseThrow())
+                .offenderBooking(bookingWithCourtCase)
+                .offenderCourtCase(bookingWithCourtCase.getCourtCases().stream().findFirst().orElseThrow())
                 .startTime(startTime);
     }
 
     @Test
     void court_event_can_be_saved_and_retrieved_with_defaults_populated() {
-        final var savedCourtEvent = courtEventRepository.save(builder.build());
+        final var savedCourtEventWithCourtCase = courtEventRepository.save(builder.build());
 
         entityManager.flush();
 
-        assertThat(courtEventRepository.findById(savedCourtEvent.getId()).orElseThrow()).isEqualTo(savedCourtEvent);
+        assertThat(courtEventRepository.findById(savedCourtEventWithCourtCase.getId()).orElseThrow()).isEqualTo(savedCourtEventWithCourtCase);
 
         // defaults populated
-        assertThat(savedCourtEvent.getNextEventRequestFlag()).isEqualTo("N");
-        assertThat(savedCourtEvent.getOrderRequestedFlag()).isEqualTo("N");
+        assertThat(savedCourtEventWithCourtCase.getNextEventRequestFlag()).isEqualTo("N");
+        assertThat(savedCourtEventWithCourtCase.getOrderRequestedFlag()).isEqualTo("N");
     }
 
     @Test
     void court_event_can_be_saved_and_retrieved_with_defaults_overridden() {
-        final var savedCourtEvent = courtEventRepository.save(builder
+        final var savedCourtEventWithCourtCase = courtEventRepository.save(builder
                 .nextEventRequestFlag("X")
                 .orderRequestedFlag("Y")
                 .build());
 
         entityManager.flush();
 
-        assertThat(courtEventRepository.findById(savedCourtEvent.getId()).orElseThrow()).isEqualTo(savedCourtEvent);
+        assertThat(courtEventRepository.findById(savedCourtEventWithCourtCase.getId()).orElseThrow()).isEqualTo(savedCourtEventWithCourtCase);
 
         // defaults overridden
-        assertThat(savedCourtEvent.getNextEventRequestFlag()).isEqualTo("X");
-        assertThat(savedCourtEvent.getOrderRequestedFlag()).isEqualTo("Y");
+        assertThat(savedCourtEventWithCourtCase.getNextEventRequestFlag()).isEqualTo("X");
+        assertThat(savedCourtEventWithCourtCase.getOrderRequestedFlag()).isEqualTo("Y");
+    }
+
+    @Test
+    void court_event_without_court_case_retrieved() {
+        final var bookingWithoutCourtCase = offenderBookingRepository.findById(BOOKING_WITHOUT_COURT_CASE).orElseThrow();
+
+        assertThat(bookingWithoutCourtCase.getCourtCases()).isEmpty();
+
+        final var savedCourtEventWithoutCourtCase = courtEventRepository.save(builder
+                .offenderBooking(bookingWithoutCourtCase)
+                .offenderCourtCase(null)
+                .build());
+
+        assertThat(courtEventRepository.findById(savedCourtEventWithoutCourtCase.getId()).orElseThrow()).isEqualTo(savedCourtEventWithoutCourtCase);
     }
 }

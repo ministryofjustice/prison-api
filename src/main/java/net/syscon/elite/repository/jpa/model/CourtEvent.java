@@ -22,6 +22,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static net.syscon.elite.repository.jpa.model.EventStatus.EVENT_STS;
 import static net.syscon.elite.repository.jpa.model.EventType.EVENT_TYPE;
@@ -43,8 +44,8 @@ public class CourtEvent extends AuditableEntity {
     @Column(name = "EVENT_ID", nullable = false)
     private Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "CASE_ID", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "CASE_ID")
     private OffenderCourtCase offenderCourtCase;
 
     @ManyToOne(optional = false)
@@ -90,6 +91,10 @@ public class CourtEvent extends AuditableEntity {
 
     @Column(name = "DIRECTION_CODE", length = 12)
     private String directionCode;
+
+    public Optional<OffenderCourtCase> getOffenderCourtCase() {
+        return Optional.ofNullable(offenderCourtCase);
+    }
 
     public LocalDateTime getEventDateTime() {
         return eventDate.atTime(startTime.toLocalTime());
