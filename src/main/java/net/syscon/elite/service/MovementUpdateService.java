@@ -14,12 +14,12 @@ import static net.syscon.elite.service.support.ReferenceDomain.CELL_MOVE_REASON;
 public class MovementUpdateService {
 
     private final ReferenceDomainService referenceDomainService;
-    private final LocationService locationService;
+    private final BedAssignmentHistoryService bedAssignmentHistoryService;
     private final BookingService bookingService;
 
-    public MovementUpdateService(final ReferenceDomainService referenceDomainService, final LocationService locationService, final BookingService bookingService) {
+    public MovementUpdateService(ReferenceDomainService referenceDomainService, BedAssignmentHistoryService bedAssignmentHistoryService, BookingService bookingService) {
         this.referenceDomainService = referenceDomainService;
-        this.locationService = locationService;
+        this.bedAssignmentHistoryService = bedAssignmentHistoryService;
         this.bookingService = bookingService;
     }
 
@@ -33,7 +33,7 @@ public class MovementUpdateService {
         }
 
         bookingService.updateLivingUnit(bookingId, livingUnitId);
-        locationService.addBedAssignmentHistory(bookingId, livingUnitId);
+        bedAssignmentHistoryService.add(bookingId, livingUnitId, reasonCode, dateTime);
         return getOffenderSummary(bookingId);
     }
 
