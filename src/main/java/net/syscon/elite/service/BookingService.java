@@ -681,7 +681,7 @@ public class BookingService {
                 location.getAgencyId(), offenderBooking.getOffender().getNomsId(), offenderBooking.getLocation().getId()
         );
 
-        offenderBooking.setAgencyInternalLocation(location);
+        offenderBooking.setLivingUnitId(livingUnitId);
         offenderBookingRepository.save(offenderBooking);
         log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
     }

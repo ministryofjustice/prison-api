@@ -278,16 +278,15 @@ public class OffenderBookingRepositoryTest {
 
     @Test
     void updateLivingUnit() {
-        final var agencyInternalLocation = AgencyInternalLocation.builder().locationId(22L).build();
         var offenderBooking = repository.findById(-1L).orElseThrow();
-        offenderBooking.setAgencyInternalLocation(agencyInternalLocation);
+        offenderBooking.setLivingUnitId(22L);
         repository.save(offenderBooking);
         TestTransaction.flagForCommit();
         TestTransaction.end();
 
         TestTransaction.start();
         final var result = repository.findById(-1L).orElseThrow();
-        assertThat(result.getAgencyInternalLocation()).isEqualTo(22L);
+        assertThat(result.getLivingUnitId()).isEqualTo(22L);
     }
 }
 

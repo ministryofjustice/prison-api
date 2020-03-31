@@ -12,12 +12,10 @@ import org.hibernate.annotations.ListIndexBase;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.List;
@@ -61,9 +59,8 @@ public class OffenderBooking {
     @JoinColumn(name = "OFFENDER_ID", nullable = false)
     private Offender offender;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LIVING_UNIT_ID")
-    private AgencyInternalLocation agencyInternalLocation;
+    @Column(name = "LIVING_UNIT_ID")
+    private Long livingUnitId;
 
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
