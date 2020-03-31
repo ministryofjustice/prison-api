@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.jpa.repository;
 
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CaseStatus;
 import net.syscon.elite.repository.jpa.model.CourtEvent;
@@ -276,7 +277,7 @@ public class OffenderBookingRepositoryTest {
     }
 
     @Test
-    void updateLivingUnitId() {
+    void updateLivingUnit() {
         var offenderBooking = repository.findById(-1L).orElseThrow();
         offenderBooking.setLivingUnitId(22L);
         repository.save(offenderBooking);
