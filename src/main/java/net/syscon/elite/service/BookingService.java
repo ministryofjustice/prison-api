@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.BookingActivity;
 import net.syscon.elite.api.model.CourtCase;
@@ -27,6 +28,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
+import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
@@ -61,6 +63,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -75,6 +78,7 @@ import static net.syscon.elite.service.ContactService.EXTERNAL_REL;
 @Service
 @Transactional(readOnly = true)
 @Validated
+@Slf4j
 public class BookingService {
 
     private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
@@ -89,7 +93,7 @@ public class BookingService {
     private final CaseLoadService caseLoadService;
     private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
-    private final LocationService locationService;
+    private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -102,7 +106,7 @@ public class BookingService {
                           final CaseLoadService caseLoadService,
                           final ReferenceDomainService referenceDomainService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
-                          final LocationService locationService,
+                          final AgencyInternalLocationRepository agencyInternalLocationRepository,
                           final AuthenticationFacade securityUtils,
                           final AuthenticationFacade authenticationFacade,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
@@ -114,7 +118,7 @@ public class BookingService {
         this.caseLoadService = caseLoadService;
         this.referenceDomainService = referenceDomainService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
-        this.locationService = locationService;
+        this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;
@@ -666,16 +670,20 @@ public class BookingService {
 
     @Transactional
     public void updateLivingUnit(final Long bookingId, final Long livingUnitId) {
-        final var location = locationService.getLocation(livingUnitId);
         var offenderBooking = offenderBookingRepository.findById(bookingId)
-                .orElseThrow(new EntityNotFoundException(format("Offender booking for booking id %d not found", bookingId)));
+                .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking for booking id %d not found", bookingId)));
+        final var location = agencyInternalLocationRepository.findById(livingUnitId)
+                .orElseThrow(EntityNotFoundException.withMessage(format("Living unit with id %d not found", livingUnitId)));
 
-        if (!offenderBooking.getLocation().getId().equals(location.getAgencyId())) {
-            throw new IllegalArgumentException(format("Move to living unit in prison %s invalid for offender in prison %s", location.getAgencyId(), offenderBooking.getLocation().getId()));
-        }
+        checkArgument(
+                offenderBooking.getLocation().getId().equals(location.getAgencyId()),
+                "Move to living unit in prison %s invalid for offender %s in prison %s",
+                location.getAgencyId(), offenderBooking.getOffender().getNomsId(), offenderBooking.getLocation().getId()
+        );
 
         offenderBooking.setLivingUnitId(livingUnitId);
         offenderBookingRepository.save(offenderBooking);
+        log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
