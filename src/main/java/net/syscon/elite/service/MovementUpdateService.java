@@ -32,8 +32,9 @@ public class MovementUpdateService {
             return offenderSummary;
         }
 
-        bookingService.updateLivingUnit(bookingId, livingUnitId);
-        bedAssignmentHistoryService.add(bookingId, livingUnitId, reasonCode, dateTime);
+// TODO DT-235 Uncomment the updates - this is currently still a work in progress and we don't want to actually update anything yet
+//        bookingService.updateLivingUnit(bookingId, livingUnitId);
+//        bedAssignmentHistoryService.add(bookingId, livingUnitId, reasonCode, dateTime);
         return getOffenderSummary(bookingId);
     }
 

@@ -21,10 +21,10 @@ public class BedAssignmentHistoryService {
 
     public void add(Long bookingId, Long livingUnitId, String reasonCode, LocalDateTime time) {
         final var maxSequence = repository.getMaxSeqForBookingId(bookingId);
-        final var bookingAndSequence = new BedAssignmentHistory.BookingAndSequence(bookingId, maxSequence + 1);
+        final var bookingAndSequence = new BedAssignmentHistory.BedAssignmentHistoryPK(bookingId, maxSequence + 1);
         final var bedAssignmentHistory =
                 BedAssignmentHistory.builder()
-                        .bookingAndSequence(bookingAndSequence)
+                        .bedAssignmentHistoryPK(bookingAndSequence)
                         .livingUnitId(livingUnitId)
                         .assignmentDate(time.toLocalDate())
                         .assignmentDateTime(time)

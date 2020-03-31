@@ -554,7 +554,7 @@ public class BookingServiceTest {
         @Test
         void ok_updatesRepo() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
-            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
+            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID)));
 
             bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID);
 

@@ -76,8 +76,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
             throw new EntityNotFoundException("Simulating a not found for reasonCode '123'");
         }
 
-//        return movementUpdateService.moveToCell(bookingId, livingUnitId, reasonCode, movementDateTime);
-        return OffenderSummary.builder().bookingId(bookingId).internalLocationId(valueOf(livingUnitId)).build(); // TODO DT-235 Pulled the service call for now as it is still under construction but is performing updates
+        return movementUpdateService.moveToCell(bookingId, livingUnitId, reasonCode, movementDateTime);
     }
 
     private void validateMoveToCellRequest(final String reasonCode) {

@@ -3,7 +3,9 @@ package net.syscon.elite.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -18,6 +20,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+@EqualsAndHashCode(exclude = {"bedAssignmentHistoryPK", "offenderBooking"}, callSuper = false)
+@ToString(exclude = {"bedAssignmentHistoryPK", "offenderBooking"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -28,9 +32,8 @@ public class BedAssignmentHistory extends AuditableEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     @Embeddable
-    public static class BookingAndSequence implements Serializable {
-        @ManyToOne(optional = false)
-        @JoinColumn(name = "OFFENDER_BOOK_ID")
+    public static class BedAssignmentHistoryPK implements Serializable {
+        @Column(name = "OFFENDER_BOOK_ID", nullable = false)
         private Long offenderBookingId;
 
         @Column(name = "BED_ASSIGN_SEQ", nullable = false)
@@ -38,7 +41,11 @@ public class BedAssignmentHistory extends AuditableEntity {
     }
 
     @EmbeddedId
-    private BookingAndSequence bookingAndSequence;
+    private BedAssignmentHistoryPK bedAssignmentHistoryPK;
+
+    @ManyToOne
+    @JoinColumn(name = "OFFENDER_BOOK_ID", insertable = false, updatable = false)
+    private OffenderBooking offenderBooking;
 
     @Column(name = "LIVING_UNIT_ID")
     private Long livingUnitId;

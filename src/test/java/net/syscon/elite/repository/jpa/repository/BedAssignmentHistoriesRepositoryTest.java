@@ -1,7 +1,6 @@
 package net.syscon.elite.repository.jpa.repository;
 
 import net.syscon.elite.repository.jpa.model.BedAssignmentHistory;
-import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
 import org.junit.jupiter.api.Test;
@@ -50,10 +49,10 @@ public class BedAssignmentHistoriesRepositoryTest {
 
     private void createBedAssignmentHistories(Long bookingId, Integer numberRecords) {
         IntStream.rangeClosed(1, numberRecords).forEach(seq -> {
-            final var bookingAndSequence = new BedAssignmentHistory.BookingAndSequence(bookingId, seq);
+            final var bookingAndSequence = new BedAssignmentHistory.BedAssignmentHistoryPK(bookingId, seq);
             final var bedAssignmentHistory =
                     BedAssignmentHistory.builder()
-                            .bookingAndSequence(bookingAndSequence)
+                            .bedAssignmentHistoryPK(bookingAndSequence)
                             .livingUnitId(2L)
                             .assignmentDate(LocalDate.now())
                             .assignmentDateTime(LocalDateTime.now())

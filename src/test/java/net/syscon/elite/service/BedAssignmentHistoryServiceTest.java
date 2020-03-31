@@ -20,7 +20,7 @@ class BedAssignmentHistoryServiceTest {
         service.add(1L, 2L, "RSN", now);
 
         verify(repository).save(argThat(bedAssignment ->
-                bedAssignment.getBookingAndSequence().getOffenderBookingId() == 1L
+                bedAssignment.getBedAssignmentHistoryPK().getOffenderBookingId() == 1L
                         && bedAssignment.getLivingUnitId() == 2L
                         && bedAssignment.getAssignmentReason().equals("RSN")
                         && bedAssignment.getAssignmentDate().isEqual(now.toLocalDate())
