@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.security.VerifyBookingAccess;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,7 @@ public class MovementUpdateService {
         this.bookingService = bookingService;
     }
 
-    // @VerifyBookingAccess TODO DT-235 put this back - make sure it has a test dedicated to it
+    @VerifyBookingAccess
     public OffenderSummary moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
         referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
         final var offenderSummary = getOffenderSummary(bookingId);

@@ -54,7 +54,7 @@ public interface OffenderMovementsResource {
 
     @PutMapping("/{bookingId}/living-unit/{livingUnitId}")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class),
+            @ApiResponse(code = 200, message = "OK", response = OffenderSummary .class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})

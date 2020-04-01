@@ -8,7 +8,6 @@ import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
-import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.service.CourtHearingsService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementUpdateService;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static java.lang.String.valueOf;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 @RestController

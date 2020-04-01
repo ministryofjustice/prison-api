@@ -25,6 +25,7 @@ import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
@@ -669,6 +670,8 @@ public class BookingService {
     }
 
     @Transactional
+    @VerifyBookingAccess
+    @HasWriteScope
     public void updateLivingUnit(final Long bookingId, final Long livingUnitId) {
         var offenderBooking = offenderBookingRepository.findById(bookingId)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking for booking id %d not found", bookingId)));
