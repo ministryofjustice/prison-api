@@ -1,19 +1,20 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementUpdateService;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
+import static net.syscon.elite.service.support.ReferenceDomain.CELL_MOVE_REASON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -26,7 +27,6 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
-// TODO DT-235 These tests are here to help define the API, but currently using canned data.  Once MovementUpdateService and dependencies are implemented, replace below with real data.
 public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
 
     @Autowired
@@ -73,19 +73,6 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
     }
 
     @Test
-    public void validRequest_missingOptionalDateTime_defaultsToToday() {
-        when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
-                .thenReturn(anOffenderSummary(1L, 2L));
-
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/2?reasonCode=ADM", PUT, anEntity(), String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(OK);
-        ArgumentCaptor<LocalDateTime> dateTimeCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
-        verify(movementUpdateService).moveToCell(anyLong(), anyLong(), anyString(), dateTimeCaptor.capture());
-        assertThat(dateTimeCaptor.getValue().toLocalDate()).isEqualTo(LocalDate.now());
-    }
-
-    @Test
     public void bookingId_invalid_badRequest() {
         final var response = testRestTemplate.exchange("/api/bookings/invalid_booking_id/living-unit/1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
@@ -96,11 +83,15 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
 
     @Test
     public void bookingId_notFound() {
+        final var bookingNotFoundError = "Booking id 123 not found.";
+        when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
+                .thenThrow(EntityNotFoundException.withMessage(bookingNotFoundError));
+
         final var response = testRestTemplate.exchange("/api/bookings/123/living-unit/1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(404);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").contains("123");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").isEqualTo(bookingNotFoundError);
     }
 
     @Test
@@ -122,11 +113,15 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
 
     @Test
     public void livingUnitId_notFound() {
+        final var livingUnitNotFoundError = "Living unit with id 123 not found.";
+        when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
+                .thenThrow(EntityNotFoundException.withMessage(livingUnitNotFoundError));
+
         final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/123?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(404);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").contains("123");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").isEqualTo(livingUnitNotFoundError);
     }
 
     @Test
@@ -139,20 +134,28 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
 
     @Test
     public void reasonCode_notFound() {
+        final var reasonCodeNotFoundError = format("Reference code for domain [%s] and code [123] not found.", CELL_MOVE_REASON.getDomain());
+        when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
+                .thenThrow(EntityNotFoundException.withMessage(reasonCodeNotFoundError));
+
         final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/2?reasonCode=123&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(404);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").contains("123");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").isEqualTo(reasonCodeNotFoundError);
     }
 
     @Test
     public void reasonCode_missingValue_badRequest() {
+        final var reasonCodeMissingError = "Reason code is mandatory";
+        when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
+                .thenThrow(new IllegalArgumentException(reasonCodeMissingError));
+
         final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/2?reasonCode=&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").containsIgnoringCase("reason code");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").isEqualTo(reasonCodeMissingError);
     }
 
     @Test
@@ -174,12 +177,28 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
     }
 
     @Test
+    public void dateTime_inTheFuture_badRequest() {
+        final var dateTimeError = "The date cannot be in the future";
+        when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
+                .thenThrow(new IllegalArgumentException(dateTimeError));
+
+        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/2?reasonCode=ADM&dateTime=3020-03-24T13:24:35", PUT, anEntity(), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").isEqualTo(dateTimeError);
+    }
+
+    @Test
     public void server_error() {
+        when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
+                .thenThrow(new RuntimeException("Some exception"));
+
         final var response = testRestTemplate.exchange("/api/bookings/456/living-unit/2?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(INTERNAL_SERVER_ERROR);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(500);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").contains("server error");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").isEqualTo("Some exception");
     }
 
     private HttpEntity<?> anEntity() {

@@ -1,6 +1,5 @@
 package net.syscon.elite.api.resource.impl;
 
-import com.amazonaws.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
@@ -9,7 +8,6 @@ import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.service.CourtHearingsService;
-import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementUpdateService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,24 +50,6 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
                 livingUnitId,
                 reasonCode,
                 dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
-
-        // TODO DT-235 Just done enough here to write tests for the API - remove once MovementUpdateService has been implemented
-
-        if (bookingId == 123L) {
-            throw new EntityNotFoundException("Simulating a not found for bookingId 123");
-        }
-
-        if (bookingId == 456L) {
-            throw new RuntimeException("Simulating a server error");
-        }
-
-        if (livingUnitId == 123L) {
-            throw new EntityNotFoundException("Simulating a not found for livingUnitId 123");
-        }
-
-        if (reasonCode.equals("123")) {
-            throw new EntityNotFoundException("Simulating a not found for reasonCode '123'");
-        }
 
         return movementUpdateService.moveToCell(bookingId, livingUnitId, reasonCode, dateTime);
     }
