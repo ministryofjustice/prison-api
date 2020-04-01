@@ -2,11 +2,14 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.ReferenceCode;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -31,15 +34,32 @@ class MovementUpdateServiceTest {
     private static final String NEW_LIVING_UNIT_DESC = "New cell";
     private static final String SOME_AGENCY_ID = "MDI";
     private static final String SOME_REASON_CODE = "ADM";
-    private static final LocalDateTime SOME_TIME = LocalDateTime.now();
+    private static final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+    private static final LocalDateTime SOME_TIME = LocalDateTime.now(clock);
 
     private final ReferenceDomainService referenceDomainService = mock(ReferenceDomainService.class);
     private final BookingService bookingService = mock(BookingService.class);
     private final BedAssignmentHistoryService bedAssignmentHistoryService = mock(BedAssignmentHistoryService.class);
-    private final MovementUpdateService service = new MovementUpdateService(referenceDomainService, bedAssignmentHistoryService, bookingService);
+    private final MovementUpdateService service = new MovementUpdateService(referenceDomainService, bedAssignmentHistoryService, bookingService, clock);
 
     @Nested
     class MoveToCellError {
+
+        @Test
+        void reasonCodeEmpty_throws() {
+            assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, "", SOME_TIME))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Reason code");
+        }
+
+        @Test
+        void dateTimeInFuture_throws() {
+            final var theFuture = LocalDateTime.now(Clock.offset(clock, Duration.ofDays(1L)));
+            assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, theFuture))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("date")
+                    .hasMessageContaining("future");
+        }
 
         @Test
         void reasonCodeNotFound_throwsNotFound() {
@@ -84,7 +104,6 @@ class MovementUpdateServiceTest {
     class MoveToCellSuccess {
 
         @Test
-        @Disabled // TODO DT-235 Remove this annotation - this is currently still a work in progress and we don't want to actually update anything yet
         void updatesBooking() {
             mockSuccess();
 
@@ -94,13 +113,21 @@ class MovementUpdateServiceTest {
         }
 
         @Test
-        @Disabled // TODO DT-235 Remove this annotation - this is currently still a work in progress and we don't want to actually update anything yet
         void writesToBedAssignmentHistories() {
             mockSuccess();
 
             service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME);
 
             verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME);
+        }
+
+        @Test
+        void missingDateTime_defaultsToNow() {
+            mockSuccess();
+
+            service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, null);
+
+            verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, LocalDateTime.now(clock));
         }
 
         @Test

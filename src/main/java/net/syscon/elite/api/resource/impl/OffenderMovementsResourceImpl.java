@@ -53,9 +53,6 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
                 reasonCode,
                 dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
 
-        validateMoveToCellRequest(reasonCode);
-        final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now();
-
         // TODO DT-235 Just done enough here to write tests for the API - remove once MovementUpdateService has been implemented
 
         if (bookingId == 123L) {
@@ -74,12 +71,6 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
             throw new EntityNotFoundException("Simulating a not found for reasonCode '123'");
         }
 
-        return movementUpdateService.moveToCell(bookingId, livingUnitId, reasonCode, movementDateTime);
-    }
-
-    private void validateMoveToCellRequest(final String reasonCode) {
-        if (StringUtils.isNullOrEmpty(reasonCode)) {
-            throw new IllegalArgumentException("Reason code is mandatory");
-        }
+        return movementUpdateService.moveToCell(bookingId, livingUnitId, reasonCode, dateTime);
     }
 }

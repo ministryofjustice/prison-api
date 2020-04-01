@@ -1,10 +1,12 @@
 package net.syscon.elite.service;
 
+import com.amazonaws.util.StringUtils;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.security.VerifyBookingAccess;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static java.lang.String.format;
@@ -17,15 +19,19 @@ public class MovementUpdateService {
     private final ReferenceDomainService referenceDomainService;
     private final BedAssignmentHistoryService bedAssignmentHistoryService;
     private final BookingService bookingService;
+    private final Clock clock;
 
-    public MovementUpdateService(ReferenceDomainService referenceDomainService, BedAssignmentHistoryService bedAssignmentHistoryService, BookingService bookingService) {
+    public MovementUpdateService(ReferenceDomainService referenceDomainService, BedAssignmentHistoryService bedAssignmentHistoryService, BookingService bookingService, Clock clock) {
         this.referenceDomainService = referenceDomainService;
         this.bedAssignmentHistoryService = bedAssignmentHistoryService;
         this.bookingService = bookingService;
+        this.clock = clock;
     }
 
     @VerifyBookingAccess
     public OffenderSummary moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
+        validateMoveToCellRequest(reasonCode, dateTime);
+        final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
         final var offenderSummary = getOffenderSummary(bookingId);
 
@@ -33,10 +39,18 @@ public class MovementUpdateService {
             return offenderSummary;
         }
 
-// TODO DT-235 Uncomment the updates - this is currently still a work in progress and we don't want to actually update anything yet
-//        bookingService.updateLivingUnit(bookingId, livingUnitId);
-//        bedAssignmentHistoryService.add(bookingId, livingUnitId, reasonCode, dateTime);
+        bookingService.updateLivingUnit(bookingId, livingUnitId);
+        bedAssignmentHistoryService.add(bookingId, livingUnitId, reasonCode, movementDateTime);
         return getOffenderSummary(bookingId);
+    }
+
+    private void validateMoveToCellRequest(final String reasonCode, LocalDateTime dateTime) {
+        if (StringUtils.isNullOrEmpty(reasonCode)) {
+            throw new IllegalArgumentException("Reason code is mandatory");
+        }
+        if (dateTime != null && dateTime.isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("The date cannot be in the future");
+        }
     }
 
     private OffenderSummary getOffenderSummary(final Long bookingId) {
