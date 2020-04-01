@@ -56,7 +56,10 @@ public class MovementUpdateService {
     private OffenderSummary getOffenderSummary(final Long bookingId) {
         final var offenderSummary = bookingService.getLatestBookingByBookingId(bookingId);
         if (offenderSummary == null) {
-            throw new EntityNotFoundException(format("Offender summary for booking id %d not found", bookingId));
+            throw new EntityNotFoundException(format("Booking id %d not found", bookingId));
+        }
+        if (!offenderSummary.getCurrentlyInPrison().equals("Y")) {
+            throw new EntityNotFoundException(format("Booking id %d not active", bookingId));
         }
         return offenderSummary;
     }

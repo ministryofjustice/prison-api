@@ -36,6 +36,7 @@ class MovementUpdateServiceTest {
     private static final String SOME_REASON_CODE = "ADM";
     private static final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     private static final LocalDateTime SOME_TIME = LocalDateTime.now(clock);
+    private static final Boolean NOT_IN_PRISON = Boolean.FALSE;
 
     private final ReferenceDomainService referenceDomainService = mock(ReferenceDomainService.class);
     private final BookingService bookingService = mock(BookingService.class);
@@ -84,7 +85,21 @@ class MovementUpdateServiceTest {
             assertThatThrownBy(() -> service.moveToCell(badBookingId, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining(format(" %d ", badBookingId))
-                    .hasMessageContaining("booking id");
+                    .hasMessageContaining("Booking id")
+                    .hasMessageContaining("not found");
+        }
+
+        @Test
+        void bookingNotActive_throwsNotFound() {
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
+                    .thenReturn(Optional.of(mock(ReferenceCode.class)));
+            when(bookingService.getLatestBookingByBookingId(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, NOT_IN_PRISON));
+
+            assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME))
+                    .hasMessageContaining(format(" %d ", SOME_BOOKING_ID))
+                    .hasMessageContaining("Booking id")
+                    .hasMessageContaining("not active");
         }
 
         @Test
@@ -178,11 +193,16 @@ class MovementUpdateServiceTest {
     }
 
     private OffenderSummary anOffenderSummary(final Long bookingId, final String agency, final Long livingUnitId, final String livingUnitDesc) {
+        return anOffenderSummary(bookingId, agency, livingUnitId, livingUnitDesc, true);
+    }
+
+    private OffenderSummary anOffenderSummary(final Long bookingId, final String agency, final Long livingUnitId, final String livingUnitDesc, final boolean currentlyInPrison) {
         return OffenderSummary.builder()
                 .bookingId(bookingId)
                 .agencyLocationId(agency)
                 .internalLocationId(String.valueOf(livingUnitId))
                 .internalLocationDesc(livingUnitDesc)
+                .currentlyInPrison(currentlyInPrison ? "Y" : "N")
                 .build();
     }
 
