@@ -1,16 +1,6 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.BookingActivity;
-import net.syscon.elite.api.model.CourtCase;
-import net.syscon.elite.api.model.IepLevelAndComment;
-import net.syscon.elite.api.model.MilitaryRecord;
-import net.syscon.elite.api.model.MilitaryRecords;
-import net.syscon.elite.api.model.OffenderSummary;
-import net.syscon.elite.api.model.PrivilegeDetail;
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
@@ -25,16 +15,12 @@ import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
 import net.syscon.elite.repository.jpa.model.MilitaryRank;
 import net.syscon.elite.repository.jpa.model.Offender;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
-<<<<<<< HEAD
-import net.syscon.elite.repository.jpa.model.*;
 import net.syscon.elite.repository.jpa.model.VisitInformation;
 import net.syscon.elite.repository.jpa.model.VisitorInformation;
-=======
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
 import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
->>>>>>> master
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.VisitRepository;
 import net.syscon.elite.repository.jpa.repository.VisitorRepository;
@@ -418,8 +404,6 @@ public class BookingServiceTest {
         assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
     }
 
-<<<<<<< HEAD
-
     @Test
     public void getBookingVisitsWithVisitor() {
         when(visitRepository.getVisits(anyLong())).thenReturn(List.of(
@@ -507,7 +491,6 @@ public class BookingServiceTest {
                                         .build()))
                         .build());
 
-=======
     @Test
     void getOffenderCourtCases_active_only_mapped() {
         final var activeCourtCase = caseWithDefaults().id(-1L).caseSeq(-1L).caseStatus(new CaseStatus("A", "Active")).build();
@@ -600,7 +583,6 @@ public class BookingServiceTest {
     void getOffenderCourtCases_notfound() {
         when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L, false)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
->>>>>>> master
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {
