@@ -84,19 +84,19 @@ public class PrisonerDetail {
     @ApiModelProperty(value = "The prisoner's CRO (Criminal Records Office) number.")
     private String croNumber;
 
-    @ApiModelProperty(value = "The prisoner's ethnicity.")
+    @ApiModelProperty(value = "The prisoner's ethnicity.", example="White: British")
     private String ethnicity;
 
-    @ApiModelProperty(value = "The prisoner's ethnicity code.")
+    @ApiModelProperty(value = "The prisoner's ethnicity code.", example="W1")
     private String ethnicityCode;
 
     @ApiModelProperty(value = "The prisoner's country of birth.")
     private String birthCountry;
 
-    @ApiModelProperty(value = "The prisoner's religion.")
+    @ApiModelProperty(value = "The prisoner's religion.", example="Church of England")
     private String religion;
 
-    @ApiModelProperty(value = "The prisoner's religion code.")
+    @ApiModelProperty(value = "The prisoner's religion code.", example="CHRCE")
     private String religionCode;
 
     @ApiModelProperty(value = "Status code of prisoner's latest conviction.")
