@@ -702,6 +702,7 @@ FIND_OFFENDERS {
     O.LAST_NAME                       LAST_NAME,
     O.BIRTH_DATE                      DATE_OF_BIRTH,
     RCE.DESCRIPTION                   ETHNICITY,
+    RCE.CODE                          ETHNICITY_CODE,
     RCS.DESCRIPTION                   GENDER,
     O.SEX_CODE                        SEX_CODE,
     RCC.DESCRIPTION                   BIRTH_COUNTRY,
@@ -724,6 +725,7 @@ FIND_OFFENDERS {
            THEN OPD2.PROFILE_CODE
          ELSE PC.DESCRIPTION END           NATIONALITIES,
     PC3.DESCRIPTION                   RELIGION,
+    PC3.PROFILE_CODE                  RELIGION_CODE,
     PC2.DESCRIPTION                   MARITAL_STATUS,
     OIS.IMPRISONMENT_STATUS,
     IST.DESCRIPTION                   IMPRISONMENT_STATUS_DESC,
@@ -775,6 +777,7 @@ FIND_OFFENDERS_WITH_ALIASES {
     O.LAST_NAME                       LAST_NAME,
     O.BIRTH_DATE                      DATE_OF_BIRTH,
     RCE.DESCRIPTION                   ETHNICITY,
+    RCE.CODE                          ETHNICITY_CODE,
     RCS.DESCRIPTION                   GENDER,
     O.SEX_CODE                        SEX_CODE,
     RCC.DESCRIPTION                   BIRTH_COUNTRY,
@@ -797,6 +800,7 @@ FIND_OFFENDERS_WITH_ALIASES {
            THEN OPD2.PROFILE_CODE
          ELSE PC.DESCRIPTION END           NATIONALITIES,
     PC3.DESCRIPTION                   RELIGION,
+    PC3.PROFILE_CODE                  RELIGION_CODE,
     PC2.DESCRIPTION                   MARITAL_STATUS,
     OIS.IMPRISONMENT_STATUS,
     (SELECT OI1.IDENTIFIER
