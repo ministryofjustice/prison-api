@@ -2,6 +2,7 @@ package net.syscon.elite.service;
 
 import com.amazonaws.util.StringUtils;
 import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.security.VerifyBookingAccess;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class MovementUpdateService {
     }
 
     @VerifyBookingAccess
+    @HasWriteScope
     public OffenderSummary moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
         validateMoveToCellRequest(reasonCode, dateTime);
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
@@ -44,7 +46,7 @@ public class MovementUpdateService {
         return getOffenderSummary(bookingId);
     }
 
-    private void validateMoveToCellRequest(final String reasonCode, LocalDateTime dateTime) {
+    private void validateMoveToCellRequest(final String reasonCode, final LocalDateTime dateTime) {
         if (StringUtils.isNullOrEmpty(reasonCode)) {
             throw new IllegalArgumentException("Reason code is mandatory");
         }

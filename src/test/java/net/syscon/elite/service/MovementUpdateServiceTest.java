@@ -47,14 +47,14 @@ class MovementUpdateServiceTest {
     class MoveToCellError {
 
         @Test
-        void reasonCodeEmpty_throws() {
+        void reasonCodeEmpty_throwsIllegalArgument() {
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, "", SOME_TIME))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Reason code");
         }
 
         @Test
-        void dateTimeInFuture_throws() {
+        void dateTimeInFuture_throwsIllegalArgument() {
             final var theFuture = LocalDateTime.now(Clock.offset(clock, Duration.ofDays(1L)));
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, theFuture))
                     .isInstanceOf(IllegalArgumentException.class)
