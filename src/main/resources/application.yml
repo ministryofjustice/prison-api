@@ -17,6 +17,8 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
 
+oauth.endpoint.url: http://localhost:9090/auth
+
 logging:
   level:
     org.springframework.security: INFO

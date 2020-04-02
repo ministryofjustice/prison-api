@@ -1,19 +1,21 @@
 package net.syscon.elite.web.config;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import lombok.Getter;
+import net.syscon.elite.security.AuthSource;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.util.Collection;
 
-public class AuthAwareAuthenticationToken extends UsernamePasswordAuthenticationToken {
-    private final String authSource;
+@Getter
+public class AuthAwareAuthenticationToken extends JwtAuthenticationToken {
+    private final AuthSource authSource;
+    private final Object principal;
 
-    public AuthAwareAuthenticationToken(final Object principal, final Object credentials, final String authSource, final Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, authorities);
-        this.authSource = authSource != null ? authSource : "nomis";
-    }
-
-    public boolean isNomisSource() {
-        return "nomis".equals(authSource);
+    public AuthAwareAuthenticationToken(final Jwt jwt, final Object principal, final String authSource, final Collection<? extends GrantedAuthority> authorities) {
+        super(jwt, authorities);
+        this.authSource = AuthSource.fromName(authSource);
+        this.principal = principal;
     }
 }

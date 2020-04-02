@@ -22,15 +22,12 @@ import static net.syscon.elite.repository.support.StatusFilter.ALL;
 public class AgencyResourceImpl implements AgencyResource {
     private final AgencyService agencyService;
     private final LocationGroupService locationGroupService;
-    private final WhereaboutsEnabledService whereaboutsEnabledService;
 
     public AgencyResourceImpl(
             final AgencyService agencyService,
-            @Qualifier("defaultLocationGroupService") final LocationGroupService locationGroupService,
-            WhereaboutsEnabledService whereaboutsEnabledService) {
+            final LocationGroupService locationGroupService) {
         this.agencyService = agencyService;
         this.locationGroupService = locationGroupService;
-        this.whereaboutsEnabledService = whereaboutsEnabledService;
     }
 
     @Override
@@ -66,19 +63,6 @@ public class AgencyResourceImpl implements AgencyResource {
     @Override
     public List<LocationGroup> getAvailableLocationGroups(final String agencyId) {
         return locationGroupService.getLocationGroupsForAgency(agencyId);
-    }
-
-    /*
-     * TODO DT-527 Remove this - it only exists to ease the transition to the new service in Whereabouts
-     */
-    @Override
-    public List<LocationGroup> getAvailableLocationGroupsNew(final String agencyId) {
-        return getAvailableLocationGroups(agencyId);
-    }
-
-    @Override
-    public WhereaboutsConfig getWhereabouts(final String agencyId) {
-        return WhereaboutsConfig.builder().enabled(whereaboutsEnabledService.isEnabled(agencyId)).build();
     }
 
     @Override

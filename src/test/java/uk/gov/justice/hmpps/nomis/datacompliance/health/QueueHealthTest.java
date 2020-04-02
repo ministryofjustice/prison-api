@@ -37,7 +37,7 @@ public class QueueHealthTest {
 
     @Before
     public void setUp() {
-        queueHealth = new QueueHealth(amazonSqs, amazonSqsDlq, SOME_QUEUE_NAME, SOME_DLQ_NAME);
+        queueHealth = new QueueHealth(amazonSqs, amazonSqsDlq, SOME_QUEUE_NAME, SOME_DLQ_NAME) { };
     }
 
     @Test

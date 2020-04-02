@@ -1,12 +1,34 @@
 package net.syscon.elite.service;
 
 import com.google.common.collect.Lists;
-import net.syscon.elite.api.model.*;
+import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.BookingActivity;
+import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.MilitaryRecord;
+import net.syscon.elite.api.model.MilitaryRecords;
+import net.syscon.elite.api.model.Offence;
+import net.syscon.elite.api.model.OffenceDetail;
+import net.syscon.elite.api.model.OffenceHistoryDetail;
+import net.syscon.elite.api.model.OffenderSentenceCalculation;
+import net.syscon.elite.api.model.OffenderSentenceDetail;
+import net.syscon.elite.api.model.OffenderSentenceDetailDto;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PrivilegeDetail;
+import net.syscon.elite.api.model.PrivilegeSummary;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
+import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.VisitRepository;
 import net.syscon.elite.repository.jpa.repository.VisitorRepository;
@@ -14,6 +36,7 @@ import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
+import net.syscon.elite.service.transformers.CourtCaseTransformer;
 import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,10 +52,20 @@ import org.springframework.web.client.HttpClientErrorException;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -47,6 +80,7 @@ import static net.syscon.elite.service.ContactService.EXTERNAL_REL;
 @Service
 @Transactional(readOnly = true)
 @Validated
+@Slf4j
 public class BookingService {
 
     private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
@@ -63,6 +97,7 @@ public class BookingService {
     private final CaseLoadService caseLoadService;
     private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
+    private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -77,6 +112,7 @@ public class BookingService {
                           final CaseLoadService caseLoadService,
                           final ReferenceDomainService referenceDomainService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
+                          final AgencyInternalLocationRepository agencyInternalLocationRepository,
                           final AuthenticationFacade securityUtils,
                           final AuthenticationFacade authenticationFacade,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
@@ -90,6 +126,7 @@ public class BookingService {
         this.caseLoadService = caseLoadService;
         this.referenceDomainService = referenceDomainService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
+        this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;
@@ -272,7 +309,6 @@ public class BookingService {
     }
 
     private void updateAttendance(final Long activityId, final UpdateAttendance updateAttendance, final OffenderSummary offenderSummary) {
-        verifyBookingAccess(offenderSummary.getBookingId());
         validateActivity(activityId);
 
         // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
@@ -548,7 +584,7 @@ public class BookingService {
         return sentenceRepository.getMainOffenceDetails(bookingId);
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY')")
     public List<Offence> getMainOffenceDetails(final Set<Long> bookingIds) {
 
         final List<Offence> results = new ArrayList<>();
@@ -562,7 +598,7 @@ public class BookingService {
         return results;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
         return sentenceRepository.getOffenceHistory(offenderNo);
     }
@@ -673,8 +709,34 @@ public class BookingService {
                 )).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
+    @VerifyBookingAccess
+    public List<CourtCase> getOffenderCourtCases(final Long bookingId, final boolean activeOnly) {
+        return offenderBookingRepository.findById(bookingId)
+                .map(booking -> activeOnly ? booking.getActiveCourtCases() : booking.getCourtCases())
+                .map(CourtCaseTransformer::transform)
+                .orElseThrow(EntityNotFoundException.withId(bookingId));
+    }
+
+    @Transactional
+    public void updateLivingUnit(final Long bookingId, final Long livingUnitId) {
+        var offenderBooking = offenderBookingRepository.findById(bookingId)
+                .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking for booking id %d not found", bookingId)));
+        final var location = agencyInternalLocationRepository.findById(livingUnitId)
+                .orElseThrow(EntityNotFoundException.withMessage(format("Living unit with id %d not found", livingUnitId)));
+
+        checkArgument(
+                offenderBooking.getLocation().getId().equals(location.getAgencyId()),
+                "Move to living unit in prison %s invalid for offender %s in prison %s",
+                location.getAgencyId(), offenderBooking.getOffender().getNomsId(), offenderBooking.getLocation().getId()
+        );
+
+        offenderBooking.setLivingUnitId(livingUnitId);
+        offenderBookingRepository.save(offenderBooking);
+        log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
+    }
+
     private Set<String> getCaseLoadIdForUserIfRequired() {
-        return isViewAllBookings() ? null : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        return isViewAllBookings() ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
     }
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {

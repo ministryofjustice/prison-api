@@ -1,17 +1,17 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.events.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
 
-import java.io.IOException;
+import java.util.Map;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -31,34 +31,38 @@ class OffenderDeletionListenerTest {
     }
 
     @Test
-    void handleOffenderDeletionEvent() throws Exception {
+    void handleOffenderDeletionEvent() {
 
-        listener.handleOffenderDeletionEvent(getJson("offender-deletion-request.json"));
+        handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED"));
 
         verify(offenderDataComplianceService).deleteOffender("A1234AA");
     }
 
     @Test
     void handleOffenderDeletionEventThrowsIfMessageAttributesNotPresent() {
-        assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-no-attributes.json")))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("Event has no attributes");
+
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\"}", Map.of()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Unexpected message event type: 'null', expecting: 'DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED'");
 
         verifyNoInteractions(offenderDataComplianceService);
     }
 
     @Test
     void handleOffenderDeletionEventThrowsIfEventTypeUnexpected() {
-        assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-bad-event-type.json")))
+
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\"}", Map.of("eventType", "UNEXPECTED!")))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Unexpected message event type: 'UNEXPECTED!', expecting: 'DATA_COMPLIANCE_DELETE-OFFENDER'");
+                .hasMessage("Unexpected message event type: 'UNEXPECTED!', expecting: 'DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED'");
 
         verifyNoInteractions(offenderDataComplianceService);
     }
 
     @Test
     void handleOffenderDeletionEventThrowsIfMessageNotPresent() {
-        assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(getJson("offender-deletion-request-no-message.json")))
+        assertThatThrownBy(() -> handleMessage(null, Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("argument \"content\" is null");
 
@@ -68,8 +72,7 @@ class OffenderDeletionListenerTest {
     @Test
     void handleOffenderDeletionEventThrowsIfMessageUnparsable() {
 
-        assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(
-                getJson("offender-deletion-request-bad-message.json")))
+        assertThatThrownBy(() -> handleMessage("BAD MESSAGE!", Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Failed to parse request");
 
@@ -79,15 +82,22 @@ class OffenderDeletionListenerTest {
     @Test
     void handleOffenderDeletionEventThrowsIfOffenderIdDisplayEmpty() {
 
-        assertThatThrownBy(() -> listener.handleOffenderDeletionEvent(
-                getJson("offender-deletion-request-empty.json")))
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"\"}", Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No offender specified in request");
 
         verifyNoInteractions(offenderDataComplianceService);
     }
 
-    private String getJson(final String filename) throws IOException {
-        return IOUtils.toString(this.getClass().getResource(filename).openStream(), UTF_8);
+    private void handleMessage(final String payload, final Map<String, Object> headers) {
+        listener.handleOffenderDeletionEvent(mockMessage(payload, headers));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Message<String> mockMessage(final String payload, final Map<String, Object> headers) {
+        final var message = mock(Message.class);
+        when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
+        lenient().when(message.getPayload()).thenReturn(payload);
+        return message;
     }
 }

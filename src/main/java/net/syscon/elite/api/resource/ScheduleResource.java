@@ -3,6 +3,7 @@ package net.syscon.elite.api.resource;
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerSchedule;
+import net.syscon.elite.api.model.ScheduledAppointmentDto;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,24 +18,6 @@ import java.util.List;
 @Validated
 @SuppressWarnings("unused")
 public interface ScheduleResource {
-
-    /*
-     * TODO DT-526 This endpoint is being replaced by /{agencyId}/events-by-location-ids - remove when prisonstaffhub
-     *      no longer calls this endpoint.
-     */
-    @GetMapping("/{agencyId}/groups/{name}")
-    @ApiOperation(value = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", notes = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", nickname = "getGroupEvents")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerSchedule.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<PrisonerSchedule> getGroupEvents(@ApiParam(value = "The prison.", required = true) @PathVariable("agencyId") String agencyId,
-                                          @ApiParam(value = "The location list name.", required = true) @PathVariable("name") String name,
-                                          @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)  @RequestParam(value = "date", required = false) LocalDate date,
-                                          @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
-                                          @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
-                                          @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
 
     @PostMapping("/{agencyId}/events-by-location-ids")
     @ApiOperation(value = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", notes = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", nickname = "getGroupEvents")
@@ -93,7 +76,8 @@ public interface ScheduleResource {
                                                        @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                                        @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
                                                        @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
-                                                       @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
+                                                       @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder,
+                                                       @ApiParam(value = "Include suspended scheduled activity - defaults to false") @RequestParam(value = "includeSuspended", required = false) boolean includeSuspended);
 
     @GetMapping("/{agencyId}/activities-by-date-range")
 
@@ -108,7 +92,8 @@ public interface ScheduleResource {
                                                                   @ApiParam(value = "To Date of whereabouts list, default from date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate,
                                                                   @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
                                                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
-                                                                  @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
+                                                                  @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder,
+                                                                  @ApiParam(value = "Include suspended scheduled activity - defaults to false") @RequestParam(value = "includeSuspended", required = false) boolean includeSuspended);
 
     @PostMapping("/{agencyId}/activities")
     @ApiOperation(value = "", nickname = "getActivities")
@@ -121,13 +106,23 @@ public interface ScheduleResource {
                                          @ApiParam(value = "Whether to include 'excluded' activities in the results", defaultValue = "false") @RequestParam(value = "includeExcluded", required = false, defaultValue = "false") boolean includeExcluded);
 
     @PostMapping("/{agencyId}/appointments")
-    @ApiOperation(value = "", nickname = "getAppointments")
+    @ApiOperation(value = "", nickname = "getAppointmentsForOffenders")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
-    List<PrisonerSchedule> getAppointments(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
+    List<PrisonerSchedule> getAppointmentsForOffenders(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                            @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
                                            @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                            @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot);
+
+
+    @GetMapping("/{agencyId}/appointments")
+    @ApiOperation(value = "", nickname = "getAppointments")
+    @ApiResponses(value = {
+    @ApiResponse(code = 200, message = "", response = ScheduledAppointmentDto.class, responseContainer = "List")})
+    List<ScheduledAppointmentDto> getAppointments(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
+                                                  @ApiParam(value = "Date the appointments are scheduled", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date") LocalDate date,
+                                                  @ApiParam(value = "Location id") @RequestParam(value = "locationId", required = false) Long locationId,
+                                                  @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot);
 
     @PostMapping("/{agencyId}/courtEvents")
     @ApiOperation(value = "", nickname = "getCourtEvents")

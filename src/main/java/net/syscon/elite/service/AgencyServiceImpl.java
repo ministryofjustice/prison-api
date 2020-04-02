@@ -3,13 +3,16 @@ package net.syscon.elite.service;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.IepLevel;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.PrisonContactDetail;
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
-import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationFilter;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
@@ -20,6 +23,7 @@ import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.support.AlphaNumericComparator;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.elite.service.transformers.AgencyTransformer;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,7 +32,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
@@ -65,7 +73,7 @@ public class AgencyServiceImpl implements AgencyService {
        return agencyLocationRepository.findAll(criteria)
           .stream()
                 .findFirst()
-                .map(this::transformToAgency).orElseThrow(EntityNotFoundException.withId(agencyId));
+                .map(AgencyTransformer::transform).orElseThrow(EntityNotFoundException.withId(agencyId));
     }
 
     @Override
@@ -78,17 +86,8 @@ public class AgencyServiceImpl implements AgencyService {
 
         return agencyLocationRepository.findAll(filter)
                 .stream()
-                .map(this::transformToAgency)
+                .map(AgencyTransformer::transform)
                 .collect(Collectors.toList());
-    }
-
-    private Agency transformToAgency(final AgencyLocation agency) {
-        return Agency.builder()
-                .agencyId(agency.getId())
-                .description(LocationProcessor.formatLocation(agency.getDescription()))
-                .agencyType(agency.getType())
-                .active(agency.getActiveFlag() != null && agency.getActiveFlag().isActive())
-        .build();
     }
 
     @Override

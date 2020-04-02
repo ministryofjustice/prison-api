@@ -1,0 +1,29 @@
+[
+  {
+    "id": -1,
+    "caseSeq": -1,
+    "beginDate": "1970-01-01",
+    "agency": {
+      "agencyId": "MDI",
+      "description": "Moorland",
+      "agencyType": "CRT",
+      "active": true
+    },
+    "caseType": "Adult",
+    "caseInfoPrefix": "CIP",
+    "caseInfoNumber": "CIN20177010",
+    "caseStatus": "ACTIVE",
+    "courtHearings": [
+      {
+        "id": -1,
+        "dateTime": "1970-01-01T00:00:00",
+        "location": {
+          "agencyId": "COURT1",
+          "description": "Court 1",
+          "agencyType": "CRT",
+          "active": true
+        }
+      }
+    ]
+  }
+]

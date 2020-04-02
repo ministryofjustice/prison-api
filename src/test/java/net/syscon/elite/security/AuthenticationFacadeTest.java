@@ -3,66 +3,66 @@ package net.syscon.elite.security;
 import net.syscon.elite.web.config.AuthAwareAuthenticationToken;
 import org.junit.Test;
 import org.slf4j.MDC;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.util.Collections;
-
+import static java.util.Collections.emptySet;
+import static net.syscon.elite.security.AuthSource.*;
 import static net.syscon.util.MdcUtility.PROXY_USER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class AuthenticationFacadeTest {
     private final AuthenticationFacade authenticationFacade = new AuthenticationFacade();
-    private static final OAuth2Request OAUTH_2_REQUEST = new OAuth2Request(Collections.emptyMap(), "client", Collections.emptySet(), true, Collections.emptySet(), Collections.emptySet(), "redirect", null, null);
 
     @Test
-    public void isIdentifiedAuthentication_AuthSource_nomis() {
+    public void getProxyUserAuthenticationSource_AuthSource_nomis() {
         setAuthentication("nomis", true);
-        assertThat(authenticationFacade.isIdentifiedAuthentication()).isTrue();
+        assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(NOMIS);
     }
 
     @Test
-    public void isIdentifiedAuthentication_AuthSource_auth() {
+    public void getProxyUserAuthenticationSource_AuthSource_auth() {
         setAuthentication("auth", true);
-        assertThat(authenticationFacade.isIdentifiedAuthentication()).isFalse();
+        assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(AUTH);
     }
 
     @Test
-    public void isIdentifiedAuthentication_AuthSource_null() {
+    public void getProxyUserAuthenticationSource_AuthSource_null() {
         setAuthentication(null, true);
-        assertThat(authenticationFacade.isIdentifiedAuthentication()).isTrue();
+        assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(NONE);
     }
 
     @Test
-    public void isIdentifiedAuthentication_NoUserAuthentication() {
-        SecurityContextHolder.getContext().setAuthentication(new OAuth2Authentication(OAUTH_2_REQUEST, null));
-        assertThat(authenticationFacade.isIdentifiedAuthentication()).isFalse();
+    public void getProxyUserAuthenticationSource_NoUserAuthentication() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+        assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(NONE);
     }
 
     @Test
-    public void isIdentifiedAuthentication_AuthSource_nomis_no_proxy() {
+    public void getProxyUserAuthenticationSource_AuthSource_nomis_no_proxy() {
         setAuthentication("nomis", false);
-        assertThat(authenticationFacade.isIdentifiedAuthentication()).isFalse();
+        assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(NONE);
     }
 
     @Test
-    public void isIdentifiedAuthentication_AuthSource_auth_no_proxy() {
+    public void getProxyUserAuthenticationSource_AuthSource_auth_no_proxy() {
         setAuthentication("auth", false);
-        assertThat(authenticationFacade.isIdentifiedAuthentication()).isFalse();
+        assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(NONE);
     }
 
     @Test
-    public void isIdentifiedAuthentication_AuthSource_null_no_proxy() {
+    public void getProxyUserAuthenticationSource_AuthSource_null_no_proxy() {
         setAuthentication(null, false);
-        assertThat(authenticationFacade.isIdentifiedAuthentication()).isFalse();
+        assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(NONE);
     }
 
     private void setAuthentication(final String source, boolean proxyUser) {
-        final var userAuthentication = new AuthAwareAuthenticationToken("principal", "credentials", source, Collections.emptyList());
-        SecurityContextHolder.getContext().setAuthentication(new OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication));
+        final Authentication auth = new AuthAwareAuthenticationToken(mock(Jwt.class), "client", source, emptySet());
+        SecurityContextHolder.getContext().setAuthentication(auth);
         if (proxyUser) {
-            MDC.put(PROXY_USER, userAuthentication.getName());
+            MDC.put(PROXY_USER, "client");
         } else {
             MDC.remove(PROXY_USER);
 

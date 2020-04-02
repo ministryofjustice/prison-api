@@ -1,9 +1,11 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.PrisonerSchedule;
+import net.syscon.elite.api.model.ScheduledAppointmentDto;
 import net.syscon.elite.api.resource.ScheduleResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
+import net.syscon.elite.service.AppointmentsService;
 import net.syscon.elite.service.SchedulesService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,17 +20,11 @@ import java.util.List;
 @RequestMapping("${api.base.path}/schedules")
 public class SchedulesResourceImpl implements ScheduleResource {
     private final SchedulesService schedulesService;
+    private final AppointmentsService appointmentsService;
 
-    public SchedulesResourceImpl(final SchedulesService schedulesService) {
+    public SchedulesResourceImpl(final SchedulesService schedulesService, final AppointmentsService appointmentsService) {
         this.schedulesService = schedulesService;
-    }
-
-    @Override
-    public List<PrisonerSchedule> getGroupEvents(final String agencyId, final String name,
-                                                 final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
-
-        return schedulesService.getLocationGroupEvents(agencyId, name,
-                date, timeSlot, sortFields, sortOrder);
+        this.appointmentsService = appointmentsService;
     }
 
     @Override
@@ -54,19 +50,24 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
-    public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
-        return schedulesService.getActivitiesAtAllLocations(agencyId, date, null, timeSlot, sortFields, sortOrder);
+    public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder, final boolean includeSuspended) {
+        return schedulesService.getActivitiesAtAllLocations(agencyId, date, null, timeSlot, sortFields, sortOrder, includeSuspended);
     }
 
     @Override
-    public List<PrisonerSchedule> getActivitiesAtAllLocationsByDateRange(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
-        return schedulesService.getActivitiesAtAllLocations(agencyId, fromDate, toDate, timeSlot, sortFields, sortOrder);
+    public List<PrisonerSchedule> getActivitiesAtAllLocationsByDateRange(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot, final String sortFields, final Order sortOrder, final boolean includeSuspended) {
+        return schedulesService.getActivitiesAtAllLocations(agencyId, fromDate, toDate, timeSlot, sortFields, sortOrder, includeSuspended);
     }
 
     @Override
-    public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getAppointmentsForOffenders(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot) {
         return schedulesService.getAppointments(agencyId, body, date, timeSlot);
 
+    }
+
+    @Override
+    public List<ScheduledAppointmentDto> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
+        return appointmentsService.getAppointments(agencyId, date, locationId, timeSlot);
     }
 
     @Override

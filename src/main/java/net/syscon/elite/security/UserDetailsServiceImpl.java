@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
         final var roles = userService.getRolesByUsername(username, false);
 
         if (nomisProfile && !userService.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
-            throw new UnapprovedClientAuthenticationException(format("User does not have access to caseload %s", apiCaseloadId));
+            throw new InsufficientAuthenticationException(format("User does not have access to caseload %s", apiCaseloadId));
         }
 
         final Set<GrantedAuthority> authorities = roles.stream()

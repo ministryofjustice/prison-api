@@ -1,20 +1,21 @@
 package net.syscon.elite.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
 import net.syscon.elite.api.model.bulkappointments.Repeat;
+import net.syscon.elite.core.HasWriteScope;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.jpa.repository.ScheduledAppointmentRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.elite.service.support.StringWithAbbreviationsProcessor;
+import net.syscon.util.CalcDateRanges;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -23,11 +24,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,18 +46,21 @@ public class AppointmentsService {
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
     private final TelemetryClient telemetryClient;
+    private final ScheduledAppointmentRepository scheduledAppointmentRepository;
 
     public AppointmentsService(
             final BookingRepository bookingRepository,
             final AuthenticationFacade authenticationFacade,
             final LocationService locationService,
             final ReferenceDomainService referenceDomainService,
-            final TelemetryClient telemetryClient) {
+            final TelemetryClient telemetryClient,
+            final ScheduledAppointmentRepository scheduledAppointmentRepository) {
         this.bookingRepository = bookingRepository;
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
         this.telemetryClient = telemetryClient;
+        this.scheduledAppointmentRepository = scheduledAppointmentRepository;
     }
 
     /**
@@ -67,7 +69,7 @@ public class AppointmentsService {
      *
      * @param appointments Details of the new appointments to be created.
      */
-    @PreAuthorize("#oauth2.hasScope('write')")
+    @HasWriteScope
     @Transactional
     public void createAppointments(@NotNull @Valid final AppointmentsToCreate appointments) {
 
@@ -233,6 +235,42 @@ public class AppointmentsService {
         }
         return Optional.empty();
     }
+
+    public List<ScheduledAppointmentDto> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
+        final var appointmentStream = locationId != null ?
+                scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(agencyId, date, locationId).stream() :
+                scheduledAppointmentRepository.findByAgencyIdAndEventDate(agencyId, date).stream();
+
+        final var appointmentDtos =  appointmentStream
+                .map(scheduledAppointment ->
+                        ScheduledAppointmentDto
+                                .builder()
+                                .id(scheduledAppointment.getEventId())
+                                .offenderNo(scheduledAppointment.getOffenderNo())
+                                .firstName(scheduledAppointment.getFirstName())
+                                .lastName(scheduledAppointment.getLastName())
+                                .date(scheduledAppointment.getEventDate())
+                                .startTime(scheduledAppointment.getStartTime())
+                                .endTime(scheduledAppointment.getEndTime())
+                                .appointmentTypeDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getAppointmentTypeDescription()))
+                                .appointmentTypeCode(scheduledAppointment.getAppointmentTypeCode())
+                                .locationDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getLocationDescription()))
+                                .locationId(scheduledAppointment.getLocationId())
+                                .createUserId(scheduledAppointment.getCreateUserId())
+                                .agencyId(scheduledAppointment.getAgencyId())
+                                .build()
+                );
+
+         final var filteredByTimeSlot = timeSlot != null ?
+                appointmentDtos.filter(appointment -> CalcDateRanges.eventStartsInTimeslot(appointment.getStartTime(), timeSlot)) :
+                appointmentDtos;
+
+         return filteredByTimeSlot
+                 .sorted(Comparator.comparing(ScheduledAppointmentDto::getStartTime)
+                         .thenComparing(ScheduledAppointmentDto::getLocationDescription))
+                 .collect(Collectors.toList());
+    }
+
 
     private void trackAppointmentsCreated(final List<AppointmentDetails> appointments, final AppointmentDefaults defaults) {
         if (appointments.size() < 1) return;

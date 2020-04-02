@@ -123,16 +123,6 @@ Feature: Agencies
       | locationId | description    | userDescription    |
       | -25        | Chapel         | Chapel             |
 
-  Scenario Outline: Retrieve whereabouts config for an agency
-    When a request is submitted to retrieve whereabouts config for agency "<agencyId>"
-    Then the returned enabled flag is "<enabled>"
-    Examples:
-      | agencyId | enabled |
-      | LEI      | true    |
-      | HLI      | true    |
-      | WAI      | false   |
-      | SYI      | false   |
-
   Scenario: Retrieve IEP levels for an agency
     When a request is submitted to retrieve IEP levels for agency "LEI"
     Then the returned IEP levels are as follows:

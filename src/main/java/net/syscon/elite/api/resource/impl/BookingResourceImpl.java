@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -73,7 +75,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_CREATE')")
+    @HasWriteScope
+    @PreAuthorize("hasRole('BOOKING_CREATE')")
     @ProxyUser
     public ResponseEntity<OffenderSummary> createOffenderBooking(@Valid final NewBooking newBooking) {
         // Step 1.
@@ -128,7 +131,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_RECALL')")
+    @HasWriteScope
+    @PreFilter("hasRole('BOOKING_RECALL')")
     @ProxyUser
     public OffenderSummary recallOffenderBooking(@Valid final RecallBooking recallBooking) {
         return bookingMaintenanceService.recallBooking(authenticationFacade.getCurrentUsername(), recallBooking);
@@ -322,7 +326,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write') && hasRole('MAINTAIN_IEP')")
+    @HasWriteScope
+    @PreAuthorize("hasRole('MAINTAIN_IEP')")
     @ProxyUser
     public ResponseEntity<Void> addIepLevel(final Long bookingId, @NotNull final IepLevelAndComment iepLevel) {
         bookingService.addIepLevel(bookingId, authenticationFacade.getCurrentUsername(), iepLevel);
@@ -360,21 +365,21 @@ public class BookingResourceImpl implements BookingResource {
         return bookingService.getBookingSentenceDetail(bookingId);    }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
+    @HasWriteScope
     @ProxyUser
     public CaseNote createBookingCaseNote(final Long bookingId, final NewCaseNote body) {
         return caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
+    @HasWriteScope
     @ProxyUser
     public CaseNote createOffenderCaseNote(final String offenderNo, final NewCaseNote body) {
         return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
+    @HasWriteScope
     @ProxyUser
     public CaseNote updateOffenderCaseNote(final Long bookingId, final Long caseNoteId, final UpdateCaseNote body) {
         return caseNoteService.updateCaseNote(
@@ -614,10 +619,15 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
+    @HasWriteScope
     @ProxyUser
     public ScheduledEvent postBookingsBookingIdAppointments(final Long bookingId, final NewAppointment newAppointment) {
         return appointmentsService.createBookingAppointment(
                 bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
+    }
+
+    @Override
+    public List<CourtCase> getCourtCases(final Long bookingId, final boolean activeOnly) {
+        return bookingService.getOffenderCourtCases(bookingId, activeOnly);
     }
 }

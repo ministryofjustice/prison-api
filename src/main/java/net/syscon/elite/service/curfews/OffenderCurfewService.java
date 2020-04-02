@@ -2,8 +2,12 @@ package net.syscon.elite.service.curfews;
 
 import lombok.val;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.OffenderCurfewRepository;
-import net.syscon.elite.service.*;
+import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.CaseloadToAgencyMappingService;
+import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.OffenderCurfew;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -118,19 +122,22 @@ public class OffenderCurfewService {
     }
 
     @Transactional
-    @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
+    @HasWriteScope
+    @PreAuthorize("hasRole('SYSTEM_USER')")
     public void setHdcChecks(final long bookingId, @Valid final HdcChecks hdcChecks) {
         withCurrentCurfewState(bookingId).setHdcChecks(hdcChecks);
     }
 
     @Transactional
-    @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
+    @HasWriteScope
+    @PreAuthorize("hasRole('SYSTEM_USER')")
     public void deleteHdcChecks(Long bookingId) {
         withCurrentCurfewState(bookingId).deleteHdcChecks();
     }
 
     @Transactional
-    @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
+    @HasWriteScope
+    @PreAuthorize("hasRole('SYSTEM_USER')")
     public void setApprovalStatus(final long bookingId, @Valid final ApprovalStatus approvalStatus) {
 
         if (!referenceDomainService.isReferenceCodeActive(HDC_APPROVE_DOMAIN, approvalStatus.getApprovalStatus())) {
@@ -147,7 +154,8 @@ public class OffenderCurfewService {
     }
 
     @Transactional
-    @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
+    @HasWriteScope
+    @PreAuthorize("hasRole('SYSTEM_USER')")
     public void deleteApprovalStatus(Long bookingId) {
         withCurrentCurfewState(bookingId).deleteApprovalStatus();
     }

@@ -27,3 +27,9 @@ spring:
         maximum-pool-size: 10
         connectionTimeout: 1000
         validationTimeout:  500
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${oauth.endpoint.url}/.well-known/jwks.json

@@ -1,24 +1,25 @@
 package net.syscon.elite.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.bulkappointments.*;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
+import net.syscon.elite.repository.jpa.repository.ScheduledAppointmentRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.ReferenceDomain;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +35,6 @@ import static org.mockito.Mockito.*;
 public class AppointmentsServiceImplTest {
     private static final String USERNAME = "username";
     private static final String BULK_APPOINTMENTS_ROLE = "BULK_APPOINTMENTS";
-    private static final Authentication AUTHENTICATION_NO_ROLES = new TestingAuthenticationToken(USERNAME, null);
 
     private static final Location LOCATION_A = Location.builder().locationId(0L).agencyId("A").build();
     private static final Location LOCATION_B = Location.builder().locationId(1L).agencyId("B").build();
@@ -61,8 +61,6 @@ public class AppointmentsServiceImplTest {
             .code("T")
             .domain(ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain())
             .build();
-
-
     @Mock
     private BookingRepository bookingRepository;
 
@@ -71,6 +69,9 @@ public class AppointmentsServiceImplTest {
 
     @Mock
     private ReferenceDomainService referenceDomainService;
+
+    @Mock
+    private ScheduledAppointmentRepository scheduledAppointmentRepository;
 
     @Mock
     private TelemetryClient telemetryClient;
@@ -87,8 +88,8 @@ public class AppointmentsServiceImplTest {
                 new AuthenticationFacade(),
                 locationService,
                 referenceDomainService,
-                telemetryClient
-        );
+                telemetryClient,
+                scheduledAppointmentRepository);
     }
 
     @AfterEach
@@ -504,7 +505,7 @@ public class AppointmentsServiceImplTest {
         try {
             appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (final HttpClientErrorException e){
+        } catch (final HttpClientErrorException e) {
             assertThat(e.getStatusText()).isEqualTo("Appointment time is in the past.");
         }
     }
@@ -636,6 +637,115 @@ public class AppointmentsServiceImplTest {
         verify(locationService, never()).getUserLocations(principal);
     }
 
+    @Test
+    public void testFindByAgencyIdAndEventDateAndLocationId_IsCalledCorrectly() {
+        final var today = LocalDate.now();
+        final var locationId = 1L;
+
+        when(scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(any(), any(), anyLong())).thenReturn(Collections.emptyList());
+
+        appointmentsService.getAppointments("LEI", today, locationId, null);
+
+        verify(scheduledAppointmentRepository).findByAgencyIdAndEventDateAndLocationId("LEI", today, locationId);
+    }
+
+    @Test
+    public void testFindByAgencyIdAndEventDate_IsCalledCorrectly_IsCalledCorrectly() {
+        final var today = LocalDate.now();
+
+        when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
+                .thenReturn(Collections.emptyList());
+
+        appointmentsService.getAppointments("LEI", today, null, null);
+
+        verify(scheduledAppointmentRepository).findByAgencyIdAndEventDate("LEI", today);
+
+    }
+
+    @Test
+    public void testAMScheduledAppointmentDtos_AreReturned() {
+        final var today = LocalDate.now();
+        final var startTime = LocalDateTime.now();
+        final var endTime = LocalDateTime.now();
+
+        when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
+                .thenReturn(List.of(
+                        ScheduledAppointment
+                                .builder()
+                                .eventId(1L)
+                                .offenderNo("A12345")
+                                .firstName("firstName1")
+                                .lastName("lastName1")
+                                .eventDate(today)
+                                .startTime(startTime.withHour(11))
+                                .endTime(endTime.withHour(11))
+                                .appointmentTypeDescription("Appointment Type Description1")
+                                .appointmentTypeCode("appointmentTypeCode1")
+                                .locationDescription("location Description1")
+                                .locationId(1L)
+                                .createUserId("Staff user 1")
+                                .agencyId("LEI")
+                                .build(),
+                        ScheduledAppointment
+                                .builder()
+                                .eventId(2L)
+                                .offenderNo("A12346")
+                                .firstName("firstName2")
+                                .lastName("lastName2")
+                                .eventDate(today)
+                                .startTime(startTime.withHour(23))
+                                .endTime(endTime.withHour(23))
+                                .appointmentTypeDescription("appointmentTypeDescription2")
+                                .appointmentTypeCode("appointmentTypeCode2")
+                                .locationDescription("location Description2")
+                                .locationId(2L)
+                                .createUserId("Staff user 2")
+                                .agencyId("LEI")
+                                .build()
+                ));
+
+        final var appointmentDtos = appointmentsService.getAppointments("LEI", today, null, TimeSlot.AM);
+
+        assertThat(appointmentDtos).containsOnly(
+                ScheduledAppointmentDto
+                .builder()
+                .id(1L)
+                .offenderNo("A12345")
+                .firstName("firstName1")
+                .lastName("lastName1")
+                .date(today)
+                .startTime(startTime.withHour(11))
+                .endTime(endTime.withHour(11))
+                .appointmentTypeDescription("Appointment Type Description1")
+                .appointmentTypeCode("appointmentTypeCode1")
+                .locationDescription("Location Description1")
+                .locationId(1L)
+                .createUserId("Staff user 1")
+                .agencyId("LEI")
+                .build());
+    }
+
+    @Test
+    public void testScheduledAppointmentsOrderedByStartTimeThenByLocation() {
+        final var baseDateTime = LocalDateTime.now().minusDays(1);
+
+        when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
+                .thenReturn(List.of(
+                        ScheduledAppointment.builder().eventId(1L).startTime(baseDateTime.withHour(23)).locationDescription("Gym").build(),
+                        ScheduledAppointment.builder().eventId(2L).startTime(baseDateTime.withHour(11)).locationDescription("Room 2").build(),
+                        ScheduledAppointment.builder().eventId(3L).startTime(baseDateTime.withHour(10)).locationDescription("Z").build(),
+                        ScheduledAppointment.builder().eventId(4L).startTime(baseDateTime.withHour(10)).locationDescription("A").build()
+                ));
+
+        final var appointmentDtos = appointmentsService.getAppointments("LEI", LocalDate.now(), null, null);
+
+        assertThat(appointmentDtos)
+                .extracting(
+                        ScheduledAppointmentDto::getId,
+                        ScheduledAppointmentDto::getLocationDescription
+                ).containsExactly(Tuple.tuple(4L, "A"), Tuple.tuple(3L, "Z"), Tuple.tuple(2L, "Room 2"), Tuple.tuple(1L, "Gym"));
+    }
+
     private void stubValidBookingIds(final String agencyId, final long... bookingIds) {
         final var ids = Arrays.stream(bookingIds).boxed().collect(Collectors.toList());
         when(bookingRepository.findBookingsIdsInAgency(ids, agencyId)).thenReturn(ids);
@@ -655,3 +765,4 @@ public class AppointmentsServiceImplTest {
         when(locationService.getLocation(location.getLocationId())).thenReturn(location);
     }
 }
+

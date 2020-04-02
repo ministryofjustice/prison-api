@@ -234,8 +234,108 @@ public class BookingResourceImplIntTest extends ResourceTest {
                 .build()));
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
         final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/military-records", HttpMethod.GET, requestEntity, String.class);
-        System.out.println(responseEntity.getBody());
         assertThatJsonFileAndStatus(responseEntity, 200, "military_records.json");
+    }
+
+    @Test
+    public void getCourtCases_returnsMatchingActiveCourtCase() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
+                .courtCases(List.of(OffenderCourtCase.builder()
+                        .id(-1L)
+                        .caseSeq(-1L)
+                        .beginDate(LocalDate.EPOCH)
+                        .agencyLocation(AgencyLocation.builder()
+                                .id("MDI")
+                                .activeFlag(ActiveFlag.Y)
+                                .type("CRT")
+                                .description("Moorland")
+                                .build())
+                        .legalCaseType(new LegalCaseType("A", "Adult"))
+                        .caseInfoPrefix("CIP")
+                        .caseInfoNumber("CIN20177010")
+                        .caseStatus(new CaseStatus("A", "Active"))
+                        .courtEvents(List.of(CourtEvent.builder()
+                                .id(-1L)
+                                .eventDate(LocalDate.EPOCH)
+                                .startTime(LocalDate.EPOCH.atStartOfDay())
+                                .courtLocation(AgencyLocation.builder()
+                                        .id("COURT1")
+                                        .description("Court 1")
+                                        .type("CRT")
+                                        .activeFlag(ActiveFlag.Y)
+                                        .build())
+                                .build()))
+                        .build()))
+                .build()));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "court_cases.json");
+    }
+
+    @Test
+    public void getCourtCases_returnsAllMatchingCourtCases() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
+                .courtCases(List.of(
+                        OffenderCourtCase.builder()
+                                .id(-1L)
+                                .caseSeq(-1L)
+                                .beginDate(LocalDate.EPOCH)
+                                .agencyLocation(AgencyLocation.builder()
+                                        .id("MDI")
+                                        .activeFlag(ActiveFlag.Y)
+                                        .type("CRT")
+                                        .description("Moorland")
+                                        .build())
+                                .legalCaseType(new LegalCaseType("A", "Adult"))
+                                .caseInfoPrefix("CIP")
+                                .caseInfoNumber("CIN20177010")
+                                .caseStatus(new CaseStatus("A", "Active"))
+                                .courtEvents(List.of(CourtEvent.builder()
+                                        .id(-1L)
+                                        .eventDate(LocalDate.EPOCH)
+                                        .startTime(LocalDate.EPOCH.atStartOfDay())
+                                        .courtLocation(AgencyLocation.builder()
+                                                .id("COURT1")
+                                                .description("Court 1")
+                                                .type("CRT")
+                                                .activeFlag(ActiveFlag.Y)
+                                                .build())
+                                        .build()))
+                                .build(),
+                        OffenderCourtCase.builder()
+                                .id(-2L)
+                                .caseSeq(-2L)
+                                .beginDate(LocalDate.EPOCH)
+                                .agencyLocation(AgencyLocation.builder()
+                                        .id("MDI")
+                                        .activeFlag(ActiveFlag.Y)
+                                        .type("CRT")
+                                        .description("Moorland")
+                                        .build())
+                                .legalCaseType(new LegalCaseType("A", "Adult"))
+                                .caseInfoPrefix("CIP")
+                                .caseInfoNumber("CIN20177010")
+                                .caseStatus(new CaseStatus("I", "Inactive"))
+                                .courtEvents(List.of(CourtEvent.builder()
+                                        .id(-1L)
+                                        .eventDate(LocalDate.EPOCH)
+                                        .startTime(LocalDate.EPOCH.atStartOfDay())
+                                        .courtLocation(AgencyLocation.builder()
+                                                .id("COURT1")
+                                                .description("Court 1")
+                                                .type("CRT")
+                                                .activeFlag(ActiveFlag.Y)
+                                                .build())
+                                        .build()))
+                                .build()))
+                .build()));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases?activeOnly=false", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "court_cases_active_and_inactive.json");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {

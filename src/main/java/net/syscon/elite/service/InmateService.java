@@ -141,14 +141,19 @@ public class InmateService {
 
         log.info("getBasicInmateDetailsForOffenders, {} offenders, {} caseloads, canViewAllOffenders {}", offenders.size(), caseloads.size(), canViewAllOffenders);
 
-        final var results = repository.getBasicInmateDetailsForOffenders(offenders, canViewAllOffenders, caseloads, active)
-                .stream()
-                .map(offender -> offender.toBuilder()
-                        .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
-                        .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
-                        .lastName(WordUtils.capitalizeFully(offender.getLastName()))
-                        .build()
-                ).collect(Collectors.toList());
+        final var results = new ArrayList<InmateBasicDetails>();
+        Lists.partition(Lists.newArrayList(offenders), maxBatchSize).forEach(offenderList ->
+            results.addAll(
+                    repository.getBasicInmateDetailsForOffenders(new HashSet<>(offenderList), canViewAllOffenders, caseloads, active)
+                            .stream()
+                            .map(offender ->
+                                    offender.toBuilder()
+                                            .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                                            .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
+                                            .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                                            .build()
+                            ).collect(Collectors.toList())
+            ));
 
         log.info("getBasicInmateDetailsForOffenders, {} records returned", results.size());
         return results;
@@ -422,7 +427,7 @@ public class InmateService {
         return doGetOffenderCategorisations(agencyId, bookingIds, latestOnly);
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER')")
     public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
         return doGetOffenderCategorisations(null, bookingIds, latestOnly);
     }

@@ -4,29 +4,41 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import net.syscon.elite.repository.OffenderRepository;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderToDelete;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.DataComplianceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OffenderDataComplianceServiceTest {
 
+    private static final String REQUEST_ID = "123";
     private static final LocalDateTime WINDOW_START = LocalDateTime.now();
     private static final LocalDateTime WINDOW_END = WINDOW_START.plusDays(1);
 
@@ -41,7 +53,10 @@ public class OffenderDataComplianceServiceTest {
     private OffenderDeletionRepository offenderDeletionRepository;
 
     @Mock
-    private DataComplianceRepository dataComplianceRepository;
+    private OffenderPendingDeletionRepository offenderPendingDeletionRepository;
+
+    @Mock
+    private OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
 
     @Mock
     private TelemetryClient telemetryClient;
@@ -56,7 +71,8 @@ public class OffenderDataComplianceServiceTest {
         service = new OffenderDataComplianceService(
                 offenderRepository,
                 offenderDeletionRepository,
-                dataComplianceRepository,
+                offenderPendingDeletionRepository,
+                offenderAliasPendingDeletionRepository,
                 telemetryClient,
                 eventPusher);
     }
@@ -86,16 +102,87 @@ public class OffenderDataComplianceServiceTest {
     @Test
     public void acceptOffendersPendingDeletion() throws Exception {
 
-        when(dataComplianceRepository
+        when(offenderPendingDeletionRepository
                 .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate()))
                 .thenReturn(List.of(
-                        new OffenderToDelete(OFFENDER_NUMBER_1),
-                        new OffenderToDelete(OFFENDER_NUMBER_2)));
+                        new OffenderPendingDeletion(OFFENDER_NUMBER_1),
+                        new OffenderPendingDeletion(OFFENDER_NUMBER_2)));
 
-        service.acceptOffendersPendingDeletionRequest(WINDOW_START, WINDOW_END).get();
+        when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
+                .thenReturn(List.of(offenderAliasPendingDeletion(1)));
+        when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_2))
+                .thenReturn(List.of(offenderAliasPendingDeletion(2)));
 
-        verify(eventPusher).sendEvent(OFFENDER_NUMBER_1);
-        verify(eventPusher).sendEvent(OFFENDER_NUMBER_2);
+        service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get();
+
+        verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(1L, OFFENDER_NUMBER_1));
+        verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(2L, OFFENDER_NUMBER_2));
+        verify(eventPusher).sendReferralCompleteEvent(expectedReferralCompleteEvent(REQUEST_ID));
         verifyNoMoreInteractions(eventPusher);
+    }
+
+    @Test
+    public void acceptOffendersPendingDeletionThrowsIfOffenderAliasesNotFound() {
+
+        when(offenderPendingDeletionRepository
+                .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate()))
+                .thenReturn(List.of(new OffenderPendingDeletion(OFFENDER_NUMBER_1)));
+
+        when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
+                .thenReturn(emptyList());
+
+        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get())
+                .hasCauseInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Offender not found: 'A1234AA'");
+    }
+
+    @Test
+    public void acceptOffendersPendingDeletionThrowsIfNoRootOffenderAliasFound() {
+
+        when(offenderPendingDeletionRepository
+                .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate()))
+                .thenReturn(List.of(new OffenderPendingDeletion(OFFENDER_NUMBER_1)));
+
+        when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
+                .thenReturn(List.of(OffenderAliasPendingDeletion.builder()
+                        .offenderId(1L)
+                        .rootOffenderId(2L)
+                        .build()));
+
+        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get())
+                .hasCauseInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Cannot find root offender alias for 'A1234AA'");
+    }
+
+    private OffenderPendingDeletionEvent expectedPendingDeletionEvent(final long offenderId, final String offenderNumber) {
+        return OffenderPendingDeletionEvent.builder()
+                .offenderIdDisplay(offenderNumber)
+                .firstName("John" + offenderId)
+                .middleName("Middle" + offenderId)
+                .lastName("Smith" + offenderId)
+                .birthDate(LocalDate.of(2020, 1, (int) offenderId))
+                .offender(OffenderWithBookings.builder()
+                        .offenderId(offenderId)
+                        .booking(new Booking(offenderId))
+                        .build())
+                .build();
+    }
+
+    private OffenderPendingDeletionReferralCompleteEvent expectedReferralCompleteEvent(final String requestId) {
+        return new OffenderPendingDeletionReferralCompleteEvent(requestId);
+    }
+
+    private OffenderAliasPendingDeletion offenderAliasPendingDeletion(final long offenderId) {
+        return OffenderAliasPendingDeletion.builder()
+                .firstName("John" + offenderId)
+                .middleName("Middle" + offenderId)
+                .lastName("Smith" + offenderId)
+                .birthDate(LocalDate.of(2020, 1, (int) offenderId))
+                .offenderId(offenderId)
+                .rootOffenderId(offenderId)
+                .offenderBooking(OffenderBookingPendingDeletion.builder()
+                        .bookingId(offenderId)
+                        .build())
+                .build();
     }
 }

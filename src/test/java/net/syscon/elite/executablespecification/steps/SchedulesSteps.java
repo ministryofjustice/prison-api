@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Schedules service.
  */
 public class SchedulesSteps extends CommonSteps {
-    private static final String API_GROUPS_URL = API_PREFIX + "schedules/{agencyId}/groups/{name}";
     private static final String API_LOCATION_URL = API_PREFIX + "schedules/{agencyId}/locations/{locationId}/usage/{usage}";
     private static final String API_ACTIVITIES = API_PREFIX + "schedules/{agencyId}/activities";
     private static final String API_VISITS = API_PREFIX + "schedules/{agencyId}/visits";
@@ -91,18 +90,6 @@ public class SchedulesSteps extends CommonSteps {
 
     public void givenLocationGroupDoesNotDefineAnyLocations() {
         groupName = "BlockE";
-    }
-
-    public void getSchedulesForLocationGroup(final String agencyId, final String group) {
-        results = dispatchGroupRequest(API_GROUPS_URL, agencyId, group, null, null);
-    }
-
-    public void getSchedulesForLocationGroup(final String agencyId, final String group, final String date, final TimeSlot timeSlot) {
-        results = dispatchGroupRequest(API_GROUPS_URL, agencyId, group, date, timeSlot);
-    }
-
-    public void getSchedulesForLocationGroup() {
-        results = dispatchGroupRequest(API_GROUPS_URL, agency, groupName, null, null);
     }
 
     public void verifyListOfOffendersSchedules(final int size) {

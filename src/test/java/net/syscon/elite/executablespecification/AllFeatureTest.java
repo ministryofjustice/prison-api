@@ -16,5 +16,4 @@ import org.junit.runner.RunWith;
         @XStreamConverter(LocalDateTimeConverter.class),
         @XStreamConverter(LocalTimeConverter.class)
 })
-public class AllFeatureTest {
-}
+public class AllFeatureTest {}

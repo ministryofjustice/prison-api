@@ -3,7 +3,6 @@ package net.syscon.elite.executablespecification.steps;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.IepLevel;
 import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.WhereaboutsConfig;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.test.EliteClientException;
@@ -32,12 +31,10 @@ public class AgencySteps extends CommonSteps {
     private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
     private static final String API_BOOKED_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocationsBooked";
     private static final String API_CASELOAD_URL = API_REF_PREFIX + "caseload/{caseload}";
-    private static final String WHEREABOUTS_API_URL = API_REF_PREFIX + "{agencyId}/locations/whereabouts";
     private List<Agency> agencies;
     private Agency agency;
     private List<Location> locations;
     private List<IepLevel> iepLevels;
-    private WhereaboutsConfig whereaboutsConfig;
 
     private void dispatchPagedListRequest(final String resourcePath, final Long offset, final Long limit, final Object... params) {
         init();
@@ -248,10 +245,6 @@ public class AgencySteps extends CommonSteps {
         dispatchObjectRequestForCaseload(API_CASELOAD_URL, caseload);
     }
 
-    public void aRequestIsMadeToGetWhereabouts(final String agencyId) {
-        dispatchWhereaboutsCall(WHEREABOUTS_API_URL, agencyId);
-    }
-
     public void aRequestIsMadeToRetrieveIepLevels(final String agencyId) {
         dispatchIepLevelsRequest(agencyId);
     }
@@ -266,24 +259,5 @@ public class AgencySteps extends CommonSteps {
             assertEquals(expectedThis.getIepDescription(), actualThis.getIepDescription());
         }
         assertFalse("Too many actual events", actualIterator.hasNext());
-    }
-
-    private void dispatchWhereaboutsCall(final String url, final String agencyId) {
-        init();
-        try {
-            final var response = restTemplate.exchange(url,
-                    HttpMethod.GET,
-                    createEntity(),
-                    new ParameterizedTypeReference<WhereaboutsConfig>() {
-                    }, agencyId);
-            whereaboutsConfig = response.getBody();
-        } catch (final EliteClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    @Step("Verify whereabouts property")
-    public void verifyWhereaboutsField(final String field, final String value) throws ReflectiveOperationException {
-        super.verifyField(whereaboutsConfig, field, value);
     }
 }

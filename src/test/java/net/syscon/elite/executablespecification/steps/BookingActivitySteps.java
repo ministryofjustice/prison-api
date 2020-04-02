@@ -73,14 +73,6 @@ public class BookingActivitySteps extends ScheduledEventSteps {
                         .build());
     }
 
-    @Step("Verify Attendance")
-    public void verifySavedDetails() {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "A-Wing", "2017-09-12", TimeSlot.PM);
-        schedulesSteps.verifyAttendanceDetails(-6);
-        schedulesSteps.getSchedulesForLocation("LEI", -27L, "PROG", "2017-09-12", TimeSlot.PM);
-        schedulesSteps.verifyAttendanceDetails(-6);
-    }
-
     @Step("Verify Already Paid")
     public void verifyOffenderAlreadyPaid(final String paidActivity) {
         verifyBadRequest("Prisoner A1234AC has already been paid for '" + paidActivity + "'");
