@@ -48,6 +48,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -97,6 +98,7 @@ public class BookingService {
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
+    private final EntityManager entityManager;
     private final String defaultIepLevel;
     private final int maxBatchSize;
 
@@ -110,6 +112,7 @@ public class BookingService {
                           final AgencyInternalLocationRepository agencyInternalLocationRepository,
                           final AuthenticationFacade securityUtils,
                           final AuthenticationFacade authenticationFacade,
+                          final EntityManager entityManager,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -122,6 +125,7 @@ public class BookingService {
         this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
+        this.entityManager = entityManager;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -686,6 +690,7 @@ public class BookingService {
 
         offenderBooking.setLivingUnitId(livingUnitId);
         offenderBookingRepository.save(offenderBooking);
+        entityManager.flush();
         log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
     }
 

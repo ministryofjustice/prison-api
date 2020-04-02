@@ -40,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -79,6 +80,8 @@ public class BookingServiceTest {
     @Mock
     private AuthenticationFacade authenticationFacade;
     @Mock
+    private EntityManager entityManager;
+    @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
 
     private BookingService bookingService;
@@ -94,7 +97,9 @@ public class BookingServiceTest {
                 referenceDomainService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
-                securityUtils, authenticationFacade, "1",
+                securityUtils, authenticationFacade,
+                entityManager,
+                "1",
                 10);
     }
 
@@ -560,6 +565,7 @@ public class BookingServiceTest {
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
+            verify(entityManager).flush();
             assertThat(updatedOffenderBooking.getValue().getLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
 
