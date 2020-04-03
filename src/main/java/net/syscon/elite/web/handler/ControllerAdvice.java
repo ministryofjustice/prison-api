@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.NoContentException;
 import net.syscon.elite.service.BadRequestException;
+import org.hibernate.exception.GenericJDBCException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -12,6 +13,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -23,6 +25,9 @@ import org.springframework.web.client.RestClientResponseException;
 
 import javax.persistence.EntityExistsException;
 import javax.validation.ValidationException;
+import java.sql.SQLException;
+
+import static java.lang.String.format;
 
 
 @RestControllerAdvice(
@@ -262,4 +267,50 @@ public class ControllerAdvice {
                         .developerMessage(e.getMessage())
                         .build());
     }
+
+    @ExceptionHandler(JpaSystemException.class)
+    public ResponseEntity<ErrorResponse> handleJpaException(final JpaSystemException e) {
+        try {
+            if (e.getCause() instanceof GenericJDBCException && e.getCause().getCause() instanceof SQLException) {
+                return handleJpaSqlException(e);
+            }
+        } catch (Exception ex) {
+            // we don't know the shape of this exception - handling below
+        }
+
+        // If this ever happens we should investigate and see if we can handle it in a nicer way
+        log.info("Error received from JPA caused by {}", e.getRootCause(), e);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse
+                        .builder()
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .userMessage("An unexpected error occurred")
+                        .developerMessage(format("Root cause: %s", e.getRootCause()))
+                        .build());
+    }
+
+    private ResponseEntity<ErrorResponse> handleJpaSqlException(final JpaSystemException e) {
+        log.info("Error received from JPA caused by {}", e.getCause().getCause().getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .userMessage(getJpaSqlExceptionUserMessage(e))
+                        .developerMessage(getJpaSqlExceptionDeveloperMessage(e))
+                        .build());
+    }
+
+    private String getJpaSqlExceptionUserMessage(JpaSystemException e) {
+        return e.getCause().getCause()
+                .getMessage()
+                .split("\n")[0]
+                .split("^ORA-\\d{5,6}: ")[1];
+    }
+
+    private String getJpaSqlExceptionDeveloperMessage(JpaSystemException e) {
+        return e.getCause().getCause().getMessage();
+    }
+
 }

@@ -3,12 +3,16 @@ package net.syscon.elite.api.resource.impl;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementUpdateService;
+import oracle.jdbc.OracleDatabaseException;
+import org.hibernate.exception.GenericJDBCException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
+import org.springframework.orm.jpa.JpaSystemException;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -201,6 +205,22 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").isEqualTo("Some exception");
     }
 
+    @Test
+    public void sql_error() {
+        when(movementUpdateService.moveToCell(anyLong(), anyLong(), anyString(), any(LocalDateTime.class)))
+                .thenThrow(capacityReachedException());
+
+        final var response = testRestTemplate.exchange("/api/bookings/456/living-unit/2?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage")
+                .isEqualTo("Error: There is no more capacity in this location.");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.developerMessage")
+                .contains("ORA-20959: Error: There is no more capacity in this location.")
+                .contains("ORA-04088: error during execution of trigger 'OMS_OWNER.OFFENDER_BOOKINGS_T2");
+    }
+
     private HttpEntity<?> anEntity() {
         return createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
     }
@@ -210,7 +230,17 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
                 .bookingId(bookingId)
                 .assignedLivingUnitId(livingUnitId)
                 .build();
+    }
 
+    private JpaSystemException capacityReachedException() {
+        final var sqlException = new SQLException("ORA-20959: Error: There is no more capacity in this location.\n" +
+                "ORA-06512: at \"OMS_OWNER.TAG_ESTABLISHMENT\", line 200\n" +
+                "ORA-06512: at \"OMS_OWNER.OFFENDER_BOOKINGS_T2\", line 38\n" +
+                "ORA-06512: at \"OMS_OWNER.TAG_ERROR\", line 169\n" +
+                "ORA-06512: at \"OMS_OWNER.OFFENDER_BOOKINGS_T2\", line 44\n" +
+                "ORA-04088: error during execution of trigger 'OMS_OWNER.OFFENDER_BOOKINGS_T2'\n", new OracleDatabaseException(0, 20959, "some detail message", "some sql", "some original sql"));
+        final var genericJDBCException = new GenericJDBCException("could not execute statement", sqlException);
+        return new JpaSystemException(genericJDBCException);
     }
 
 }
