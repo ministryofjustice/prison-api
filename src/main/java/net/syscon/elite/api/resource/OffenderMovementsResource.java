@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -37,7 +38,7 @@ public interface OffenderMovementsResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     CourtHearing prisonToCourt(@ApiParam(value = "The offender booking to associate the court hearing with.", required = true) @PathVariable("bookingId") Long bookingId,
                                @ApiParam(value = "The court case to associate the hearing with.", required = true) @PathVariable("courtCaseId") Long courtCaseId,
-                               @ApiParam(value = "The prison to court hearing to be scheduled for the offender booking.", required = true) @RequestBody PrisonToCourtHearing hearing);
+                               @ApiParam(value = "The prison to court hearing to be scheduled for the offender booking.", required = true) @RequestBody @Valid PrisonToCourtHearing hearing);
 
     @GetMapping("{bookingId}/court-hearings")
     @ApiResponses(value = {
