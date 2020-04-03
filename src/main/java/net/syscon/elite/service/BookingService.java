@@ -690,7 +690,6 @@ public class BookingService {
 
         offenderBooking.setAssignedLivingUnitId(livingUnitId);
         offenderBookingRepository.save(offenderBooking);
-        entityManager.flush();
         log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
     }
 

@@ -565,7 +565,6 @@ public class BookingServiceTest {
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
-            verify(entityManager).flush();
             assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
 
