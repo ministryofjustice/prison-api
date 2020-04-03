@@ -118,8 +118,8 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_schedules_a_court_hearing() {
-        givenValidBookingCourtCaseAndLocations();
+    void scheduleHearing_for_court_case_schedules_a_court_hearing() {
+        givenValidBookingLocationsAndCases(ACTIVE_COURT_CASE);
 
         assertThat(courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING)).isEqualTo(CourtHearing.builder()
                 .id(COURT_EVENT_ID)
@@ -140,13 +140,35 @@ public class CourtHearingsServiceTest {
                 .build());
     }
 
-    private void givenValidBookingCourtCaseAndLocations() {
+    @Test
+    void scheduleHearing_no_court_case_schedules_a_court_hearing() {
+        givenValidBookingLocationsAndCases();
+
+        assertThat(courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING)).isEqualTo(CourtHearing.builder()
+                .id(COURT_EVENT_ID)
+                .dateTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
+                .location(AgencyTransformer.transform(COURT_LOCATION))
+                .build());
+
+        verify(courtEventRepository).save(CourtEvent.builder()
+                .courtLocation(COURT_LOCATION)
+                .courtEventType(EVENT_TYPE)
+                .directionCode("OUT")
+                .eventDate(PRISON_TO_COURT_HEARING.getCourtHearingDateTime().toLocalDate())
+                .eventStatus(EVENT_STATUS)
+                .offenderBooking(offenderBooking)
+                .startTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
+                .commentText(PRISON_TO_COURT_HEARING.getComments())
+                .build());
+    }
+
+    private void givenValidBookingLocationsAndCases(final OffenderCourtCase... cases) {
         offenderBooking = OffenderBooking
                 .builder()
                 .bookingId(OFFENDER_BOOKING_ID)
                 .bookingSequence(1)
                 .location(fromPrison)
-                .courtCases(List.of(ACTIVE_COURT_CASE))
+                .courtCases(List.of(cases))
                 .offender(offender)
                 .build();
 
@@ -160,7 +182,7 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_no_matching_booking() {
+    void scheduleHearing_for_court_case_errors_when_no_matching_booking() {
         when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, 1L, PRISON_TO_COURT_HEARING))
@@ -169,10 +191,28 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_booking_is_not_active() {
+    void scheduleHearing_no_court_case_errors_when_no_matching_booking() {
+        when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, PRISON_TO_COURT_HEARING))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Resource with id [%s] not found.", OFFENDER_BOOKING_ID);
+    }
+
+    @Test
+    void scheduleHearing_for_court_case_errors_when_booking_is_not_active() {
         givenNoActiveBooking();
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Offender booking with id %s is not active.", OFFENDER_BOOKING_ID);
+    }
+
+    @Test
+    void scheduleHearing_no_court_case_errors_when_booking_is_not_active() {
+        givenNoActiveBooking();
+
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Offender booking with id %s is not active.", OFFENDER_BOOKING_ID);
     }
@@ -188,7 +228,7 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_no_matching_court_case_for_booking() {
+    void scheduleHearing_for_court_case_errors_when_no_matching_court_case_for_booking() {
         givenNoMatchingCourtCaseForActiveBooking();
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING))
@@ -208,7 +248,7 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_court_case_is_not_active() {
+    void scheduleHearing_for_court_case_errors_when_court_case_is_not_active() {
         givenNoActiveCourtCase();
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING))
@@ -232,10 +272,19 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_prison_not_found() {
+    void scheduleHearing_for_court_case_errors_when_prison_not_found() {
         givenPrisonNotFound();
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Resource with id [PRISON] not found.");
+    }
+
+    @Test
+    void scheduleHearing_no_court_case_errors_when_prison_not_found() {
+        givenPrisonNotFound();
+
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Resource with id [PRISON] not found.");
     }
@@ -254,10 +303,19 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_court_not_found() {
+    void scheduleHearing_for_court_case_errors_when_court_not_found() {
         givenCourtNotFound();
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Resource with id [COURT] not found.");
+    }
+
+    @Test
+    void scheduleHearing_no_court_case_errors_when_court_not_found() {
+        givenCourtNotFound();
+
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Resource with id [COURT] not found.");
     }
@@ -277,10 +335,19 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_court_is_not_currently_active() {
+    void scheduleHearing_for_court_case_errors_when_court_is_not_currently_active() {
         givenProvidedCourtIsNotActive();
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, 1L, PRISON_TO_COURT_HEARING))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Supplied court location wih id %s is not active.", PRISON_TO_COURT_HEARING.getToCourtLocation());
+    }
+
+    @Test
+    void scheduleHearing_no_court_case_errors_when_court_is_not_currently_active() {
+        givenProvidedCourtIsNotActive();
+
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, PRISON_TO_COURT_HEARING))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Supplied court location wih id %s is not active.", PRISON_TO_COURT_HEARING.getToCourtLocation());
     }
@@ -305,10 +372,19 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_supplied_court_is_not_court() {
+    void scheduleHearing_for_court_case_errors_when_supplied_court_is_not_court() {
         givenProvidedCourtLocationIsNotACourt();
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, 1L, PRISON_TO_COURT_HEARING))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Supplied court location wih id COURT is not a valid court location.");
+    }
+
+    @Test
+    void scheduleHearing_no_court_case_errors_when_supplied_court_is_not_court() {
+        givenProvidedCourtLocationIsNotACourt();
+
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, PRISON_TO_COURT_HEARING))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Supplied court location wih id COURT is not a valid court location.");
     }
@@ -329,10 +405,10 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_prison_location_does_not_match_booking() {
+    void scheduleHearing_no_court_case_errors_when_prison_location_does_not_match_booking() {
         givenPrisonDoesNotMatchTheBooking();
 
-        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, 1L, PRISON_TO_COURT_HEARING))
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, PRISON_TO_COURT_HEARING))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Prison location does not match the bookings location.");
     }
@@ -351,8 +427,17 @@ public class CourtHearingsServiceTest {
     }
 
     @Test
-    void scheduleHearing_errors_when_hearing_date_not_in_future() {
+    void scheduleHearing_for_court_case_errors_when_hearing_date_not_in_future() {
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, 1L, PrisonToCourtHearing.builder()
+                .courtHearingDateTime(LocalDateTime.now(startOfEpochClock))
+                .build()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Court hearing must be in the future.");
+    }
+
+    @Test
+    void scheduleHearing_no_court_case_errors_when_hearing_date_not_in_future() {
+        assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, PrisonToCourtHearing.builder()
                 .courtHearingDateTime(LocalDateTime.now(startOfEpochClock))
                 .build()))
                 .isInstanceOf(IllegalArgumentException.class)
