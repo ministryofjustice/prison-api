@@ -109,6 +109,9 @@ public class CourtEventRepositoryTest {
                 .offenderCourtCase(null)
                 .build());
 
+        assertThat(savedCourtEventWithoutCourtCase.getOffenderBooking().getCourtCases()).isEmpty();
+        assertThat(savedCourtEventWithoutCourtCase.getOffenderCourtCase()).isEmpty();
+
         assertThat(courtEventRepository.findById(savedCourtEventWithoutCourtCase.getId()).orElseThrow()).isEqualTo(savedCourtEventWithoutCourtCase);
     }
 }
