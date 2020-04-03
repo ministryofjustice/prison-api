@@ -24,8 +24,10 @@ import static org.springframework.http.HttpMethod.POST;
 public class DataComplianceControllerTest extends ResourceTest {
 
     private static final String REQUEST_ID = "123";
-    private static final LocalDateTime WINDOW_START = LocalDateTime.of(1970, 1, 1, 0, 0);
-    private static final LocalDateTime WINDOW_END = WINDOW_START.plusYears(100);
+
+    // This date is 7 years after the SED_CALCULATED_DATE of the expected record
+    private static final LocalDateTime WINDOW_START = LocalDateTime.of(2027, 3, 24, 0, 0);
+    private static final LocalDateTime WINDOW_END = WINDOW_START;
 
     @SpyBean
     private OffenderPendingDeletionEventPusher offenderPendingDeletionEventPusher;
