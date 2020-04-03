@@ -8,9 +8,8 @@ import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
 import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.OffenderBooking;
-import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.api.model.OffenderBooking;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,11 +53,11 @@ public interface OffenderMovementsResource {
 
     @PutMapping("/{bookingId}/living-unit/{livingUnitId}")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderSummary .class),
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    OffenderSummary moveToCell(
+    OffenderBooking moveToCell(
             @ApiParam(value = "The offender booking id", example = "1200866") @PathVariable("bookingId") Long bookingId,
             @ApiParam(value = "The cell location the offender has been moved to", example = "123123") @PathVariable("livingUnitId") Long livingUnitId,
             @ApiParam(value = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) @RequestParam("reasonCode") String reasonCode,

@@ -4,7 +4,7 @@ import net.syscon.elite.repository.jpa.repository.BedAssignmentHistoriesReposito
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.service.BedAssignmentHistoryService;
 import net.syscon.elite.util.JwtParameters;
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -34,7 +34,6 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
-// All data required for these tests can be found in R__8_7_MOVE_TO_CELL.sql
 public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTest {
 
     @Autowired
@@ -54,52 +53,45 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         }
     }
 
-    private static final Long BOOKING_ID = -56L;
-    private static final String BOOKING_ID_S = "-56";
-    private static final Long CELL_A = -300L;
-    private static final Long CELL_B = -301L;
-    private static final Long CELL_C = -302L;
-    private static final Long CELL_DIFF_PRISON = -303L;
-    private static final String CELL_A_S = "-300";
-    private static final String CELL_B_S = "-301";
-    private static final String CELL_C_S = "-302";
-    private static final String CELL_DIFF_PRISON_S = "-303";
+    private static final Long BOOKING_ID = -33L;
+    private static final String BOOKING_ID_S = "-33";
 
-    private static final Long INITIAL_CELL = CELL_A;
-    private static final String INITIAL_CELL_S = CELL_A_S;
+    private static final Long INITIAL_CELL = -14L;
+    private static final String INITIAL_CELL_S = "-14";
     private static final String INITIAL_REASON = "ADM";
     private static final LocalDateTime INITIAL_DATE_TIME = LocalDateTime.now().minusDays(1);
 
-    @Before
-    public void setUp() {
-        // The offender is initially in cell C on the DB, move him to cell A before each test to provide a consistent base line
-        requestMoveToCell(mtcUserToken(), BOOKING_ID_S, CELL_C_S, INITIAL_REASON, INITIAL_DATE_TIME.format(ISO_LOCAL_DATE_TIME));  // This makes sure the next request succeeds - it wouldn't if the offender was already in INITIAL_CELL
-        requestMoveToCell(mtcUserToken(), BOOKING_ID_S, INITIAL_CELL_S, INITIAL_REASON, INITIAL_DATE_TIME.format(ISO_LOCAL_DATE_TIME));
-        verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
-        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
+    private static final Long NEW_CELL = -4L;
+    private static final Long CELL_DIFF_PRISON = -41L;
+    private static final String NEW_CELL_S = "-4";
+    private static final String CELL_DIFF_PRISON_S = "-41";
 
+    @After
+    public void tearDown() {
+        // Return the offender back to his original cell as configured in the test data in R__3_6_1__OFFENDER_BOOKINGS.sql
+        requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_S, INITIAL_REASON, INITIAL_DATE_TIME.format(ISO_LOCAL_DATE_TIME));
     }
 
     @Test
     public void validRequest() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        final var response = requestMoveToCell(mtcUserToken(), BOOKING_ID_S, CELL_B_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
 
-        verifySuccessResponse(response, BOOKING_ID, CELL_B_S);
-        verifyOffenderBookingLivingUnit(BOOKING_ID, CELL_B);
-        verifyLastBedAssignmentHistory(BOOKING_ID, CELL_B, "BEH", dateTime);
+        verifySuccessResponse(response, BOOKING_ID, NEW_CELL);
+        verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
+        verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", dateTime);
     }
 
     @Test
     public void missingDate_defaultsToNow() {
         final var expectedDateTime = clock.instant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        final var response = requestMoveToCell(mtcUserToken(), BOOKING_ID_S, CELL_B_S, "BEH", "");
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", "");
 
-        verifySuccessResponse(response, BOOKING_ID, CELL_B_S);
-        verifyOffenderBookingLivingUnit(BOOKING_ID, CELL_B);
-        verifyLastBedAssignmentHistory(BOOKING_ID, CELL_B, "BEH", expectedDateTime);
+        verifySuccessResponse(response, BOOKING_ID, NEW_CELL);
+        verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
+        verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", expectedDateTime);
     }
 
     @Test
@@ -107,12 +99,12 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         final var dateTime = LocalDateTime.now().minusHours(1);
         final var moveBackDateTime = LocalDateTime.now().minusMinutes(1);
 
-        requestMoveToCell(mtcUserToken(), BOOKING_ID_S, CELL_B_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
-        verifyOffenderBookingLivingUnit(BOOKING_ID, CELL_B);
-        verifyLastBedAssignmentHistory(BOOKING_ID, CELL_B, "BEH", dateTime);
+        requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
+        verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
+        verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", dateTime);
 
-        final var response = requestMoveToCell(mtcUserToken(), BOOKING_ID_S, INITIAL_CELL_S, "CON", moveBackDateTime.format(ISO_LOCAL_DATE_TIME));
-        verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL_S);
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_S, "CON", moveBackDateTime.format(ISO_LOCAL_DATE_TIME));
+        verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, "CON", moveBackDateTime);
     }
@@ -121,9 +113,9 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     public void noChange_notUpdated() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        final var response = requestMoveToCell(mtcUserToken(), BOOKING_ID_S, INITIAL_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
-        verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL_S);
+        verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
     }
@@ -131,19 +123,20 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     @Test
     public void notFound() {
         final var dateTime = LocalDateTime.now().minusHours(1);
+        final var unknownCell = "-69854";
 
-        final var response = requestMoveToCell(mtcUserToken(), "-69854", CELL_B_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), unknownCell, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
-        verifyErrorResponse(response, NOT_FOUND, "-69854");
+        verifyErrorResponse(response, NOT_FOUND, unknownCell);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
     }
 
     @Test
-    public void userNoBookingAccess_notFound() {
+    public void noBookingAccess_notFound() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        final var response = requestMoveToCell(itagUserToken(), BOOKING_ID_S, CELL_B_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(differentAgencyToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
         verifyErrorResponse(response, NOT_FOUND, BOOKING_ID_S);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
@@ -154,7 +147,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     public void userRedOnly_forbidden() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        final var response = requestMoveToCell(mtcUserTokenReadOnly(), BOOKING_ID_S, CELL_B_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(readOnlyToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
         verifyErrorResponse(response, FORBIDDEN, null);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
@@ -165,52 +158,52 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     public void offenderInDifferentPrison_badRequest() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        final var response = requestMoveToCell(mtcUserToken(), BOOKING_ID_S, CELL_DIFF_PRISON_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, CELL_DIFF_PRISON_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
-        verifyErrorResponse(response, BAD_REQUEST, "BMI", "MTC");
+        verifyErrorResponse(response, BAD_REQUEST, "MDI", "LEI");
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
     }
 
     @Test
-    @WithMockUser(username = "MTC_USER", authorities = "SCOPE_write") // Required because stubbing the BedAssignmentHistoryService means we don't pick up the usual Authentication from Spring AOP.
+    @WithMockUser(username = "ITAG_USER", authorities = "SCOPE_write") // Required because stubbing the BedAssignmentHistoryService means we don't pick up the usual Authentication from Spring AOP.
     public void transactionRolledBack() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        doThrow(RuntimeException.class).when(bedAssignmentHistoryService).add(BOOKING_ID, CELL_B, "BEH", dateTime);
-        final var response = requestMoveToCell(mtcUserToken(), BOOKING_ID_S, CELL_B_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
+        doThrow(RuntimeException.class).when(bedAssignmentHistoryService).add(BOOKING_ID, NEW_CELL, "BEH", dateTime);
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
 
         verifyErrorResponse(response, INTERNAL_SERVER_ERROR, null);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
     }
 
-    private String mtcUserToken(final String... roles) {
-        return jwtAuthenticationHelper.createJwt(
-                JwtParameters.builder()
-                        .username("MTC_USER")
-                        .scope(List.of("read", "write"))
-                        .roles(List.of(roles))
-                        .expiryTime(Duration.ofDays(365 * 10))
-                        .build()
-        );
-    }
-
-    private String mtcUserTokenReadOnly(final String... roles) {
-        return jwtAuthenticationHelper.createJwt(
-                JwtParameters.builder()
-                        .username("MTC_USER")
-                        .scope(List.of("read"))
-                        .roles(List.of(roles))
-                        .expiryTime(Duration.ofDays(365 * 10))
-                        .build()
-        );
-    }
-
-    private String itagUserToken() {
+    private String validToken() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()
                         .username("ITAG_USER")
+                        .scope(List.of("read", "write"))
+                        .roles(List.of())
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
+    private String readOnlyToken() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("ITAG_USER")
+                        .scope(List.of("read"))
+                        .roles(List.of())
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
+    private String differentAgencyToken() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("WAI_USER")
                         .scope(List.of("read", "write"))
                         .roles(List.of())
                         .expiryTime(Duration.ofDays(365 * 10))
@@ -229,10 +222,10 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
     }
 
-    private void verifySuccessResponse(final ResponseEntity<String> response, final Long bookingId, final String internalLocationId) {
+    private void verifySuccessResponse(final ResponseEntity<String> response, final Long bookingId, final Long internalLocationId) {
         assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(bookingId.intValue());
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.internalLocationId").isEqualTo(internalLocationId);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(internalLocationId.intValue());
     }
 
     private void verifyErrorResponse(final ResponseEntity<String> response, final HttpStatus status, final String... partialMessages) {
@@ -247,7 +240,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
     private void verifyOffenderBookingLivingUnit(final Long bookingId, final Long livingUnitId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow();
-        assertThat(offenderBooking.getLivingUnitId()).isEqualTo(livingUnitId);
+        assertThat(offenderBooking.getAssignedLivingUnitId()).isEqualTo(livingUnitId);
     }
 
     private void verifyLastBedAssignmentHistory(final Long bookingId, final Long livingUnitId, final String reason, final LocalDateTime dateTime) {

@@ -3,10 +3,10 @@ package net.syscon.elite.api.resource.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
-import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.service.CourtHearingsService;
 import net.syscon.elite.service.MovementUpdateService;
 import org.springframework.validation.annotation.Validated;
@@ -44,7 +44,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     }
 
     @Override
-    public OffenderSummary moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
+    public OffenderBooking moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
         log.debug("Received moveToCell request for booking id {}, cell location {}, reasonCode {}, date/time {}",
                 bookingId,
                 livingUnitId,

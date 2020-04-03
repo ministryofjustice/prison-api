@@ -1,7 +1,9 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.repository.jpa.model.AgencyLocation;
+import net.syscon.elite.repository.jpa.model.OffenderBooking;
+import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -30,18 +32,16 @@ class MovementUpdateServiceTest {
     private static final Long SOME_BOOKING_ID = 1L;
     private static final Long OLD_LIVING_UNIT_ID = 2L;
     private static final Long NEW_LIVING_UNIT_ID = 3L;
-    private static final String OLD_LIVING_UNIT_DESC = "Old cell";
-    private static final String NEW_LIVING_UNIT_DESC = "New cell";
     private static final String SOME_AGENCY_ID = "MDI";
     private static final String SOME_REASON_CODE = "ADM";
     private static final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     private static final LocalDateTime SOME_TIME = LocalDateTime.now(clock);
-    private static final Boolean NOT_IN_PRISON = Boolean.FALSE;
 
     private final ReferenceDomainService referenceDomainService = mock(ReferenceDomainService.class);
-    private final BookingService bookingService = mock(BookingService.class);
     private final BedAssignmentHistoryService bedAssignmentHistoryService = mock(BedAssignmentHistoryService.class);
-    private final MovementUpdateService service = new MovementUpdateService(referenceDomainService, bedAssignmentHistoryService, bookingService, clock);
+    private final BookingService bookingService = mock(BookingService.class);
+    private final OffenderBookingRepository offenderBookingRepository = mock(OffenderBookingRepository.class);
+    private final MovementUpdateService service = new MovementUpdateService(referenceDomainService, bedAssignmentHistoryService, bookingService, offenderBookingRepository, clock);
 
     @Nested
     class MoveToCellError {
@@ -79,8 +79,8 @@ class MovementUpdateServiceTest {
             final var badBookingId = SOME_BOOKING_ID;
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(anyLong()))
-                    .thenReturn(null);
+            when(offenderBookingRepository.findById(anyLong()))
+                    .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.moveToCell(badBookingId, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME))
                     .isInstanceOf(EntityNotFoundException.class)
@@ -93,20 +93,18 @@ class MovementUpdateServiceTest {
         void bookingNotActive_throwsNotFound() {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, NOT_IN_PRISON));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, "N"));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME))
-                    .hasMessageContaining(format(" %d ", SOME_BOOKING_ID))
-                    .hasMessageContaining("Booking id")
-                    .hasMessageContaining("not active");
+                    .hasMessage(format("Offender booking with id %s is not active.", SOME_BOOKING_ID));
         }
 
         @Test
-        void exceptionFromBookingService_propogates() {
+        void exceptionFromOffenderBookingRepository_propagates() {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(anyLong()))
+            when(offenderBookingRepository.findById(anyLong()))
                     .thenThrow(new RuntimeException("Fake runtime exception"));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME))
@@ -146,13 +144,12 @@ class MovementUpdateServiceTest {
         }
 
         @Test
-        void returnsUpdatedOffenderSummary() {
+        void returnsUpdatedOffenderBooking() {
             mockSuccess();
 
-            final var offenderSummary = service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME);
+            final var offenderBooking = service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME);
 
-            assertThat(offenderSummary.getInternalLocationId()).isEqualTo(String.valueOf(NEW_LIVING_UNIT_ID));
-            assertThat(offenderSummary.getInternalLocationDesc()).isEqualTo(NEW_LIVING_UNIT_DESC);
+            assertThat(offenderBooking.getAssignedLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
 
         @Test
@@ -171,39 +168,33 @@ class MovementUpdateServiceTest {
 
             final var offenderSummary = service.moveToCell(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME);
 
-            assertThat(offenderSummary.getInternalLocationId()).isEqualTo(String.valueOf(OLD_LIVING_UNIT_ID));
-            assertThat(offenderSummary.getInternalLocationDesc()).isEqualTo(OLD_LIVING_UNIT_DESC);
-            verify(bookingService, times(1)).getLatestBookingByBookingId(SOME_BOOKING_ID);
+            assertThat(offenderSummary.getAssignedLivingUnitId()).isEqualTo(OLD_LIVING_UNIT_ID);
+            verify(offenderBookingRepository, times(1)).findById(SOME_BOOKING_ID);
         }
 
         private void mockSuccess() {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(anyLong()))
-                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC))
-                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC));
+            when(offenderBookingRepository.findById(anyLong()))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, "Y"))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, "Y"));
         }
 
         private void mockCellNotChanged() {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
-            when(bookingService.getLatestBookingByBookingId(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderSummary(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, "Y"));
         }
     }
 
-    private OffenderSummary anOffenderSummary(final Long bookingId, final String agency, final Long livingUnitId, final String livingUnitDesc) {
-        return anOffenderSummary(bookingId, agency, livingUnitId, livingUnitDesc, true);
-    }
-
-    private OffenderSummary anOffenderSummary(final Long bookingId, final String agency, final Long livingUnitId, final String livingUnitDesc, final boolean currentlyInPrison) {
-        return OffenderSummary.builder()
+    private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final String agency, final Long livingUnitId, final String activeFlag) {
+        return Optional.of(net.syscon.elite.repository.jpa.model.OffenderBooking.builder()
+                .activeFlag(activeFlag)
                 .bookingId(bookingId)
-                .agencyLocationId(agency)
-                .internalLocationId(String.valueOf(livingUnitId))
-                .internalLocationDesc(livingUnitDesc)
-                .currentlyInPrison(currentlyInPrison ? "Y" : "N")
-                .build();
+                .location(AgencyLocation.builder().id(agency).build())
+                .assignedLivingUnitId(livingUnitId)
+                .build());
     }
 
 }

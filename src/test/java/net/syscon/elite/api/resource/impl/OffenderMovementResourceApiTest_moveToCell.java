@@ -1,6 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementUpdateService;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
 
         assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(1);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.internalLocationId").isEqualTo("2");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(2);
     }
 
     @Test
@@ -205,10 +205,10 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
         return createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
     }
 
-    private OffenderSummary anOffenderSummary(final Long bookingId, final Long livingUnitId) {
-        return OffenderSummary.builder()
+    private OffenderBooking anOffenderSummary(final Long bookingId, final Long livingUnitId) {
+        return OffenderBooking.builder()
                 .bookingId(bookingId)
-                .internalLocationId(String.valueOf(livingUnitId))
+                .assignedLivingUnitId(livingUnitId)
                 .build();
 
     }

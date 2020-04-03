@@ -60,7 +60,10 @@ public class OffenderBooking {
     private Offender offender;
 
     @Column(name = "LIVING_UNIT_ID")
-    private Long livingUnitId;
+    private Long assignedLivingUnitId;
+
+    @Column(name = "ACTIVE_FLAG")
+    private String activeFlag;
 
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);

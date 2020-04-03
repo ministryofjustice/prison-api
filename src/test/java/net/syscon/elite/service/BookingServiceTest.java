@@ -566,7 +566,7 @@ public class BookingServiceTest {
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
             verify(entityManager).flush();
-            assertThat(updatedOffenderBooking.getValue().getLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
+            assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
 
         private Optional<OffenderBooking> anOffenderBooking(Long bookingId, Long livingUnitId, String agencyId) {
@@ -575,7 +575,7 @@ public class BookingServiceTest {
             return Optional.of(
                     OffenderBooking.builder()
                             .bookingId(bookingId)
-                            .livingUnitId(livingUnitId)
+                            .assignedLivingUnitId(livingUnitId)
                             .location(agencyLocation)
                             .offender(offender)
                             .build());
