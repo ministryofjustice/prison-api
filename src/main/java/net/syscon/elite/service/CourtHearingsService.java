@@ -73,7 +73,7 @@ public class CourtHearingsService {
 
         checkPrisonLocationSameAsOffenderBooking(hearing.getFromPrisonLocation(), offenderBooking);
 
-        CourtEvent courtEvent = CourtEvent.builder()
+        final var courtEvent = CourtEvent.builder()
                 .courtLocation(getActiveCourtFor(hearing.getToCourtLocation()))
                 .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
                 .directionCode("OUT")
@@ -103,7 +103,7 @@ public class CourtHearingsService {
 
         checkPrisonLocationSameAsOffenderBooking(hearing.getFromPrisonLocation(), offenderBooking);
 
-        CourtEvent courtEvent = CourtEvent.builder()
+        final var courtEvent = CourtEvent.builder()
                 .courtLocation(getActiveCourtFor(hearing.getToCourtLocation()))
                 .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
                 .directionCode("OUT")
