@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -30,8 +31,8 @@ public class PrisonToCourtHearing {
     @Size(max = 6, message = "To location must be a maximum of 6 characters.")
     private String toCourtLocation;
 
-    @ApiModelProperty(required = true, value = "The date and time of the court hearing.", position = 3, example = "2020-02-28T14:40:00.000Z")
-    @NotBlank(message = "The court hearing date time must be provided.")
+    @ApiModelProperty(required = true, value = "The future date and time of the court hearing.", position = 3, example = "2020-02-28T14:40:00.000Z")
+    @NotNull(message = "The future court hearing date time must be provided.")
     private LocalDateTime courtHearingDateTime;
 
     @ApiModelProperty(value = "Any comments related to the court case.", position = 4, example = "Restricted access to parking level.")
