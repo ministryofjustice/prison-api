@@ -33,6 +33,7 @@ public class MovementUpdateService {
         this.clock = clock;
     }
 
+    @Transactional
     @VerifyBookingAccess
     @HasWriteScope
     public OffenderBooking moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
