@@ -80,8 +80,6 @@ public class BookingServiceTest {
     @Mock
     private AuthenticationFacade authenticationFacade;
     @Mock
-    private EntityManager entityManager;
-    @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
 
     private BookingService bookingService;
@@ -98,7 +96,6 @@ public class BookingServiceTest {
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
                 securityUtils, authenticationFacade,
-                entityManager,
                 "1",
                 10);
     }

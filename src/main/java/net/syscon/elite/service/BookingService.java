@@ -100,7 +100,6 @@ public class BookingService {
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
-    private final EntityManager entityManager;
     private final String defaultIepLevel;
     private final int maxBatchSize;
 
@@ -114,7 +113,6 @@ public class BookingService {
                           final AgencyInternalLocationRepository agencyInternalLocationRepository,
                           final AuthenticationFacade securityUtils,
                           final AuthenticationFacade authenticationFacade,
-                          final EntityManager entityManager,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -127,7 +125,6 @@ public class BookingService {
         this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
-        this.entityManager = entityManager;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -691,7 +688,7 @@ public class BookingService {
         log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
     }
 
-    private void validateUpdateLivingUnit(OffenderBooking offenderBooking, AgencyInternalLocation location) {
+    private void validateUpdateLivingUnit(final OffenderBooking offenderBooking, final AgencyInternalLocation location) {
         checkArgument(
                 offenderBooking.getLocation().getId().equals(location.getAgencyId()),
                 "Move to living unit in prison %s invalid for offender %s in prison %s",

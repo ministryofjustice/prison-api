@@ -302,14 +302,14 @@ public class ControllerAdvice {
                         .build());
     }
 
-    private String getJpaSqlExceptionUserMessage(JpaSystemException e) {
+    private String getJpaSqlExceptionUserMessage(final JpaSystemException e) {
         return e.getCause().getCause()
                 .getMessage()
                 .split("\n")[0]
                 .split("^ORA-\\d{5,6}: ")[1];
     }
 
-    private String getJpaSqlExceptionDeveloperMessage(JpaSystemException e) {
+    private String getJpaSqlExceptionDeveloperMessage(final JpaSystemException e) {
         return e.getCause().getCause().getMessage();
     }
 
