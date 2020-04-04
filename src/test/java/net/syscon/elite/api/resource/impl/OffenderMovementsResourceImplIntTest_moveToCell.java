@@ -7,13 +7,14 @@ import net.syscon.elite.util.JwtParameters;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -34,7 +35,16 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
+@ContextConfiguration(classes = OffenderMovementsResourceImplIntTest_moveToCell.TestClock.class)
 public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTest {
+
+    @TestConfiguration
+    static class TestClock {
+        @Bean
+        public Clock clock() {
+            return Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        }
+    }
 
     @Autowired
     private OffenderBookingRepository offenderBookingRepository;
@@ -45,25 +55,17 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     @SpyBean
     private BedAssignmentHistoryService bedAssignmentHistoryService;
 
-    @Configuration
-    class TestConfig {
-        @Bean
-        Clock clock() {
-            return Clock.fixed(Instant.now(), ZoneId.systemDefault());
-        }
-    }
-
     private static final Long BOOKING_ID = -33L;
     private static final String BOOKING_ID_S = "-33";
 
-    private static final Long INITIAL_CELL = -14L;
-    private static final String INITIAL_CELL_S = "-14";
+    private static final Long INITIAL_CELL = -15L;
+    private static final String INITIAL_CELL_S = "-15";
     private static final String INITIAL_REASON = "ADM";
-    private static final LocalDateTime INITIAL_DATE_TIME = LocalDateTime.now().minusDays(1);
+    private static final LocalDateTime INITIAL_DATE_TIME = LocalDateTime.of(2020, 4, 3, 11, 0, 0);
 
     private static final Long NEW_CELL = -4L;
-    private static final Long CELL_DIFF_PRISON = -41L;
     private static final String NEW_CELL_S = "-4";
+    private static final Long CELL_DIFF_PRISON = -41L;
     private static final String CELL_DIFF_PRISON_S = "-41";
 
     @After
@@ -123,13 +125,25 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     @Test
     public void notFound() {
         final var dateTime = LocalDateTime.now().minusHours(1);
-        final var unknownCell = "-69854";
+        final var invalidBookingId = "-69854";
 
-        final var response = requestMoveToCell(validToken(), unknownCell, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), invalidBookingId, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
-        verifyErrorResponse(response, NOT_FOUND, unknownCell);
+        verifyErrorResponse(response, NOT_FOUND, invalidBookingId);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
-        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
+        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
+    }
+
+    @Test
+    public void locationTypeNotACell_badRequest() {
+        final var dateTime = LocalDateTime.now().minusHours(1);
+        final var wing = "-1";
+
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, wing, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
+
+        verifyErrorResponse(response, BAD_REQUEST, wing);
+        verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
+        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
 
     @Test
@@ -140,18 +154,18 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
         verifyErrorResponse(response, NOT_FOUND, BOOKING_ID_S);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
-        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
+        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
 
     @Test
-    public void userRedOnly_forbidden() {
+    public void userReadOnly_forbidden() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
         final var response = requestMoveToCell(readOnlyToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
         verifyErrorResponse(response, FORBIDDEN, null);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
-        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
+        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
 
     @Test
@@ -162,7 +176,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
         verifyErrorResponse(response, BAD_REQUEST, "MDI", "LEI");
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
-        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
+        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
 
     @Test
@@ -175,7 +189,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
         verifyErrorResponse(response, INTERNAL_SERVER_ERROR, null);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
-        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
+        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
 
     private String validToken() {
@@ -248,6 +262,13 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         assertThat(bedAssignmentHistories.get(bedAssignmentHistories.size() - 1))
                 .extracting("offenderBooking.bookingId", "livingUnitId", "assignmentReason", "assignmentDate", "assignmentDateTime")
                 .containsExactlyInAnyOrder(bookingId, livingUnitId, reason, dateTime.toLocalDate(), dateTime.withNano(0));
+    }
+
+    private void verifyLastBedAssignmentHistory(final Long bookingId, final Long livingUnitId) {
+        final var bedAssignmentHistories = bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId);
+        assertThat(bedAssignmentHistories.get(bedAssignmentHistories.size() - 1))
+                .extracting("offenderBooking.bookingId", "livingUnitId")
+                .containsExactlyInAnyOrder(bookingId, livingUnitId);
     }
 
 }

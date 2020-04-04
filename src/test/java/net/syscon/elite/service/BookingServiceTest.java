@@ -546,6 +546,17 @@ public class BookingServiceTest {
         }
 
         @Test
+        void livingUnitNotCell_throws() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")));
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_ID))
+                    .hasMessageContaining("WING");
+        }
+
+        @Test
         void differentAgency_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
             when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
@@ -581,7 +592,15 @@ public class BookingServiceTest {
         }
 
         private AgencyInternalLocation aLocation(Long locationId, String agencyId) {
-            return AgencyInternalLocation.builder().locationId(locationId).agencyId(agencyId).build();
+            return aLocation(locationId, agencyId, "CELL");
+        }
+
+        private AgencyInternalLocation aLocation(Long locationId, String agencyId, String locationType) {
+            return AgencyInternalLocation.builder()
+                    .locationId(locationId)
+                    .agencyId(agencyId)
+                    .locationType(locationType)
+                    .build();
         }
     }
 }

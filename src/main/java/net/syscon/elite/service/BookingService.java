@@ -28,6 +28,8 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
@@ -682,15 +684,24 @@ public class BookingService {
         final var location = agencyInternalLocationRepository.findById(livingUnitId)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Living unit with id %d not found", livingUnitId)));
 
+        validateUpdateLivingUnit(offenderBooking, location);
+
+        offenderBooking.setAssignedLivingUnitId(livingUnitId);
+        offenderBookingRepository.save(offenderBooking);
+        log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
+    }
+
+    private void validateUpdateLivingUnit(OffenderBooking offenderBooking, AgencyInternalLocation location) {
         checkArgument(
                 offenderBooking.getLocation().getId().equals(location.getAgencyId()),
                 "Move to living unit in prison %s invalid for offender %s in prison %s",
                 location.getAgencyId(), offenderBooking.getOffender().getNomsId(), offenderBooking.getLocation().getId()
         );
-
-        offenderBooking.setAssignedLivingUnitId(livingUnitId);
-        offenderBookingRepository.save(offenderBooking);
-        log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
+        checkArgument(
+                location.getLocationType().equals("CELL"),
+                "Living unit %d of type %s is not a cell",
+                location.getLocationId(), location.getLocationType()
+        );
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {

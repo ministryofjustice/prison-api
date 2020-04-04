@@ -36,7 +36,7 @@ public class MovementUpdateService {
     @VerifyBookingAccess
     @HasWriteScope
     public OffenderBooking moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
-        validateMoveToCellRequest(reasonCode, dateTime);
+        validateMoveToCell(reasonCode, dateTime);
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
@@ -50,13 +50,12 @@ public class MovementUpdateService {
         return getActiveOffenderBooking(bookingId);
     }
 
-    private void validateMoveToCellRequest(final String reasonCode, final LocalDateTime dateTime) {
-        if (StringUtils.isNullOrEmpty(reasonCode)) {
-            throw new IllegalArgumentException("Reason code is mandatory");
-        }
-        if (dateTime != null && dateTime.isAfter(LocalDateTime.now())) {
-            throw new IllegalArgumentException("The date cannot be in the future");
-        }
+    private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
+        checkArgument(!StringUtils.isNullOrEmpty(reasonCode), "Reason code is mandatory");
+        checkArgument(
+                dateTime == null || dateTime.isBefore(LocalDateTime.now()) || dateTime.isEqual(LocalDateTime.now()),
+                "The date cannot be in the future"
+        );
     }
 
     private OffenderBooking getActiveOffenderBooking(final Long bookingId) {
