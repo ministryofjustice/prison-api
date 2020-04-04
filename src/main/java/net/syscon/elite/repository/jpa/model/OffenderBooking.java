@@ -31,8 +31,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @Table(name = "OFFENDER_BOOKINGS")
 public class OffenderBooking {
 
-    private static final Integer ACTIVE_BOOKING = 1;
-
     @Id
     @Column(name = "OFFENDER_BOOK_ID")
     private Long bookingId;
@@ -80,7 +78,7 @@ public class OffenderBooking {
     }
 
     public boolean isActive() {
-        return ACTIVE_BOOKING.equals(bookingSequence);
+        return activeFlag != null && activeFlag.equals("Y");
     }
 
     public List<OffenderCourtCase> getActiveCourtCases() {
