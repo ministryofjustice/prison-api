@@ -576,7 +576,7 @@ public class BookingServiceTest {
             assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
 
-        private Optional<OffenderBooking> anOffenderBooking(Long bookingId, Long livingUnitId, String agencyId) {
+        private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId, final String agencyId) {
             final var agencyLocation = AgencyLocation.builder().id(agencyId).build();
             final var offender = Offender.builder().nomsId("any noms id").build();
             return Optional.of(
@@ -588,11 +588,11 @@ public class BookingServiceTest {
                             .build());
         }
 
-        private AgencyInternalLocation aLocation(Long locationId, String agencyId) {
+        private AgencyInternalLocation aLocation(final Long locationId, final String agencyId) {
             return aLocation(locationId, agencyId, "CELL");
         }
 
-        private AgencyInternalLocation aLocation(Long locationId, String agencyId, String locationType) {
+        private AgencyInternalLocation aLocation(final Long locationId, final String agencyId, final String locationType) {
             return AgencyInternalLocation.builder()
                     .locationId(locationId)
                     .agencyId(agencyId)
