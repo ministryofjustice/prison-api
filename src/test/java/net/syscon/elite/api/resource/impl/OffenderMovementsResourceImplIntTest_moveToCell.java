@@ -1,6 +1,5 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.resource.TestClock;
 import net.syscon.elite.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.service.BedAssignmentHistoryService;
@@ -8,7 +7,9 @@ import net.syscon.elite.util.JwtParameters;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -33,8 +35,16 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
-@ContextConfiguration(classes = TestClock.class)
+@ContextConfiguration(classes = OffenderMovementsResourceImplIntTest_moveToCell.TestClock.class)
 public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTest {
+
+    @TestConfiguration
+    static class TestClock {
+        @Bean
+        public Clock clock() {
+            return Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        }
+    }
 
     @Autowired
     private OffenderBookingRepository offenderBookingRepository;
