@@ -225,6 +225,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         );
     }
 
+    @SuppressWarnings("Convert2Diamond") // Type on ParameterizedTypeReference required to work around https://bugs.openjdk.java.net/browse/JDK-8210197
     private ResponseEntity<String> requestMoveToCell(final String bearerToken, final String bookingId, final String livingUnitId, final String reasonCode, final String dateTime) {
         final var entity = createHttpEntity(bearerToken, null);
         return testRestTemplate.exchange(
