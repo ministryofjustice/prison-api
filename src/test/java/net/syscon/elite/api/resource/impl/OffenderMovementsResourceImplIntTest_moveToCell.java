@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.resource.TestClock;
 import net.syscon.elite.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.service.BedAssignmentHistoryService;
@@ -35,7 +36,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
-@ContextConfiguration(classes = OffenderMovementsResourceImplIntTest_moveToCell.TestClock.class)
+@ContextConfiguration(classes = TestClock.class)
 public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTest {
 
     @Autowired
@@ -46,14 +47,6 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     private Clock clock;
     @SpyBean
     private BedAssignmentHistoryService bedAssignmentHistoryService;
-
-    @TestConfiguration
-    static class TestClock {
-        @Bean
-        public Clock clock() {
-            return Clock.fixed(Instant.now(), ZoneId.systemDefault());
-        }
-    }
 
     private static final Long BOOKING_ID = -33L;
     private static final String BOOKING_ID_S = "-33";
