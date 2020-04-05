@@ -38,14 +38,6 @@ import static org.springframework.http.HttpStatus.OK;
 @ContextConfiguration(classes = OffenderMovementsResourceImplIntTest_moveToCell.TestClock.class)
 public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTest {
 
-    @TestConfiguration
-    static class TestClock {
-        @Bean
-        public Clock clock() {
-            return Clock.fixed(Instant.now(), ZoneId.systemDefault());
-        }
-    }
-
     @Autowired
     private OffenderBookingRepository offenderBookingRepository;
     @Autowired
@@ -54,6 +46,14 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     private Clock clock;
     @SpyBean
     private BedAssignmentHistoryService bedAssignmentHistoryService;
+
+    @TestConfiguration
+    static class TestClock {
+        @Bean
+        public Clock clock() {
+            return Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        }
+    }
 
     private static final Long BOOKING_ID = -33L;
     private static final String BOOKING_ID_S = "-33";
