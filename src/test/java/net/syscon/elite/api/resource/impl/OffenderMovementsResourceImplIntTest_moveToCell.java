@@ -8,9 +8,7 @@ import net.syscon.elite.util.JwtParameters;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +17,6 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -224,7 +221,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
                 format("/api/bookings/%s/living-unit/%s?reasonCode=%s&dateTime=%s", bookingId, livingUnitId, reasonCode, dateTime),
                 PUT,
                 entity,
-                new ParameterizedTypeReference<>() {
+                new ParameterizedTypeReference<String>() {
                 });
 
     }
