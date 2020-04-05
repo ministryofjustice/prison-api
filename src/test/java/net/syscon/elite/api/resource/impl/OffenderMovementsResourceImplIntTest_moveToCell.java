@@ -163,7 +163,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
         final var response = requestMoveToCell(readOnlyToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
-        verifyErrorResponse(response, FORBIDDEN, null);
+        verifyErrorResponse(response, FORBIDDEN, "");
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
@@ -187,7 +187,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         doThrow(RuntimeException.class).when(bedAssignmentHistoryService).add(BOOKING_ID, NEW_CELL, "BEH", dateTime);
         final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
 
-        verifyErrorResponse(response, INTERNAL_SERVER_ERROR, null);
+        verifyErrorResponse(response, INTERNAL_SERVER_ERROR, "");
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
@@ -245,7 +245,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     private void verifyErrorResponse(final ResponseEntity<String> response, final HttpStatus status, final String... partialMessages) {
         assertThat(response.getStatusCode()).isEqualTo(status);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(status.value());
-        if (partialMessages != null) {
+        if (!partialMessages[0].isEmpty()) {
             Arrays.stream(partialMessages).forEach(partialMessage ->
                     assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").contains(partialMessage)
             );
