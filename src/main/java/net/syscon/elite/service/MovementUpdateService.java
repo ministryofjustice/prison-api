@@ -25,7 +25,12 @@ public class MovementUpdateService {
     private final OffenderBookingRepository offenderBookingRepository;
     private final Clock clock;
 
-    public MovementUpdateService(ReferenceDomainService referenceDomainService, BedAssignmentHistoryService bedAssignmentHistoryService, BookingService bookingService, OffenderBookingRepository offenderBookingRepository, Clock clock) {
+    public MovementUpdateService(
+            final ReferenceDomainService referenceDomainService,
+            final BedAssignmentHistoryService bedAssignmentHistoryService,
+            final BookingService bookingService,
+            final OffenderBookingRepository offenderBookingRepository,
+            final Clock clock) {
         this.referenceDomainService = referenceDomainService;
         this.bedAssignmentHistoryService = bedAssignmentHistoryService;
         this.bookingService = bookingService;
@@ -61,7 +66,7 @@ public class MovementUpdateService {
 
     private OffenderBooking getActiveOffenderBooking(final Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage(format("Booking id %d not found", bookingId)));
-        checkArgument(offenderBooking.getActiveFlag().equals("Y"), "Offender booking with id %s is not active.", bookingId);
+        checkArgument(offenderBooking.isActive(), "Offender booking with id %s is not active.", bookingId);
         return OffenderBooking.builder()
                 .bookingId(offenderBooking.getBookingId())
                 .agencyId(offenderBooking.getLocation().getId())
