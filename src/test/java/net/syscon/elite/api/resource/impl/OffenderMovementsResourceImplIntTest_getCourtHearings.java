@@ -2,12 +2,9 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +27,7 @@ public class OffenderMovementsResourceImplIntTest_getCourtHearings extends Resou
     }
 
     @Test
-    public void get_court_hearings_for_booking_returns_2_court_hearings_when_no_dates_supplied() {
+    public void get_court_hearings_for_booking_returns_3_court_hearings_when_no_dates_supplied() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, null);
