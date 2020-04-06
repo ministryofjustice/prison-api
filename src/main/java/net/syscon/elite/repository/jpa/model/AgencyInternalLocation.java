@@ -50,4 +50,7 @@ public class AgencyInternalLocation {
         return activeFlag.isActive();
     }
 
+    public boolean isCell() {
+        return locationType != null && locationType.equals("CELL");
+    }
 }

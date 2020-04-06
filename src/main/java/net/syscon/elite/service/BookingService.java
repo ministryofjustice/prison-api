@@ -695,7 +695,7 @@ public class BookingService {
                 location.getAgencyId(), offenderBooking.getOffender().getNomsId(), offenderBooking.getLocation().getId()
         );
         checkArgument(
-                location.getLocationType().equals("CELL"),
+                location.isCell(),
                 "Living unit %d of type %s is not a cell",
                 location.getLocationId(), location.getLocationType()
         );
