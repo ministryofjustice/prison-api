@@ -43,6 +43,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
         return courtHearingsService.getCourtHearingsFor(bookingId, fromDate, toDate);
     }
 
+    @ProxyUser
     @Override
     public OffenderBooking moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
         log.debug("Received moveToCell request for booking id {}, cell location {}, reasonCode {}, date/time {}",
