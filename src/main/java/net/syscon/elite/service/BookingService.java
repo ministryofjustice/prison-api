@@ -676,7 +676,7 @@ public class BookingService {
     @VerifyBookingAccess
     @HasWriteScope
     public void updateLivingUnit(final Long bookingId, final Long livingUnitId) {
-        var offenderBooking = offenderBookingRepository.findById(bookingId)
+        final var offenderBooking = offenderBookingRepository.findById(bookingId)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking for booking id %d not found", bookingId)));
         final var location = agencyInternalLocationRepository.findById(livingUnitId)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Living unit with id %d not found", livingUnitId)));
