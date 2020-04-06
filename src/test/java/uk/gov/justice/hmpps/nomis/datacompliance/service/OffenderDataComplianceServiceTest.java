@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.repository.OffenderDeletionRepository;
-import net.syscon.elite.repository.OffenderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,9 +42,6 @@ public class OffenderDataComplianceServiceTest {
     private static final String OFFENDER_ID = "123";
 
     @Mock
-    private OffenderRepository offenderRepository;
-
-    @Mock
     private OffenderDeletionRepository offenderDeletionRepository;
 
     @Mock
@@ -65,7 +61,6 @@ public class OffenderDataComplianceServiceTest {
     @BeforeEach
     public void setUp() {
         service = new OffenderDataComplianceService(
-                offenderRepository,
                 offenderDeletionRepository,
                 offenderPendingDeletionRepository,
                 offenderAliasPendingDeletionRepository,
