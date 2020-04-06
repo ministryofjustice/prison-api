@@ -241,7 +241,7 @@ public class AgencyRepositoryTest {
             .firstName("HAROLD")
             .middleName(null)
             .lastName("LLOYD")
-            .cellLocation("LEI-H-1")
+            .cellLocation("LEI-H-1-1")
             .build();
 
 

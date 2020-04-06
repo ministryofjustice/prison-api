@@ -25,8 +25,11 @@ import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
@@ -47,6 +50,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -669,21 +673,32 @@ public class BookingService {
     }
 
     @Transactional
+    @VerifyBookingAccess
+    @HasWriteScope
     public void updateLivingUnit(final Long bookingId, final Long livingUnitId) {
-        var offenderBooking = offenderBookingRepository.findById(bookingId)
+        final var offenderBooking = offenderBookingRepository.findById(bookingId)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking for booking id %d not found", bookingId)));
         final var location = agencyInternalLocationRepository.findById(livingUnitId)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Living unit with id %d not found", livingUnitId)));
 
+        validateUpdateLivingUnit(offenderBooking, location);
+
+        offenderBooking.setAssignedLivingUnit(location);
+        offenderBookingRepository.save(offenderBooking);
+        log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
+    }
+
+    private void validateUpdateLivingUnit(final OffenderBooking offenderBooking, final AgencyInternalLocation location) {
         checkArgument(
                 offenderBooking.getLocation().getId().equals(location.getAgencyId()),
                 "Move to living unit in prison %s invalid for offender %s in prison %s",
                 location.getAgencyId(), offenderBooking.getOffender().getNomsId(), offenderBooking.getLocation().getId()
         );
-
-        offenderBooking.setLivingUnitId(livingUnitId);
-        offenderBookingRepository.save(offenderBooking);
-        log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
+        checkArgument(
+                location.isCell(),
+                "Living unit %d of type %s is not a cell",
+                location.getLocationId(), location.getLocationType()
+        );
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {

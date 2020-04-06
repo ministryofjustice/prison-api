@@ -165,8 +165,8 @@ public class CourtHearingsServiceTest {
     private void givenValidBookingLocationsAndCases(final OffenderCourtCase... cases) {
         offenderBooking = OffenderBooking
                 .builder()
+                .activeFlag("Y")
                 .bookingId(OFFENDER_BOOKING_ID)
-                .bookingSequence(1)
                 .location(fromPrison)
                 .courtCases(List.of(cases))
                 .offender(offender)
@@ -220,6 +220,7 @@ public class CourtHearingsServiceTest {
     private void givenNoActiveBooking() {
         offenderBooking = OffenderBooking
                 .builder()
+                .activeFlag("N")
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(fromPrison)
                 .build();
@@ -239,8 +240,8 @@ public class CourtHearingsServiceTest {
     private void givenNoMatchingCourtCaseForActiveBooking() {
         offenderBooking = OffenderBooking
                 .builder()
+                .activeFlag("Y")
                 .bookingId(OFFENDER_BOOKING_ID)
-                .bookingSequence(1)
                 .location(fromPrison)
                 .build();
 
@@ -259,8 +260,8 @@ public class CourtHearingsServiceTest {
     private void givenNoActiveCourtCase() {
         offenderBooking = OffenderBooking
                 .builder()
+                .activeFlag("Y")
                 .bookingId(OFFENDER_BOOKING_ID)
-                .bookingSequence(1)
                 .location(fromPrison)
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(1L)
@@ -292,8 +293,8 @@ public class CourtHearingsServiceTest {
     private void givenPrisonNotFound() {
         offenderBooking = OffenderBooking
                 .builder()
+                .activeFlag("Y")
                 .bookingId(OFFENDER_BOOKING_ID)
-                .bookingSequence(1)
                 .location(fromPrison)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
@@ -323,8 +324,8 @@ public class CourtHearingsServiceTest {
     private void givenCourtNotFound() {
         offenderBooking = OffenderBooking
                 .builder()
+                .activeFlag("Y")
                 .bookingId(OFFENDER_BOOKING_ID)
-                .bookingSequence(1)
                 .location(fromPrison)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
@@ -355,8 +356,8 @@ public class CourtHearingsServiceTest {
     private void givenProvidedCourtIsNotActive() {
         offenderBooking = OffenderBooking
                 .builder()
+                .activeFlag("Y")
                 .bookingId(OFFENDER_BOOKING_ID)
-                .bookingSequence(1)
                 .location(fromPrison)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
@@ -392,8 +393,8 @@ public class CourtHearingsServiceTest {
     private void givenProvidedCourtLocationIsNotACourt() {
         offenderBooking = OffenderBooking
                 .builder()
+                .activeFlag("Y")
                 .bookingId(OFFENDER_BOOKING_ID)
-                .bookingSequence(1)
                 .location(fromPrison)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();
@@ -416,8 +417,8 @@ public class CourtHearingsServiceTest {
     private void givenPrisonDoesNotMatchTheBooking() {
         offenderBooking = OffenderBooking
                 .builder()
+                .activeFlag("Y")
                 .bookingId(OFFENDER_BOOKING_ID)
-                .bookingSequence(1)
                 .location(COURT_LOCATION)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
                 .build();

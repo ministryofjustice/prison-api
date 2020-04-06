@@ -40,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -94,7 +95,8 @@ public class BookingServiceTest {
                 referenceDomainService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
-                securityUtils, authenticationFacade, "1",
+                securityUtils, authenticationFacade,
+                "1",
                 10);
     }
 
@@ -541,6 +543,17 @@ public class BookingServiceTest {
         }
 
         @Test
+        void livingUnitNotCell_throws() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")));
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_ID))
+                    .hasMessageContaining("WING");
+        }
+
+        @Test
         void differentAgency_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
             when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
@@ -560,23 +573,32 @@ public class BookingServiceTest {
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
-            assertThat(updatedOffenderBooking.getValue().getLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
+            assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
 
-        private Optional<OffenderBooking> anOffenderBooking(Long bookingId, Long livingUnitId, String agencyId) {
+        private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId, final String agencyId) {
             final var agencyLocation = AgencyLocation.builder().id(agencyId).build();
+            final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
             final var offender = Offender.builder().nomsId("any noms id").build();
             return Optional.of(
                     OffenderBooking.builder()
                             .bookingId(bookingId)
-                            .livingUnitId(livingUnitId)
+                            .assignedLivingUnit(livingUnit)
                             .location(agencyLocation)
                             .offender(offender)
                             .build());
         }
 
-        private AgencyInternalLocation aLocation(Long locationId, String agencyId) {
-            return AgencyInternalLocation.builder().locationId(locationId).agencyId(agencyId).build();
+        private AgencyInternalLocation aLocation(final Long locationId, final String agencyId) {
+            return aLocation(locationId, agencyId, "CELL");
+        }
+
+        private AgencyInternalLocation aLocation(final Long locationId, final String agencyId, final String locationType) {
+            return AgencyInternalLocation.builder()
+                    .locationId(locationId)
+                    .agencyId(agencyId)
+                    .locationType(locationType)
+                    .build();
         }
     }
 }
