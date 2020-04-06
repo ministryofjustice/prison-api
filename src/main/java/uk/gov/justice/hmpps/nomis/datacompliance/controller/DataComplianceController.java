@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class DataComplianceController {
 
-    private final OffenderDataComplianceService offenderDataComplianceService;
+    private final DataComplianceReferralService offenderDataComplianceService;
 
     @PostMapping("/offenders/pending-deletions")
     @ApiOperation(value = "Request a list of offender records to be considered for deletion under data protection law.",

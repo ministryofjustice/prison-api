@@ -2,13 +2,13 @@ package uk.gov.justice.hmpps.nomis.datacompliance.events.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionGrantedEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionGrantedEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 
 import java.io.IOException;
 
@@ -22,15 +22,15 @@ public class OffenderDeletionEventListener {
 
     private static final String EXPECTED_EVENT_TYPE = "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED";
 
-    private final OffenderDataComplianceService offenderDataComplianceService;
+    private final OffenderDeletionService offenderDeletionService;
     private final ObjectMapper objectMapper;
 
-    public OffenderDeletionEventListener(final OffenderDataComplianceService offenderDataComplianceService,
+    public OffenderDeletionEventListener(final OffenderDeletionService offenderDeletionService,
                                          final ObjectMapper objectMapper) {
 
         log.info("Configured to listen to Offender Deletion events");
 
-        this.offenderDataComplianceService = offenderDataComplianceService;
+        this.offenderDeletionService = offenderDeletionService;
         this.objectMapper = objectMapper;
     }
 
@@ -41,7 +41,7 @@ public class OffenderDeletionEventListener {
 
         checkEventType(message.getHeaders());
 
-        offenderDataComplianceService.deleteOffender(
+        offenderDeletionService.deleteOffender(
                 getOffenderIdDisplay(message.getPayload()));
     }
 
