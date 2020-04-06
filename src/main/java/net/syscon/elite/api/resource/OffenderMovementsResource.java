@@ -29,7 +29,7 @@ public interface OffenderMovementsResource {
 
     @PostMapping("/{bookingId}/court-cases/{courtCaseId}/prison-to-court-hearings")
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(value = "Schedules a prison to court hearing for an offender.", notes = "Schedules a prison to court hearing for an offender.", nickname = "prisonToCourt")
+    @ApiOperation(value = "Schedules a prison to court hearing for an offender and given court case.", notes = "Schedules a prison to court hearing for an offender and given court case.", nickname = "prisonToCourt")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Court hearing created.", response = CourtHearing.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -37,6 +37,17 @@ public interface OffenderMovementsResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     CourtHearing prisonToCourt(@ApiParam(value = "The offender booking to associate the court hearing with.", required = true) @PathVariable("bookingId") Long bookingId,
                                @ApiParam(value = "The court case to associate the hearing with.", required = true) @PathVariable("courtCaseId") Long courtCaseId,
+                               @ApiParam(value = "The prison to court hearing to be scheduled for the offender booking.", required = true) @RequestBody @Valid PrisonToCourtHearing hearing);
+
+    @PostMapping("/{bookingId}/prison-to-court-hearings")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "Schedules a prison to court hearing for an offender.", notes = "Schedules a prison to court hearing for an offender.", nickname = "prisonToCourt")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Court hearing created.", response = CourtHearing.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    CourtHearing prisonToCourt(@ApiParam(value = "The offender booking to associate the court hearing with.", required = true) @PathVariable("bookingId") Long bookingId,
                                @ApiParam(value = "The prison to court hearing to be scheduled for the offender booking.", required = true) @RequestBody @Valid PrisonToCourtHearing hearing);
 
     @GetMapping("{bookingId}/court-hearings")
