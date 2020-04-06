@@ -59,7 +59,7 @@ public class MovementUpdateService {
     private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
         checkArgument(!StringUtils.isNullOrEmpty(reasonCode), "Reason code is mandatory");
         checkArgument(
-                dateTime == null || dateTime.isBefore(LocalDateTime.now()) || dateTime.isEqual(LocalDateTime.now()),
+                dateTime == null || dateTime.isBefore(LocalDateTime.now(clock)) || dateTime.isEqual(LocalDateTime.now(clock)),
                 "The date cannot be in the future"
         );
     }
