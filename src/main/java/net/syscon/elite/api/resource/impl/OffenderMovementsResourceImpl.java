@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -34,8 +35,14 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
 
     @ProxyUser
     @Override
-    public CourtHearing prisonToCourt(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
+    public CourtHearing prisonToCourt(final Long bookingId, final Long courtCaseId, final @Valid PrisonToCourtHearing hearing) {
         return courtHearingsService.scheduleHearing(bookingId, courtCaseId, hearing);
+    }
+
+    @ProxyUser
+    @Override
+    public CourtHearing prisonToCourt(final Long bookingId, final @Valid PrisonToCourtHearing hearing) {
+        return courtHearingsService.scheduleHearing(bookingId, hearing);
     }
 
     @Override
