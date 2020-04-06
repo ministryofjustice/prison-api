@@ -1,11 +1,7 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.OffenderNumber;
-import net.syscon.elite.api.support.Page;
-import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.OffenderDeletionRepository;
-import net.syscon.elite.repository.OffenderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -45,9 +40,6 @@ public class OffenderDataComplianceServiceTest {
     private static final String OFFENDER_NUMBER_1 = "A1234AA";
     private static final String OFFENDER_NUMBER_2 = "B4321BB";
     private static final String OFFENDER_ID = "123";
-
-    @Mock
-    private OffenderRepository offenderRepository;
 
     @Mock
     private OffenderDeletionRepository offenderDeletionRepository;
@@ -69,7 +61,6 @@ public class OffenderDataComplianceServiceTest {
     @BeforeEach
     public void setUp() {
         service = new OffenderDataComplianceService(
-                offenderRepository,
                 offenderDeletionRepository,
                 offenderPendingDeletionRepository,
                 offenderAliasPendingDeletionRepository,
@@ -87,17 +78,6 @@ public class OffenderDataComplianceServiceTest {
                 Map.of("offenderNo", OFFENDER_NUMBER_1, "count", "1"), null);
     }
 
-    @Test
-    public void getOffenderNumbers() {
-
-        var pageRequest = new PageRequest(0L, 1L);
-
-        when(offenderRepository.listAllOffenders(pageRequest))
-                .thenReturn(new Page<>(List.of(new OffenderNumber(OFFENDER_NUMBER_1)), 1L, pageRequest));
-
-        assertThat(service.getOffenderNumbers(0L, 1L).getItems())
-                .containsExactly(new OffenderNumber(OFFENDER_NUMBER_1));
-    }
 
     @Test
     public void acceptOffendersPendingDeletion() throws Exception {

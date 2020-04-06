@@ -1,12 +1,12 @@
 package net.syscon.elite.service;
 
+import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.OffenderRepository;
-import net.syscon.elite.service.GlobalSearchService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -302,6 +304,18 @@ public class GlobalSearchServiceImplTest {
         assertThat(response.getItems()).isNotEmpty();
 
         assertThat(response.getItems().get(0).getLatestLocation()).isEqualTo("Wakefield (HMP)");
+    }
+
+    @Test
+    public void getOffenderNumbers() {
+
+        var pageRequest = new PageRequest(0L, 1L);
+
+        when(offenderRepository.listAllOffenders(pageRequest))
+                .thenReturn(new Page<>(List.of(new OffenderNumber("offender1")), 1L, pageRequest));
+
+        assertThat(service.getOffenderNumbers(0L, 1L).getItems())
+                .containsExactly(new OffenderNumber("offender1"));
     }
 
     private Page<PrisonerDetail> pageResponse(final int prisonerCount) {
