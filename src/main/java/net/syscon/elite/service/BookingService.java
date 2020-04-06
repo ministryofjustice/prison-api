@@ -683,7 +683,7 @@ public class BookingService {
 
         validateUpdateLivingUnit(offenderBooking, location);
 
-        offenderBooking.setAssignedLivingUnitId(livingUnitId);
+        offenderBooking.setAssignedLivingUnit(location);
         offenderBookingRepository.save(offenderBooking);
         log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
     }

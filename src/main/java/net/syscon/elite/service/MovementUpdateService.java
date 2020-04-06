@@ -70,7 +70,7 @@ public class MovementUpdateService {
         return OffenderBooking.builder()
                 .bookingId(offenderBooking.getBookingId())
                 .agencyId(offenderBooking.getLocation().getId())
-                .assignedLivingUnitId(offenderBooking.getAssignedLivingUnitId())
+                .assignedLivingUnitId(offenderBooking.getAssignedLivingUnit().getLocationId())
                 .build();
     }
 

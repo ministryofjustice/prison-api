@@ -573,16 +573,17 @@ public class BookingServiceTest {
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
-            assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
+            assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
 
         private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId, final String agencyId) {
             final var agencyLocation = AgencyLocation.builder().id(agencyId).build();
+            final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
             final var offender = Offender.builder().nomsId("any noms id").build();
             return Optional.of(
                     OffenderBooking.builder()
                             .bookingId(bookingId)
-                            .assignedLivingUnitId(livingUnitId)
+                            .assignedLivingUnit(livingUnit)
                             .location(agencyLocation)
                             .offender(offender)
                             .build());

@@ -255,7 +255,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
     private void verifyOffenderBookingLivingUnit(final Long bookingId, final Long livingUnitId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow();
-        assertThat(offenderBooking.getAssignedLivingUnitId()).isEqualTo(livingUnitId);
+        assertThat(offenderBooking.getAssignedLivingUnit().getLocationId()).isEqualTo(livingUnitId);
     }
 
     private void verifyLastBedAssignmentHistory(final Long bookingId, final Long livingUnitId, final String reason, final LocalDateTime dateTime) {

@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
@@ -189,11 +190,12 @@ class MovementUpdateServiceTest {
     }
 
     private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final String agency, final Long livingUnitId, final String activeFlag) {
+        final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
         return Optional.of(net.syscon.elite.repository.jpa.model.OffenderBooking.builder()
                 .activeFlag(activeFlag)
                 .bookingId(bookingId)
                 .location(AgencyLocation.builder().id(agency).build())
-                .assignedLivingUnitId(livingUnitId)
+                .assignedLivingUnit(livingUnit)
                 .build());
     }
 
