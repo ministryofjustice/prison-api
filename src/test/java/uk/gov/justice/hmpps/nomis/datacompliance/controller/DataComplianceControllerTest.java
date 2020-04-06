@@ -8,7 +8,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDelet
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class DataComplianceControllerTest extends ResourceTest {
     private static final LocalDateTime WINDOW_END = WINDOW_START;
 
     @SpyBean
-    private OffenderPendingDeletionEventPusher offenderPendingDeletionEventPusher;
+    private OffenderDeletionEventPusher offenderDeletionEventPusher;
 
     @Test
     public void requestOffenderPendingDeletions() {
@@ -46,7 +46,7 @@ public class DataComplianceControllerTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(ACCEPTED_202);
 
-        verify(offenderPendingDeletionEventPusher, timeout(5000)).sendPendingDeletionEvent(
+        verify(offenderDeletionEventPusher, timeout(5000)).sendPendingDeletionEvent(
                 OffenderPendingDeletionEvent.builder()
                         .offenderIdDisplay("Z0020ZZ")
                         .firstName("BURT")
@@ -58,7 +58,7 @@ public class DataComplianceControllerTest extends ResourceTest {
                                 .build())
                         .build());
 
-        verify(offenderPendingDeletionEventPusher, timeout(5000))
+        verify(offenderDeletionEventPusher, timeout(5000))
                 .sendReferralCompleteEvent(new OffenderPendingDeletionReferralCompleteEvent(REQUEST_ID));
     }
 

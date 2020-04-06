@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionCompleteEvent;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
 
@@ -18,13 +19,13 @@ import java.util.Map;
 @Slf4j
 @Component
 @ConditionalOnExpression("{'aws', 'localstack'}.contains('${data.compliance.outbound.referral.sqs.provider}')")
-public class OffenderPendingDeletionAwsEventPusher implements OffenderPendingDeletionEventPusher {
+public class OffenderDeletionAwsEventPusher implements OffenderDeletionEventPusher {
 
     private final ObjectMapper objectMapper;
     private final AmazonSQS sqsClient;
     private final String queueUrl;
 
-    public OffenderPendingDeletionAwsEventPusher(
+    public OffenderDeletionAwsEventPusher(
             @Autowired @Qualifier("outboundReferralSqsClient") final AmazonSQS sqsClient,
             @Value("${data.compliance.outbound.referral.sqs.queue.url}") final String queueUrl,
             final ObjectMapper objectMapper) {
@@ -52,12 +53,24 @@ public class OffenderPendingDeletionAwsEventPusher implements OffenderPendingDel
         sqsClient.sendMessage(generateReferralCompleteRequest(event));
     }
 
+    @Override
+    public void sendDeletionCompleteEvent(final OffenderDeletionCompleteEvent event) {
+
+        log.trace("Sending offender deletion complete event: {}", event.getOffenderIdDisplay());
+
+        sqsClient.sendMessage(generateDeletionCompleteRequest(event));
+    }
+
     private SendMessageRequest generatePendingDeletionRequest(final OffenderPendingDeletionEvent event) {
         return generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION", event);
     }
 
     private SendMessageRequest generateReferralCompleteRequest(final OffenderPendingDeletionReferralCompleteEvent event) {
         return generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-REFERRAL-COMPLETE", event);
+    }
+
+    private SendMessageRequest generateDeletionCompleteRequest(final OffenderDeletionCompleteEvent event) {
+        return generateRequest("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE", event);
     }
 
     private SendMessageRequest generateRequest(final String eventType, final Object messageBody) {

@@ -14,7 +14,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDelet
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
@@ -42,7 +42,7 @@ public class OffenderDataComplianceService {
     private final OffenderPendingDeletionRepository offenderPendingDeletionRepository;
     private final OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
     private final TelemetryClient telemetryClient;
-    private final OffenderPendingDeletionEventPusher offenderPendingDeletionEventPusher;
+    private final OffenderDeletionEventPusher offenderDeletionEventPusher;
 
     @Transactional
     public void deleteOffender(final String offenderNumber) {
@@ -63,10 +63,10 @@ public class OffenderDataComplianceService {
         return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to))
 
                 .thenAccept(offenders -> offenders.forEach(offenderNumber ->
-                        offenderPendingDeletionEventPusher.sendPendingDeletionEvent(
+                        offenderDeletionEventPusher.sendPendingDeletionEvent(
                                 generateOffenderPendingDeletionEvent(offenderNumber))))
 
-                .thenRun(() -> offenderPendingDeletionEventPusher.sendReferralCompleteEvent(
+                .thenRun(() -> offenderDeletionEventPusher.sendReferralCompleteEvent(
                         new OffenderPendingDeletionReferralCompleteEvent(requestId)));
     }
 

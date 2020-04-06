@@ -15,7 +15,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDelet
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
@@ -62,7 +62,7 @@ public class OffenderDataComplianceServiceTest {
     private TelemetryClient telemetryClient;
 
     @Mock
-    private OffenderPendingDeletionEventPusher eventPusher;
+    private OffenderDeletionEventPusher eventPusher;
 
     private OffenderDataComplianceService service;
 
