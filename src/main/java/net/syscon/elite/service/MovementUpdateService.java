@@ -1,11 +1,17 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.OffenderSummary;
+import com.amazonaws.util.StringUtils;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.core.HasWriteScope;
+import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.security.VerifyBookingAccess;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static net.syscon.elite.service.support.ReferenceDomain.CELL_MOVE_REASON;
 
@@ -16,34 +22,56 @@ public class MovementUpdateService {
     private final ReferenceDomainService referenceDomainService;
     private final BedAssignmentHistoryService bedAssignmentHistoryService;
     private final BookingService bookingService;
+    private final OffenderBookingRepository offenderBookingRepository;
+    private final Clock clock;
 
-    public MovementUpdateService(ReferenceDomainService referenceDomainService, BedAssignmentHistoryService bedAssignmentHistoryService, BookingService bookingService) {
+    public MovementUpdateService(
+            final ReferenceDomainService referenceDomainService,
+            final BedAssignmentHistoryService bedAssignmentHistoryService,
+            final BookingService bookingService,
+            final OffenderBookingRepository offenderBookingRepository,
+            final Clock clock) {
         this.referenceDomainService = referenceDomainService;
         this.bedAssignmentHistoryService = bedAssignmentHistoryService;
         this.bookingService = bookingService;
+        this.offenderBookingRepository = offenderBookingRepository;
+        this.clock = clock;
     }
 
-    // @VerifyBookingAccess TODO DT-235 put this back - make sure it has a test dedicated to it
-    public OffenderSummary moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
+    @Transactional
+    @VerifyBookingAccess
+    @HasWriteScope
+    public OffenderBooking moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
+        validateMoveToCell(reasonCode, dateTime);
+        final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
-        final var offenderSummary = getOffenderSummary(bookingId);
+        final var offenderBooking = getActiveOffenderBooking(bookingId);
 
-        if (offenderSummary.getInternalLocationId().equals(String.valueOf(livingUnitId))) {
-            return offenderSummary;
+        if (offenderBooking.getAssignedLivingUnitId().equals(livingUnitId)) {
+            return offenderBooking;
         }
 
-// TODO DT-235 Uncomment the updates - this is currently still a work in progress and we don't want to actually update anything yet
-//        bookingService.updateLivingUnit(bookingId, livingUnitId);
-//        bedAssignmentHistoryService.add(bookingId, livingUnitId, reasonCode, dateTime);
-        return getOffenderSummary(bookingId);
+        bookingService.updateLivingUnit(bookingId, livingUnitId);
+        bedAssignmentHistoryService.add(bookingId, livingUnitId, reasonCode, movementDateTime);
+        return getActiveOffenderBooking(bookingId);
     }
 
-    private OffenderSummary getOffenderSummary(final Long bookingId) {
-        final var offenderSummary = bookingService.getLatestBookingByBookingId(bookingId);
-        if (offenderSummary == null) {
-            throw new EntityNotFoundException(format("Offender summary for booking id %d not found", bookingId));
-        }
-        return offenderSummary;
+    private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
+        checkArgument(!StringUtils.isNullOrEmpty(reasonCode), "Reason code is mandatory");
+        checkArgument(
+                dateTime == null || dateTime.isBefore(LocalDateTime.now(clock)) || dateTime.isEqual(LocalDateTime.now(clock)),
+                "The date cannot be in the future"
+        );
+    }
+
+    private OffenderBooking getActiveOffenderBooking(final Long bookingId) {
+        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage(format("Booking id %d not found", bookingId)));
+        checkArgument(offenderBooking.isActive(), "Offender booking with id %s is not active.", bookingId);
+        return OffenderBooking.builder()
+                .bookingId(offenderBooking.getBookingId())
+                .agencyId(offenderBooking.getLocation().getId())
+                .assignedLivingUnitId(offenderBooking.getAssignedLivingUnit().getLocationId())
+                .build();
     }
 
 }

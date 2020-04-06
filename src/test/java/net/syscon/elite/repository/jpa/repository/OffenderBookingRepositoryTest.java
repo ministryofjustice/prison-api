@@ -62,6 +62,9 @@ public class OffenderBookingRepositoryTest {
     private ReferenceCodeRepository<DisciplinaryAction> disciplinaryActionRepository;
 
     @Autowired
+    private AgencyInternalLocationRepository agencyInternalLocationRepository;
+
+    @Autowired
     private TestEntityManager entityManager;
 
     @Test
@@ -278,15 +281,14 @@ public class OffenderBookingRepositoryTest {
 
     @Test
     void updateLivingUnit() {
-        var offenderBooking = repository.findById(-1L).orElseThrow();
-        offenderBooking.setLivingUnitId(22L);
+        final var offenderBooking = repository.findById(-1L).orElseThrow();
+        final var livingUnit = agencyInternalLocationRepository.findById(-4L).orElseThrow();
+        offenderBooking.setAssignedLivingUnit(livingUnit);
         repository.save(offenderBooking);
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
 
-        TestTransaction.start();
+        entityManager.flush();
         final var result = repository.findById(-1L).orElseThrow();
-        assertThat(result.getLivingUnitId()).isEqualTo(22L);
+        assertThat(result.getAssignedLivingUnit().getLocationId()).isEqualTo(-4L);
     }
 }
 
