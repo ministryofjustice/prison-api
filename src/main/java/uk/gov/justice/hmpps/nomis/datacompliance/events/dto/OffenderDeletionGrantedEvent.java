@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class OffenderDeletionEvent {
+public class OffenderDeletionGrantedEvent {
     private String offenderIdDisplay;
 }
 

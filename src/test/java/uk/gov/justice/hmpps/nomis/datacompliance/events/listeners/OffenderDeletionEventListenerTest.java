@@ -16,18 +16,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class OffenderDeletionListenerTest {
+class OffenderDeletionEventListenerTest {
 
     @Mock
     private OffenderDataComplianceService offenderDataComplianceService;
 
     private ObjectMapper objectMapper;
-    private OffenderDeletionListener listener;
+    private OffenderDeletionEventListener listener;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        listener = new OffenderDeletionListener(offenderDataComplianceService, objectMapper);
+        listener = new OffenderDeletionEventListener(offenderDataComplianceService, objectMapper);
     }
 
     @Test
