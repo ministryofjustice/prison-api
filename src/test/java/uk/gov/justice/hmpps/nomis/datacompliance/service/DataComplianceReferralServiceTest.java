@@ -1,7 +1,5 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
-import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.repository.OffenderDeletionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,8 +19,6 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.Offen
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,7 +27,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class OffenderDataComplianceServiceTest {
+public class DataComplianceReferralServiceTest {
 
     private static final String REQUEST_ID = "123";
     private static final LocalDateTime WINDOW_START = LocalDateTime.now();
@@ -39,10 +35,6 @@ public class OffenderDataComplianceServiceTest {
 
     private static final String OFFENDER_NUMBER_1 = "A1234AA";
     private static final String OFFENDER_NUMBER_2 = "B4321BB";
-    private static final String OFFENDER_ID = "123";
-
-    @Mock
-    private OffenderDeletionRepository offenderDeletionRepository;
 
     @Mock
     private OffenderPendingDeletionRepository offenderPendingDeletionRepository;
@@ -51,33 +43,17 @@ public class OffenderDataComplianceServiceTest {
     private OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
 
     @Mock
-    private TelemetryClient telemetryClient;
-
-    @Mock
     private OffenderDeletionEventPusher eventPusher;
 
-    private OffenderDataComplianceService service;
+    private DataComplianceReferralService service;
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderDataComplianceService(
-                offenderDeletionRepository,
+        service = new DataComplianceReferralService(
                 offenderPendingDeletionRepository,
                 offenderAliasPendingDeletionRepository,
-                telemetryClient,
                 eventPusher);
     }
-
-    @Test
-    public void deleteOffender() {
-        when(offenderDeletionRepository.deleteOffender(OFFENDER_NUMBER_1)).thenReturn(Set.of(OFFENDER_ID));
-
-        service.deleteOffender(OFFENDER_NUMBER_1);
-
-        verify(telemetryClient).trackEvent("OffenderDelete",
-                Map.of("offenderNo", OFFENDER_NUMBER_1, "count", "1"), null);
-    }
-
 
     @Test
     public void acceptOffendersPendingDeletion() throws Exception {
