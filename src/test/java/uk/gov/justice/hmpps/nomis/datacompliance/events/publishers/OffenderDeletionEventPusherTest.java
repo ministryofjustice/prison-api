@@ -16,13 +16,15 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDelet
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
 
+import java.time.LocalDate;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class OffenderDeletionGrantedEventPusherTest {
+class OffenderDeletionEventPusherTest {
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -46,6 +48,10 @@ class OffenderDeletionGrantedEventPusherTest {
 
         eventPusher.sendPendingDeletionEvent(OffenderPendingDeletionEvent.builder()
                 .offenderIdDisplay("offender1")
+                .firstName("Bob")
+                .middleName("Middle")
+                .lastName("Jones")
+                .birthDate(LocalDate.of(1990, 1, 2))
                 .offender(OffenderWithBookings.builder()
                         .offenderId(123L)
                         .booking(new Booking(321L))
@@ -55,8 +61,12 @@ class OffenderDeletionGrantedEventPusherTest {
         assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
         assertThat(request.getValue().getMessageBody()).isEqualTo(
                 "{" +
-                "\"offenderIdDisplay\":\"offender1\"," +
-                "\"offenders\":[{\"offenderId\":123,\"bookings\":[{\"offenderBookId\":321}]}]" +
+                        "\"offenderIdDisplay\":\"offender1\"," +
+                        "\"firstName\":\"Bob\"," +
+                        "\"middleName\":\"Middle\"," +
+                        "\"lastName\":\"Jones\"," +
+                        "\"birthDate\":\"1990-01-02\"," +
+                        "\"offenders\":[{\"offenderId\":123,\"bookings\":[{\"offenderBookId\":321}]}]" +
                 "}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
                 .isEqualTo("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION");
