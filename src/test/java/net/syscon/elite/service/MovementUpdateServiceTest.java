@@ -69,13 +69,13 @@ class MovementUpdateServiceTest {
         }
 
         @Test
-        void reasonCodeNotFound_throwsNotFound() {
+        void reasonCodeNotFound_throwsIllegalArgument() {
             final var badReasonCode = "not_a_reason_code";
             when(referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), badReasonCode, false))
                     .thenThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", CELL_MOVE_REASON, badReasonCode));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, badReasonCode, SOME_TIME))
-                    .isInstanceOf(EntityNotFoundException.class)
+                    .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(CELL_MOVE_REASON.name())
                     .hasMessageContaining(badReasonCode);
         }

@@ -141,15 +141,15 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
     }
 
     @Test
-    public void reasonCode_notFound() {
+    public void reasonCode_notFound_badRequest() {
         final var reasonCodeNotFoundError = format("Reference code for domain [%s] and code [LEI-A-1-1] not found.", CELL_MOVE_REASON.getDomain());
         when(movementUpdateService.moveToCell(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
-                .thenThrow(EntityNotFoundException.withMessage(reasonCodeNotFoundError));
+                .thenThrow(new IllegalArgumentException(reasonCodeNotFoundError, EntityNotFoundException.withMessage(reasonCodeNotFoundError)));
 
         final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=123&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(404);
+        assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").isEqualTo(reasonCodeNotFoundError);
     }
 

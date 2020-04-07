@@ -49,7 +49,6 @@ public class MovementUpdateService {
     public OffenderBooking moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         validateMoveToCell(reasonCode, dateTime);
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
-        referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
         final var internalLocation = getActiveInternalLocation(internalLocationDescription);
 
@@ -63,11 +62,20 @@ public class MovementUpdateService {
     }
 
     private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
+        checkReasonCode(reasonCode);
         checkArgument(!StringUtils.isNullOrEmpty(reasonCode), "Reason code is mandatory");
         checkArgument(
                 dateTime == null || dateTime.isBefore(LocalDateTime.now(clock)) || dateTime.isEqual(LocalDateTime.now(clock)),
                 "The date cannot be in the future"
         );
+    }
+
+    private void checkReasonCode(String reasonCode) {
+        try {
+            referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
+        } catch(EntityNotFoundException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     private OffenderBooking getActiveOffenderBooking(final Long bookingId) {
