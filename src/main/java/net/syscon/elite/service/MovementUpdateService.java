@@ -3,6 +3,8 @@ package net.syscon.elite.service;
 import com.amazonaws.util.StringUtils;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.core.HasWriteScope;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class MovementUpdateService {
     private final BedAssignmentHistoryService bedAssignmentHistoryService;
     private final BookingService bookingService;
     private final OffenderBookingRepository offenderBookingRepository;
+    private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final Clock clock;
 
     public MovementUpdateService(
@@ -30,29 +33,32 @@ public class MovementUpdateService {
             final BedAssignmentHistoryService bedAssignmentHistoryService,
             final BookingService bookingService,
             final OffenderBookingRepository offenderBookingRepository,
+            final AgencyInternalLocationRepository agencyInternalLocationRepository,
             final Clock clock) {
         this.referenceDomainService = referenceDomainService;
         this.bedAssignmentHistoryService = bedAssignmentHistoryService;
         this.bookingService = bookingService;
         this.offenderBookingRepository = offenderBookingRepository;
+        this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.clock = clock;
     }
 
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public OffenderBooking moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
+    public OffenderBooking moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         validateMoveToCell(reasonCode, dateTime);
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
+        final var internalLocation = getActiveInternalLocation(internalLocationDescription);
 
-        if (offenderBooking.getAssignedLivingUnitId().equals(livingUnitId)) {
+        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) {
             return offenderBooking;
         }
 
-        bookingService.updateLivingUnit(bookingId, livingUnitId);
-        bedAssignmentHistoryService.add(bookingId, livingUnitId, reasonCode, movementDateTime);
+        bookingService.updateLivingUnit(bookingId, internalLocationDescription);
+        bedAssignmentHistoryService.add(bookingId, internalLocation.getLocationId(), reasonCode, movementDateTime);
         return getActiveOffenderBooking(bookingId);
     }
 
@@ -65,7 +71,8 @@ public class MovementUpdateService {
     }
 
     private OffenderBooking getActiveOffenderBooking(final Long bookingId) {
-        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage(format("Booking id %d not found", bookingId)));
+        final var offenderBooking = offenderBookingRepository.findById(bookingId)
+                .orElseThrow(EntityNotFoundException.withMessage(format("Booking id %d not found", bookingId)));
         checkArgument(offenderBooking.isActive(), "Offender booking with id %s is not active.", bookingId);
         return OffenderBooking.builder()
                 .bookingId(offenderBooking.getBookingId())
@@ -73,5 +80,13 @@ public class MovementUpdateService {
                 .assignedLivingUnitId(offenderBooking.getAssignedLivingUnit().getLocationId())
                 .build();
     }
+
+    private AgencyInternalLocation getActiveInternalLocation(final String locationDescription) {
+        final var internalLocation = agencyInternalLocationRepository.findOneByDescription(locationDescription)
+                .orElseThrow(EntityNotFoundException.withMessage(format("Location description %s not found", locationDescription)));
+        checkArgument(internalLocation.isActive(), "Location %s is not active", locationDescription);
+        return internalLocation;
+    }
+
 
 }

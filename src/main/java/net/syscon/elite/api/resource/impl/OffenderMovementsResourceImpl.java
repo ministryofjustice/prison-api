@@ -52,13 +52,13 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
 
     @ProxyUser
     @Override
-    public OffenderBooking moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
+    public OffenderBooking moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         log.debug("Received moveToCell request for booking id {}, cell location {}, reasonCode {}, date/time {}",
                 bookingId,
-                livingUnitId,
+                internalLocationDescription,
                 reasonCode,
                 dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
 
-        return movementUpdateService.moveToCell(bookingId, livingUnitId, reasonCode, dateTime);
+        return movementUpdateService.moveToCell(bookingId, internalLocationDescription, reasonCode, dateTime);
     }
 }

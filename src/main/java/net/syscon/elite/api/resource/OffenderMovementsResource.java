@@ -62,7 +62,7 @@ public interface OffenderMovementsResource {
             @ApiParam(value = "Return court hearings on or before this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate
     );
 
-    @PutMapping("/{bookingId}/living-unit/{livingUnitId}")
+    @PutMapping("/{bookingId}/living-unit/{internalLocationDescription}")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
@@ -70,7 +70,7 @@ public interface OffenderMovementsResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     OffenderBooking moveToCell(
             @ApiParam(value = "The offender booking id", example = "1200866") @PathVariable("bookingId") Long bookingId,
-            @ApiParam(value = "The cell location the offender has been moved to", example = "123123") @PathVariable("livingUnitId") Long livingUnitId,
+            @ApiParam(value = "The cell location the offender has been moved to", example = "MDI-1-1") @PathVariable("internalLocationDescription") String internalLocationDescription,
             @ApiParam(value = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) @RequestParam("reasonCode") String reasonCode,
             @ApiParam(value = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(value = "dateTime", required = false) LocalDateTime dateTime
     );

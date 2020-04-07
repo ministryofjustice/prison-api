@@ -59,26 +59,26 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     private static final String BOOKING_ID_S = "-33";
 
     private static final Long INITIAL_CELL = -15L;
-    private static final String INITIAL_CELL_S = "-15";
+    private static final String INITIAL_CELL_DESC = "LEI-H-1-1";
     private static final String INITIAL_REASON = "ADM";
     private static final LocalDateTime INITIAL_DATE_TIME = LocalDateTime.of(2020, 4, 3, 11, 0, 0);
 
     private static final Long NEW_CELL = -4L;
-    private static final String NEW_CELL_S = "-4";
+    private static final String NEW_CELL_DESC = "LEI-A-1-2";
     private static final Long CELL_DIFF_PRISON = -41L;
-    private static final String CELL_DIFF_PRISON_S = "-41";
+    private static final String CELL_DIFF_PRISON_S = "MDI-1-1-001";
 
     @After
     public void tearDown() {
         // Return the offender back to his original cell as configured in the test data in R__3_6_1__OFFENDER_BOOKINGS.sql
-        requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_S, INITIAL_REASON, INITIAL_DATE_TIME.format(ISO_LOCAL_DATE_TIME));
+        requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_DESC, INITIAL_REASON, INITIAL_DATE_TIME.format(ISO_LOCAL_DATE_TIME));
     }
 
     @Test
     public void validRequest() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
 
         verifySuccessResponse(response, BOOKING_ID, NEW_CELL);
         verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
@@ -89,7 +89,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     public void missingDate_defaultsToNow() {
         final var expectedDateTime = clock.instant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", "");
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", "");
 
         verifySuccessResponse(response, BOOKING_ID, NEW_CELL);
         verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
@@ -101,11 +101,11 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         final var dateTime = LocalDateTime.now().minusHours(1);
         final var moveBackDateTime = LocalDateTime.now().minusMinutes(1);
 
-        requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
+        requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
         verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", dateTime);
 
-        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_S, "CON", moveBackDateTime.format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_DESC, "CON", moveBackDateTime.format(ISO_LOCAL_DATE_TIME));
         verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, "CON", moveBackDateTime);
@@ -115,7 +115,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     public void noChange_notUpdated() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_DESC, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
         verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
@@ -127,7 +127,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         final var dateTime = LocalDateTime.now().minusHours(1);
         final var invalidBookingId = "-69854";
 
-        final var response = requestMoveToCell(validToken(), invalidBookingId, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), invalidBookingId, NEW_CELL_DESC, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
         verifyErrorResponse(response, NOT_FOUND, invalidBookingId);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
@@ -137,7 +137,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     @Test
     public void locationTypeNotACell_badRequest() {
         final var dateTime = LocalDateTime.now().minusHours(1);
-        final var wing = "-1";
+        final var wing = "LEI-A";
 
         final var response = requestMoveToCell(validToken(), BOOKING_ID_S, wing, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
 
@@ -150,7 +150,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     public void noBookingAccess_notFound() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        final var response = requestMoveToCell(differentAgencyToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(differentAgencyToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
         verifyErrorResponse(response, NOT_FOUND, BOOKING_ID_S);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
@@ -161,7 +161,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     public void userReadOnly_forbidden() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
-        final var response = requestMoveToCell(readOnlyToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(readOnlyToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
         verifyErrorResponse(response, FORBIDDEN, "");
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
@@ -185,7 +185,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         final var dateTime = LocalDateTime.now().minusHours(1);
 
         doThrow(RuntimeException.class).when(bedAssignmentHistoryService).add(BOOKING_ID, NEW_CELL, "BEH", dateTime);
-        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
 
         verifyErrorResponse(response, INTERNAL_SERVER_ERROR, "");
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
