@@ -675,17 +675,17 @@ public class BookingService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public void updateLivingUnit(final Long bookingId, final Long livingUnitId) {
+    public void updateLivingUnit(final Long bookingId, final String livingUnitDescription) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking for booking id %d not found", bookingId)));
-        final var location = agencyInternalLocationRepository.findById(livingUnitId)
-                .orElseThrow(EntityNotFoundException.withMessage(format("Living unit with id %d not found", livingUnitId)));
+        final var location = agencyInternalLocationRepository.findOneByDescription(livingUnitDescription)
+                .orElseThrow(EntityNotFoundException.withMessage(format("Living unit %s not found", livingUnitDescription)));
 
         validateUpdateLivingUnit(offenderBooking, location);
 
         offenderBooking.setAssignedLivingUnit(location);
         offenderBookingRepository.save(offenderBooking);
-        log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
+        log.info("Updated offender {} booking id {} to living unit description {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitDescription);
     }
 
     private void validateUpdateLivingUnit(final OffenderBooking offenderBooking, final AgencyInternalLocation location) {
@@ -696,8 +696,8 @@ public class BookingService {
         );
         checkArgument(
                 location.isCell(),
-                "Living unit %d of type %s is not a cell",
-                location.getLocationId(), location.getLocationType()
+                "Living unit %s of type %s is not a cell",
+                location.getDescription(), location.getLocationType()
         );
     }
 

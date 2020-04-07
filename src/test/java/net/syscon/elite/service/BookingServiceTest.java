@@ -519,7 +519,9 @@ public class BookingServiceTest {
         final Long SOME_BOOKING_ID = 1L;
         final Long BAD_BOOKING_ID = 2L;
         final Long OLD_LIVING_UNIT_ID = 11L;
+        final String OLD_LIVING_UNIT_DESC = "A-1";
         final Long NEW_LIVING_UNIT_ID = 12L;
+        final String NEW_LIVING_UNIT_DESC = "Z-1";
         final String SOME_AGENCY_ID = "MDI";
         final String DIFFERENT_AGENCY_ID = "NOT_MDI";
 
@@ -527,7 +529,7 @@ public class BookingServiceTest {
         void bookingNotFound_throws() {
             when(offenderBookingRepository.findById(BAD_BOOKING_ID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, NEW_LIVING_UNIT_ID))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining(valueOf(BAD_BOOKING_ID));
         }
@@ -535,30 +537,34 @@ public class BookingServiceTest {
         @Test
         void livingUnitNotFound_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
-            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.empty());
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(EntityNotFoundException.class)
-                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_ID));
+                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC));
         }
 
         @Test
         void livingUnitNotCell_throws() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
-            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID, "WING")));
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_ID))
+                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC))
                     .hasMessageContaining("WING");
         }
 
         @Test
         void differentAgency_throws() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
-            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, DIFFERENT_AGENCY_ID)));
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(SOME_AGENCY_ID)
                     .hasMessageContaining(DIFFERENT_AGENCY_ID);
@@ -566,10 +572,12 @@ public class BookingServiceTest {
 
         @Test
         void ok_updatesRepo() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
-            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID)));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID)));
 
-            bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID);
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
@@ -589,13 +597,14 @@ public class BookingServiceTest {
                             .build());
         }
 
-        private AgencyInternalLocation aLocation(final Long locationId, final String agencyId) {
-            return aLocation(locationId, agencyId, "CELL");
+        private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId) {
+            return aLocation(locationId, locationDescription, agencyId, "CELL");
         }
 
-        private AgencyInternalLocation aLocation(final Long locationId, final String agencyId, final String locationType) {
+        private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId, final String locationType) {
             return AgencyInternalLocation.builder()
                     .locationId(locationId)
+                    .description(locationDescription)
                     .agencyId(agencyId)
                     .locationType(locationType)
                     .build();
