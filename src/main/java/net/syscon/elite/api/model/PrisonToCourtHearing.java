@@ -26,7 +26,7 @@ public class PrisonToCourtHearing {
     @Size(max = 6, message = "From location must be a maximum of 6 characters.")
     private String fromPrisonLocation;
 
-    @ApiModelProperty(required = true, value = "The court (agency code) where the offender will moved to.", position = 2, example = "LEEDSCC")
+    @ApiModelProperty(required = true, value = "The court (agency code) where the offender will moved to.", position = 2, example = "LEEDCC")
     @NotBlank(message = "The court location to be moved to must be provided.")
     @Size(max = 6, message = "To location must be a maximum of 6 characters.")
     private String toCourtLocation;
