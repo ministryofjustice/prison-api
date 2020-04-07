@@ -86,6 +86,7 @@ public class MovementUpdateService {
                 .bookingId(offenderBooking.getBookingId())
                 .agencyId(offenderBooking.getLocation().getId())
                 .assignedLivingUnitId(offenderBooking.getAssignedLivingUnit().getLocationId())
+                .assignedLivingUnitDesc(offenderBooking.getAssignedLivingUnit().getDescription())
                 .build();
     }
 

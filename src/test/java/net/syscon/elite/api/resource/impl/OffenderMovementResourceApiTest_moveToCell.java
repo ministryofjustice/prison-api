@@ -49,6 +49,7 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
         assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(1);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(2);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.assignedLivingUnitDesc").isEqualTo("LEI-A-1-1");
     }
 
     @Test

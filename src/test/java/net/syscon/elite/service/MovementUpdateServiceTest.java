@@ -100,7 +100,7 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, "N"));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, "N"));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
                     .hasMessage(format("Offender booking with id %s is not active.", SOME_BOOKING_ID));
@@ -182,8 +182,8 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(offenderBookingRepository.findById(anyLong()))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, "Y"))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, "Y"));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, "Y"))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, "Y"));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
                     .thenReturn(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC));
         }
@@ -192,14 +192,14 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, "Y"));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, "Y"));
             when(agencyInternalLocationRepository.findOneByDescription(OLD_LIVING_UNIT_DESC))
                     .thenReturn(aLocation(OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
         }
     }
 
-    private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final String agency, final Long livingUnitId, final String activeFlag) {
-        final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
+    private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final String agency, final Long livingUnitId, final String livingUnitDesc, final String activeFlag) {
+        final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).description(livingUnitDesc).build();
         return Optional.of(net.syscon.elite.repository.jpa.model.OffenderBooking.builder()
                 .activeFlag(activeFlag)
                 .bookingId(bookingId)

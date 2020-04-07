@@ -80,7 +80,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
         final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
 
-        verifySuccessResponse(response, BOOKING_ID, NEW_CELL);
+        verifySuccessResponse(response, BOOKING_ID, NEW_CELL, NEW_CELL_DESC);
         verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", dateTime);
     }
@@ -91,7 +91,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
         final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", "");
 
-        verifySuccessResponse(response, BOOKING_ID, NEW_CELL);
+        verifySuccessResponse(response, BOOKING_ID, NEW_CELL, NEW_CELL_DESC);
         verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", expectedDateTime);
     }
@@ -106,7 +106,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", dateTime);
 
         final var response = requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_DESC, "CON", moveBackDateTime.format(ISO_LOCAL_DATE_TIME));
-        verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL);
+        verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL, INITIAL_CELL_DESC);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, "CON", moveBackDateTime);
     }
@@ -117,7 +117,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
         final var response = requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_DESC, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
-        verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL);
+        verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL, INITIAL_CELL_DESC);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL, INITIAL_REASON, INITIAL_DATE_TIME);
     }
@@ -237,10 +237,11 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
 
     }
 
-    private void verifySuccessResponse(final ResponseEntity<String> response, final Long bookingId, final Long internalLocationId) {
+    private void verifySuccessResponse(final ResponseEntity<String> response, final Long bookingId, final Long internalLocationId, final String internalLocationDesc) {
         assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(bookingId.intValue());
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(internalLocationId.intValue());
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.assignedLivingUnitDesc").isEqualTo(internalLocationDesc);
     }
 
     private void verifyErrorResponse(final ResponseEntity<String> response, final HttpStatus status, final String... partialMessages) {
