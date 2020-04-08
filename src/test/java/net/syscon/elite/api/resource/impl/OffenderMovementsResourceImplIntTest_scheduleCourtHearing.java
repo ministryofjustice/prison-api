@@ -61,8 +61,8 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
         assertThat(response.getBody()).isEqualTo(
                 ErrorResponse.builder()
                         .status(404)
-                        .userMessage("Resource with id [9999999] not found.")
-                        .developerMessage("Resource with id [9999999] not found.")
+                        .userMessage("Offender booking with id 9999999 not found.")
+                        .developerMessage("Offender booking with id 9999999 not found.")
                         .build());
     }
 

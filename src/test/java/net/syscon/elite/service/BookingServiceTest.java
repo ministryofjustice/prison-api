@@ -40,7 +40,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.HttpClientErrorException;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -402,7 +401,7 @@ public class BookingServiceTest {
     @Test
     public void getMilitaryRecords_notfound() {
         when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
+        assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Offender booking with id -1 not found.");
     }
 
     @Test
@@ -493,10 +492,14 @@ public class BookingServiceTest {
                 .caseInfoNumber("cin");
     }
 
+
     @Test
-    void getOffenderCourtCases_notfound() {
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L, false)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
+    void getOffenderCourtCases_errors_for_unknown_booking() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L, true))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Offender booking with id -1 not found.");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {

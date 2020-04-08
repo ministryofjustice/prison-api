@@ -13,7 +13,7 @@ Feature: Change the current IEP Level for a booking
     And the new IEP Level should be "STD" with comment "A Comment"
     When the new level is applied to the booking
     Then the response status code is "404"
-    And the error response message contains "Resource with id [-54] not found."
+    And the error response message contains "Offender booking with id -54 not found."
 
   Scenario: A user who is not authorised to change IEP Levels attempts to change the current IEP level of a booking within their caseloads.
     Given a user has a token name of "NORMAL_USER"
