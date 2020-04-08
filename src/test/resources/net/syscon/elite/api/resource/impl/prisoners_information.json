@@ -1,8 +1,20 @@
 [
   {
+    "nomsId": "A118HHH",
+    "establishmentCode": "LEI",
+    "bookingId": -51,
+    "givenName1": "DARREN",
+    "lastName": "LYNCH",
+    "dateOfBirth": "1982-01-02",
+    "gender": "Male",
+    "englishSpeaking": false,
+    "communityStatus": "INACTIVE IN"
+  },
+  {
+    "nomsId": "A1178RS",
     "establishmentCode": "LEI",
     "bookingId": -34,
-    "nomsId": "A1178RS",
+    "givenName1": "FRED",
     "lastName": "QUIMBY",
     "dateOfBirth": "1945-01-10",
     "gender": "Male",
@@ -12,21 +24,24 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A5577RS",
     "establishmentCode": "LEI",
     "bookingId": -33,
-    "nomsId": "A5577RS",
+    "givenName1": "HAROLD",
     "lastName": "LLOYD",
     "dateOfBirth": "1945-01-10",
     "gender": "Male",
     "englishSpeaking": false,
     "unitCode1": "H",
     "unitCode2": "1",
+    "unitCode3": "1",
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A1176RS",
     "establishmentCode": "LEI",
     "bookingId": -32,
-    "nomsId": "A1176RS",
+    "givenName1": "FRED",
     "lastName": "JAMES",
     "dateOfBirth": "1945-01-09",
     "gender": "Male",
@@ -37,9 +52,10 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A5576RS",
     "establishmentCode": "LEI",
     "bookingId": -31,
-    "nomsId": "A5576RS",
+    "givenName1": "HARRY",
     "lastName": "SARLY",
     "dateOfBirth": "1945-01-10",
     "gender": "Male",
@@ -50,9 +66,10 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A4476RS",
     "establishmentCode": "LEI",
     "bookingId": -30,
-    "nomsId": "A4476RS",
+    "givenName1": "NEIL",
     "lastName": "SARLY",
     "dateOfBirth": "1945-01-10",
     "gender": "Male",
@@ -63,9 +80,11 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A6676RS",
     "establishmentCode": "LEI",
     "bookingId": -29,
-    "nomsId": "A6676RS",
+    "givenName1": "NEIL",
+    "givenName2": "IAN",
     "lastName": "BRADLEY",
     "dateOfBirth": "1945-01-10",
     "gender": "Male",
@@ -77,9 +96,10 @@
     "legalStatus": "Remand"
   },
   {
+    "nomsId": "A9876RS",
     "establishmentCode": "LEI",
     "bookingId": -28,
-    "nomsId": "A9876RS",
+    "givenName1": "RODERICK",
     "lastName": "STEWART",
     "dateOfBirth": "1945-01-10",
     "gender": "Male",
@@ -89,9 +109,10 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A9876EC",
     "establishmentCode": "LEI",
     "bookingId": -27,
-    "nomsId": "A9876EC",
+    "givenName1": "ERIC",
     "lastName": "CLAPTON",
     "dateOfBirth": "1945-03-30",
     "gender": "Male",
@@ -102,9 +123,11 @@
     "legalStatus": "Remand"
   },
   {
+    "nomsId": "Z0025ZZ",
     "establishmentCode": "LEI",
     "bookingId": -25,
-    "nomsId": "Z0025ZZ",
+    "givenName1": "MATTHEW",
+    "givenName2": "DAVID",
     "lastName": "SMITH",
     "dateOfBirth": "1974-01-01",
     "gender": "Male",
@@ -115,9 +138,10 @@
     "communityStatus": "ACTIVE OUT"
   },
   {
+    "nomsId": "Z0024ZZ",
     "establishmentCode": "LEI",
     "bookingId": -24,
-    "nomsId": "Z0024ZZ",
+    "givenName1": "LUCIUS",
     "lastName": "FOX",
     "dateOfBirth": "1958-01-01",
     "gender": "Male",
@@ -129,9 +153,10 @@
     "legalStatus": "Remand"
   },
   {
+    "nomsId": "Z0019ZZ",
     "establishmentCode": "LEI",
     "bookingId": -19,
-    "nomsId": "Z0019ZZ",
+    "givenName1": "STEPHEN",
     "lastName": "STRUDWICK",
     "dateOfBirth": "1968-01-01",
     "gender": "Male",
@@ -141,9 +166,10 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "Z0018ZZ",
     "establishmentCode": "LEI",
     "bookingId": -18,
-    "nomsId": "Z0018ZZ",
+    "givenName1": "NICK",
     "lastName": "TALBOT",
     "dateOfBirth": "1970-01-01",
     "gender": "Male",
@@ -154,9 +180,10 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "Z0017ZZ",
     "establishmentCode": "LEI",
     "bookingId": -17,
-    "nomsId": "Z0017ZZ",
+    "givenName1": "MICHEAL",
     "lastName": "PETERS",
     "dateOfBirth": "1972-01-01",
     "gender": "Male",
@@ -167,9 +194,11 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A1234AL",
     "establishmentCode": "LEI",
     "bookingId": -12,
-    "nomsId": "A1234AL",
+    "givenName1": "DANIEL",
+    "givenName2": "JOHN",
     "lastName": "SMELLEY",
     "dateOfBirth": "1968-01-01",
     "gender": "Male",
@@ -180,9 +209,10 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A1234AK",
     "establishmentCode": "LEI",
     "bookingId": -11,
-    "nomsId": "A1234AK",
+    "givenName1": "DARIUS",
     "lastName": "SMITH",
     "dateOfBirth": "1979-12-31",
     "gender": "Male",
@@ -194,9 +224,11 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A1234AJ",
     "establishmentCode": "LEI",
     "bookingId": -10,
-    "nomsId": "A1234AJ",
+    "givenName1": "DANIEL",
+    "givenName2": "JOSEPH",
     "lastName": "SMITH",
     "dateOfBirth": "1958-01-01",
     "gender": "Male",
@@ -208,9 +240,11 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A1234AI",
     "establishmentCode": "LEI",
     "bookingId": -9,
-    "nomsId": "A1234AI",
+    "givenName1": "CHESTER",
+    "givenName2": "JAMES",
     "lastName": "THOMPSON",
     "dateOfBirth": "1970-03-01",
     "gender": "Male",
@@ -223,9 +257,10 @@
     "legalStatus": "Convicted"
   },
   {
+    "nomsId": "A1234AH",
     "establishmentCode": "LEI",
     "bookingId": -8,
-    "nomsId": "A1234AH",
+    "givenName1": "HARRY",
     "lastName": "JONES",
     "dateOfBirth": "1986-06-01",
     "gender": "Male",
@@ -237,9 +272,11 @@
     "communityStatus": "ACTIVE IN"
   },
   {
+    "nomsId": "A1234AG",
     "establishmentCode": "LEI",
     "bookingId": -7,
-    "nomsId": "A1234AG",
+    "givenName1": "GILES",
+    "givenName2": "DAVID",
     "lastName": "SMITH",
     "dateOfBirth": "1977-01-02",
     "gender": "Male",
@@ -253,9 +290,10 @@
     "legalStatus": "Convicted"
   },
   {
+    "nomsId": "A1234AF",
     "establishmentCode": "LEI",
     "bookingId": -6,
-    "nomsId": "A1234AF",
+    "givenName1": "ANTHONY",
     "lastName": "ANDREWS",
     "dateOfBirth": "1964-12-01",
     "gender": "Male",
@@ -269,9 +307,11 @@
     "legalStatus": "Convicted"
   },
   {
+    "nomsId": "A1234AE",
     "establishmentCode": "LEI",
     "bookingId": -5,
-    "nomsId": "A1234AE",
+    "givenName1": "DONALD",
+    "givenName2": "JEFFREY ROBERT",
     "lastName": "MATTHEWS",
     "dateOfBirth": "1956-02-28",
     "gender": "Male",
@@ -285,9 +325,11 @@
     "legalStatus": "Convicted"
   },
   {
+    "nomsId": "A1234AD",
     "establishmentCode": "LEI",
     "bookingId": -4,
-    "nomsId": "A1234AD",
+    "givenName1": "CHARLES",
+    "givenName2": "JAMES",
     "lastName": "CHAPLIN",
     "dateOfBirth": "1970-01-01",
     "gender": "Male",
@@ -300,9 +342,11 @@
     "legalStatus": "Convicted"
   },
   {
+    "nomsId": "A1234AC",
     "establishmentCode": "LEI",
     "bookingId": -3,
-    "nomsId": "A1234AC",
+    "givenName1": "NORMAN",
+    "givenName2": "JOHN",
     "lastName": "BATES",
     "dateOfBirth": "1999-10-27",
     "gender": "Male",
@@ -316,9 +360,11 @@
     "legalStatus": "Convicted"
   },
   {
+    "nomsId": "A1234AB",
     "establishmentCode": "LEI",
     "bookingId": -2,
-    "nomsId": "A1234AB",
+    "givenName1": "GILLIAN",
+    "givenName2": "EVE",
     "lastName": "ANDERSON",
     "dateOfBirth": "1998-08-28",
     "gender": "Female",
@@ -331,9 +377,11 @@
     "legalStatus": "Convicted"
   },
   {
+    "nomsId": "A1234AA",
     "establishmentCode": "LEI",
     "bookingId": -1,
-    "nomsId": "A1234AA",
+    "givenName1": "ARTHUR",
+    "givenName2": "BORIS",
     "lastName": "ANDERSON",
     "dateOfBirth": "1969-12-30",
     "gender": "Male",
