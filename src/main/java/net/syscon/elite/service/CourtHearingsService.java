@@ -165,7 +165,7 @@ public class CourtHearingsService {
     }
 
     private OffenderBooking activeOffenderBookingFor(final Long bookingId) {
-        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
 
         checkArgument(offenderBooking.isActive(), "Offender booking with id %s is not active.", bookingId);
 
@@ -173,7 +173,7 @@ public class CourtHearingsService {
     }
 
     private OffenderCourtCase getActiveCourtCaseFor(final Long caseId, final OffenderBooking offenderBooking) {
-        final var courtCase = offenderBooking.getCourtCaseBy(caseId).orElseThrow(EntityNotFoundException.withId(caseId));
+        final var courtCase = offenderBooking.getCourtCaseBy(caseId).orElseThrow(EntityNotFoundException.withMessage("Court case with id %d not found.", caseId));
 
         checkArgument(courtCase.isActive(), "Court case with id %s is not active.", caseId);
 
@@ -181,13 +181,13 @@ public class CourtHearingsService {
     }
 
     private void checkPrisonLocationSameAsOffenderBooking(final String prisonLocation, final OffenderBooking booking) {
-        final var agency = agencyLocationRepository.findById(prisonLocation).orElseThrow(EntityNotFoundException.withId(prisonLocation));
+        final var prison = agencyLocationRepository.findById(prisonLocation).orElseThrow(EntityNotFoundException.withMessage("Prison with id %s not found.", prisonLocation));
 
-        checkArgument(booking.getLocation().equals(agency), "Prison location does not match the bookings location.");
+        checkArgument(booking.getLocation().equals(prison), "Prison location does not match the bookings location.");
     }
 
     private AgencyLocation getActiveCourtFor(final String courtLocation) {
-        final var agency = agencyLocationRepository.findById(courtLocation).orElseThrow(EntityNotFoundException.withId(courtLocation));
+        final var agency = agencyLocationRepository.findById(courtLocation).orElseThrow(EntityNotFoundException.withMessage("Court with id %s not found.", courtLocation));
 
         checkArgument(agency.getType().equalsIgnoreCase("CRT"), "Supplied court location wih id %s is not a valid court location.", courtLocation);
         checkArgument(agency.getActiveFlag().isActive(), "Supplied court location wih id %s is not active.", courtLocation);

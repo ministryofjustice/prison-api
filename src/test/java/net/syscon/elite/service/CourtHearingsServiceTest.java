@@ -187,7 +187,7 @@ public class CourtHearingsServiceTest {
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, 1L, PRISON_TO_COURT_HEARING))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Resource with id [%s] not found.", OFFENDER_BOOKING_ID);
+                .hasMessage("Offender booking with id %d not found.", OFFENDER_BOOKING_ID);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class CourtHearingsServiceTest {
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(OFFENDER_BOOKING_ID, PRISON_TO_COURT_HEARING))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Resource with id [%s] not found.", OFFENDER_BOOKING_ID);
+                .hasMessage("Offender booking with id %d not found.", OFFENDER_BOOKING_ID);
     }
 
     @Test
@@ -205,7 +205,7 @@ public class CourtHearingsServiceTest {
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Offender booking with id %s is not active.", OFFENDER_BOOKING_ID);
+                .hasMessage("Offender booking with id %d is not active.", offenderBooking.getBookingId());
     }
 
     @Test
@@ -214,7 +214,7 @@ public class CourtHearingsServiceTest {
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Offender booking with id %s is not active.", OFFENDER_BOOKING_ID);
+                .hasMessage("Offender booking with id %d is not active.", offenderBooking.getBookingId());
     }
 
     private void givenNoActiveBooking() {
@@ -234,7 +234,7 @@ public class CourtHearingsServiceTest {
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Resource with id [1] not found.");
+                .hasMessageContaining("Court case with id 1 not found.");
     }
 
     private void givenNoMatchingCourtCaseForActiveBooking() {
@@ -278,7 +278,7 @@ public class CourtHearingsServiceTest {
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Resource with id [PRISON] not found.");
+                .hasMessageContaining("Prison with id PRISON not found.");
     }
 
     @Test
@@ -287,7 +287,7 @@ public class CourtHearingsServiceTest {
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Resource with id [PRISON] not found.");
+                .hasMessageContaining("Prison with id PRISON not found.");
     }
 
     private void givenPrisonNotFound() {
@@ -309,7 +309,7 @@ public class CourtHearingsServiceTest {
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Resource with id [COURT] not found.");
+                .hasMessageContaining("Court with id COURT not found.");
     }
 
     @Test
@@ -318,7 +318,7 @@ public class CourtHearingsServiceTest {
 
         assertThatThrownBy(() -> courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Resource with id [COURT] not found.");
+                .hasMessageContaining("Court with id COURT not found.");
     }
 
     private void givenCourtNotFound() {

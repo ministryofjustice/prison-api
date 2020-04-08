@@ -85,8 +85,8 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
         assertThat(response.getBody()).isEqualTo(
                 ErrorResponse.builder()
                         .status(404)
-                        .userMessage("Resource with id [PRISON] not found.")
-                        .developerMessage("Resource with id [PRISON] not found.")
+                        .userMessage("Prison with id PRISON not found.")
+                        .developerMessage("Prison with id PRISON not found.")
                         .build());
     }
 
@@ -109,8 +109,8 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
         assertThat(response.getBody()).isEqualTo(
                 ErrorResponse.builder()
                         .status(404)
-                        .userMessage("Resource with id [COURT] not found.")
-                        .developerMessage("Resource with id [COURT] not found.")
+                        .userMessage("Court with id COURT not found.")
+                        .developerMessage("Court with id COURT not found.")
                         .build());
     }
 
