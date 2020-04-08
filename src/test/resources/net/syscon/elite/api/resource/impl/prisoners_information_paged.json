@@ -11,6 +11,7 @@
       "englishSpeaking": false,
       "unitCode1": "H",
       "unitCode2": "1",
+      "unitCode3": "1",
       "communityStatus": "ACTIVE IN"
     },
     {
@@ -59,18 +60,15 @@
       "communityStatus": "ACTIVE IN"
     },
     {
-      "nomsId": "A5576RS",
+      "nomsId": "A118HHH",
       "establishmentCode": "LEI",
-      "bookingId": -31,
-      "givenName1": "HARRY",
-      "lastName": "SARLY",
-      "dateOfBirth": "1945-01-10",
+      "bookingId": -51,
+      "givenName1": "DARREN",
+      "lastName": "LYNCH",
+      "dateOfBirth": "1982-01-02",
       "gender": "Male",
       "englishSpeaking": false,
-      "unitCode1": "H",
-      "unitCode2": "1",
-      "categoryCode": "A",
-      "communityStatus": "ACTIVE IN"
+      "communityStatus": "INACTIVE IN"
     }
   ],
   "pageable": {
@@ -85,8 +83,8 @@
     "paged": true,
     "unpaged": false
   },
-  "totalPages": 5,
-  "totalElements": 25,
+  "totalElements": 26,
+  "totalPages": 6,
   "last": false,
   "size": 5,
   "numberOfElements": 5,
