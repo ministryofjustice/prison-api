@@ -50,7 +50,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 
-import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -519,10 +518,10 @@ public class BookingService {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty()) {
-            throw EntityNotFoundException.withId(bookingId);
+            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
-            throw EntityNotFoundException.withId(bookingId);
+            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
     }
 
@@ -530,7 +529,7 @@ public class BookingService {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         if (!bookingRepository.checkBookingExists(bookingId)) {
-            throw EntityNotFoundException.withId(bookingId);
+            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
     }
 
@@ -661,7 +660,7 @@ public class BookingService {
                                 .disciplinaryActionDescription(ReferenceCode.getDescriptionOrNull(mr.getDisciplinaryAction()))
                                 .build())
                         .collect(Collectors.toUnmodifiableList())
-                )).orElseThrow(EntityNotFoundException.withId(bookingId));
+                )).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
     @VerifyBookingAccess
@@ -669,7 +668,7 @@ public class BookingService {
         return offenderBookingRepository.findById(bookingId)
                 .map(booking -> activeOnly ? booking.getActiveCourtCases() : booking.getCourtCases())
                 .map(CourtCaseTransformer::transform)
-                .orElseThrow(EntityNotFoundException.withId(bookingId));
+                .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
     @Transactional
@@ -677,7 +676,7 @@ public class BookingService {
     @HasWriteScope
     public void updateLivingUnit(final Long bookingId, final String livingUnitDescription) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)
-                .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking for booking id %d not found", bookingId)));
+                .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking with booking id %d not found", bookingId)));
         final var location = agencyInternalLocationRepository.findOneByDescription(livingUnitDescription)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Living unit %s not found", livingUnitDescription)));
 

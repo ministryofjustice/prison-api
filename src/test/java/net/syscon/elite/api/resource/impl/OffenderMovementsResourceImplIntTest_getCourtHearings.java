@@ -88,8 +88,8 @@ public class OffenderMovementsResourceImplIntTest_getCourtHearings extends Resou
 
         assertThat(response.getBody()).isEqualTo(ErrorResponse.builder()
                 .status(404)
-                .userMessage("Resource with id [666] not found.")
-                .developerMessage("Resource with id [666] not found.")
+                .userMessage("Offender booking with id 666 not found.")
+                .developerMessage("Offender booking with id 666 not found.")
                 .build());
     }
 
