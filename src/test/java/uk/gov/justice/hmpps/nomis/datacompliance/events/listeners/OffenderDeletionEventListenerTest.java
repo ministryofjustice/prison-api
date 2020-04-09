@@ -38,10 +38,10 @@ class OffenderDeletionEventListenerTest {
     void handleOffenderDeletionEvent() {
 
         handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\"}",
+                "{\"offenderIdDisplay\":\"A1234AA\",\"referralId\":123}",
                 Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED"));
 
-        verify(offenderDeletionService).deleteOffender("A1234AA");
+        verify(offenderDeletionService).deleteOffender("A1234AA", 123L);
     }
 
     @Test

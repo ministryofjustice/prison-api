@@ -21,13 +21,13 @@ public class OffenderDeletionService {
     private final TelemetryClient telemetryClient;
 
     @Transactional
-    public void deleteOffender(final String offenderNumber) {
+    public void deleteOffender(final String offenderNumber, final Long referralId) {
 
         // TODO GDPR-70 Conduct final double-check that the record hasn't been updated before deleting
 
         final var offenderIds = offenderDeletionRepository.deleteOffender(offenderNumber);
 
-        offenderDeletionEventPusher.sendDeletionCompleteEvent(new OffenderDeletionCompleteEvent(offenderNumber));
+        offenderDeletionEventPusher.sendDeletionCompleteEvent(new OffenderDeletionCompleteEvent(offenderNumber, referralId));
 
         telemetryClient.trackEvent("OffenderDelete",
                 Map.of("offenderNo", offenderNumber, "count", String.valueOf(offenderIds.size())), null);

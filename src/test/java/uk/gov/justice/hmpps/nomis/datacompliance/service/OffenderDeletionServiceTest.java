@@ -21,6 +21,7 @@ public class OffenderDeletionServiceTest {
 
     private static final String OFFENDER_NUMBER = "A1234AA";
     private static final String OFFENDER_ID = "123";
+    private static final Long REFERRAL_ID = 321L;
 
     @Mock
     private OffenderDeletionRepository offenderDeletionRepository;
@@ -42,9 +43,9 @@ public class OffenderDeletionServiceTest {
     public void deleteOffender() {
         when(offenderDeletionRepository.deleteOffender(OFFENDER_NUMBER)).thenReturn(Set.of(OFFENDER_ID));
 
-        service.deleteOffender(OFFENDER_NUMBER);
+        service.deleteOffender(OFFENDER_NUMBER, REFERRAL_ID);
 
-        verify(offenderDeletionEventPusher).sendDeletionCompleteEvent(new OffenderDeletionCompleteEvent(OFFENDER_NUMBER));
+        verify(offenderDeletionEventPusher).sendDeletionCompleteEvent(new OffenderDeletionCompleteEvent(OFFENDER_NUMBER, REFERRAL_ID));
         verify(telemetryClient).trackEvent("OffenderDelete", Map.of("offenderNo", OFFENDER_NUMBER, "count", "1"), null);
     }
 }
