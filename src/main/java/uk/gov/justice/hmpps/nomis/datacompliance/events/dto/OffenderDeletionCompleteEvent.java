@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class OffenderDeletionCompleteEvent {
+
+    @JsonProperty("offenderIdDisplay")
     private String offenderIdDisplay;
+
+    @JsonProperty("referralId")
+    private Long referralId;
 }
 

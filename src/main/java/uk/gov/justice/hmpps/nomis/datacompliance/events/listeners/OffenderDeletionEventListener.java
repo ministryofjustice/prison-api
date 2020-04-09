@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService
 
 import java.io.IOException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
@@ -41,8 +42,9 @@ public class OffenderDeletionEventListener {
 
         checkEventType(message.getHeaders());
 
-        offenderDeletionService.deleteOffender(
-                getOffenderIdDisplay(message.getPayload()));
+        final var event = parseOffenderDeletionEvent(message.getPayload());
+
+        offenderDeletionService.deleteOffender(event.getOffenderIdDisplay(), event.getReferralId());
     }
 
     private void checkEventType(final MessageHeaders messageHeaders) {
@@ -53,19 +55,14 @@ public class OffenderDeletionEventListener {
                 "Unexpected message event type: '%s', expecting: '%s'", eventType, EXPECTED_EVENT_TYPE);
     }
 
-    private String getOffenderIdDisplay(final String messageBody) {
-
-        final OffenderDeletionGrantedEvent event = parseOffenderDeletionEvent(messageBody);
-
-        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", messageBody);
-
-        return event.getOffenderIdDisplay();
-    }
-
     private OffenderDeletionGrantedEvent parseOffenderDeletionEvent(final String requestJson) {
         try {
-            return objectMapper.readValue(requestJson, OffenderDeletionGrantedEvent.class);
+            final var event = objectMapper.readValue(requestJson, OffenderDeletionGrantedEvent.class);
 
+            checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", requestJson);
+            checkNotNull(event.getReferralId(), "No referral ID specified in request: %s", requestJson);
+
+            return event;
         } catch (final IOException e) {
             throw new RuntimeException("Failed to parse request: " + requestJson, e);
         }

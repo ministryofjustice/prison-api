@@ -96,10 +96,10 @@ class OffenderDeletionEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendDeletionCompleteEvent(new OffenderDeletionCompleteEvent("offender1"));
+        eventPusher.sendDeletionCompleteEvent(new OffenderDeletionCompleteEvent("offender1", 123L));
 
         assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
-        assertThat(request.getValue().getMessageBody()).isEqualTo("{\"offenderIdDisplay\":\"offender1\"}");
+        assertThat(request.getValue().getMessageBody()).isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"referralId\":123}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
                 .isEqualTo("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE");
     }
