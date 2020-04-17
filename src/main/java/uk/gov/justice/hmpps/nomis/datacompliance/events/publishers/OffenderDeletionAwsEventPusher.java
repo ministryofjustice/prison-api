@@ -48,7 +48,7 @@ public class OffenderDeletionAwsEventPusher implements OffenderDeletionEventPush
     @Override
     public void sendReferralCompleteEvent(final OffenderPendingDeletionReferralCompleteEvent event) {
 
-        log.trace("Sending process completed event for request: {}", event.getRequestId());
+        log.trace("Sending process completed event for request: {}", event.getBatchId());
 
         sqsClient.sendMessage(generateReferralCompleteRequest(event));
     }

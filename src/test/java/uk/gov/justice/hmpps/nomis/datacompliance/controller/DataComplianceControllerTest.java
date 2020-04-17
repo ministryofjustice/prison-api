@@ -23,7 +23,7 @@ import static org.springframework.http.HttpMethod.POST;
 
 public class DataComplianceControllerTest extends ResourceTest {
 
-    private static final String REQUEST_ID = "123";
+    private static final long BATCH_ID = 123L;
 
     // This date is 7 years after the SED_CALCULATED_DATE of the expected record
     private static final LocalDateTime WINDOW_START = LocalDateTime.of(2027, 3, 24, 0, 0);
@@ -37,7 +37,7 @@ public class DataComplianceControllerTest extends ResourceTest {
 
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER),
                 PendingDeletionRequest.builder()
-                        .requestId(REQUEST_ID)
+                        .batchId(BATCH_ID)
                         .dueForDeletionWindowStart(WINDOW_START)
                         .dueForDeletionWindowEnd(WINDOW_END)
                         .build());
@@ -49,6 +49,7 @@ public class DataComplianceControllerTest extends ResourceTest {
         verify(offenderDeletionEventPusher, timeout(5000)).sendPendingDeletionEvent(
                 OffenderPendingDeletionEvent.builder()
                         .offenderIdDisplay("Z0020ZZ")
+                        .batchId(BATCH_ID)
                         .firstName("BURT")
                         .lastName("REYNOLDS")
                         .birthDate(LocalDate.of(1966, 1, 1))
@@ -59,7 +60,7 @@ public class DataComplianceControllerTest extends ResourceTest {
                         .build());
 
         verify(offenderDeletionEventPusher, timeout(5000))
-                .sendReferralCompleteEvent(new OffenderPendingDeletionReferralCompleteEvent(REQUEST_ID));
+                .sendReferralCompleteEvent(new OffenderPendingDeletionReferralCompleteEvent(BATCH_ID));
     }
 
     @Test

@@ -1,14 +1,12 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository;
 
 import net.syscon.elite.Elite2ApiServer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 
@@ -17,16 +15,15 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 
 @DataJpaTest
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = { Elite2ApiServer.class })
-public class OffenderAliasPendingDeletionRepositoryTest {
+class OffenderAliasPendingDeletionRepositoryTest {
 
     @Autowired
     private OffenderAliasPendingDeletionRepository repository;
 
     @Test
-    public void findOffenderAliasPendingDeletion() {
+    void findOffenderAliasPendingDeletion() {
 
         final var offenders = repository.findOffenderAliasPendingDeletionByOffenderNumber("A1234AA");
 
@@ -46,7 +43,7 @@ public class OffenderAliasPendingDeletionRepositoryTest {
     }
 
     @Test
-    public void findOffenderAliasPendingDeletionReturnsEmpty() {
+    void findOffenderAliasPendingDeletionReturnsEmpty() {
         assertThat(repository.findOffenderAliasPendingDeletionByOffenderNumber("DOES_NOT_EXIST")).isEmpty();
     }
 }

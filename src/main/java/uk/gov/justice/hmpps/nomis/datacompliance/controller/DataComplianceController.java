@@ -39,7 +39,7 @@ public class DataComplianceController {
     ResponseEntity<Void> requestOffenderPendingDeletions(@Valid @NotNull @RequestBody PendingDeletionRequest request) {
 
         offenderDataComplianceService.acceptOffendersPendingDeletionRequest(
-                request.getRequestId(),
+                request.getBatchId(),
                 request.getDueForDeletionWindowStart(),
                 request.getDueForDeletionWindowEnd())
                 .exceptionally(error -> {

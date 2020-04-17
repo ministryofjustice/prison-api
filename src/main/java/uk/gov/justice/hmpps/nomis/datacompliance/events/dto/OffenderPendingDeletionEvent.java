@@ -35,6 +35,9 @@ public class OffenderPendingDeletionEvent {
     @JsonProperty("offenderIdDisplay")
     private String offenderIdDisplay;
 
+    @JsonProperty("batchId")
+    private Long batchId;
+
     @JsonProperty("firstName")
     private String firstName;
 
