@@ -80,10 +80,10 @@ class OffenderDeletionEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendReferralCompleteEvent(new OffenderPendingDeletionReferralCompleteEvent("request1"));
+        eventPusher.sendReferralCompleteEvent(new OffenderPendingDeletionReferralCompleteEvent(123L));
 
         assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
-        assertThat(request.getValue().getMessageBody()).isEqualTo("{\"requestId\":\"request1\"}");
+        assertThat(request.getValue().getMessageBody()).isEqualTo("{\"batchId\":123}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
                 .isEqualTo("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-REFERRAL-COMPLETE");
     }

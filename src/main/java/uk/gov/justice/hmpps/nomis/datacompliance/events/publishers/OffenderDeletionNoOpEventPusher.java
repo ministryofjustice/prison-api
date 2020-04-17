@@ -23,7 +23,7 @@ public class OffenderDeletionNoOpEventPusher implements OffenderDeletionEventPus
 
     @Override
     public void sendReferralCompleteEvent(final OffenderPendingDeletionReferralCompleteEvent event) {
-        log.warn("Pretending to push process completed event for request '{}' to queue", event.getRequestId());
+        log.warn("Pretending to push process completed event for request '{}' to queue", event.getBatchId());
     }
 
     @Override

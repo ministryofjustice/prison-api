@@ -34,20 +34,21 @@ public class DataComplianceReferralService {
     private final OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
     private final OffenderDeletionEventPusher offenderDeletionEventPusher;
 
-    public CompletableFuture<Void> acceptOffendersPendingDeletionRequest(final String requestId,
+    public CompletableFuture<Void> acceptOffendersPendingDeletionRequest(final Long batchId,
                                                                          final LocalDateTime from,
                                                                          final LocalDateTime to) {
         return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to))
 
                 .thenAccept(offenders -> offenders.forEach(offenderNumber ->
                         offenderDeletionEventPusher.sendPendingDeletionEvent(
-                                generateOffenderPendingDeletionEvent(offenderNumber))))
+                                generateOffenderPendingDeletionEvent(offenderNumber, batchId))))
 
                 .thenRun(() -> offenderDeletionEventPusher.sendReferralCompleteEvent(
-                        new OffenderPendingDeletionReferralCompleteEvent(requestId)));
+                        new OffenderPendingDeletionReferralCompleteEvent(batchId)));
     }
 
-    private OffenderPendingDeletionEvent generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber) {
+    private OffenderPendingDeletionEvent generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber,
+                                                                              final Long batchId) {
 
         final var offenderAliases = offenderAliasPendingDeletionRepository
                 .findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber.getOffenderNumber());
@@ -60,7 +61,7 @@ public class DataComplianceReferralService {
                 .orElseThrow(() -> new IllegalStateException(
                         format("Cannot find root offender alias for '%s'", offenderNumber.getOffenderNumber())));
 
-        return transform(offenderNumber, rootOffenderAlias, offenderAliases);
+        return transform(offenderNumber, rootOffenderAlias, offenderAliases, batchId);
     }
 
     private List<OffenderNumber> getOffendersPendingDeletion(final LocalDateTime from,
@@ -81,9 +82,11 @@ public class DataComplianceReferralService {
 
     private OffenderPendingDeletionEvent transform(final OffenderNumber offenderNumber,
                                                    final OffenderAliasPendingDeletion rootOffenderAlias,
-                                                   final Collection<OffenderAliasPendingDeletion> offenderAliases) {
+                                                   final Collection<OffenderAliasPendingDeletion> offenderAliases,
+                                                   final Long batchId) {
         return OffenderPendingDeletionEvent.builder()
                 .offenderIdDisplay(offenderNumber.getOffenderNumber())
+                .batchId(batchId)
                 .firstName(rootOffenderAlias.getFirstName())
                 .middleName(rootOffenderAlias.getMiddleName())
                 .lastName(rootOffenderAlias.getLastName())

@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class DataComplianceReferralServiceTest {
 
-    private static final String REQUEST_ID = "123";
+    private static final long BATCH_ID = 123L;
     private static final LocalDateTime WINDOW_START = LocalDateTime.now();
     private static final LocalDateTime WINDOW_END = WINDOW_START.plusDays(1);
 
@@ -69,11 +69,11 @@ public class DataComplianceReferralServiceTest {
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_2))
                 .thenReturn(List.of(offenderAliasPendingDeletion(2)));
 
-        service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get();
+        service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END).get();
 
         verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(1L, OFFENDER_NUMBER_1));
         verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(2L, OFFENDER_NUMBER_2));
-        verify(eventPusher).sendReferralCompleteEvent(expectedReferralCompleteEvent(REQUEST_ID));
+        verify(eventPusher).sendReferralCompleteEvent(expectedReferralCompleteEvent(BATCH_ID));
         verifyNoMoreInteractions(eventPusher);
     }
 
@@ -87,7 +87,7 @@ public class DataComplianceReferralServiceTest {
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
                 .thenReturn(emptyList());
 
-        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get())
+        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END).get())
                 .hasCauseInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Offender not found: 'A1234AA'");
     }
@@ -105,7 +105,7 @@ public class DataComplianceReferralServiceTest {
                         .rootOffenderId(2L)
                         .build()));
 
-        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get())
+        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END).get())
                 .hasCauseInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Cannot find root offender alias for 'A1234AA'");
     }
@@ -113,6 +113,7 @@ public class DataComplianceReferralServiceTest {
     private OffenderPendingDeletionEvent expectedPendingDeletionEvent(final long offenderId, final String offenderNumber) {
         return OffenderPendingDeletionEvent.builder()
                 .offenderIdDisplay(offenderNumber)
+                .batchId(123L)
                 .firstName("John" + offenderId)
                 .middleName("Middle" + offenderId)
                 .lastName("Smith" + offenderId)
@@ -124,8 +125,8 @@ public class DataComplianceReferralServiceTest {
                 .build();
     }
 
-    private OffenderPendingDeletionReferralCompleteEvent expectedReferralCompleteEvent(final String requestId) {
-        return new OffenderPendingDeletionReferralCompleteEvent(requestId);
+    private OffenderPendingDeletionReferralCompleteEvent expectedReferralCompleteEvent(final Long batchId) {
+        return new OffenderPendingDeletionReferralCompleteEvent(batchId);
     }
 
     private OffenderAliasPendingDeletion offenderAliasPendingDeletion(final long offenderId) {
