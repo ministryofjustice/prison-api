@@ -187,6 +187,11 @@ public class InmateService {
         setAlertsFields(inmate);
         setAssessmentsFields(bookingId, inmate);
 
+        try {
+            inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
+        } catch (Exception e) {
+            // TODO: Hack for now to make sure there wasn't a reason this was removed.
+        }
         //TODO: Remove once KW service available - Nomis only!
         final var nomisProfile = ProfileUtil.isNomisProfile(env);
         if (nomisProfile) {
