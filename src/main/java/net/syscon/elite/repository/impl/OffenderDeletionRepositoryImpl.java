@@ -64,6 +64,8 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         if (!bookIds.isEmpty()) {
             deleteOffenderBooking(bookIds);
         }
+
+        executeNamedSqlWithOffenderIdsAndBookingIds("OD_ANONYMISE_GL_TRANSACTIONS", offenderIds, bookIds.isEmpty() ? null : bookIds);
     }
 
     private void deleteOffenderBooking(final Set<String> bookIds) {
@@ -89,7 +91,6 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         deleteOffenderVisitOrders(bookIds);
         deleteOffenderVSCSentences(bookIds);
         deleteIncidentCases(bookIds);
-        executeNamedSqlWithBookingIds("OD_ANONYMISE_GL_TRANSACTIONS_BY_BOOK_IDS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_BED_ASSIGNMENT_HISTORIES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_CASE_ASSOCIATED_PERSONS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_IWP_DOCUMENTS", bookIds);
@@ -359,7 +360,6 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
 
         deleteContactDetailsByOffenderIds(offenderIds);
         deleteOffenderFinances(offenderIds);
-        executeNamedSqlWithOffenderIds("OD_ANONYMISE_GL_TRANSACTIONS_BY_OFFENDER_IDS", offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_BANK_CHEQUE_BENEFICIARIES", offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_DAMAGE_OBLIGATIONS", offenderIds);
         executeNamedSqlWithOffenderIds("OD_DELETE_OFFENDER_FREEZE_DISBURSEMENTS", offenderIds);
@@ -416,6 +416,12 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
 
     private void executeNamedSqlWithBookingIds(final String sql, final Set<String> ids) {
         jdbcTemplate.update(getQuery(sql), createParams("bookIds", ids));
+    }
+
+    private int executeNamedSqlWithOffenderIdsAndBookingIds(final String sql,
+                                                            final Set<String> offenderIds,
+                                                            final Set<String> bookIds) {
+        return jdbcTemplate.update(getQuery(sql), createParams("offenderIds", offenderIds, "bookIds", bookIds));
     }
 
     private void executeNamedSqlWithIncidentCaseIds(final String sql, final Set<String> ids) {
