@@ -1,4 +1,3 @@
-@sdar
 Feature: Booking Details
 
   Acceptance Criteria:
