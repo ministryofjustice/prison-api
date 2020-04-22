@@ -375,7 +375,7 @@ public interface BookingResource {
     @PostMapping("/mainOffence")
     @ApiOperation(value = "Get Offender main offence detail.", notes = "Post version to allow specifying a large number of bookingIds.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenceDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "OK", response = Offence.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})

@@ -36,6 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
+import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassification;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassificationCode;
 
@@ -47,6 +49,7 @@ public class InmateService {
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
+    private final AgencyService agencyService;
     private final UserService userService;
     private final InmateAlertService inmateAlertService;
     private final ReferenceDomainService referenceDomainService;
@@ -60,18 +63,19 @@ public class InmateService {
     private final String locationTypeGranularity;
 
     public InmateService(final InmateRepository repository,
-                             final CaseLoadService caseLoadService,
-                             final InmateAlertService inmateAlertService,
-                             final ReferenceDomainService referenceDomainService,
-                             final BookingService bookingService,
-                             final UserService userService,
-                             final UserRepository userRepository,
-                             final AuthenticationFacade authenticationFacade,
-                             final KeyWorkerAllocationRepository keyWorkerAllocationRepository,
-                             final Environment env,
-                             final TelemetryClient telemetryClient,
-                             @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
-                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                         final CaseLoadService caseLoadService,
+                         final InmateAlertService inmateAlertService,
+                         final ReferenceDomainService referenceDomainService,
+                         final BookingService bookingService,
+                         final AgencyService agencyService,
+                         final UserService userService,
+                         final UserRepository userRepository,
+                         final AuthenticationFacade authenticationFacade,
+                         final KeyWorkerAllocationRepository keyWorkerAllocationRepository,
+                         final Environment env,
+                         final TelemetryClient telemetryClient,
+                         @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
+                         @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
@@ -79,6 +83,7 @@ public class InmateService {
         this.telemetryClient = telemetryClient;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
+        this.agencyService = agencyService;
         this.userRepository = userRepository;
         this.keyWorkerAllocationRepository = keyWorkerAllocationRepository;
         this.env = env;
@@ -554,21 +559,31 @@ public class InmateService {
 
     private void validate(CategorisationDetail detail) {
         try {
-            referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
+            referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.CATEGORY.getDomain(),
+                    detail.getCategory(), false);
         } catch (final EntityNotFoundException ex) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Category not recognised.");
         }
         try {
-            referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getCommittee(), false);
+            referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(),
+                    detail.getCommittee(), false);
         } catch (final EntityNotFoundException ex) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Committee Code not recognised.");
+        }
+        if (StringUtils.isNotBlank(detail.getPlacementAgencyId())) {
+            try {
+                agencyService.getAgency(detail.getPlacementAgencyId(), ACTIVE_ONLY, "INST");
+            } catch (final EntityNotFoundException ex) {
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Placement agency id not recognised.");
+            }
         }
     }
 
     private void validate(CategorisationUpdateDetail detail) {
         if (detail.getCategory() != null) {
             try {
-                referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
+                referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.CATEGORY.getDomain(),
+                        detail.getCategory(), false);
             } catch (final EntityNotFoundException ex) {
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Category not recognised.");
             }
@@ -592,6 +607,13 @@ public class InmateService {
             referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getReviewCommitteeCode(), false);
         } catch (final EntityNotFoundException ex) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Committee Code not recognised.");
+        }
+        if (StringUtils.isNotBlank(detail.getApprovedPlacementAgencyId())) {
+            try {
+                agencyService.getAgency(detail.getApprovedPlacementAgencyId(), ACTIVE_ONLY, "INST");
+            } catch (final EntityNotFoundException ex) {
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Review placement agency id not recognised.");
+            }
         }
     }
 
