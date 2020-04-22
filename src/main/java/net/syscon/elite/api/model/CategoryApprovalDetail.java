@@ -41,7 +41,7 @@ public class CategoryApprovalDetail {
     private String reviewCommitteeCode;
 
     @ApiModelProperty(value = "Approved result category comment", position = 6)
-    @Size(max = 240, message = "Comment text must be a maximum of 240 characters")
+    @Size(max = 240, message = "Approved result category comment text must be a maximum of 240 characters")
     private String approvedCategoryComment;
 
     @ApiModelProperty(value = "Overall comment", position = 7)
@@ -50,4 +50,12 @@ public class CategoryApprovalDetail {
 
     @ApiModelProperty(value = "Next review date (date of re-assessment, remains unchanged if not provided)", position = 8)
     private LocalDate nextReviewDate;
+
+    @ApiModelProperty(value = "Approved placement prison", position = 9)
+    @Size(max = 6, message = "Approved placement prison must be a maximum of 6 characters")
+    private String approvedPlacementAgencyId;
+
+    @ApiModelProperty(value = "Approved placement prison comment", position = 10)
+    @Size(max = 240, message = "Approved placement comment text must be a maximum of 240 characters")
+    private String approvedPlacementText;
 }

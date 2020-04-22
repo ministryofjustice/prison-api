@@ -840,6 +840,7 @@ public class InmateRepositoryTest {
                 .committee("GOV")
                 .comment("init cat")
                 .nextReviewDate(LocalDate.of(2019, 6, 1))
+                .placementAgencyId("BMI")
                 .build();
 
         final var responseMap = repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
@@ -863,8 +864,9 @@ public class InmateRepositoryTest {
                         extractInteger("ASSESSOR_STAFF_ID"),
                         extractString("ASSESS_COMMENT_TEXT"),
                         extractString("ASSESSMENT_CREATE_LOCATION"),
-                        extractString("ASSESS_COMMITTE_CODE"))
-                .contains(Tuple.tuple(3, "D", -2, 1006, "P", -11, -11, "init cat", "LEI", "GOV"));
+                        extractString("ASSESS_COMMITTE_CODE"),
+                        extractString("PLACE_AGY_LOC_ID"))
+                .contains(Tuple.tuple(3, "D", -2, 1006, "P", -11, -11, "init cat", "LEI", "GOV", "BMI"));
 
         assertThat((Date) results.get(0).get("ASSESSMENT_DATE")).isToday();
         assertThat((Date) results.get(0).get("CREATION_DATE")).isToday();
@@ -929,6 +931,8 @@ public class InmateRepositoryTest {
                 .reviewCommitteeCode("REVIEW")
                 .committeeCommentText("committeeCommentText")
                 .nextReviewDate(LocalDate.of(2019, 7, 24))
+                .approvedPlacementAgencyId("BXI")
+                .approvedPlacementText("approvedPlacementText")
                 .build();
 
         repository.approveCategory(catDetail);
@@ -945,8 +949,11 @@ public class InmateRepositoryTest {
                         extractString("EVALUATION_RESULT_CODE"),
                         extractString("ASSESS_STATUS"),
                         extractString("REVIEW_SUP_LEVEL_TEXT"),
-                        extractString("COMMITTE_COMMENT_TEXT"))
-                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText")
+                        extractString("COMMITTE_COMMENT_TEXT"),
+                        extractString("REVIEW_PLACE_AGY_LOC_ID"),
+                        extractString("REVIEW_PLACEMENT_TEXT"))
+
+                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText", "BXI", "approvedPlacementText")
                 );
         assertThat((Timestamp) results.get(0).get("EVALUATION_DATE")).isNull();
         assertThat((Timestamp) results.get(1).get("EVALUATION_DATE")).isCloseTo("2019-02-27T00:00:00.000", 1000);

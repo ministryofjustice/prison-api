@@ -570,7 +570,8 @@ Insert into OFFENDER_ASSESSMENTS
      ASSESS_COMMITTE_CODE,
      CREATION_DATE,
      CREATION_USER,
-     ASSESSMENT_CREATE_LOCATION
+     ASSESSMENT_CREATE_LOCATION,
+     PLACE_AGY_LOC_ID
      )
 VALUES
      (:bookingId,
@@ -587,7 +588,8 @@ VALUES
      :assessCommitteeCode,
      :dateTime,
      :userId,
-     :agencyId
+     :agencyId,
+     :placementAgencyId
      )
 }
 
@@ -610,10 +612,12 @@ APPROVE_CATEGORY {
     EVALUATION_DATE=:evaluationDate,
     EVALUATION_RESULT_CODE=:evaluationResultCode,
     REVIEW_SUP_LEVEL_TYPE=:category,
+    REVIEW_SUP_LEVEL_TEXT=:approvedCategoryComment,
     REVIEW_COMMITTE_CODE=:reviewCommitteeCode,
     COMMITTE_COMMENT_TEXT=:committeeCommentText,
     NEXT_REVIEW_DATE=COALESCE(:nextReviewDate, NEXT_REVIEW_DATE),
-    REVIEW_SUP_LEVEL_TEXT=:approvedCategoryComment
+    REVIEW_PLACE_AGY_LOC_ID=:approvedPlacementAgencyId,
+    REVIEW_PLACEMENT_TEXT=:approvedPlacementText
   where OFFENDER_BOOK_ID=:bookingId
     and ASSESSMENT_SEQ=:seq
     and ASSESSMENT_TYPE_ID=:assessmentTypeId

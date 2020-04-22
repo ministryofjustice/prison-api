@@ -714,7 +714,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "userId", userId,
                         "assessCommitteeCode", detail.getCommittee(),
                         "dateTime", LocalDateTime.now(),
-                        "agencyId", agencyId));
+                        "agencyId", agencyId,
+                        "placementAgencyId", detail.getPlacementAgencyId()));
 
         return Map.of("sequenceNumber", (long) newSeq, "bookingId", detail.getBookingId());
     }
@@ -777,7 +778,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "reviewCommitteeCode", detail.getReviewCommitteeCode(),
                         "committeeCommentText", detail.getCommitteeCommentText(),
                         "nextReviewDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getNextReviewDate())),
-                        "approvedCategoryComment", detail.getApprovedCategoryComment()
+                        "approvedCategoryComment", detail.getApprovedCategoryComment(),
+                        "approvedPlacementAgencyId", detail.getApprovedPlacementAgencyId(),
+                        "approvedPlacementText", detail.getApprovedPlacementText()
                 )
         );
         if (approvalResult != 1) {
