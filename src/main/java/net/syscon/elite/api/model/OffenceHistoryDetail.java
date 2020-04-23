@@ -33,6 +33,14 @@ public class OffenceHistoryDetail {
     @NotBlank
     private String offenceDescription;
 
-    @ApiModelProperty(required = true, value = "Identifies the main offence per booking", position = 5)
+    @ApiModelProperty(required = true, value = "Reference Code", example = "RR84070", position = 5)
+    @NotBlank
+    private String offenceCode;
+
+    @ApiModelProperty(required = true, value = "Statute code", example = "RR84", position = 6)
+    @NotBlank
+    private String statuteCode;
+
+    @ApiModelProperty(required = true, value = "Identifies the main offence per booking", position = 7)
     private Boolean mostSerious;
 }

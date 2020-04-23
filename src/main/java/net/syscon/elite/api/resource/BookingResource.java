@@ -397,7 +397,6 @@ public interface BookingResource {
     @GetMapping("/{bookingId}/mainOffence")
     @ApiOperation(value = "Get Offender main offence detail.", notes = "Offender main offence detail.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenceDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -406,7 +405,6 @@ public interface BookingResource {
     @PostMapping("/mainOffence")
     @ApiOperation(value = "Get Offender main offence detail.", notes = "Post version to allow specifying a large number of bookingIds.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Offence.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -415,7 +413,6 @@ public interface BookingResource {
     @GetMapping("/offenderNo/{offenderNo}/offenceHistory")
     @ApiOperation(value = "Offence history.", notes = "All Offences recorded for this offender.", nickname = "getOffenceHistory")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenceHistoryDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
