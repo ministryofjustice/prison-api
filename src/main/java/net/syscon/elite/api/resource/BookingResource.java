@@ -5,7 +5,53 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Account;
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
+import net.syscon.elite.api.model.AlertCreated;
+import net.syscon.elite.api.model.Alias;
+import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.CaseNoteCount;
+import net.syscon.elite.api.model.Contact;
+import net.syscon.elite.api.model.ContactDetail;
+import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.api.model.IncidentCase;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.MilitaryRecords;
+import net.syscon.elite.api.model.Movement;
+import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.NewBooking;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.Offence;
+import net.syscon.elite.api.model.OffenceDetail;
+import net.syscon.elite.api.model.OffenceHistoryDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderIdentifier;
+import net.syscon.elite.api.model.OffenderRelationship;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PersonalCareNeeds;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
+import net.syscon.elite.api.model.PhysicalMark;
+import net.syscon.elite.api.model.PrivilegeSummary;
+import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.ReasonableAdjustment;
+import net.syscon.elite.api.model.ReasonableAdjustments;
+import net.syscon.elite.api.model.RecallBooking;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.UpdateAttendanceBatch;
+import net.syscon.elite.api.model.UpdateCaseNote;
+import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.support.Order;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -735,7 +781,7 @@ public interface BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)
     })
     ResponseEntity<AlertCreated> postAlert(
-            @ApiParam(value = "bookingId") @PathVariable("bookingId") Long bookingId,
+            @ApiParam(value = "bookingId", required = true) @PathVariable("bookingId") Long bookingId,
             @ApiParam(value = "Alert details", required = true) @RequestBody @Valid CreateAlert alert
     );
 
@@ -748,8 +794,8 @@ public interface BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)
     })
     Alert updateAlert(
-            @ApiParam(value = "bookingId") @PathVariable("bookingId") Long bookingId,
-            @ApiParam(value = "alertSeq") @PathVariable("alertSeq") Long alertSeq,
+            @ApiParam(value = "bookingId", required = true) @PathVariable("bookingId") Long bookingId,
+            @ApiParam(value = "alertSeq", required = true) @PathVariable("alertSeq") Long alertSeq,
             @ApiParam(value = "Alert details", required = true) @RequestBody @Valid AlertChanges alert
     );
 

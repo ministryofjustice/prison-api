@@ -1,10 +1,26 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
-import net.syscon.elite.api.model.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategorisationUpdateDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
+import net.syscon.elite.api.model.CategoryRejectionDetail;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.OffenderCategorise;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -118,7 +134,7 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 400, message = "Invalid request - e.g. invalid status.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to update categorisations.", response = ErrorResponse.class)})
     ResponseEntity<Void> setCategorisationInactive(
-            @ApiParam(value = "The booking id of offender") @PathVariable("bookingId") Long bookingId,
+            @ApiParam(value = "The booking id of offender", required = true) @PathVariable("bookingId") Long bookingId,
             @ApiParam(value = "Indicates which categorisation statuses to set." +
                     "<li>ACTIVE (default): set all active (i.e. approved) categorisations inactive,</li>" +
                     "<li>PENDING: set all pending (i.e. awaiting approval) categorisations inactive,</li>", allowableValues = "ACTIVE,PENDING", defaultValue = "ACTIVE") @RequestParam(value = "status", required = false, defaultValue = "ACTIVE") String status);

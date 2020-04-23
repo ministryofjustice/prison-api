@@ -1,7 +1,16 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
-import net.syscon.elite.api.model.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.IepLevel;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.LocationGroup;
+import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.service.OffenderIepReview;
@@ -36,7 +45,7 @@ public interface AgencyResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<Agency> getAgenciesByType(@ApiParam(value = "Agency Type") @PathVariable(value = "type") final String type,
+    List<Agency> getAgenciesByType(@ApiParam(value = "Agency Type", required = true) @PathVariable(value = "type") final String type,
                                    @ApiParam(value = "Only return active agencies") @RequestParam(value = "activeOnly", defaultValue = "true", required = false) boolean activeOnly);
 
     @GetMapping("/{agencyId}")
