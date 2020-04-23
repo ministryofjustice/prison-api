@@ -16,16 +16,6 @@ Feature: Booking Alerts
        | -1        | 4      | XA,HC,RSS,XTACT |
        | -2        | 2      | HA,XTACT        |
 
-  Scenario Outline: Retrieve alerts for an offender by Offender No
-    When alerts are requested for an offender booking using offender No "<offenderNo>"
-    Then "<number>" alerts are returned
-    And alerts codes match "<alert code list>"
-
-    Examples:
-      | offenderNo | number | alert code list |
-      | A1234AA    | 4      | XA,HC,RSS,XTACT |
-      | A1234AB    | 2      | HA,XTACT        |
-
   Scenario Outline: Retrieve alert for an offender booking
     When alert is requested for an offender booking "<bookingId>" and alert id "<alertId>"
     Then alert alertType is "<alertType>"

@@ -5,7 +5,13 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.Alert;
-import net.syscon.elite.executablespecification.steps.*;
+import net.syscon.elite.executablespecification.steps.BookingAlertSteps;
+import net.syscon.elite.executablespecification.steps.BookingAliasSteps;
+import net.syscon.elite.executablespecification.steps.BookingAssessmentSteps;
+import net.syscon.elite.executablespecification.steps.BookingDetailSteps;
+import net.syscon.elite.executablespecification.steps.BookingIEPSteps;
+import net.syscon.elite.executablespecification.steps.BookingSearchSteps;
+import net.syscon.elite.executablespecification.steps.BookingSentenceSteps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -123,12 +129,12 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^\"([^\"]*)\" booking records are returned$")
     public void bookingRecordsAreReturned(final String expectedCount) {
-        bookingSearch.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+        bookingSearch.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
     @Then("^\"([^\"]*)\" total booking records are available$")
     public void totalBookingRecordsAreAvailable(final String expectedCount) {
-        bookingSearch.verifyTotalResourceRecordsAvailable(Long.valueOf(expectedCount));
+        bookingSearch.verifyTotalResourceRecordsAvailable(Long.parseLong(expectedCount));
     }
 
     @When("^aliases are requested for an offender booking \"([^\"]*)\"$")
@@ -138,7 +144,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^\"([^\"]*)\" aliases are returned$")
     public void aliasesAreReturned(final String expectedCount) {
-        bookingAlias.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+        bookingAlias.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
     @And("^alias first names match \"([^\"]*)\"$")
@@ -298,14 +304,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAlerts.getAlerts(bookingId);
     }
 
-    @When("^alerts are requested for an offender booking using offender No \"([^\"]*)\"$")
-    public void alertsAreRequestedForOffenderBookingByOffenderNo(final String offenderNo) {
-        bookingAlerts.getAlertsByOffenderNo(offenderNo);
-    }
-
     @Then("^\"([^\"]*)\" alerts are returned$")
     public void numberAlertsAreReturned(final String expectedCount) {
-        bookingAlerts.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+        bookingAlerts.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
     @And("alerts codes match \"([^\"]*)\"$")
@@ -642,17 +643,17 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^a request is made for offender categorisation details at \"([^\"]*)\" with booking id \"([^\"]*)\", latest cat only$")
-    public void aRequestIsMadeForOffenderCategorisationDetailsAtWithBookingIdLatest(String agency, String bookingId) {
+    public void aRequestIsMadeForOffenderCategorisationDetailsAtWithBookingIdLatest(final String agency, final String bookingId) {
         bookingAssessment.getOffendersCategorisations(agency, Collections.singletonList(Long.valueOf(bookingId)), true);
     }
 
     @When("^a request is made for offender categorisation details at \"([^\"]*)\" with booking id \"([^\"]*)\", all cats$")
-    public void aRequestIsMadeForOffenderCategorisationDetailsAtWithBookingIdAll(String agency, String bookingId) {
+    public void aRequestIsMadeForOffenderCategorisationDetailsAtWithBookingIdAll(final String agency, final String bookingId) {
         bookingAssessment.getOffendersCategorisations(agency, Collections.singletonList(Long.valueOf(bookingId)), false);
     }
 
     @Then("^\"([^\"]*)\" rows of basic inmate details are returned$")
-    public void rowsOfBasicInmateDetailsAreReturned(String count) {
-        bookingDetail.verifyOffendersBasicCount(Integer.valueOf(count));
+    public void rowsOfBasicInmateDetailsAreReturned(final String count) {
+        bookingDetail.verifyOffendersBasicCount(Integer.parseInt(count));
     }
 }
