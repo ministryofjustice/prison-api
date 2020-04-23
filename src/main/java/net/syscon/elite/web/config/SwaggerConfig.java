@@ -17,6 +17,7 @@ import springfox.documentation.spring.web.json.JacksonModuleRegistrar;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -36,18 +37,16 @@ public class SwaggerConfig {
 
     @Bean
     public Docket nomisApi() {
-        final var docket = new Docket(DocumentationType.SWAGGER_2)
+        return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build()
-                .apiInfo(apiInfo());
-
-        docket.genericModelSubstitutes(Optional.class);
-        docket.directModelSubstitute(ZonedDateTime.class, Date.class);
-        docket.directModelSubstitute(LocalDateTime.class, Date.class);
-
-        return docket;
+                .apiInfo(apiInfo())
+                .genericModelSubstitutes(Optional.class)
+                .directModelSubstitute(ZonedDateTime.class, Date.class)
+                .directModelSubstitute(LocalDateTime.class, Date.class)
+                .directModelSubstitute(LocalDate.class, java.sql.Date.class);
     }
 
     private String getVersion() {
