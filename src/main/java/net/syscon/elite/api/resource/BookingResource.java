@@ -163,21 +163,6 @@ public interface BookingResource {
                                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>alertType, alertCode, dateCreated, dateExpires</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
                                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
 
-    @GetMapping("/offenderNo/{offenderNo}/alerts")
-    @ApiOperation(value = "Offender alerts offenderNo.", notes = "Offender alerts by offenderNo.", nickname = "getOffenderAlertsByOffenderNo")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Alert.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<Alert>> getOffenderAlertsByOffenderNo(@ApiParam(value = "The offender no of the offender", required = true) @PathVariable("offenderNo") String offenderNo,
-                                                              @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - alertType, alertCode, dateCreated, dateExpires</p> ", required = false) @RequestParam(value = "query", required = false) String query,
-                                                              @ApiParam(value = "Requested offset of first record in returned collection of alert records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
-                                                              @ApiParam(value = "Requested limit to number of alert records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
-                                                              @ApiParam(value = "Comma separated list of one or more of the following fields - <b>alertType, alertCode, dateCreated, dateExpires</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
-                                                              @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
-
-
     @GetMapping("/{bookingId}/alerts/{alertId}")
     @ApiOperation(value = "Offender alert detail.", notes = "Offender alert detail.", nickname = "getOffenderAlert")
     @ApiResponses(value = {

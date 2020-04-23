@@ -29,11 +29,6 @@ public class BookingAlertSteps extends CommonSteps {
         doListApiCall(bookingId);
     }
 
-    @Step("Retrieve alerts for offender no")
-    public void getAlertsByOffenderNo(final String offenderNo) {
-        doListApiCallForOffender(offenderNo);
-    }
-
     @Step("Retrieve alerts for offender nos")
     public void getAlerts(final String agencyId, final List<String> offenderNos) {
         doPostApiCall(agencyId, offenderNos);
