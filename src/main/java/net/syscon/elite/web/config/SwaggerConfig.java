@@ -1,5 +1,6 @@
 package net.syscon.elite.web.config;
 
+import io.swagger.util.ReferenceSerializationConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
@@ -11,17 +12,15 @@ import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
-import springfox.documentation.service.StringVendorExtension;
-import springfox.documentation.service.VendorExtension;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.json.JacksonModuleRegistrar;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Configuration
@@ -64,18 +63,17 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        final var vendorExtension = new StringVendorExtension("", "");
-        final Collection<VendorExtension> vendorExtensions = new ArrayList<>();
-        vendorExtensions.add(vendorExtension);
-
         return new ApiInfo(
                 "HMPPS NOMIS API Documentation",
                 "A RESTful API service for accessing HMPPS NOMIS Information.",
                 getVersion(),
                 "https://gateway.nomis-api.service.justice.gov.uk/auth/terms",
                 contactInfo(),
-                "Open Government Licence v3.0", "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/", vendorExtensions);
+                "Open Government Licence v3.0", "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/", List.of());
     }
 
-
+    @Bean
+    public JacksonModuleRegistrar swaggerJacksonModuleRegistrar() {
+        return ReferenceSerializationConfigurer::serializeAsComputedRef;
+    }
 }

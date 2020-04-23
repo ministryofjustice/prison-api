@@ -8,8 +8,8 @@ import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
 import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.PrisonToCourtHearing;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,8 +69,8 @@ public interface OffenderMovementsResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     OffenderBooking moveToCell(
-            @ApiParam(value = "The offender booking id", example = "1200866") @PathVariable("bookingId") Long bookingId,
-            @ApiParam(value = "The cell location the offender has been moved to", example = "MDI-1-1") @PathVariable("internalLocationDescription") String internalLocationDescription,
+            @ApiParam(value = "The offender booking id", example = "1200866", required = true) @PathVariable("bookingId") Long bookingId,
+            @ApiParam(value = "The cell location the offender has been moved to", example = "MDI-1-1", required = true) @PathVariable("internalLocationDescription") String internalLocationDescription,
             @ApiParam(value = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) @RequestParam("reasonCode") String reasonCode,
             @ApiParam(value = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(value = "dateTime", required = false) LocalDateTime dateTime
     );
