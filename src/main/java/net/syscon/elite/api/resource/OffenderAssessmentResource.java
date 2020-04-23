@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
 import net.syscon.elite.api.model.Assessment;
 import net.syscon.elite.api.model.CategorisationDetail;
 import net.syscon.elite.api.model.CategorisationUpdateDetail;
@@ -86,16 +85,14 @@ public interface OffenderAssessmentResource {
 
     @PostMapping("/category")
     @ApiOperation(value = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.",
-            notes = "Categorisation details for all supplied Offenders using SYSTEM access",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
+            notes = "Categorisation details for all supplied Offenders using SYSTEM access")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The list of offenders with categorisation details is returned if categorisation record exists", response = OffenderCategorise.class, responseContainer = "List")})
     List<OffenderCategorise> getOffenderCategorisationsSystem(@ApiParam(value = "The required booking Ids (mandatory)", required = true) @RequestBody Set<Long> bookingIds,
                                                               @ApiParam(value = "Only get the latest category for each booking", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") Boolean latestOnly);
 
     @PostMapping("/category/categorise")
-    @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record. The booking id and new sequence number is returned.",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("CREATE_CATEGORISATION"), @Authorization("CREATE_RECATEGORISATION")})
+    @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record. The booking id and new sequence number is returned.")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class)})
@@ -104,24 +101,21 @@ public interface OffenderAssessmentResource {
     @PutMapping("/category/categorise")
     @ApiOperation(value = "Update a pending offender categorisation.",
             notes = "This is intended for use by the categoriser to correct any problems with a pending (in-progress) categorisation." +
-                    " Fields left as null will be left unchanged",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("CREATE_CATEGORISATION"), @Authorization("CREATE_RECATEGORISATION")})
+                    " Fields left as null will be left unchanged")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = ""),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class)})
     ResponseEntity<Void> updateCategorisation(@ApiParam(value = "Categorisation details", required = true) @RequestBody @Valid CategorisationUpdateDetail detail);
 
     @PutMapping("/category/approve")
-    @ApiOperation(value = "Approve a pending offender categorisation.", notes = "Update categorisation record with approval.",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("APPROVE_CATEGORISATION")})
+    @ApiOperation(value = "Approve a pending offender categorisation.", notes = "Update categorisation record with approval.")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Validation error - e.g. category does not exist.", response = ErrorResponse.class)})
     ResponseEntity<Void> approveCategorisation(@ApiParam(value = "Approval details", required = true) @RequestBody @Valid CategoryApprovalDetail detail);
 
     @PutMapping("/category/reject")
-    @ApiOperation(value = "Reject a pending offender categorisation.", notes = "Update categorisation record with rejection.",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("APPROVE_CATEGORISATION")})
+    @ApiOperation(value = "Reject a pending offender categorisation.", notes = "Update categorisation record with rejection.")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Validation error - e.g. comment too long or committee code does not exist.", response = ErrorResponse.class)})

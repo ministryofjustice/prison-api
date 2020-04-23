@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
@@ -30,8 +29,7 @@ public class DataComplianceController {
 
     @PostMapping("/offenders/pending-deletions")
     @ApiOperation(value = "Request a list of offender records to be considered for deletion under data protection law.",
-            notes = "This is an asynchronous request, the resulting list will be pushed onto a queue rather than returned in the response body.",
-            authorizations = { @Authorization("SYSTEM_USER") })
+            notes = "This is an asynchronous request, the resulting list will be pushed onto a queue rather than returned in the response body.")
     @ApiResponses(value = {
             @ApiResponse(code = 202, message = "Accepted"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
