@@ -56,7 +56,7 @@ public class ReferenceDomainServiceImplTest {
 
         final var scheduleReasons = service.getScheduleReasons("APP");
 
-        assertThat(scheduleReasons.size()).isEqualTo(7);
+        assertThat(scheduleReasons).hasSize(7);
         assertThat(scheduleReasons.get(0).getDescription()).isEqualTo("Age UK Meetings");
         assertThat(scheduleReasons.get(1).getDescription()).isEqualTo("Apple");
         assertThat(scheduleReasons.get(2).getDescription()).isEqualTo("Computers");

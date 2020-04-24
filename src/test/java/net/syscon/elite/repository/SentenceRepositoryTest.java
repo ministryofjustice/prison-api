@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -43,32 +42,32 @@ public class SentenceRepositoryTest {
     @Test
     public final void testGetMainOffenceDetailsSingleOffence() {
         final var offenceDetails = repository.getMainOffenceDetails(-1L);
-        assertNotNull(offenceDetails);
-        assertEquals(1, offenceDetails.size());
-        assertEquals("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)", offenceDetails.get(0).getOffenceDescription());
+        assertThat(offenceDetails).isNotNull();
+        assertThat(offenceDetails).hasSize(1);
+        assertThat(offenceDetails.get(0).getOffenceDescription()).isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)");
     }
 
     @Test
     public final void testGetMainOffenceDetailsMultipleOffences() {
         final var offenceDetails = repository.getMainOffenceDetails(-7L);
-        assertNotNull(offenceDetails);
-        assertEquals(2, offenceDetails.size());
-        assertEquals("Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury", offenceDetails.get(0).getOffenceDescription());
-        assertEquals("Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.", offenceDetails.get(1).getOffenceDescription());
+        assertThat(offenceDetails).isNotNull();
+        assertThat(offenceDetails).hasSize(2);
+        assertThat(offenceDetails.get(0).getOffenceDescription()).isEqualTo("Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury");
+        assertThat(offenceDetails.get(1).getOffenceDescription()).isEqualTo("Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.");
     }
 
     @Test
     public final void testGetMainOffenceDetailsInvalidBookingId() {
         final var offenceDetails = repository.getMainOffenceDetails(1001L);
-        assertNotNull(offenceDetails);
-        assertTrue(offenceDetails.isEmpty());
+        assertThat(offenceDetails).isNotNull();
+        assertThat(offenceDetails.isEmpty()).isTrue();
     }
 
     @Test
     public final void testGetMainOffenceDetailsMultipleBookings() {
         final var offences = repository.getMainOffenceDetails(Arrays.asList(-1L, -7L));
-        assertNotNull(offences);
-        assertEquals(3, offences.size());
+        assertThat(offences).isNotNull();
+        assertThat(offences).hasSize(3);
         assertThat(offences).asList().containsExactlyInAnyOrder(
                 new Offence(-1L, "RV98011", "RV98"),
                 new Offence(-7L, "RC86360", "RC86"),

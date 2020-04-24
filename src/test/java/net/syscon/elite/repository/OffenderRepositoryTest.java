@@ -118,7 +118,7 @@ public class OffenderRepositoryTest {
     private PrisonerDetail findOffender(final PrisonerDetailSearchCriteria criteria) {
         final var page = repository.findOffenders(criteria, defaultPageRequest);
 
-        assertThat(page.getItems().size()).isEqualTo(1);
+        assertThat(page.getItems()).hasSize(1);
 
         return page.getItems().get(0);
     }

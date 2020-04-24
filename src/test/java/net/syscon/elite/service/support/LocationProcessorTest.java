@@ -88,7 +88,7 @@ public class LocationProcessorTest {
 
         final var processedLocations = LocationProcessor.processLocations(testLocations);
 
-        assertThat(processedLocations.size()).isEqualTo(testLocations.size());
+        assertThat(processedLocations).hasSize(testLocations.size());
 
         assertThat(processedLocations.get(0).getAgencyId()).isEqualTo(TEST_AGENCY_ID);
         assertThat(processedLocations.get(0).getLocationId()).isEqualTo(TEST_LOCATION_ID);
@@ -111,7 +111,7 @@ public class LocationProcessorTest {
 
         final var processedLocations = LocationProcessor.processLocations(testLocations, true);
 
-        assertThat(processedLocations.size()).isEqualTo(testLocations.size());
+        assertThat(processedLocations).hasSize(testLocations.size());
 
         assertThat(processedLocations.get(0).getAgencyId()).isEqualTo(TEST_AGENCY_ID);
         assertThat(processedLocations.get(0).getLocationId()).isEqualTo(TEST_LOCATION_ID);
@@ -134,7 +134,7 @@ public class LocationProcessorTest {
 
         final var processedLocations = LocationProcessor.processLocations(testLocations, true);
 
-        assertThat(processedLocations.size()).isEqualTo(testLocations.size());
+        assertThat(processedLocations).hasSize(testLocations.size());
 
         assertThat(processedLocations.get(0).getAgencyId()).isEqualTo(TEST_AGENCY_ID);
         assertThat(processedLocations.get(0).getLocationId()).isEqualTo(TEST_LOCATION_ID);

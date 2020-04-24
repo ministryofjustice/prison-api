@@ -47,7 +47,7 @@ public class KeyWorkerAllocationRepositoryTest {
         final var pageRequest = new PageRequest();
         final var allocations = repo.getAllocationHistoryByAgency(AGENCY_ID, pageRequest);
 
-        assertThat(allocations.getItems().size()).isEqualTo(pageRequest.getLimit().intValue());
+        assertThat(allocations.getItems()).hasSize(pageRequest.getLimit().intValue());
         assertThat(allocations.getTotalRecords()).isEqualTo(23L);
     }
 
