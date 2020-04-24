@@ -115,7 +115,7 @@ public class StaffRepositoryTest {
 
         final var items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(1);
+        assertThat(items).hasSize(1);
 
         final var slr = items.get(0);
 
@@ -145,7 +145,7 @@ public class StaffRepositoryTest {
 
         final var items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(1);
+        assertThat(items).hasSize(1);
 
         final var slr = items.get(0);
 
@@ -168,7 +168,7 @@ public class StaffRepositoryTest {
 
         final var items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(1);
+        assertThat(items).hasSize(1);
 
         final var slr = items.get(0);
 
@@ -199,7 +199,7 @@ public class StaffRepositoryTest {
 
         final var items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(1);
+        assertThat(items).hasSize(1);
 
         final var slr = items.get(0);
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
@@ -217,7 +217,7 @@ public class StaffRepositoryTest {
 
         final var items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(0);
+        assertThat(items).hasSize(0);
     }
 
     @Test
@@ -230,7 +230,7 @@ public class StaffRepositoryTest {
 
         final var items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(0);
+        assertThat(items).hasSize(0);
     }
 
     @Test
@@ -244,7 +244,7 @@ public class StaffRepositoryTest {
 
         final var items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(1);
+        assertThat(items).hasSize(1);
 
         final var slr = items.get(0);
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
@@ -261,7 +261,7 @@ public class StaffRepositoryTest {
 
         final var items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(0);
+        assertThat(items).hasSize(0);
     }
 
     @Test
@@ -275,7 +275,7 @@ public class StaffRepositoryTest {
 
         final var items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(0);
+        assertThat(items).hasSize(0);
     }
 
     @Test

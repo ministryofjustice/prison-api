@@ -47,7 +47,7 @@ public class BookingIEPSteps extends CommonSteps {
 
     @Step("Verify IEP detail record count")
     public void verifyIEPDetailRecordCount(final int expectedDetailCount) {
-        assertThat(privilegeSummary.getIepDetails().size()).isEqualTo(expectedDetailCount);
+        assertThat(privilegeSummary.getIepDetails()).hasSize(expectedDetailCount);
     }
 
     @Step("Verify days since IEP review")

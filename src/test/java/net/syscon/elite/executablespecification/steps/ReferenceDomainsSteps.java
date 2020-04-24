@@ -12,8 +12,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * BDD step implementations for Reference Domains service.
@@ -311,9 +309,9 @@ public class ReferenceDomainsSteps extends CommonSteps {
         while (expectedIterator.hasNext()) {
             final var expectedThis = expectedIterator.next();
             final var actualThis = actualIterator.next();
-            assertEquals(expectedThis.getCode(), actualThis.getCode());
-            assertEquals(expectedThis.getDescription(), actualThis.getDescription());
+            assertThat(actualThis.getCode()).isEqualTo(expectedThis.getCode());
+            assertThat(actualThis.getDescription()).isEqualTo(expectedThis.getDescription());
         }
-        assertFalse("Too many actual events", actualIterator.hasNext());
+        assertThat(actualIterator.hasNext()).as("Too many actual events").isFalse();
     }
 }

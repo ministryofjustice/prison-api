@@ -1,8 +1,16 @@
 package net.syscon.elite.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.model.bulkappointments.*;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ScheduledAppointmentDto;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
+import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
+import net.syscon.elite.api.model.bulkappointments.Repeat;
+import net.syscon.elite.api.model.bulkappointments.RepeatPeriod;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.jpa.model.ScheduledAppointment;
@@ -29,8 +37,17 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class AppointmentsServiceImplTest {
     private static final String USERNAME = "username";

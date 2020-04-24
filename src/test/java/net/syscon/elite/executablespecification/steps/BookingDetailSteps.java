@@ -1,6 +1,12 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.OffenderIdentifier;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
+import net.syscon.elite.api.model.ProfileInformation;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -13,7 +19,6 @@ import java.util.List;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * BDD step implementations for Booking alias feature.
@@ -305,7 +310,7 @@ public class BookingDetailSteps extends CommonSteps {
     }
 
     public void verifyField(final String field, final String value) throws ReflectiveOperationException {
-        assertNotNull(inmateDetail);
+        assertThat(inmateDetail).isNotNull();
         super.verifyField(inmateDetail, field, value);
     }
 
