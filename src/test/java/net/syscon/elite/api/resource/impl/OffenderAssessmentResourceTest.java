@@ -1,16 +1,20 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.CategorisationDetail;
 import net.syscon.elite.api.model.CategorisationUpdateDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
 import net.syscon.elite.api.model.CategoryRejectionDetail;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.groups.Tuple;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -190,6 +194,100 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCreateCategorisation() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.CATEGORISATION_CREATE);
+
+        final var body = createHttpEntity(token, CategorisationDetail.builder()
+                .bookingId(-35L)
+                .category("D")
+                .nextReviewDate(LocalDate.of(2020, 3, 16))
+                .committee("RECP")
+                .comment("test comment")
+                .placementAgencyId("SYI")
+                .build());
+        try {
+            final var response = testRestTemplate.exchange(
+                    "/api/offender-assessments/category/categorise",
+                    HttpMethod.POST,
+                    body,
+                    new ParameterizedTypeReference<String>() {
+                    });
+
+            assertThatStatus(response, HttpStatus.CREATED.value());
+
+            final var results = jdbcTemplate.queryForList(
+                    "SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -35 ORDER BY ASSESSMENT_SEQ DESC");
+
+            assertThat(results).asList()
+                    .extracting(
+                            extractString("CALC_SUP_LEVEL_TYPE"),
+                            extractString("ASSESS_COMMENT_TEXT"),
+                            extractString("ASSESS_COMMITTE_CODE"),
+                            extractString("PLACE_AGY_LOC_ID"))
+                    .contains(Tuple.tuple("D", "test comment", "RECP", "SYI"));
+            assertThat((Date) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2020-03-16", 1000L);
+        } finally {
+            // Restore db change as cannot rollback server transaction in client
+            jdbcTemplate.update("DELETE FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -35 AND CALC_SUP_LEVEL_TYPE = 'D'");
+        }
+    }
+
+    @Test
+    public void testCreateCategorisationJSRValidation() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.CATEGORISATION_CREATE);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/category/categorise",
+                HttpMethod.POST,
+                createHttpEntity(token, CategorisationDetail.builder()
+                        .comment(StringUtils.repeat("B", 4001))
+                        .placementAgencyId("RUBBISH")
+                        .build()),
+                new ParameterizedTypeReference<String>() {
+                });
+//Expecting:
+// <"Validation failed for argument [0] in public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.
+// Long>> net.syscon.elite.api.resource.impl.OffenderAssessmentResourceImpl.createCategorisation(net.syscon.elite.api.model.CategorisationDetail) with 4 errors:
+// [Field error in object 'categorisationDetail' on field 'category': rejected value [null]; codes [NotNull.categorisationDetail.category,NotNull.category,NotNull.java.lang.String,NotNull];
+// arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [categorisationDetail.category,category]; arguments [];
+// default message [category]]; default message [category must be provided]] [Field error in object 'categorisationDetail' on field 'bookingId':
+// rejected value [null]; codes [NotNull.categorisationDetail.bookingId,NotNull.bookingId,NotNull.java.lang.Long,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable:
+// codes [categorisationDetail.bookingId,bookingId]; arguments []; default message [bookingId]]; default message [bookingId must be provided]] [Field error in object 'categorisationDetail' on field 'committee':
+// rejected value [null]; codes [NotNull.categorisationDetail.committee,NotNull.committee,NotNull.java.lang.String,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable:
+// codes [categorisationDetail.committee,committee]; arguments []; default message [committee]]; default message [committee must be provided]] [Field error in object 'categorisationDetail' on field 'placementAgencyId':
+// rejected value [RUBBISH]; codes [Size.categorisationDetail.placementAgencyId,Size.placementAgencyId,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable:
+// codes [categorisationDetail.placementAgencyId,placementAgencyId]; arguments []; default message [placementAgencyId],6,0]; default message [Agency id must be a maximum of 6 characters]] ">
+//to contain:
+// <"agency id not recognised">
+        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        final var body = response.getBody();
+        assertThatJson(body).node("userMessage").asString().contains("bookingId must be provided");
+        assertThatJson(body).node("userMessage").asString().contains("category must be provided");
+        assertThatJson(body).node("userMessage").asString().contains("committee must be provided");
+        assertThatJson(body).node("userMessage").asString().contains("Agency id must be a maximum of 6 characters");
+        assertThatJson(body).node("userMessage").asString().contains("Comment text must be a maximum of 4000 characters");
+    }
+
+    @Test
+    public void testCreateCategorisationAgencyValidation() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.CATEGORISATION_CREATE);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/category/categorise",
+                HttpMethod.POST,
+                createHttpEntity(token, CategorisationDetail.builder()
+                        .bookingId(-38L)
+                        .category("C")
+                        .committee("OCA")
+                        .placementAgencyId("WRONG")
+                        .build()),
+                new ParameterizedTypeReference<String>() {
+                });
+        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        assertThatJson(response.getBody()).node("userMessage").asString().contains("Placement agency id not recognised.");
+    }
+
+    @Test
     public void testUpdateCategorisation() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.CATEGORISATION_CREATE);
 
@@ -202,38 +300,41 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 .comment("test comment")
                 .build());
 
-        final var response = testRestTemplate.exchange(
-                "/api/offender-assessments/category/categorise",
-                HttpMethod.PUT,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+        try {
+            final var response = testRestTemplate.exchange(
+                    "/api/offender-assessments/category/categorise",
+                    HttpMethod.PUT,
+                    httpEntity,
+                    new ParameterizedTypeReference<String>() {
+                    });
 
-        assertThatStatus(response, HttpStatus.OK.value());
+            assertThatStatus(response, HttpStatus.OK.value());
 
-        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -38 AND ASSESSMENT_SEQ = 3");
+            final var results = jdbcTemplate.queryForList(
+                    "SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -38 AND ASSESSMENT_SEQ = 3");
 
-        // Restore cat and nextReviewDate as cannot rollback transaction!
-        final var response2 = testRestTemplate.exchange(
-                "/api/offender-assessments/category/categorise",
-                HttpMethod.PUT,
-                createHttpEntity(token, CategorisationUpdateDetail.builder()
-                        .bookingId(-38L)
-                        .assessmentSeq(3)
-                        .category("B")
-                        .nextReviewDate(LocalDate.of(2019, 6, 8))
-                        .build()),
-                new ParameterizedTypeReference<String>() {
-                });
-        assertThat(response2.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-
-        assertThat(results).asList()
-                .extracting(extractInteger("ASSESSMENT_SEQ"),
-                        extractString("CALC_SUP_LEVEL_TYPE"),
-                        extractString("ASSESS_COMMENT_TEXT"),
-                        extractString("ASSESS_COMMITTE_CODE"))
-                .containsExactly(Tuple.tuple(3, "C", "test comment", "OCA"));
-        assertThat((Date) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2021-03-16", 1000L);
+            assertThat(results).asList()
+                    .extracting(extractInteger("ASSESSMENT_SEQ"),
+                            extractString("CALC_SUP_LEVEL_TYPE"),
+                            extractString("ASSESS_COMMENT_TEXT"),
+                            extractString("ASSESS_COMMITTE_CODE"))
+                    .containsExactly(Tuple.tuple(3, "C", "test comment", "OCA"));
+            assertThat((Date) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2021-03-16", 1000L);
+        } finally {
+            // Restore cat and nextReviewDate as cannot rollback transaction in client
+            final var response2 = testRestTemplate.exchange(
+                    "/api/offender-assessments/category/categorise",
+                    HttpMethod.PUT,
+                    createHttpEntity(token, CategorisationUpdateDetail.builder()
+                            .bookingId(-38L)
+                            .assessmentSeq(3)
+                            .category("B")
+                            .nextReviewDate(LocalDate.of(2019, 6, 8))
+                            .build()),
+                    new ParameterizedTypeReference<String>() {
+                    });
+            assertThat(response2.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        }
     }
 
     @Test
@@ -313,6 +414,104 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
 
         assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
         assertThatJson(response.getBody()).node("userMessage").isEqualTo("Committee Code not recognised.");
+    }
+
+    @Test
+    public void testApproveCategorisation() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.CATEGORISATION_APPROVE);
+
+        final var requestBody = createHttpEntity(token, CategoryApprovalDetail.builder()
+                .bookingId(-34L)
+                .assessmentSeq(1)
+                .category("D")
+                .evaluationDate(LocalDate.of(2019, 3, 21))
+                .reviewCommitteeCode("GOV")
+                .approvedCategoryComment("approved")
+                .committeeCommentText("committee comment")
+                .nextReviewDate(LocalDate.of(2020, 2, 17))
+                .approvedPlacementAgencyId("BXI")
+                .approvedPlacementText("placement comment")
+                .build());
+        try {
+            final var response = testRestTemplate.exchange(
+                    "/api/offender-assessments/category/approve",
+                    HttpMethod.PUT,
+                    requestBody,
+                    new ParameterizedTypeReference<String>() {
+                    });
+
+            assertThatStatus(response, HttpStatus.CREATED.value());
+
+            final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -34 AND ASSESSMENT_SEQ = 1");
+
+            assertThat(results).asList()
+                    .extracting(extractInteger("ASSESSMENT_SEQ"),
+                            extractString("ASSESS_STATUS"),
+                            extractString("EVALUATION_RESULT_CODE"),
+                            extractString("COMMITTE_COMMENT_TEXT"),
+                            extractString("REVIEW_SUP_LEVEL_TYPE"),
+                            extractString("REVIEW_PLACE_AGY_LOC_ID"),
+                            extractString("REVIEW_PLACEMENT_TEXT"),
+                            extractString("REVIEW_SUP_LEVEL_TEXT"),
+                            extractString("REVIEW_COMMITTE_CODE"))
+                    .containsExactly(Tuple.tuple(1, "A", "APP", "committee comment", "D", "BXI", "placement comment", "approved", "GOV"));
+            assertThat((Date) results.get(0).get("EVALUATION_DATE")).isCloseTo("2019-03-21", 1000L);
+            assertThat((Date) results.get(0).get("NEXT_REVIEW_DATE")).isCloseTo("2020-02-17", 1000L);
+        } finally {
+            // Restore db change as cannot rollback server transaction in client!
+            jdbcTemplate.update("UPDATE OFFENDER_ASSESSMENTS SET ASSESS_STATUS='P', EVALUATION_RESULT_CODE=null WHERE OFFENDER_BOOK_ID = -34 AND ASSESSMENT_SEQ = 1");
+        }
+    }
+
+    @Test
+    public void testApproveCategorisationCommitteCodeInvalid() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.CATEGORISATION_APPROVE);
+
+        final var requestBody = createHttpEntity(token, CategoryApprovalDetail.builder()
+                .bookingId(-38L)
+                .assessmentSeq(3)
+                .category("C")
+                .evaluationDate(LocalDate.of(2020, 3, 21))
+                .reviewCommitteeCode("INVALID")
+                .build());
+
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/category/approve",
+                HttpMethod.PUT,
+                requestBody,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+
+        final var body = response.getBody();
+        assertThatJson(body).node("userMessage").asString().contains("Committee Code not recognised.");
+    }
+
+    @Test
+    public void testApproveCategorisationPlacementAgencyInvalid() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.CATEGORISATION_APPROVE);
+
+        final var requestBody = createHttpEntity(token, CategoryApprovalDetail.builder()
+                .bookingId(-38L)
+                .assessmentSeq(3)
+                .category("C")
+                .evaluationDate(LocalDate.of(2020, 3, 21))
+                .reviewCommitteeCode("RECP")
+                .approvedPlacementAgencyId("WRONG")
+                .build());
+
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/category/approve",
+                HttpMethod.PUT,
+                requestBody,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+
+        final var body = response.getBody();
+        assertThatJson(body).node("userMessage").asString().contains("Review placement agency id not recognised.");
     }
 
     @Test

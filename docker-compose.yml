@@ -25,7 +25,7 @@ services:
       - SPRING_PROFILES_ACTIVE=nomis-hsqldb
 
   keyworker-api:
-    image: mojdigitalstudio/keyworker-api:latest
+    image: quay.io/hmpps/keyworker-api:latest
     depends_on:
       - elite2-api
       - oauth-server

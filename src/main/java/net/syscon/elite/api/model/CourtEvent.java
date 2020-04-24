@@ -33,7 +33,7 @@ public class CourtEvent {
     @ApiModelProperty(required = true, value = "The from agency description", example = "HMP LEEDS")
     private String fromAgencyDescription;
 
-    @ApiModelProperty(required = true, value = "The agency code to which the transfer will be made (if an agency)", example = "LEEDSCC")
+    @ApiModelProperty(required = true, value = "The agency code to which the transfer will be made (if an agency)", example = "LEEDCC")
     private String toAgency;
 
     @ApiModelProperty(required = true, value = "The to agency description", example = "Leeds Crown Court")

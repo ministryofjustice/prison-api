@@ -12,7 +12,7 @@ import net.syscon.elite.api.support.CategorisationStatus;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@ApiModel(description = "Prisoner that is Uncategorised or has a pending categorisation")
+@ApiModel(description = "Prisoner with categorisation data")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data

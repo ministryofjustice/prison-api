@@ -1,15 +1,17 @@
 package net.syscon.elite.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static java.time.LocalDate.EPOCH;
@@ -24,9 +26,9 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 @ApiModel(description = "PendingDeletionRequest")
 public class PendingDeletionRequest {
 
-    @ApiModelProperty(value = "A UUID uniquely identifying the request")
-    @JsonProperty("requestId")
-    private String requestId;
+    @ApiModelProperty(value = "An ID uniquely identifying the deletion request batch")
+    @JsonProperty("batchId")
+    private Long batchId;
 
     @Builder.Default
     @DateTimeFormat(iso = DATE)

@@ -1,16 +1,41 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.BookingActivity;
+import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.MilitaryRecord;
+import net.syscon.elite.api.model.MilitaryRecords;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PrivilegeDetail;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.model.AgencyLocation;
+import net.syscon.elite.repository.jpa.model.CaseStatus;
+import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
+import net.syscon.elite.repository.jpa.model.LegalCaseType;
+import net.syscon.elite.repository.jpa.model.MilitaryBranch;
+import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
+import net.syscon.elite.repository.jpa.model.MilitaryRank;
+import net.syscon.elite.repository.jpa.model.Offender;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
-import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
+import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
+import net.syscon.elite.repository.jpa.model.WarZone;
+import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.HttpClientErrorException;
@@ -24,9 +49,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +72,8 @@ public class BookingServiceTest {
     private AgencyService agencyService;
     @Mock
     private ReferenceDomainService referenceDomainService;
+    @Mock
+    private AgencyInternalLocationRepository agencyInternalLocationRepository;
     @Mock
     private AuthenticationFacade securityUtils;
     @Mock
@@ -62,7 +93,9 @@ public class BookingServiceTest {
                 null,
                 referenceDomainService,
                 caseloadToAgencyMappingService,
-                securityUtils, authenticationFacade, "1",
+                agencyInternalLocationRepository,
+                securityUtils, authenticationFacade,
+                "1",
                 10);
     }
 
@@ -368,34 +401,23 @@ public class BookingServiceTest {
     @Test
     public void getMilitaryRecords_notfound() {
         when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
+        assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Offender booking with id -1 not found.");
     }
 
     @Test
-    void getOffenderCourtCases_mapped() {
+    void getOffenderCourtCases_active_only_mapped() {
+        final var activeCourtCase = caseWithDefaults().id(-1L).caseSeq(-1L).caseStatus(new CaseStatus("A", "Active")).build();
+        final var inactiveCourtCase = caseWithDefaults().id(-2L).caseSeq(-2L).caseStatus(new CaseStatus("I", "Inactive")).build();
+
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
-                .courtCases(List.of(OffenderCourtCase.builder()
-                        .id(-1L)
-                        .caseSeq(-2L)
-                        .beginDate(LocalDate.EPOCH)
-                        .agencyLocation(AgencyLocation.builder()
-                                .id("agency_id")
-                                .activeFlag(ActiveFlag.Y)
-                                .type("CRT")
-                                .description("The agency description")
-                                .build())
-                        .legalCaseType(new LegalCaseType("A", "Adult"))
-                        .caseInfoPrefix("cip")
-                        .caseInfoNumber("cin")
-                        .caseStatus(new CaseStatus("A", "Active"))
-                        .build()))
+                .courtCases(List.of(activeCourtCase, inactiveCourtCase))
                 .build()));
 
-        var courtCases = bookingService.getOffenderCourtCases(-1L);
+        final var activeOnlyCourtCases = bookingService.getOffenderCourtCases(-1L, true);
 
-        assertThat(courtCases).containsExactly(CourtCase.builder()
+        assertThat(activeOnlyCourtCases).containsExactly(CourtCase.builder()
                 .id(-1L)
-                .caseSeq(-2L)
+                .caseSeq(-1L)
                 .beginDate(LocalDate.EPOCH)
                 .agency(Agency.builder()
                         .agencyId("agency_id")
@@ -412,9 +434,72 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getOffenderCourtCases_notfound() {
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
+    void getOffenderCourtCases_all_mapped() {
+        final var activeCourtCase = caseWithDefaults().id(-1L).caseSeq(-1L).caseStatus(new CaseStatus("A", "Active")).build();
+        final var inactiveCourtCase = caseWithDefaults().id(-2L).caseSeq(-2L).caseStatus(new CaseStatus("I", "Inactive")).build();
+
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
+                .courtCases(List.of(activeCourtCase, inactiveCourtCase))
+                .build()));
+
+        final var allCourtCases = bookingService.getOffenderCourtCases(-1L, false);
+
+        assertThat(allCourtCases).containsExactly(
+                CourtCase.builder()
+                        .id(-1L)
+                        .caseSeq(-1L)
+                        .beginDate(LocalDate.EPOCH)
+                        .agency(Agency.builder()
+                                .agencyId("agency_id")
+                                .active(true)
+                                .agencyType("CRT")
+                                .description("The Agency Description")
+                                .build())
+                        .caseType("Adult")
+                        .caseInfoPrefix("cip")
+                        .caseInfoNumber("cin")
+                        .caseStatus("Active")
+                        .courtHearings(Collections.emptyList())
+                        .build(),
+                CourtCase.builder()
+                        .id(-2L)
+                        .caseSeq(-2L)
+                        .beginDate(LocalDate.EPOCH)
+                        .agency(Agency.builder()
+                                .agencyId("agency_id")
+                                .active(true)
+                                .agencyType("CRT")
+                                .description("The Agency Description")
+                                .build())
+                        .caseType("Adult")
+                        .caseInfoPrefix("cip")
+                        .caseInfoNumber("cin")
+                        .caseStatus("Inactive")
+                        .courtHearings(Collections.emptyList())
+                        .build());
+    }
+
+    private OffenderCourtCase.OffenderCourtCaseBuilder caseWithDefaults() {
+        return OffenderCourtCase.builder().beginDate(LocalDate.EPOCH)
+                .agencyLocation(AgencyLocation.builder()
+                        .id("agency_id")
+                        .activeFlag(ActiveFlag.Y)
+                        .type("CRT")
+                        .description("The agency description")
+                        .build())
+                .legalCaseType(new LegalCaseType("A", "Adult"))
+                .caseInfoPrefix("cip")
+                .caseInfoNumber("cin");
+    }
+
+
+    @Test
+    void getOffenderCourtCases_errors_for_unknown_booking() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L, true))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Offender booking with id -1 not found.");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {
@@ -429,5 +514,103 @@ public class BookingServiceTest {
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
         assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
                 .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
+    }
+
+    @Nested
+    class UpdateLivingUnit {
+
+        final Long SOME_BOOKING_ID = 1L;
+        final Long BAD_BOOKING_ID = 2L;
+        final Long OLD_LIVING_UNIT_ID = 11L;
+        final String OLD_LIVING_UNIT_DESC = "A-1";
+        final Long NEW_LIVING_UNIT_ID = 12L;
+        final String NEW_LIVING_UNIT_DESC = "Z-1";
+        final String SOME_AGENCY_ID = "MDI";
+        final String DIFFERENT_AGENCY_ID = "NOT_MDI";
+
+        @Test
+        void bookingNotFound_throws() {
+            when(offenderBookingRepository.findById(BAD_BOOKING_ID)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, NEW_LIVING_UNIT_DESC))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining(valueOf(BAD_BOOKING_ID));
+        }
+
+        @Test
+        void livingUnitNotFound_throws() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC));
+        }
+
+        @Test
+        void livingUnitNotCell_throws() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID, "WING")));
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC))
+                    .hasMessageContaining("WING");
+        }
+
+        @Test
+        void differentAgency_throws() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, DIFFERENT_AGENCY_ID)));
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining(SOME_AGENCY_ID)
+                    .hasMessageContaining(DIFFERENT_AGENCY_ID);
+        }
+
+        @Test
+        void ok_updatesRepo() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID)));
+
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
+
+            ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
+            verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
+            assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
+        }
+
+        private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId, final String agencyId) {
+            final var agencyLocation = AgencyLocation.builder().id(agencyId).build();
+            final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
+            final var offender = Offender.builder().nomsId("any noms id").build();
+            return Optional.of(
+                    OffenderBooking.builder()
+                            .bookingId(bookingId)
+                            .assignedLivingUnit(livingUnit)
+                            .location(agencyLocation)
+                            .offender(offender)
+                            .build());
+        }
+
+        private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId) {
+            return aLocation(locationId, locationDescription, agencyId, "CELL");
+        }
+
+        private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId, final String locationType) {
+            return AgencyInternalLocation.builder()
+                    .locationId(locationId)
+                    .description(locationDescription)
+                    .agencyId(agencyId)
+                    .locationType(locationType)
+                    .build();
+        }
     }
 }

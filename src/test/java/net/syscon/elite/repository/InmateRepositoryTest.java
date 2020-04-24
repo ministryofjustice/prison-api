@@ -1,6 +1,17 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategorisationUpdateDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
+import net.syscon.elite.api.model.CategoryRejectionDetail;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderCategorise;
+import net.syscon.elite.api.model.PersonalCareNeed;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
+import net.syscon.elite.api.model.ReasonableAdjustment;
 import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -27,14 +38,21 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import static java.time.LocalDate.parse;
 import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVAL;
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static net.syscon.elite.util.Extractors.extractInteger;
 import static net.syscon.elite.util.Extractors.extractString;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -380,7 +398,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders.size()).isEqualTo(9);
+        assertThat(offenders).hasSize(9);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo)
                 .contains("A1234AA", "A1234AF", "A1234AL", "Z0019ZZ", "Z0020ZZ", "Z0021ZZ", "Z0022ZZ", "Z0023ZZ", "A1180MA");
     }
@@ -582,7 +600,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders.size()).isEqualTo(9);
+        assertThat(offenders).hasSize(9);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo)
                 .contains("A1234AA", "A1234AF", "A1234AL", "Z0019ZZ", "Z0020ZZ", "Z0021ZZ", "Z0022ZZ", "Z0023ZZ", "A1180MA");
     }
@@ -840,6 +858,7 @@ public class InmateRepositoryTest {
                 .committee("GOV")
                 .comment("init cat")
                 .nextReviewDate(LocalDate.of(2019, 6, 1))
+                .placementAgencyId("BMI")
                 .build();
 
         final var responseMap = repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
@@ -863,8 +882,9 @@ public class InmateRepositoryTest {
                         extractInteger("ASSESSOR_STAFF_ID"),
                         extractString("ASSESS_COMMENT_TEXT"),
                         extractString("ASSESSMENT_CREATE_LOCATION"),
-                        extractString("ASSESS_COMMITTE_CODE"))
-                .contains(Tuple.tuple(3, "D", -2, 1006, "P", -11, -11, "init cat", "LEI", "GOV"));
+                        extractString("ASSESS_COMMITTE_CODE"),
+                        extractString("PLACE_AGY_LOC_ID"))
+                .contains(Tuple.tuple(3, "D", -2, 1006, "P", -11, -11, "init cat", "LEI", "GOV", "BMI"));
 
         assertThat((Date) results.get(0).get("ASSESSMENT_DATE")).isToday();
         assertThat((Date) results.get(0).get("CREATION_DATE")).isToday();
@@ -929,6 +949,8 @@ public class InmateRepositoryTest {
                 .reviewCommitteeCode("REVIEW")
                 .committeeCommentText("committeeCommentText")
                 .nextReviewDate(LocalDate.of(2019, 7, 24))
+                .approvedPlacementAgencyId("BXI")
+                .approvedPlacementText("approvedPlacementText")
                 .build();
 
         repository.approveCategory(catDetail);
@@ -945,8 +967,11 @@ public class InmateRepositoryTest {
                         extractString("EVALUATION_RESULT_CODE"),
                         extractString("ASSESS_STATUS"),
                         extractString("REVIEW_SUP_LEVEL_TEXT"),
-                        extractString("COMMITTE_COMMENT_TEXT"))
-                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText")
+                        extractString("COMMITTE_COMMENT_TEXT"),
+                        extractString("REVIEW_PLACE_AGY_LOC_ID"),
+                        extractString("REVIEW_PLACEMENT_TEXT"))
+
+                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText", "BXI", "approvedPlacementText")
                 );
         assertThat((Timestamp) results.get(0).get("EVALUATION_DATE")).isNull();
         assertThat((Timestamp) results.get(1).get("EVALUATION_DATE")).isCloseTo("2019-02-27T00:00:00.000", 1000);
@@ -1358,7 +1383,7 @@ public class InmateRepositoryTest {
     private PrisonerDetail findOffender(final String query) {
         final var page = repository.findOffenders(query, new PageRequest());
 
-        assertThat(page.getItems().size()).isEqualTo(1);
+        assertThat(page.getItems()).hasSize(1);
 
         return page.getItems().get(0);
     }
@@ -1366,7 +1391,7 @@ public class InmateRepositoryTest {
     private PrisonerDetail findOffenderWithAliases(final String query) {
         final var page = repository.findOffendersWithAliases(query, new PageRequest());
 
-        assertThat(page.getItems().size()).isEqualTo(1);
+        assertThat(page.getItems()).hasSize(1);
 
         return page.getItems().get(0);
     }

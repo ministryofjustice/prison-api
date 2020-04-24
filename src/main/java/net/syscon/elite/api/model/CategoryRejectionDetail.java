@@ -31,7 +31,7 @@ public class CategoryRejectionDetail {
     private Integer assessmentSeq;
 
     @ApiModelProperty(required = true, value = "Date of rejection", position = 3)
-    @NotNull(message = "Date of rejection must be provided")
+    @NotNull(message = "Date of rejection must be provided") // TODO make optional, default today?
     private LocalDate evaluationDate;
 
     @ApiModelProperty(required = true, value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'", position = 4)

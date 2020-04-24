@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * BDD step implementations for 'Scheduled Event' APIs (e.g. Booking Activities, Booking Visits, etc.)
@@ -132,11 +130,11 @@ public abstract class ScheduledEventSteps extends CommonSteps {
     }
 
     public void verifyEmpty() {
-        assertTrue("Expecting no results", scheduledEvents.isEmpty());
+        assertThat(scheduledEvents.isEmpty()).as("Expecting no results").isTrue();
     }
 
     public void verifyNumber(final int number) {
-        assertEquals(number, scheduledEvents.size());
+        assertThat(scheduledEvents).hasSize(number);
     }
 
     protected void dispatchRequest(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {

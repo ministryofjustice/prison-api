@@ -2,35 +2,36 @@ package uk.gov.justice.hmpps.nomis.datacompliance.events.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionGrantedEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 
 import java.io.IOException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 @Slf4j
 @Service
 @ConditionalOnExpression("{'aws', 'localstack'}.contains('${data.compliance.inbound.deletion.sqs.provider}')")
-public class OffenderDeletionListener {
+public class OffenderDeletionEventListener {
 
     private static final String EXPECTED_EVENT_TYPE = "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED";
 
-    private final OffenderDataComplianceService offenderDataComplianceService;
+    private final OffenderDeletionService offenderDeletionService;
     private final ObjectMapper objectMapper;
 
-    public OffenderDeletionListener(final OffenderDataComplianceService offenderDataComplianceService,
-                                    final ObjectMapper objectMapper) {
+    public OffenderDeletionEventListener(final OffenderDeletionService offenderDeletionService,
+                                         final ObjectMapper objectMapper) {
 
         log.info("Configured to listen to Offender Deletion events");
 
-        this.offenderDataComplianceService = offenderDataComplianceService;
+        this.offenderDeletionService = offenderDeletionService;
         this.objectMapper = objectMapper;
     }
 
@@ -41,8 +42,9 @@ public class OffenderDeletionListener {
 
         checkEventType(message.getHeaders());
 
-        offenderDataComplianceService.deleteOffender(
-                getOffenderIdDisplay(message.getPayload()));
+        final var event = parseOffenderDeletionEvent(message.getPayload());
+
+        offenderDeletionService.deleteOffender(event.getOffenderIdDisplay(), event.getReferralId());
     }
 
     private void checkEventType(final MessageHeaders messageHeaders) {
@@ -53,19 +55,14 @@ public class OffenderDeletionListener {
                 "Unexpected message event type: '%s', expecting: '%s'", eventType, EXPECTED_EVENT_TYPE);
     }
 
-    private String getOffenderIdDisplay(final String messageBody) {
-
-        final OffenderDeletionEvent event = parseOffenderDeletionEvent(messageBody);
-
-        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", messageBody);
-
-        return event.getOffenderIdDisplay();
-    }
-
-    private OffenderDeletionEvent parseOffenderDeletionEvent(final String requestJson) {
+    private OffenderDeletionGrantedEvent parseOffenderDeletionEvent(final String requestJson) {
         try {
-            return objectMapper.readValue(requestJson, OffenderDeletionEvent.class);
+            final var event = objectMapper.readValue(requestJson, OffenderDeletionGrantedEvent.class);
 
+            checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", requestJson);
+            checkNotNull(event.getReferralId(), "No referral ID specified in request: %s", requestJson);
+
+            return event;
         } catch (final IOException e) {
             throw new RuntimeException("Failed to parse request: " + requestJson, e);
         }

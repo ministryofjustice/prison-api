@@ -570,7 +570,8 @@ Insert into OFFENDER_ASSESSMENTS
      ASSESS_COMMITTE_CODE,
      CREATION_DATE,
      CREATION_USER,
-     ASSESSMENT_CREATE_LOCATION
+     ASSESSMENT_CREATE_LOCATION,
+     PLACE_AGY_LOC_ID
      )
 VALUES
      (:bookingId,
@@ -587,7 +588,8 @@ VALUES
      :assessCommitteeCode,
      :dateTime,
      :userId,
-     :agencyId
+     :agencyId,
+     :placementAgencyId
      )
 }
 
@@ -610,10 +612,12 @@ APPROVE_CATEGORY {
     EVALUATION_DATE=:evaluationDate,
     EVALUATION_RESULT_CODE=:evaluationResultCode,
     REVIEW_SUP_LEVEL_TYPE=:category,
+    REVIEW_SUP_LEVEL_TEXT=:approvedCategoryComment,
     REVIEW_COMMITTE_CODE=:reviewCommitteeCode,
     COMMITTE_COMMENT_TEXT=:committeeCommentText,
     NEXT_REVIEW_DATE=COALESCE(:nextReviewDate, NEXT_REVIEW_DATE),
-    REVIEW_SUP_LEVEL_TEXT=:approvedCategoryComment
+    REVIEW_PLACE_AGY_LOC_ID=:approvedPlacementAgencyId,
+    REVIEW_PLACEMENT_TEXT=:approvedPlacementText
   where OFFENDER_BOOK_ID=:bookingId
     and ASSESSMENT_SEQ=:seq
     and ASSESSMENT_TYPE_ID=:assessmentTypeId
@@ -702,6 +706,7 @@ FIND_OFFENDERS {
     O.LAST_NAME                       LAST_NAME,
     O.BIRTH_DATE                      DATE_OF_BIRTH,
     RCE.DESCRIPTION                   ETHNICITY,
+    RCE.CODE                          ETHNICITY_CODE,
     RCS.DESCRIPTION                   GENDER,
     O.SEX_CODE                        SEX_CODE,
     RCC.DESCRIPTION                   BIRTH_COUNTRY,
@@ -724,6 +729,7 @@ FIND_OFFENDERS {
            THEN OPD2.PROFILE_CODE
          ELSE PC.DESCRIPTION END           NATIONALITIES,
     PC3.DESCRIPTION                   RELIGION,
+    PC3.PROFILE_CODE                  RELIGION_CODE,
     PC2.DESCRIPTION                   MARITAL_STATUS,
     OIS.IMPRISONMENT_STATUS,
     IST.DESCRIPTION                   IMPRISONMENT_STATUS_DESC,
@@ -775,6 +781,7 @@ FIND_OFFENDERS_WITH_ALIASES {
     O.LAST_NAME                       LAST_NAME,
     O.BIRTH_DATE                      DATE_OF_BIRTH,
     RCE.DESCRIPTION                   ETHNICITY,
+    RCE.CODE                          ETHNICITY_CODE,
     RCS.DESCRIPTION                   GENDER,
     O.SEX_CODE                        SEX_CODE,
     RCC.DESCRIPTION                   BIRTH_COUNTRY,
@@ -797,6 +804,7 @@ FIND_OFFENDERS_WITH_ALIASES {
            THEN OPD2.PROFILE_CODE
          ELSE PC.DESCRIPTION END           NATIONALITIES,
     PC3.DESCRIPTION                   RELIGION,
+    PC3.PROFILE_CODE                  RELIGION_CODE,
     PC2.DESCRIPTION                   MARITAL_STATUS,
     OIS.IMPRISONMENT_STATUS,
     (SELECT OI1.IDENTIFIER

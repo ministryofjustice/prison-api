@@ -1,11 +1,5 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
-import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.OffenderNumber;
-import net.syscon.elite.api.support.Page;
-import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.repository.OffenderDeletionRepository;
-import net.syscon.elite.repository.OffenderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +9,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDelet
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
@@ -25,32 +19,22 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.Offen
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class OffenderDataComplianceServiceTest {
+public class DataComplianceReferralServiceTest {
 
-    private static final String REQUEST_ID = "123";
+    private static final long BATCH_ID = 123L;
     private static final LocalDateTime WINDOW_START = LocalDateTime.now();
     private static final LocalDateTime WINDOW_END = WINDOW_START.plusDays(1);
 
     private static final String OFFENDER_NUMBER_1 = "A1234AA";
     private static final String OFFENDER_NUMBER_2 = "B4321BB";
-    private static final String OFFENDER_ID = "123";
-
-    @Mock
-    private OffenderRepository offenderRepository;
-
-    @Mock
-    private OffenderDeletionRepository offenderDeletionRepository;
 
     @Mock
     private OffenderPendingDeletionRepository offenderPendingDeletionRepository;
@@ -59,44 +43,16 @@ public class OffenderDataComplianceServiceTest {
     private OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
 
     @Mock
-    private TelemetryClient telemetryClient;
+    private OffenderDeletionEventPusher eventPusher;
 
-    @Mock
-    private OffenderPendingDeletionEventPusher eventPusher;
-
-    private OffenderDataComplianceService service;
+    private DataComplianceReferralService service;
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderDataComplianceService(
-                offenderRepository,
-                offenderDeletionRepository,
+        service = new DataComplianceReferralService(
                 offenderPendingDeletionRepository,
                 offenderAliasPendingDeletionRepository,
-                telemetryClient,
                 eventPusher);
-    }
-
-    @Test
-    public void deleteOffender() {
-        when(offenderDeletionRepository.deleteOffender(OFFENDER_NUMBER_1)).thenReturn(Set.of(OFFENDER_ID));
-
-        service.deleteOffender(OFFENDER_NUMBER_1);
-
-        verify(telemetryClient).trackEvent("OffenderDelete",
-                Map.of("offenderNo", OFFENDER_NUMBER_1, "count", "1"), null);
-    }
-
-    @Test
-    public void getOffenderNumbers() {
-
-        var pageRequest = new PageRequest(0L, 1L);
-
-        when(offenderRepository.listAllOffenders(pageRequest))
-                .thenReturn(new Page<>(List.of(new OffenderNumber(OFFENDER_NUMBER_1)), 1L, pageRequest));
-
-        assertThat(service.getOffenderNumbers(0L, 1L).getItems())
-                .containsExactly(new OffenderNumber(OFFENDER_NUMBER_1));
     }
 
     @Test
@@ -113,11 +69,11 @@ public class OffenderDataComplianceServiceTest {
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_2))
                 .thenReturn(List.of(offenderAliasPendingDeletion(2)));
 
-        service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get();
+        service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END).get();
 
         verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(1L, OFFENDER_NUMBER_1));
         verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(2L, OFFENDER_NUMBER_2));
-        verify(eventPusher).sendReferralCompleteEvent(expectedReferralCompleteEvent(REQUEST_ID));
+        verify(eventPusher).sendReferralCompleteEvent(expectedReferralCompleteEvent(BATCH_ID));
         verifyNoMoreInteractions(eventPusher);
     }
 
@@ -131,7 +87,7 @@ public class OffenderDataComplianceServiceTest {
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
                 .thenReturn(emptyList());
 
-        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get())
+        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END).get())
                 .hasCauseInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Offender not found: 'A1234AA'");
     }
@@ -149,7 +105,7 @@ public class OffenderDataComplianceServiceTest {
                         .rootOffenderId(2L)
                         .build()));
 
-        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(REQUEST_ID, WINDOW_START, WINDOW_END).get())
+        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END).get())
                 .hasCauseInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Cannot find root offender alias for 'A1234AA'");
     }
@@ -157,6 +113,7 @@ public class OffenderDataComplianceServiceTest {
     private OffenderPendingDeletionEvent expectedPendingDeletionEvent(final long offenderId, final String offenderNumber) {
         return OffenderPendingDeletionEvent.builder()
                 .offenderIdDisplay(offenderNumber)
+                .batchId(123L)
                 .firstName("John" + offenderId)
                 .middleName("Middle" + offenderId)
                 .lastName("Smith" + offenderId)
@@ -168,8 +125,8 @@ public class OffenderDataComplianceServiceTest {
                 .build();
     }
 
-    private OffenderPendingDeletionReferralCompleteEvent expectedReferralCompleteEvent(final String requestId) {
-        return new OffenderPendingDeletionReferralCompleteEvent(requestId);
+    private OffenderPendingDeletionReferralCompleteEvent expectedReferralCompleteEvent(final Long batchId) {
+        return new OffenderPendingDeletionReferralCompleteEvent(batchId);
     }
 
     private OffenderAliasPendingDeletion offenderAliasPendingDeletion(final long offenderId) {

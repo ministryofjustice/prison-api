@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -47,16 +46,16 @@ public class ScheduleRepositoryTest {
     }
 
     private static void assertPrisonerDetails(final PrisonerSchedule details) {
-        assertEquals("2017-09-11T13:00", details.getStartTime().toString());
-        assertEquals("2017-09-11T15:00", details.getEndTime().toString());
+        assertThat(details.getStartTime().toString()).isEqualTo("2017-09-11T13:00");
+        assertThat(details.getEndTime().toString()).isEqualTo("2017-09-11T15:00");
 
-        assertEquals("Woodwork", details.getComment());
-        assertEquals("EDUC", details.getEvent());
-        assertEquals("Education", details.getEventDescription());
-        assertEquals("A1234AB", details.getOffenderNo());
-        assertEquals("GILLIAN", details.getFirstName());
-        assertEquals("ANDERSON", details.getLastName());
-        assertEquals("LEI-H-1-5", details.getCellLocation());
+        assertThat(details.getComment()).isEqualTo("Woodwork");
+        assertThat(details.getEvent()).isEqualTo("EDUC");
+        assertThat(details.getEventDescription()).isEqualTo("Education");
+        assertThat(details.getOffenderNo()).isEqualTo("A1234AB");
+        assertThat(details.getFirstName()).isEqualTo("GILLIAN");
+        assertThat(details.getLastName()).isEqualTo("ANDERSON");
+        assertThat(details.getCellLocation()).isEqualTo("LEI-H-1-5");
     }
 
     @Test
@@ -245,6 +244,9 @@ public class ScheduleRepositoryTest {
 
             // Get offender cell locations. -1L and -3L share a cell.
             assertThat(List.of("LEI-A-1-1", "LEI-A-1-2", "LEI-H-1-5", "LEI-A-1", "LEI-A-1-10", "MDI-1-1-001")).contains(result.getCellLocation());
+
+            // Assert it return both suspended and not suspended
+            assertThat(List.of(true, false)).contains(result.getSuspended());
         });
     }
 

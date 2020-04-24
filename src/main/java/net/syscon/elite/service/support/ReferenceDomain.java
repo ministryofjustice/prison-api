@@ -10,7 +10,8 @@ public enum ReferenceDomain {
     PERFORMANCE("PERFORMANCE"),
     EVENT_OUTCOME("PS_PA_OC"),
     ASSESSMENT_COMMITTEE_CODE("ASSESS_COMM"),
-    CATEGORY("SUP_LVL_TYPE");
+    CATEGORY("SUP_LVL_TYPE"),
+    CELL_MOVE_REASON("CHG_HOUS_RSN");
 
     private final String domain;
 

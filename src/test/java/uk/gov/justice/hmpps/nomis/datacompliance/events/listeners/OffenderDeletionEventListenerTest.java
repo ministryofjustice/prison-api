@@ -8,36 +8,40 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDataComplianceService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class OffenderDeletionListenerTest {
+class OffenderDeletionEventListenerTest {
 
     @Mock
-    private OffenderDataComplianceService offenderDataComplianceService;
+    private OffenderDeletionService offenderDeletionService;
 
     private ObjectMapper objectMapper;
-    private OffenderDeletionListener listener;
+    private OffenderDeletionEventListener listener;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        listener = new OffenderDeletionListener(offenderDataComplianceService, objectMapper);
+        listener = new OffenderDeletionEventListener(offenderDeletionService, objectMapper);
     }
 
     @Test
     void handleOffenderDeletionEvent() {
 
         handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\"}",
+                "{\"offenderIdDisplay\":\"A1234AA\",\"referralId\":123}",
                 Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED"));
 
-        verify(offenderDataComplianceService).deleteOffender("A1234AA");
+        verify(offenderDeletionService).deleteOffender("A1234AA", 123L);
     }
 
     @Test
@@ -47,7 +51,7 @@ class OffenderDeletionListenerTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Unexpected message event type: 'null', expecting: 'DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED'");
 
-        verifyNoInteractions(offenderDataComplianceService);
+        verifyNoInteractions(offenderDeletionService);
     }
 
     @Test
@@ -57,7 +61,7 @@ class OffenderDeletionListenerTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Unexpected message event type: 'UNEXPECTED!', expecting: 'DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED'");
 
-        verifyNoInteractions(offenderDataComplianceService);
+        verifyNoInteractions(offenderDeletionService);
     }
 
     @Test
@@ -66,7 +70,7 @@ class OffenderDeletionListenerTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("argument \"content\" is null");
 
-        verifyNoInteractions(offenderDataComplianceService);
+        verifyNoInteractions(offenderDeletionService);
     }
 
     @Test
@@ -76,7 +80,7 @@ class OffenderDeletionListenerTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Failed to parse request");
 
-        verifyNoInteractions(offenderDataComplianceService);
+        verifyNoInteractions(offenderDeletionService);
     }
 
     @Test
@@ -86,7 +90,7 @@ class OffenderDeletionListenerTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No offender specified in request");
 
-        verifyNoInteractions(offenderDataComplianceService);
+        verifyNoInteractions(offenderDeletionService);
     }
 
     private void handleMessage(final String payload, final Map<String, Object> headers) {

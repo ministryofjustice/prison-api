@@ -29,8 +29,7 @@ import java.time.LocalDate;
                 "       IST.BAND_CODE                                                                             BAND_CODE " +
                 " FROM OFFENDER_BOOKINGS OB " +
                 "          INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID AND OB.BOOKING_SEQ = 1 " +
-                "          INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID " +
-                "          INNER JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID " +
+                "          LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID " +
                 "          LEFT JOIN OFFENDER_IMPRISON_STATUSES OIS ON OIS.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OIS.LATEST_STATUS = 'Y' " +
                 "          LEFT JOIN IMPRISONMENT_STATUSES IST ON IST.IMPRISONMENT_STATUS = OIS.IMPRISONMENT_STATUS " +
                 "          LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE AND RCS.DOMAIN = 'SEX' " +

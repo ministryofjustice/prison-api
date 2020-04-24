@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.Elite2ApiServer;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
+import net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken;
 import net.syscon.elite.util.JwtAuthenticationHelper;
 import net.syscon.elite.util.JwtParameters;
 import org.junit.runner.RunWith;
@@ -12,7 +13,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.core.ResolvableType.forType;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @RunWith(SpringRunner.class)
 @ActiveProfiles(value = "test")
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = Elite2ApiServer.class)
@@ -43,6 +42,10 @@ public abstract class ResourceTest {
 
     protected HttpEntity<?> createHttpEntity(final String bearerToken, final Object body) {
         return createHttpEntity(bearerToken, body, Collections.emptyMap());
+    }
+
+    protected HttpEntity<?> createHttpEntity(final AuthToken authToken, final Object body) {
+        return createHttpEntity(authTokenHelper.getToken(authToken), body, Collections.emptyMap());
     }
 
     protected HttpEntity<?> createHttpEntity(final String bearerToken, final Object body, final Map<String, String> additionalHeaders) {

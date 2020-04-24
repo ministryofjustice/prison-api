@@ -1,20 +1,14 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
-import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.OffenderNumber;
-import net.syscon.elite.api.support.Page;
-import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.repository.OffenderDeletionRepository;
-import net.syscon.elite.repository.OffenderRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderPendingDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
@@ -23,7 +17,6 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.Offen
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,42 +28,27 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OffenderDataComplianceService {
+public class DataComplianceReferralService {
 
-    private final OffenderRepository offenderRepository;
-    private final OffenderDeletionRepository offenderDeletionRepository;
     private final OffenderPendingDeletionRepository offenderPendingDeletionRepository;
     private final OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
-    private final TelemetryClient telemetryClient;
-    private final OffenderPendingDeletionEventPusher offenderPendingDeletionEventPusher;
+    private final OffenderDeletionEventPusher offenderDeletionEventPusher;
 
-    @Transactional
-    public void deleteOffender(final String offenderNumber) {
-
-        final var offenderIds = offenderDeletionRepository.deleteOffender(offenderNumber);
-
-        telemetryClient.trackEvent("OffenderDelete",
-                Map.of("offenderNo", offenderNumber, "count", String.valueOf(offenderIds.size())), null);
-    }
-
-    public Page<OffenderNumber> getOffenderNumbers(long offset, long limit) {
-        return offenderRepository.listAllOffenders(new PageRequest(offset, limit));
-    }
-
-    public CompletableFuture<Void> acceptOffendersPendingDeletionRequest(final String requestId,
+    public CompletableFuture<Void> acceptOffendersPendingDeletionRequest(final Long batchId,
                                                                          final LocalDateTime from,
                                                                          final LocalDateTime to) {
         return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to))
 
                 .thenAccept(offenders -> offenders.forEach(offenderNumber ->
-                        offenderPendingDeletionEventPusher.sendPendingDeletionEvent(
-                                generateOffenderPendingDeletionEvent(offenderNumber))))
+                        offenderDeletionEventPusher.sendPendingDeletionEvent(
+                                generateOffenderPendingDeletionEvent(offenderNumber, batchId))))
 
-                .thenRun(() -> offenderPendingDeletionEventPusher.sendReferralCompleteEvent(
-                        new OffenderPendingDeletionReferralCompleteEvent(requestId)));
+                .thenRun(() -> offenderDeletionEventPusher.sendReferralCompleteEvent(
+                        new OffenderPendingDeletionReferralCompleteEvent(batchId)));
     }
 
-    private OffenderPendingDeletionEvent generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber) {
+    private OffenderPendingDeletionEvent generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber,
+                                                                              final Long batchId) {
 
         final var offenderAliases = offenderAliasPendingDeletionRepository
                 .findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber.getOffenderNumber());
@@ -83,7 +61,7 @@ public class OffenderDataComplianceService {
                 .orElseThrow(() -> new IllegalStateException(
                         format("Cannot find root offender alias for '%s'", offenderNumber.getOffenderNumber())));
 
-        return transform(offenderNumber, rootOffenderAlias, offenderAliases);
+        return transform(offenderNumber, rootOffenderAlias, offenderAliases, batchId);
     }
 
     private List<OffenderNumber> getOffendersPendingDeletion(final LocalDateTime from,
@@ -104,9 +82,11 @@ public class OffenderDataComplianceService {
 
     private OffenderPendingDeletionEvent transform(final OffenderNumber offenderNumber,
                                                    final OffenderAliasPendingDeletion rootOffenderAlias,
-                                                   final Collection<OffenderAliasPendingDeletion> offenderAliases) {
+                                                   final Collection<OffenderAliasPendingDeletion> offenderAliases,
+                                                   final Long batchId) {
         return OffenderPendingDeletionEvent.builder()
                 .offenderIdDisplay(offenderNumber.getOffenderNumber())
+                .batchId(batchId)
                 .firstName(rootOffenderAlias.getFirstName())
                 .middleName(rootOffenderAlias.getMiddleName())
                 .lastName(rootOffenderAlias.getLastName())

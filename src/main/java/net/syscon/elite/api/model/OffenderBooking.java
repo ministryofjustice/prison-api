@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @ApiModel(description = "Offender Booking Summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)

@@ -1,6 +1,10 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.OffenderIdentifier;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +17,7 @@ import java.util.List;
 public interface IdentifiersResource {
 
     @GetMapping("/{type}/{value}")
-    @ApiOperation(value = "Identifiers for a specified type and value", notes = "Empty list will be returned for no matches", nickname = "getOffenderIdentifiersByTypeAndValue"
-            , authorizations = {@Authorization("SYSTEM_USER")})
+    @ApiOperation(value = "Identifiers for a specified type and value", notes = "Empty list will be returned for no matches", nickname = "getOffenderIdentifiersByTypeAndValue")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderIdentifier.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),

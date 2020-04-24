@@ -1,26 +1,31 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.health;
 
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.*;
-import uk.gov.justice.hmpps.nomis.datacompliance.health.QueueHealth;
-import uk.gov.justice.hmpps.nomis.datacompliance.health.QueueHealth.DlqStatus;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
+import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
+import com.amazonaws.services.sqs.model.GetQueueUrlResult;
+import com.amazonaws.services.sqs.model.QueueAttributeName;
+import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.actuate.health.Status;
+import uk.gov.justice.hmpps.nomis.datacompliance.health.QueueHealth.DlqStatus;
 
 import java.util.List;
 import java.util.Map;
 
-import static uk.gov.justice.hmpps.nomis.datacompliance.health.QueueHealth.QueueAttributes.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.when;
+import static uk.gov.justice.hmpps.nomis.datacompliance.health.QueueHealth.QueueAttributes.MESSAGES_IN_FLIGHT;
+import static uk.gov.justice.hmpps.nomis.datacompliance.health.QueueHealth.QueueAttributes.MESSAGES_ON_DLQ;
+import static uk.gov.justice.hmpps.nomis.datacompliance.health.QueueHealth.QueueAttributes.MESSAGES_ON_QUEUE;
 
-@RunWith(MockitoJUnitRunner.class)
-public class QueueHealthTest {
+@ExtendWith(MockitoExtension.class)
+class QueueHealthTest {
 
     private static final String SOME_QUEUE_NAME = "some queue name";
     private static final String SOME_QUEUE_URL = "some queue url";
@@ -35,13 +40,13 @@ public class QueueHealthTest {
 
     private QueueHealth queueHealth;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         queueHealth = new QueueHealth(amazonSqs, amazonSqsDlq, SOME_QUEUE_NAME, SOME_DLQ_NAME) { };
     }
 
     @Test
-    public void queueHealthReportsHealthy() {
+    void queueHealthReportsHealthy() {
         mockHealthyQueue();
 
         final var health = queueHealth.health();
@@ -52,7 +57,7 @@ public class QueueHealthTest {
     }
 
     @Test
-    public void queueHealthReportsUnhealthy() {
+    void queueHealthReportsUnhealthy() {
 
         when(amazonSqs.getQueueUrl(SOME_QUEUE_NAME)).thenThrow(QueueDoesNotExistException.class);
 
@@ -62,7 +67,7 @@ public class QueueHealthTest {
     }
 
     @Test
-    public void queueHealthReportsUnhealthyWhenGetMainQueueAttributesUnavailable() {
+    void queueHealthReportsUnhealthyWhenGetMainQueueAttributesUnavailable() {
 
         when(amazonSqs.getQueueUrl(anyString())).thenReturn(someGetQueueUrlResult());
         when(amazonSqs.getQueueAttributes(someGetQueueAttributesRequest())).thenThrow(RuntimeException.class);
@@ -73,7 +78,7 @@ public class QueueHealthTest {
     }
 
     @Test
-    public void queueHealthReportsDlqDetails() {
+    void queueHealthReportsDlqDetails() {
 
         mockHealthyQueue();
 
@@ -84,7 +89,7 @@ public class QueueHealthTest {
     }
 
     @Test
-    public void queueHealthReportsUnhealthyIfNoRedrivePolicy() {
+    void queueHealthReportsUnhealthyIfNoRedrivePolicy() {
         when(amazonSqs.getQueueUrl(SOME_QUEUE_NAME)).thenReturn(someGetQueueUrlResult());
         when(amazonSqs.getQueueAttributes(someGetQueueAttributesRequest())).thenReturn(someGetQueueAttributesResultWithoutDlq());
 
@@ -94,9 +99,8 @@ public class QueueHealthTest {
         assertThat(health.getDetails().get("dlqStatus")).isEqualTo(DlqStatus.NOT_ATTACHED.description);
     }
 
-
     @Test
-    public void queueHealthReportsUnhealthyIfDlqNotFound() {
+    void queueHealthReportsUnhealthyIfDlqNotFound() {
         when(amazonSqs.getQueueUrl(SOME_QUEUE_NAME)).thenReturn(someGetQueueUrlResult());
         when(amazonSqs.getQueueAttributes(someGetQueueAttributesRequest())).thenReturn(someGetQueueAttributesResultWithDlq());
         when(amazonSqsDlq.getQueueUrl(SOME_DLQ_NAME)).thenThrow(QueueDoesNotExistException.class);
@@ -108,7 +112,7 @@ public class QueueHealthTest {
     }
 
     @Test
-    public void queueHealthReportsUnhealthyIfDlqAttributesNotAvailable() {
+    void queueHealthReportsUnhealthyIfDlqAttributesNotAvailable() {
         when(amazonSqs.getQueueUrl(SOME_QUEUE_NAME)).thenReturn(someGetQueueUrlResult());
         when(amazonSqs.getQueueAttributes(someGetQueueAttributesRequest())).thenReturn(someGetQueueAttributesResultWithDlq());
         when(amazonSqsDlq.getQueueUrl(SOME_DLQ_NAME)).thenReturn(someGetQueueUrlResultForDlq());

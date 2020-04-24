@@ -181,19 +181,6 @@ Feature: Booking Details
     When a request is made for offenders who need to be recategorised at "LEI" with cutoff Date of "2018-07-01"
     Then 4 categorised offenders are returned
 
-  Scenario: Create categorisation request
-    Given a categorisation user has authenticated with the API
-    When a categorisation request is made for booking "-35" with category "D" for committee "RECP"
-    And a request is made for uncategorised offenders at "MDI"
-    Then offender with booking "-35" has a categorised status of AWAITING_APROVAL
-
-  Scenario: Approve categorisation
-    Given a user has a token name of "CATEGORISATION_APPROVE"
-    And a request is made for uncategorised offenders at "LEI"
-    And offender with booking "-34" has a categorised status of AWAITING_APROVAL
-    When a categorisation is approved for booking "-34" with category "D" date "2019-02-28" and comment "Make it so"
-    And a request is made for uncategorised offenders at "LEI"
-    Then offender with booking "-34" is not present
 
   Scenario: Approve categorisation validation: no auth
     When a categorisation is approved for booking "-34" with category "D" date "2019-02-28" and comment "Make it so"

@@ -19,8 +19,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
 
 /**
@@ -65,14 +63,14 @@ class LocationServiceImplTest {
         when(caseLoadService.getWorkingCaseLoadForUser("me")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("LEI").type("INST").build()));
         final var returnedLocations = locationService.getUserLocations("me");
 
-        assertFalse(returnedLocations.isEmpty());
+        assertThat(returnedLocations.isEmpty()).isFalse();
         assertThat(returnedLocations).hasSize(2);
 
         final var returnedLocation = returnedLocations.get(1);
-        assertEquals(location.getLocationId().longValue(), returnedLocation.getLocationId().longValue());
-        assertEquals(location.getAgencyId(), returnedLocation.getAgencyId());
-        assertEquals(location.getLocationType(), returnedLocation.getLocationType());
-        assertEquals(location.getDescription(), returnedLocation.getDescription());
+        assertThat(returnedLocation.getLocationId().longValue()).isEqualTo(location.getLocationId().longValue());
+        assertThat(returnedLocation.getAgencyId()).isEqualTo(location.getAgencyId());
+        assertThat(returnedLocation.getLocationType()).isEqualTo(location.getLocationType());
+        assertThat(returnedLocation.getDescription()).isEqualTo(location.getDescription());
     }
 
     @Test

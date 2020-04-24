@@ -4,8 +4,7 @@ import net.syscon.elite.api.model.ScheduledEvent;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BDD step implementations for Scheduled Events service.
@@ -41,10 +40,10 @@ public class BookingEventSteps extends ScheduledEventSteps {
         while (expectedIterator.hasNext()) {
             final var expectedThis = expectedIterator.next();
             final var actualThis = actualIterator.next();
-            assertEquals(getDump(), expectedThis.getEventType(), actualThis.getEventType());
-            assertEquals(getDump(), expectedThis.getEventLocation(), actualThis.getEventLocation());
+            assertThat(actualThis.getEventType()).as(getDump()).isEqualTo(expectedThis.getEventType());
+            assertThat(actualThis.getEventLocation()).as(getDump()).isEqualTo(expectedThis.getEventLocation());
         }
-        assertFalse("Too many actual events", actualIterator.hasNext());
+        assertThat(actualIterator.hasNext()).as("Too many actual events").isFalse();
     }
 
     private String getDump() {

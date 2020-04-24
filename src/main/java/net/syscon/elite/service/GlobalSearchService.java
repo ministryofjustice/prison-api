@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import com.google.common.collect.ImmutableList;
+import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
 import net.syscon.elite.api.support.Page;
@@ -55,6 +56,10 @@ public class GlobalSearchService {
         prisonersPage.getItems().forEach(p -> p.setLatestLocation(LocationProcessor.formatLocation(p.getLatestLocation())));
 
         return prisonersPage;
+    }
+
+    public Page<OffenderNumber> getOffenderNumbers(long offset, long limit) {
+        return offenderRepository.listAllOffenders(new PageRequest(offset, limit));
     }
 
     private Page<PrisonerDetail> executeQuery(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {

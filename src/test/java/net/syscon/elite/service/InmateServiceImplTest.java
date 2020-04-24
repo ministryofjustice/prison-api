@@ -44,6 +44,8 @@ public class InmateServiceImplTest {
     @Mock
     private BookingService bookingService;
     @Mock
+    private AgencyService agencyService;
+    @Mock
     private UserRepository userRepository;
     @Mock
     private UserService userService;
@@ -65,7 +67,7 @@ public class InmateServiceImplTest {
     @BeforeEach
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
-                referenceDomainService, bookingService, userService, userRepository, authenticationFacade,
+                referenceDomainService, bookingService, agencyService, userService, userRepository, authenticationFacade,
                 keyWorkerAllocationRepository, env, telemetryClient, "WING", 100);
     }
 
