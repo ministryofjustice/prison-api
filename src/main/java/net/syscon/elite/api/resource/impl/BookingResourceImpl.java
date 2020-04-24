@@ -25,7 +25,6 @@ import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.NewAppointment;
 import net.syscon.elite.api.model.NewBooking;
 import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.Offence;
 import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.api.model.OffenceHistoryDetail;
 import net.syscon.elite.api.model.OffenderBooking;
@@ -449,7 +448,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<Offence> getMainOffence(final Set<Long> bookingIds) {
+    public List<OffenceDetail> getMainOffence(final Set<Long> bookingIds) {
         return bookingService.getMainOffenceDetails(bookingIds);
     }
 

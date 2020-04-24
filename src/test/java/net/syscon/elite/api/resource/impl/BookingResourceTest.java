@@ -23,6 +23,7 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 
 public class BookingResourceTest extends ResourceTest {
     @Test
@@ -330,6 +331,25 @@ public class BookingResourceTest extends ResourceTest {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
                 createHttpEntity(AuthToken.NORMAL_USER, null),
                 String.class, "-9");
+
+        assertThatStatus(response, 200);
+        assertThat(response.getBody()).isEqualTo("[]");
+    }
+
+    @Test
+    public void getOffenceHistory_post() {
+        final var response = testRestTemplate.exchange("/api/bookings/mainOffence", POST,
+                createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[-1, -7]"),
+                String.class);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_main_offences_post.json");
+    }
+
+    @Test
+    public void getOffenceHistory_post_no_offences() {
+        final var response = testRestTemplate.exchange("/api/bookings/mainOffence", POST,
+                createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[ -98, -99 ]"),
+                String.class);
 
         assertThatStatus(response, 200);
         assertThat(response.getBody()).isEqualTo("[]");

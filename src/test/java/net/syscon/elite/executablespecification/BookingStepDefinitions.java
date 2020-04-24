@@ -11,7 +11,6 @@ import net.syscon.elite.executablespecification.steps.BookingAssessmentSteps;
 import net.syscon.elite.executablespecification.steps.BookingDetailSteps;
 import net.syscon.elite.executablespecification.steps.BookingIEPSteps;
 import net.syscon.elite.executablespecification.steps.BookingSearchSteps;
-import net.syscon.elite.executablespecification.steps.BookingSentenceSteps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -55,9 +54,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private BookingAlertSteps bookingAlerts;
-
-    @Autowired
-    private BookingSentenceSteps bookingSentence;
 
     @Autowired
     private BookingAssessmentSteps bookingAssessment;
@@ -348,33 +344,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^access denied response is received from alert API$")
     public void accessDeniedResponseIsReceivedFromAlertAPI() {
         bookingAlerts.verifyAccessDenied();
-    }
-
-    // ----------------------------- Sentence ----------------------------------------
-    @Then("^(\\d+) offence records are returned$")
-    public void offenceDetailRecordsAreReturned(final long expectedCount) {
-        bookingSentence.verifyResourceRecordsReturned(expectedCount);
-    }
-
-    @And("^offence description of \"([^\"]*)\" offence detail record is \"([^\"]*)\"$")
-    public void offenceDescriptionOfOffenceDetailRecordIs(final String ordinal, final String expectedDescription) {
-        bookingSentence.verifyOffenceDescription(ord2idx(ordinal), expectedDescription);
-    }
-
-    @When("^a sentence with booking ids ([0-9,-]+) is requested using POST$")
-    public void sentenceWithBookingId(final String bookings) {
-        final var bookingIds = Arrays.asList(bookings.split(","));
-        bookingSentence.getMainOffenceDetails(bookingIds);
-    }
-
-    @And("^for \"([^\"]*)\" offence record, offence code is \"([^\"]*)\", statute code is \"([^\"]*)\"$")
-    public void offenceDescriptionOfOffenceDetailRecordIs(final String ordinal, final String offenceCode, final String statuteCode) {
-        bookingSentence.verifyOffenceCodes(ord2idx(ordinal), offenceCode, statuteCode);
-    }
-
-    @Then("resource not found response is received from sentence API")
-    public void resourceNotFoundResponse() {
-        bookingSentence.verifyResourceNotFound();
     }
 
     // ----------------------------- Assessments --------------------------
