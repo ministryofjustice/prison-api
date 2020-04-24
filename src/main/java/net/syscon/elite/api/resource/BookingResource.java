@@ -29,7 +29,6 @@ import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.NewAppointment;
 import net.syscon.elite.api.model.NewBooking;
 import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.Offence;
 import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.api.model.OffenceHistoryDetail;
 import net.syscon.elite.api.model.OffenderBooking;
@@ -83,7 +82,7 @@ public interface BookingResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Summary information for all offenders accessible to current user.", response = OffenderBooking.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<OffenderBooking>> getOffenderBookings(@ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId, assignedOfficerUserId</p> ", required = false) @RequestParam(value = "query", required = false) String query,
+    ResponseEntity<List<OffenderBooking>> getOffenderBookings(@ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId, assignedOfficerUserId</p> ") @RequestParam(value = "query", required = false) String query,
                                                               @ApiParam(value = "The booking ids of offender") @RequestParam(value = "bookingId", required = false) List<Long> bookingId,
                                                               @ApiParam(value = "The required offender numbers") @RequestParam(value = "offenderNo", required = false) List<String> offenderNo,
                                                               @ApiParam(value = "return IEP level data", defaultValue = "false") @RequestParam(value = "iepLevel", defaultValue = "false", required = false) boolean iepLevel,
@@ -408,7 +407,7 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<Offence> getMainOffence(@ApiParam(value = "The bookingIds to identify the offenders", required = true) @RequestBody Set<Long> body);
+    List<OffenceDetail> getMainOffence(@ApiParam(value = "The bookingIds to identify the offenders", required = true) @RequestBody Set<Long> body);
 
     @GetMapping("/offenderNo/{offenderNo}/offenceHistory")
     @ApiOperation(value = "Offence history.", notes = "All Offences recorded for this offender.", nickname = "getOffenceHistory")
@@ -639,7 +638,7 @@ public interface BookingResource {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "The appointment has been recorded. The updated object is returned including the status.", response = ScheduledEvent.class)})
     ScheduledEvent postBookingsBookingIdAppointments(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
-                                                     @ApiParam(value = "", required = true) @RequestBody NewAppointment body);
+                                                     @ApiParam(required = true) @RequestBody NewAppointment body);
 
     @PostMapping("/{bookingId}/caseNotes")
     @ResponseStatus(HttpStatus.CREATED)
@@ -648,7 +647,7 @@ public interface BookingResource {
             @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
             @ApiResponse(code = 409, message = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", response = ErrorResponse.class)})
     CaseNote createBookingCaseNote(@ApiParam(value = "The booking id of offender", required = true) @PathVariable("bookingId") Long bookingId,
-                                   @ApiParam(value = "", required = true) @RequestBody NewCaseNote body);
+                                   @ApiParam(required = true) @RequestBody NewCaseNote body);
 
     @PostMapping("/{bookingId}/relationships")
     @ResponseStatus(HttpStatus.CREATED)
@@ -678,7 +677,7 @@ public interface BookingResource {
             @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
             @ApiResponse(code = 409, message = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", response = ErrorResponse.class)})
     CaseNote createOffenderCaseNote(@ApiParam(value = "The offenderNo of offender", required = true) @PathVariable("offenderNo") String offenderNo,
-                                    @ApiParam(value = "", required = true) @RequestBody NewCaseNote body);
+                                    @ApiParam(required = true) @RequestBody NewCaseNote body);
 
     @PostMapping("/offenderNo/{offenderNo}/relationships")
     @ResponseStatus(HttpStatus.CREATED)
@@ -706,7 +705,7 @@ public interface BookingResource {
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
     CaseNote updateOffenderCaseNote(@ApiParam(value = "The booking id of offender", required = true, example = "1231212") @PathVariable("bookingId") Long bookingId,
                                     @ApiParam(value = "The case note id", required = true, example = "1212134") @PathVariable("caseNoteId") Long caseNoteId,
-                                    @ApiParam(value = "", required = true) @RequestBody UpdateCaseNote body);
+                                    @ApiParam(required = true) @RequestBody UpdateCaseNote body);
 
     @PutMapping("/offenderNo/{offenderNo}/activities/{activityId}/attendance")
     @ApiResponses(value = {
@@ -717,7 +716,7 @@ public interface BookingResource {
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
     ResponseEntity<Void> updateAttendance(@ApiParam(value = "The offenderNo of the prisoner", required = true, example = "A1234AA") @PathVariable("offenderNo") String offenderNo,
                                           @ApiParam(value = "The activity id", required = true, example = "1212131") @PathVariable("activityId") Long activityId,
-                                          @ApiParam(value = "", required = true, example = "{eventOutcome = 'ATT', performance = 'ACCEPT' outcomeComment = 'Turned up very late'}") @NotNull @RequestBody UpdateAttendance updateAttendance);
+                                          @ApiParam(required = true, example = "{eventOutcome = 'ATT', performance = 'ACCEPT' outcomeComment = 'Turned up very late'}") @NotNull @RequestBody UpdateAttendance updateAttendance);
 
     @PutMapping("/{bookingId}/activities/{activityId}/attendance")
     @ApiOperation(value = "Update offender attendance and pay.", notes = "Update offender attendance and pay.", nickname = "updateAttendance")
@@ -729,7 +728,7 @@ public interface BookingResource {
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
     ResponseEntity<Void> updateAttendance(@ApiParam(value = "The booking Id of the prisoner", required = true, example = "213531") @PathVariable("bookingId") @NotNull Long bookingId,
                                           @ApiParam(value = "The activity id", required = true, example = "1212131") @PathVariable("activityId") @NotNull Long activityId,
-                                          @ApiParam(value = "", required = true) @NotNull @RequestBody UpdateAttendance body);
+                                          @ApiParam(required = true) @NotNull @RequestBody UpdateAttendance body);
 
     @PutMapping("/activities/attendance")
     @ResponseStatus(HttpStatus.CREATED)

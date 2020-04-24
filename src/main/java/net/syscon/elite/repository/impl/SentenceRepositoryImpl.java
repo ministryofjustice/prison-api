@@ -1,6 +1,5 @@
 package net.syscon.elite.repository.impl;
 
-import net.syscon.elite.api.model.Offence;
 import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.api.model.OffenceHistoryDetail;
 import net.syscon.elite.repository.SentenceRepository;
@@ -20,7 +19,6 @@ import java.util.Optional;
 public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRepository {
 
     private final StandardBeanPropertyRowMapper<OffenceDetail> offenceDetailMapper = new StandardBeanPropertyRowMapper<>(OffenceDetail.class);
-    private final StandardBeanPropertyRowMapper<Offence> offenceMapper = new StandardBeanPropertyRowMapper<>(Offence.class);
     private final StandardBeanPropertyRowMapper<OffenceHistoryDetail> offenceHistoryMapper = new StandardBeanPropertyRowMapper<>(OffenceHistoryDetail.class);
 
     @Override
@@ -30,20 +28,20 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
 
         return jdbcTemplate.query(
                 sql,
-                createParams("bookingId", bookingId),
+                createParams("bookingId", bookingId, "mostSerious", "Y", "chargeStatus", "A", "severityRanking", 999),
                 offenceDetailMapper);
     }
 
     @Override
-    public List<Offence> getMainOffenceDetails(final List<Long> bookingIds) {
+    public List<OffenceDetail> getMainOffenceDetails(final List<Long> bookingIds) {
         if (bookingIds.isEmpty()) return Collections.emptyList();
 
         final var sql = getQuery("GET_BOOKING_MAIN_OFFENCES_MULTIPLE");
 
         return jdbcTemplate.query(
                 sql,
-                createParams("bookingIds", bookingIds),
-                offenceMapper);
+                createParams("bookingIds", bookingIds, "mostSerious", "Y", "chargeStatus", "A"),
+                offenceDetailMapper);
     }
 
     @Override
