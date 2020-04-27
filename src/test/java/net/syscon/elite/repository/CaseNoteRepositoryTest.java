@@ -99,7 +99,7 @@ public class CaseNoteRepositoryTest {
         final long staffId = -4;
         final long caseNoteId = repository.createCaseNote(bookingId, newCaseNote, sourceCode, username, staffId);
 
-        final var caseNote = repository.getCaseNote(-16, caseNoteId).orElseThrow();
+        final var caseNote = repository.getCaseNote(bookingId, caseNoteId).orElseThrow();
 
         final var contactDateTime = caseNote.getOccurrenceDateTime();
         final var createDateTime = caseNote.getCreationDateTime();
