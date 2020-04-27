@@ -28,7 +28,7 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
 
         return jdbcTemplate.query(
                 sql,
-                createParams("bookingId", bookingId, "mostSerious", "Y", "chargeStatus", "A", "severityRanking", 999),
+                createParams("bookingId", bookingId, "mostSerious", "Y", "chargeStatus", "A", "severityRanking", "999"),
                 offenceDetailMapper);
     }
 
