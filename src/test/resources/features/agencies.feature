@@ -67,7 +67,7 @@ Feature: Agencies
 
   Scenario: Retrieve all locations for an agency
     When a request is submitted to retrieve location codes for agency "LEI"
-    Then "137" location records are returned for agency
+    Then "139" location records are returned for agency
 
   Scenario: Retrieve locations, for an agency, that can be used for appointments
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP"
@@ -77,6 +77,21 @@ Feature: Agencies
       | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
       | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
+
+  Scenario: Retrieve locations, for an agency, that can be used for occurrences
+    When a request is submitted to retrieve location codes for agency "LEI" and event type "OCCUR"
+    Then the returned agency locations are as follows:
+      | locationId | description        | userDescription    | locationPrefix         | locationUsage |
+      | 14433      | RES-AWING          | A Wing             | LEI-RES-AWING          | OCCUR         |
+      | 13411      | OTHER-ABEX         | A/b Exercise Yard  | LEI-OTHER-ABEX         | OCCUR         |
+      | 14439      | RES-BWING          | B Wing             | LEI-RES-BWING          | OCCUR         |
+      | 14444      | RES-CWING          | C Wing             | LEI-RES-CWING          | OCCUR         |
+      | 14448      | RES-DWING          | D Wing             | LEI-RES-DWING          | OCCUR         |
+      | 13392      | EDUC               | Education          | LEI-EDUC               | OCCUR         |
+      | 13402      | GYM                | Gym                | LEI-GYM                | OCCUR         |
+      | 14452      | RES-IWING          | I Wing             | LEI-RES-IWING          | OCCUR         |
+      | 1901       | OTHER-OTHERCELL    | Other Cell         | LEI-OTHER-OTHERCELL    | OCCUR         |
+      | 1900       | OTHER-PRISONERSCEL | Prisoner's Cell    | LEI-OTHER-PRISONERSCEL | OCCUR         |
 
   Scenario: Retrieve locations, for an agency, that can be used for 'APP' events, in descending order of description
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP" sorted by "userDescription" in "descending" order
@@ -90,11 +105,21 @@ Feature: Agencies
   Scenario: Retrieve locations, for an agency, that can be used for any events
     When a request is submitted to retrieve location codes for agency "LEI" for any events
     Then the returned agency locations are as follows:
-      | locationId | description | userDescription    | locationPrefix | locationUsage |
-      | -26        | CARP        | Carpentry Workshop | LEI-CARP       | APP           |
-      | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
-      | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
-      | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
+      | locationId | description        | userDescription    | locationPrefix         | locationUsage |
+      | 14433      | RES-AWING          | A Wing             | LEI-RES-AWING          | OCCUR         |
+      | 13411      | OTHER-ABEX         | A/b Exercise Yard  | LEI-OTHER-ABEX         | OCCUR         |
+      | 14439      | RES-BWING          | B Wing             | LEI-RES-BWING          | OCCUR         |
+      | 14444      | RES-CWING          | C Wing             | LEI-RES-CWING          | OCCUR         |
+      | -26        | CARP               | Carpentry Workshop | LEI-CARP               | APP           |
+      | -25        | CHAP               | Chapel             | LEI-CHAP               | APP           |
+      | -27        | CRM1               | Classroom 1        | LEI-CRM1               | APP           |
+      | 14448      | RES-DWING          | D Wing             | LEI-RES-DWING          | OCCUR         |
+      | 13392      | EDUC               | Education          | LEI-EDUC               | OCCUR         |
+      | 13402      | GYM                | Gym                | LEI-GYM                | OCCUR         |
+      | 14452      | RES-IWING          | I Wing             | LEI-RES-IWING          | OCCUR         |
+      | -29        | MED                | Medical Centre     | LEI-MED                | APP           |
+      | 1901       | OTHER-OTHERCELL    | Other Cell         | LEI-OTHER-OTHERCELL    | OCCUR         |
+      | 1900       | OTHER-PRISONERSCEL | Prisoner's Cell    | LEI-OTHER-PRISONERSCEL | OCCUR         |
 
   Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date
     When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-09-15"
