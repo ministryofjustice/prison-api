@@ -1,11 +1,41 @@
 package net.syscon.elite.api.resource.v1;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.v1.*;
+import net.syscon.elite.api.model.v1.AccountBalance;
+import net.syscon.elite.api.model.v1.AccountTransaction;
+import net.syscon.elite.api.model.v1.AccountTransactions;
+import net.syscon.elite.api.model.v1.ActiveOffender;
+import net.syscon.elite.api.model.v1.Alerts;
+import net.syscon.elite.api.model.v1.AvailableDates;
+import net.syscon.elite.api.model.v1.Bookings;
+import net.syscon.elite.api.model.v1.ContactList;
+import net.syscon.elite.api.model.v1.CreateTransaction;
+import net.syscon.elite.api.model.v1.Event;
+import net.syscon.elite.api.model.v1.Events;
+import net.syscon.elite.api.model.v1.Hold;
+import net.syscon.elite.api.model.v1.Image;
+import net.syscon.elite.api.model.v1.LiveRoll;
+import net.syscon.elite.api.model.v1.Location;
+import net.syscon.elite.api.model.v1.Offender;
+import net.syscon.elite.api.model.v1.PaymentResponse;
+import net.syscon.elite.api.model.v1.StorePaymentRequest;
+import net.syscon.elite.api.model.v1.Transaction;
+import net.syscon.elite.api.model.v1.Transfer;
+import net.syscon.elite.api.model.v1.UnavailabilityReason;
+import net.syscon.elite.api.model.v1.VisitSlots;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -339,7 +369,7 @@ public interface NomisApiV1Resource {
             @ApiResponse(code = 404, message = "Prison Not Found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     VisitSlots getVisitSlotsWithCapacity(
-            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") @PathVariable("prison_id") @Length(max = 3) String prisonId,
+            @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) @PathVariable("prison_id") @Length(max = 3) String prisonId,
             @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("start_date") LocalDate fromDate,
             @ApiParam(name = "end_date", value = "To date", example = "2019-05-01", required = true) @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("end_date") LocalDate toDate);
 }

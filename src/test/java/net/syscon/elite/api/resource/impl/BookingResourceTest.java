@@ -1,7 +1,15 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.*;
-import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
+import net.syscon.elite.api.model.AlertCreated;
+import net.syscon.elite.api.model.BookingActivity;
+import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.Movement;
+import net.syscon.elite.api.model.UpdateAttendanceBatch;
+import net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -14,11 +22,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 
 public class BookingResourceTest extends ResourceTest {
     @Test
     public void testThatUpdateAttendanceIsLockedDown_WhenPayRoleIsMissing() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
         final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
         final var httpEntity = createHttpEntity(token, body);
@@ -36,7 +46,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testUpdateAttendance_WithTheValidRole() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.PAY);
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
 
         final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
         final var httpEntity = createHttpEntity(token, body);
@@ -54,7 +64,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testUpdateAttendance_WithMultipleBookingIds() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.PAY);
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
 
         final var body = UpdateAttendanceBatch
                 .builder()
@@ -77,7 +87,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testCreateNewAlert_UnAuthorised() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
         final var body = CreateAlert.builder().alertCode("X").alertType("XX").comment("XXX")
                 .alertDate(LocalDate.now()).build();
@@ -94,7 +104,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testUpdateAlert_UnAuthorised() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
         final var body = AlertChanges.builder().expiryDate(LocalDate.now()).build();
 
@@ -110,7 +120,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testUpdateAlert() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.UPDATE_ALERT);
+        final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
         final var createdAlert = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert",
@@ -139,7 +149,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testUpdateAlert_CommentTextOnly() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.UPDATE_ALERT);
+        final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
         final var createdAlert = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/alert",
@@ -168,7 +178,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testCreateNewAlert_BadRequest() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
         final var body = CreateAlert.builder().build();
 
@@ -190,7 +200,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testCreateNewAlert_MaximumLengths() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.UPDATE_ALERT);
+        final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
         final var largeText = IntStream.range(1, 1002).mapToObj(i -> "A").collect(Collectors.joining(""));
 
         final var body = CreateAlert.builder()
@@ -217,7 +227,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testCreateNewAlert() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.UPDATE_ALERT);
+        final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
         final var body = CreateAlert.builder().alertType("L").alertCode("LPQAA").comment("comments")
                 .alertDate(LocalDate.now()).build();
@@ -235,7 +245,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testGetBasicInmateDetailsForOffendersActiveOnlyFalse() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var body = List.of("Z0020ZZ");
 
@@ -252,11 +262,11 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testGetMovementForBooking() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/movement/{sequenceNumber}",
-                HttpMethod.GET,
+                GET,
                 createHttpEntity(token, null),
                 Movement.class, "-29", "2");
 
@@ -269,15 +279,88 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void testGetMovementForBookingNoResults() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var response = testRestTemplate.exchange(
                 "/api/bookings/{bookingId}/movement/{sequenceNumber}",
-                HttpMethod.GET,
+                GET,
                 createHttpEntity(token, null),
                 Movement.class, "-29", "999");
 
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }
 
+    @Test
+    public void getMainOffence_testRetrieveSingleOffence() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, "-1");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_main_offence.json");
+    }
+
+    @Test
+    public void getMainOffence_testRetrieveMultipleOffences() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, "-7");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_main_offences.json");
+    }
+
+    @Test
+    public void getMainOffence_notFound() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, "-99");
+
+        assertThatStatus(response, 404);
+    }
+
+    @Test
+    public void getMainOffence_notInCaseload() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, "-16");
+
+        assertThatStatus(response, 404);
+    }
+
+    @Test
+    public void getMainOffence_noOffences() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, "-9");
+
+        assertThatStatus(response, 200);
+        assertThat(response.getBody()).isEqualTo("[]");
+    }
+
+    @Test
+    public void getOffenceHistory_post() {
+        final var response = testRestTemplate.exchange("/api/bookings/mainOffence", POST,
+                createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[-1, -7]"),
+                String.class);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_main_offences_post.json");
+    }
+
+    @Test
+    public void getOffenceHistory_post_no_offences() {
+        final var response = testRestTemplate.exchange("/api/bookings/mainOffence", POST,
+                createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[ -98, -99 ]"),
+                String.class);
+
+        assertThatStatus(response, 200);
+        assertThat(response.getBody()).isEqualTo("[]");
+    }
+
+    @Test
+    public void getOffenceHistory() {
+        final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}/offenceHistory", GET,
+                createHttpEntity(AuthToken.CATEGORISATION_CREATE, null),
+                String.class, "A1234AG");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_main_offences.json");
+    }
 }

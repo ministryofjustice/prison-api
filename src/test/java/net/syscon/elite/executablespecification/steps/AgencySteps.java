@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BDD step implementations for Agencies service.
@@ -210,11 +209,11 @@ public class AgencySteps extends CommonSteps {
         while (expectedIterator.hasNext()) {
             final var expectedThis = expectedIterator.next();
             final var actualThis = actualIterator.next();
-            assertEquals(expectedThis.getAgencyId(), actualThis.getAgencyId());
-            assertEquals(expectedThis.getAgencyType(), actualThis.getAgencyType());
-            assertEquals(expectedThis.getDescription(), actualThis.getDescription());
+            assertThat(actualThis.getAgencyId()).isEqualTo(expectedThis.getAgencyId());
+            assertThat(actualThis.getAgencyType()).isEqualTo(expectedThis.getAgencyType());
+            assertThat(actualThis.getDescription()).isEqualTo(expectedThis.getDescription());
         }
-        assertFalse("Too many actual events", actualIterator.hasNext());
+        assertThat(actualIterator.hasNext()).as("Too many actual events").isFalse();
     }
 
     @Step("Verify agency property")
@@ -233,12 +232,12 @@ public class AgencySteps extends CommonSteps {
         while (expectedIterator.hasNext()) {
             final var expectedThis = expectedIterator.next();
             final var actualThis = actualIterator.next();
-            assertEquals(expectedThis.getLocationId(), actualThis.getLocationId());
-            assertEquals(expectedThis.getLocationPrefix(), actualThis.getLocationPrefix());
-            assertEquals(expectedThis.getDescription(), actualThis.getDescription());
-            assertEquals(expectedThis.getUserDescription(), actualThis.getUserDescription());
+            assertThat(actualThis.getLocationId()).isEqualTo(expectedThis.getLocationId());
+            assertThat(actualThis.getLocationPrefix()).isEqualTo(expectedThis.getLocationPrefix());
+            assertThat(actualThis.getDescription()).isEqualTo(expectedThis.getDescription());
+            assertThat(actualThis.getUserDescription()).isEqualTo(expectedThis.getUserDescription());
         }
-        assertFalse("Too many actual events", actualIterator.hasNext());
+        assertThat(actualIterator.hasNext()).as("Too many actual events").isFalse();
     }
 
     public void getAgenciesByCaseload(final String caseload) {
@@ -255,9 +254,9 @@ public class AgencySteps extends CommonSteps {
         while (expectedIterator.hasNext()) {
             final var expectedThis = expectedIterator.next();
             final var actualThis = actualIterator.next();
-            assertEquals(expectedThis.getIepLevel(), actualThis.getIepLevel());
-            assertEquals(expectedThis.getIepDescription(), actualThis.getIepDescription());
+            assertThat(actualThis.getIepLevel()).isEqualTo(expectedThis.getIepLevel());
+            assertThat(actualThis.getIepDescription()).isEqualTo(expectedThis.getIepDescription());
         }
-        assertFalse("Too many actual events", actualIterator.hasNext());
+        assertThat(actualIterator.hasNext()).as("Too many actual events").isFalse();
     }
 }

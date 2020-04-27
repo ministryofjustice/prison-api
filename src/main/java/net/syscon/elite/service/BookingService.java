@@ -8,7 +8,6 @@ import net.syscon.elite.api.model.CourtCase;
 import net.syscon.elite.api.model.IepLevelAndComment;
 import net.syscon.elite.api.model.MilitaryRecord;
 import net.syscon.elite.api.model.MilitaryRecords;
-import net.syscon.elite.api.model.Offence;
 import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.api.model.OffenceHistoryDetail;
 import net.syscon.elite.api.model.OffenderSentenceCalculation;
@@ -539,9 +538,9 @@ public class BookingService {
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY')")
-    public List<Offence> getMainOffenceDetails(final Set<Long> bookingIds) {
+    public List<OffenceDetail> getMainOffenceDetails(final Set<Long> bookingIds) {
 
-        final List<Offence> results = new ArrayList<>();
+        final List<OffenceDetail> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(bookingIds)) {
             final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
             batch.forEach(bookingBatch -> {

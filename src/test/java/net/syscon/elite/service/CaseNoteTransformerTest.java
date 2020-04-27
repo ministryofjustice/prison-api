@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -120,7 +119,7 @@ public class CaseNoteTransformerTest {
 
     @Test
     public void emptyCaseNoteTest() {
-        assertNull(transformer.transform(null));
-        assertNull(transformer.transform(new CaseNote()));
+        assertThat(transformer.transform(null)).isNull();
+        assertThat(transformer.transform(new CaseNote())).isNull();
     }
 }

@@ -78,7 +78,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(10);
+        assertThat(refCodes.getItems()).hasSize(10);
         assertThat(refCodes.getTotalRecords()).isEqualTo(58);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(10);
@@ -102,7 +102,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(15);
+        assertThat(refCodes.getItems()).hasSize(15);
         assertThat(refCodes.getTotalRecords()).isEqualTo(58);
         assertThat(refCodes.getPageOffset()).isEqualTo(15);
         assertThat(refCodes.getPageLimit()).isEqualTo(15);
@@ -127,7 +127,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(10);
+        assertThat(refCodes.getItems()).hasSize(10);
         assertThat(refCodes.getTotalRecords()).isEqualTo(47);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(10);
@@ -140,9 +140,9 @@ public class ReferenceCodeRepositoryTest {
         verifySubCodesPresent(refCodes.getItems());
 
         // Verify quantity of sub-codes returned
-        assertThat(refCodes.getItems().get(0).getSubCodes().size()).isEqualTo(22);
-        assertThat(refCodes.getItems().get(8).getSubCodes().size()).isEqualTo(2);
-        assertThat(refCodes.getItems().get(9).getSubCodes().size()).isEqualTo(15);
+        assertThat(refCodes.getItems().get(0).getSubCodes()).hasSize(22);
+        assertThat(refCodes.getItems().get(8).getSubCodes()).hasSize(2);
+        assertThat(refCodes.getItems().get(9).getSubCodes()).hasSize(15);
 
         // Verify sorting of sub-codes
         assertThat(refCodes.getItems().get(0).getSubCodes().get(0).getCode()).isEqualTo("CPS");
@@ -163,7 +163,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(16);
+        assertThat(refCodes.getItems()).hasSize(16);
         assertThat(refCodes.getTotalRecords()).isEqualTo(47);
         assertThat(refCodes.getPageOffset()).isEqualTo(15);
         assertThat(refCodes.getPageLimit()).isEqualTo(16);
@@ -177,9 +177,9 @@ public class ReferenceCodeRepositoryTest {
         verifySubCodesPresent(refCodes.getItems());
 
         // Verify quantity of sub-codes returned
-        assertThat(refCodes.getItems().get(0).getSubCodes().size()).isEqualTo(9);
-        assertThat(refCodes.getItems().get(9).getSubCodes().size()).isEqualTo(1);
-        assertThat(refCodes.getItems().get(15).getSubCodes().size()).isEqualTo(3);
+        assertThat(refCodes.getItems().get(0).getSubCodes()).hasSize(9);
+        assertThat(refCodes.getItems().get(9).getSubCodes()).hasSize(1);
+        assertThat(refCodes.getItems().get(15).getSubCodes()).hasSize(3);
 
         // Verify sorting of sub-codes
         assertThat(refCodes.getItems().get(0).getSubCodes().get(0).getCode()).isEqualTo("RI");
@@ -201,7 +201,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(58);
+        assertThat(refCodes.getItems()).hasSize(58);
         assertThat(refCodes.getTotalRecords()).isEqualTo(58);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(1000);
@@ -226,7 +226,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(47);
+        assertThat(refCodes.getItems()).hasSize(47);
         assertThat(refCodes.getTotalRecords()).isEqualTo(47);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(1000);
@@ -240,9 +240,9 @@ public class ReferenceCodeRepositoryTest {
         verifySubCodesPresent(refCodes.getItems());
 
         // Verify quantity of sub-codes returned
-        assertThat(refCodes.getItems().get(0).getSubCodes().size()).isEqualTo(22);
-        assertThat(refCodes.getItems().get(9).getSubCodes().size()).isEqualTo(15);
-        assertThat(refCodes.getItems().get(45).getSubCodes().size()).isEqualTo(2);
+        assertThat(refCodes.getItems().get(0).getSubCodes()).hasSize(22);
+        assertThat(refCodes.getItems().get(9).getSubCodes()).hasSize(15);
+        assertThat(refCodes.getItems().get(45).getSubCodes()).hasSize(2);
 
         // Verify sorting of sub-codes
         assertThat(refCodes.getItems().get(0).getSubCodes().get(0).getCode()).isEqualTo("CPS");
@@ -265,7 +265,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(10);
+        assertThat(refCodes.getItems()).hasSize(10);
         assertThat(refCodes.getTotalRecords()).isEqualTo(58);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(10);
@@ -291,7 +291,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(15);
+        assertThat(refCodes.getItems()).hasSize(15);
         assertThat(refCodes.getTotalRecords()).isEqualTo(58);
         assertThat(refCodes.getPageOffset()).isEqualTo(15);
         assertThat(refCodes.getPageLimit()).isEqualTo(15);
@@ -319,7 +319,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(10);
+        assertThat(refCodes.getItems()).hasSize(10);
         assertThat(refCodes.getTotalRecords()).isEqualTo(47);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(10);
@@ -334,8 +334,8 @@ public class ReferenceCodeRepositoryTest {
         verifySubCodesPresent(refCodes.getItems());
 
         // Verify quantity of sub-codes returned
-        assertThat(refCodes.getItems().get(0).getSubCodes().size()).isEqualTo(22);
-        assertThat(refCodes.getItems().get(9).getSubCodes().size()).isEqualTo(2);
+        assertThat(refCodes.getItems().get(0).getSubCodes()).hasSize(22);
+        assertThat(refCodes.getItems().get(9).getSubCodes()).hasSize(2);
 
         // Verify sorting of sub-codes
         assertThat(refCodes.getItems().get(0).getSubCodes().get(0).getCode()).isEqualTo("CPS");
@@ -360,7 +360,7 @@ public class ReferenceCodeRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems().size()).isEqualTo(16);
+        assertThat(refCodes.getItems()).hasSize(16);
         assertThat(refCodes.getTotalRecords()).isEqualTo(47);
         assertThat(refCodes.getPageOffset()).isEqualTo(15);
         assertThat(refCodes.getPageLimit()).isEqualTo(16);
@@ -377,9 +377,9 @@ public class ReferenceCodeRepositoryTest {
         verifySubCodesPresent(refCodes.getItems());
 
         // Verify quantity of sub-codes returned
-        assertThat(refCodes.getItems().get(0).getSubCodes().size()).isEqualTo(1);
-        assertThat(refCodes.getItems().get(9).getSubCodes().size()).isEqualTo(3);
-        assertThat(refCodes.getItems().get(15).getSubCodes().size()).isEqualTo(2);
+        assertThat(refCodes.getItems().get(0).getSubCodes()).hasSize(1);
+        assertThat(refCodes.getItems().get(9).getSubCodes()).hasSize(3);
+        assertThat(refCodes.getItems().get(15).getSubCodes()).hasSize(2);
 
         // Verify sorting of sub-codes
         assertThat(refCodes.getItems().get(0).getSubCodes().get(0).getCode()).isEqualTo("RELEASE");

@@ -24,4 +24,12 @@ public class OffenceDetail {
     @ApiModelProperty(required = true, value = "Description of offence", position = 2)
     @NotBlank
     private String offenceDescription;
+
+    @ApiModelProperty(required = true, value = "Reference Code", example = "RR84070", position = 3)
+    @NotBlank
+    private String offenceCode;
+
+    @ApiModelProperty(required = true, value = "Statute code", example = "RR84", position = 4)
+    @NotBlank
+    private String statuteCode;
 }

@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -37,18 +37,18 @@ public class FinanceRepositoryTest {
     @Test
     public void testGetAccount() {
         final var account = repository.getBalances(-1L);
-        assertNotNull(account);
-        assertEquals("1.24", account.getCash().toString());
-        assertEquals("2.50", account.getSpends().toString());
-        assertEquals("200.50", account.getSavings().toString());
+        assertThat(account).isNotNull();
+        assertThat(account.getCash().toString()).isEqualTo("1.24");
+        assertThat(account.getSpends().toString()).isEqualTo("2.50");
+        assertThat(account.getSavings().toString()).isEqualTo("200.50");
     }
 
     @Test
     public void testGetAccountInvalidBookingId() {
         final var account = repository.getBalances(1001L);
-        assertNotNull(account);
-        assertNull(account.getCash());
-        assertNull(account.getSpends());
-        assertNull(account.getSavings());
+        assertThat(account).isNotNull();
+        assertThat(account.getCash()).isNull();
+        assertThat(account.getSpends()).isNull();
+        assertThat(account.getSavings()).isNull();
     }
 }

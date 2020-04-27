@@ -8,7 +8,7 @@ import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ContactSteps extends CommonSteps {
     private static final String BOOKING_CONTACTS_API_URL = API_PREFIX + "bookings/{bookingId}/contacts";
@@ -42,7 +42,7 @@ public class ContactSteps extends CommonSteps {
     }
 
     public void verifyNoNextOfKin() {
-        assertTrue("There is " + details.getNextOfKin().size() + " next of kin", details.getNextOfKin().isEmpty());
+        assertThat(details.getNextOfKin().isEmpty()).as("There is " + details.getNextOfKin().size() + " next of kin").isTrue();
     }
 
     public void verifyNextOfKinList(final List<Contact> expected) {
@@ -51,15 +51,15 @@ public class ContactSteps extends CommonSteps {
         while (expectedIterator.hasNext()) {
             final var expectedThis = expectedIterator.next();
             final var actualThis = awardsIterator.next();
-            assertEquals(expectedThis.getLastName(), actualThis.getLastName());
-            assertEquals(expectedThis.getFirstName(), actualThis.getFirstName());
+            assertThat(actualThis.getLastName()).isEqualTo(expectedThis.getLastName());
+            assertThat(actualThis.getFirstName()).isEqualTo(expectedThis.getFirstName());
             assertEqualsBlankIsNull(expectedThis.getMiddleName(), actualThis.getMiddleName());
             assertEqualsBlankIsNull(expectedThis.getContactType(), actualThis.getContactType());
             assertEqualsBlankIsNull(expectedThis.getContactTypeDescription(), actualThis.getContactTypeDescription());
             assertEqualsBlankIsNull(expectedThis.getRelationship(), actualThis.getRelationship());
             assertEqualsBlankIsNull(expectedThis.getRelationshipDescription(), actualThis.getRelationshipDescription());
-            assertEquals(expectedThis.isEmergencyContact(), actualThis.isEmergencyContact());
+            assertThat(actualThis.isEmergencyContact()).isEqualTo(expectedThis.isEmergencyContact());
         }
-        assertFalse("Too many actual results", awardsIterator.hasNext());
+        assertThat(awardsIterator.hasNext()).as("Too many actual results").isFalse();
     }
 }

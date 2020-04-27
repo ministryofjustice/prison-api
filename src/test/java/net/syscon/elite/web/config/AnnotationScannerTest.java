@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnnotationScannerTest {
     @Test(expected = NullPointerException.class)
@@ -38,16 +38,16 @@ public class AnnotationScannerTest {
     public void testFindAnnotatedClassesSinglePackage4Self() {
         final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(AnnotationScanner.class, AnnotationScanner.class.getPackage().getName());
 
-        assertEquals(0, annotatedClasses.length);
+        assertThat(annotatedClasses).isEmpty();
     }
 
     @Test
     public void testFindAnnotatedClassesSinglePackage4Deprecated() {
         final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(Here.class, AnnotationScanner.class.getPackage().getName());
 
-        assertEquals(1, annotatedClasses.length);
+        assertThat(annotatedClasses.length).isEqualTo(1);
 
-        assertEquals(GuineaPig.class, annotatedClasses[0]);
+        assertThat(annotatedClasses[0]).isEqualTo(GuineaPig.class);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class AnnotationScannerTest {
 
         final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(AnnotationScanner.class, packages);
 
-        assertEquals(0, annotatedClasses.length);
+        assertThat(annotatedClasses).isEmpty();
     }
 
     @Test
@@ -65,9 +65,9 @@ public class AnnotationScannerTest {
 
         final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(Here.class, packages);
 
-        assertEquals(1, annotatedClasses.length);
+        assertThat(annotatedClasses).hasSize(1);
 
-        assertEquals(GuineaPig.class, annotatedClasses[0]);
+        assertThat(annotatedClasses[0]).isEqualTo(GuineaPig.class);
     }
 
 
