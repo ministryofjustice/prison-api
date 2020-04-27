@@ -91,7 +91,7 @@ Feature: Agencies
       | 13402      | GYM                | Gym                | LEI-GYM                | OCCUR         |
       | 14452      | RES-IWING          | I Wing             | LEI-RES-IWING          | OCCUR         |
       | 1901       | OTHER-OTHERCELL    | Other Cell         | LEI-OTHER-OTHERCELL    | OCCUR         |
-      | 1900       | OTHER-PRISONERSCEL | Prisoners Cell     | LEI-OTHER-PRISONERSCEL | OCCUR         |
+      | 1900       | OTHER-PRISONERSCEL | Prisoner's Cell    | LEI-OTHER-PRISONERSCEL | OCCUR         |
 
   Scenario: Retrieve locations, for an agency, that can be used for 'APP' events, in descending order of description
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP" sorted by "userDescription" in "descending" order
@@ -119,7 +119,7 @@ Feature: Agencies
       | 14452      | RES-IWING          | I Wing             | LEI-RES-IWING          | OCCUR         |
       | -29        | MED                | Medical Centre     | LEI-MED                | APP           |
       | 1901       | OTHER-OTHERCELL    | Other Cell         | LEI-OTHER-OTHERCELL    | OCCUR         |
-      | 1900       | OTHER-PRISONERSCEL | Prisoners Cell     | LEI-OTHER-PRISONERSCEL | OCCUR         |
+      | 1900       | OTHER-PRISONERSCEL | Prisoner's Cell    | LEI-OTHER-PRISONERSCEL | OCCUR         |
 
   Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date
     When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-09-15"
