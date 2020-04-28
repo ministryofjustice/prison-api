@@ -244,6 +244,7 @@ public class SchedulesService {
                 .map(activity -> PrisonerSchedule
                         .builder()
                         .bookingId(activity.getBookingId())
+                        .offenderNo(activity.getOffenderNo())
                         .eventOutcome(activity.getEventOutcome())
                         .startTime(activity.getStartTime())
                         .endTime(activity.getEndTime())

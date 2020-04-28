@@ -57,6 +57,7 @@ public class ScheduledActivity {
     @Id
     private Long eventId;
     private Long bookingId;
+    private String offenderNo;
     private String firstName;
     private String lastName;
     private String eventOutcome;
