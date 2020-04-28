@@ -237,7 +237,7 @@ public class SchedulesResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testThatGetScheduledActivitiesbyId_ReturnsBadRequest() {
+    public void testThatGetScheduledActivitiesById_ReturnsBadRequest() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
@@ -248,6 +248,7 @@ public class SchedulesResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
     }
+
 
     private List<Long> getLocationIdsNoSchedules() {
         return List.of(108582L, 108583L);

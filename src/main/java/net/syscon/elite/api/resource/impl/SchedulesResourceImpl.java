@@ -5,7 +5,6 @@ import net.syscon.elite.api.model.ScheduledAppointmentDto;
 import net.syscon.elite.api.resource.ScheduleResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
-import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.AppointmentsService;
 import net.syscon.elite.service.SchedulesService;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,7 +81,6 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
-    @VerifyAgencyAccess
     public List<PrisonerSchedule> getActivitiesByEventIds(final String agencyId, final List<Long> eventIds) {
         return schedulesService.getActivitiesByEventIds(eventIds);
     }
