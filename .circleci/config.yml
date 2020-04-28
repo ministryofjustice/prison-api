@@ -1,14 +1,7 @@
 version: 2.1
-parameters:
-  image_name:
-    type: string
-    default: "quay.io/hmpps/elite2-api"
-  app_name:
-    type: string
-    default: "elite2-api"
 
 orbs:
-  dps: ministryofjustice/dps@1.1.1
+  dps: ministryofjustice/dps@1.2.2
   owasp: entur/owasp@0.0.6
 
 defaults: &defaults
@@ -72,7 +65,6 @@ workflows:
       - dps/deploy_env:
           name: deploy_dev
           env: "dev"
-          app_name: << pipeline.parameters.app_name >>
           filters:
             branches:
               only:
