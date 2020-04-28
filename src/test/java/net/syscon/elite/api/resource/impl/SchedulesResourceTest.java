@@ -250,7 +250,7 @@ public class SchedulesResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testThatGetScheduledActivitiesById_ReturnsNotFound_WhenUserDoesNotInAgency() {
+    public void testThatGetScheduledActivitiesById_ReturnsNotFound_WhenUserNotInAgency() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
         final var eventIds = List.of(-1L, 91234L);
 
