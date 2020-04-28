@@ -235,9 +235,8 @@ public class SchedulesService {
         }
         return filtered.stream().filter(ps -> !ps.getExcluded()).collect(Collectors.toList());
     }
-
-    public List<PrisonerSchedule> getActivitiesByEventIds(final List<Long> eventIds) {
-
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public List<PrisonerSchedule> getActivitiesByEventIds(final String agencyId, final List<Long> eventIds) {
         return Lists.partition(eventIds, maxBatchSize)
                 .stream()
                 .flatMap(ids -> scheduledActivityRepository.findAllByEventIdIn(ids).stream())

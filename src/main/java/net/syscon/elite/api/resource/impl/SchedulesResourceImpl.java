@@ -82,7 +82,7 @@ public class SchedulesResourceImpl implements ScheduleResource {
 
     @Override
     public List<PrisonerSchedule> getActivitiesByEventIds(final String agencyId, final List<Long> eventIds) {
-        return schedulesService.getActivitiesByEventIds(eventIds);
+        return schedulesService.getActivitiesByEventIds(agencyId, eventIds);
     }
 
     @Override

@@ -249,6 +249,20 @@ public class SchedulesResourceTest extends ResourceTest {
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
     }
 
+    @Test
+    public void testThatGetScheduledActivitiesById_ReturnsNotFound_WhenUserDoesNotInAgency() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+        final var eventIds = List.of(-1L, 91234L);
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/activities-by-event-ids",
+                HttpMethod.POST,
+                createHttpEntity(token, eventIds),
+                new ParameterizedTypeReference<String>() {});
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+    }
+
 
     private List<Long> getLocationIdsNoSchedules() {
         return List.of(108582L, 108583L);
