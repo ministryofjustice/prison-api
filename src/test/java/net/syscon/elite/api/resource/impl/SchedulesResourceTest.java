@@ -66,10 +66,6 @@ public class SchedulesResourceTest extends ResourceTest {
         assertThat(activities).hasSize(1);
     }
 
-    /*
-     * /api/schedules/{agencyId}/events-by-location-ids
-     */
-
     @Test
     public void schedulesAgencyIdActivitiesByLocationId_NoLocationGroupScheduleEvents_ReturnsEmptyList() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
@@ -223,6 +219,20 @@ public class SchedulesResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {}, date);
 
         assertThatJsonFileAndStatus(response, 200, "scheduled-appointments-on-date.json");
+    }
+
+    @Test
+    public void testGetScheduledActivityById() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var eventIds = List.of(-1L, 91234L);
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/activities",
+                HttpMethod.POST,
+                createHttpEntity(token, eventIds),
+                new ParameterizedTypeReference<String>() {});
+
+        assertThatJsonFileAndStatus(response, 200, "scheduled-activities.json");
     }
 
     private List<Long> getLocationIdsNoSchedules() {

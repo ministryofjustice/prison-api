@@ -76,8 +76,13 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
-    public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
+    public List<PrisonerSchedule> getActivitiesForBookings(final String agencyId, final List<String> body, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
         return schedulesService.getActivities(agencyId, body, date, timeSlot, includeExcluded);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getActivities(final List<Long> eventIds) {
+        return schedulesService.getActivities(eventIds);
     }
 
     @Override

@@ -1,6 +1,10 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.model.ScheduledAppointmentDto;
@@ -8,7 +12,12 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
@@ -96,14 +105,21 @@ public interface ScheduleResource {
                                                                   @ApiParam(value = "Include suspended scheduled activity - defaults to false") @RequestParam(value = "includeSuspended", required = false) boolean includeSuspended);
 
     @PostMapping("/{agencyId}/activities")
-    @ApiOperation(value = "", nickname = "getActivities")
+    @ApiOperation(value = "", nickname = "getActivitiesForBookings")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
-    List<PrisonerSchedule> getActivities(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
+    List<PrisonerSchedule> getActivitiesForBookings(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                          @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
                                          @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                          @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
                                          @ApiParam(value = "Whether to include 'excluded' activities in the results", defaultValue = "false") @RequestParam(value = "includeExcluded", required = false, defaultValue = "false") boolean includeExcluded);
+
+
+    @PostMapping("/activities")
+    @ApiOperation(value = "", nickname = "getActivities")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
+    List<PrisonerSchedule> getActivities(@ApiParam(value = "Event ids(mandatory)", required = true) @RequestBody List<Long> body);
 
     @PostMapping("/{agencyId}/appointments")
     @ApiOperation(value = "", nickname = "getAppointmentsForOffenders")

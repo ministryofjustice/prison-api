@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.ScheduleRepository;
+import net.syscon.elite.repository.jpa.repository.ScheduledActivityRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,29 +16,45 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SchedulesServiceImplTest {
 
     @Mock
     private LocationService locationService;
+
     @Mock
     private InmateService inmateService;
+
     @Mock
     private BookingService bookingService;
+
     @Mock
     private ReferenceDomainService referenceDomainService;
+
     @Mock
     private ScheduleRepository scheduleRepository;
+
     @Mock
     private AuthenticationFacade authenticationFacade;
+
+    @Mock
+    private ScheduledActivityRepository scheduledActivityRepository;
 
     private SchedulesService schedulesService;
 
@@ -48,7 +65,16 @@ class SchedulesServiceImplTest {
 
     @BeforeEach
     void init() {
-        schedulesService = new SchedulesService(locationService, inmateService, bookingService, referenceDomainService, scheduleRepository, authenticationFacade, MAX_BATCH_SIZE);
+        schedulesService = new SchedulesService(
+                locationService,
+                inmateService,
+                bookingService,
+                referenceDomainService,
+                scheduleRepository,
+                authenticationFacade,
+                scheduledActivityRepository,
+                MAX_BATCH_SIZE
+        );
     }
 
     @Test
@@ -245,4 +271,14 @@ class SchedulesServiceImplTest {
         assertThat(activities).hasSize(1);
     }
 
+    @Test
+    void testBatchGetScheduledActivities() {
+        when(scheduledActivityRepository.findAllByEventIdIn(any())).thenReturn(Collections.emptyList());
+
+        final var eventIds = IntStream.range(1, 1000).mapToObj(Long::valueOf).collect(Collectors.toList());
+
+        schedulesService.getActivities(eventIds);
+
+        verify(scheduledActivityRepository,  times(2)).findAllByEventIdIn(any());
+    }
 }
