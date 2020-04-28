@@ -1,12 +1,18 @@
 package net.syscon.elite.service;
 
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
+import net.syscon.elite.repository.jpa.model.EscortAgencyType;
+import net.syscon.elite.repository.jpa.model.EventStatus;
+import net.syscon.elite.repository.jpa.model.MovementDirection;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderIndividualScheduleRepository;
+import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +22,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule.EventClass.EXT_MOV;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,31 +36,46 @@ public class PrisonToPrisonMoveSchedulingService {
 
     private final AgencyLocationRepository agencyLocationRepository;
 
+    private final ReferenceCodeRepository<EscortAgencyType> escortAgencyTypeRepository;
+
+    private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
+
+    private final OffenderIndividualScheduleRepository scheduleRepository;
+
     public PrisonToPrisonMoveSchedulingService(final Clock clock,
                                                final OffenderBookingRepository offenderBookingRepository,
-                                               final AgencyLocationRepository agencyLocationRepository) {
+                                               final AgencyLocationRepository agencyLocationRepository,
+                                               final ReferenceCodeRepository<EscortAgencyType> escortAgencyTypeRepository,
+                                               final ReferenceCodeRepository<EventStatus> eventStatusRepository,
+                                               final OffenderIndividualScheduleRepository scheduleRepository) {
         this.clock = clock;
         this.offenderBookingRepository = offenderBookingRepository;
         this.agencyLocationRepository = agencyLocationRepository;
+        this.escortAgencyTypeRepository = escortAgencyTypeRepository;
+        this.eventStatusRepository = eventStatusRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public Object schedule(final Long bookingId, final String fromPrison, final String toPrison, final LocalDateTime moveDateTime) {
-        checkIsInFuture(moveDateTime);
-        checkNotTheSame(fromPrison, toPrison);
+    public Object schedule(final Long bookingId, final PrisonToPrisonMove move) {
+        checkIsInFuture(move.getScheduledMoveDateTime());
+        checkNotTheSame(move.getFromPrison(), move.getToPrison());
 
         final var activeBooking = activeOffenderBookingFor(bookingId);
 
-        checkFromLocationMatchesThe(activeBooking, fromPrison);
+        checkFromLocationMatchesThe(activeBooking, move.getFromPrison());
 
-        var scheduledMove = scheduleMove(activeBooking.getLocation(), getActive(toPrison), moveDateTime);
+        final var escortAgencyType = getEscortAgencyType(move.getEscortType());
 
-        log.debug("Prison to prison move scheduled with event id: {} for offender: {}, from: {}, to: {} on: {}",
-                scheduledMove.getId(), activeBooking.getOffender().getNomsId(), fromPrison, toPrison, moveDateTime);
+        final var scheduledMove = scheduleMove(activeBooking, getActive(move.getToPrison()), escortAgencyType, move.getScheduledMoveDateTime());
 
-        return null;
+        // TODO DT-780 uncomment when ready
+//        log.debug("Prison to prison move scheduled with event id: {} for offender: {}, move details: {}",
+//                scheduledMove.getId(), activeBooking.getOffender().getNomsId(), move);
+
+        throw new UnsupportedOperationException("DT-780 not yet implemented - need to return a DTO");
     }
 
     private void checkIsInFuture(final LocalDateTime datetime) {
@@ -86,7 +108,28 @@ public class PrisonToPrisonMoveSchedulingService {
         return agency;
     }
 
-    private OffenderIndividualSchedule scheduleMove(AgencyLocation fromPrison, AgencyLocation toPrison, LocalDateTime moveDateTime) {
-        throw new UnsupportedOperationException("DT-780 not yet implemented.");
+    private EscortAgencyType getEscortAgencyType(final String key) {
+        return escortAgencyTypeRepository.findById(EscortAgencyType.pk(key))
+                .orElseThrow((() -> EntityNotFoundException.withMessage("Escort type %s for prison to prison move not found.", key)));
+    }
+
+    private OffenderIndividualSchedule scheduleMove(final OffenderBooking booking,
+                                                    final AgencyLocation toPrison,
+                                                    final EscortAgencyType escortAgencyType,
+                                                    final LocalDateTime moveDateTime) {
+
+        // TODO - DT-780 move strings to constants.
+        return scheduleRepository.save(OffenderIndividualSchedule.builder()
+                .eventDate(moveDateTime.toLocalDate())
+                .startTime(moveDateTime)
+                .eventClass(EXT_MOV)
+                .eventType("TRN")
+                .eventSubType("NOTR")
+                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
+                .escortAgencyType(escortAgencyType)
+                .toLocation(toPrison)
+                .movementDirection(MovementDirection.OUT)
+                .offenderBooking(booking)
+                .build());
     }
 }

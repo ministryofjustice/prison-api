@@ -1,11 +1,17 @@
 package net.syscon.elite.service;
 
+import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
+import net.syscon.elite.repository.jpa.model.EscortAgencyType;
+import net.syscon.elite.repository.jpa.model.EventStatus;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderIndividualScheduleRepository;
+import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,6 +24,7 @@ import java.util.Optional;
 
 import static java.time.Instant.ofEpochMilli;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,29 +42,81 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     @Mock
     private AgencyLocationRepository agencyLocationRepository;
 
+    @Mock
+    private ReferenceCodeRepository<EscortAgencyType> escortAgencyTypeRepository;
+
+    @Mock
+    private ReferenceCodeRepository<EventStatus> eventStatusRepository;
+
+    @Mock
+    private OffenderIndividualScheduleRepository scheduleRepository;
+
     private PrisonToPrisonMoveSchedulingService service;
 
     private final Clock clock = Clock.fixed(ofEpochMilli(0), ZoneId.systemDefault());
 
     @BeforeEach
     void setup() {
-        service = new PrisonToPrisonMoveSchedulingService(clock, offenderBookingRepository, agencyLocationRepository);
+        service = new PrisonToPrisonMoveSchedulingService(
+                clock,
+                offenderBookingRepository,
+                agencyLocationRepository,
+                escortAgencyTypeRepository,
+                eventStatusRepository,
+                scheduleRepository);
     }
 
     @Test
-    void scheduled_move_errors_when_no_matching_booking() {
+    void schedule_move_succeeds() {
+        givenAnActiveBooking()
+                .andValidToPrison()
+                .andEventStatusScheduledFound()
+                .andValidEscort();
+
+        final var move = PrisonToPrisonMove
+                .builder()
+                .fromPrison(FROM_PRISON)
+                .toPrison(TO_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
+                .build();
+
+        // TODO - WIP as part of DT-780
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
+                .isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    void schedule_move_errors_when_no_matching_booking() {
         when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, FROM_PRISON, TO_PRISON, LocalDateTime.now(clock).plusDays(1)))
+        final var move = PrisonToPrisonMove
+                .builder()
+                .fromPrison(FROM_PRISON)
+                .toPrison(TO_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
+                .build();
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Offender booking with id %d not found.", OFFENDER_BOOKING_ID);
     }
 
     @Test
-    void scheduled_move_errors_when_booking_is_not_active() {
+    void schedule_move_errors_when_booking_is_not_active() {
         givenAnInActiveBooking();
 
-        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, FROM_PRISON, TO_PRISON, LocalDateTime.now(clock).plusDays(1)))
+        final var move = PrisonToPrisonMove
+                .builder()
+                .fromPrison(FROM_PRISON)
+                .toPrison(TO_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
+                .build();
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Offender booking for prison to prison move with id %d is not active.", OFFENDER_BOOKING_ID);
     }
@@ -71,14 +130,30 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     }
 
     @Test
-    void scheduled_move_errors_when_move_date_not_in_future() {
-        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, FROM_PRISON, TO_PRISON, LocalDateTime.now(clock)))
+    void schedule_move_errors_when_move_date_not_in_future() {
+        final var moveWithInvalidDate = PrisonToPrisonMove
+                .builder()
+                .fromPrison(FROM_PRISON)
+                .toPrison(TO_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock))
+                .build();
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, moveWithInvalidDate))
                 .hasMessage("Prison to prison move must be in the future.");
     }
 
     @Test
-    void scheduled_move_errors_when_from_and_to_are_the_same() {
-        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, FROM_PRISON, FROM_PRISON, LocalDateTime.now(clock).plusDays(1)))
+    void schedule_move_errors_when_from_and_to_are_the_same() {
+        final var moveWithInvalidToPrison = PrisonToPrisonMove
+                .builder()
+                .fromPrison(FROM_PRISON)
+                .toPrison(FROM_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
+                .build();
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, moveWithInvalidToPrison))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prison to prison move from and to prisons cannot be the same.");
     }
@@ -87,7 +162,15 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     void schedule_move_errors_when_from_does_not_match_offenders_booking() {
         givenAnActiveBooking();
 
-        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, "NOT" + FROM_PRISON, TO_PRISON, LocalDateTime.now(clock).plusDays(1)))
+        final var moveWithInvalidFromPrison = PrisonToPrisonMove
+                .builder()
+                .fromPrison("BAD_" + FROM_PRISON)
+                .toPrison(TO_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
+                .build();
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, moveWithInvalidFromPrison))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prison to prison move from prison does not match that of the booking.");
     }
@@ -95,9 +178,18 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     @Test
     void schedule_move_errors_when_to_prison_not_found() {
         givenAnActiveBooking()
+                .andValidEscort()
                 .andToPrisonNotFound();
 
-        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, FROM_PRISON, TO_PRISON, LocalDateTime.now(clock).plusDays(1)))
+        final var move = PrisonToPrisonMove
+                .builder()
+                .fromPrison(FROM_PRISON)
+                .toPrison(TO_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
+                .build();
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Prison with id %s not found.", TO_PRISON);
 
@@ -106,9 +198,18 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     @Test
     void schedule_move_errors_when_to_prison_not_active() {
         givenAnActiveBooking()
+                .andValidEscort()
                 .andToPrisonNotActive();
 
-        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, FROM_PRISON, TO_PRISON, LocalDateTime.now(clock).plusDays(1)))
+        final var move = PrisonToPrisonMove
+                .builder()
+                .fromPrison(FROM_PRISON)
+                .toPrison(TO_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
+                .build();
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prison with id %s not active.", TO_PRISON);
     }
@@ -116,11 +217,44 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     @Test
     void schedule_move_errors_when_to_prison_is_not_prison() {
         givenAnActiveBooking()
+                .andValidEscort()
                 .andToPrisonIsNotPrison();
 
-        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, FROM_PRISON, TO_PRISON, LocalDateTime.now(clock).plusDays(1)))
+        final var move = PrisonToPrisonMove
+                .builder()
+                .fromPrison(FROM_PRISON)
+                .toPrison(TO_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
+                .build();
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prison to prison move to prison is not a prison.");
+    }
+
+    @Test
+    void schedule_move_errors_when_active_escort_agency_not_found() {
+        givenAnActiveBooking()
+                .andEscortNotFound();
+
+        final var move = PrisonToPrisonMove
+                .builder()
+                .fromPrison(FROM_PRISON)
+                .toPrison(TO_PRISON)
+                .escortType("PECS")
+                .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
+                .build();
+
+        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Escort type PECS for prison to prison move not found.");
+    }
+
+    @Disabled
+    @Test
+    void schedule_move_errors_when_existing_active_schedule() {
+        // TODO - DT-780
     }
 
     private PrisonToPrisonMoveSchedulingServiceTest givenAnActiveBooking() {
@@ -159,5 +293,33 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .activeFlag(ActiveFlag.Y)
                 .type("CRT")
                 .build()));
+    }
+
+    private PrisonToPrisonMoveSchedulingServiceTest andValidEscort() {
+        when(escortAgencyTypeRepository.findById(any())).thenReturn(Optional.of(new EscortAgencyType("PECS", "Prison Escort Custody Service")));
+
+        return this;
+    }
+
+    private PrisonToPrisonMoveSchedulingServiceTest andEscortNotFound() {
+        when(escortAgencyTypeRepository.findById(any())).thenReturn(Optional.empty());
+
+        return this;
+    }
+
+    private PrisonToPrisonMoveSchedulingServiceTest andValidToPrison() {
+        when(agencyLocationRepository.findById(TO_PRISON)).thenReturn(Optional.of(AgencyLocation
+                .builder()
+                .activeFlag(ActiveFlag.Y)
+                .type("INST")
+                .build()));
+
+        return this;
+    }
+
+    private PrisonToPrisonMoveSchedulingServiceTest andEventStatusScheduledFound() {
+        when(eventStatusRepository.findById(EventStatus.SCHEDULED)).thenReturn(Optional.of(new EventStatus("SCH", "Scheduled")));
+
+        return this;
     }
 }
