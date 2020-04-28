@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -227,12 +228,25 @@ public class SchedulesResourceTest extends ResourceTest {
         final var eventIds = List.of(-1L, 91234L);
 
         final var response = testRestTemplate.exchange(
-                "/api/schedules/activities",
+                "/api/schedules/LEI/activities-by-event-ids",
                 HttpMethod.POST,
                 createHttpEntity(token, eventIds),
                 new ParameterizedTypeReference<String>() {});
 
         assertThatJsonFileAndStatus(response, 200, "scheduled-activities.json");
+    }
+
+    @Test
+    public void testThatGetScheduledActivitiesbyId_ReturnsBadRequest() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/activities-by-event-ids",
+                HttpMethod.POST,
+                createHttpEntity(token, Collections.emptyList()),
+                new ParameterizedTypeReference<String>() {});
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(400);
     }
 
     private List<Long> getLocationIdsNoSchedules() {

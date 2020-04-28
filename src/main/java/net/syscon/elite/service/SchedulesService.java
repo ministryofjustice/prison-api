@@ -218,7 +218,7 @@ public class SchedulesService {
         return filterByTimeSlot(timeSlot, appointments);
     }
 
-    public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
+    public List<PrisonerSchedule> getActivitiesByEventIds(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
         Validate.notBlank(agencyId, "An agency id is required.");
         if (offenderNos.isEmpty()) {
             return Collections.emptyList();
@@ -236,7 +236,7 @@ public class SchedulesService {
         return filtered.stream().filter(ps -> !ps.getExcluded()).collect(Collectors.toList());
     }
 
-    public List<PrisonerSchedule> getActivities(final List<Long> eventIds) {
+    public List<PrisonerSchedule> getActivitiesByEventIds(final List<Long> eventIds) {
 
         return Lists.partition(eventIds, maxBatchSize)
                 .stream()
