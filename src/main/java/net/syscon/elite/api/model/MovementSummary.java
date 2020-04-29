@@ -62,7 +62,7 @@ public class MovementSummary {
     @ApiModelProperty(value = "The escort text", example = "Secure van")
     private String escortText;
 
-    @ApiModelProperty(required = true, value = "CRT (court), ADM (admission), REL(release) or TRN(transfer)", example = "ADM")
+    @ApiModelProperty(required = true, value = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = "ADM,CRT,REL,TAP,TRN")
     private String movementType;
 
     @ApiModelProperty(required = true, value = "Description of the movement type", example = "Admission")
