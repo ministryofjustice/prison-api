@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
         "       RD2.DESCRIPTION                            AS EVENT_DESCRIPTION,\n" +
         "       CS.START_TIME,\n" +
         "       CS.END_TIME,\n" +
-        "       CA.DESCRIPTION                             AS \"COMMENT\",\n" +
+        "       CA.DESCRIPTION                             AS DESCRIPTION,\n" +
         "       CA.INTERNAL_LOCATION_ID                    AS LOCATION_ID,\n" +
         "       COALESCE(AIL2.USER_DESC, AIL2.DESCRIPTION) AS EVENT_LOCATION\n" +
         "  FROM OFFENDER_PROGRAM_PROFILES OPP\n" +
@@ -69,7 +69,7 @@ public class ScheduledActivity {
     private String eventDescription;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String comment;
+    private String description;
     private Long locationId;
     private String eventLocation;
 }
