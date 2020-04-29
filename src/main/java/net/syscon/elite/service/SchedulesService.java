@@ -247,7 +247,7 @@ public class SchedulesService {
                         .eventOutcome(activity.getEventOutcome())
                         .startTime(activity.getStartTime())
                         .endTime(activity.getEndTime())
-                        .cellLocation(activity.getComment())
+                        .cellLocation(activity.getCellLocation())
                         .eventId(activity.getEventId())
                         .event(activity.getEvent())
                         .eventDescription(activity.getEventDescription())
@@ -256,7 +256,7 @@ public class SchedulesService {
                         .eventDescription(activity.getEventDescription())
                         .firstName(activity.getFirstName())
                         .lastName(activity.getLastName())
-                        .comment(activity.getComment())
+                        .comment(activity.getDescription())
                         .build())
                 .collect(Collectors.toList());
     }
