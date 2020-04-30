@@ -6,7 +6,6 @@ import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.EscortAgencyType;
 import net.syscon.elite.repository.jpa.model.EventStatus;
-import net.syscon.elite.repository.jpa.model.MovementDirection;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
@@ -22,6 +21,8 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static net.syscon.elite.repository.jpa.model.EventStatus.SCHEDULED;
+import static net.syscon.elite.repository.jpa.model.MovementDirection.OUT;
 import static net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule.EventClass.EXT_MOV;
 
 @Service
@@ -29,6 +30,10 @@ import static net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule.E
 @Validated
 @Slf4j
 public class PrisonToPrisonMoveSchedulingService {
+
+    private static final String TRANSFER = "TRN";
+
+    private static final String NORMAL_TRANSFER = "NOTR";
 
     private final Clock clock;
 
@@ -71,11 +76,10 @@ public class PrisonToPrisonMoveSchedulingService {
 
         final var scheduledMove = scheduleMove(activeBooking, getActive(move.getToPrison()), escortAgencyType, move.getScheduledMoveDateTime());
 
-        // TODO DT-780 uncomment when ready
-//        log.debug("Prison to prison move scheduled with event id: {} for offender: {}, move details: {}",
-//                scheduledMove.getId(), activeBooking.getOffender().getNomsId(), move);
+        log.debug("Prison to prison move scheduled with event id: {} for offender: {}, move details: {}",
+                scheduledMove.getId(), activeBooking.getOffender().getNomsId(), move);
 
-        throw new UnsupportedOperationException("DT-780 not yet implemented - need to return a DTO");
+        return new Object();
     }
 
     private void checkIsInFuture(final LocalDateTime datetime) {
@@ -117,18 +121,17 @@ public class PrisonToPrisonMoveSchedulingService {
                                                     final AgencyLocation toPrison,
                                                     final EscortAgencyType escortAgencyType,
                                                     final LocalDateTime moveDateTime) {
-
-        // TODO - DT-780 move strings to constants.
+        // TODO - not setting 'from location'.  Check if need to...
         return scheduleRepository.save(OffenderIndividualSchedule.builder()
                 .eventDate(moveDateTime.toLocalDate())
                 .startTime(moveDateTime)
                 .eventClass(EXT_MOV)
-                .eventType("TRN")
-                .eventSubType("NOTR")
-                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
+                .eventType(TRANSFER)
+                .eventSubType(NORMAL_TRANSFER)
+                .eventStatus(eventStatusRepository.findById(SCHEDULED).orElseThrow())
                 .escortAgencyType(escortAgencyType)
                 .toLocation(toPrison)
-                .movementDirection(MovementDirection.OUT)
+                .movementDirection(OUT)
                 .offenderBooking(booking)
                 .build());
     }

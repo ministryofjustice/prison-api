@@ -38,7 +38,7 @@ public class PrisonToPrisonMove {
     @Size(max = 12, message = "To escort type must be a maximum of 12 characters.")
     private String escortType;
 
-    @ApiModelProperty(required = true, value = "The date and time of the move.", position = 4, example = "2020-02-28T14:40:00.000Z")
+    @ApiModelProperty(required = true, value = "The date and time of the move in ISO date time format (without offset).", position = 4, example = "2020-02-28T14:40:00")
     @NotNull(message = "The move date time must be provided.")
     private LocalDateTime scheduledMoveDateTime;
 }

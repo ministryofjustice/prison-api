@@ -5,7 +5,9 @@ import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.EscortAgencyType;
 import net.syscon.elite.repository.jpa.model.EventStatus;
+import net.syscon.elite.repository.jpa.model.Offender;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
+import net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderIndividualScheduleRepository;
@@ -23,8 +25,11 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 import static java.time.Instant.ofEpochMilli;
+import static net.syscon.elite.repository.jpa.model.MovementDirection.OUT;
+import static net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule.EventClass.EXT_MOV;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +40,22 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     private static final String FROM_PRISON = "A";
 
     private static final String TO_PRISON = "B";
+
+    private static final String PRISON_ESCORT_CUSTODY_SERVICES = "PECS";
+
+    private static final OffenderBooking ACTIVE_BOOKING = OffenderBooking
+            .builder()
+            .activeFlag("Y")
+            .bookingId(OFFENDER_BOOKING_ID)
+            .location(AgencyLocation.builder()
+                    .activeFlag(ActiveFlag.Y)
+                    .id(FROM_PRISON)
+                    .description("Prison A description")
+                    .build())
+            .offender(Offender.builder()
+                    .nomsId("NOMS_ID")
+                    .build())
+            .build();
 
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
@@ -77,14 +98,40 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison(FROM_PRISON)
                 .toPrison(TO_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
 
-        // TODO - WIP as part of DT-780
+        when(scheduleRepository.save(any())).thenReturn(OffenderIndividualSchedule.builder()
+                .id(1L)
+                .eventDate(move.getScheduledMoveDateTime().toLocalDate())
+                .startTime(move.getScheduledMoveDateTime())
+                .eventClass(EXT_MOV)
+                .eventType("TRN")
+                .eventSubType("NOTR")
+                .eventStatus(new EventStatus("SCH", "Scheduled"))
+                .escortAgencyType(new EscortAgencyType(PRISON_ESCORT_CUSTODY_SERVICES, "Prison Escort Custody Service"))
+                .toLocation(AgencyLocation.builder().build())
+                .movementDirection(OUT)
+                .offenderBooking(ACTIVE_BOOKING)
+                .build());
 
-        assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
-                .isInstanceOf(UnsupportedOperationException.class);
+        // TODO - assert on return model object when defined.
+        
+        service.schedule(OFFENDER_BOOKING_ID, move);
+
+        verify(scheduleRepository).save(OffenderIndividualSchedule.builder()
+                .eventDate(move.getScheduledMoveDateTime().toLocalDate())
+                .startTime(move.getScheduledMoveDateTime())
+                .eventClass(EXT_MOV)
+                .eventType("TRN")
+                .eventSubType("NOTR")
+                .eventStatus(new EventStatus("SCH", "Scheduled"))
+                .escortAgencyType(new EscortAgencyType(PRISON_ESCORT_CUSTODY_SERVICES, "Prison Escort Custody Service"))
+                .toLocation(AgencyLocation.builder().build())
+                .movementDirection(OUT)
+                .offenderBooking(ACTIVE_BOOKING)
+                .build());
     }
 
     @Test
@@ -95,7 +142,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison(FROM_PRISON)
                 .toPrison(TO_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
 
@@ -112,7 +159,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison(FROM_PRISON)
                 .toPrison(TO_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
 
@@ -135,7 +182,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison(FROM_PRISON)
                 .toPrison(TO_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock))
                 .build();
 
@@ -149,7 +196,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison(FROM_PRISON)
                 .toPrison(FROM_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
 
@@ -166,7 +213,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison("BAD_" + FROM_PRISON)
                 .toPrison(TO_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
 
@@ -185,14 +232,13 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison(FROM_PRISON)
                 .toPrison(TO_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
 
         assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Prison with id %s not found.", TO_PRISON);
-
     }
 
     @Test
@@ -205,7 +251,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison(FROM_PRISON)
                 .toPrison(TO_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
 
@@ -224,7 +270,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison(FROM_PRISON)
                 .toPrison(TO_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
 
@@ -242,7 +288,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .builder()
                 .fromPrison(FROM_PRISON)
                 .toPrison(TO_PRISON)
-                .escortType("PECS")
+                .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
 
@@ -258,16 +304,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     }
 
     private PrisonToPrisonMoveSchedulingServiceTest givenAnActiveBooking() {
-        when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(OffenderBooking
-                .builder()
-                .activeFlag("Y")
-                .bookingId(OFFENDER_BOOKING_ID)
-                .location(AgencyLocation.builder()
-                        .activeFlag(ActiveFlag.Y)
-                        .id(FROM_PRISON)
-                        .description("Prison A description")
-                        .build())
-                .build()));
+        when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(ACTIVE_BOOKING));
 
         return this;
     }
@@ -296,15 +333,14 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     }
 
     private PrisonToPrisonMoveSchedulingServiceTest andValidEscort() {
-        when(escortAgencyTypeRepository.findById(any())).thenReturn(Optional.of(new EscortAgencyType("PECS", "Prison Escort Custody Service")));
+        when(escortAgencyTypeRepository.findById(any())).thenReturn(Optional.of(new EscortAgencyType(PRISON_ESCORT_CUSTODY_SERVICES, "Prison Escort Custody Service")));
 
         return this;
     }
 
-    private PrisonToPrisonMoveSchedulingServiceTest andEscortNotFound() {
+    private void andEscortNotFound() {
         when(escortAgencyTypeRepository.findById(any())).thenReturn(Optional.empty());
 
-        return this;
     }
 
     private PrisonToPrisonMoveSchedulingServiceTest andValidToPrison() {
