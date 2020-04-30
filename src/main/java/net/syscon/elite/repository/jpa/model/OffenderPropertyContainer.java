@@ -26,7 +26,7 @@ public class OffenderPropertyContainer {
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "INTERNAL_LOCATION_ID")
     private AgencyInternalLocation internalLocation;
 
