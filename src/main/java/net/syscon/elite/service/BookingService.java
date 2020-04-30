@@ -29,6 +29,7 @@ import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
+import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
@@ -667,6 +668,13 @@ public class BookingService {
         return offenderBookingRepository.findById(bookingId)
                 .map(booking -> activeOnly ? booking.getActiveCourtCases() : booking.getCourtCases())
                 .map(CourtCaseTransformer::transform)
+                .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
+    }
+
+    @VerifyBookingAccess
+    public List<OffenderPropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
+        return offenderBookingRepository.findById(bookingId)
+                .map(OffenderBooking::getActivePropertyContainers)
                 .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 

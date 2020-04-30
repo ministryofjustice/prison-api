@@ -1,0 +1,18 @@
+[
+  {
+    "containerId": -1,
+    "sealMark": 10,
+    "internalLocation" : {
+      "locationId": -10,
+      "locationType": "CELL",
+      "agencyId": "LEI",
+      "description": "LEI-A-1-8",
+      "parentLocationId": -2,
+      "currentOccupancy": 0,
+      "operationalCapacity": 1,
+      "userDescription": null,
+      "locationCode": "8"
+    },
+    "activeFlag": "Y"
+  }
+]
