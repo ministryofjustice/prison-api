@@ -2,34 +2,14 @@ package net.syscon.elite.service;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.BookingActivity;
-import net.syscon.elite.api.model.CourtCase;
-import net.syscon.elite.api.model.IepLevelAndComment;
-import net.syscon.elite.api.model.MilitaryRecord;
-import net.syscon.elite.api.model.MilitaryRecords;
-import net.syscon.elite.api.model.OffenceDetail;
-import net.syscon.elite.api.model.OffenceHistoryDetail;
-import net.syscon.elite.api.model.OffenderSentenceCalculation;
-import net.syscon.elite.api.model.OffenderSentenceDetail;
-import net.syscon.elite.api.model.OffenderSentenceDetailDto;
-import net.syscon.elite.api.model.OffenderSentenceTerms;
-import net.syscon.elite.api.model.OffenderSummary;
-import net.syscon.elite.api.model.PrivilegeDetail;
-import net.syscon.elite.api.model.PrivilegeSummary;
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.SentenceDetail;
-import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.model.Visit;
-import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
-import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.model.*;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
-import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
@@ -37,7 +17,9 @@ import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
+import net.syscon.elite.service.transformers.AgencyTransformer;
 import net.syscon.elite.service.transformers.CourtCaseTransformer;
+import net.syscon.elite.service.transformers.PropertyContainerTransformer;
 import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -672,9 +654,10 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public List<OffenderPropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
+    public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId)
                 .map(OffenderBooking::getActivePropertyContainers)
+                .map(PropertyContainerTransformer::transform)
                 .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 

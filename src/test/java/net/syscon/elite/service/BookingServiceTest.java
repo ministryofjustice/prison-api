@@ -1,16 +1,6 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.BookingActivity;
-import net.syscon.elite.api.model.CourtCase;
-import net.syscon.elite.api.model.IepLevelAndComment;
-import net.syscon.elite.api.model.MilitaryRecord;
-import net.syscon.elite.api.model.MilitaryRecords;
-import net.syscon.elite.api.model.OffenderSummary;
-import net.syscon.elite.api.model.PrivilegeDetail;
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
@@ -504,7 +494,13 @@ public class BookingServiceTest {
 
         final var propertyContainers = bookingService.getOffenderPropertyContainers(-1L);
 
-        assertThat(propertyContainers).containsExactly(activePropertyContainer);
+        assertThat(propertyContainers).containsExactly(PropertyContainer.builder()
+                .sealMark(1L)
+                .location(Location.builder()
+                        .locationId(10L)
+                        .description(null)
+                        .build())
+                .build());
     }
 
     private OffenderPropertyContainer.OffenderPropertyContainerBuilder containerWithDefaults() {
