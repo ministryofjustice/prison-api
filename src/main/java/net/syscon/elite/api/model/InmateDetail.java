@@ -134,6 +134,11 @@ public class InmateDetail {
         this.activeFlag = activeFlag;
     }
 
+    public void setProfileInformation(final List<ProfileInformation> profileInformation) {
+        this.profileInformation = profileInformation;
+        updateReligion();
+    }
+
     private void updateReligion() {
         if (profileInformation == null) {
             return;
