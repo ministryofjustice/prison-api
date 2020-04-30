@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.Account;
-import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.AlertChanges;
 import net.syscon.elite.api.model.AlertCreated;
