@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "OFFENDER_PTTY_CONTAINERS")
+@Table(name = "OFFENDER_PPTY_CONTAINERS")
 public class OffenderPropertyContainer {
 
     @Id
@@ -26,10 +26,6 @@ public class OffenderPropertyContainer {
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "AGY_LOC_ID", nullable = false)
-    private AgencyLocation location;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "INTERNAL_LOCATION_ID")
     private AgencyInternalLocation internalLocation;
@@ -38,7 +34,7 @@ public class OffenderPropertyContainer {
     private String activeFlag;
 
     @Column(name = "SEAL_MARK")
-    private String sealMark;
+    private Long sealMark;
 
     public boolean isActive() {
         return activeFlag != null && activeFlag.equals("Y");
