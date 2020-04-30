@@ -115,6 +115,8 @@ public interface InmateRepository {
 
     List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(String caseload, List<Long> bookingIds);
 
+    Optional<ImprisonmentStatus> getImprisonmentStatus(final long bookingId);
+
     static String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria) {
         final var likeTemplate = "%s:like:'%s%%'";
         final var eqTemplate = "%s:eq:'%s'";

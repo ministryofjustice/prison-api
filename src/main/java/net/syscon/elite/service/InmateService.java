@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,8 +37,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
-import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassification;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassificationCode;
 
@@ -178,9 +179,10 @@ public class InmateService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public InmateDetail findInmate(final Long bookingId, final String username) {
+    public InmateDetail findInmate(final Long bookingId, final boolean extraInfo) {
         final var inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
+        inmate.setStatus(format("%s %s", inmate.getActiveFlag() ? "ACTIVE" : "INACTIVE", inmate.getInOutStatus()));
         getFirstPreferredSpokenLanguage(bookingId).ifPresent(inmate::setLanguage);
         inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
         inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
@@ -197,6 +199,18 @@ public class InmateService {
         } catch (Exception e) {
             // TODO: Hack for now to make sure there wasn't a reason this was removed.
         }
+        if (extraInfo) {
+            inmate.setIdentifiers(getOffenderIdentifiers(bookingId, null));
+            inmate.setSentenceDetail(bookingService.getBookingSentenceDetail(bookingId));
+            inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
+            inmate.setOffenceHistory(bookingService.getOffenceHistory(inmate.getOffenderNo()));
+
+            repository.getImprisonmentStatus(bookingId).ifPresent(status -> {
+                inmate.setLegalStatus(status.getLegalStatus());
+                inmate.setImprisonmentStatus(status.getImprisonmentStatus());
+            });
+        }
+
         //TODO: Remove once KW service available - Nomis only!
         final var nomisProfile = ProfileUtil.isNomisProfile(env);
         if (nomisProfile) {
@@ -359,7 +373,7 @@ public class InmateService {
     }
 
     @VerifyBookingAccess
-    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, final String identifierType) {
+    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, @Nullable final String identifierType) {
         return repository.getOffenderIdentifiers(bookingId)
                 .stream()
                     .filter( i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))

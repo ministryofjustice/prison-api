@@ -2,14 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import net.syscon.elite.api.model.Alert;
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.IncidentCase;
-import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.OffenderAddress;
-import net.syscon.elite.api.model.OffenderNumber;
-import net.syscon.elite.api.model.OffenderSentenceDetail;
-import net.syscon.elite.api.model.UpdateCaseNote;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
 import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.resource.OffenderResource;
@@ -19,15 +12,7 @@ import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
-import net.syscon.elite.service.AdjudicationSearchCriteria;
-import net.syscon.elite.service.AdjudicationService;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.CaseNoteService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.GlobalSearchService;
-import net.syscon.elite.service.IncidentService;
-import net.syscon.elite.service.InmateAlertService;
-import net.syscon.elite.service.OffenderAddressService;
+import net.syscon.elite.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +31,7 @@ import static net.syscon.util.ResourceUtils.nvl;
 public class OffenderResourceImpl implements OffenderResource {
 
     private final IncidentService incidentService;
+    private final InmateService inmateService;
     private final InmateAlertService alertService;
     private final OffenderAddressService addressService;
     private final AdjudicationService adjudicationService;
@@ -53,6 +39,13 @@ public class OffenderResourceImpl implements OffenderResource {
     private final BookingService bookingService;
     private final GlobalSearchService globalSearchService;
     private final AuthenticationFacade authenticationFacade;
+
+    @Override
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public InmateDetail getOffender(final String offenderNo) {
+        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+        return inmateService.findInmate(bookingId, true);
+    }
 
     @Override
     public  List<IncidentCase> getIncidentsByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {

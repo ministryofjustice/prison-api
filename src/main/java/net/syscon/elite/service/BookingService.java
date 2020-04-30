@@ -2,26 +2,7 @@ package net.syscon.elite.service;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.BookingActivity;
-import net.syscon.elite.api.model.CourtCase;
-import net.syscon.elite.api.model.IepLevelAndComment;
-import net.syscon.elite.api.model.MilitaryRecord;
-import net.syscon.elite.api.model.MilitaryRecords;
-import net.syscon.elite.api.model.OffenceDetail;
-import net.syscon.elite.api.model.OffenceHistoryDetail;
-import net.syscon.elite.api.model.OffenderSentenceCalculation;
-import net.syscon.elite.api.model.OffenderSentenceDetail;
-import net.syscon.elite.api.model.OffenderSentenceDetailDto;
-import net.syscon.elite.api.model.OffenderSentenceTerms;
-import net.syscon.elite.api.model.OffenderSummary;
-import net.syscon.elite.api.model.PrivilegeDetail;
-import net.syscon.elite.api.model.PrivilegeSummary;
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.SentenceDetail;
-import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.model.Visit;
-import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.HasWriteScope;
@@ -52,16 +33,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -551,7 +523,6 @@ public class BookingService {
         return results;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
         return sentenceRepository.getOffenceHistory(offenderNo);
     }

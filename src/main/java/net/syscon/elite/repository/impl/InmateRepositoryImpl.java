@@ -115,6 +115,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     private static final StandardBeanPropertyRowMapper<InmateBasicDetails> OFFENDER_BASIC_DETAILS_MAPPER = new StandardBeanPropertyRowMapper<>(InmateBasicDetails.class);
 
+    private static final StandardBeanPropertyRowMapper<ImprisonmentStatus> IMPRISONMENT_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(ImprisonmentStatus.class);
+
     private final Map<String, FieldMapper> PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP;
 
     private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -887,6 +889,24 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 createParams("offenders", offenders, "caseLoadId", caseloads, "bookingSeq", 1),
                 OFFENDER_BASIC_DETAILS_MAPPER);
     }
+
+    @Override
+    public Optional<ImprisonmentStatus> getImprisonmentStatus(final long bookingId) {
+        ImprisonmentStatus imprisonmentStatus;
+        try {
+            imprisonmentStatus = jdbcTemplate.queryForObject(
+                    getQuery("GET_IMPRISONMENT_STATUS"),
+                    createParams("bookingId", bookingId),
+                    IMPRISONMENT_STATUS_MAPPER);
+            if (imprisonmentStatus != null) {
+                imprisonmentStatus.deriveLegalStatus();
+            }
+        } catch (final EmptyResultDataAccessException e) {
+            imprisonmentStatus = null;
+        }
+        return Optional.ofNullable(imprisonmentStatus);
+    }
+
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final List<Long> bookingIds) {

@@ -1,14 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.Alert;
-import net.syscon.elite.api.model.AlertChanges;
-import net.syscon.elite.api.model.AlertCreated;
-import net.syscon.elite.api.model.BookingActivity;
-import net.syscon.elite.api.model.CreateAlert;
-import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.InmateBasicDetails;
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.UpdateAttendanceBatch;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
@@ -306,6 +298,23 @@ public class BookingResourceTest extends ResourceTest {
                 String.class, "-7");
 
         assertThatJsonFileAndStatus(response, 200, "offender_main_offences.json");
+    }
+
+    @Test
+    public void getFullOffenderInformation() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}?extraInfo=true", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, "-7");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json");
+    }
+
+    @Test
+    public void getFullOffenderInformation_byOffenderNo() {
+        final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, "A1234AG");
+        assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json");
     }
 
     @Test

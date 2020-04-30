@@ -1,14 +1,10 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.Data;
+import lombok.*;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -126,6 +122,30 @@ public class InmateDetail {
     @ApiModelProperty(value = "Country of birth", example = "GBR")
     private String birthCountryCode;
 
+    @ApiModelProperty(value = "In/Out Status", required = true, example = "IN", allowableValues = "IN,OUT")
+    private String inOutStatus;
+
+    @ApiModelProperty(value = "Identifiers")
+    private List<OffenderIdentifier> identifiers;
+
+    @ApiModelProperty(value = "Sentence Detail")
+    private SentenceDetail sentenceDetail;
+
+    @ApiModelProperty(value = "Offence History")
+    private List<OffenceHistoryDetail> offenceHistory;
+
+    @ApiModelProperty(value = "Aliases")
+    private List<Alias> aliases;
+
+    @ApiModelProperty(value = "Status of prisoner", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT", position = 18)
+    private String status;
+
+    @ApiModelProperty(value = "Legal Status", example = "Convicted", allowableValues = "Convicted,Remand")
+    private String legalStatus;
+
+    @ApiModelProperty(value = "The prisoner's imprisonment status.", example="LIFE")
+    private String imprisonmentStatus;
+
     public boolean getActiveFlag() {
         return activeFlag;
     }
@@ -150,4 +170,5 @@ public class InmateDetail {
                 .map(ProfileInformation::getResultValue)
                 .orElse(null);
     }
+
 }
