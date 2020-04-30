@@ -218,6 +218,8 @@ public class InmateRepositoryTest {
         assertThat(result.getAssignedLivingUnitId()).isEqualTo(-3L);
         assertThat(result.getDateOfBirth()).isEqualTo(LocalDate.of(1969, 12, 30));
         assertThat(result.getFacialImageId()).isEqualTo(-1L);
+        assertThat(result.getBirthPlace()).isEqualTo("WALES");
+        assertThat(result.getBirthCountryCode()).isEqualTo("UK");
     }
 
     @Test
