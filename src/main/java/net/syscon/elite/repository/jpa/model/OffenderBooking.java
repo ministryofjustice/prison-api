@@ -47,6 +47,10 @@ public class OffenderBooking {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     private List<OffenderCourtCase> courtCases;
 
+    @ListIndexBase(1)
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    private List<OffenderPropertyContainer> propertyContainers;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation location;
@@ -86,5 +90,9 @@ public class OffenderBooking {
 
     public List<OffenderCourtCase> getActiveCourtCases() {
         return courtCases.stream().filter(OffenderCourtCase::isActive).collect(toUnmodifiableList());
+    }
+
+    public List<OffenderPropertyContainer> getActivePropertyContainers() {
+        return propertyContainers.stream().filter(OffenderPropertyContainer::isActive).collect(toUnmodifiableList());
     }
 }

@@ -26,6 +26,7 @@ import net.syscon.elite.repository.jpa.model.Offender;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
+import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
@@ -492,12 +493,44 @@ public class BookingServiceTest {
                 .caseInfoNumber("cin");
     }
 
+    @Test
+    void getOffenderPropertyContainers() {
+        final var activePropertyContainer = containerWithDefaults().containerId(-1L).activeFlag("Y").build();
+        final var inactivePropertyContainer = containerWithDefaults().containerId(-2L).activeFlag("N").build();
+
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
+                .propertyContainers(List.of(activePropertyContainer, inactivePropertyContainer))
+                .build()));
+
+        final var propertyContainers = bookingService.getOffenderPropertyContainers(-1L);
+
+        assertThat(propertyContainers).containsExactly(activePropertyContainer);
+    }
+
+    private OffenderPropertyContainer.OffenderPropertyContainerBuilder containerWithDefaults() {
+        return OffenderPropertyContainer.builder()
+                .sealMark(1L)
+                .internalLocation(AgencyInternalLocation.builder()
+                        .activeFlag(ActiveFlag.Y)
+                        .locationId(10L)
+                        .build());
+    }
+
 
     @Test
     void getOffenderCourtCases_errors_for_unknown_booking() {
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L, true))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Offender booking with id -1 not found.");
+    }
+
+    @Test
+    void getOffenderProprtyContainers_errors_for_unknown_booking() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> bookingService.getOffenderPropertyContainers(-1L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Offender booking with id -1 not found.");
     }
