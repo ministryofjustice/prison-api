@@ -12,9 +12,11 @@ public class EscortAgencyType extends ReferenceCode {
 
     static final String ESCORT_CODE = "ESCORT";
 
-    public static final ReferenceCode.Pk PRISON_ESCORT_CUSTODY_SERVICES = new Pk(ESCORT_CODE, "PECS");
-
     public EscortAgencyType(final String code, final String description) {
         super(ESCORT_CODE, code, description);
+    }
+
+    public static ReferenceCode.Pk pk(final String key) {
+        return new Pk(ESCORT_CODE, key);
     }
 }
