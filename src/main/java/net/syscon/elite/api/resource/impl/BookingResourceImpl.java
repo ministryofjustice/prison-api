@@ -8,6 +8,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.*;
@@ -382,6 +383,11 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public Account getBalances(final Long bookingId) {
         return financeService.getBalances(bookingId);
+    }
+
+    @Override
+    public List<OffenderPropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
+        return bookingService.getOffenderPropertyContainers(bookingId);
     }
 
     @Override
