@@ -1,7 +1,22 @@
 package net.syscon.elite.repository.jpa.repository;
 
-import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.model.AgencyLocation;
+import net.syscon.elite.repository.jpa.model.CaseStatus;
+import net.syscon.elite.repository.jpa.model.CourtEvent;
+import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
+import net.syscon.elite.repository.jpa.model.EventStatus;
+import net.syscon.elite.repository.jpa.model.EventType;
+import net.syscon.elite.repository.jpa.model.LegalCaseType;
+import net.syscon.elite.repository.jpa.model.MilitaryBranch;
+import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
+import net.syscon.elite.repository.jpa.model.MilitaryRank;
+import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
+import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
+import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
 import org.junit.jupiter.api.Test;
