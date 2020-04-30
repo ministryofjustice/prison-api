@@ -2,7 +2,6 @@ package net.syscon.elite.api.resource.impl;
 
 import lombok.AllArgsConstructor;
 import net.syscon.elite.api.model.Account;
-import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.AlertChanges;
 import net.syscon.elite.api.model.AlertCreated;
