@@ -1,9 +1,26 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
-import net.syscon.elite.api.model.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.Movement;
+import net.syscon.elite.api.model.MovementCount;
+import net.syscon.elite.api.model.OffenderIn;
+import net.syscon.elite.api.model.OffenderInReception;
+import net.syscon.elite.api.model.OffenderMovement;
+import net.syscon.elite.api.model.OffenderOut;
+import net.syscon.elite.api.model.OffenderOutTodayDto;
+import net.syscon.elite.api.model.RollCount;
+import net.syscon.elite.api.model.TransferSummary;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
@@ -18,7 +35,6 @@ public interface MovementResource {
     @GetMapping
     @ApiOperation(value = "Returns a list of recently released or moved offender nos and the associated timestamp.", notes = "Returns a list of recently released or moved offender nos and the associated timestamp.", nickname = "getRecentMovementsByDate")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Movement.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -31,7 +47,6 @@ public interface MovementResource {
     @GetMapping("/rollcount/{agencyId}")
     @ApiOperation(value = "Current establishment rollcount numbers.", notes = "Current establishment rollcount numbers.", nickname = "getRollcount")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = RollCount.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -43,7 +58,6 @@ public interface MovementResource {
     @GetMapping("/rollcount/{agencyId}/movements")
     @ApiOperation(value = "Rollcount movement numbers.", notes = "Rollcount movement numbers.", nickname = "getRollcountMovements")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -53,8 +67,6 @@ public interface MovementResource {
 
     @PostMapping("/offenders")
     @ApiOperation(value = "", nickname = "getMovementsByOffenders")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = Movement.class, responseContainer = "List")})
     List<Movement> getMovementsByOffenders(
             @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
             @ApiParam(value = "movement type codes to filter by") @RequestParam(value = "movementTypes", required = false) List<String> movementTypes,
@@ -64,7 +76,6 @@ public interface MovementResource {
     @GetMapping("/{agencyId}/enroute")
     @ApiOperation(value = "Enroute prisoner movement details.", notes = "Enroute to reception", nickname = "getEnrouteOffenderMovements")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MovementCount.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderMovement> getEnrouteOffenderMovements(
@@ -75,7 +86,6 @@ public interface MovementResource {
     @GetMapping("/rollcount/{agencyId}/enroute")
     @ApiOperation(value = "Enroute prisoner movement count.", notes = "Enroute to reception count", nickname = "getEnrouteOffenderMovementCount")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     int getEnrouteOffenderMovementCount(
@@ -85,7 +95,6 @@ public interface MovementResource {
     @GetMapping("/{agencyId}/in/{isoDate}")
     @ApiOperation(value = "Information on offenders in today.", notes = "Information on offenders in on given date.", nickname = "getMovementsIn")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MovementCount.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -96,7 +105,6 @@ public interface MovementResource {
     @GetMapping("/livingUnit/{livingUnitId}/currently-out")
     @ApiOperation(value = "Information on offenders currently out.", notes = "Information on offenders currently out.", nickname = "getOffendersCurrentlyOut")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MovementCount.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -106,7 +114,6 @@ public interface MovementResource {
     @GetMapping("/agency/{agencyId}/currently-out")
     @ApiOperation(value = "Information on offenders currently out.", notes = "Information on offenders currently out.", nickname = "getOffendersCurrentlyOut")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MovementCount.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -117,7 +124,6 @@ public interface MovementResource {
     @GetMapping("/{agencyId}/out/{isoDate}")
     @ApiOperation(value = "", nickname = "getOffendersOut")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderOutTodayDto.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -128,7 +134,6 @@ public interface MovementResource {
     @GetMapping("/rollcount/{agencyId}/in-reception")
     @ApiOperation(value = "", nickname = "getOffendersInReception")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderInReception.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -140,12 +145,11 @@ public interface MovementResource {
             notes = "Planned movements are recorded as events of type court, release or transfers/appointments. When these events are started they are actualised as external movements.",
             nickname = "getTransfers")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = TransferSummary.class),
             @ApiResponse(code = 400, message = "Invalid agency identifiers, or from time after the to time, or a time period greater than 24 hours specified, or parameter format not correct.", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "The token presented did not contain the necessary role to access this resource.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "The token presented has expired.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    public TransferSummary getTransfers(
+    TransferSummary getTransfers(
             @ApiParam(value = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) @NotEmpty @RequestParam("agencyId") List<String> agencyIds,
             @ApiParam(value = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDateTime") LocalDateTime fromDateTime,
             @ApiParam(value = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDateTime") LocalDateTime toDateTime,

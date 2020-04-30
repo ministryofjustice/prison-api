@@ -61,7 +61,7 @@ public class OffenderMovement {
     private String toAgencyDescription;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "ADM(ission), REL(ease) or TRN(sfer)")
+    @ApiModelProperty(required = true, value = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = "ADM,CRT,REL,TAP,TRN")
     private String movementType;
 
     @NotBlank
