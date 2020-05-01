@@ -39,7 +39,13 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
     private static final String FROM_PRISON = "A";
 
+    private static final AgencyLocation FROM_PRISON_AGENCY = AgencyLocation
+            .builder().id(FROM_PRISON).description("Prison A description").activeFlag(ActiveFlag.Y).build();
+
     private static final String TO_PRISON = "B";
+
+    private static final AgencyLocation TO_PRISON_AGENCY = AgencyLocation
+            .builder().id(TO_PRISON).description("Prison A description").activeFlag(ActiveFlag.Y).type("INST").build();
 
     private static final String PRISON_ESCORT_CUSTODY_SERVICES = "PECS";
 
@@ -111,13 +117,14 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .eventSubType("NOTR")
                 .eventStatus(new EventStatus("SCH", "Scheduled"))
                 .escortAgencyType(new EscortAgencyType(PRISON_ESCORT_CUSTODY_SERVICES, "Prison Escort Custody Service"))
-                .toLocation(AgencyLocation.builder().build())
+                .fromLocation(FROM_PRISON_AGENCY)
+                .toLocation(TO_PRISON_AGENCY)
                 .movementDirection(OUT)
                 .offenderBooking(ACTIVE_BOOKING)
                 .build());
 
         // TODO - assert on return model object when defined.
-        
+
         service.schedule(OFFENDER_BOOKING_ID, move);
 
         verify(scheduleRepository).save(OffenderIndividualSchedule.builder()
@@ -128,7 +135,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .eventSubType("NOTR")
                 .eventStatus(new EventStatus("SCH", "Scheduled"))
                 .escortAgencyType(new EscortAgencyType(PRISON_ESCORT_CUSTODY_SERVICES, "Prison Escort Custody Service"))
-                .toLocation(AgencyLocation.builder().build())
+                .fromLocation(FROM_PRISON_AGENCY)
+                .toLocation(TO_PRISON_AGENCY)
                 .movementDirection(OUT)
                 .offenderBooking(ACTIVE_BOOKING)
                 .build());
@@ -344,17 +352,13 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     }
 
     private PrisonToPrisonMoveSchedulingServiceTest andValidToPrison() {
-        when(agencyLocationRepository.findById(TO_PRISON)).thenReturn(Optional.of(AgencyLocation
-                .builder()
-                .activeFlag(ActiveFlag.Y)
-                .type("INST")
-                .build()));
+        when(agencyLocationRepository.findById(TO_PRISON)).thenReturn(Optional.of(TO_PRISON_AGENCY));
 
         return this;
     }
 
     private PrisonToPrisonMoveSchedulingServiceTest andEventStatusScheduledFound() {
-        when(eventStatusRepository.findById(EventStatus.SCHEDULED)).thenReturn(Optional.of(new EventStatus("SCH", "Scheduled")));
+        when(eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED)).thenReturn(Optional.of(new EventStatus("SCH", "Scheduled")));
 
         return this;
     }

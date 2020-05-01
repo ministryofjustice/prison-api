@@ -21,7 +21,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static net.syscon.elite.repository.jpa.model.EventStatus.SCHEDULED;
+import static net.syscon.elite.repository.jpa.model.EventStatus.SCHEDULED_APPROVED;
 import static net.syscon.elite.repository.jpa.model.MovementDirection.OUT;
 import static net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule.EventClass.EXT_MOV;
 
@@ -74,6 +74,8 @@ public class PrisonToPrisonMoveSchedulingService {
 
         final var escortAgencyType = getEscortAgencyType(move.getEscortType());
 
+        // TODO - not sure if need to check for booking clash. As far as I can tell C-NOMIS does not stop you!!
+
         final var scheduledMove = scheduleMove(activeBooking, getActive(move.getToPrison()), escortAgencyType, move.getScheduledMoveDateTime());
 
         log.debug("Prison to prison move scheduled with event id: {} for offender: {}, move details: {}",
@@ -121,15 +123,15 @@ public class PrisonToPrisonMoveSchedulingService {
                                                     final AgencyLocation toPrison,
                                                     final EscortAgencyType escortAgencyType,
                                                     final LocalDateTime moveDateTime) {
-        // TODO - not setting 'from location'.  Check if need to...
         return scheduleRepository.save(OffenderIndividualSchedule.builder()
                 .eventDate(moveDateTime.toLocalDate())
                 .startTime(moveDateTime)
                 .eventClass(EXT_MOV)
                 .eventType(TRANSFER)
                 .eventSubType(NORMAL_TRANSFER)
-                .eventStatus(eventStatusRepository.findById(SCHEDULED).orElseThrow())
+                .eventStatus(eventStatusRepository.findById(SCHEDULED_APPROVED).orElseThrow())
                 .escortAgencyType(escortAgencyType)
+                .fromLocation(booking.getLocation())
                 .toLocation(toPrison)
                 .movementDirection(OUT)
                 .offenderBooking(booking)

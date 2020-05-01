@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 
+import static net.syscon.elite.repository.jpa.model.EventStatus.SCHEDULED_APPROVED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -63,7 +64,7 @@ public class CourtEventRepositoryTest {
                 .courtLocation(agencyRepository.findById("COURT1").orElseThrow())
                 .directionCode("OUT")
                 .eventDate(eventDate)
-                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
+                .eventStatus(eventStatusRepository.findById(SCHEDULED_APPROVED).orElseThrow())
                 .offenderBooking(bookingWithCourtCase)
                 .offenderCourtCase(bookingWithCourtCase.getCourtCases().stream().findFirst().orElseThrow())
                 .startTime(startTime);
