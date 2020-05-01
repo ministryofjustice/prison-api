@@ -1,7 +1,52 @@
 package net.syscon.elite.api.resource.impl;
 
 import lombok.AllArgsConstructor;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Account;
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
+import net.syscon.elite.api.model.AlertCreated;
+import net.syscon.elite.api.model.Alias;
+import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.CaseNoteCount;
+import net.syscon.elite.api.model.Contact;
+import net.syscon.elite.api.model.ContactDetail;
+import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.api.model.IncidentCase;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.MilitaryRecords;
+import net.syscon.elite.api.model.Movement;
+import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.NewBooking;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.OffenceDetail;
+import net.syscon.elite.api.model.OffenceHistoryDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderIdentifier;
+import net.syscon.elite.api.model.OffenderRelationship;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PersonalCareNeeds;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
+import net.syscon.elite.api.model.PhysicalMark;
+import net.syscon.elite.api.model.PrivilegeSummary;
+import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.PropertyContainer;
+import net.syscon.elite.api.model.ReasonableAdjustments;
+import net.syscon.elite.api.model.RecallBooking;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.UpdateAttendanceBatch;
+import net.syscon.elite.api.model.UpdateCaseNote;
+import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.support.Order;
@@ -382,6 +427,11 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public Account getBalances(final Long bookingId) {
         return financeService.getBalances(bookingId);
+    }
+
+    @Override
+    public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
+        return bookingService.getOffenderPropertyContainers(bookingId);
     }
 
     @Override

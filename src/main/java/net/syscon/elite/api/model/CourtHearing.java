@@ -21,7 +21,7 @@ public class CourtHearing {
     @ApiModelProperty(value = "The court hearing identifier.", position = 1, example = "123456789")
     private Long id;
 
-    @ApiModelProperty(value = "The date and start time of the court hearing.", position = 2, example = "2020-02-28T14:40:00.000Z")
+    @ApiModelProperty(value = "The date and start time of the court hearing in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", position = 2, example = "2020-02-28T14:40:00")
     private LocalDateTime dateTime;
 
     @ApiModelProperty(value = "The location of the court for the hearing.", position = 3)

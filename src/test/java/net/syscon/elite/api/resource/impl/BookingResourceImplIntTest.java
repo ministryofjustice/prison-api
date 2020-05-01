@@ -5,7 +5,21 @@ import net.syscon.elite.api.model.ReasonableAdjustment;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.InmateRepository;
-import net.syscon.elite.repository.jpa.model.*;
+import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.model.AgencyLocation;
+import net.syscon.elite.repository.jpa.model.CaseStatus;
+import net.syscon.elite.repository.jpa.model.CourtEvent;
+import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
+import net.syscon.elite.repository.jpa.model.LegalCaseType;
+import net.syscon.elite.repository.jpa.model.MilitaryBranch;
+import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
+import net.syscon.elite.repository.jpa.model.MilitaryRank;
+import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
+import net.syscon.elite.repository.jpa.model.OffenderBooking;
+import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
+import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
+import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -336,6 +350,36 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases?activeOnly=false", HttpMethod.GET, requestEntity, String.class);
 
         assertThatJsonFileAndStatus(responseEntity, 200, "court_cases_active_and_inactive.json");
+    }
+
+    @Test
+    public void getPropertyContainers() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(
+            OffenderBooking.builder()
+                .propertyContainers(List.of(
+                    OffenderPropertyContainer.builder()
+                        .containerId(-1L)
+                        .activeFlag("Y")
+                        .internalLocation(AgencyInternalLocation.builder()
+                                .locationId(-10L)
+                                .activeFlag(ActiveFlag.Y)
+                                .locationType("CELL")
+                                .agencyId("LEI")
+                                .description("LEI-A-1-8")
+                                .parentLocationId(-2L)
+                                .currentOccupancy(0)
+                                .operationalCapacity(1)
+                                .userDescription(null)
+                                .locationCode("8")
+                                .build())
+                        .sealMark(10L)
+                        .build()))
+            .build()));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/property", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "offender_property_containers.json");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {

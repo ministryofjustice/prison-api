@@ -2,7 +2,43 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.Contact;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.ContactDetail;
+import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.api.model.IncidentCase;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.MilitaryRecords;
+import net.syscon.elite.api.model.Movement;
+import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.NewBooking;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.OffenceDetail;
+import net.syscon.elite.api.model.OffenceHistoryDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderIdentifier;
+import net.syscon.elite.api.model.OffenderRelationship;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PersonalCareNeeds;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
+import net.syscon.elite.api.model.PhysicalMark;
+import net.syscon.elite.api.model.PrivilegeSummary;
+import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.PropertyContainer;
+import net.syscon.elite.api.model.ReasonableAdjustments;
+import net.syscon.elite.api.model.RecallBooking;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.UpdateAttendanceBatch;
+import net.syscon.elite.api.model.UpdateCaseNote;
+import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.support.Order;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -316,6 +352,14 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenceDetail> getMainOffence(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+
+    @GetMapping("/{bookingId}/property")
+    @ApiOperation(value = "List of active property containers", notes = "List of active property containers", nickname = "getOffenderPropertyContainers")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    List<PropertyContainer> getOffenderPropertyContainers(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
 
     @PostMapping("/mainOffence")
     @ApiOperation(value = "Get Offender main offence detail.", notes = "Post version to allow specifying a large number of bookingIds.")

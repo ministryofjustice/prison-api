@@ -31,7 +31,7 @@ public class PrisonToCourtHearing {
     @Size(max = 6, message = "To location must be a maximum of 6 characters.")
     private String toCourtLocation;
 
-    @ApiModelProperty(required = true, value = "The future date and time of the court hearing.", position = 3, example = "2020-02-28T14:40:00.000Z")
+    @ApiModelProperty(required = true, value = "The future date and time of the court hearing in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", position = 3, example = "2020-02-28T14:40:00")
     @NotNull(message = "The future court hearing date time must be provided.")
     private LocalDateTime courtHearingDateTime;
 

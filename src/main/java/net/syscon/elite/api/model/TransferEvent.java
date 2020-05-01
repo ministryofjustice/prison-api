@@ -21,7 +21,7 @@ public class TransferEvent {
     @ApiModelProperty(required = true, value = "Offender number(NOMS ID)", example = "G3878UK")
     private String offenderNo;
 
-    @ApiModelProperty(required = true, value = "Date and time the record was created", example = "2019-12-01T13:34:00.000Z")
+    @ApiModelProperty(required = true, value = "Date and time the record was created in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime createDateTime;
 
     @ApiModelProperty(required = true, value = "The internal event ID", example = "1232323")
@@ -57,10 +57,10 @@ public class TransferEvent {
     @ApiModelProperty(required = true, value = "The date on which the event is scheduled to occur", example = "2019-01-01")
     private LocalDate eventDate;
 
-    @ApiModelProperty(required = true, value = "The planned date and time of the start of the event", example = "2019-12-01T13:34:00.000Z")
+    @ApiModelProperty(required = true, value = "The planned date and time of the start of the event in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime startTime;
 
-    @ApiModelProperty(required = true, value = "The planned date and time of the end of the event", example = "2019-12-01T13:34:00.000Z")
+    @ApiModelProperty(required = true, value = "The planned date and time of the end of the event in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime endTime;
 
     @ApiModelProperty(required = true, value = "The outcome reason code - from offender_ind_schedules", example = "CO")
