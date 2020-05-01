@@ -220,7 +220,7 @@ public class BookingDetailSteps extends CommonSteps {
 
     @Step("Verify offender booking number")
     public void verifyOffenderActiveFlag(final boolean activeFlag) {
-        assertThat(inmateDetail.getActiveFlag()).isEqualTo(activeFlag);
+        assertThat(inmateDetail.isActiveFlag()).isEqualTo(activeFlag);
     }
 
     @Step("Verify offender assigned officer id")
