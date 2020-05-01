@@ -9,6 +9,7 @@ import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.IncidentCase;
+import net.syscon.elite.api.model.InmateDetail;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.model.OffenderAddress;
 import net.syscon.elite.api.model.OffenderNumber;
@@ -19,6 +20,7 @@ import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.support.Order;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,12 +30,22 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Api(tags = {"/offenders"})
+@Validated
 public interface OffenderResource {
+
+    @GetMapping("/{offenderNo}")
+    @ApiOperation(value = "Full details about the current state of an offender")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    InmateDetail getOffender(@ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) @PathVariable("offenderNo") @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") final String offenderNo);
 
     @GetMapping("/{offenderNo}/incidents")
     @ApiOperation(value = "Return a set Incidents for a given offender No.",

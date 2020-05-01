@@ -1,14 +1,15 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.Data;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -71,10 +72,10 @@ public class InmateDetail {
     @ApiModelProperty(value = "List of Alerts")
     private List<String> alertsCodes;
 
-    @ApiModelProperty(value = "number of active alerts - Full Details Only")
+    @ApiModelProperty(value = "number of active alerts", notes = "Full Details Only")
     private Long activeAlertCount;
 
-    @ApiModelProperty(value = "number of inactive alerts - Full Details Only")
+    @ApiModelProperty(value = "number of inactive alerts", notes = "Full Details Only")
     private Long inactiveAlertCount;
 
     @ApiModelProperty(value = "List of alert details")
@@ -86,11 +87,11 @@ public class InmateDetail {
     @ApiModelProperty(value = "Image Id Ref of Offender")
     private Long facialImageId;
 
-    @ApiModelProperty(required = true, value = "Date of Birth of offender")
+    @ApiModelProperty(required = true, value = "Date of Birth of offender", example = "1970-03-15")
     @NotNull
     private LocalDate dateOfBirth;
 
-    @ApiModelProperty(value = "Age of offender - Full Details Only")
+    @ApiModelProperty(value = "Age of offender", notes = "Full Details Only")
     private Integer age;
 
     @ApiModelProperty(value = "A set of physical attributes")
@@ -126,13 +127,29 @@ public class InmateDetail {
     @ApiModelProperty(value = "Country of birth", example = "GBR")
     private String birthCountryCode;
 
-    public boolean getActiveFlag() {
-        return activeFlag;
-    }
+    @ApiModelProperty(value = "In/Out Status", required = true, example = "IN", allowableValues = "IN,OUT")
+    private String inOutStatus;
 
-    public void setActiveFlag(final boolean activeFlag) {
-        this.activeFlag = activeFlag;
-    }
+    @ApiModelProperty(value = "Identifiers", notes = "Only returned when requesting extra details")
+    private List<OffenderIdentifier> identifiers;
+
+    @ApiModelProperty(value = "Sentence Detail", notes = "Only returned when requesting extra details")
+    private SentenceDetail sentenceDetail;
+
+    @ApiModelProperty(value = "Offence History", notes = "Only returned when requesting extra details")
+    private List<OffenceHistoryDetail> offenceHistory;
+
+    @ApiModelProperty(value = "Aliases", notes = "Only returned when requesting extra details")
+    private List<Alias> aliases;
+
+    @ApiModelProperty(value = "Status of prisoner", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT", position = 18)
+    private String status;
+
+    @ApiModelProperty(value = "Legal Status", example = "Convicted", allowableValues = "Convicted,Remand", notes = "Only returned when requesting extra details")
+    private String legalStatus;
+
+    @ApiModelProperty(value = "The prisoner's imprisonment status.", example="LIFE", notes = "Only returned when requesting extra details")
+    private String imprisonmentStatus;
 
     public void setProfileInformation(final List<ProfileInformation> profileInformation) {
         this.profileInformation = profileInformation;
@@ -150,4 +167,5 @@ public class InmateDetail {
                 .map(ProfileInformation::getResultValue)
                 .orElse(null);
     }
+
 }
