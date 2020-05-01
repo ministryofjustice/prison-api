@@ -55,6 +55,7 @@ public class OffenderSteps extends CommonSteps {
                         postalCode(emptyToNull(oa.getPostalCode())).
                         county(emptyToNull(oa.getCounty())).
                         country(emptyToNull(oa.getCountry())).
+                        startDate(oa.getStartDate()).
                         comment(emptyToNull(oa.getComment())).build())
                 .collect(toList());
 

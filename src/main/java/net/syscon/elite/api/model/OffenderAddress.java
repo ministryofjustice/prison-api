@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @ApiModel(description = "An Offender's Address")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -46,4 +48,7 @@ public class OffenderAddress {
 
     @ApiModelProperty(required = true, value = "No Fixed Address")
     private Boolean noFixedAddress;
+
+    @ApiModelProperty(value = "Date Added")
+    private LocalDate startDate;
 }
