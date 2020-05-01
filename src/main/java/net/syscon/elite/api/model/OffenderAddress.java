@@ -1,7 +1,7 @@
 package net.syscon.elite.api.model;
 
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -10,14 +10,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @ApiModel(description = "An Offender's Address")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class OffenderAddress {
+
+    @JsonIgnore
+    private Long addressId;
 
     @ApiModelProperty("Flat")
     private String flat;
@@ -52,12 +55,6 @@ public class OffenderAddress {
     @ApiModelProperty(value = "Date Added")
     private LocalDate startDate;
 
-    @ApiModelProperty(value = "The phone number associated with the address", example = "0114 2345345")
-    private String phoneNo;
-
-    @ApiModelProperty(value = "The phone number extension", example = "345")
-    private String phoneExt;
-
-    @ApiModelProperty(value = "The phone number type", example = "HOME")
-    private String phoneType;
+    @ApiModelProperty(value = "The phone number associated with the address")
+    private List<Telephone> phones;
 }

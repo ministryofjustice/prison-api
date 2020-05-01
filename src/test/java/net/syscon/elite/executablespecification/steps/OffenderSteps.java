@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.OffenderAddress;
+import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -8,9 +9,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.time.LocalDate;
 
-import static com.google.common.base.Strings.emptyToNull;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -42,26 +42,83 @@ public class OffenderSteps extends CommonSteps {
         }
     }
 
-    public void verifyAddressList(final List<OffenderAddress> expected) {
+    public void verifyAddressList() {
+        final var expected = List.of(
+                OffenderAddress.builder()
+                    .primary(true)
+                    .noFixedAddress(true)
+                    .flat(null)
+                    .premise(null)
+                    .street(null)
+                    .town(null)
+                    .postalCode(null)
+                    .county(null)
+                    .country("England")
+                    .comment(null)
+                    .startDate(LocalDate.of(2017, 3, 1))
+                    .phones(List.of(Telephone.builder()
+                            .number("0114 2345345")
+                            .type("HOME")
+                            .ext("345")
+                            .build()))
+                    .build(),
+                OffenderAddress.builder()
+                        .primary(false)
+                        .noFixedAddress(false)
+                        .flat("Flat 1")
+                        .premise("Brook Hamlets")
+                        .street("Mayfield Drive")
+                        .town("Sheffield")
+                        .postalCode("B5")
+                        .county("South Yorkshire")
+                        .country("England")
+                        .comment(null)
+                        .startDate(LocalDate.of(2015, 10, 1))
+                        .phones(List.of(Telephone.builder()
+                                .number("0114 2345345")
+                                .type("HOME")
+                                .ext("345")
+                                .build()))
+                        .build(),
+                OffenderAddress.builder()
+                        .primary(false)
+                        .noFixedAddress(false)
+                        .flat(null)
+                        .premise("9")
+                        .street("Abbydale Road")
+                        .town("Sheffield")
+                        .postalCode(null)
+                        .county("South Yorkshire")
+                        .country("England")
+                        .comment("A Comment")
+                        .startDate(LocalDate.of(2014, 7, 1))
+                        .phones(List.of(
+                                Telephone.builder()
+                                        .number("0114 2345345")
+                                        .type("HOME")
+                                        .ext("345")
+                                        .build(),
+                                Telephone.builder()
+                                        .number("0114 2345346")
+                                        .type("BUS")
+                                        .build()))
+                        .build(),
+                OffenderAddress.builder()
+                        .primary(false)
+                        .noFixedAddress(true)
+                        .flat(null)
+                        .premise(null)
+                        .street(null)
+                        .town(null)
+                        .postalCode(null)
+                        .county(null)
+                        .country("England")
+                        .comment(null)
+                        .startDate(LocalDate.of(2014, 7, 1))
+                        .phones(List.of())
+                        .build()
+        );
 
-        final var emptyToNullExpected = expected.stream()
-                .map(oa -> OffenderAddress.builder().
-                        primary(oa.getPrimary()).
-                        noFixedAddress(oa.getNoFixedAddress()).
-                        flat(emptyToNull(oa.getFlat())).
-                        premise(emptyToNull(oa.getPremise())).
-                        street(emptyToNull(oa.getStreet())).
-                        town(emptyToNull(oa.getTown())).
-                        postalCode(emptyToNull(oa.getPostalCode())).
-                        county(emptyToNull(oa.getCounty())).
-                        country(emptyToNull(oa.getCountry())).
-                        startDate(oa.getStartDate()).
-                        phoneNo(emptyToNull(oa.getPhoneNo())).
-                        phoneExt(emptyToNull(oa.getPhoneExt())).
-                        phoneType(emptyToNull(oa.getPhoneType())).
-                        comment(emptyToNull(oa.getComment())).build())
-                .collect(toList());
-
-        assertThat(emptyToNullExpected).containsExactlyElementsOf(offenderAddresses);
+        assertThat(expected).containsExactlyElementsOf(offenderAddresses);
     }
 }
