@@ -178,7 +178,7 @@ public class CourtHearingsServiceTest {
         when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(COURT_LOCATION));
         when(courtEventRepository.save(any())).thenReturn(PERSISTED_COURT_EVENT);
         when(eventTypeRepository.findById(EventType.COURT)).thenReturn(Optional.of(EVENT_TYPE));
-        when(eventStatusRepository.findById(EventStatus.SCHEDULED)).thenReturn(Optional.of(EVENT_STATUS));
+        when(eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED)).thenReturn(Optional.of(EVENT_STATUS));
     }
 
     @Test

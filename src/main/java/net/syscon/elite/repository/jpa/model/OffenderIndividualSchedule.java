@@ -80,6 +80,11 @@ public class OffenderIndividualSchedule extends AuditableEntity {
 
     // This is nullable on the DB but in the context of how we use this it should (always?) be populated.
     @ManyToOne
+    @JoinColumn(name = "AGY_LOC_ID")
+    private AgencyLocation fromLocation;
+
+    // This is nullable on the DB but in the context of how we use this it should (always?) be populated.
+    @ManyToOne
     @JoinColumn(name = "TO_AGY_LOC_ID")
     private AgencyLocation toLocation;
 

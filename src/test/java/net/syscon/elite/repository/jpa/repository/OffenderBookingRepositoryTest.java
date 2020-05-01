@@ -261,7 +261,7 @@ public class OffenderBookingRepositoryTest {
                 .courtLocation(agencyLocationRepository.findById("COURT1").orElseThrow())
                 .directionCode("OUT")
                 .eventDate(eventDate)
-                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
+                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED).orElseThrow())
                 .nextEventRequestFlag("X")
                 .offenderBooking(courtCase.getOffenderBooking())
                 .offenderCourtCase(courtCase)

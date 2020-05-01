@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static net.syscon.elite.repository.jpa.model.EventStatus.SCHEDULED_APPROVED;
 import static net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule.EventClass.EXT_MOV;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -60,8 +61,9 @@ public class OffenderIndividualScheduleRepositoryTest {
                         .eventClass(EXT_MOV)
                         .eventType("TRN")
                         .eventSubType("NOTR")
-                        .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
+                        .eventStatus(eventStatusRepository.findById(SCHEDULED_APPROVED).orElseThrow())
                         .escortAgencyType(escortAgencyTypeRepository.findById(EscortAgencyType.pk("PECS")).orElseThrow())
+                        .fromLocation(agencyRepository.findById("BXI").orElseThrow())
                         .toLocation(agencyRepository.findById("LEI").orElseThrow())
                         .movementDirection(MovementDirection.OUT)
                         .offenderBooking(offenderBookingRepository.findById(-1L).orElseThrow()).build());

@@ -28,6 +28,8 @@ import java.time.LocalDateTime;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
+import static net.syscon.elite.repository.jpa.model.EventStatus.SCHEDULED_APPROVED;
+import static net.syscon.elite.repository.jpa.model.EventType.COURT;
 
 @Service
 @Transactional(readOnly = true)
@@ -75,10 +77,10 @@ public class CourtHearingsService {
 
         final var courtEvent = CourtEvent.builder()
                 .courtLocation(getActiveCourtFor(hearing.getToCourtLocation()))
-                .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
+                .courtEventType(eventTypeRepository.findById(COURT).orElseThrow())
                 .directionCode("OUT")
                 .eventDate(hearing.getCourtHearingDateTime().toLocalDate())
-                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
+                .eventStatus(eventStatusRepository.findById(SCHEDULED_APPROVED).orElseThrow())
                 .offenderBooking(offenderBooking)
                 .offenderCourtCase(courtCase)
                 .startTime(hearing.getCourtHearingDateTime())
@@ -105,10 +107,10 @@ public class CourtHearingsService {
 
         final var courtEvent = CourtEvent.builder()
                 .courtLocation(getActiveCourtFor(hearing.getToCourtLocation()))
-                .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
+                .courtEventType(eventTypeRepository.findById(COURT).orElseThrow())
                 .directionCode("OUT")
                 .eventDate(hearing.getCourtHearingDateTime().toLocalDate())
-                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
+                .eventStatus(eventStatusRepository.findById(SCHEDULED_APPROVED).orElseThrow())
                 .offenderBooking(offenderBooking)
                 .startTime(hearing.getCourtHearingDateTime())
                 .commentText(hearing.getComments())
