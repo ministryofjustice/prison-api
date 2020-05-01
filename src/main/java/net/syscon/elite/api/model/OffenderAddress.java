@@ -51,4 +51,13 @@ public class OffenderAddress {
 
     @ApiModelProperty(value = "Date Added")
     private LocalDate startDate;
+
+    @ApiModelProperty(value = "The phone number associated with the address", example = "0114 2345345")
+    private String phoneNo;
+
+    @ApiModelProperty(value = "The phone number extension", example = "345")
+    private String phoneExt;
+
+    @ApiModelProperty(value = "The phone number type", example = "HOME")
+    private String phoneType;
 }

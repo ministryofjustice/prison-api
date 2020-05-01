@@ -41,11 +41,11 @@ public class OffenderAddressRepositoryTest {
         final var results = repository.getAddresses("A1234AI");
 
         assertThat(results)
-                .extracting("flat", "premise", "street", "town", "postalCode", "county", "country", "comment", "primary", "noFixedAddress", "startDate")
+                .extracting("flat", "premise", "street", "town", "postalCode", "county", "country", "comment", "primary", "noFixedAddress", "startDate", "phoneNo", "phoneExt", "phoneType")
                 .containsExactly(
-                        tuple(null, null, null, null, null, null, "England", null, true, true, LocalDate.of(2017, 3, 1)),
-                        tuple("Flat 1", "Brook Hamlets", "Mayfield Drive", "Sheffield", "B5", "South Yorkshire", "England", null, false, false, LocalDate.of(2015, 10, 1)),
-                        tuple(null, "9", "Abbydale Road", "Sheffield", null, "South Yorkshire", "England", "A Comment", false, false, LocalDate.of(2014, 7, 1)),
-                        tuple(null, null, null, null, null, null, "England", null, false, true,LocalDate.of(2014, 7, 1)));
+                        tuple(null, null, null, null, null, null, "England", null, true, true, LocalDate.of(2017, 3, 1), "0114 2345345", "345", "HOME"),
+                        tuple("Flat 1", "Brook Hamlets", "Mayfield Drive", "Sheffield", "B5", "South Yorkshire", "England", null, false, false, LocalDate.of(2015, 10, 1), "0114 2345345", "345", "HOME"),
+                        tuple(null, "9", "Abbydale Road", "Sheffield", null, "South Yorkshire", "England", "A Comment", false, false, LocalDate.of(2014, 7, 1), "0114 2345345", "345", "HOME"),
+                        tuple(null, null, null, null, null, null, "England", null, false, true,LocalDate.of(2014, 7, 1), null, null, null));
     }
 }
