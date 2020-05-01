@@ -28,9 +28,9 @@ public class OffenderStepDefinitions extends AbstractStepDefinitions {
         offenderSteps.findAddresses(offenderNumber);
     }
 
-    @Then("^the address results are:$")
-    public void addressResultListIsAsFollows(final List<OffenderAddress> list) {
-        offenderSteps.verifyAddressList(list);
+    @Then("^the address results are returned$")
+    public void addressResultListIsAsFollows() {
+        offenderSteps.verifyAddressList();
     }
 
     @When("^I view the adjudications of offender with offender display number of \"([^\"]*)\"$")

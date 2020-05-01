@@ -6,13 +6,7 @@ Feature: Offenders
   Scenario: A staff user views the address for an existing offender
     Given a user has a token name of "ELITE2_API_USER"
     When I view the addresses of offender with offender display number of "A1234AI"
-    Then the address results are:
-    | primary  | noFixedAddress | flat      | premise          | street          | town         | postalCode | county             | country   | comment     |
-    |  true    |     true       |           |                  |                 |              |            |                    |  England  |             |
-    |  false   |     false      | Flat 1    |   Brook Hamlets  | Mayfield Drive  |  Sheffield   |    B5      | South Yorkshire    |  England  |             |
-    |  false   |     false      |           |   9              | Abbydale Road   |  Sheffield   |            | South Yorkshire    |  England  | A Comment   |
-    |  false   |     true       |           |                  |                 |              |            |                    |  England  |             |
-
+    Then the address results are returned
 
   Scenario: A staff user fails to find addresses as offender does not exist
     Given a user has a token name of "ELITE2_API_USER"
