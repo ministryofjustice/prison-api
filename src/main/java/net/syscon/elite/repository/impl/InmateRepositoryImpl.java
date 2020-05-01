@@ -2,7 +2,26 @@ package net.syscon.elite.repository.impl;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Alias;
+import net.syscon.elite.api.model.AssignedLivingUnit;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategorisationUpdateDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
+import net.syscon.elite.api.model.CategoryRejectionDetail;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.api.model.ImprisonmentStatus;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderCategorise;
+import net.syscon.elite.api.model.OffenderIdentifier;
+import net.syscon.elite.api.model.PersonalCareNeed;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
+import net.syscon.elite.api.model.PhysicalMark;
+import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.ReasonableAdjustment;
 import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -33,7 +52,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
@@ -839,7 +864,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 getQuery("GET_OFFENDER_CATEGORY_SEQUENCES"),
                 createParams("bookingId", bookingId,
                         "assessmentTypeId", assessmentId,
-                        "statuses", Arrays.asList(status == AssessmentStatusType.PENDING ? "P" : "A")),
+                        "statuses", List.of(status == AssessmentStatusType.PENDING ? "P" : "A")),
                 mapper);
         if (CollectionUtils.isEmpty(sequences)) {
             log.warn(String.format("No active category assessments found for booking id %d", bookingId));
@@ -874,7 +899,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         if (result != 1) {
             var message = String.format("Unable to update next review date, could not find latest, active categorisation for booking id %d, result count = %d", bookingId, result);
             log.error(message);
-            throw new EntityNotFoundException(String.format(message));
+            throw new EntityNotFoundException(message);
         }
     }
 
@@ -892,19 +917,17 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     @Override
     public Optional<ImprisonmentStatus> getImprisonmentStatus(final long bookingId) {
-        ImprisonmentStatus imprisonmentStatus;
+        Optional<ImprisonmentStatus> imprisonmentStatus;
         try {
-            imprisonmentStatus = jdbcTemplate.queryForObject(
+            imprisonmentStatus = Optional.ofNullable(jdbcTemplate.queryForObject(
                     getQuery("GET_IMPRISONMENT_STATUS"),
                     createParams("bookingId", bookingId),
-                    IMPRISONMENT_STATUS_MAPPER);
-            if (imprisonmentStatus != null) {
-                imprisonmentStatus.deriveLegalStatus();
-            }
+                    IMPRISONMENT_STATUS_MAPPER));
+            imprisonmentStatus.ifPresent(ImprisonmentStatus::deriveLegalStatus);
         } catch (final EmptyResultDataAccessException e) {
-            imprisonmentStatus = null;
+            imprisonmentStatus = Optional.empty();
         }
-        return Optional.ofNullable(imprisonmentStatus);
+        return imprisonmentStatus;
     }
 
 
