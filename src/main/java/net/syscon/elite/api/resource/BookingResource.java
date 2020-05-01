@@ -41,6 +41,7 @@ import net.syscon.elite.api.model.PhysicalCharacteristic;
 import net.syscon.elite.api.model.PhysicalMark;
 import net.syscon.elite.api.model.PrivilegeSummary;
 import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.PropertyContainer;
 import net.syscon.elite.api.model.ReasonableAdjustments;
 import net.syscon.elite.api.model.RecallBooking;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -52,7 +53,6 @@ import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -376,7 +376,7 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<OffenderPropertyContainer> getOffenderPropertyContainers(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+    List<PropertyContainer> getOffenderPropertyContainers(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
 
     @PostMapping("/mainOffence")
     @ApiOperation(value = "Get Offender main offence detail.", notes = "Post version to allow specifying a large number of bookingIds.")

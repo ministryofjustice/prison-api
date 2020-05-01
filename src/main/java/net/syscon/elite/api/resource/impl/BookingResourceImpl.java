@@ -37,6 +37,7 @@ import net.syscon.elite.api.model.PhysicalCharacteristic;
 import net.syscon.elite.api.model.PhysicalMark;
 import net.syscon.elite.api.model.PrivilegeSummary;
 import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.PropertyContainer;
 import net.syscon.elite.api.model.ReasonableAdjustments;
 import net.syscon.elite.api.model.RecallBooking;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -52,7 +53,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.core.ProxyUser;
-import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.AdjudicationService;
@@ -444,7 +444,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<OffenderPropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
+    public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
         return bookingService.getOffenderPropertyContainers(bookingId);
     }
 
