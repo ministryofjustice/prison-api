@@ -2,11 +2,6 @@ package net.syscon.elite.service;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
-import net.syscon.elite.core.HasWriteScope;
-import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.BookingActivity;
 import net.syscon.elite.api.model.CourtCase;
@@ -28,6 +23,11 @@ import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
+import net.syscon.elite.core.HasWriteScope;
+import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
@@ -553,7 +553,6 @@ public class BookingService {
         return results;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
         return sentenceRepository.getOffenceHistory(offenderNo);
     }

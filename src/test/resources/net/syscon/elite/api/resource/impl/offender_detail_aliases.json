@@ -1,0 +1,134 @@
+{
+  "bookingId": -9,
+  "bookingNo": "A00119",
+  "offenderNo": "A1234AI",
+  "firstName": "CHESTER",
+  "middleName": "JAMES",
+  "lastName": "THOMPSON",
+  "agencyId": "LEI",
+  "assignedLivingUnitId": -7,
+  "activeFlag": true,
+  "religion": "Lutheran",
+  "alertsCodes": [
+    "C",
+    "X"
+  ],
+  "activeAlertCount": 2,
+  "inactiveAlertCount": 0,
+  "alerts": [
+    {
+      "alertId": 1,
+      "alertType": "C",
+      "alertTypeDescription": "Child Communication Measures",
+      "alertCode": "C1",
+      "alertCodeDescription": "L1 Restriction No contact with any child",
+      "comment": "Alert Text 9",
+      "expired": false,
+      "active": true
+    },
+    {
+      "alertId": 2,
+      "alertType": "X",
+      "alertTypeDescription": "Security",
+      "alertCode": "XTACT",
+      "alertCodeDescription": "XTACT",
+      "comment": "Alert XTACT 9",
+      "expired": false,
+      "active": true
+    }
+  ],
+  "assignedLivingUnit": {
+    "agencyId": "LEI",
+    "locationId": -7,
+    "description": "A-1-5",
+    "agencyName": "Leeds"
+  },
+  "facialImageId": -9,
+  "dateOfBirth": "1970-03-01",
+  "age": 50,
+  "physicalAttributes": {
+    "gender": "Male",
+    "raceCode": "M2",
+    "ethnicity": "Mixed: White and Black African",
+    "heightFeet": 5,
+    "heightInches": 10,
+    "heightMetres": 1.78,
+    "heightCentimetres": 178,
+    "weightPounds": 185,
+    "weightKilograms": 84,
+    "sexCode": "M"
+  },
+  "physicalCharacteristics": [],
+  "profileInformation": [
+    {
+      "type": "LIST_REC",
+      "question": "Listener - Recognised?",
+      "resultValue": "No"
+    },
+    {
+      "type": "RELF",
+      "question": "Religion",
+      "resultValue": "Lutheran"
+    },
+    {
+      "type": "APPEAR",
+      "question": "Warned not to change appearance?",
+      "resultValue": "Yes"
+    },
+    {
+      "type": "DIET",
+      "question": "Type of diet?",
+      "resultValue": "Medical - Dairy Free"
+    },
+    {
+      "type": "SMOKE",
+      "question": "Is the Offender a smoker?",
+      "resultValue": "Yes"
+    }
+  ],
+  "physicalMarks": [],
+  "assignedOfficerId": -1,
+  "birthCountryCode": "UK",
+  "inOutStatus": "IN",
+  "identifiers": [],
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2018-05-31",
+    "conditionalReleaseDate": "2018-01-31",
+    "nonParoleDate": "2017-12-31",
+    "homeDetentionCurfewActualDate": "2018-01-15",
+    "earlyTermDate": "2017-11-30",
+    "midTermDate": "2017-12-31",
+    "lateTermDate": "2018-01-31",
+    "bookingId": -9,
+    "sentenceStartDate": "2017-09-01",
+    "nonDtoReleaseDate": "2018-01-31",
+    "nonDtoReleaseDateType": "CRD",
+    "confirmedReleaseDate": "2018-01-13",
+    "releaseDate": "2018-01-13"
+  },
+  "offenceHistory": [],
+  "aliases": [
+    {
+      "firstName": "CHESNEY",
+      "lastName": "THOMSON",
+      "age": 40,
+      "dob": "1980-01-02",
+      "gender": "Male",
+      "ethnicity": "Mixed: White and Black African",
+      "createDate": "2015-01-01"
+    },
+    {
+      "firstName": "CHARLEY",
+      "lastName": "THOMPSON",
+      "age": 21,
+      "dob": "1998-11-01",
+      "gender": "Male",
+      "ethnicity": "White: British",
+      "nameType": "Alias Name",
+      "createDate": "2015-02-01"
+    }
+  ],
+  "status": "ACTIVE IN",
+  "legalStatus": "Convicted",
+  "imprisonmentStatus": "SENT"
+}
