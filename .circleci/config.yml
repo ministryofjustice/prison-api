@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  dps: ministryofjustice/dps@1.2.2
+  hmpps: ministryofjustice/hmpps@1.0.0
   owasp: entur/owasp@0.0.6
 
 defaults: &defaults
@@ -55,16 +55,15 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-      - dps/build_docker:
+      - hmpps/build_docker:
           name: build_docker
-          image_name: << pipeline.parameters.image_name >>
           filters:
             branches:
               only:
                 - k8s_deploy
-      - dps/deploy_env:
+      - hmpps/deploy_env:
           name: deploy_dev
-          env: "dev"
+          env: "t2"
           filters:
             branches:
               only:
