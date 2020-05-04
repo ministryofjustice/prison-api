@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-@ApiModel(description = "Represents the data required for a prison to prison move.")
+@ApiModel(description = "Represents the data required for scheduling a prison to prison move.")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

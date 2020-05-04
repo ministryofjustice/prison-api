@@ -1,7 +1,9 @@
 package net.syscon.elite.service;
 
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.PrisonToPrisonMove;
+import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.EscortAgencyType;
@@ -13,6 +15,7 @@ import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderIndividualScheduleRepository;
 import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.service.transformers.AgencyTransformer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -64,7 +67,9 @@ public class PrisonToPrisonMoveSchedulingService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public Object schedule(final Long bookingId, final PrisonToPrisonMove move) {
+    public ScheduledPrisonToPrisonMove schedule(final Long bookingId, final PrisonToPrisonMove move) {
+        log.debug("Scheduling a prison to prison move for booking: {} with details: {}", bookingId, move);
+
         checkIsInFuture(move.getScheduledMoveDateTime());
         checkNotTheSame(move.getFromPrison(), move.getToPrison());
 
@@ -74,14 +79,17 @@ public class PrisonToPrisonMoveSchedulingService {
 
         final var escortAgencyType = getEscortAgencyType(move.getEscortType());
 
-        // TODO - not sure if need to check for booking clash. As far as I can tell C-NOMIS does not stop you!!
-
         final var scheduledMove = scheduleMove(activeBooking, getActive(move.getToPrison()), escortAgencyType, move.getScheduledMoveDateTime());
 
         log.debug("Prison to prison move scheduled with event id: {} for offender: {}, move details: {}",
                 scheduledMove.getId(), activeBooking.getOffender().getNomsId(), move);
 
-        return new Object();
+        return ScheduledPrisonToPrisonMove.builder()
+                .id(scheduledMove.getId())
+                .dateTime(scheduledMove.getEventDateTime())
+                .fromLocation(AgencyTransformer.transform(scheduledMove.getFromLocation()))
+                .toLocation(AgencyTransformer.transform(scheduledMove.getToLocation()))
+                .build();
     }
 
     private void checkIsInFuture(final LocalDateTime datetime) {

@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.PrisonToPrisonMove;
+import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.EscortAgencyType;
@@ -12,8 +13,8 @@ import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderIndividualScheduleRepository;
 import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
+import net.syscon.elite.service.transformers.AgencyTransformer;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import static java.time.Instant.ofEpochMilli;
 import static net.syscon.elite.repository.jpa.model.MovementDirection.OUT;
 import static net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule.EventClass.EXT_MOV;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -123,9 +125,12 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .offenderBooking(ACTIVE_BOOKING)
                 .build());
 
-        // TODO - assert on return model object when defined.
-
-        service.schedule(OFFENDER_BOOKING_ID, move);
+        assertThat(service.schedule(OFFENDER_BOOKING_ID, move)).isEqualTo(ScheduledPrisonToPrisonMove.builder()
+                .id(1L)
+                .dateTime(move.getScheduledMoveDateTime())
+                .fromLocation(AgencyTransformer.transform(FROM_PRISON_AGENCY))
+                .toLocation(AgencyTransformer.transform(TO_PRISON_AGENCY))
+                .build());
 
         verify(scheduleRepository).save(OffenderIndividualSchedule.builder()
                 .eventDate(move.getScheduledMoveDateTime().toLocalDate())
@@ -303,12 +308,6 @@ class PrisonToPrisonMoveSchedulingServiceTest {
         assertThatThrownBy(() -> service.schedule(OFFENDER_BOOKING_ID, move))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Escort type PECS for prison to prison move not found.");
-    }
-
-    @Disabled
-    @Test
-    void schedule_move_errors_when_existing_active_schedule() {
-        // TODO - DT-780
     }
 
     private PrisonToPrisonMoveSchedulingServiceTest givenAnActiveBooking() {
