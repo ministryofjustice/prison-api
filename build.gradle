@@ -156,7 +156,7 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok:1.18.12'
 
-    runtime 'org.hsqldb:hsqldb:2.5.0'
+    runtime 'org.hsqldb:hsqldb:2.4.1' // 2.5.0 of hsqldb not work correctly locally.  Ticket DT-698 in backlog to investigate/fix.
     runtime 'org.flywaydb:flyway-core:6.4.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
