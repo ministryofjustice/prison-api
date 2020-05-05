@@ -4,7 +4,6 @@ import net.syscon.elite.repository.jpa.model.Address;
 import net.syscon.elite.repository.jpa.model.City;
 import net.syscon.elite.repository.jpa.model.Country;
 import net.syscon.elite.repository.jpa.model.County;
-import net.syscon.elite.repository.jpa.model.Person;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
