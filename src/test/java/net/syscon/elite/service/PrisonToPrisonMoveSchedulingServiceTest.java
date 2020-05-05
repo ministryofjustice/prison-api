@@ -104,8 +104,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
         final var move = PrisonToPrisonMove
                 .builder()
-                .fromPrison(FROM_PRISON)
-                .toPrison(TO_PRISON)
+                .fromPrisonLocation(FROM_PRISON)
+                .toPrisonLocation(TO_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
@@ -127,9 +127,9 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
         assertThat(service.schedule(OFFENDER_BOOKING_ID, move)).isEqualTo(ScheduledPrisonToPrisonMove.builder()
                 .id(1L)
-                .dateTime(move.getScheduledMoveDateTime())
-                .fromLocation(AgencyTransformer.transform(FROM_PRISON_AGENCY))
-                .toLocation(AgencyTransformer.transform(TO_PRISON_AGENCY))
+                .scheduledMoveDateTime(move.getScheduledMoveDateTime())
+                .fromPrisonLocation(AgencyTransformer.transform(FROM_PRISON_AGENCY))
+                .toPrisonLocation(AgencyTransformer.transform(TO_PRISON_AGENCY))
                 .build());
 
         verify(scheduleRepository).save(OffenderIndividualSchedule.builder()
@@ -153,8 +153,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
         final var move = PrisonToPrisonMove
                 .builder()
-                .fromPrison(FROM_PRISON)
-                .toPrison(TO_PRISON)
+                .fromPrisonLocation(FROM_PRISON)
+                .toPrisonLocation(TO_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
@@ -170,8 +170,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
         final var move = PrisonToPrisonMove
                 .builder()
-                .fromPrison(FROM_PRISON)
-                .toPrison(TO_PRISON)
+                .fromPrisonLocation(FROM_PRISON)
+                .toPrisonLocation(TO_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
@@ -193,8 +193,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     void schedule_move_errors_when_move_date_not_in_future() {
         final var moveWithInvalidDate = PrisonToPrisonMove
                 .builder()
-                .fromPrison(FROM_PRISON)
-                .toPrison(TO_PRISON)
+                .fromPrisonLocation(FROM_PRISON)
+                .toPrisonLocation(TO_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock))
                 .build();
@@ -207,8 +207,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     void schedule_move_errors_when_from_and_to_are_the_same() {
         final var moveWithInvalidToPrison = PrisonToPrisonMove
                 .builder()
-                .fromPrison(FROM_PRISON)
-                .toPrison(FROM_PRISON)
+                .fromPrisonLocation(FROM_PRISON)
+                .toPrisonLocation(FROM_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
@@ -224,8 +224,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
         final var moveWithInvalidFromPrison = PrisonToPrisonMove
                 .builder()
-                .fromPrison("BAD_" + FROM_PRISON)
-                .toPrison(TO_PRISON)
+                .fromPrisonLocation("BAD_" + FROM_PRISON)
+                .toPrisonLocation(TO_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
@@ -243,8 +243,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
         final var move = PrisonToPrisonMove
                 .builder()
-                .fromPrison(FROM_PRISON)
-                .toPrison(TO_PRISON)
+                .fromPrisonLocation(FROM_PRISON)
+                .toPrisonLocation(TO_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
@@ -262,8 +262,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
         final var move = PrisonToPrisonMove
                 .builder()
-                .fromPrison(FROM_PRISON)
-                .toPrison(TO_PRISON)
+                .fromPrisonLocation(FROM_PRISON)
+                .toPrisonLocation(TO_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
@@ -281,8 +281,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
         final var move = PrisonToPrisonMove
                 .builder()
-                .fromPrison(FROM_PRISON)
-                .toPrison(TO_PRISON)
+                .fromPrisonLocation(FROM_PRISON)
+                .toPrisonLocation(TO_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();
@@ -299,8 +299,8 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
         final var move = PrisonToPrisonMove
                 .builder()
-                .fromPrison(FROM_PRISON)
-                .toPrison(TO_PRISON)
+                .fromPrisonLocation(FROM_PRISON)
+                .toPrisonLocation(TO_PRISON)
                 .escortType(PRISON_ESCORT_CUSTODY_SERVICES)
                 .scheduledMoveDateTime(LocalDateTime.now(clock).plusDays(1))
                 .build();

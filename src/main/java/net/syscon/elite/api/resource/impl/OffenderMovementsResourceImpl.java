@@ -4,11 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.api.model.PrisonToPrisonMove;
+import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.service.CourtHearingsService;
 import net.syscon.elite.service.MovementUpdateService;
+import net.syscon.elite.service.PrisonToPrisonMoveSchedulingService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,10 +30,14 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
 
     private final CourtHearingsService courtHearingsService;
     private final MovementUpdateService movementUpdateService;
+    private final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService;
 
-    public OffenderMovementsResourceImpl(final CourtHearingsService courtHearingsService, final MovementUpdateService movementUpdateService) {
+    public OffenderMovementsResourceImpl(final CourtHearingsService courtHearingsService,
+                                         final MovementUpdateService movementUpdateService,
+                                         final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService) {
         this.courtHearingsService = courtHearingsService;
         this.movementUpdateService = movementUpdateService;
+        this.prisonToPrisonMoveSchedulingService = prisonToPrisonMoveSchedulingService;
     }
 
     @ProxyUser
@@ -60,5 +67,10 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
                 dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
 
         return movementUpdateService.moveToCell(bookingId, internalLocationDescription, reasonCode, dateTime);
+    }
+
+    @Override
+    public ScheduledPrisonToPrisonMove prisonToPrison(final  Long bookingId, final @Valid PrisonToPrisonMove prisonMove) {
+        return prisonToPrisonMoveSchedulingService.schedule(bookingId, prisonMove);
     }
 }

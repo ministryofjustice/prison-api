@@ -1,7 +1,6 @@
 package net.syscon.elite.service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import net.syscon.elite.core.HasWriteScope;
@@ -71,24 +70,24 @@ public class PrisonToPrisonMoveSchedulingService {
         log.debug("Scheduling a prison to prison move for booking: {} with details: {}", bookingId, move);
 
         checkIsInFuture(move.getScheduledMoveDateTime());
-        checkNotTheSame(move.getFromPrison(), move.getToPrison());
+        checkNotTheSame(move.getFromPrisonLocation(), move.getToPrisonLocation());
 
         final var activeBooking = activeOffenderBookingFor(bookingId);
 
-        checkFromLocationMatchesThe(activeBooking, move.getFromPrison());
+        checkFromLocationMatchesThe(activeBooking, move.getFromPrisonLocation());
 
         final var escortAgencyType = getEscortAgencyType(move.getEscortType());
 
-        final var scheduledMove = scheduleMove(activeBooking, getActive(move.getToPrison()), escortAgencyType, move.getScheduledMoveDateTime());
+        final var scheduledMove = scheduleMove(activeBooking, getActive(move.getToPrisonLocation()), escortAgencyType, move.getScheduledMoveDateTime());
 
         log.debug("Prison to prison move scheduled with event id: {} for offender: {}, move details: {}",
                 scheduledMove.getId(), activeBooking.getOffender().getNomsId(), move);
 
         return ScheduledPrisonToPrisonMove.builder()
                 .id(scheduledMove.getId())
-                .dateTime(scheduledMove.getEventDateTime())
-                .fromLocation(AgencyTransformer.transform(scheduledMove.getFromLocation()))
-                .toLocation(AgencyTransformer.transform(scheduledMove.getToLocation()))
+                .scheduledMoveDateTime(scheduledMove.getEventDateTime())
+                .fromPrisonLocation(AgencyTransformer.transform(scheduledMove.getFromLocation()))
+                .toPrisonLocation(AgencyTransformer.transform(scheduledMove.getToLocation()))
                 .build();
     }
 
