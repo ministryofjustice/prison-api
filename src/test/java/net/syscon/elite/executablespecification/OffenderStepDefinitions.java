@@ -5,7 +5,6 @@ import com.google.common.base.Splitter;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.api.model.OffenderAddress;
 import net.syscon.elite.executablespecification.steps.OffenderAdjudicationSteps;
 import net.syscon.elite.executablespecification.steps.OffenderSteps;
 import org.springframework.beans.factory.annotation.Autowired;

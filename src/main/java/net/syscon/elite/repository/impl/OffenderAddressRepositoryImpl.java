@@ -1,6 +1,6 @@
 package net.syscon.elite.repository.impl;
 
-import net.syscon.elite.api.model.OffenderAddress;
+import net.syscon.elite.api.model.AddressDto;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.OffenderAddressRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
@@ -12,14 +12,14 @@ import static java.util.stream.Collectors.toList;
 @Repository
 public class OffenderAddressRepositoryImpl extends RepositoryBase implements OffenderAddressRepository {
 
-    private static final StandardBeanPropertyRowMapper<OffenderAddress> ADDRESS_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(OffenderAddress.class);
+    private static final StandardBeanPropertyRowMapper<AddressDto> ADDRESS_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(AddressDto.class);
 
     private static final StandardBeanPropertyRowMapper<Telephone> PHONE_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Telephone.class);
 
     @Override
-    public List<OffenderAddress> getAddresses(final String offenderNumber) {
+    public List<AddressDto> getAddresses(final String offenderNumber) {
 
         final var initialSql = getQuery("GET_OFFENDER_ADDRESSES");
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, ADDRESS_ROW_MAPPER);

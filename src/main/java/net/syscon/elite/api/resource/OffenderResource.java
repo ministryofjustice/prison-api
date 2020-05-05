@@ -11,7 +11,7 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.api.model.InmateDetail;
 import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.OffenderAddress;
+import net.syscon.elite.api.model.AddressDto;
 import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.model.UpdateCaseNote;
@@ -71,11 +71,11 @@ public interface OffenderResource {
     @GetMapping("/{offenderNo}/addresses")
     @ApiOperation(value = "Return a list of addresses for a given offender, most recent first.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderAddress.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "OK", response = AddressDto.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<OffenderAddress> getAddressesByOffenderNo(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo);
+    List<AddressDto> getAddressesByOffenderNo(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo);
 
     @GetMapping("/{offenderNo}/adjudications")
     @ApiOperation(value = "Return a list of adjudications for a given offender")

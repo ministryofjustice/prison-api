@@ -17,7 +17,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class OffenderAddress {
+public class AddressDto {
 
     @JsonIgnore
     private Long addressId;
