@@ -11,7 +11,7 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-@ApiModel(description = "Represents the data for a scheduled a prison to prison move.")
+@ApiModel(description = "Represents the data for a scheduled prison to prison move.")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,11 +24,11 @@ public class ScheduledPrisonToPrisonMove {
     private Long id;
 
     @ApiModelProperty(value = "The date and start time of the move in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", position = 2, example = "2020-02-28T14:40:00")
-    private LocalDateTime dateTime;
+    private LocalDateTime scheduledMoveDateTime;
 
     @ApiModelProperty(value = "The location of the prison to move from.", position = 3, example = "PVI")
-    private Agency fromLocation;
+    private Agency fromPrisonLocation;
 
     @ApiModelProperty(value = "The location of the prison to move to.", position = 4, example = "LEI")
-    private Agency toLocation;
+    private Agency toPrisonLocation;
 }

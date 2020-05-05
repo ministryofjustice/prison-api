@@ -10,6 +10,8 @@ import net.syscon.elite.api.model.CourtHearings;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.api.model.PrisonToPrisonMove;
+import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,4 +76,15 @@ public interface OffenderMovementsResource {
             @ApiParam(value = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) @RequestParam("reasonCode") String reasonCode,
             @ApiParam(value = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(value = "dateTime", required = false) LocalDateTime dateTime
     );
+
+    @PostMapping("/{bookingId}/prison-to-prison")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "Schedules a future prison to prison move for an offender.", notes = "Schedules a future prison to prison move for an offender.", nickname = "prisonToPrison")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "The scheduled prison move.", response = ScheduledPrisonToPrisonMove.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    ScheduledPrisonToPrisonMove prisonToPrison(@ApiParam(value = "The offender booking to associate the prison to prison move with.", required = true) @PathVariable("bookingId") Long bookingId,
+                                               @ApiParam(value = "The prison to prison move to be scheduled for the offender booking.", required = true) @RequestBody @Valid PrisonToPrisonMove prisonMove);
 }
