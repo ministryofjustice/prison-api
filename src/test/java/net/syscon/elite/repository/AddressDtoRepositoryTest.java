@@ -26,7 +26,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class OffenderAddressRepositoryTest {
+public class AddressDtoRepositoryTest {
 
     @Autowired
     private OffenderAddressRepository repository;

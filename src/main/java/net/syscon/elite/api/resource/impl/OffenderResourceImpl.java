@@ -7,7 +7,7 @@ import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.api.model.InmateDetail;
 import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.OffenderAddress;
+import net.syscon.elite.api.model.AddressDto;
 import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.model.UpdateCaseNote;
@@ -79,7 +79,7 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    public List<OffenderAddress> getAddressesByOffenderNo(@NotNull String offenderNo) {
+    public List<AddressDto> getAddressesByOffenderNo(@NotNull String offenderNo) {
         return addressService.getAddressesByOffenderNo(offenderNo);
     }
 

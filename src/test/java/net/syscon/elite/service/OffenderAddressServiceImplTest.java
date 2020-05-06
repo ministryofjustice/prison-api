@@ -1,6 +1,6 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.OffenderAddress;
+import net.syscon.elite.api.model.AddressDto;
 import net.syscon.elite.repository.OffenderAddressRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,11 +32,11 @@ public class OffenderAddressServiceImplTest {
     public void canRetrieveAddresses() {
 
         String offenderNo = "off-1";
-        OffenderAddress address = OffenderAddress.builder().primary(true).noFixedAddress(true).build();
+        AddressDto address = AddressDto.builder().primary(true).noFixedAddress(true).build();
 
         when(offenderAddressRepository.getAddresses(offenderNo)).thenReturn(List.of(address));
 
-        List<OffenderAddress> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
+        List<AddressDto> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
 
         assertThat(results).containsExactly(address);
     }

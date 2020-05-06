@@ -1,6 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.OffenderAddress;
+import net.syscon.elite.api.model.AddressDto;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OffenderSteps extends CommonSteps {
 
-    private List<OffenderAddress> offenderAddresses;
+    private List<AddressDto> addressDtos;
 
     @Step("Perform offender address search")
     public void findAddresses(final String offenderNumber) {
@@ -29,11 +29,11 @@ public class OffenderSteps extends CommonSteps {
             final var responseEntity = restTemplate.exchange(API_PREFIX + "offenders/{offenderNumber}/addresses",
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
-                    new ParameterizedTypeReference<List<OffenderAddress>>() {
+                    new ParameterizedTypeReference<List<AddressDto>>() {
                     }, offenderNumber);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            offenderAddresses = responseEntity.getBody();
+            addressDtos = responseEntity.getBody();
 
             buildResourceData(responseEntity);
 
@@ -44,7 +44,7 @@ public class OffenderSteps extends CommonSteps {
 
     public void verifyAddressList() {
         final var expected = List.of(
-                OffenderAddress.builder()
+                AddressDto.builder()
                     .primary(true)
                     .noFixedAddress(true)
                     .flat(null)
@@ -62,7 +62,7 @@ public class OffenderSteps extends CommonSteps {
                             .ext("345")
                             .build()))
                     .build(),
-                OffenderAddress.builder()
+                AddressDto.builder()
                         .primary(false)
                         .noFixedAddress(false)
                         .flat("Flat 1")
@@ -80,7 +80,7 @@ public class OffenderSteps extends CommonSteps {
                                 .ext("345")
                                 .build()))
                         .build(),
-                OffenderAddress.builder()
+                AddressDto.builder()
                         .primary(false)
                         .noFixedAddress(false)
                         .flat(null)
@@ -103,7 +103,7 @@ public class OffenderSteps extends CommonSteps {
                                         .type("BUS")
                                         .build()))
                         .build(),
-                OffenderAddress.builder()
+                AddressDto.builder()
                         .primary(false)
                         .noFixedAddress(true)
                         .flat(null)
@@ -119,6 +119,6 @@ public class OffenderSteps extends CommonSteps {
                         .build()
         );
 
-        assertThat(expected).containsExactlyElementsOf(offenderAddresses);
+        assertThat(expected).containsExactlyElementsOf(addressDtos);
     }
 }
