@@ -32,12 +32,13 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Table(name = "ADDRESSES")
 public class Address {
     @Id
+    @Column(name = "ADDRESS_ID", nullable = false)
     private Long addressId;
 
-    @Column(name = "OWNER_ID")
+    @Column(name = "OWNER_ID", nullable = false)
     private Long ownerId;
 
-    @Column(name = "OWNER_CLASS")
+    @Column(name = "OWNER_CLASS", nullable = false)
     private String ownerClass;
 
     private String flat;

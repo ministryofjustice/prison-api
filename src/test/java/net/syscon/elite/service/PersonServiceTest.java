@@ -44,7 +44,7 @@ public class PersonServiceTest {
     private PersonService personService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         personService = new PersonService(personRepository, addressRepository, phoneRepository, internetAddressRepository);
     }
 

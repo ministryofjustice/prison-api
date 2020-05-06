@@ -18,13 +18,13 @@ import javax.persistence.Table;
 @Table(name = "PHONES")
 public class Phone {
     @Id
-    @Column(name = "PHONE_ID")
+    @Column(name = "PHONE_ID", nullable = false)
     private Long phoneId;
 
-    @Column(name = "OWNER_ID")
+    @Column(name = "OWNER_ID", nullable = false)
     private Long ownerId;
 
-    @Column(name = "OWNER_CLASS")
+    @Column(name = "OWNER_CLASS", nullable = false)
     private String ownerClass;
 
     @Column(name = "PHONE_TYPE")
