@@ -45,6 +45,7 @@ public class OffenderSteps extends CommonSteps {
     public void verifyAddressList() {
         final var expected = List.of(
                 AddressDto.builder()
+                    .addressType("HOME")
                     .primary(true)
                     .noFixedAddress(true)
                     .flat(null)
@@ -63,6 +64,7 @@ public class OffenderSteps extends CommonSteps {
                             .build()))
                     .build(),
                 AddressDto.builder()
+                        .addressType("BUS")
                         .primary(false)
                         .noFixedAddress(false)
                         .flat("Flat 1")
@@ -81,6 +83,7 @@ public class OffenderSteps extends CommonSteps {
                                 .build()))
                         .build(),
                 AddressDto.builder()
+                        .addressType("HOME")
                         .primary(false)
                         .noFixedAddress(false)
                         .flat(null)
@@ -104,6 +107,7 @@ public class OffenderSteps extends CommonSteps {
                                         .build()))
                         .build(),
                 AddressDto.builder()
+                        .addressType(null)
                         .primary(false)
                         .noFixedAddress(true)
                         .flat(null)

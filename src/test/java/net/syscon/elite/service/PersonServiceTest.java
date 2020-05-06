@@ -54,6 +54,7 @@ public class PersonServiceTest {
         when(addressRepository.findAllByOwnerClassAndOwnerId("PER", -8L)).thenReturn(List.of(
                 Address.builder()
                         .addressId(-15L)
+                        .addressType("HOME")
                         .ownerClass("PER")
                         .ownerId(-8L)
                         .noFixedAddressFlag("N")
@@ -73,6 +74,7 @@ public class PersonServiceTest {
                         .build(),
                 Address.builder()
                         .addressId(-16L)
+                        .addressType("BUS")
                         .ownerClass("PER")
                         .ownerId(-8L)
                         .noFixedAddressFlag("Y")
@@ -118,6 +120,7 @@ public class PersonServiceTest {
 
         assertThat(results).isEqualTo(List.of(
                 AddressDto.builder()
+                    .addressType("HOME")
                     .noFixedAddress(false)
                     .primary(true)
                     .comment(null)
@@ -143,6 +146,7 @@ public class PersonServiceTest {
                                     .build()))
                 .build(),
                 AddressDto.builder()
+                        .addressType("BUS")
                         .noFixedAddress(true)
                         .primary(false)
                         .comment(null)

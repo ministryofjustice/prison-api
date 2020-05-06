@@ -3,6 +3,7 @@ GET_OFFENDER_ADDRESSES {
 
    SELECT ADDR.OWNER_ID,
           ADDR.ADDRESS_ID,
+          ADDR.ADDRESS_TYPE,
           ADDR.FLAT,
           ADDR.PREMISE,
           ADDR.STREET,
