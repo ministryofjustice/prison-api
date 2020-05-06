@@ -41,6 +41,7 @@ public class PersonService {
 
             return AddressDto.builder()
                     .addressId(address.getAddressId())
+                    .addressType(address.getAddressType())
                     .flat(address.getFlat())
                     .comment(address.getCommentText())
                     .country(country)

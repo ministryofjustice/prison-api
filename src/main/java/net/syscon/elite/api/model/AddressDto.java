@@ -22,6 +22,9 @@ public class AddressDto {
     @JsonIgnore
     private Long addressId;
 
+    @ApiModelProperty("Address Type")
+    private String addressType;
+
     @ApiModelProperty("Flat")
     private String flat;
 
