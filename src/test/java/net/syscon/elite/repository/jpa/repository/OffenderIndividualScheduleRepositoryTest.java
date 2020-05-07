@@ -4,6 +4,7 @@ import net.syscon.elite.repository.jpa.model.EscortAgencyType;
 import net.syscon.elite.repository.jpa.model.EventStatus;
 import net.syscon.elite.repository.jpa.model.MovementDirection;
 import net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule;
+import net.syscon.elite.repository.jpa.model.TransferCancellationReason;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,9 @@ public class OffenderIndividualScheduleRepositoryTest {
     private ReferenceCodeRepository<EscortAgencyType> escortAgencyTypeRepository;
 
     @Autowired
+    private ReferenceCodeRepository<TransferCancellationReason> transferCancellationReasonRepository;
+
+    @Autowired
     private AgencyLocationRepository agencyRepository;
 
     @Autowired
@@ -66,7 +70,9 @@ public class OffenderIndividualScheduleRepositoryTest {
                         .fromLocation(agencyRepository.findById("BXI").orElseThrow())
                         .toLocation(agencyRepository.findById("LEI").orElseThrow())
                         .movementDirection(MovementDirection.OUT)
-                        .offenderBooking(offenderBookingRepository.findById(-1L).orElseThrow()).build());
+                        .offenderBooking(offenderBookingRepository.findById(-1L).orElseThrow())
+                        .cancellationReason(transferCancellationReasonRepository.findById(TransferCancellationReason.pk("ADMI")).orElseThrow())
+                        .build());
 
         entityManager.flush();
 
