@@ -63,7 +63,7 @@ workflows:
                 - k8s_deploy
       - hmpps/deploy_env:
           name: deploy_dev
-          env: "t2"
+          env: "t3"
           filters:
             branches:
               only:
@@ -71,7 +71,39 @@ workflows:
           requires:
             - build_docker
             - build
+      - request-stage-approval:
+          type: approval
+          requires:
+            - deploy_dev
 
+      - hmpps/deploy_env:
+          name: deploy_stage
+          env: "t2"
+          context: prisoner-offender-search-stage
+          requires:
+            - request-stage-approval
+      - request-preprod-approval:
+          type: approval
+          requires:
+            - deploy_stage
+
+      - hmpps/deploy_env:
+          name: deploy_preprod
+          env: "preprod"
+          context: prisoner-offender-search-preprod
+          requires:
+            - request-preprod-approval
+      - request-prod-approval:
+          type: approval
+          requires:
+            - deploy_preprod
+
+      - hmpps/deploy_env:
+          name: deploy_prod
+          env: "prod"
+          context: prisoner-offender-search-prod
+          requires:
+            - request-prod-approval
   scheduled:
     triggers:
       - schedule:
