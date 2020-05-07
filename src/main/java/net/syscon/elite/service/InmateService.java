@@ -4,16 +4,43 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.support.*;
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.Alias;
+import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategorisationUpdateDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
+import net.syscon.elite.api.model.CategoryRejectionDetail;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderCategorise;
+import net.syscon.elite.api.model.OffenderIdentifier;
+import net.syscon.elite.api.model.PersonalCareNeed;
+import net.syscon.elite.api.model.PersonalCareNeeds;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
+import net.syscon.elite.api.model.PhysicalMark;
+import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.ReasonableAdjustments;
+import net.syscon.elite.api.support.AssessmentStatusType;
+import net.syscon.elite.api.support.CategoryInformationType;
+import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.service.support.AssessmentDto;
+import net.syscon.elite.service.support.InmateDto;
+import net.syscon.elite.service.support.InmatesHelper;
+import net.syscon.elite.service.support.Language;
+import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
-import net.syscon.elite.service.support.*;
 import net.syscon.util.ProfileUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,16 +55,26 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
 import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
-import static net.syscon.elite.repository.support.StatusFilter.ALL;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassification;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassificationCode;
 
@@ -178,9 +215,10 @@ public class InmateService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public InmateDetail findInmate(final Long bookingId, final String username) {
+    public InmateDetail findInmate(final Long bookingId, final boolean extraInfo) {
         final var inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
+        inmate.setStatus(format("%s %s", inmate.isActiveFlag() ? "ACTIVE" : "INACTIVE", inmate.getInOutStatus()));
         getFirstPreferredSpokenLanguage(bookingId).ifPresent(inmate::setLanguage);
         inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
         inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
@@ -197,6 +235,18 @@ public class InmateService {
         } catch (Exception e) {
             // TODO: Hack for now to make sure there wasn't a reason this was removed.
         }
+        if (extraInfo) {
+            inmate.setIdentifiers(getOffenderIdentifiers(bookingId, null));
+            inmate.setSentenceDetail(bookingService.getBookingSentenceDetail(bookingId));
+            inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
+            inmate.setOffenceHistory(bookingService.getOffenceHistory(inmate.getOffenderNo()));
+
+            repository.getImprisonmentStatus(bookingId).ifPresent(status -> {
+                inmate.setLegalStatus(status.getLegalStatus());
+                inmate.setImprisonmentStatus(status.getImprisonmentStatus());
+            });
+        }
+
         //TODO: Remove once KW service available - Nomis only!
         final var nomisProfile = ProfileUtil.isNomisProfile(env);
         if (nomisProfile) {
@@ -359,7 +409,7 @@ public class InmateService {
     }
 
     @VerifyBookingAccess
-    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, final String identifierType) {
+    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, @Nullable final String identifierType) {
         return repository.getOffenderIdentifiers(bookingId)
                 .stream()
                     .filter( i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))

@@ -17,6 +17,7 @@ import net.syscon.elite.api.model.OffenderSentenceTerms;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.PrivilegeSummary;
+import net.syscon.elite.api.model.PropertyContainer;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
@@ -37,6 +38,7 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
 import net.syscon.elite.service.transformers.CourtCaseTransformer;
+import net.syscon.elite.service.transformers.PropertyContainerTransformer;
 import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -551,7 +553,6 @@ public class BookingService {
         return results;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
         return sentenceRepository.getOffenceHistory(offenderNo);
     }
@@ -667,6 +668,14 @@ public class BookingService {
         return offenderBookingRepository.findById(bookingId)
                 .map(booking -> activeOnly ? booking.getActiveCourtCases() : booking.getCourtCases())
                 .map(CourtCaseTransformer::transform)
+                .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
+    }
+
+    @VerifyBookingAccess
+    public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
+        return offenderBookingRepository.findById(bookingId)
+                .map(OffenderBooking::getActivePropertyContainers)
+                .map(PropertyContainerTransformer::transform)
                 .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 

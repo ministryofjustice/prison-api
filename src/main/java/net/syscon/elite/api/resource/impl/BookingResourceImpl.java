@@ -37,6 +37,7 @@ import net.syscon.elite.api.model.PhysicalCharacteristic;
 import net.syscon.elite.api.model.PhysicalMark;
 import net.syscon.elite.api.model.PrivilegeSummary;
 import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.PropertyContainer;
 import net.syscon.elite.api.model.ReasonableAdjustments;
 import net.syscon.elite.api.model.RecallBooking;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -202,20 +203,20 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public InmateDetail getOffenderBooking(final Long bookingId, final boolean basicInfo) {
+    public InmateDetail getOffenderBooking(final Long bookingId, final boolean basicInfo, final boolean extraInfo) {
 
-        return basicInfo ?
+        return basicInfo && !extraInfo ?
                 inmateService.getBasicInmateDetail(bookingId)
-                : inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername());
+                : inmateService.findInmate(bookingId, extraInfo);
     }
 
     @Override
-    public InmateDetail getOffenderBookingByOffenderNo(final String offenderNo, final boolean fullInfo) {
+    public InmateDetail getOffenderBookingByOffenderNo(final String offenderNo, final boolean fullInfo, final boolean extraInfo) {
 
         final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
 
-        return fullInfo ?
-                inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername()) :
+        return fullInfo || extraInfo ?
+                inmateService.findInmate(bookingId, extraInfo) :
                 inmateService.getBasicInmateDetail(bookingId);
     }
 
@@ -440,6 +441,11 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public Account getBalances(final Long bookingId) {
         return financeService.getBalances(bookingId);
+    }
+
+    @Override
+    public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
+        return bookingService.getOffenderPropertyContainers(bookingId);
     }
 
     @Override

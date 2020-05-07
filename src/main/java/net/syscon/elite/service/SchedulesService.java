@@ -1,12 +1,12 @@
 package net.syscon.elite.service;
 
 import com.google.common.collect.Lists;
-import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.ScheduleRepository;
+import net.syscon.elite.repository.jpa.repository.ScheduledActivityRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.support.InmateDto;
@@ -44,19 +44,26 @@ public class SchedulesService {
     private final ReferenceDomainService referenceDomainService;
     private final ScheduleRepository scheduleRepository;
     private final AuthenticationFacade authenticationFacade;
+    private final ScheduledActivityRepository scheduledActivityRepository;
+
     private int maxBatchSize;
 
 
-    public SchedulesService(final LocationService locationService, final InmateService inmateService,
-                                final BookingService bookingService, final ReferenceDomainService referenceDomainService,
-                                final ScheduleRepository scheduleRepository, final AuthenticationFacade authenticationFacade,
-                                @Value("${batch.max.size:1000}") final int maxBatchSize) {
+    public SchedulesService(final LocationService locationService,
+                            final InmateService inmateService,
+                            final BookingService bookingService,
+                            final ReferenceDomainService referenceDomainService,
+                            final ScheduleRepository scheduleRepository,
+                            final AuthenticationFacade authenticationFacade,
+                            final ScheduledActivityRepository scheduledActivityRepository,
+                            @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.locationService = locationService;
         this.inmateService = inmateService;
         this.bookingService = bookingService;
         this.referenceDomainService = referenceDomainService;
         this.scheduleRepository = scheduleRepository;
         this.authenticationFacade = authenticationFacade;
+        this.scheduledActivityRepository = scheduledActivityRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -211,7 +218,7 @@ public class SchedulesService {
         return filterByTimeSlot(timeSlot, appointments);
     }
 
-    public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
+    public List<PrisonerSchedule> getActivitiesByEventIds(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
         Validate.notBlank(agencyId, "An agency id is required.");
         if (offenderNos.isEmpty()) {
             return Collections.emptyList();
@@ -227,6 +234,31 @@ public class SchedulesService {
             return filtered;
         }
         return filtered.stream().filter(ps -> !ps.getExcluded()).collect(Collectors.toList());
+    }
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public List<PrisonerSchedule> getActivitiesByEventIds(final String agencyId, final List<Long> eventIds) {
+        return Lists.partition(eventIds, maxBatchSize)
+                .stream()
+                .flatMap(ids -> scheduledActivityRepository.findAllByEventIdIn(ids).stream())
+                .map(activity -> PrisonerSchedule
+                        .builder()
+                        .bookingId(activity.getBookingId())
+                        .offenderNo(activity.getOffenderNo())
+                        .eventOutcome(activity.getEventOutcome())
+                        .startTime(activity.getStartTime())
+                        .endTime(activity.getEndTime())
+                        .cellLocation(activity.getCellLocation())
+                        .eventId(activity.getEventId())
+                        .event(activity.getEvent())
+                        .eventDescription(activity.getEventDescription())
+                        .eventStatus(activity.getEvent())
+                        .eventLocation(activity.getEventLocation())
+                        .eventDescription(activity.getEventDescription())
+                        .firstName(activity.getFirstName())
+                        .lastName(activity.getLastName())
+                        .comment(activity.getDescription())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public List<PrisonerSchedule> getCourtEvents(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot) {

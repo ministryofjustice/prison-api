@@ -1,0 +1,10 @@
+[
+  {
+    "sealMark": "TEST10",
+    "location" : {
+      "locationId": -10,
+      "description": "A-1-8"
+    },
+    "containerType": "Bulk"
+  }
+]

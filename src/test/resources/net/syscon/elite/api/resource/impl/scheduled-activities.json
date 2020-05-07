@@ -1,0 +1,17 @@
+[
+  {
+    "eventId": -1,
+    "bookingId": -3,
+    "offenderNo": "A1234AC",
+    "firstName": "NORMAN",
+    "lastName": "BATES",
+    "cellLocation": "LEI-A-1-1",
+    "event": "EDUC",
+    "eventDescription": "Education",
+    "eventLocation": "Carpentry Workshop",
+    "eventStatus": "EDUC",
+    "comment": "Woodwork",
+    "startTime": "2017-09-11T13:00:00",
+    "endTime": "2017-09-11T15:00:00"
+  }
+]

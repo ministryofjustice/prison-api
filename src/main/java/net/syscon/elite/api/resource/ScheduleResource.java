@@ -1,6 +1,10 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.model.ScheduledAppointmentDto;
@@ -8,7 +12,12 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
@@ -22,7 +31,6 @@ public interface ScheduleResource {
     @PostMapping("/{agencyId}/events-by-location-ids")
     @ApiOperation(value = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", notes = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", nickname = "getGroupEvents")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerSchedule.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -36,7 +44,6 @@ public interface ScheduleResource {
     @GetMapping("/{agencyId}/locations/{locationId}/usage/{usage}")
     @ApiOperation(value = "Get all Prisoner events for given date at location.", notes = "Get all Prisoner events for given date at location.", nickname = "getLocationEvents")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerSchedule.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -52,7 +59,6 @@ public interface ScheduleResource {
 
     @ApiOperation(value = "Get all Prisoner activities for given date at location.", notes = "Get all Prisoner activities for given date at location.", nickname = "getActivitiesAtLocation")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerSchedule.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -68,7 +74,6 @@ public interface ScheduleResource {
 
     @ApiOperation(value = "Get all Prisoner activities for given date.", notes = "Get all Prisoner activities for given date", nickname = "getActivitiesAtAllLocations")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerSchedule.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -83,7 +88,6 @@ public interface ScheduleResource {
 
     @ApiOperation(value = "Get all Prisoner activities for given date.", notes = "Get all Prisoner activities for given date range", nickname = "getActivitiesAtAllLocationsByDateRange")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerSchedule.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -96,19 +100,23 @@ public interface ScheduleResource {
                                                                   @ApiParam(value = "Include suspended scheduled activity - defaults to false") @RequestParam(value = "includeSuspended", required = false) boolean includeSuspended);
 
     @PostMapping("/{agencyId}/activities")
-    @ApiOperation(value = "", nickname = "getActivities")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
-    List<PrisonerSchedule> getActivities(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
+    @ApiOperation(value = "", nickname = "getActivitiesForBookings")
+    List<PrisonerSchedule> getActivitiesForBookings(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                          @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
                                          @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
                                          @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(value = "timeSlot", required = false) TimeSlot timeSlot,
                                          @ApiParam(value = "Whether to include 'excluded' activities in the results", defaultValue = "false") @RequestParam(value = "includeExcluded", required = false, defaultValue = "false") boolean includeExcluded);
 
+
+    @PostMapping("/{agencyId}/activities-by-event-ids")
+    @ApiOperation(value = "", nickname = "getActivitiesByEventIds")
+    List<PrisonerSchedule> getActivitiesByEventIds(
+            @ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
+            @ApiParam(value = "Event ids(mandatory)", required = true) @RequestBody @NotEmpty List<Long> body
+    );
+
     @PostMapping("/{agencyId}/appointments")
     @ApiOperation(value = "", nickname = "getAppointmentsForOffenders")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
     List<PrisonerSchedule> getAppointmentsForOffenders(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                            @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
                                            @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
@@ -117,8 +125,6 @@ public interface ScheduleResource {
 
     @GetMapping("/{agencyId}/appointments")
     @ApiOperation(value = "", nickname = "getAppointments")
-    @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "", response = ScheduledAppointmentDto.class, responseContainer = "List")})
     List<ScheduledAppointmentDto> getAppointments(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                                   @ApiParam(value = "Date the appointments are scheduled", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date") LocalDate date,
                                                   @ApiParam(value = "Location id") @RequestParam(value = "locationId", required = false) Long locationId,
@@ -126,8 +132,6 @@ public interface ScheduleResource {
 
     @PostMapping("/{agencyId}/courtEvents")
     @ApiOperation(value = "", nickname = "getCourtEvents")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
     List<PrisonerSchedule> getCourtEvents(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                           @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
                                           @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,
@@ -135,16 +139,11 @@ public interface ScheduleResource {
 
     @PostMapping("/{agencyId}/externalTransfers")
     @ApiOperation(value = "", nickname = "getExternalTransfers")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
     List<PrisonerSchedule> getExternalTransfers(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                                 @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
                                                 @ApiParam(value = "Date of scheduled transfer") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") LocalDate date);
 
     @PostMapping("/{agencyId}/visits")
-    @ApiOperation(value = "", nickname = "getVisits")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = PrisonerSchedule.class, responseContainer = "List")})
     List<PrisonerSchedule> getVisits(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
                                      @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
                                      @ApiParam(value = "Date of whereabouts list, default today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "date", required = false) LocalDate date,

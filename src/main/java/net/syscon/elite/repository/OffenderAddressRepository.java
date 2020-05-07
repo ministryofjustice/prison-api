@@ -1,10 +1,10 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.OffenderAddress;
+import net.syscon.elite.api.model.AddressDto;
 
 import java.util.List;
 
 public interface OffenderAddressRepository {
 
-    List<OffenderAddress> getAddresses(String offenderNumber);
+    List<AddressDto> getAddresses(String offenderNumber);
 }

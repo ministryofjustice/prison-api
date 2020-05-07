@@ -105,6 +105,40 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void getFullOffenderInformation() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                OFFENDER_NUMBER);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_detail.json");
+    }
+
+    @Test
+    public void getFullOffenderInformation_WithAliases() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "A1234AI");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_detail_aliases.json");
+    }
+
+    @Test
     public void testGetIncidents() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
 

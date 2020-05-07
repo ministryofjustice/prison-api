@@ -20,7 +20,7 @@ public class MovementSummary {
     @ApiModelProperty(required = true, value = "Offender number (NOMS ID)", example = "G3878UK")
     private String offenderNo;
 
-    @ApiModelProperty(required = true, value = "Timestamp when the external movement record was created", example = "2019-12-01T13:34:00.000Z")
+    @ApiModelProperty(required = true, value = "Timestamp when the external movement record was created in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime createDateTime;
 
     @ApiModelProperty(required = true, value = "The internal event ID", example = "1223232")
@@ -62,7 +62,7 @@ public class MovementSummary {
     @ApiModelProperty(value = "The escort text", example = "Secure van")
     private String escortText;
 
-    @ApiModelProperty(required = true, value = "CRT (court), ADM (admission), REL(release) or TRN(transfer)", example = "ADM")
+    @ApiModelProperty(required = true, value = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = "ADM,CRT,REL,TAP,TRN")
     private String movementType;
 
     @ApiModelProperty(required = true, value = "Description of the movement type", example = "Admission")
@@ -71,7 +71,7 @@ public class MovementSummary {
     @ApiModelProperty(required = true, value = "IN or OUT", example = "IN")
     private String directionCode;
 
-    @ApiModelProperty(required = true, value = "Movement date and time", example = "2019-12-01T13:34:00.000Z")
+    @ApiModelProperty(required = true, value = "Movement date and time in Europe/London local time format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime movementTime;
 
     @ApiModelProperty(required = true, value = "Description of movement reason", example = "Convicted at court")

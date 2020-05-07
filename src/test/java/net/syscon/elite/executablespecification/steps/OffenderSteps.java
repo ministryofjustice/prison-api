@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.OffenderAddress;
+import net.syscon.elite.api.model.AddressDto;
+import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -8,9 +9,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.time.LocalDate;
 
-import static com.google.common.base.Strings.emptyToNull;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OffenderSteps extends CommonSteps {
 
-    private List<OffenderAddress> offenderAddresses;
+    private List<AddressDto> addressDtos;
 
     @Step("Perform offender address search")
     public void findAddresses(final String offenderNumber) {
@@ -29,11 +29,11 @@ public class OffenderSteps extends CommonSteps {
             final var responseEntity = restTemplate.exchange(API_PREFIX + "offenders/{offenderNumber}/addresses",
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
-                    new ParameterizedTypeReference<List<OffenderAddress>>() {
+                    new ParameterizedTypeReference<List<AddressDto>>() {
                     }, offenderNumber);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            offenderAddresses = responseEntity.getBody();
+            addressDtos = responseEntity.getBody();
 
             buildResourceData(responseEntity);
 
@@ -42,22 +42,87 @@ public class OffenderSteps extends CommonSteps {
         }
     }
 
-    public void verifyAddressList(final List<OffenderAddress> expected) {
+    public void verifyAddressList() {
+        final var expected = List.of(
+                AddressDto.builder()
+                    .addressType("HOME")
+                    .primary(true)
+                    .noFixedAddress(true)
+                    .flat(null)
+                    .premise(null)
+                    .street(null)
+                    .town(null)
+                    .postalCode(null)
+                    .county(null)
+                    .country("England")
+                    .comment(null)
+                    .startDate(LocalDate.of(2017, 3, 1))
+                    .phones(List.of(Telephone.builder()
+                            .number("0114 2345345")
+                            .type("HOME")
+                            .ext("345")
+                            .build()))
+                    .build(),
+                AddressDto.builder()
+                        .addressType("BUS")
+                        .primary(false)
+                        .noFixedAddress(false)
+                        .flat("Flat 1")
+                        .premise("Brook Hamlets")
+                        .street("Mayfield Drive")
+                        .town("Sheffield")
+                        .postalCode("B5")
+                        .county("South Yorkshire")
+                        .country("England")
+                        .comment(null)
+                        .startDate(LocalDate.of(2015, 10, 1))
+                        .phones(List.of(Telephone.builder()
+                                .number("0114 2345345")
+                                .type("HOME")
+                                .ext("345")
+                                .build()))
+                        .build(),
+                AddressDto.builder()
+                        .addressType("HOME")
+                        .primary(false)
+                        .noFixedAddress(false)
+                        .flat(null)
+                        .premise("9")
+                        .street("Abbydale Road")
+                        .town("Sheffield")
+                        .postalCode(null)
+                        .county("South Yorkshire")
+                        .country("England")
+                        .comment("A Comment")
+                        .startDate(LocalDate.of(2014, 7, 1))
+                        .phones(List.of(
+                                Telephone.builder()
+                                        .number("0114 2345345")
+                                        .type("HOME")
+                                        .ext("345")
+                                        .build(),
+                                Telephone.builder()
+                                        .number("0114 2345346")
+                                        .type("BUS")
+                                        .build()))
+                        .build(),
+                AddressDto.builder()
+                        .addressType(null)
+                        .primary(false)
+                        .noFixedAddress(true)
+                        .flat(null)
+                        .premise(null)
+                        .street(null)
+                        .town(null)
+                        .postalCode(null)
+                        .county(null)
+                        .country("England")
+                        .comment(null)
+                        .startDate(LocalDate.of(2014, 7, 1))
+                        .phones(List.of())
+                        .build()
+        );
 
-        final var emptyToNullExpected = expected.stream()
-                .map(oa -> OffenderAddress.builder().
-                        primary(oa.getPrimary()).
-                        noFixedAddress(oa.getNoFixedAddress()).
-                        flat(emptyToNull(oa.getFlat())).
-                        premise(emptyToNull(oa.getPremise())).
-                        street(emptyToNull(oa.getStreet())).
-                        town(emptyToNull(oa.getTown())).
-                        postalCode(emptyToNull(oa.getPostalCode())).
-                        county(emptyToNull(oa.getCounty())).
-                        country(emptyToNull(oa.getCountry())).
-                        comment(emptyToNull(oa.getComment())).build())
-                .collect(toList());
-
-        assertThat(emptyToNullExpected).containsExactlyElementsOf(offenderAddresses);
+        assertThat(expected).containsExactlyElementsOf(addressDtos);
     }
 }

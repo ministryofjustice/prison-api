@@ -14,7 +14,9 @@ import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
 import net.syscon.elite.repository.jpa.model.MilitaryRank;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
+import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import net.syscon.elite.repository.jpa.model.PropertyContainer;
 import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
@@ -260,7 +262,7 @@ public class OffenderBookingRepositoryTest {
                 .courtLocation(agencyLocationRepository.findById("COURT1").orElseThrow())
                 .directionCode("OUT")
                 .eventDate(eventDate)
-                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
+                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED).orElseThrow())
                 .nextEventRequestFlag("X")
                 .offenderBooking(courtCase.getOffenderBooking())
                 .offenderCourtCase(courtCase)
@@ -289,6 +291,33 @@ public class OffenderBookingRepositoryTest {
         entityManager.flush();
         final var result = repository.findById(-1L).orElseThrow();
         assertThat(result.getAssignedLivingUnit().getLocationId()).isEqualTo(-4L);
+    }
+
+    @Test
+    void getOffenderPropertyContainers() {
+        assertThat(repository.findById(-1L).orElseThrow().getPropertyContainers()).flatExtracting(
+                OffenderPropertyContainer::getContainerId,
+                OffenderPropertyContainer::getSealMark,
+                OffenderPropertyContainer::getInternalLocation,
+                OffenderPropertyContainer::getActiveFlag,
+                OffenderPropertyContainer::getContainerType)
+                .containsExactly(
+                        -1L,
+                        "TEST10",
+                        AgencyInternalLocation.builder()
+                            .locationId(-10L)
+                            .activeFlag(ActiveFlag.Y)
+                            .locationType("CELL")
+                            .agencyId("LEI")
+                            .description("LEI-A-1-8")
+                            .parentLocationId(-2L)
+                            .currentOccupancy(0)
+                            .operationalCapacity(1)
+                            .userDescription(null)
+                            .locationCode("8")
+                            .build(),
+                        "Y",
+                        new PropertyContainer("BULK", "Bulk"));
     }
 }
 
