@@ -16,6 +16,7 @@ import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
 import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import net.syscon.elite.repository.jpa.model.PropertyContainer;
 import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
@@ -298,10 +299,11 @@ public class OffenderBookingRepositoryTest {
                 OffenderPropertyContainer::getContainerId,
                 OffenderPropertyContainer::getSealMark,
                 OffenderPropertyContainer::getInternalLocation,
-                OffenderPropertyContainer::getActiveFlag)
+                OffenderPropertyContainer::getActiveFlag,
+                OffenderPropertyContainer::getContainerType)
                 .containsExactly(
                         -1L,
-                        -10L,
+                        "TEST10",
                         AgencyInternalLocation.builder()
                             .locationId(-10L)
                             .activeFlag(ActiveFlag.Y)
@@ -314,7 +316,8 @@ public class OffenderBookingRepositoryTest {
                             .userDescription(null)
                             .locationCode("8")
                             .build(),
-                        "Y");
+                        "Y",
+                        new PropertyContainer("BULK", "Bulk"));
     }
 }
 
