@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import static javax.persistence.EnumType.STRING;
 import static net.syscon.elite.repository.jpa.model.EscortAgencyType.ESCORT_CODE;
 import static net.syscon.elite.repository.jpa.model.EventStatus.EVENT_STS;
+import static net.syscon.elite.repository.jpa.model.TransferCancellationReason.TRANSFER_CANCELLATION_REASON;
 import static org.hibernate.annotations.NotFoundAction.EXCEPTION;
 
 @Data
@@ -99,6 +100,14 @@ public class OffenderIndividualSchedule extends AuditableEntity {
     @Enumerated(STRING)
     @Column(name = "DIRECTION_CODE")
     private MovementDirection movementDirection;
+
+    @ManyToOne
+    @NotFound(action = EXCEPTION)
+    @JoinColumnsOrFormulas(value = {
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + TRANSFER_CANCELLATION_REASON + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(column = @JoinColumn(name = "OUTCOME_REASON_CODE", referencedColumnName = "code"))
+    })
+    private TransferCancellationReason cancellationReason;
 
     public LocalDateTime getEventDateTime() {
         return eventDate.atTime(startTime.toLocalTime());
