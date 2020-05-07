@@ -79,7 +79,7 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_stage
           env: "t2"
-          context: prisoner-offender-search-stage
+          context: elite2-api-t2
           requires:
             - request-stage-approval
       - request-preprod-approval:
@@ -90,7 +90,7 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_preprod
           env: "preprod"
-          context: prisoner-offender-search-preprod
+          context: elite2-api-preprod
           requires:
             - request-preprod-approval
       - request-prod-approval:
@@ -101,7 +101,7 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_prod
           env: "prod"
-          context: prisoner-offender-search-prod
+          context: elite2-api-prod
           requires:
             - request-prod-approval
   scheduled:
