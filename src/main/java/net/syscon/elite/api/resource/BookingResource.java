@@ -45,6 +45,7 @@ import net.syscon.elite.api.model.PropertyContainer;
 import net.syscon.elite.api.model.ReasonableAdjustments;
 import net.syscon.elite.api.model.RecallBooking;
 import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SecondaryLanguage;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.UpdateAttendanceBatch;
@@ -743,4 +744,13 @@ public interface BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<CourtCase> getCourtCases(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
                                   @ApiParam(value = "Only return active court cases") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") final boolean activeOnly);
+
+    @GetMapping("/{bookingId}/secondary-languages")
+    @ApiOperation(value="Get secondary languages", notes="Get secondary languages", nickname="getSecondaryLanguages")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+
+    List<SecondaryLanguage> getSecondaryLanguages(@ApiParam(value = "bookingId", required = true) @PathVariable("bookingId") Long bookingId);
 }

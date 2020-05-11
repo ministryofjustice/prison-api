@@ -372,4 +372,13 @@ public class BookingResourceTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(response, 200, "offender_main_offences.json");
     }
+
+    @Test
+    public void getSecondaryLanguages() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/secondary-languages", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -3L);
+
+        assertThatJsonFileAndStatus(response, 200, "secondary_languages.json");
+    }
 }

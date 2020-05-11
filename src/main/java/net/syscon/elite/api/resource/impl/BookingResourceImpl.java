@@ -41,6 +41,7 @@ import net.syscon.elite.api.model.PropertyContainer;
 import net.syscon.elite.api.model.ReasonableAdjustments;
 import net.syscon.elite.api.model.RecallBooking;
 import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SecondaryLanguage;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.UpdateAttendanceBatch;
@@ -681,5 +682,10 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public List<CourtCase> getCourtCases(final Long bookingId, final boolean activeOnly) {
         return bookingService.getOffenderCourtCases(bookingId, activeOnly);
+    }
+
+    @Override
+    public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
+        return inmateService.getSecondaryLanguages(bookingId);
     }
 }
