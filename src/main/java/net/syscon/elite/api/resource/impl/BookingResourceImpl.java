@@ -685,7 +685,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<SecondaryLanguage> getSecondaryLanguages(Long bookingId) {
+    public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
         return inmateService.getSecondaryLanguages(bookingId);
     }
 }
