@@ -1,13 +1,32 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Alias;
+import net.syscon.elite.api.model.AssignedLivingUnit;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategorisationUpdateDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
+import net.syscon.elite.api.model.CategoryRejectionDetail;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.api.model.ImprisonmentStatus;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderCategorise;
+import net.syscon.elite.api.model.OffenderIdentifier;
+import net.syscon.elite.api.model.PersonalCareNeed;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
+import net.syscon.elite.api.model.PhysicalMark;
+import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
+import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.ReasonableAdjustment;
 import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
-import net.syscon.elite.service.support.Language;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,8 +85,6 @@ public interface InmateRepository {
     Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId);
 
     List<ProfileInformation> getProfileInformation(long bookingId);
-
-    List<Language> getLanguages(long bookingId);
 
     List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId);
 

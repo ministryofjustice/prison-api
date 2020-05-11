@@ -1230,22 +1230,6 @@ public class InmateRepositoryTest {
                 , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, parse("1970-01-01")));
     }
 
-    @Test
-    public void testGetLanguages() {
-        assertThat(repository.getLanguages(-1))
-                .containsExactly(
-                        Language.builder().type("PREF_SPEAK").code("POL").description("Polish").build());
-
-        assertThat(repository.getLanguages(-3))
-                .containsExactlyInAnyOrder(
-                        Language.builder().type("PREF_SPEAK").code("TUR").description("Turkish").build(),
-                        Language.builder().type("PREF_SPEAK").code("ENG").description("English").build(),
-                        Language.builder().type("SEC").code("ENG").description("English").build(),
-                        Language.builder().type("SEC").code("KUR").description("Kurdish").build(),
-                        Language.builder().type("SEC").code("SPA").description("Spanish; Castilian").build(),
-                        Language.builder().type("PREF_WRITE").code("TUR").description("Turkish").build()
-                );
-    }
 
     @Test
     public void findPhysicalAttributes() {
