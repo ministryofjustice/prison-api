@@ -61,4 +61,5 @@ spec:
             initialDelaySeconds: 60
             timeoutSeconds: 30
             failureThreshold: 15
+      dnsPolicy: Default
 {{ include "deployment.envs" . | nindent 10 }}
