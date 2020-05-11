@@ -14,9 +14,11 @@ import java.util.stream.Collectors;
 public class PropertyContainerTransformer {
 
     public static PropertyContainer transform(final OffenderPropertyContainer propertyContainer) {
+        final var containerType = propertyContainer.getContainerType() != null ? propertyContainer.getContainerType().getDescription() : null;
         return PropertyContainer.builder()
                 .location(LocationTransformer.fromAgencyInternalLocation(propertyContainer.getInternalLocation()))
                 .sealMark(propertyContainer.getSealMark())
+                .containerType(containerType)
                 .build();
     }
 

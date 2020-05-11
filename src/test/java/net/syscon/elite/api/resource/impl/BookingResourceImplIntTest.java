@@ -19,6 +19,7 @@ import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
+import net.syscon.elite.repository.jpa.model.PropertyContainer;
 import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import org.junit.Test;
@@ -372,7 +373,8 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                 .userDescription(null)
                                 .locationCode("8")
                                 .build())
-                        .sealMark(10L)
+                        .sealMark("TEST10")
+                        .containerType(new PropertyContainer("BULK", "Bulk"))
                         .build()))
             .build()));
 

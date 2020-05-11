@@ -22,6 +22,9 @@ public class PropertyContainer {
     @ApiModelProperty(value = "The location id of the property container")
     private Location location;
 
-    @ApiModelProperty(value = "The case sequence number for the offender", example = "1")
-    private Long sealMark;
+    @ApiModelProperty(value = "The case sequence number for the offender", example = "MDI10")
+    private String sealMark;
+
+    @ApiModelProperty(value = "The type of container", example = "Valuables")
+    private String containerType;
 }
