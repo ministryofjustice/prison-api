@@ -38,6 +38,7 @@ spec:
                   values:
                   - {{ template "app.name" . }}
               topologyKey: kubernetes.io/hostname
+      dnsPolicy: Default
       containers:
         - name: {{ template "app.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" 
@@ -61,5 +62,4 @@ spec:
             initialDelaySeconds: 60
             timeoutSeconds: 30
             failureThreshold: 15
-      dnsPolicy: Default
 {{ include "deployment.envs" . | nindent 10 }}
