@@ -1,21 +1,16 @@
 .circleci
 .gradle
 .idea
-gradle*
 history
-lib
 node_modules
 Restlet Tests
 scripts
 .codacy*
 .gitignore
-build.gradle
-docker*
 *.iml
 README*
 syscon*
 yarn*
-settings*
 elite2-api/history
 elite2-api/src
 elite2-api/target
