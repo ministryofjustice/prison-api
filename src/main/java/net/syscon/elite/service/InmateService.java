@@ -24,6 +24,7 @@ import net.syscon.elite.api.model.PhysicalCharacteristic;
 import net.syscon.elite.api.model.PhysicalMark;
 import net.syscon.elite.api.model.ProfileInformation;
 import net.syscon.elite.api.model.ReasonableAdjustments;
+import net.syscon.elite.api.model.SecondaryLanguage;
 import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.CategoryInformationType;
 import net.syscon.elite.api.support.Order;
@@ -32,13 +33,13 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderLanguageRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.InmatesHelper;
-import net.syscon.elite.service.support.Language;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
 import net.syscon.util.ProfileUtil;
@@ -94,6 +95,7 @@ public class InmateService {
     private final int maxBatchSize;
     private final UserRepository userRepository;
     private final KeyWorkerAllocationRepository keyWorkerAllocationRepository;
+    private final OffenderLanguageRepository offenderLanguageRepository;
     private final Environment env;
     private final TelemetryClient telemetryClient;
 
@@ -112,7 +114,8 @@ public class InmateService {
                          final Environment env,
                          final TelemetryClient telemetryClient,
                          @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
-                         @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                         @Value("${batch.max.size:1000}") final int maxBatchSize,
+                         final OffenderLanguageRepository offenderLanguageRepository) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
@@ -127,6 +130,7 @@ public class InmateService {
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
         this.userService = userService;
+        this.offenderLanguageRepository = offenderLanguageRepository;
     }
 
     public Page<OffenderBooking> findAllInmates(final InmateSearchCriteria criteria) {
@@ -256,11 +260,11 @@ public class InmateService {
     }
 
     private Optional<String> getFirstPreferredSpokenLanguage(final Long bookingId) {
-        return repository
-                .getLanguages(bookingId)
+        return offenderLanguageRepository
+                .findByOffenderBookId(bookingId)
                 .stream()
-                .filter(l -> "PREF_SPEAK".equals(l.getType()))
-                .map(Language::getDescription)
+                .filter(l -> "PREF_SPEAK".equals(l.getType()) && l.getReferenceCode() != null)
+                .map(l -> l.getReferenceCode().getDescription())
                 .max(Comparator.naturalOrder());
     }
 
@@ -681,6 +685,24 @@ public class InmateService {
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
 
         return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);
+    }
+
+    @VerifyBookingAccess
+    public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
+        return offenderLanguageRepository
+                .findByOffenderBookId(bookingId)
+                .stream()
+                .filter(lang -> lang.getType().equalsIgnoreCase("SEC"))
+                .map(lang -> SecondaryLanguage
+                        .builder()
+                        .bookingId(lang.getOffenderBookId())
+                        .code(lang.getCode())
+                        .description(lang.getReferenceCode() != null ? lang.getReferenceCode().getDescription() : null)
+                        .canRead(lang.getReadSkill() != null && lang.getReadSkill().equalsIgnoreCase("Y"))
+                        .canWrite(lang.getWriteSkill() != null && lang.getWriteSkill().equalsIgnoreCase("Y"))
+                        .canSpeak(lang.getSpeakSkill() != null && lang.getSpeakSkill().equalsIgnoreCase("Y"))
+                        .build()
+                ).collect(Collectors.toList());
     }
 
     public List<Long> getPersonalOfficerBookings(final String username) {
