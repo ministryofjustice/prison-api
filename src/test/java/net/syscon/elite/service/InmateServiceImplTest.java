@@ -427,6 +427,14 @@ public class InmateServiceImplTest {
                        .build(),
                OffenderLanguage.builder()
                        .offenderBookId(-1l)
+                       .speakSkill("Y")
+                       .readSkill("n")
+                       .writeSkill("Y")
+                       .code("ENG")
+                       .referenceCode(new LanguageReferenceCode("ENG", "English"))
+                       .build(),
+               OffenderLanguage.builder()
+                       .offenderBookId(-1l)
                        .code("LAT")
                        .type("SEC")
                        .referenceCode(new LanguageReferenceCode("LAT", "Latvian"))

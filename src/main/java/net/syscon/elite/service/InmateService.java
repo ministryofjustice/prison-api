@@ -692,15 +692,15 @@ public class InmateService {
         return offenderLanguageRepository
                 .findByOffenderBookId(bookingId)
                 .stream()
-                .filter(lang -> lang.getType().equalsIgnoreCase("SEC"))
+                .filter(lang -> "SEC".equalsIgnoreCase(lang.getType()))
                 .map(lang -> SecondaryLanguage
                         .builder()
                         .bookingId(lang.getOffenderBookId())
                         .code(lang.getCode())
                         .description(lang.getReferenceCode() != null ? lang.getReferenceCode().getDescription() : null)
-                        .canRead(lang.getReadSkill() != null && lang.getReadSkill().equalsIgnoreCase("Y"))
-                        .canWrite(lang.getWriteSkill() != null && lang.getWriteSkill().equalsIgnoreCase("Y"))
-                        .canSpeak(lang.getSpeakSkill() != null && lang.getSpeakSkill().equalsIgnoreCase("Y"))
+                        .canRead("Y".equalsIgnoreCase(lang.getReadSkill()))
+                        .canWrite("Y".equalsIgnoreCase(lang.getWriteSkill()))
+                        .canSpeak("Y".equalsIgnoreCase(lang.getSpeakSkill()))
                         .build()
                 ).collect(Collectors.toList());
     }
