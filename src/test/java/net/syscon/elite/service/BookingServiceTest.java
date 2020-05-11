@@ -9,7 +9,6 @@ import net.syscon.elite.api.model.MilitaryRecord;
 import net.syscon.elite.api.model.MilitaryRecords;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.PrivilegeDetail;
-import net.syscon.elite.api.model.PropertyContainer;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.VisitBalances;
@@ -19,6 +18,7 @@ import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CaseStatus;
+import net.syscon.elite.repository.jpa.model.PropertyContainer;
 import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
 import net.syscon.elite.repository.jpa.model.LegalCaseType;
 import net.syscon.elite.repository.jpa.model.MilitaryBranch;
@@ -506,22 +506,24 @@ public class BookingServiceTest {
 
         final var propertyContainers = bookingService.getOffenderPropertyContainers(-1L);
 
-        assertThat(propertyContainers).containsExactly(PropertyContainer.builder()
-                .sealMark(1L)
+        assertThat(propertyContainers).containsExactly(net.syscon.elite.api.model.PropertyContainer.builder()
+                .sealMark("TEST1")
                 .location(Location.builder()
                         .locationId(10L)
                         .description(null)
                         .build())
+                .containerType("Bulk")
                 .build());
     }
 
     private OffenderPropertyContainer.OffenderPropertyContainerBuilder containerWithDefaults() {
         return OffenderPropertyContainer.builder()
-                .sealMark(1L)
+                .sealMark("TEST1")
                 .internalLocation(AgencyInternalLocation.builder()
                         .activeFlag(ActiveFlag.Y)
                         .locationId(10L)
-                        .build());
+                        .build())
+                .containerType(new PropertyContainer("BULK", "Bulk"));
     }
 
 

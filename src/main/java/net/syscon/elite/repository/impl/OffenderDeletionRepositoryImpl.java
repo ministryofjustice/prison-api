@@ -349,6 +349,7 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
             executeNamedSqlWithIncidentCaseIds("OD_DELETE_INCIDENT_CASE_PARTIES", incidentCaseIds);
             executeNamedSqlWithIncidentCaseIds("OD_DELETE_INCIDENT_CASE_RESPONSES", incidentCaseIds);
             executeNamedSqlWithIncidentCaseIds("OD_DELETE_INCIDENT_CASE_QUESTIONS", incidentCaseIds);
+            executeNamedSqlWithIncidentCaseIds("OD_DELETE_INCIDENT_QUESTIONNAIRE_HTY", incidentCaseIds);
             executeNamedSqlWithIncidentCaseIds("OD_DELETE_INCIDENT_CASE_REQUIREMENTS", incidentCaseIds);
             executeNamedSqlWithIncidentCaseIds("OD_DELETE_INCIDENT_CASES", incidentCaseIds);
         }
