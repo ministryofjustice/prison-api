@@ -60,14 +60,14 @@ workflows:
           filters:
             branches:
               only:
-                - k8s_deploy
+                - master
       - hmpps/deploy_env:
           name: deploy_dev
           env: "t3"
           filters:
             branches:
               only:
-                - k8s_deploy
+                - master
           requires:
             - build_docker
             - build
