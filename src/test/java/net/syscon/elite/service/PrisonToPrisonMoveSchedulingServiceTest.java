@@ -9,6 +9,7 @@ import net.syscon.elite.repository.jpa.model.EventStatus;
 import net.syscon.elite.repository.jpa.model.Offender;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule;
+import net.syscon.elite.repository.jpa.model.TransferCancellationReason;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderIndividualScheduleRepository;
@@ -65,6 +66,28 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                     .build())
             .build();
 
+    private static final OffenderBooking INACTIVE_BOOKING = OffenderBooking
+            .builder()
+            .activeFlag("N")
+            .bookingId(OFFENDER_BOOKING_ID)
+            .location(AgencyLocation.builder()
+                    .activeFlag(ActiveFlag.Y)
+                    .id(FROM_PRISON)
+                    .description("Prison A description")
+                    .build())
+            .offender(Offender.builder()
+                    .nomsId("NOMS_ID")
+                    .build())
+            .build();
+
+    private static final OffenderIndividualSchedule SCHEDULED_MOVE = OffenderIndividualSchedule
+            .builder()
+            .id(2L)
+            .eventStatus(new EventStatus("SCH", "Schedule approved."))
+            .build();
+
+    private static final String ADMINISTRATIVE_CANCELLATION_REASON = "ADMI";
+
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
 
@@ -76,6 +99,9 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
     @Mock
     private ReferenceCodeRepository<EventStatus> eventStatusRepository;
+
+    @Mock
+    private ReferenceCodeRepository<TransferCancellationReason> transferCancellationReasonRepository;
 
     @Mock
     private OffenderIndividualScheduleRepository scheduleRepository;
@@ -92,6 +118,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 agencyLocationRepository,
                 escortAgencyTypeRepository,
                 eventStatusRepository,
+                transferCancellationReasonRepository,
                 scheduleRepository);
     }
 
@@ -310,6 +337,53 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .hasMessage("Escort type PECS for prison to prison move not found.");
     }
 
+    @Test
+    void cancel_scheduled_move_errors_when_scheduled_move_not_found() {
+        assertThatThrownBy(() -> service.cancel(OFFENDER_BOOKING_ID, 2L, ADMINISTRATIVE_CANCELLATION_REASON))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Scheduled prison move with id %s not found.", 2L);
+    }
+
+    @Test
+    void cancel_scheduled_move_errors_when_booking_not_associated_with_move() {
+        givenScheduledMoveWith(ACTIVE_BOOKING)
+                .andTransferCancellationReasonFound();
+
+        assertThatThrownBy(() -> service.cancel(99L, SCHEDULED_MOVE.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Booking with id %s not associated with the supplied move id %d.", 99L, SCHEDULED_MOVE.getId());
+    }
+
+    @Test
+    void cancel_scheduled_move_errors_when_booking_with_move_not_active() {
+        givenScheduledMoveWith(INACTIVE_BOOKING)
+                .andTransferCancellationReasonFound();
+
+        assertThatThrownBy(() -> service.cancel(INACTIVE_BOOKING.getBookingId(), SCHEDULED_MOVE.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Booking with id %s is not active.", INACTIVE_BOOKING.getBookingId());
+    }
+
+    @Test
+    void cancel_scheduled_move_errors_when_move_not_in_scheduled_state() {
+        givenAnUnscheduledMove()
+                .andEventStatusScheduledFound()
+                .andTransferCancellationReasonFound();
+
+        assertThatThrownBy(() -> service.cancel(ACTIVE_BOOKING.getBookingId(), SCHEDULED_MOVE.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Move with id %s is not in a scheduled state.", SCHEDULED_MOVE.getId());
+    }
+
+    @Test
+    void cancel_scheduled_move_errors_when_cancellation_reason_not_known() {
+        givenScheduledMoveWith(ACTIVE_BOOKING);
+
+        assertThatThrownBy(() -> service.cancel(ACTIVE_BOOKING.getBookingId(), SCHEDULED_MOVE.getId(), "XXXXXX"))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Cancellation reason XXXXXX not found.");
+    }
+
     private PrisonToPrisonMoveSchedulingServiceTest givenAnActiveBooking() {
         when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(ACTIVE_BOOKING));
 
@@ -360,5 +434,26 @@ class PrisonToPrisonMoveSchedulingServiceTest {
         when(eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED)).thenReturn(Optional.of(new EventStatus("SCH", "Scheduled")));
 
         return this;
+    }
+
+    private PrisonToPrisonMoveSchedulingServiceTest givenAnUnscheduledMove() {
+        SCHEDULED_MOVE.setEventStatus(new EventStatus("COMP", "Completed"));
+        SCHEDULED_MOVE.setOffenderBooking(ACTIVE_BOOKING);
+
+        when(scheduleRepository.findById(SCHEDULED_MOVE.getId())).thenReturn(Optional.of(SCHEDULED_MOVE));
+
+        return this;
+    }
+
+    private PrisonToPrisonMoveSchedulingServiceTest givenScheduledMoveWith(final OffenderBooking booking) {
+        SCHEDULED_MOVE.setOffenderBooking(booking);
+
+        when(scheduleRepository.findById(SCHEDULED_MOVE.getId())).thenReturn(Optional.of(SCHEDULED_MOVE));
+
+        return this;
+    }
+
+    private void andTransferCancellationReasonFound() {
+        when(transferCancellationReasonRepository.findById(any())).thenReturn(Optional.of(new TransferCancellationReason(ADMINISTRATIVE_CANCELLATION_REASON, "cancellation reason")));
     }
 }
