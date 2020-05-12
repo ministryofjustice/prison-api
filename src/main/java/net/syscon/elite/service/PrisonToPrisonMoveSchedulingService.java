@@ -154,8 +154,6 @@ public class PrisonToPrisonMoveSchedulingService {
     @VerifyBookingAccess
     @HasWriteScope
     public void cancel(final Long bookingId, final Long scheduledMoveId, final String transferCancellationReasonCode) {
-        // TODO add logging here
-
         final var scheduledMove = scheduleRepository.findById(scheduledMoveId).orElseThrow(() -> EntityNotFoundException.withMessage("Scheduled prison move with id %s not found.", scheduledMoveId));
 
         final var transferCancellationReason = transferCancellationReasonRepository.findById(TransferCancellationReason.pk(transferCancellationReasonCode)).orElseThrow(() -> EntityNotFoundException.withMessage("Cancellation reason %s not found.", transferCancellationReasonCode));
@@ -165,9 +163,13 @@ public class PrisonToPrisonMoveSchedulingService {
         checkArgument(scheduledMove.getOffenderBooking().isActive(), "Booking with id %s is not active.", bookingId);
 
         checkCanCancel(scheduledMove);
-        // TODO all ok to cancel (persist) the event
 
-        // TODO add logging here
+        scheduledMove.setEventStatus(eventStatusRepository.findById(EventStatus.CANCELLED).orElseThrow(() -> EntityNotFoundException.withMessage("Event status cancelled not found.")));
+        scheduledMove.setCancellationReason(transferCancellationReason);
+
+        scheduleRepository.save(scheduledMove);
+
+        log.debug("Cancelled scheduled prison to prison move with id {} for offender {}", scheduledMove.getId(), scheduledMove.getOffenderBooking().getOffender().getNomsId());
     }
 
     private void checkCanCancel(OffenderIndividualSchedule scheduledMove) {
