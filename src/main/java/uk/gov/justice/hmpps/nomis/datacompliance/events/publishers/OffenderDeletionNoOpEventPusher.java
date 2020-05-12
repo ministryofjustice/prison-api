@@ -9,7 +9,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDelet
 
 @Slf4j
 @Component
-@ConditionalOnExpression("!{'aws', 'localstack'}.contains('${data.compliance.outbound.referral.sqs.provider}')")
+@ConditionalOnExpression("!{'aws', 'localstack'}.contains('${data.compliance.response.sqs.provider}')")
 public class OffenderDeletionNoOpEventPusher implements OffenderDeletionEventPusher {
 
     public OffenderDeletionNoOpEventPusher() {

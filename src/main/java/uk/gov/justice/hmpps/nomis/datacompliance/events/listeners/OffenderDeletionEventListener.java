@@ -18,7 +18,7 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 @Slf4j
 @Service
-@ConditionalOnExpression("{'aws', 'localstack'}.contains('${data.compliance.inbound.deletion.sqs.provider}')")
+@ConditionalOnExpression("{'aws', 'localstack'}.contains('${data.compliance.request.sqs.provider}')")
 public class OffenderDeletionEventListener {
 
     private static final String EXPECTED_EVENT_TYPE = "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED";
@@ -35,7 +35,7 @@ public class OffenderDeletionEventListener {
         this.objectMapper = objectMapper;
     }
 
-    @JmsListener(destination = "${data.compliance.inbound.deletion.sqs.queue.name}")
+    @JmsListener(destination = "${data.compliance.request.sqs.queue.name}")
     public void handleOffenderDeletionEvent(final Message<String> message) {
 
         log.debug("Handling incoming offender deletion request: {}", message);
