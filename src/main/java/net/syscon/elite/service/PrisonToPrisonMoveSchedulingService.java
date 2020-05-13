@@ -9,6 +9,7 @@ import net.syscon.elite.repository.jpa.model.EscortAgencyType;
 import net.syscon.elite.repository.jpa.model.EventStatus;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule;
+import net.syscon.elite.repository.jpa.model.TransferCancellationReason;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderIndividualScheduleRepository;
@@ -47,6 +48,8 @@ public class PrisonToPrisonMoveSchedulingService {
 
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
 
+    private final ReferenceCodeRepository<TransferCancellationReason> transferCancellationReasonRepository;
+
     private final OffenderIndividualScheduleRepository scheduleRepository;
 
     public PrisonToPrisonMoveSchedulingService(final Clock clock,
@@ -54,6 +57,7 @@ public class PrisonToPrisonMoveSchedulingService {
                                                final AgencyLocationRepository agencyLocationRepository,
                                                final ReferenceCodeRepository<EscortAgencyType> escortAgencyTypeRepository,
                                                final ReferenceCodeRepository<EventStatus> eventStatusRepository,
+                                               final ReferenceCodeRepository<TransferCancellationReason> transferCancellationReasonRepository,
                                                final OffenderIndividualScheduleRepository scheduleRepository) {
         this.clock = clock;
         this.offenderBookingRepository = offenderBookingRepository;
@@ -61,6 +65,7 @@ public class PrisonToPrisonMoveSchedulingService {
         this.escortAgencyTypeRepository = escortAgencyTypeRepository;
         this.eventStatusRepository = eventStatusRepository;
         this.scheduleRepository = scheduleRepository;
+        this.transferCancellationReasonRepository = transferCancellationReasonRepository;
     }
 
     @Transactional
@@ -143,5 +148,35 @@ public class PrisonToPrisonMoveSchedulingService {
                 .movementDirection(OUT)
                 .offenderBooking(booking)
                 .build());
+    }
+
+    @Transactional
+    @VerifyBookingAccess
+    @HasWriteScope
+    public void cancel(final Long bookingId, final Long scheduledMoveId, final String transferCancellationReasonCode) {
+        final var scheduledMove = scheduleRepository.findById(scheduledMoveId).orElseThrow(() -> EntityNotFoundException.withMessage("Scheduled prison move with id %s not found.", scheduledMoveId));
+
+        final var transferCancellationReason = transferCancellationReasonRepository.findById(TransferCancellationReason.pk(transferCancellationReasonCode)).orElseThrow(() -> EntityNotFoundException.withMessage("Cancellation reason %s not found.", transferCancellationReasonCode));
+
+        checkAssociated(bookingId, scheduledMove);
+
+        checkArgument(scheduledMove.getOffenderBooking().isActive(), "Booking with id %s is not active.", bookingId);
+
+        checkCanCancel(scheduledMove);
+
+        scheduledMove.setEventStatus(eventStatusRepository.findById(EventStatus.CANCELLED).orElseThrow(() -> EntityNotFoundException.withMessage("Event status cancelled not found.")));
+        scheduledMove.setCancellationReason(transferCancellationReason);
+
+        scheduleRepository.save(scheduledMove);
+
+        log.debug("Cancelled scheduled prison to prison move with id {} for offender {}", scheduledMove.getId(), scheduledMove.getOffenderBooking().getOffender().getNomsId());
+    }
+
+    private void checkCanCancel(OffenderIndividualSchedule scheduledMove) {
+        checkArgument(scheduledMove.getEventStatus().equals(eventStatusRepository.findById(SCHEDULED_APPROVED).orElseThrow()), "Move with id %s is not in a scheduled state.", scheduledMove.getId());
+    }
+
+    private void checkAssociated(Long bookingId, OffenderIndividualSchedule scheduledMove) {
+        checkArgument(scheduledMove.getOffenderBooking().getBookingId().equals(bookingId), "Booking with id %s not associated with the supplied move id %s.", bookingId, scheduledMove.getId());
     }
 }

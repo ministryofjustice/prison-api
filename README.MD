@@ -169,20 +169,20 @@ To do this, simply run:
 TMPDIR=/private$TMPDIR docker-compose -f docker-compose-data-compliance.yml up
 ```
 
-#### To publish to the inbound deletion queue:
+#### To publish to the data compliance request queue:
 (Warning, if configured, this will prompt Elite2 to delete the Offender provided)
 ```bash
 
 aws --endpoint-url=http://localhost:4576 sqs send-message \
-    --queue-url http://localstack:4576/queue/inbound_deletion_queue \
+    --queue-url http://localstack:4576/queue/data_compliance_request_queue \
     --message-body '{"offenderIdDisplay":"A1234AA"}' \
     --message-attributes "eventType={StringValue=DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED,DataType=String}"
 ```
 
-#### To read off the outbound referral queue: 
+#### To read off the data compliance response queue: 
 ```bash
 aws --endpoint-url=http://localhost:4576 sqs receive-message \
-    --queue-url http://localhost:4576/queue/outbound_referral_queue
+    --queue-url http://localhost:4576/queue/data_compliance_response_queue
 ```
 
 ### Project related links ###
