@@ -18,6 +18,22 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
 public class BookingResourceTest extends ResourceTest {
+
+    @Test
+    public void testGetBooking() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                -2);
+        assertThatJsonFileAndStatus(response, 200, "booking_offender_-1.json");
+    }
+
     @Test
     public void testThatUpdateAttendanceIsLockedDown_WhenPayRoleIsMissing() {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
