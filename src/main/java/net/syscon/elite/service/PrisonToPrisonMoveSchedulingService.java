@@ -34,7 +34,7 @@ import static net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule.E
 @Slf4j
 public class PrisonToPrisonMoveSchedulingService {
 
-    private static final String TRANSFER = "TRN";
+    private static final String PRISON_TRANSFER = "TRN";
 
     private static final String NORMAL_TRANSFER = "NOTR";
 
@@ -103,7 +103,7 @@ public class PrisonToPrisonMoveSchedulingService {
     private OffenderBooking activeOffenderBookingFor(final Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
 
-        checkArgument(offenderBooking.isActive(), "Offender booking for prison to prison move with id %s is not active.", bookingId);
+        checkIsActive(offenderBooking);
 
         return offenderBooking;
     }
@@ -139,7 +139,7 @@ public class PrisonToPrisonMoveSchedulingService {
                 .eventDate(moveDateTime.toLocalDate())
                 .startTime(moveDateTime)
                 .eventClass(EXT_MOV)
-                .eventType(TRANSFER)
+                .eventType(PRISON_TRANSFER)
                 .eventSubType(NORMAL_TRANSFER)
                 .eventStatus(eventStatusRepository.findById(SCHEDULED_APPROVED).orElseThrow())
                 .escortAgencyType(escortAgencyType)
@@ -154,29 +154,34 @@ public class PrisonToPrisonMoveSchedulingService {
     @VerifyBookingAccess
     @HasWriteScope
     public void cancel(final Long bookingId, final Long scheduledMoveId, final String transferCancellationReasonCode) {
-        final var scheduledMove = scheduleRepository.findById(scheduledMoveId).orElseThrow(() -> EntityNotFoundException.withMessage("Scheduled prison move with id %s not found.", scheduledMoveId));
+        final var move = scheduleRepository.findById(scheduledMoveId).orElseThrow(() -> EntityNotFoundException.withMessage("Scheduled prison move with id %s not found.", scheduledMoveId));
 
-        final var transferCancellationReason = transferCancellationReasonRepository.findById(TransferCancellationReason.pk(transferCancellationReasonCode)).orElseThrow(() -> EntityNotFoundException.withMessage("Cancellation reason %s not found.", transferCancellationReasonCode));
+        checkIsPrison(move);
+        checkIsAssociated(bookingId, move);
+        checkIsActive(move.getOffenderBooking());
+        checkCanCancel(move);
 
-        checkAssociated(bookingId, scheduledMove);
+        move.setEventStatus(eventStatusRepository.findById(EventStatus.CANCELLED).orElseThrow(() -> EntityNotFoundException.withMessage("Event status cancelled not found.")));
+        move.setCancellationReason(transferCancellationReasonRepository.findById(TransferCancellationReason.pk(transferCancellationReasonCode)).orElseThrow(() -> EntityNotFoundException.withMessage("Cancellation reason %s not found.", transferCancellationReasonCode)));
 
-        checkArgument(scheduledMove.getOffenderBooking().isActive(), "Booking with id %s is not active.", bookingId);
+        scheduleRepository.save(move);
 
-        checkCanCancel(scheduledMove);
-
-        scheduledMove.setEventStatus(eventStatusRepository.findById(EventStatus.CANCELLED).orElseThrow(() -> EntityNotFoundException.withMessage("Event status cancelled not found.")));
-        scheduledMove.setCancellationReason(transferCancellationReason);
-
-        scheduleRepository.save(scheduledMove);
-
-        log.debug("Cancelled scheduled prison to prison move with id {} for offender {}", scheduledMove.getId(), scheduledMove.getOffenderBooking().getOffender().getNomsId());
+        log.debug("Cancelled scheduled prison to prison move with id {} for offender {}", move.getId(), move.getOffenderBooking().getOffender().getNomsId());
     }
 
-    private void checkCanCancel(OffenderIndividualSchedule scheduledMove) {
+    private void checkIsActive(final OffenderBooking booking) {
+        checkArgument(booking.isActive(), "Offender booking for prison to prison move with id %s is not active.", booking.getBookingId());
+    }
+
+    private void checkIsPrison(final OffenderIndividualSchedule scheduledMove) {
+        checkArgument(PRISON_TRANSFER.equals(scheduledMove.getEventType()), "Scheduled move with id %s not a prison move.", scheduledMove.getId());
+    }
+
+    private void checkCanCancel(final OffenderIndividualSchedule scheduledMove) {
         checkArgument(scheduledMove.getEventStatus().equals(eventStatusRepository.findById(SCHEDULED_APPROVED).orElseThrow()), "Move with id %s is not in a scheduled state.", scheduledMove.getId());
     }
 
-    private void checkAssociated(Long bookingId, OffenderIndividualSchedule scheduledMove) {
+    private void checkIsAssociated(final Long bookingId, final OffenderIndividualSchedule scheduledMove) {
         checkArgument(scheduledMove.getOffenderBooking().getBookingId().equals(bookingId), "Booking with id %s not associated with the supplied move id %s.", bookingId, scheduledMove.getId());
     }
 }

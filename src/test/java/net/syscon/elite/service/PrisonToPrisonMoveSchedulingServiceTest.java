@@ -84,12 +84,23 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
     private static final EventStatus CANCELLED = new EventStatus("CANC", "Cancelled.");
 
-    private final OffenderIndividualSchedule scheduledMove = OffenderIndividualSchedule
+    private static final String APPOINTMENT = "APP";
+
+    private static final OffenderIndividualSchedule SCHEDULED_APPOINTMENT = OffenderIndividualSchedule
             .builder()
-            .id(2L)
+            .id(3L)
+            .eventType(APPOINTMENT)
             .eventStatus(SCHEDULED)
             .build();
 
+    private static final String PRISON_TRANSFER = "TRN";
+
+    private final OffenderIndividualSchedule scheduledPrisonMove = OffenderIndividualSchedule
+            .builder()
+            .id(2L)
+            .eventType(PRISON_TRANSFER)
+            .eventStatus(SCHEDULED)
+            .build();
 
     private static final String ADMINISTRATIVE_CANCELLATION_REASON = "ADMI";
 
@@ -351,14 +362,23 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .andEventStatusCancelFound()
                 .andTransferCancellationReasonFound();
 
-        assertThat(scheduledMove.getEventStatus()).isNotEqualTo(CANCELLED);
-        assertThat(scheduledMove.getCancellationReason()).isNotEqualTo(CANCELLATION_REASON);
+        assertThat(scheduledPrisonMove.getEventStatus()).isNotEqualTo(CANCELLED);
+        assertThat(scheduledPrisonMove.getCancellationReason()).isNotEqualTo(CANCELLATION_REASON);
 
-        service.cancel(ACTIVE_BOOKING.getBookingId(), scheduledMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON);
+        service.cancel(ACTIVE_BOOKING.getBookingId(), scheduledPrisonMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON);
 
-        verify(scheduleRepository).save(scheduledMove);
-        assertThat(scheduledMove.getEventStatus()).isEqualTo(CANCELLED);
-        assertThat(scheduledMove.getCancellationReason()).isEqualTo(CANCELLATION_REASON);
+        verify(scheduleRepository).save(scheduledPrisonMove);
+        assertThat(scheduledPrisonMove.getEventStatus()).isEqualTo(CANCELLED);
+        assertThat(scheduledPrisonMove.getCancellationReason()).isEqualTo(CANCELLATION_REASON);
+    }
+
+    @Test
+    void cancel_scheduled_move_errors_when_scheduled_move_is_not_a_prison_transfer() {
+        given(SCHEDULED_APPOINTMENT);
+
+        assertThatThrownBy(() -> service.cancel(OFFENDER_BOOKING_ID, SCHEDULED_APPOINTMENT.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Scheduled move with id %s not a prison move.", SCHEDULED_APPOINTMENT.getId());
     }
 
     @Test
@@ -370,40 +390,39 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
     @Test
     void cancel_scheduled_move_errors_when_booking_not_associated_with_move() {
-        givenScheduledMoveWith(ACTIVE_BOOKING)
-                .andTransferCancellationReasonFound();
+        givenScheduledMoveWith(ACTIVE_BOOKING);
 
-        assertThatThrownBy(() -> service.cancel(99L, scheduledMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
+        assertThatThrownBy(() -> service.cancel(99L, scheduledPrisonMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Booking with id %s not associated with the supplied move id %d.", 99L, scheduledMove.getId());
+                .hasMessage("Booking with id %s not associated with the supplied move id %d.", 99L, scheduledPrisonMove.getId());
     }
 
     @Test
     void cancel_scheduled_move_errors_when_booking_with_move_not_active() {
-        givenScheduledMoveWith(INACTIVE_BOOKING)
-                .andTransferCancellationReasonFound();
+        givenScheduledMoveWith(INACTIVE_BOOKING);
 
-        assertThatThrownBy(() -> service.cancel(INACTIVE_BOOKING.getBookingId(), scheduledMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
+        assertThatThrownBy(() -> service.cancel(INACTIVE_BOOKING.getBookingId(), scheduledPrisonMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Booking with id %s is not active.", INACTIVE_BOOKING.getBookingId());
+                .hasMessage("Offender booking for prison to prison move with id %s is not active.", INACTIVE_BOOKING.getBookingId());
     }
 
     @Test
     void cancel_scheduled_move_errors_when_move_not_in_scheduled_state() {
         givenAnUnscheduledMove()
-                .andEventStatusScheduledFound()
-                .andTransferCancellationReasonFound();
+                .andEventStatusScheduledFound();
 
-        assertThatThrownBy(() -> service.cancel(ACTIVE_BOOKING.getBookingId(), scheduledMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
+        assertThatThrownBy(() -> service.cancel(ACTIVE_BOOKING.getBookingId(), scheduledPrisonMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Move with id %s is not in a scheduled state.", scheduledMove.getId());
+                .hasMessage("Move with id %s is not in a scheduled state.", scheduledPrisonMove.getId());
     }
 
     @Test
     void cancel_scheduled_move_errors_when_cancellation_reason_not_known() {
-        givenScheduledMoveWith(ACTIVE_BOOKING);
+        givenScheduledMoveWith(ACTIVE_BOOKING)
+                .andEventStatusCancelFound()
+                .andEventStatusScheduledFound();
 
-        assertThatThrownBy(() -> service.cancel(ACTIVE_BOOKING.getBookingId(), scheduledMove.getId(), "XXXXXX"))
+        assertThatThrownBy(() -> service.cancel(ACTIVE_BOOKING.getBookingId(), scheduledPrisonMove.getId(), "XXXXXX"))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Cancellation reason XXXXXX not found.");
     }
@@ -467,18 +486,24 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     }
 
     private PrisonToPrisonMoveSchedulingServiceTest givenAnUnscheduledMove() {
-        scheduledMove.setEventStatus(new EventStatus("COMP", "Completed"));
-        scheduledMove.setOffenderBooking(ACTIVE_BOOKING);
+        scheduledPrisonMove.setEventStatus(new EventStatus("COMP", "Completed"));
+        scheduledPrisonMove.setOffenderBooking(ACTIVE_BOOKING);
 
+        when(scheduleRepository.findById(scheduledPrisonMove.getId())).thenReturn(Optional.of(scheduledPrisonMove));
+
+        return this;
+    }
+
+    private PrisonToPrisonMoveSchedulingServiceTest given(final OffenderIndividualSchedule scheduledMove) {
         when(scheduleRepository.findById(scheduledMove.getId())).thenReturn(Optional.of(scheduledMove));
 
         return this;
     }
 
     private PrisonToPrisonMoveSchedulingServiceTest givenScheduledMoveWith(final OffenderBooking booking) {
-        scheduledMove.setOffenderBooking(booking);
+        scheduledPrisonMove.setOffenderBooking(booking);
 
-        when(scheduleRepository.findById(scheduledMove.getId())).thenReturn(Optional.of(scheduledMove));
+        when(scheduleRepository.findById(scheduledPrisonMove.getId())).thenReturn(Optional.of(scheduledPrisonMove));
 
         return this;
     }
