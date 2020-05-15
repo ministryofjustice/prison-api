@@ -91,7 +91,7 @@ public interface OffenderMovementsResource {
                                                @ApiParam(value = "The prison to prison move to be scheduled for the offender booking.", required = true) @RequestBody @Valid PrisonToPrisonMove prisonMove);
 
     @PutMapping("/{bookingId}/prison-to-prison/{eventId}/cancel")
-    @ApiOperation(value = "Cancels a future prison to prison move for an offender.", notes = "Cancels a future prison to prison move for an offender.", nickname = "cancelPrisonToPrisonMove")
+    @ApiOperation(value = "Cancels a scheduled prison to prison move for an offender.", notes = "Cancels a scheduled prison to prison move for an offender.", nickname = "cancelPrisonToPrisonMove")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
