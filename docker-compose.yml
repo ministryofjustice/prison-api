@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   oauth-server:
-    image: mojdigitalstudio/nomis-oauth2-server:latest
+    image: quay.io/hmpps/nomis-oauth2-server:latest
     container_name: oauth-server
     ports:
       - "9090:8080"
@@ -12,7 +12,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
 
   elite2-api:
-    image: mojdigitalstudio/elite2-api:latest
+    image: quay.io/hmpps/elite2-api:latest
     container_name: elite2-api
     depends_on:
       - oauth-server
