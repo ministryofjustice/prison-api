@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   elite2-api:
-    image: mojdigitalstudio/elite2-api:latest
+    image: quay.io/hmpps/elite2-api:latest
     container_name: elite2-api
     ports:
       - "8080:8080"

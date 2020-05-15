@@ -128,12 +128,12 @@ Build Docker image and run
 ```bash
 ./gradlew clean assemble
 
-docker build -t mojdigitalstudio/elite2-api .
+docker build -t quay.io/hmpps/elite2-api .
 
 docker run -d -p 8888:8080             \
        -h elite2-api                   \
        --name=elite2-api               \
-    mojdigitalstudio/elite2-api:latest
+    quay.io/hmpps/elite2-api:latest
 ```
 
 ### Using Docker compose ###
