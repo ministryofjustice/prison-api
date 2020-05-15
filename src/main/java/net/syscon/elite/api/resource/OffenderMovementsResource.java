@@ -9,11 +9,13 @@ import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.PrisonMoveCancellation;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -87,4 +89,14 @@ public interface OffenderMovementsResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ScheduledPrisonToPrisonMove prisonToPrison(@ApiParam(value = "The offender booking to associate the prison to prison move with.", required = true) @PathVariable("bookingId") Long bookingId,
                                                @ApiParam(value = "The prison to prison move to be scheduled for the offender booking.", required = true) @RequestBody @Valid PrisonToPrisonMove prisonMove);
+
+    @PutMapping("/{bookingId}/prison-to-prison/{eventId}/cancel")
+    @ApiOperation(value = "Cancels a scheduled prison to prison move for an offender.", notes = "Cancels a scheduled prison to prison move for an offender.", nickname = "cancelPrisonToPrisonMove")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    ResponseEntity<Void> cancelPrisonToPrisonMove(@ApiParam(value = "The offender booking to associate the prison to prison move with.", required = true) @PathVariable("bookingId") Long bookingId,
+                                                  @ApiParam(value = "The scheduled event identifier for the prison to prison.", required = true) @PathVariable("eventId") Long eventId,
+                                                  @ApiParam(value = "The cancellation details.", required = true) @RequestBody @Valid PrisonMoveCancellation cancellation);
 }

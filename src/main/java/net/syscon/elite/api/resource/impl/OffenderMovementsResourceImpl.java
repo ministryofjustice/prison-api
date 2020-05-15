@@ -3,15 +3,17 @@ package net.syscon.elite.api.resource.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.PrisonMoveCancellation;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
 import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
-import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.service.CourtHearingsService;
 import net.syscon.elite.service.MovementUpdateService;
 import net.syscon.elite.service.PrisonToPrisonMoveSchedulingService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,8 +71,17 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
         return movementUpdateService.moveToCell(bookingId, internalLocationDescription, reasonCode, dateTime);
     }
 
+    @ProxyUser
     @Override
-    public ScheduledPrisonToPrisonMove prisonToPrison(final  Long bookingId, final @Valid PrisonToPrisonMove prisonMove) {
+    public ScheduledPrisonToPrisonMove prisonToPrison(final Long bookingId, final @Valid PrisonToPrisonMove prisonMove) {
         return prisonToPrisonMoveSchedulingService.schedule(bookingId, prisonMove);
+    }
+
+    @ProxyUser
+    @Override
+    public ResponseEntity<Void> cancelPrisonToPrisonMove(final Long bookingId, final Long eventId, @Valid final PrisonMoveCancellation cancellation) {
+        prisonToPrisonMoveSchedulingService.cancel(bookingId, eventId, cancellation.getReasonCode());
+
+        return ResponseEntity.ok().build();
     }
 }
