@@ -39,7 +39,6 @@ import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
@@ -232,7 +231,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("searchForOffenderBookings")
     public Page<OffenderBooking> searchForOffenderBookings(final OffenderBookingSearchRequest request) {
         var initialSql = getQuery("FIND_ALL_INMATES");
         initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
@@ -368,7 +366,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("bookingPhysicalMarks")
     public List<PhysicalMark> findPhysicalMarks(final long bookingId) {
         final var sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
 
@@ -382,7 +379,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("bookingPersonalCareNeeds")
     public List<PersonalCareNeed> findPersonalCareNeeds(final long bookingId, final Set<String> problemCodes) {
         final var sql = getQuery("FIND_PERSONAL_CARE_NEEDS_BY_BOOKING");
 
@@ -403,7 +399,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("bookingReasonableAdjustments")
     public List<ReasonableAdjustment> findReasonableAdjustments(final long bookingId, final List<String> treatmentCodes) {
         final var sql = getQuery("FIND_REASONABLE_ADJUSTMENTS_BY_BOOKING");
 
@@ -414,7 +409,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("bookingPhysicalCharacteristics")
     public List<PhysicalCharacteristic> findPhysicalCharacteristics(final long bookingId) {
         final var sql = getQuery("FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING");
 
@@ -425,7 +419,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("bookingProfileInformation")
     public List<ProfileInformation> getProfileInformation(final long bookingId) {
         final var sql = getQuery("FIND_PROFILE_INFORMATION_BY_BOOKING");
 
@@ -450,7 +443,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("offenderIdentifiers")
     public List<OffenderIdentifier> getOffenderIdentifiers(final long bookingId) {
         final var sql = getQuery("GET_OFFENDER_IDENTIFIERS_BY_BOOKING");
 
@@ -471,7 +463,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("bookingPhysicalAttributes")
     public Optional<PhysicalAttributes> findPhysicalAttributes(final long bookingId) {
         final var sql = getQuery("FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING");
 
@@ -491,7 +482,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("bookingAssessments")
     public List<AssessmentDto> findAssessments(final List<Long> bookingIds, final String assessmentCode, final Set<String> caseLoadId) {
         var initialSql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
         if (!caseLoadId.isEmpty()) {
@@ -501,7 +491,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("offenderAssessments")
     public List<AssessmentDto> findAssessmentsByOffenderNo(final List<String> offenderNos, final String assessmentCode, final Set<String> caseLoadId, final boolean latestOnly, boolean activeOnly) {
         var initialSql = getQuery("FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO");
         if (!caseLoadId.isEmpty()) {
@@ -670,7 +659,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    @Cacheable("basicInmateDetail")
     public Optional<InmateDetail> getBasicInmateDetail(final Long bookingId) {
         final var builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_BASIC_INMATE_DETAIL"), inmateDetailsMapping);
         final var sql = builder.build();
