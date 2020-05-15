@@ -32,6 +32,7 @@ import static net.syscon.elite.repository.jpa.model.OffenderIndividualSchedule.E
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -373,6 +374,24 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     }
 
     @Test
+    void cancel_move_is_idempotent_if_called_multiple_times() {
+        givenScheduledMoveWith(ACTIVE_BOOKING)
+                .andEventStatusScheduledFound()
+                .andEventStatusCancelFound()
+                .andTransferCancellationReasonFound();
+
+        assertThat(scheduledPrisonMove.getEventStatus()).isNotEqualTo(CANCELLED);
+        assertThat(scheduledPrisonMove.getCancellationReason()).isNotEqualTo(CANCELLATION_REASON);
+
+        service.cancel(ACTIVE_BOOKING.getBookingId(), scheduledPrisonMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON);
+        service.cancel(ACTIVE_BOOKING.getBookingId(), scheduledPrisonMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON);
+
+        verify(scheduleRepository, times(1)).save(scheduledPrisonMove);
+        assertThat(scheduledPrisonMove.getEventStatus()).isEqualTo(CANCELLED);
+        assertThat(scheduledPrisonMove.getCancellationReason()).isEqualTo(CANCELLATION_REASON);
+    }
+
+    @Test
     void cancel_scheduled_move_errors_when_scheduled_move_is_not_a_prison_transfer() {
         given(SCHEDULED_APPOINTMENT);
 
@@ -409,6 +428,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     @Test
     void cancel_scheduled_move_errors_when_move_not_in_scheduled_state() {
         givenAnUnscheduledMove()
+                .andEventStatusCancelFound()
                 .andEventStatusScheduledFound();
 
         assertThatThrownBy(() -> service.cancel(ACTIVE_BOOKING.getBookingId(), scheduledPrisonMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON))

@@ -159,14 +159,25 @@ public class PrisonToPrisonMoveSchedulingService {
         checkIsPrison(move);
         checkIsAssociated(bookingId, move);
         checkIsActive(move.getOffenderBooking());
+
+        final var cancelled = eventStatusRepository.findById(EventStatus.CANCELLED).orElseThrow(() -> EntityNotFoundException.withMessage("Event status cancelled not found."));
+
+        if (is(move, cancelled)) {
+            return;
+        }
+
         checkCanCancel(move);
 
-        move.setEventStatus(eventStatusRepository.findById(EventStatus.CANCELLED).orElseThrow(() -> EntityNotFoundException.withMessage("Event status cancelled not found.")));
+        move.setEventStatus(cancelled);
         move.setCancellationReason(transferCancellationReasonRepository.findById(TransferCancellationReason.pk(transferCancellationReasonCode)).orElseThrow(() -> EntityNotFoundException.withMessage("Cancellation reason %s not found.", transferCancellationReasonCode)));
 
         scheduleRepository.save(move);
 
         log.debug("Cancelled scheduled prison to prison move with id {} for offender {}", move.getId(), move.getOffenderBooking().getOffender().getNomsId());
+    }
+
+    private boolean is(final OffenderIndividualSchedule move, final EventStatus status) {
+        return move.getEventStatus().equals(status);
     }
 
     private void checkIsActive(final OffenderBooking booking) {
