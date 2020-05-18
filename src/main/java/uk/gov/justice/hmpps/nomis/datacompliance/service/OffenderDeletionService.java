@@ -27,7 +27,7 @@ public class OffenderDeletionService {
 
         final var offenderIds = offenderDeletionRepository.deleteOffender(offenderNumber);
 
-        dataComplianceEventPusher.sendDeletionCompleteEvent(new OffenderDeletionComplete(offenderNumber, referralId));
+        dataComplianceEventPusher.send(new OffenderDeletionComplete(offenderNumber, referralId));
 
         telemetryClient.trackEvent("OffenderDelete",
                 Map.of("offenderNo", offenderNumber, "count", String.valueOf(offenderIds.size())), null);

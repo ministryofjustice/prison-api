@@ -70,9 +70,9 @@ public class DataComplianceReferralServiceTest {
 
         service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END).get();
 
-        verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(1L, OFFENDER_NUMBER_1));
-        verify(eventPusher).sendPendingDeletionEvent(expectedPendingDeletionEvent(2L, OFFENDER_NUMBER_2));
-        verify(eventPusher).sendReferralCompleteEvent(expectedReferralCompleteEvent(BATCH_ID));
+        verify(eventPusher).send(expectedPendingDeletionEvent(1L, OFFENDER_NUMBER_1));
+        verify(eventPusher).send(expectedPendingDeletionEvent(2L, OFFENDER_NUMBER_2));
+        verify(eventPusher).send(expectedReferralCompleteEvent(BATCH_ID));
         verifyNoMoreInteractions(eventPusher);
     }
 

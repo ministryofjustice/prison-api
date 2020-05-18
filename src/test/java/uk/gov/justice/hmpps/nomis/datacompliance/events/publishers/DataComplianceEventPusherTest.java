@@ -47,7 +47,7 @@ class DataComplianceEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendPendingDeletionEvent(OffenderPendingDeletion.builder()
+        eventPusher.send(OffenderPendingDeletion.builder()
                 .offenderIdDisplay("offender1")
                 .firstName("Bob")
                 .middleName("Middle")
@@ -81,7 +81,7 @@ class DataComplianceEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendReferralCompleteEvent(new OffenderPendingDeletionReferralComplete(123L));
+        eventPusher.send(new OffenderPendingDeletionReferralComplete(123L));
 
         assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
         assertThat(request.getValue().getMessageBody()).isEqualTo("{\"batchId\":123}");
@@ -97,7 +97,7 @@ class DataComplianceEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendDeletionCompleteEvent(new OffenderDeletionComplete("offender1", 123L));
+        eventPusher.send(new OffenderDeletionComplete("offender1", 123L));
 
         assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
         assertThat(request.getValue().getMessageBody()).isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"referralId\":123}");
@@ -113,7 +113,7 @@ class DataComplianceEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendDataDuplicateResult(DataDuplicateResult.builder()
+        eventPusher.send(DataDuplicateResult.builder()
                 .offenderIdDisplay("offender1")
                 .retentionCheckId(123L)
                 .duplicateOffender("offender2")
@@ -130,7 +130,7 @@ class DataComplianceEventPusherTest {
     void sendEventPropagatesException() {
         when(client.sendMessage(any())).thenThrow(RuntimeException.class);
 
-        assertThatThrownBy(() -> eventPusher.sendPendingDeletionEvent(
+        assertThatThrownBy(() -> eventPusher.send(
                 OffenderPendingDeletion.builder().offenderIdDisplay("offender1").build()))
                 .isInstanceOf(RuntimeException.class);
     }

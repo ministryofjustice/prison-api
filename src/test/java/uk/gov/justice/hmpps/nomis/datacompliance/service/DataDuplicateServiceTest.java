@@ -27,7 +27,7 @@ class DataDuplicateServiceTest {
     void checkForDataDuplicates() {
         dataDuplicateService.checkForDataDuplicates("A1234AA", 123L);
 
-        verify(dataComplianceEventPusher).sendDataDuplicateResult(DataDuplicateResult.builder()
+        verify(dataComplianceEventPusher).send(DataDuplicateResult.builder()
                 .offenderIdDisplay("A1234AA")
                 .retentionCheckId(123L)
                 .build());

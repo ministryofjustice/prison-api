@@ -46,7 +46,7 @@ public class DataComplianceControllerTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(ACCEPTED_202);
 
-        verify(dataComplianceEventPusher, timeout(5000)).sendPendingDeletionEvent(
+        verify(dataComplianceEventPusher, timeout(5000)).send(
                 OffenderPendingDeletion.builder()
                         .offenderIdDisplay("Z0020ZZ")
                         .batchId(BATCH_ID)
@@ -60,7 +60,7 @@ public class DataComplianceControllerTest extends ResourceTest {
                         .build());
 
         verify(dataComplianceEventPusher, timeout(5000))
-                .sendReferralCompleteEvent(new OffenderPendingDeletionReferralComplete(BATCH_ID));
+                .send(new OffenderPendingDeletionReferralComplete(BATCH_ID));
     }
 
     @Test

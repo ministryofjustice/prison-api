@@ -39,10 +39,10 @@ public class DataComplianceReferralService {
         return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to))
 
                 .thenAccept(offenders -> offenders.forEach(offenderNumber ->
-                        dataComplianceEventPusher.sendPendingDeletionEvent(
+                        dataComplianceEventPusher.send(
                                 generateOffenderPendingDeletionEvent(offenderNumber, batchId))))
 
-                .thenRun(() -> dataComplianceEventPusher.sendReferralCompleteEvent(
+                .thenRun(() -> dataComplianceEventPusher.send(
                         new OffenderPendingDeletionReferralComplete(batchId)));
     }
 
