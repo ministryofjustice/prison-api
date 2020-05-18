@@ -3,12 +3,17 @@ package net.syscon.elite.api.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
-import org.hibernate.validator.constraints.Length;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 /**
@@ -25,18 +30,18 @@ import java.time.LocalDate;
 @ToString
 public class RecallBooking {
     @ApiModelProperty(required = true, value = "A unique offender number.")
-    @Length(max = 10)
+    @Size(max = 10)
     @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$")
     @NotBlank
     private String offenderNo;
 
     @ApiModelProperty(required = true, value = "The offender's last name.")
-    @Length(max = 35)
+    @Size(max = 35)
     @NotBlank
     private String lastName;
 
     @ApiModelProperty(required = true, value = "The offender's first name.")
-    @Length(max = 35)
+    @Size(max = 35)
     @NotBlank
     private String firstName;
 
@@ -45,7 +50,7 @@ public class RecallBooking {
     private LocalDate dateOfBirth;
 
     @ApiModelProperty(required = true, value = "A code representing the offender's gender (from the SEX reference domain).")
-    @Length(max = 12)
+    @Size(max = 12)
     @NotNull
     private String gender;
 
@@ -58,7 +63,7 @@ public class RecallBooking {
     private boolean youthOffender;
 
     @ApiModelProperty(value = "Prison ID (Agency ID) of where to place offender", example = "MDI")
-    @Length(max = 3)
+    @Size(max = 3)
     private String prisonId;
 
 }
