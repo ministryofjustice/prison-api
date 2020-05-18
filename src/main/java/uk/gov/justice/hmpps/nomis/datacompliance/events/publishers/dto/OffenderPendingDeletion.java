@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.nomis.datacompliance.events.dto;
+package uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -30,7 +30,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(NON_NULL)
-public class OffenderPendingDeletionEvent {
+public class OffenderPendingDeletion {
 
     @JsonProperty("offenderIdDisplay")
     private String offenderIdDisplay;

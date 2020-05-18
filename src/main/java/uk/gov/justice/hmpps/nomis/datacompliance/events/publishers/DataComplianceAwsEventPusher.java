@@ -10,22 +10,23 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.DataDuplicateResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 
 import java.util.Map;
 
 @Slf4j
 @Component
 @ConditionalOnExpression("{'aws', 'localstack'}.contains('${data.compliance.response.sqs.provider}')")
-public class OffenderDeletionAwsEventPusher implements OffenderDeletionEventPusher {
+public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
 
     private final ObjectMapper objectMapper;
     private final AmazonSQS sqsClient;
     private final String queueUrl;
 
-    public OffenderDeletionAwsEventPusher(
+    public DataComplianceAwsEventPusher(
             @Autowired @Qualifier("dataComplianceResponseSqsClient") final AmazonSQS sqsClient,
             @Value("${data.compliance.response.sqs.queue.url}") final String queueUrl,
             final ObjectMapper objectMapper) {
@@ -38,7 +39,7 @@ public class OffenderDeletionAwsEventPusher implements OffenderDeletionEventPush
     }
 
     @Override
-    public void sendPendingDeletionEvent(final OffenderPendingDeletionEvent event) {
+    public void sendPendingDeletionEvent(final OffenderPendingDeletion event) {
 
         log.trace("Sending referral of offender pending deletion: {}", event.getOffenderIdDisplay());
 
@@ -46,7 +47,7 @@ public class OffenderDeletionAwsEventPusher implements OffenderDeletionEventPush
     }
 
     @Override
-    public void sendReferralCompleteEvent(final OffenderPendingDeletionReferralCompleteEvent event) {
+    public void sendReferralCompleteEvent(final OffenderPendingDeletionReferralComplete event) {
 
         log.trace("Sending process completed event for request: {}", event.getBatchId());
 
@@ -54,23 +55,35 @@ public class OffenderDeletionAwsEventPusher implements OffenderDeletionEventPush
     }
 
     @Override
-    public void sendDeletionCompleteEvent(final OffenderDeletionCompleteEvent event) {
+    public void sendDeletionCompleteEvent(final OffenderDeletionComplete event) {
 
         log.trace("Sending offender deletion complete event: {}", event.getOffenderIdDisplay());
 
         sqsClient.sendMessage(generateDeletionCompleteRequest(event));
     }
 
-    private SendMessageRequest generatePendingDeletionRequest(final OffenderPendingDeletionEvent event) {
+    @Override
+    public void sendDataDuplicateResult(DataDuplicateResult event) {
+
+        log.trace("Sending offender deletion complete event: {}", event.getOffenderIdDisplay());
+
+        sqsClient.sendMessage(generateDataDuplicateResult(event));
+    }
+
+    private SendMessageRequest generatePendingDeletionRequest(final OffenderPendingDeletion event) {
         return generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION", event);
     }
 
-    private SendMessageRequest generateReferralCompleteRequest(final OffenderPendingDeletionReferralCompleteEvent event) {
+    private SendMessageRequest generateReferralCompleteRequest(final OffenderPendingDeletionReferralComplete event) {
         return generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-REFERRAL-COMPLETE", event);
     }
 
-    private SendMessageRequest generateDeletionCompleteRequest(final OffenderDeletionCompleteEvent event) {
+    private SendMessageRequest generateDeletionCompleteRequest(final OffenderDeletionComplete event) {
         return generateRequest("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE", event);
+    }
+
+    private SendMessageRequest generateDataDuplicateResult(final DataDuplicateResult event) {
+        return generateRequest("DATA_COMPLIANCE_DATA-DUPLICATE-RESULT", event);
     }
 
     private SendMessageRequest generateRequest(final String eventType, final Object messageBody) {

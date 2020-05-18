@@ -10,11 +10,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.DataDuplicateResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderWithBookings;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 
 import java.time.LocalDate;
 
@@ -24,18 +25,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class OffenderDeletionEventPusherTest {
+class DataComplianceEventPusherTest {
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Mock
     private AmazonSQS client;
 
-    private OffenderDeletionEventPusher eventPusher;
+    private DataComplianceEventPusher eventPusher;
 
     @BeforeEach
     void setUp() {
-        eventPusher = new OffenderDeletionAwsEventPusher(client, "queue.url", OBJECT_MAPPER);
+        eventPusher = new DataComplianceAwsEventPusher(client, "queue.url", OBJECT_MAPPER);
     }
 
     @Test
@@ -46,7 +47,7 @@ class OffenderDeletionEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendPendingDeletionEvent(OffenderPendingDeletionEvent.builder()
+        eventPusher.sendPendingDeletionEvent(OffenderPendingDeletion.builder()
                 .offenderIdDisplay("offender1")
                 .firstName("Bob")
                 .middleName("Middle")
@@ -80,7 +81,7 @@ class OffenderDeletionEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendReferralCompleteEvent(new OffenderPendingDeletionReferralCompleteEvent(123L));
+        eventPusher.sendReferralCompleteEvent(new OffenderPendingDeletionReferralComplete(123L));
 
         assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
         assertThat(request.getValue().getMessageBody()).isEqualTo("{\"batchId\":123}");
@@ -96,7 +97,7 @@ class OffenderDeletionEventPusherTest {
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.sendDeletionCompleteEvent(new OffenderDeletionCompleteEvent("offender1", 123L));
+        eventPusher.sendDeletionCompleteEvent(new OffenderDeletionComplete("offender1", 123L));
 
         assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
         assertThat(request.getValue().getMessageBody()).isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"referralId\":123}");
@@ -105,11 +106,32 @@ class OffenderDeletionEventPusherTest {
     }
 
     @Test
+    void sendDataDuplicateResult() {
+
+        final var request = ArgumentCaptor.forClass(SendMessageRequest.class);
+
+        when(client.sendMessage(request.capture()))
+                .thenReturn(new SendMessageResult().withMessageId("message1"));
+
+        eventPusher.sendDataDuplicateResult(DataDuplicateResult.builder()
+                .offenderIdDisplay("offender1")
+                .retentionCheckId(123L)
+                .duplicateOffender("offender2")
+                .build());
+
+        assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
+        assertThat(request.getValue().getMessageBody())
+                .isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"retentionCheckId\":123,\"duplicateOffenders\":[\"offender2\"]}");
+        assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
+                .isEqualTo("DATA_COMPLIANCE_DATA-DUPLICATE-RESULT");
+    }
+
+    @Test
     void sendEventPropagatesException() {
         when(client.sendMessage(any())).thenThrow(RuntimeException.class);
 
         assertThatThrownBy(() -> eventPusher.sendPendingDeletionEvent(
-                OffenderPendingDeletionEvent.builder().offenderIdDisplay("offender1").build()))
+                OffenderPendingDeletion.builder().offenderIdDisplay("offender1").build()))
                 .isInstanceOf(RuntimeException.class);
     }
 }

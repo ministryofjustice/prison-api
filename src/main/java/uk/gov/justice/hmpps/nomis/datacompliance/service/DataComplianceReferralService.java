@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.OffenderNumber;
 import org.springframework.stereotype.Service;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderWithBookings;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 
@@ -32,7 +31,7 @@ public class DataComplianceReferralService {
 
     private final OffenderPendingDeletionRepository offenderPendingDeletionRepository;
     private final OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
-    private final OffenderDeletionEventPusher offenderDeletionEventPusher;
+    private final DataComplianceEventPusher dataComplianceEventPusher;
 
     public CompletableFuture<Void> acceptOffendersPendingDeletionRequest(final Long batchId,
                                                                          final LocalDateTime from,
@@ -40,15 +39,15 @@ public class DataComplianceReferralService {
         return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to))
 
                 .thenAccept(offenders -> offenders.forEach(offenderNumber ->
-                        offenderDeletionEventPusher.sendPendingDeletionEvent(
+                        dataComplianceEventPusher.sendPendingDeletionEvent(
                                 generateOffenderPendingDeletionEvent(offenderNumber, batchId))))
 
-                .thenRun(() -> offenderDeletionEventPusher.sendReferralCompleteEvent(
-                        new OffenderPendingDeletionReferralCompleteEvent(batchId)));
+                .thenRun(() -> dataComplianceEventPusher.sendReferralCompleteEvent(
+                        new OffenderPendingDeletionReferralComplete(batchId)));
     }
 
-    private OffenderPendingDeletionEvent generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber,
-                                                                              final Long batchId) {
+    private OffenderPendingDeletion generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber,
+                                                                         final Long batchId) {
 
         final var offenderAliases = offenderAliasPendingDeletionRepository
                 .findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber.getOffenderNumber());
@@ -73,18 +72,18 @@ public class DataComplianceReferralService {
                 .collect(toList());
     }
 
-    private OffenderNumber transform(final OffenderPendingDeletion entity) {
+    private OffenderNumber transform(final uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion entity) {
 
         return OffenderNumber.builder()
                 .offenderNumber(entity.getOffenderNumber())
                 .build();
     }
 
-    private OffenderPendingDeletionEvent transform(final OffenderNumber offenderNumber,
-                                                   final OffenderAliasPendingDeletion rootOffenderAlias,
-                                                   final Collection<OffenderAliasPendingDeletion> offenderAliases,
-                                                   final Long batchId) {
-        return OffenderPendingDeletionEvent.builder()
+    private OffenderPendingDeletion transform(final OffenderNumber offenderNumber,
+                                              final OffenderAliasPendingDeletion rootOffenderAlias,
+                                              final Collection<OffenderAliasPendingDeletion> offenderAliases,
+                                              final Long batchId) {
+        return OffenderPendingDeletion.builder()
                 .offenderIdDisplay(offenderNumber.getOffenderNumber())
                 .batchId(batchId)
                 .firstName(rootOffenderAlias.getFirstName())

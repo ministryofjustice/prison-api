@@ -5,14 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderWithBookings;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 
@@ -43,7 +42,7 @@ public class DataComplianceReferralServiceTest {
     private OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
 
     @Mock
-    private OffenderDeletionEventPusher eventPusher;
+    private DataComplianceEventPusher eventPusher;
 
     private DataComplianceReferralService service;
 
@@ -61,8 +60,8 @@ public class DataComplianceReferralServiceTest {
         when(offenderPendingDeletionRepository
                 .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate()))
                 .thenReturn(List.of(
-                        new OffenderPendingDeletion(OFFENDER_NUMBER_1),
-                        new OffenderPendingDeletion(OFFENDER_NUMBER_2)));
+                        new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_1),
+                        new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_2)));
 
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
                 .thenReturn(List.of(offenderAliasPendingDeletion(1)));
@@ -82,7 +81,7 @@ public class DataComplianceReferralServiceTest {
 
         when(offenderPendingDeletionRepository
                 .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate()))
-                .thenReturn(List.of(new OffenderPendingDeletion(OFFENDER_NUMBER_1)));
+                .thenReturn(List.of(new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_1)));
 
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
                 .thenReturn(emptyList());
@@ -97,7 +96,7 @@ public class DataComplianceReferralServiceTest {
 
         when(offenderPendingDeletionRepository
                 .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate()))
-                .thenReturn(List.of(new OffenderPendingDeletion(OFFENDER_NUMBER_1)));
+                .thenReturn(List.of(new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_1)));
 
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
                 .thenReturn(List.of(OffenderAliasPendingDeletion.builder()
@@ -110,8 +109,8 @@ public class DataComplianceReferralServiceTest {
                 .hasMessageContaining("Cannot find root offender alias for 'A1234AA'");
     }
 
-    private OffenderPendingDeletionEvent expectedPendingDeletionEvent(final long offenderId, final String offenderNumber) {
-        return OffenderPendingDeletionEvent.builder()
+    private OffenderPendingDeletion expectedPendingDeletionEvent(final long offenderId, final String offenderNumber) {
+        return OffenderPendingDeletion.builder()
                 .offenderIdDisplay(offenderNumber)
                 .batchId(123L)
                 .firstName("John" + offenderId)
@@ -125,8 +124,8 @@ public class DataComplianceReferralServiceTest {
                 .build();
     }
 
-    private OffenderPendingDeletionReferralCompleteEvent expectedReferralCompleteEvent(final Long batchId) {
-        return new OffenderPendingDeletionReferralCompleteEvent(batchId);
+    private OffenderPendingDeletionReferralComplete expectedReferralCompleteEvent(final Long batchId) {
+        return new OffenderPendingDeletionReferralComplete(batchId);
     }
 
     private OffenderAliasPendingDeletion offenderAliasPendingDeletion(final long offenderId) {
