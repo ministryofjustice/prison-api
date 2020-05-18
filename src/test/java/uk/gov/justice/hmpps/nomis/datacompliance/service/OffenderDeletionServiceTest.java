@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +27,7 @@ public class OffenderDeletionServiceTest {
     private OffenderDeletionRepository offenderDeletionRepository;
 
     @Mock
-    private OffenderDeletionEventPusher offenderDeletionEventPusher;
+    private DataComplianceEventPusher dataComplianceEventPusher;
 
     @Mock
     private TelemetryClient telemetryClient;
@@ -36,7 +36,7 @@ public class OffenderDeletionServiceTest {
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderDeletionService(offenderDeletionRepository, offenderDeletionEventPusher, telemetryClient);
+        service = new OffenderDeletionService(offenderDeletionRepository, dataComplianceEventPusher, telemetryClient);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class OffenderDeletionServiceTest {
 
         service.deleteOffender(OFFENDER_NUMBER, REFERRAL_ID);
 
-        verify(offenderDeletionEventPusher).sendDeletionCompleteEvent(new OffenderDeletionCompleteEvent(OFFENDER_NUMBER, REFERRAL_ID));
+        verify(dataComplianceEventPusher).sendDeletionCompleteEvent(new OffenderDeletionComplete(OFFENDER_NUMBER, REFERRAL_ID));
         verify(telemetryClient).trackEvent("OffenderDelete", Map.of("offenderNo", OFFENDER_NUMBER, "count", "1"), null);
     }
 }

@@ -4,11 +4,11 @@ import net.syscon.elite.api.model.PendingDeletionRequest;
 import net.syscon.elite.api.resource.impl.ResourceTest;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.Booking;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionEvent.OffenderWithBookings;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderPendingDeletionReferralCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderWithBookings;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class DataComplianceControllerTest extends ResourceTest {
     private static final LocalDateTime WINDOW_END = WINDOW_START;
 
     @SpyBean
-    private OffenderDeletionEventPusher offenderDeletionEventPusher;
+    private DataComplianceEventPusher dataComplianceEventPusher;
 
     @Test
     public void requestOffenderPendingDeletions() {
@@ -46,8 +46,8 @@ public class DataComplianceControllerTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(ACCEPTED_202);
 
-        verify(offenderDeletionEventPusher, timeout(5000)).sendPendingDeletionEvent(
-                OffenderPendingDeletionEvent.builder()
+        verify(dataComplianceEventPusher, timeout(5000)).sendPendingDeletionEvent(
+                OffenderPendingDeletion.builder()
                         .offenderIdDisplay("Z0020ZZ")
                         .batchId(BATCH_ID)
                         .firstName("BURT")
@@ -59,8 +59,8 @@ public class DataComplianceControllerTest extends ResourceTest {
                                 .build())
                         .build());
 
-        verify(offenderDeletionEventPusher, timeout(5000))
-                .sendReferralCompleteEvent(new OffenderPendingDeletionReferralCompleteEvent(BATCH_ID));
+        verify(dataComplianceEventPusher, timeout(5000))
+                .sendReferralCompleteEvent(new OffenderPendingDeletionReferralComplete(BATCH_ID));
     }
 
     @Test

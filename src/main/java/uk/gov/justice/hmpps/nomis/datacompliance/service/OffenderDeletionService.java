@@ -6,18 +6,18 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.dto.OffenderDeletionCompleteEvent;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.OffenderDeletionEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class OffenderDeletionService {
 
     private final OffenderDeletionRepository offenderDeletionRepository;
-    private final OffenderDeletionEventPusher offenderDeletionEventPusher;
+    private final DataComplianceEventPusher dataComplianceEventPusher;
     private final TelemetryClient telemetryClient;
 
     @Transactional
@@ -27,7 +27,7 @@ public class OffenderDeletionService {
 
         final var offenderIds = offenderDeletionRepository.deleteOffender(offenderNumber);
 
-        offenderDeletionEventPusher.sendDeletionCompleteEvent(new OffenderDeletionCompleteEvent(offenderNumber, referralId));
+        dataComplianceEventPusher.sendDeletionCompleteEvent(new OffenderDeletionComplete(offenderNumber, referralId));
 
         telemetryClient.trackEvent("OffenderDelete",
                 Map.of("offenderNo", offenderNumber, "count", String.valueOf(offenderIds.size())), null);
