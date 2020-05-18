@@ -114,9 +114,6 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
-    implementation 'com.nimbusds:nimbus-jose-jwt:8.17'
-
-    implementation 'org.hibernate:hibernate-java8:5.4.10.Final'
     implementation 'org.springframework:spring-jms:5.2.6.RELEASE'
 
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.784')
@@ -170,9 +167,9 @@ dependencies {
     testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.17.0'
 
-    testImplementation 'net.serenity-bdd:serenity-core:2.2.7'
-    testImplementation 'net.serenity-bdd:serenity-junit:2.2.7'
-    testImplementation 'net.serenity-bdd:serenity-spring:2.2.7'
+    testImplementation 'net.serenity-bdd:serenity-core:2.1.8'
+    testImplementation 'net.serenity-bdd:serenity-junit:2.1.8'
+    testImplementation 'net.serenity-bdd:serenity-spring:2.1.8'
     testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.51'
     testImplementation 'org.slf4j:slf4j-api:1.7.30'
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.26.3'
