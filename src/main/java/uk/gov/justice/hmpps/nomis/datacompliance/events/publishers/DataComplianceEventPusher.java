@@ -6,8 +6,8 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 
 public interface DataComplianceEventPusher {
-    void sendPendingDeletionEvent(OffenderPendingDeletion event);
-    void sendReferralCompleteEvent(OffenderPendingDeletionReferralComplete event);
-    void sendDeletionCompleteEvent(OffenderDeletionComplete event);
-    void sendDataDuplicateResult(DataDuplicateResult event);
+    void send(OffenderPendingDeletion event);
+    void send(OffenderPendingDeletionReferralComplete event);
+    void send(OffenderDeletionComplete event);
+    void send(DataDuplicateResult event);
 }

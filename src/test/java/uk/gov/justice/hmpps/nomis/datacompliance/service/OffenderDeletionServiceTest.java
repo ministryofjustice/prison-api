@@ -45,7 +45,7 @@ public class OffenderDeletionServiceTest {
 
         service.deleteOffender(OFFENDER_NUMBER, REFERRAL_ID);
 
-        verify(dataComplianceEventPusher).sendDeletionCompleteEvent(new OffenderDeletionComplete(OFFENDER_NUMBER, REFERRAL_ID));
+        verify(dataComplianceEventPusher).send(new OffenderDeletionComplete(OFFENDER_NUMBER, REFERRAL_ID));
         verify(telemetryClient).trackEvent("OffenderDelete", Map.of("offenderNo", OFFENDER_NUMBER, "count", "1"), null);
     }
 }

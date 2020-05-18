@@ -14,26 +14,26 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 public class DataComplianceNoOpEventPusher implements DataComplianceEventPusher {
 
     public DataComplianceNoOpEventPusher() {
-        log.info("Configured to ignore offender pending deletion events");
+        log.info("Configured to ignore data compliance events");
     }
 
     @Override
-    public void sendPendingDeletionEvent(final OffenderPendingDeletion event) {
+    public void send(final OffenderPendingDeletion event) {
         log.warn("Pretending to push pending offender deletion for '{}' to queue", event.getOffenderIdDisplay());
     }
 
     @Override
-    public void sendReferralCompleteEvent(final OffenderPendingDeletionReferralComplete event) {
+    public void send(final OffenderPendingDeletionReferralComplete event) {
         log.warn("Pretending to push process completed event for request '{}' to queue", event.getBatchId());
     }
 
     @Override
-    public void sendDeletionCompleteEvent(final OffenderDeletionComplete event) {
+    public void send(final OffenderDeletionComplete event) {
         log.warn("Pretending to push offender deletion complete event for '{}' to queue", event.getOffenderIdDisplay());
     }
 
     @Override
-    public void sendDataDuplicateResult(DataDuplicateResult event) {
+    public void send(final DataDuplicateResult event) {
         log.warn("Pretending to push data duplicate result for '{}' to queue", event.getOffenderIdDisplay());
     }
 }

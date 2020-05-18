@@ -39,7 +39,7 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
     }
 
     @Override
-    public void sendPendingDeletionEvent(final OffenderPendingDeletion event) {
+    public void send(final OffenderPendingDeletion event) {
 
         log.trace("Sending referral of offender pending deletion: {}", event.getOffenderIdDisplay());
 
@@ -47,7 +47,7 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
     }
 
     @Override
-    public void sendReferralCompleteEvent(final OffenderPendingDeletionReferralComplete event) {
+    public void send(final OffenderPendingDeletionReferralComplete event) {
 
         log.trace("Sending process completed event for request: {}", event.getBatchId());
 
@@ -55,7 +55,7 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
     }
 
     @Override
-    public void sendDeletionCompleteEvent(final OffenderDeletionComplete event) {
+    public void send(final OffenderDeletionComplete event) {
 
         log.trace("Sending offender deletion complete event: {}", event.getOffenderIdDisplay());
 
@@ -63,9 +63,9 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
     }
 
     @Override
-    public void sendDataDuplicateResult(DataDuplicateResult event) {
+    public void send(final DataDuplicateResult event) {
 
-        log.trace("Sending offender deletion complete event: {}", event.getOffenderIdDisplay());
+        log.trace("Sending data duplicate result for offender: {}", event.getOffenderIdDisplay());
 
         sqsClient.sendMessage(generateDataDuplicateResult(event));
     }

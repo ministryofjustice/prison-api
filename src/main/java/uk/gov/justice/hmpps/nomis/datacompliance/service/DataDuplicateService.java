@@ -17,7 +17,7 @@ public class DataDuplicateService {
 
         // TODO GDPR-110 Implement data duplicate check
 
-        dataComplianceEventPusher.sendDataDuplicateResult(DataDuplicateResult.builder()
+        dataComplianceEventPusher.send(DataDuplicateResult.builder()
                 .offenderIdDisplay(offenderNo)
                 .retentionCheckId(retentionCheckId)
                 .build());
