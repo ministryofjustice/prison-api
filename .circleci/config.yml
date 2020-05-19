@@ -101,6 +101,7 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_prod
           env: "prod"
+          slack_notification: true
           context: elite2-api-prod
           requires:
             - request-prod-approval
