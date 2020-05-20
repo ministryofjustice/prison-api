@@ -1,13 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import com.google.common.collect.ImmutableMap;
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.CaseNoteEvent;
-import net.syscon.elite.api.model.CaseNoteStaffUsage;
-import net.syscon.elite.api.model.CaseNoteUsage;
-import net.syscon.elite.api.model.CaseNoteUsageByBookingId;
-import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
@@ -18,6 +12,7 @@ import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -27,18 +22,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -254,7 +242,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
     }
 
     @Override
-    public void updateCaseNote(final long bookingId, final long caseNoteId, @Size(max = 4000, message = "{caseNoteTextTooLong}") final String updatedText, final String userId) {
+    public void updateCaseNote(final long bookingId, final long caseNoteId, @Length(max = 4000, message = "{caseNoteTextTooLong}") final String updatedText, final String userId) {
         final var sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), CASE_NOTE_MAPPING).build();
 
         jdbcTemplate.update(sql, createParams("modifyBy", userId,

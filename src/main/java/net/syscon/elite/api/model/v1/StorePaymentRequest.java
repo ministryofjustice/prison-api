@@ -6,15 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -33,7 +28,7 @@ public class StorePaymentRequest {
     @ApiModelProperty(value = "Valid payment type for the prison", example = "ADJ", allowableValues = "A_EARN,ADJ", position = 1)
     private String type;
 
-    @Size(max = 240)
+    @Length(max = 240)
     @ApiModelProperty(value = "Description of the payment", example = "Adjustment", position = 2)
     private String description;
 
@@ -42,7 +37,7 @@ public class StorePaymentRequest {
     private Long amount;
 
     @NotNull
-    @Size(max = 12)
+    @Length(max = 12)
     @ApiModelProperty(value = "Client transaction identifier", example = "CL123212", position = 4)
     @JsonProperty(value = "client_transaction_id")
     private String clientTransactionId;

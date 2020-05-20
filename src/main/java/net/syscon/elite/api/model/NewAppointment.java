@@ -7,11 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 public class NewAppointment {
 
     @ApiModelProperty(required = true, value = "Corresponds to the scheduled event subType")
-    @Size(max = 12)
+    @Length(max = 12)
     @Pattern(regexp = "\\w*")
     @NotBlank
     private String appointmentType;
@@ -44,6 +44,6 @@ public class NewAppointment {
     private LocalDateTime endTime;
 
     @ApiModelProperty(value = "Details of appointment")
-    @Size(max = 4000)
+    @Length(max = 4000)
     private String comment;
 }

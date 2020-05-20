@@ -7,12 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @ApiModel(description = "Default values to be applied when creating each appointment")
@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @Builder
 public class AppointmentDefaults {
     @ApiModelProperty(required = true, value = "The scheduled event subType", example = "ACTI")
-    @Size(max = 12)
+    @Length(max = 12)
     @Pattern(regexp = "\\w*")
     @NotEmpty
     private String appointmentType;
@@ -41,6 +41,6 @@ public class AppointmentDefaults {
     private LocalDateTime endTime;
 
     @ApiModelProperty(value = "A comment that applies to all the appointments in this request.", example = "Please provide helpful supporting text when it applies to all the appointments specified by this request.", position = 4)
-    @Size(max = 4000)
+    @Length(max = 4000)
     private String comment;
 }
