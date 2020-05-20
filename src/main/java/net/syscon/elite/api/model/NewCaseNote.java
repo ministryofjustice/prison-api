@@ -7,9 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,17 +28,17 @@ public class NewCaseNote {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
 
-    @Size(max = 12)
+    @Length(max = 12)
     @NotBlank
     private String type;
 
-    @Size(max = 12)
+    @Length(max = 12)
     @NotBlank
     private String subType;
 
     private LocalDateTime occurrenceDateTime;
 
-    @Size(max = 4000)
+    @Length(max = 4000)
     @NotBlank
     private String text;
 

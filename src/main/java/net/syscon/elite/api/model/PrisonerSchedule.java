@@ -6,10 +6,10 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import net.syscon.elite.api.support.TimeSlot;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -79,7 +79,7 @@ public class PrisonerSchedule {
     private String eventStatus;
 
     @ApiModelProperty(required = true, value = "Comment")
-    @Size(max = 4000)
+    @Length(max = 4000)
     private String comment;
 
     @ApiModelProperty(required = true, value = "Date and time at which event starts")
