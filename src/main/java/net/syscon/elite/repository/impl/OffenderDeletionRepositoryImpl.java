@@ -65,7 +65,8 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
             deleteOffenderBooking(bookIds);
         }
 
-        executeNamedSqlWithOffenderIdsAndBookingIds("OD_ANONYMISE_GL_TRANSACTIONS", offenderIds, bookIds.isEmpty() ? null : bookIds);
+        executeNamedSqlWithOffenderIdsAndBookingIds("OD_ANONYMISE_GL_TRANSACTIONS", offenderIds, bookIds);
+        executeNamedSqlWithOffenderIdsAndBookingIds("OD_DELETE_OFFENDER_BELIEFS", offenderIds, bookIds);
     }
 
     private void deleteOffenderBooking(final Set<String> bookIds) {
@@ -422,7 +423,7 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
     private int executeNamedSqlWithOffenderIdsAndBookingIds(final String sql,
                                                             final Set<String> offenderIds,
                                                             final Set<String> bookIds) {
-        return jdbcTemplate.update(getQuery(sql), createParams("offenderIds", offenderIds, "bookIds", bookIds));
+        return jdbcTemplate.update(getQuery(sql), createParams("offenderIds", offenderIds, "bookIds", bookIds.isEmpty() ? null : bookIds));
     }
 
     private void executeNamedSqlWithIncidentCaseIds(final String sql, final Set<String> ids) {
