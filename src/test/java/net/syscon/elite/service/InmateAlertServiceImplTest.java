@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.AlertChanges;
 import net.syscon.elite.api.model.CreateAlert;
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -20,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.*;
@@ -43,13 +46,16 @@ public class InmateAlertServiceImplTest {
 
     private InmateAlertService service;
 
+    private final int MAX_MATCH_SIZE = 10;
+
     @BeforeEach
     public void setUp() {
         service = new InmateAlertService(
                 inmateAlertRepository,
                 authenticationFacade,
                 telemetryClient,
-                referenceDomainService);
+                referenceDomainService,
+                MAX_MATCH_SIZE);
     }
 
     @Test
@@ -294,6 +300,16 @@ public class InmateAlertServiceImplTest {
                 service.updateAlert(-14, 1, AlertChanges.builder().expiryDate(LocalDate.now()).build()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Alert is already inactive.");
+    }
+
+    @Test
+    public void testGetInmateAlertsByOffenderNosAtAgency() {
+        final var offenders = IntStream.range(1, 20).mapToObj(String::valueOf).collect(Collectors.toList());
+
+        service.getInmateAlertsByOffenderNosAtAgency("MDI", offenders);
+
+        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("1","2","3","4","5","6","7","8","9","10"),true, null, "bookingId,alertId", Order.ASC);
+        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("11","12","13","14","15","16","17","18","19"),true, null, "bookingId,alertId", Order.ASC);
     }
 
     private Page<Alert> createAlerts() {

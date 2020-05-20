@@ -1,5 +1,6 @@
 package net.syscon.elite.service;
 
+import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Alert;
@@ -14,6 +15,7 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,18 +35,21 @@ public class InmateAlertService {
     private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
     private final ReferenceDomainService referenceDomainService;
+    private int maxBatchSize;
 
     @Autowired
     public InmateAlertService(
             final InmateAlertRepository inmateAlertRepository,
             final AuthenticationFacade authenticationFacade,
             final TelemetryClient telemetryClient,
-            final ReferenceDomainService referenceDomainService) {
+            final ReferenceDomainService referenceDomainService,
+            @Value("${batch.max.size:1000}") final int maxBatchSize) {
 
         this.inmateAlertRepository = inmateAlertRepository;
         this.authenticationFacade = authenticationFacade;
         this.telemetryClient = telemetryClient;
         this.referenceDomainService = referenceDomainService;
+        this.maxBatchSize = maxBatchSize;
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
@@ -76,7 +82,10 @@ public class InmateAlertService {
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_READ_ONLY", "SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
 
-        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(agencyId, offenderNos, true, null, "bookingId,alertId", Order.ASC);
+        final var alerts = Lists.partition(offenderNos, maxBatchSize)
+                .stream()
+                .flatMap(offenderNosList -> inmateAlertRepository.getAlertsByOffenderNos(agencyId, offenderNosList, true, null, "bookingId,alertId", Order.ASC).stream())
+                .collect(Collectors.toList());
 
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
