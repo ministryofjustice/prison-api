@@ -1,29 +1,20 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.ReferenceCodeInfo;
 import net.syscon.elite.api.support.Order;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.List;
 
-@Api(tags = {"/reference-domains"})
+@Api(tags = {"/reference-domains"}, description = "Reference Data Information")
+@SuppressWarnings("unused")
 public interface ReferenceDomainResource {
 
     @GetMapping("/alertTypes")
@@ -92,8 +83,8 @@ public interface ReferenceDomainResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    ReferenceCode createReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathVariable("domain") @NotNull @Size(max = 12) String domain,
-                                      @ApiParam(value = "The reference code.", required = true) @PathVariable("code") @NotNull @Size(max = 12) String code,
+    ReferenceCode createReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathVariable("domain") @NotNull @Length(max = 12) String domain,
+                                      @ApiParam(value = "The reference code.", required = true) @PathVariable("code") @NotNull @Length(max = 12) String code,
                                       @ApiParam(value = "Reference Information", required = true) @NotNull @Valid @RequestBody ReferenceCodeInfo referenceData);
 
     @PutMapping("/domains/{domain}/codes/{code}")
@@ -103,8 +94,8 @@ public interface ReferenceDomainResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    ReferenceCode updateReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathVariable("domain") @NotNull @Size(max = 12) String domain,
-                                      @ApiParam(value = "The reference code.", required = true) @PathVariable("code") @NotNull @Size(max = 12) String code,
+    ReferenceCode updateReferenceCode(@ApiParam(value = "The domain identifier/name.", required = true) @PathVariable("domain") @NotNull @Length(max = 12) String domain,
+                                      @ApiParam(value = "The reference code.", required = true) @PathVariable("code") @NotNull @Length(max = 12) String code,
                                       @ApiParam(value = "Reference Information", required = true) @RequestBody @NotNull @Valid ReferenceCodeInfo referenceData);
 
     @GetMapping("/scheduleReasons")

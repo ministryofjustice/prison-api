@@ -7,10 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @ApiModel(description = "Detail for creating an appointment for a particular bookingId where values should differ from the defaults")
@@ -33,6 +33,6 @@ public class AppointmentDetails {
     private LocalDateTime endTime;
 
     @ApiModelProperty(value = "The Appointment's details. When present this value replaces the default comment.", example = "Please provide helpful supporting text relevant to this particular appointment when the default comment is not suitable.", position = 3)
-    @Size(max = 4000)
+    @Length(max = 4000)
     private String comment;
 }
