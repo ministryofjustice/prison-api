@@ -13,10 +13,13 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,23 +31,42 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@IdClass(LivingUnit.PK.class)
 @Table(name = "LIVING_UNITS")
 public class LivingUnit {
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PK implements Serializable {
+
+        @Column(name = "LIVING_UNIT_ID", insertable = false, updatable = false, nullable = false)
+        private Long livingUnitId;
+
+        @Column(name = "DESCRIPTION", nullable = false)
+        private String description;
+
+        @Column(name = "AGY_LOC_ID", nullable = false)
+        private String agencyLocationId;
+
+    }
+
     @Id
     @Column(name = "LIVING_UNIT_ID", nullable = false)
     private Long livingUnitId;
 
+    @Id
     @Column(name = "AGY_LOC_ID", nullable = false)
     private String agencyLocationId;
+
+    @Id
+    @Column(name = "DESCRIPTION", nullable = false)
+    private String description;
 
     @Column(name = "LIVING_UNIT_TYPE", nullable = false)
     private String livingUnitType;
 
     @Column(name = "LIVING_UNIT_CODE", nullable = false)
     private String livingUnitCode;
-
-    @Column(name = "DESCRIPTION", nullable = false)
-    private String description;
 
     @Column(name = "LEVEL_1_CODE")
     private String level1Code;
@@ -122,7 +144,13 @@ public class LivingUnit {
     @Column(name = "NO_OF_OCCUPANT")
     private Integer noOfOccupants;
 
-    @OneToMany(mappedBy = "livingUnitId", cascade = CascadeType.ALL)
+
+    @JoinColumns({
+        @JoinColumn(name="LIVING_UNIT_ID", referencedColumnName="LIVING_UNIT_ID"),
+        @JoinColumn(name="AGY_LOC_ID", referencedColumnName="AGY_LOC_ID"),
+        @JoinColumn(name="DESCRIPTION", referencedColumnName="DESCRIPTION")
+    })
+    @OneToMany(cascade = CascadeType.ALL)
     private List<LivingUnitProfile> profiles;
 
     public boolean isActive() {

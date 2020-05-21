@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface LivingUnitRepository extends CrudRepository<LivingUnit, Long> {
-    List<LivingUnit> findAllByAgencyId(String agencyId);
+    List<LivingUnit> findAllByAgencyLocationId(String agencyId);
 }
