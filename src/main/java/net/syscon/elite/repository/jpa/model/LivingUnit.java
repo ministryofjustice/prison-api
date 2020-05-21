@@ -9,21 +9,15 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
@@ -144,15 +138,6 @@ public class LivingUnit {
     @Column(name = "NO_OF_OCCUPANT")
     private Integer noOfOccupants;
 
-
-    @JoinColumns({
-        @JoinColumn(name="LIVING_UNIT_ID", referencedColumnName="LIVING_UNIT_ID"),
-        @JoinColumn(name="AGY_LOC_ID", referencedColumnName="AGY_LOC_ID"),
-        @JoinColumn(name="DESCRIPTION", referencedColumnName="DESCRIPTION")
-    })
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<LivingUnitProfile> profiles;
-
     public boolean isActive() {
         return activeFlag.equals("Y");
     }
@@ -165,8 +150,8 @@ public class LivingUnit {
         return operationalCapacity != null && noOfOccupants != null && noOfOccupants < operationalCapacity;
     }
 
-    public List<LivingUnitProfile> getLivingUnitAttributes() {
-        return profiles.stream().filter(LivingUnitProfile::isAttribute).collect(toList());
+    public boolean isActiveCellWithSpace() {
+        return isActiveCell() && hasSpace();
     }
 
 }

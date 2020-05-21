@@ -2,7 +2,6 @@ package net.syscon.elite.repository.jpa.repository;
 
 import net.syscon.elite.repository.jpa.model.HousingUnitTypeReferenceCode;
 import net.syscon.elite.repository.jpa.model.LivingUnit;
-import net.syscon.elite.repository.jpa.model.LivingUnitProfile;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,24 +56,6 @@ public class LivingUnitRepositoryTest {
                                     .reachedOperationalCapacityFlag(null)
                                     .deactiveReasonReferenceCode(null)
                                     .comment("Just a cell")
-                                    .profiles(List.of(
-                                            LivingUnitProfile.builder()
-                                                .agencyLocationId("LEI")
-                                                .description("LEI-1-1-01")
-                                                .livingUnitId(-1L)
-                                                .profileCode("DO")
-                                                .profileType("HOU_UNIT_ATT")
-                                                .profileId(-1L)
-                                                .build(),
-                                            LivingUnitProfile.builder()
-                                                    .agencyLocationId("LEI")
-                                                    .description("LEI-1-1-01")
-                                                    .livingUnitId(-1L)
-                                                    .profileCode("LC")
-                                                    .profileType("HOU_UNIT_ATT")
-                                                    .profileId(-2L)
-                                                    .build()
-                                    ))
                                     .build(),
                                 LivingUnit.builder()
                                     .livingUnitId(-3L)
@@ -104,16 +85,6 @@ public class LivingUnitRepositoryTest {
                                     .reachedOperationalCapacityFlag(null)
                                     .deactiveReasonReferenceCode(null)
                                     .comment("Full cell")
-                                    .profiles(List.of(
-                                            LivingUnitProfile.builder()
-                                                .agencyLocationId("LEI")
-                                                .description("LEI-1-1-03")
-                                                .livingUnitId(-3L)
-                                                .profileCode("NSMC")
-                                                .profileType("HOU_UNIT_ATT")
-                                                .profileId(-4L)
-                                            .build()
-                                    ))
                                     .build());
 
         final var livingUnits = repository.findAllByAgencyLocationId("LEI");
@@ -121,6 +92,10 @@ public class LivingUnitRepositoryTest {
         final var activeCells = livingUnits.stream().filter(LivingUnit::isActiveCell).collect(Collectors.toList());
 
         assertThat(activeCells).isEqualTo(expected);
+
+        final var activeWithSpace = activeCells.stream().filter(LivingUnit::hasSpace).collect(Collectors.toList());
+
+        assertThat(activeWithSpace).extracting("livingUnitId").isEqualTo(List.of(-1L));
     }
 
 }
