@@ -9,10 +9,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -28,7 +28,7 @@ public class CreateTransaction {
     @ApiModelProperty(value = "Valid transaction type for the prison_id", example = "CANT", allowableValues = "CANT,REFND,PHONE,MRPR,MTDS,DTDS,CASHD,RELA,RELS", position = 1)
     private String type;
 
-    @Length(max = 240)
+    @Size(max = 240)
     @ApiModelProperty(value = "Description of the Transaction", example = "Canteen Purchase of £16.34", position = 2)
     private String description;
 
@@ -37,13 +37,13 @@ public class CreateTransaction {
     private Long amount;
 
     @NotNull
-    @Length(max = 12)
+    @Size(max = 12)
     @ApiModelProperty(value = "Client Transaction Id", example = "CL123212", position = 4)
     @JsonProperty(value = "client_transaction_id")
     private String clientTransactionId;
 
     @NotNull
-    @Length(max = 64)
+    @Size(max = 64)
     @Pattern(regexp = "[a-zA-Z0-9-_]+")
     @JsonProperty(value = "client_unique_ref")
     @ApiModelProperty(value = "A reference unique to the client making the post. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed", example = "CLIENT121131-0_11", position = 5)
