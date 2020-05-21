@@ -20,7 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -84,7 +84,7 @@ public class LivingUnit {
     private String userDescription;
 
     @Column(name = "ACA_CAP_RATING")
-    private String acaCapRating;
+    private Integer acaCapRating;
 
     @Column(name = "SECURITY_LEVEL_CODE")
     private String securityLevelCode;
@@ -103,8 +103,8 @@ public class LivingUnit {
     })
     private HousingUnitTypeReferenceCode housingUnitTypeReferenceCode;
 
-    @Column(name = "ACTIVE_FLAG")
-    private ActiveFlag activeFlag;
+    @Column(name = "ACTIVE_FLAG", nullable = false)
+    private String activeFlag;
 
     @Column(name = "CONTROL_ACTIVE_FLAG")
     private ActiveFlag controlActiveFlag;
@@ -115,14 +115,14 @@ public class LivingUnit {
     @Column(name = "OPERATION_CAPACITY")
     private Integer operationalCapacity;
 
-    @Column(name = "CERTIFIED_FLAG")
+    @Column(name = "CERTIFIED_FLAG", nullable = false)
     private String certifiedFlag;
 
     @Column(name = "DEACTIVATE_DATE")
-    private LocalDateTime deactivateDate;
+    private LocalDate deactivateDate;
 
     @Column(name = "REACTIVATE_DATE")
-    private LocalDateTime reactivateDate;
+    private LocalDate reactivateDate;
 
     @ManyToOne
     @NotFound(action = IGNORE)
@@ -154,7 +154,7 @@ public class LivingUnit {
     private List<LivingUnitProfile> profiles;
 
     public boolean isActive() {
-        return activeFlag != null && activeFlag.isActive();
+        return activeFlag.equals("Y");
     }
 
     public boolean isActiveCell() {

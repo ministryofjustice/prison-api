@@ -25,14 +25,17 @@ public class LivingUnitProfile {
     @AllArgsConstructor
     public static class PK implements Serializable {
 
-        @Column(name = "LIVING_UNIT_ID", insertable = false, updatable = false, nullable = false)
+        @Column(name = "LIVING_UNIT_ID")
         private Long livingUnitId;
 
-        @Column(name = "DESCRIPTION", nullable = false)
+        @Column(name = "DESCRIPTION")
         private String description;
 
-        @Column(name = "AGY_LOC_ID", nullable = false)
+        @Column(name = "AGY_LOC_ID")
         private String agencyLocationId;
+
+        @Column(name = "PROFILE_ID")
+        private Long profileId;
 
     }
 
@@ -48,6 +51,7 @@ public class LivingUnitProfile {
     @Column(name = "DESCRIPTION", nullable = false)
     private String description;
 
+    @Id
     @Column(name = "PROFILE_ID")
     private Long profileId;
 
