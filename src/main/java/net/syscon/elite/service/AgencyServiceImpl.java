@@ -267,9 +267,9 @@ public class AgencyServiceImpl implements AgencyService {
                                      .code(profile.getHousingAttributeReferenceCode().getCode())
                                      .description(profile.getHousingAttributeReferenceCode().getDescription())
                                      .build())
-                                .filter(attr -> attribute == null || attr.getCode().equals(attribute))
                                 .collect(Collectors.toList()))
                     .build())
+                .filter(cell -> attribute == null || cell.getAttributes().stream().map(OffenderCellAttribute::getCode).collect(Collectors.toList()).contains(attribute))
                 .collect(Collectors.toList());
     }
 }

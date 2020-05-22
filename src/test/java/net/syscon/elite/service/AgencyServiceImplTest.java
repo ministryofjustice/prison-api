@@ -136,7 +136,8 @@ public class AgencyServiceImplTest {
     @Test
     public void shouldReturnAllActiveCellsWithSpaceForAgencyWithAttribute() {
         when(livingUnitRepository.findAllByAgencyLocationId(anyString())).thenReturn(buildLivingUnits());
-        when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(anyLong(), anyString(), anyString())).thenReturn(buildLivingUnitProfiles());
+        when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-1L, "LEI", "LEI-1-1-01")).thenReturn(buildLivingUnitProfiles());
+        when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-2L, "LEI", "LEI-1-1-02")).thenReturn(List.of());
 
         final var offenderCells = service.getCellsWithCapacityInAgency("LEI", "DO");
         assertThat(offenderCells).extracting("id").containsExactly(-1L);
