@@ -71,4 +71,8 @@ public class LivingUnitProfile {
     })
     private HousingAttributeReferenceCode housingAttributeReferenceCode;
 
+    public boolean isAttribute() {
+        return housingAttributeReferenceCode != null;
+    }
+
 }
