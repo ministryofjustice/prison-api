@@ -31,7 +31,7 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
             @Value("${data.compliance.response.sqs.queue.url}") final String queueUrl,
             final ObjectMapper objectMapper) {
 
-        log.info("Configured to push offender pending deletion events to SQS queue: {}", queueUrl);
+        log.info("Configured to push data compliance events to SQS queue: {}", queueUrl);
 
         this.objectMapper = objectMapper;
         this.sqsClient = sqsClient;

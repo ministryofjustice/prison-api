@@ -3,17 +3,14 @@ package net.syscon.elite.repository.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.repository.OffenderDeletionRepository;
 import net.syscon.elite.service.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Repository
 @Slf4j
 public class OffenderDeletionRepositoryImpl extends RepositoryBase implements OffenderDeletionRepository {
-
-    @Value("${data.compliance.db.enable.parallel.hints:true}")
-    private boolean enableParallelHints;
 
     /**
      * Deletes all data associated with an offender with the given offender number,
@@ -31,10 +28,6 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
 
         if (offenderIds.isEmpty()) {
             throw EntityNotFoundException.withId(offenderNumber);
-        }
-
-        if (enableParallelHints) {
-            getJdbcTemplateBase().execute(getQuery("OD_ENABLE_PARALLEL_HINTS"));
         }
 
         deleteOffenderBookings(offenderIds);
