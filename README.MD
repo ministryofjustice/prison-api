@@ -171,11 +171,15 @@ TMPDIR=/private$TMPDIR docker-compose -f docker-compose-data-compliance.yml up
 
 #### To publish to the data compliance request queue:
 (Warning, if configured, this will prompt Elite2 to delete the Offender provided)
+
+The `referralId` should match an existing referral in the `OFFENDER_DELETION_REFERRAL` table
+in the Data Compliance database.
+
 ```bash
 
 aws --endpoint-url=http://localhost:4576 sqs send-message \
     --queue-url http://localstack:4576/queue/data_compliance_request_queue \
-    --message-body '{"offenderIdDisplay":"A1234AA"}' \
+    --message-body '{"offenderIdDisplay":"A1234AA","referralId":123}' \
     --message-attributes "eventType={StringValue=DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED,DataType=String}"
 ```
 
