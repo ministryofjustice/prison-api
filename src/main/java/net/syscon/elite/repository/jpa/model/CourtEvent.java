@@ -12,16 +12,20 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static net.syscon.elite.repository.jpa.model.EventStatus.EVENT_STS;
@@ -91,6 +95,9 @@ public class CourtEvent extends AuditableEntity {
 
     @Column(name = "DIRECTION_CODE", length = 12)
     private String directionCode;
+
+    @OneToMany(mappedBy = "courtEvent", cascade = CascadeType.REMOVE)
+    private final List<CourtEventCharge> charges = new ArrayList<>();
 
     public Optional<OffenderCourtCase> getOffenderCourtCase() {
         return Optional.ofNullable(offenderCourtCase);

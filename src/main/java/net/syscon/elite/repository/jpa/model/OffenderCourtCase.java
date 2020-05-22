@@ -83,9 +83,12 @@ public class OffenderCourtCase extends AuditableEntity {
     @JoinColumn(name = "COMBINED_CASE_ID")
     private OffenderCourtCase combinedCase;
 
-    @OneToMany(mappedBy = "offenderCourtCase", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "offenderCourtCase")
     @Default
     private List<CourtEvent> courtEvents = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderCourtCase")
+    private final List<OffenderCharge> charges = new ArrayList<>();
 
     public Optional<LegalCaseType> getLegalCaseType() {
         return Optional.ofNullable(legalCaseType);
