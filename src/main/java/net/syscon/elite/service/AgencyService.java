@@ -3,6 +3,7 @@ package net.syscon.elite.service;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.IepLevel;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.OffenderCell;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -48,4 +49,6 @@ public interface AgencyService {
     List<Agency> getAgenciesByCaseload(String caseload);
 
     Page<OffenderIepReview> getPrisonIepReview(OffenderIepReviewSearchCriteria criteria);
+
+    List<OffenderCell> getCellsWithCapacityInAgency(String agencyId, String attribute);
 }
