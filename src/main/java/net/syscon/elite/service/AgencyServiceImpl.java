@@ -16,6 +16,7 @@ import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.LivingUnit;
+import net.syscon.elite.repository.jpa.model.LivingUnitProfile;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationFilter;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
@@ -263,6 +264,7 @@ public class AgencyServiceImpl implements AgencyService {
                     .attributes(livingUnitProfileRepository
                                 .findAllByLivingUnitIdAndAgencyLocationIdAndDescription(livingUnit.getLivingUnitId(), livingUnit.getAgencyLocationId(), livingUnit.getDescription())
                                 .stream()
+                                .filter(LivingUnitProfile::isAttribute)
                                 .map(profile -> OffenderCellAttribute.builder()
                                      .code(profile.getHousingAttributeReferenceCode().getCode())
                                      .description(profile.getHousingAttributeReferenceCode().getDescription())

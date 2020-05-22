@@ -292,6 +292,13 @@ public class AgencyServiceImplTest {
                         .description("LEI-1-1-01")
                         .profileId(-2L)
                         .housingAttributeReferenceCode(new HousingAttributeReferenceCode("LC", "Listener Cell"))
+                        .build(),
+                LivingUnitProfile.builder()
+                        .livingUnitId(-1L)
+                        .agencyLocationId("LEI")
+                        .description("LEI-1-1-01")
+                        .profileId(-3L)
+                        .housingAttributeReferenceCode(null)
                         .build());
     }
 
