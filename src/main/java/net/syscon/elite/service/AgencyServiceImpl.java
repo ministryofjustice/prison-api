@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.IepLevel;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.OffenderCell;
+import net.syscon.elite.api.model.OffenderCellAttribute;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
@@ -13,9 +15,12 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
+import net.syscon.elite.repository.jpa.model.LivingUnit;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationFilter;
 import net.syscon.elite.repository.jpa.repository.AgencyLocationRepository;
+import net.syscon.elite.repository.jpa.repository.LivingUnitProfileRepository;
+import net.syscon.elite.repository.jpa.repository.LivingUnitRepository;
 import net.syscon.elite.repository.jpa.transform.LocationTransformer;
 import net.syscon.elite.repository.support.StatusFilter;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -61,6 +66,8 @@ public class AgencyServiceImpl implements AgencyService {
     private final AgencyLocationRepository agencyLocationRepository;
     private final ReferenceDomainService referenceDomainService;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
+    private final LivingUnitRepository livingUnitRepository;
+    private final LivingUnitProfileRepository livingUnitProfileRepository;
 
     @Override
     public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
@@ -241,5 +248,28 @@ public class AgencyServiceImpl implements AgencyService {
     @Override
     public Page<OffenderIepReview> getPrisonIepReview(final OffenderIepReviewSearchCriteria criteria) {
         return agencyRepository.getPrisonIepReview(criteria);
+    }
+
+    @Override
+    public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, String attribute) {
+        final var livingUnits = livingUnitRepository.findAllByAgencyLocationId(agencyId);
+        return livingUnits.stream()
+                .filter(LivingUnit::isActiveCellWithSpace)
+                .map(livingUnit -> OffenderCell.builder()
+                    .capacity(livingUnit.getOperationalCapacity())
+                    .noOfOccupants(livingUnit.getNoOfOccupants())
+                    .id(livingUnit.getLivingUnitId())
+                    .description(livingUnit.getUserDescription() != null ?  livingUnit.getUserDescription() : livingUnit.getDescription())
+                    .attributes(livingUnitProfileRepository
+                                .findAllByLivingUnitIdAndAgencyLocationIdAndDescription(livingUnit.getLivingUnitId(), livingUnit.getAgencyLocationId(), livingUnit.getDescription())
+                                .stream()
+                                .map(profile -> OffenderCellAttribute.builder()
+                                     .code(profile.getHousingAttributeReferenceCode().getCode())
+                                     .description(profile.getHousingAttributeReferenceCode().getDescription())
+                                     .build())
+                                .collect(Collectors.toList()))
+                    .build())
+                .filter(cell -> attribute == null || cell.getAttributes().stream().map(OffenderCellAttribute::getCode).collect(Collectors.toList()).contains(attribute))
+                .collect(Collectors.toList());
     }
 }
