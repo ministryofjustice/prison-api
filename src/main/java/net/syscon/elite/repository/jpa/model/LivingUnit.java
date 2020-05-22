@@ -77,18 +77,6 @@ public class LivingUnit {
     @Column(name = "USER_DESC")
     private String userDescription;
 
-    @Column(name = "ACA_CAP_RATING")
-    private Integer acaCapRating;
-
-    @Column(name = "SECURITY_LEVEL_CODE")
-    private String securityLevelCode;
-
-    @Column(name = "LIST_SEQ")
-    private Integer listSeq;
-
-    @Column(name = "PARENT_LIVING_UNIT_ID")
-    private Long parentLivingUnitId;
-
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
@@ -99,9 +87,6 @@ public class LivingUnit {
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
     private String activeFlag;
-
-    @Column(name = "CONTROL_ACTIVE_FLAG")
-    private ActiveFlag controlActiveFlag;
 
     @Column(name = "CAPACITY")
     private Integer capacity;
@@ -129,21 +114,15 @@ public class LivingUnit {
     @Column(name = "COMMENT_TEXT")
     private String comment;
 
-    @Column(name = "LOWEST_LEVEL_FLAG")
-    private String lowestLevelFlag;
-
-    @Column(name = "REACH_OPER_CAPACITY_FLAG")
-    private String reachedOperationalCapacityFlag;
-
     @Column(name = "NO_OF_OCCUPANT")
     private Integer noOfOccupants;
 
     public boolean isActive() {
-        return activeFlag.equals("Y");
+        return "Y".equals(activeFlag);
     }
 
     public boolean isActiveCell() {
-        return isActive() && livingUnitType != null && livingUnitType.equals("CELL");
+        return isActive() && "CELL".equals(livingUnitType);
     }
 
     public boolean hasSpace() {
