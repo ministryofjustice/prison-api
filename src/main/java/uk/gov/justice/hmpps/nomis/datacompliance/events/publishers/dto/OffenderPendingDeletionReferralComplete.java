@@ -13,7 +13,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
  * This event signifies that the process of publishing
  * events for offenders pending deletion is complete.
  * The requestId matches the value provided in the POST request:
- * {@link DataComplianceController#requestOffenderPendingDeletions(PendingDeletionRequest)}
+ * {@link DataComplianceController#requestOffendersPendingDeletion(PendingDeletionRequest)}
  */
 @Data
 @NoArgsConstructor
@@ -21,5 +21,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @JsonInclude(NON_NULL)
 public class OffenderPendingDeletionReferralComplete {
     private Long batchId;
+    private Long numberReferred;
+    private Long totalInWindow;
 }
 

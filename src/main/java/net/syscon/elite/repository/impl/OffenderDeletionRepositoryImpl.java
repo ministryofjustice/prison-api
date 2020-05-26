@@ -406,24 +406,20 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
     }
 
     private int executeNamedSqlWithOffenderIds(final String sql, final Set<String> ids) {
-        log.debug("Executing deletion SQL: {}, with ids: {}", sql, ids);
         return jdbcTemplate.update(getQuery(sql), createParams("offenderIds", ids));
     }
 
     private void executeNamedSqlWithBookingIds(final String sql, final Set<String> ids) {
-        log.debug("Executing deletion SQL: {}, with ids: {}", sql, ids);
         jdbcTemplate.update(getQuery(sql), createParams("bookIds", ids));
     }
 
-    private int executeNamedSqlWithOffenderIdsAndBookingIds(final String sql,
-                                                            final Set<String> offenderIds,
-                                                            final Set<String> bookIds) {
-        log.debug("Executing deletion SQL: {}, with offender ids: {} and bookIds: {}", sql, offenderIds, bookIds);
-        return jdbcTemplate.update(getQuery(sql), createParams("offenderIds", offenderIds, "bookIds", bookIds.isEmpty() ? null : bookIds));
+    private void executeNamedSqlWithOffenderIdsAndBookingIds(final String sql,
+                                                             final Set<String> offenderIds,
+                                                             final Set<String> bookIds) {
+        jdbcTemplate.update(getQuery(sql), createParams("offenderIds", offenderIds, "bookIds", bookIds.isEmpty() ? null : bookIds));
     }
 
     private void executeNamedSqlWithIncidentCaseIds(final String sql, final Set<String> ids) {
-        log.debug("Executing deletion SQL: {}, with incident case ids: {}", sql, ids);
         jdbcTemplate.update(getQuery(sql), createParams("incidentCaseIds", ids));
     }
 }
