@@ -49,12 +49,16 @@ public class ContactService {
 
         sortCriteria = sortCriteria.thenComparing(Contact::getLastName);
 
-        final var list = contacts.stream()
-                .filter(Contact::isActiveFlag)
-                .filter(Contact::isNextOfKin)
-                .sorted(sortCriteria)
-                .collect(toList());
-        return ContactDetail.builder().nextOfKin(list).build();
+        final var activeContactsStream = contacts.stream().filter(Contact::isActiveFlag);
+        return ContactDetail.builder()
+                .nextOfKin(activeContactsStream
+                        .filter(Contact::isNextOfKin)
+                        .sorted(sortCriteria)
+                        .collect(toList()))
+                .official(activeContactsStream
+                        .filter(Contact::isOfficial)
+                        .sorted(sortCriteria)
+                        .collect(toList())).build();
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})

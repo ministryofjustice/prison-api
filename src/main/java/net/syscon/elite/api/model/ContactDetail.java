@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
@@ -21,13 +22,11 @@ import java.util.Map;
 @ApiModel(description = "Contacts Details for offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
 public class ContactDetail {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-
     @NotNull
     private Long bookingId;
 
@@ -35,53 +34,7 @@ public class ContactDetail {
     @Builder.Default
     private List<Contact> nextOfKin = new ArrayList<Contact>();
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
-
-    /**
-     * Offender Booking Id
-     */
-    @ApiModelProperty(required = true, value = "Offender Booking Id")
-    @JsonProperty("bookingId")
-    public Long getBookingId() {
-        return bookingId;
-    }
-
-    public void setBookingId(final Long bookingId) {
-        this.bookingId = bookingId;
-    }
-
-    /**
-     * List of next of kin
-     */
-    @ApiModelProperty(required = true, value = "List of next of kin")
-    @JsonProperty("nextOfKin")
-    public List<Contact> getNextOfKin() {
-        return nextOfKin;
-    }
-
-    public void setNextOfKin(final List<Contact> nextOfKin) {
-        this.nextOfKin = nextOfKin;
-    }
-
-    @Override
-    public String toString() {
-        final var sb = new StringBuilder();
-
-        sb.append("class ContactDetail {\n");
-
-        sb.append("  bookingId: ").append(bookingId).append("\n");
-        sb.append("  nextOfKin: ").append(nextOfKin).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
-    }
+    @NotNull
+    @Builder.Default
+    private List<Contact> official = new ArrayList<Contact>();
 }
