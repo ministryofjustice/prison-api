@@ -33,6 +33,7 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.repository.jpa.model.OffenderLanguage;
 import net.syscon.elite.repository.jpa.repository.OffenderLanguageRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
@@ -223,7 +224,15 @@ public class InmateService {
         final var inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
         inmate.setStatus(format("%s %s", inmate.isActiveFlag() ? "ACTIVE" : "INACTIVE", inmate.getInOutStatus()));
-        getFirstPreferredSpokenLanguage(bookingId).ifPresent(inmate::setLanguage);
+        getFirstPreferredSpokenLanguage(bookingId).ifPresent(offenderLanguage -> {
+            inmate.setLanguage(offenderLanguage.getReferenceCode().getDescription());
+            inmate.setInterpreterRequired("Y".equalsIgnoreCase(offenderLanguage.getInterpreterRequestedFlag()));
+        });
+
+        getFirstPreferredWrittenLanguage(bookingId).ifPresent(offenderLanguage -> {
+            inmate.setWrittenLanguage(offenderLanguage.getReferenceCode().getDescription());
+        });
+
         inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
         inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
         inmate.setProfileInformation(getProfileInformation(bookingId));
@@ -259,13 +268,22 @@ public class InmateService {
         return inmate;
     }
 
-    private Optional<String> getFirstPreferredSpokenLanguage(final Long bookingId) {
+    private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final Long bookingId) {
         return offenderLanguageRepository
                 .findByOffenderBookId(bookingId)
                 .stream()
                 .filter(l -> "PREF_SPEAK".equals(l.getType()) && l.getReferenceCode() != null)
-                .map(l -> l.getReferenceCode().getDescription())
-                .max(Comparator.naturalOrder());
+                .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
+                .reduce((first, second) -> second);
+    }
+
+    private Optional<OffenderLanguage> getFirstPreferredWrittenLanguage(final long bookingId) {
+        return offenderLanguageRepository
+                .findByOffenderBookId(bookingId)
+                .stream()
+                .filter(l -> "PREF_WRITE".equals(l.getType()) && l.getReferenceCode() != null)
+                .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
+                .reduce((first, second) -> second);
     }
 
     private void setAssessmentsFields(final Long bookingId, final InmateDetail inmate) {

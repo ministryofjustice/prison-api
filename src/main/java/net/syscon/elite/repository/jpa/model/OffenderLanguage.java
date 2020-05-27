@@ -57,6 +57,10 @@ public class OffenderLanguage {
     private String readSkill;
     private String writeSkill;
     private String speakSkill;
+    private String interpreterRequestedFlag;
+
+    @Column(name = "PREFERED_WRITE_FLAG")
+    private String preferredWriteFlag;
 
     @ManyToOne
     @NotFound(action = IGNORE)

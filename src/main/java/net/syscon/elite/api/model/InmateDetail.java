@@ -69,6 +69,12 @@ public class InmateDetail {
     @ApiModelProperty(value = "The prisoner's preferred spoken language.")
     private String language;
 
+    @ApiModelProperty(value = "The prisoner's requires an interpreter")
+    private Boolean interpreterRequired;
+
+    @ApiModelProperty(value = "The prisoner's preferred written language")
+    private String writtenLanguage;
+
     @ApiModelProperty(value = "List of Alerts")
     private List<String> alertsCodes;
 

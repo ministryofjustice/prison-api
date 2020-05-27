@@ -23,17 +23,16 @@ public class OffenderLanguageRepositoryTest {
     public void testGetLanguages() {
         assertThat(repository.findByOffenderBookId(-1L))
                 .containsExactly(
-                        OffenderLanguage.builder().offenderBookId(-1L).type("PREF_SPEAK").code("POL").writeSkill("N").readSkill("N").speakSkill("N").referenceCode(new LanguageReferenceCode("POL", "Polish")).build()
+                        OffenderLanguage.builder().offenderBookId(-1L).type("PREF_SPEAK").code("POL").writeSkill("N").readSkill("N").speakSkill("N").referenceCode(new LanguageReferenceCode("POL", "Polish")).interpreterRequestedFlag("N").preferredWriteFlag("Y").build()
                 );
 
         assertThat(repository.findByOffenderBookId(-3L))
                 .containsAnyOf(
-                        OffenderLanguage.builder().offenderBookId(-3L).type("PREF_SPEAK").code("TUR").readSkill("N").readSkill("N").speakSkill("N").referenceCode(new LanguageReferenceCode("TUR","Turkish")).build(),
-                        OffenderLanguage.builder().offenderBookId(-3L).type("PREF_SPEAK").code("ENG").readSkill("N").writeSkill("N").speakSkill("N").referenceCode(new LanguageReferenceCode("ENG", "English")).build(),
-                        OffenderLanguage.builder().offenderBookId(-3L).type("SEC").code("ENG").readSkill("Y").writeSkill("Y").speakSkill("Y").referenceCode(new LanguageReferenceCode("EMG","English")).build(),
-                        OffenderLanguage.builder().offenderBookId(-3L).type("SEC").code("KUR").readSkill("N").writeSkill("N").speakSkill("Y").referenceCode(new LanguageReferenceCode("KUR", "Kurdish")).build(),
-                        OffenderLanguage.builder().offenderBookId(-3L).type("SEC").code("SPA").readSkill("N").writeSkill("N").speakSkill("N").referenceCode(new LanguageReferenceCode("SPA","Spanish; Castilian")).build(),
-                        OffenderLanguage.builder().offenderBookId(-3L).type("PREF_WRITE").code("TUR").readSkill("N").writeSkill("N").speakSkill("N").referenceCode(new LanguageReferenceCode("TUR","Turkish")).build()
+                        OffenderLanguage.builder().offenderBookId(-3L).type("PREF_SPEAK").code("ENG").readSkill("N").writeSkill("N").speakSkill("N").referenceCode(new LanguageReferenceCode("ENG", "English")).interpreterRequestedFlag("N").preferredWriteFlag(null).build(),
+                        OffenderLanguage.builder().offenderBookId(-3L).type("SEC").code("ENG").readSkill("Y").writeSkill("Y").speakSkill("Y").referenceCode(new LanguageReferenceCode("EMG","English")).interpreterRequestedFlag("N").preferredWriteFlag(null).build(),
+                        OffenderLanguage.builder().offenderBookId(-3L).type("SEC").code("KUR").readSkill("N").writeSkill("N").speakSkill("Y").referenceCode(new LanguageReferenceCode("KUR", "Kurdish")).interpreterRequestedFlag("N").preferredWriteFlag(null).build(),
+                        OffenderLanguage.builder().offenderBookId(-3L).type("SEC").code("SPA").readSkill("N").writeSkill("N").speakSkill("N").referenceCode(new LanguageReferenceCode("SPA","Spanish; Castilian")).interpreterRequestedFlag("N").preferredWriteFlag(null).build(),
+                        OffenderLanguage.builder().offenderBookId(-3L).type("PREF_WRITE").code("TUR").readSkill("N").writeSkill("N").speakSkill("N").referenceCode(new LanguageReferenceCode("TUR","Turkish")).interpreterRequestedFlag("N").preferredWriteFlag("Y").build()
                 );
     }
 }
