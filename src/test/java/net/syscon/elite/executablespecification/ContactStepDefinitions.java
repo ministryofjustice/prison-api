@@ -23,7 +23,6 @@ public class ContactStepDefinitions extends AbstractStepDefinitions {
 
     @When("^contact details with booking id ([0-9-]+) is requested$")
     public void sentenceWithBookingId(final Long id) {
-        System.out.println();
         contactSteps.getContacts(id);
     }
 
