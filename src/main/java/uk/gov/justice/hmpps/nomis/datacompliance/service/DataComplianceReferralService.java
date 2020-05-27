@@ -3,25 +3,25 @@ package uk.gov.justice.hmpps.nomis.datacompliance.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.OffenderNumber;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderWithBookings;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Service
@@ -35,15 +35,21 @@ public class DataComplianceReferralService {
 
     public CompletableFuture<Void> acceptOffendersPendingDeletionRequest(final Long batchId,
                                                                          final LocalDateTime from,
-                                                                         final LocalDateTime to) {
-        return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to))
+                                                                         final LocalDateTime to,
+                                                                         final Pageable pageable) {
+        return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to, pageable))
 
-                .thenAccept(offenders -> offenders.forEach(offenderNumber ->
-                        dataComplianceEventPusher.send(
-                                generateOffenderPendingDeletionEvent(offenderNumber, batchId))))
+                .thenApply(offenders -> {
+                    offenders.forEach(offenderNumber ->
+                            dataComplianceEventPusher.send(
+                                    generateOffenderPendingDeletionEvent(offenderNumber, batchId)));
 
-                .thenRun(() -> dataComplianceEventPusher.send(
-                        new OffenderPendingDeletionReferralComplete(batchId)));
+                    return offenders;
+                })
+
+                .thenAccept(offenders -> dataComplianceEventPusher.send(
+                        new OffenderPendingDeletionReferralComplete(
+                                batchId, (long) offenders.getNumberOfElements(), offenders.getTotalElements())));
     }
 
     private OffenderPendingDeletion generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber,
@@ -63,13 +69,12 @@ public class DataComplianceReferralService {
         return transform(offenderNumber, rootOffenderAlias, offenderAliases, batchId);
     }
 
-    private List<OffenderNumber> getOffendersPendingDeletion(final LocalDateTime from,
-                                                             final LocalDateTime to) {
+    private Page<OffenderNumber> getOffendersPendingDeletion(final LocalDateTime from,
+                                                             final LocalDateTime to,
+                                                             final Pageable pageable) {
         return offenderPendingDeletionRepository
-                .getOffendersDueForDeletionBetween(from.toLocalDate(), to.toLocalDate())
-                .stream()
-                .map(this::transform)
-                .collect(toList());
+                .getOffendersDueForDeletionBetween(from.toLocalDate(), to.toLocalDate(), pageable)
+                .map(this::transform);
     }
 
     private OffenderNumber transform(final uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion entity) {
