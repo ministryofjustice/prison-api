@@ -12,7 +12,6 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -85,7 +84,7 @@ public class OffenderCourtCase extends AuditableEntity {
 
     @OneToMany(mappedBy = "offenderCourtCase")
     @Default
-    private List<CourtEvent> courtEvents = new ArrayList<>();
+    private final List<CourtEvent> courtEvents = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderCourtCase")
     private final List<OffenderCharge> charges = new ArrayList<>();
@@ -98,11 +97,8 @@ public class OffenderCourtCase extends AuditableEntity {
         return Optional.ofNullable(caseStatus);
     }
 
-    public void add(final CourtEvent courtEvent) {
-        this.courtEvents.add(courtEvent);
-
-        courtEvent.setOffenderCourtCase(this);
-        courtEvent.setOffenderBooking(getOffenderBooking());
+    public void add(final OffenderCharge charge) {
+        charges.add(charge);
     }
 
     public boolean isActive() {

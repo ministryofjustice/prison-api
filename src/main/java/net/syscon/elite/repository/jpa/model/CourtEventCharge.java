@@ -1,16 +1,17 @@
 package net.syscon.elite.repository.jpa.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -18,25 +19,23 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
- * The represents the outcomes of offences in court and linked to {@link CourtEvent}s by the id.
+ * This represents the outcomes of offences in after going to court and linked to a {@link CourtEvent} by the id.
  */
-@Data
+@Getter
 @Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "COURT_EVENT_CHARGES")
-@IdClass(CourtEventCharge.Pk.class)
-@ToString(exclude = {"offenderCharge"})
+@ToString(exclude = {"eventAndCharge"})
 public class CourtEventCharge extends AuditableEntity {
 
     @AllArgsConstructor
     @NoArgsConstructor
+    @Embeddable
     public static class Pk implements Serializable {
-        @Id
         @ManyToOne(optional = false)
         @JoinColumn(name = "EVENT_ID", nullable = false)
         private CourtEvent courtEvent;
@@ -46,15 +45,8 @@ public class CourtEventCharge extends AuditableEntity {
         private OffenderCharge offenderCharge;
     }
 
-    @Id
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "EVENT_ID", nullable = false)
-    private CourtEvent courtEvent;
-
-    @Id
-    @OneToOne(optional = false)
-    @JoinColumn(name = "OFFENDER_CHARGE_ID", nullable = false)
-    private OffenderCharge offenderCharge;
+    @EmbeddedId
+    private CourtEventCharge.Pk eventAndCharge;
 
     @Column(name = "PLEA_CODE")
     private String pleaCode;
@@ -97,4 +89,26 @@ public class CourtEventCharge extends AuditableEntity {
 
     @Column(name = "CJIT_OFFENCE_CODE_3")
     private String criminalJusticeInterventionsTeamCodeThree;
+
+    @Builder
+    private CourtEventCharge(final OffenderCharge offenderCharge, final CourtEvent courtEvent) {
+        Objects.requireNonNull(offenderCharge, "Offender Charge cannot be null.");
+        Objects.requireNonNull(courtEvent, "Court Event cannot be null");
+
+        this.eventAndCharge = new CourtEventCharge.Pk(courtEvent, offenderCharge);
+        this.pleaCode = offenderCharge.getPleaCode();
+        this.resultCodeOne = offenderCharge.getResultCodeOne();
+        this.resultCodeTwo = offenderCharge.getResultCodeTwo();
+        this.resultCodeOneIndicator = offenderCharge.getResultCodeOneIndicator();
+        this.resultCodeTwoIndicator = offenderCharge.getResultCodeTwoIndicator();
+        this.mostSeriousFlag = offenderCharge.getMostSeriousFlag();
+        this.propertyValue = offenderCharge.getPropertyValue();
+        this.totalPropertyValue = offenderCharge.getTotalPropertyValue();
+        this.numberOfOffences = offenderCharge.getNumberOfOffences();
+        this.dateOfOffence = offenderCharge.getDateOfOffence();
+        this.endDate = offenderCharge.getEndDate();
+        this.criminalJusticeInterventionsTeamCodeOne = offenderCharge.getCriminalJusticeInterventionsTeamCodeOne();
+        this.criminalJusticeInterventionsTeamCodeTwo = offenderCharge.getCriminalJusticeInterventionsTeamCodeTwo();
+        this.criminalJusticeInterventionsTeamCodeThree = offenderCharge.getCriminalJusticeInterventionsTeamCodeThree();
+    }
 }

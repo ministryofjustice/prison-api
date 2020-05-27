@@ -37,7 +37,7 @@ public class OffenderCharge extends AuditableEntity {
     private OffenderBooking offenderBooking;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "CASE_ID")
+    @JoinColumn(name = "CASE_ID", nullable = false)
     private OffenderCourtCase offenderCourtCase;
 
     @Column(name = "STATUTE_CODE", nullable = false)
