@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.jpa.repository;
 
 import net.syscon.elite.repository.jpa.model.CourtEvent;
+import net.syscon.elite.repository.jpa.model.CourtEvent.CourtEventBuilder;
 import net.syscon.elite.repository.jpa.model.EventStatus;
 import net.syscon.elite.repository.jpa.model.EventType;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -50,7 +51,9 @@ public class CourtEventRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private final CourtEvent.CourtEventBuilder builder = CourtEvent.builder();
+    private final CourtEventBuilder builder = CourtEvent.builder();
+    private CourtEvent persisted;
+    private CourtEvent courtEvent;
 
     @BeforeEach
     void setup() {
@@ -100,6 +103,21 @@ public class CourtEventRepositoryTest {
     }
 
     @Test
+    void court_event_charges_are_carried_over_from_court_case_on_creation() {
+        final var prePersistCourtEvent = builder.build();
+
+        assertThat(prePersistCourtEvent.getCharges()).isEmpty();
+
+        final var savedCourtEventWithCourtCase = courtEventRepository.save(prePersistCourtEvent);
+
+        entityManager.flush();
+
+        final var postPersistCourtEvent = courtEventRepository.findById(savedCourtEventWithCourtCase.getId()).orElseThrow();
+
+        assertThat(postPersistCourtEvent.getCharges()).isNotEmpty();
+    }
+
+    @Test
     void court_event_without_court_case_retrieved() {
         final var bookingWithoutCourtCase = offenderBookingRepository.findById(BOOKING_WITHOUT_COURT_CASE).orElseThrow();
 
@@ -112,6 +130,7 @@ public class CourtEventRepositoryTest {
 
         assertThat(savedCourtEventWithoutCourtCase.getOffenderBooking().getCourtCases()).isEmpty();
         assertThat(savedCourtEventWithoutCourtCase.getOffenderCourtCase()).isEmpty();
+        assertThat(savedCourtEventWithoutCourtCase.getCharges()).isEmpty();
 
         assertThat(courtEventRepository.findById(savedCourtEventWithoutCourtCase.getId()).orElseThrow()).isEqualTo(savedCourtEventWithoutCourtCase);
     }

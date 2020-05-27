@@ -7,21 +7,27 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static net.syscon.elite.repository.jpa.model.EventStatus.EVENT_STS;
@@ -36,6 +42,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "COURT_EVENTS")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
+@Slf4j
 public class CourtEvent extends AuditableEntity {
 
     @SequenceGenerator(name = "EVENT_ID", sequenceName = "EVENT_ID", allocationSize = 1)
@@ -92,11 +99,30 @@ public class CourtEvent extends AuditableEntity {
     @Column(name = "DIRECTION_CODE", length = 12)
     private String directionCode;
 
+    @OneToMany(mappedBy = "eventAndCharge.courtEvent", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    private final List<CourtEventCharge> charges = new ArrayList<>();
+
     public Optional<OffenderCourtCase> getOffenderCourtCase() {
         return Optional.ofNullable(offenderCourtCase);
     }
 
     public LocalDateTime getEventDateTime() {
         return eventDate.atTime(startTime.toLocalTime());
+    }
+
+    @PrePersist
+    private void carryOverPreExistingChargesOnCreation() {
+        if (offenderCourtCase != null) {
+            log.debug("Adding pre-existing charges to new court event for court case '{}", offenderCourtCase.getId());
+
+            offenderCourtCase.getCharges().forEach(this::addPreExisting);
+        }
+    }
+
+    private void addPreExisting(final OffenderCharge charge) {
+        charges.add(CourtEventCharge.builder()
+                .offenderCharge(charge)
+                .courtEvent(this)
+                .build());
     }
 }
