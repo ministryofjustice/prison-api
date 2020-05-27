@@ -1,6 +1,5 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -84,8 +83,5 @@ public class Contact {
 
     @ApiModelProperty(required = true, value = "Offender Booking Id for this contact", example = "2468081", position = 18)
     private Long bookingId;
-
-    @JsonIgnore
-    public boolean isOfficial() { return "O".equals(contactType); }
 
 }
