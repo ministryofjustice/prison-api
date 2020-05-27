@@ -13,6 +13,8 @@
   "alertsCodes":["H","X"],
   "activeAlertCount":2,
   "inactiveAlertCount":0,
+  "interpreterRequired":false,
+  "writtenLanguage":"Polish",
   "alerts":[
     {
       "alertId":1,
