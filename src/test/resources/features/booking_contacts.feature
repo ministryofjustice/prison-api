@@ -23,6 +23,21 @@ Feature: Booking Contacts
       | -2        | Smith     | John      | asdf       | S           | Social/Family          | BOF          | Boyfriend               |      true        |
       | -3        | JOHNSON   | JOHN      | JUSTICE    | S           | Social/Family          | BRO          | Brother                 |      false       |
 
+  Scenario Outline: Request for non next of kin information about an offender
+    When contact details with booking id <bookingId> is requested
+    Then the other contacts lastName is "<lastName>"
+    And the other contacts firstName is "<firstName>"
+    And the other contacts middleName is "<middleName>"
+    And the other contacts contactType is "<contactType>"
+    And the other contacts contactTypeDescription is "<contactTypeDescription>"
+    And the other contacts relationship is "<relationship>"
+    And the other contacts relationshipDescription is "<relationshipDescription>"
+    And the other contacts emergencyContact is "<emergencyContact>"
+
+    Examples:
+      | bookingId | lastName  | firstName | middleName | contactType | contactTypeDescription | relationship | relationshipDescription    | emergencyContact |
+      | -1        | BREAKFAST | ENGLISH   |            | O           | Official               | COM          | Community Offender Manager |      false       |
+
   Scenario: Offender has no next of kin, no data
     When contact details with booking id -4 is requested
     Then There is no next of kin

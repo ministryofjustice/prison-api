@@ -25,6 +25,11 @@ public class ContactSteps extends CommonSteps {
         verifyField(details.getNextOfKin().get(index), field, value);
     }
 
+    @Step("Verify value of other contacts field in details")
+    public void verifyOtherContactsField(final String field, final String value) throws ReflectiveOperationException {
+        verifyField(details.getOtherContacts().get(index), field, value);
+    }
+
     private void doSingleResultApiCall(final long bookingId) {
         init();
         try {

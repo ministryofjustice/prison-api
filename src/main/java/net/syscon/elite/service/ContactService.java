@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -49,14 +50,12 @@ public class ContactService {
 
         sortCriteria = sortCriteria.thenComparing(Contact::getLastName);
 
-        final var activeContactsStream = contacts.stream().filter(Contact::isActiveFlag);
+        final Map<Boolean, List<Contact>> activeContactsMap = contacts.stream().filter(Contact::isActiveFlag).collect(Collectors.partitioningBy(Contact::isNextOfKin));
         return ContactDetail.builder()
-                .nextOfKin(activeContactsStream
-                        .filter(Contact::isNextOfKin)
+                .nextOfKin(activeContactsMap.get(true).stream()
                         .sorted(sortCriteria)
                         .collect(toList()))
-                .official(activeContactsStream
-                        .filter(Contact::isOfficial)
+                .otherContacts(activeContactsMap.get(false).stream()
                         .sorted(sortCriteria)
                         .collect(toList())).build();
     }

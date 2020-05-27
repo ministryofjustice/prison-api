@@ -36,5 +36,5 @@ public class ContactDetail {
 
     @NotNull
     @Builder.Default
-    private List<Contact> official = new ArrayList<Contact>();
+    private List<Contact> otherContacts = new ArrayList<Contact>();
 }
