@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -49,12 +50,14 @@ public class ContactService {
 
         sortCriteria = sortCriteria.thenComparing(Contact::getLastName);
 
-        final var list = contacts.stream()
-                .filter(Contact::isActiveFlag)
-                .filter(Contact::isNextOfKin)
-                .sorted(sortCriteria)
-                .collect(toList());
-        return ContactDetail.builder().nextOfKin(list).build();
+        final Map<Boolean, List<Contact>> activeContactsMap = contacts.stream().filter(Contact::isActiveFlag).collect(Collectors.partitioningBy(Contact::isNextOfKin));
+        return ContactDetail.builder()
+                .nextOfKin(activeContactsMap.get(true).stream()
+                        .sorted(sortCriteria)
+                        .collect(toList()))
+                .otherContacts(activeContactsMap.get(false).stream()
+                        .sorted(sortCriteria)
+                        .collect(toList())).build();
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
