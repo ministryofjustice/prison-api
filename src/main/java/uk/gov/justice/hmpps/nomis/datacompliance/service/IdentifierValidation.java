@@ -1,8 +1,11 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.lang.Integer.parseInt;
@@ -23,49 +26,46 @@ public class IdentifierValidation {
     // All letters from the alphabet excluding 'I', 'O' and 'S', with 'Z' at the 0th index:
     private static final char[] VALID_CHECKSUM_CHARACTERS = {'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'T', 'U', 'V', 'W', 'X', 'Y'};
 
-    public static boolean isValidPncNumber(final String pncNumber) {
-
-        final var pncMatcher = VALID_PNC_FORMAT.matcher(pncNumber);
-
-        if (!pncMatcher.matches()) {
-            return false;
-        }
-
-        return isChecksumAMatch(
-                ChecksumComponents.builder()
-                        .year(pncMatcher.group(1))
-                        .serial(pncMatcher.group(2))
+    public static Optional<ChecksumComponents> getValidPncComponents(final String pncNumber) {
+        return matching(pncNumber, VALID_PNC_FORMAT)
+                .map(match -> ChecksumComponents.builder()
+                        .year(match.group(1))
+                        .serial(match.group(2))
                         .serialFormat("%07d")
-                        .checksum(pncMatcher.group(3))
-                        .build());
+                        .checksum(match.group(3))
+                        .build())
+                .filter(IdentifierValidation::isChecksumAMatch);
     }
 
-    public static boolean isValidCroNumber(final String croNumber) {
+    public static Optional<ChecksumComponents> getValidCroComponents(final String croNumber) {
+        return getValidStandardCroComponents(croNumber)
+                .or(() -> getValidCroSfComponents(croNumber));
+    }
 
-        final var croMatcher = VALID_CRO_FORMAT.matcher(croNumber);
-        final var croSfMatcher = VALID_CRO_SF_FORMAT.matcher(croNumber);
+    private static Optional<ChecksumComponents> getValidStandardCroComponents(final String croNumber) {
+        return matching(croNumber, VALID_CRO_FORMAT)
+                .map(match -> ChecksumComponents.builder()
+                        .year(match.group(2))
+                        .serial(match.group(1))
+                        .serialFormat("%06d")
+                        .checksum(match.group(3))
+                        .build())
+                .filter(IdentifierValidation::isChecksumAMatch);
+    }
 
-        if (croMatcher.matches()) {
-            return isChecksumAMatch(
-                    ChecksumComponents.builder()
-                            .year(croMatcher.group(2))
-                            .serial(croMatcher.group(1))
-                            .serialFormat("%06d")
-                            .checksum(croMatcher.group(3))
-                            .build());
-        }
+    private static Optional<ChecksumComponents> getValidCroSfComponents(final String croNumber) {
+        return matching(croNumber, VALID_CRO_SF_FORMAT)
+                .map(match -> ChecksumComponents.builder()
+                        .year(match.group(1))
+                        .serial(match.group(2))
+                        .serialFormat("%06d")
+                        .checksum(match.group(3))
+                        .build())
+                .filter(IdentifierValidation::isChecksumAMatch);
+    }
 
-        if (croSfMatcher.matches()) {
-            return isChecksumAMatch(
-                    ChecksumComponents.builder()
-                            .year(croSfMatcher.group(1))
-                            .serial(croSfMatcher.group(2))
-                            .serialFormat("%06d")
-                            .checksum(croSfMatcher.group(3))
-                            .build());
-        }
-
-        return false;
+    private static Optional<Matcher> matching(final String identity, final Pattern pattern) {
+        return Optional.of(pattern.matcher(identity)).filter(Matcher::matches);
     }
 
     private static boolean isChecksumAMatch(final ChecksumComponents components) {
@@ -76,8 +76,9 @@ public class IdentifierValidation {
         return VALID_CHECKSUM_CHARACTERS[digits % VALID_CHECKSUM_CHARACTERS.length];
     }
 
+    @Getter
     @Builder
-    private static class ChecksumComponents {
+    public static class ChecksumComponents {
         private final String year;
         private final String serial;
         private final String serialFormat;
