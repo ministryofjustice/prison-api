@@ -40,10 +40,10 @@ class IdentifierValidationTest {
         assertThat(getValidCroComponents("1234/88P")).isPresent();
         assertThat(getValidCroComponents("1/11X")).isPresent();
 
-        assertThat(getValidCroComponents("SF99/123456L")).isPresent();
-        assertThat(getValidCroComponents("SF88/001234P")).isPresent();
-        assertThat(getValidCroComponents("SF88/1234P")).isPresent();
-        assertThat(getValidCroComponents("SF11/1X")).isPresent();
+        assertThat(getValidCroComponents("SF99/12345M")).isPresent();
+        assertThat(getValidCroComponents("SF88/01234H")).isPresent();
+        assertThat(getValidCroComponents("SF88/1234H")).isPresent();
+        assertThat(getValidCroComponents("SF11/1C")).isPresent();
 
         assertThat(getValidCroComponents("123456/99Z")).isEmpty();
         assertThat(getValidCroComponents("1234567/99L")).isEmpty();
