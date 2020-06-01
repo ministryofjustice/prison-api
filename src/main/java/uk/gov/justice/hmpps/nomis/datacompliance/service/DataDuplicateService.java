@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.lang.Integer.parseInt;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
@@ -39,10 +40,10 @@ public class DataDuplicateService {
 
         final var duplicateOffenders = ImmutableSet.<String>builder()
                 .addAll(getOffendersWithMatchingPncNumbers(offenderNo, offenderAliases))
+                .addAll(getOffendersWithMatchingCroNumbers(offenderNo, offenderAliases))
                 .build();
 
         // TODO GDPR-110 duplicate checks including:
-        //  * CRO
         //  * LIDS Number
         //  * Personal data
 
@@ -53,10 +54,43 @@ public class DataDuplicateService {
                 .build());
     }
 
+    private Set<String> getOffendersWithMatchingCroNumbers(final String offenderNo,
+                                                           final List<OffenderAliasPendingDeletion> offenderAliases) {
+
+        final var croNumbers = getFormattedCroNumbersFrom(offenderAliases);
+
+        if (croNumbers.isEmpty()) {
+            return emptySet();
+        }
+
+        final var duplicates = duplicateOffenderRepository.getOffendersWithMatchingCroNumbers(offenderNo, croNumbers).stream()
+                .map(DuplicateOffender::getOffenderNumber)
+                .collect(toSet());
+
+        if (!duplicates.isEmpty()) {
+            log.info("Found offender(s) ({}) with matching CROs for offender '{}'", duplicates, offenderNo);
+        }
+
+        return duplicates;
+    }
+
+    private Set<String> getFormattedCroNumbersFrom(final List<OffenderAliasPendingDeletion> offenderAliases) {
+        return getIdentifiersFrom(offenderAliases, OffenderIdentifierPendingDeletion::isCro)
+                .map(IdentifierValidation::getValidCroComponents)
+                .flatMap(Optional::stream)
+                .map(this::formatChecksumComponentsWithNoLeadingZeros)
+                .collect(toSet());
+    }
+
     private Set<String> getOffendersWithMatchingPncNumbers(final String offenderNo,
                                                            final List<OffenderAliasPendingDeletion> offenderAliases) {
 
         final var pncNumbers = getFormattedPncNumbersFrom(offenderAliases);
+
+        if (pncNumbers.isEmpty()) {
+            return emptySet();
+        }
+
         final var duplicates = duplicateOffenderRepository.getOffendersWithMatchingPncNumbers(offenderNo, pncNumbers).stream()
                 .map(DuplicateOffender::getOffenderNumber)
                 .collect(toSet());
@@ -72,11 +106,11 @@ public class DataDuplicateService {
         return getIdentifiersFrom(offenderAliases, OffenderIdentifierPendingDeletion::isPnc)
                 .map(IdentifierValidation::getValidPncComponents)
                 .flatMap(Optional::stream)
-                .map(this::formatPncWithNoLeadingZeros)
+                .map(this::formatChecksumComponentsWithNoLeadingZeros)
                 .collect(toSet());
     }
 
-    private String formatPncWithNoLeadingZeros(final ChecksumComponents components) {
+    private String formatChecksumComponentsWithNoLeadingZeros(final ChecksumComponents components) {
         return components.getYear() + "/" + parseInt(components.getSerial()) + components.getChecksum();
     }
 
