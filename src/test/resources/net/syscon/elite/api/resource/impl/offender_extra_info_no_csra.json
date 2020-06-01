@@ -43,17 +43,6 @@
   "categoryCode": "B",
   "birthCountryCode": "UK",
   "inOutStatus": "IN",
-  "identifiers": [
-    {
-      "type": "PNC",
-      "value": " - 20/0009n ",
-      "offenderNo": "A1184MA",
-      "bookingId": -41,
-      "issuedDate": "2017-08-28",
-      "caseloadType": "INST"
-    }
-  ],
-  "personalCareNeeds": [],
   "sentenceDetail": {
     "bookingId": -41
   },
