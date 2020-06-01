@@ -48,4 +48,8 @@ public class OffenderAliasPendingDeletion {
     @Singular
     @OneToMany(mappedBy = "offenderAlias", fetch = FetchType.EAGER)
     private List<OffenderBookingPendingDeletion> offenderBookings;
+
+    @Singular
+    @OneToMany(mappedBy = "offenderAlias")
+    private List<OffenderIdentifierPendingDeletion> offenderIdentifiers;
 }

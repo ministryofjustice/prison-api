@@ -10,6 +10,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.DuplicateOffender;
 
+import java.util.Set;
+
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -26,21 +29,21 @@ class DuplicateOffenderRepositoryTest {
     private DuplicateOffenderRepository repository;
 
     @Test
-    void getOffendersWithMatchingPncNumber() {
-        assertThat(repository.getOffendersWithMatchingPncNumber("Z0020ZZ"))
+    void getOffendersWithMatchingPncNumbers() {
+        assertThat(repository.getOffendersWithMatchingPncNumbers("Z0020ZZ", Set.of("99/1234567B", "20/9N")))
                 .extracting(DuplicateOffender::getOffenderNumber)
                 .containsExactlyInAnyOrder("A1184JR", "A1184MA");
     }
 
     @Test
-    void getOffendersWithMatchingPncNumberIsCommutative() {
-        assertThat(repository.getOffendersWithMatchingPncNumber("A1184JR"))
+    void getOffendersWithMatchingPncNumbersIsCommutative() {
+        assertThat(repository.getOffendersWithMatchingPncNumbers("A1184JR", Set.of("99/1234567B")))
                 .extracting(DuplicateOffender::getOffenderNumber)
                 .containsExactlyInAnyOrder("Z0020ZZ");
     }
 
     @Test
-    void getOffendersWithMatchingPncNumberReturnsEmpty() {
-        assertThat(repository.getOffendersWithMatchingPncNumber("A1179MT")).isEmpty();
+    void getOffendersWithMatchingPncNumbersReturnsEmpty() {
+        assertThat(repository.getOffendersWithMatchingPncNumbers("A1234AA", emptySet())).isEmpty();
     }
 }
