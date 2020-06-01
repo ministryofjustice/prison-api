@@ -1,0 +1,63 @@
+{
+  "bookingId": -41,
+  "bookingNo": "Z00041",
+  "offenderNo": "A1184MA",
+  "firstName": "MOEEN",
+  "lastName": "ALI",
+  "agencyId": "SYI",
+  "activeFlag": true,
+  "alertsCodes": [],
+  "activeAlertCount": 0,
+  "inactiveAlertCount": 0,
+  "alerts": [],
+  "assignedLivingUnit": {
+    "agencyId": "SYI",
+    "agencyName": "Shrewsbury"
+  },
+  "dateOfBirth": "1987-06-18",
+  "age": 32,
+  "physicalAttributes": {
+    "gender": "Male",
+    "raceCode": "W1",
+    "ethnicity": "White: British",
+    "sexCode": "M"
+  },
+  "physicalCharacteristics": [],
+  "profileInformation": [],
+  "physicalMarks": [],
+  "assessments": [
+    {
+      "bookingId": -41,
+      "classificationCode": "B",
+      "classification": "Cat B",
+      "assessmentCode": "CATEGORY",
+      "assessmentDescription": "Categorisation",
+      "cellSharingAlertFlag": false,
+      "assessmentDate": "2019-01-01",
+      "nextReviewDate": "2019-10-22",
+      "assessmentStatus": "A",
+      "assessmentSeq": 1
+    }
+  ],
+  "category": "Cat B",
+  "categoryCode": "B",
+  "birthCountryCode": "UK",
+  "inOutStatus": "IN",
+  "identifiers": [
+    {
+      "type": "PNC",
+      "value": " - 20/0009n ",
+      "offenderNo": "A1184MA",
+      "bookingId": -41,
+      "issuedDate": "2017-08-28",
+      "caseloadType": "INST"
+    }
+  ],
+  "personalCareNeeds": [],
+  "sentenceDetail": {
+    "bookingId": -41
+  },
+  "offenceHistory": [],
+  "aliases": [],
+  "status": "ACTIVE IN"
+}

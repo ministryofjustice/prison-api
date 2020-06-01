@@ -2,12 +2,12 @@ package net.syscon.elite.api.resource.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import net.syscon.elite.api.model.AddressDto;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.api.model.InmateDetail;
 import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.AddressDto;
 import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.model.UpdateCaseNote;
