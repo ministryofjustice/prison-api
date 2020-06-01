@@ -22,10 +22,10 @@ public interface DuplicateOffenderRepository extends org.springframework.data.re
                     "INNER JOIN OFFENDER_IDENTIFIERS OI1 " +
                     "ON O1.OFFENDER_ID = OI1.OFFENDER_ID " +
                     "WHERE OI1.IDENTIFIER_TYPE = 'PNC' " +
+                    "AND O1.OFFENDER_ID_DISPLAY != :offenderNo " +
                     "AND REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '[0-9]{2}/') " +
-                    "|| REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '[1-9][0-9]*[A-Z]$')" +
-                    "IN (:formattedIds) " +
-                    "AND O1.OFFENDER_ID_DISPLAY != :offenderNo",
+                    "|| REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '[1-9][0-9]*[A-Z]$') " +
+                    "IN (:formattedIds)",
             nativeQuery = true)
     List<DuplicateOffender> getOffendersWithMatchingPncNumbers(String offenderNo, Set<String> formattedIds);
 
@@ -38,12 +38,17 @@ public interface DuplicateOffenderRepository extends org.springframework.data.re
                     "INNER JOIN OFFENDER_IDENTIFIERS OI1 " +
                     "ON O1.OFFENDER_ID = OI1.OFFENDER_ID " +
                     "WHERE OI1.IDENTIFIER_TYPE = 'CRO' " +
-                    "AND REGEXP_REPLACE(REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '/[0-9]{2}'), '/', '')" +
-                    "|| '/'" +
-                    "|| REGEXP_REPLACE(REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '[1-9][0-9]*/'), '/', '')" +
-                    "|| REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '[A-Z]$') " +
-                    "IN (:formattedIds) " +
-                    "AND O1.OFFENDER_ID_DISPLAY != :offenderNo",
+                    "AND O1.OFFENDER_ID_DISPLAY != :offenderNo " +
+                    "AND (" +
+                    "    REGEXP_REPLACE(REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '/[0-9]{2}'), '/', '')" +
+                    "    || '/'" +
+                    "    || REGEXP_REPLACE(REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '[1-9][0-9]*/'), '/', '')" +
+                    "    || REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '[A-Z]$') " +
+                    "    IN (:formattedIds)" +
+                    "    OR REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '[0-9]{2}/') " +
+                    "    || REGEXP_SUBSTR(TRIM(UPPER(OI1.IDENTIFIER)), '[1-9][0-9]*[A-Z]$') " +
+                    "    IN (:formattedIds)" +
+                    ")",
             nativeQuery = true)
     List<DuplicateOffender> getOffendersWithMatchingCroNumbers(String offenderNo, Set<String> formattedIds);
 }

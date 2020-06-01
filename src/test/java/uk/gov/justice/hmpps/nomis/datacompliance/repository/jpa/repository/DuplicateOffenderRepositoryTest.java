@@ -48,9 +48,9 @@ class DuplicateOffenderRepositoryTest {
 
     @Test
     void getOffendersWithMatchingCroNumbers() {
-        assertThat(repository.getOffendersWithMatchingCroNumbers("Z0020ZZ", Set.of("99/123456L", "11/1X")))
+        assertThat(repository.getOffendersWithMatchingCroNumbers("Z0020ZZ", Set.of("99/123456L", "11/1X", "99/12345M")))
                 .extracting(DuplicateOffender::getOffenderNumber)
-                .containsExactlyInAnyOrder("A1184JR", "A1184MA");
+                .containsExactlyInAnyOrder("A1184JR", "A1184MA", "A1183CW");
     }
 
     @Test
