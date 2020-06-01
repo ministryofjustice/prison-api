@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.DuplicateO
 
 import java.util.Set;
 
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -39,11 +38,30 @@ class DuplicateOffenderRepositoryTest {
     void getOffendersWithMatchingPncNumbersIsCommutative() {
         assertThat(repository.getOffendersWithMatchingPncNumbers("A1184JR", Set.of("99/1234567B")))
                 .extracting(DuplicateOffender::getOffenderNumber)
-                .containsExactlyInAnyOrder("Z0020ZZ");
+                .containsOnly("Z0020ZZ");
     }
 
     @Test
     void getOffendersWithMatchingPncNumbersReturnsEmpty() {
-        assertThat(repository.getOffendersWithMatchingPncNumbers("A1234AA", emptySet())).isEmpty();
+        assertThat(repository.getOffendersWithMatchingPncNumbers("A1234AA", Set.of("NOTHING-MATCHES-THIS"))).isEmpty();
+    }
+
+    @Test
+    void getOffendersWithMatchingCroNumbers() {
+        assertThat(repository.getOffendersWithMatchingCroNumbers("Z0020ZZ", Set.of("99/123456L", "11/1X")))
+                .extracting(DuplicateOffender::getOffenderNumber)
+                .containsExactlyInAnyOrder("A1184JR", "A1184MA");
+    }
+
+    @Test
+    void getOffendersWithMatchingCroNumbersIsCommutative() {
+        assertThat(repository.getOffendersWithMatchingCroNumbers("A1184JR", Set.of("99/123456L")))
+                .extracting(DuplicateOffender::getOffenderNumber)
+                .containsOnly("Z0020ZZ");
+    }
+
+    @Test
+    void getOffendersWithMatchingCroNumbersReturnsEmpty() {
+        assertThat(repository.getOffendersWithMatchingCroNumbers("A1234AA", Set.of("NOTHING-MATCHES-THIS"))).isEmpty();
     }
 }
