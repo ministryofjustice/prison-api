@@ -64,4 +64,11 @@ class DuplicateOffenderRepositoryTest {
     void getOffendersWithMatchingCroNumbersReturnsEmpty() {
         assertThat(repository.getOffendersWithMatchingCroNumbers("A1234AA", Set.of("NOTHING-MATCHES-THIS"))).isEmpty();
     }
+
+    @Test
+    void getOffendersWithMatchingLidsNumbers() {
+        assertThat(repository.getOffendersWithMatchingLidsNumbers("A1184JR"))
+                .extracting(DuplicateOffender::getOffenderNumber)
+                .containsExactlyInAnyOrder("A1184MA");
+    }
 }
