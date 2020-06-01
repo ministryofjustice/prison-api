@@ -58,6 +58,9 @@ public class AddressDto {
     @ApiModelProperty(value = "Date Added")
     private LocalDate startDate;
 
+    @ApiModelProperty(value = "Date ended")
+    private LocalDate endDate;
+
     @ApiModelProperty(value = "The phone number associated with the address")
     private List<Telephone> phones;
 }

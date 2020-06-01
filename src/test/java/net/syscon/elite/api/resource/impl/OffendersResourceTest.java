@@ -299,6 +299,21 @@ public class OffendersResourceTest extends ResourceTest {
         assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
     }
 
+    @Test
+    public void testCanRetrieveAddresses() {
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER), null, Map.of());
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{offenderNumber}/addresses",
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<String>() {},
+                OFFENDER_NUMBER);
+
+        assertThatJsonFileAndStatus(response, 200, "offender-address.json");
+    }
+
+
     private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER), null, headers);
         return testRestTemplate.exchange("/api/offenders/ids", HttpMethod.GET, requestEntity, String.class);
