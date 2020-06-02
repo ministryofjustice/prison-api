@@ -69,6 +69,6 @@ class DuplicateOffenderRepositoryTest {
     void getOffendersWithMatchingLidsNumbers() {
         assertThat(repository.getOffendersWithMatchingLidsNumbers("A1184JR"))
                 .extracting(DuplicateOffender::getOffenderNumber)
-                .containsExactlyInAnyOrder("A1184MA");
+                .containsExactlyInAnyOrder("A1183CW");
     }
 }
