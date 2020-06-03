@@ -3,11 +3,6 @@ Feature: Offenders
   AcceptanceCriteria:
     A logged in staff user can view the addresses of offenders
 
-  Scenario: A staff user views the address for an existing offender
-    Given a user has a token name of "ELITE2_API_USER"
-    When I view the addresses of offender with offender display number of "A1234AI"
-    Then the address results are returned
-
   Scenario: A staff user fails to find addresses as offender does not exist
     Given a user has a token name of "ELITE2_API_USER"
     When I view the addresses of offender with offender display number of "Does Not Exist"

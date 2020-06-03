@@ -63,4 +63,7 @@ public class AddressDto {
 
     @ApiModelProperty(value = "The phone number associated with the address")
     private List<Telephone> phones;
+
+    @ApiModelProperty(value = "The address usages/types")
+    private List<AddressUsageDto> addressUsages;
 }
