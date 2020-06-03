@@ -10,9 +10,10 @@ import net.syscon.elite.repository.jpa.model.City;
 import net.syscon.elite.repository.jpa.model.Country;
 import net.syscon.elite.repository.jpa.model.County;
 import net.syscon.elite.repository.jpa.model.Offender;
+import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.Phone;
 import net.syscon.elite.repository.jpa.repository.AddressRepository;
-import net.syscon.elite.repository.jpa.repository.OffenderRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.PhoneRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,9 +22,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -36,7 +39,7 @@ public class OffenderAddressServiceImplTest {
     private AddressRepository addressRepository;
 
     @Mock
-    private OffenderRepository offenderRepository;
+    private OffenderBookingRepository offenderBookingRepository;
 
     @Mock
     private PhoneRepository phoneRepository;
@@ -45,7 +48,7 @@ public class OffenderAddressServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        offenderAddressService = new OffenderAddressService(offenderRepository,addressRepository, phoneRepository);
+        offenderAddressService = new OffenderAddressService(offenderBookingRepository, addressRepository, phoneRepository);
     }
 
     @Test
@@ -53,8 +56,7 @@ public class OffenderAddressServiceImplTest {
 
         final var offenderNo = "off-1";
 
-
-        when(offenderRepository.findByNomsId(any())).thenReturn(Offender.builder().rootOffenderId(1L).build());
+        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any())).thenReturn(List.of(OffenderBooking.builder().offender(Offender.builder().rootOffenderId(1L).build()).build()));
         when(addressRepository.findAllByOwnerClassAndOwnerId(any(), anyLong())).thenReturn(List.of(
                 Address.builder()
                         .addressId(-15L)
@@ -120,7 +122,7 @@ public class OffenderAddressServiceImplTest {
         );
         List<AddressDto> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
 
-        verify(offenderRepository).findByNomsId(offenderNo);
+        verify(offenderBookingRepository).findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
         verify(addressRepository).findAllByOwnerClassAndOwnerId("OFF", 1L);
         verify(phoneRepository).findAllByOwnerClassAndOwnerId("ADDR", -15L);
 
@@ -174,5 +176,27 @@ public class OffenderAddressServiceImplTest {
                         .phones(List.of())
                         .build())
         );
+    }
+
+    @Test
+    public void testThatExceptionIsThrown_WhenMoreThanOneBookingIsFound() {
+        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any()))
+                .thenReturn(List.of(OffenderBooking.builder().bookingId(1L).build(), OffenderBooking.builder().bookingId(2L).build()));
+
+        assertThatThrownBy(() -> {
+            offenderAddressService.getAddressesByOffenderNo("A12345");
+        }).isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("More than one active booking was returned for offender number A12345\n");
+    }
+
+    @Test
+    public void testThatExceptionIsThrown_WhenNoActiveOffenderBookingsAreFound(){
+        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any()))
+                .thenReturn(Collections.emptyList());
+
+        assertThatThrownBy(() -> {
+            offenderAddressService.getAddressesByOffenderNo("A12345");
+        }).isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("No active offender bookings found for offender number A12345\n");
     }
 }
