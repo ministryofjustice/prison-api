@@ -23,6 +23,7 @@
       "alertCode": "VOP",
       "alertCodeDescription": "Rule 45 - Own Protection",
       "comment": "Alert Text 7",
+      "dateCreated": "2020-06-01",
       "expired": false,
       "active": true
     },
@@ -33,6 +34,7 @@
       "alertCode": "XTACT",
       "alertCodeDescription": "XTACT",
       "comment": "Alert XTACT 7",
+      "dateCreated": "2020-06-01",
       "expired": false,
       "active": true
     }
@@ -86,6 +88,17 @@
   "assessments": [
     {
       "bookingId": -7,
+      "classificationCode": "PEND",
+      "assessmentCode": "CSR",
+      "assessmentDescription": "CSR Rating",
+      "cellSharingAlertFlag": true,
+      "assessmentDate": "2020-02-01",
+      "nextReviewDate": "2020-06-01",
+      "assessmentStatus": "A",
+      "assessmentSeq": 2
+    },
+    {
+      "bookingId": -7,
       "classificationCode": "C",
       "classification": "Cat C",
       "assessmentCode": "CATEGORY",
@@ -97,13 +110,13 @@
       "assessmentSeq": 1
     }
   ],
-  "csra": "Cat C",
   "category": "Cat C",
   "categoryCode": "C",
   "assignedOfficerId": -1,
   "birthCountryCode": "UK",
   "inOutStatus": "IN",
   "identifiers": [],
+  "personalCareNeeds": [],
   "sentenceDetail": {
     "sentenceExpiryDate": "2018-05-31",
     "automaticReleaseDate": "2018-02-28",

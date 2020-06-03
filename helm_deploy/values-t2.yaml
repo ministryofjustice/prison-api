@@ -6,5 +6,5 @@ replicaCount: 2
 image:
   repository: quay.io/hmpps/elite2-api
   tag: latest
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   port: 8080
