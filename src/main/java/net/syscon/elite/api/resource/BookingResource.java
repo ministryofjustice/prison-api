@@ -46,6 +46,7 @@ import net.syscon.elite.api.model.ReasonableAdjustments;
 import net.syscon.elite.api.model.RecallBooking;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SecondaryLanguage;
+import net.syscon.elite.api.model.SentenceAdjustmentDetail;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.UpdateAttendanceBatch;
@@ -482,6 +483,14 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     SentenceDetail getBookingSentenceDetail(@ApiParam(value = "The booking id of offender", required = true) @PathVariable("bookingId") Long bookingId);
+
+    @GetMapping("/{bookingId}/sentenceAdjustments")
+    @ApiOperation(value = "Offender sentence adjustments.", nickname = "getBookingSentenceAdjustments")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    SentenceAdjustmentDetail getBookingSentenceAdjustments(@ApiParam(value = "The booking id of offender", required = true) @PathVariable("bookingId") Long bookingId);
 
     @GetMapping("/{bookingId}/visits")
     @ApiOperation(value = "All scheduled visits for offender.", notes = "All scheduled visits for offender.", nickname = "getBookingVisits")

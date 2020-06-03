@@ -42,6 +42,7 @@ import net.syscon.elite.api.model.ReasonableAdjustments;
 import net.syscon.elite.api.model.RecallBooking;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SecondaryLanguage;
+import net.syscon.elite.api.model.SentenceAdjustmentDetail;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.UpdateAttendanceBatch;
@@ -416,6 +417,10 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public SentenceDetail getBookingSentenceDetail(final Long bookingId) {
         return bookingService.getBookingSentenceDetail(bookingId);    }
+
+    @Override
+    public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
+        return bookingService.getBookingSentenceAdjustments(bookingId);    }
 
     @Override
     @HasWriteScope
