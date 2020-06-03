@@ -1,43 +1,178 @@
 package net.syscon.elite.service;
 
+
 import net.syscon.elite.api.model.AddressDto;
-import net.syscon.elite.repository.OffenderAddressRepository;
+import net.syscon.elite.api.model.AddressUsageDto;
+import net.syscon.elite.api.model.Telephone;
+import net.syscon.elite.repository.jpa.model.Address;
+import net.syscon.elite.repository.jpa.model.AddressUsage;
+import net.syscon.elite.repository.jpa.model.City;
+import net.syscon.elite.repository.jpa.model.Country;
+import net.syscon.elite.repository.jpa.model.County;
+import net.syscon.elite.repository.jpa.model.Offender;
+import net.syscon.elite.repository.jpa.model.Phone;
+import net.syscon.elite.repository.jpa.repository.AddressRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderRepository;
+import net.syscon.elite.repository.jpa.repository.PhoneRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 
 @ExtendWith(MockitoExtension.class)
 public class OffenderAddressServiceImplTest {
 
     @Mock
-    private OffenderAddressRepository offenderAddressRepository;
+    private AddressRepository addressRepository;
+
+    @Mock
+    private OffenderRepository offenderRepository;
+
+    @Mock
+    private PhoneRepository phoneRepository;
 
     private OffenderAddressService offenderAddressService;
 
     @BeforeEach
     public void setUp() {
-        offenderAddressService = new OffenderAddressService(offenderAddressRepository);
+        offenderAddressService = new OffenderAddressService(offenderRepository,addressRepository, phoneRepository);
     }
-
 
     @Test
     public void canRetrieveAddresses() {
 
-        String offenderNo = "off-1";
-        AddressDto address = AddressDto.builder().primary(true).noFixedAddress(true).build();
+        final var offenderNo = "off-1";
 
-        when(offenderAddressRepository.getAddresses(offenderNo)).thenReturn(List.of(address));
 
+        when(offenderRepository.findByNomsId(any())).thenReturn(Offender.builder().rootOffenderId(1L).build());
+        when(addressRepository.findAllByOwnerClassAndOwnerId(any(), anyLong())).thenReturn(List.of(
+                Address.builder()
+                        .addressId(-15L)
+                        .addressType("HOME")
+                        .ownerClass("PER")
+                        .ownerId(-8L)
+                        .noFixedAddressFlag("N")
+                        .commentText(null)
+                        .primaryFlag("Y")
+                        .mailFlag("N")
+                        .flat("Flat 1")
+                        .premise("Brook Hamlets")
+                        .street("Mayfield Drive")
+                        .locality("Nether Edge")
+                        .postalCode("B5")
+                        .country(new Country("ENG", "England"))
+                        .county(new County("S.YORKSHIRE", "South Yorkshire"))
+                        .city(new City("25343", "Sheffield"))
+                        .startDate(LocalDate.of(2016, 8, 2))
+                        .endDate(null)
+                        .addressUsages(List.of(AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()))
+                        .build(),
+                Address.builder()
+                        .addressId(-16L)
+                        .addressType("BUS")
+                        .ownerClass("PER")
+                        .ownerId(-8L)
+                        .noFixedAddressFlag("Y")
+                        .commentText(null)
+                        .primaryFlag("N")
+                        .mailFlag("N")
+                        .flat(null)
+                        .premise(null)
+                        .street(null)
+                        .locality(null)
+                        .postalCode(null)
+                        .country(new Country("ENG", "England"))
+                        .county(null)
+                        .city(null)
+                        .startDate(LocalDate.of(2016, 8, 2))
+                        .endDate(null)
+                        .build()
+        ));
+
+        when(phoneRepository.findAllByOwnerClassAndOwnerId("ADDR", -15L)).thenReturn(
+                List.of(
+                        Phone.builder()
+                                .phoneId(-7L)
+                                .ownerId(-15L)
+                                .ownerClass("ADDR")
+                                .phoneNo("0114 2345345")
+                                .phoneType("HOME")
+                                .extNo("345")
+                                .build(),
+                        Phone.builder()
+                                .phoneId(-8L)
+                                .ownerId(-15L)
+                                .ownerClass("ADDR")
+                                .phoneNo("0114 2345346")
+                                .phoneType("BUS")
+                                .extNo(null)
+                                .build())
+        );
         List<AddressDto> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
 
-        assertThat(results).containsExactly(address);
+        verify(offenderRepository).findByNomsId(offenderNo);
+        verify(addressRepository).findAllByOwnerClassAndOwnerId("OFF", 1L);
+        verify(phoneRepository).findAllByOwnerClassAndOwnerId("ADDR", -15L);
+
+        assertThat(results).isEqualTo(List.of(
+                AddressDto.builder()
+                        .addressType("HOME")
+                        .noFixedAddress(false)
+                        .primary(true)
+                        .comment(null)
+                        .flat("Flat 1")
+                        .premise("Brook Hamlets")
+                        .street("Mayfield Drive")
+                        .postalCode("B5")
+                        .country("England")
+                        .county("South Yorkshire")
+                        .town("Sheffield")
+                        .startDate(LocalDate.of(2016, 8, 2))
+                        .addressId(-15L)
+                        .phones(List.of(
+                                Telephone.builder()
+                                        .number("0114 2345345")
+                                        .ext("345")
+                                        .type("HOME")
+                                        .build(),
+                                Telephone.builder()
+                                        .number("0114 2345346")
+                                        .ext(null)
+                                        .type("BUS")
+                                        .build()))
+                        .addressUsages(List.of(AddressUsageDto.builder()
+                                .addressId(-15L)
+                                .activeFlag(true)
+                                .addressUsage("HDC")
+                                .build())
+                        )
+                        .build(),
+                AddressDto.builder()
+                        .addressType("BUS")
+                        .noFixedAddress(true)
+                        .primary(false)
+                        .comment(null)
+                        .flat(null)
+                        .premise(null)
+                        .street(null)
+                        .postalCode(null)
+                        .country("England")
+                        .county(null)
+                        .town(null)
+                        .startDate(LocalDate.of(2016, 8, 2))
+                        .addressId(-16L)
+                        .phones(List.of())
+                        .build())
+        );
     }
 }

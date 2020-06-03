@@ -13,6 +13,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +50,7 @@ public class AddressRepositoryTest {
                                     .city(new City("25343", "Sheffield"))
                                     .startDate(LocalDate.of(2016, 8, 2))
                                     .endDate(null)
+                                    .addressUsages(Collections.emptyList())
                                     .build(),
                                 Address.builder()
                                     .addressId(-16L)
@@ -67,11 +70,18 @@ public class AddressRepositoryTest {
                                     .city(null)
                                     .startDate(LocalDate.of(2016, 8, 2))
                                     .endDate(null)
+                                    .addressUsages(Collections.emptyList())
                                     .build());
 
         final var addresses = repository.findAllByOwnerClassAndOwnerId("PER", -8L);
 
-        assertThat(addresses).isEqualTo(expected);
+        assertThat(addresses)
+                .usingElementComparatorIgnoringFields("addressUsages")
+                .isEqualTo(expected);
+
+        assertThat(addresses.stream()
+                .map(address -> new ArrayList<>(address.getAddressUsages()))
+        ).isEqualTo(List.of(Collections.emptyList(), Collections.emptyList()));
     }
 
 }
