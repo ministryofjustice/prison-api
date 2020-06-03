@@ -22,9 +22,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -53,7 +55,6 @@ public class OffenderAddressServiceImplTest {
     public void canRetrieveAddresses() {
 
         final var offenderNo = "off-1";
-
 
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any())).thenReturn(List.of(OffenderBooking.builder().offender(Offender.builder().rootOffenderId(1L).build()).build()));
         when(addressRepository.findAllByOwnerClassAndOwnerId(any(), anyLong())).thenReturn(List.of(
@@ -175,5 +176,27 @@ public class OffenderAddressServiceImplTest {
                         .phones(List.of())
                         .build())
         );
+    }
+
+    @Test
+    public void testThatExceptionIsThrown_WhenMoreThanOneBookingIsFound() {
+        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any()))
+                .thenReturn(List.of(OffenderBooking.builder().bookingId(1L).build(), OffenderBooking.builder().bookingId(2L).build()));
+
+        assertThatThrownBy(() -> {
+            offenderAddressService.getAddressesByOffenderNo("A12345");
+        }).isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("More than one active booking was returned for offender number A12345\n");
+    }
+
+    @Test
+    public void testThatExceptionIsThrown_WhenNoActiveOffenderBookingsAreFound(){
+        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any()))
+                .thenReturn(Collections.emptyList());
+
+        assertThatThrownBy(() -> {
+            offenderAddressService.getAddressesByOffenderNo("A12345");
+        }).isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("No active offender bookings found for offender number A12345\n");
     }
 }
