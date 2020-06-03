@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface AddressRepository extends CrudRepository<Address, Long> {
     List<Address> findAllByOwnerClassAndOwnerId(String ownerClass, Long ownerId);
-
 }

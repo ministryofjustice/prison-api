@@ -48,6 +48,9 @@ public class Offender extends AuditableEntity {
     @Column(name = "LAST_NAME", nullable = false)
     private String lastName;
 
+    @Column(name = "ROOT_OFFENDER_ID")
+    private Long rootOffenderId;
+
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {

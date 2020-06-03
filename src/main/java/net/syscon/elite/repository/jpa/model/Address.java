@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -15,13 +14,14 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
 import java.time.LocalDate;
+import java.util.List;
 
+import static net.syscon.elite.repository.jpa.model.City.CITY;
 import static net.syscon.elite.repository.jpa.model.Country.COUNTRY;
 import static net.syscon.elite.repository.jpa.model.County.COUNTY;
-import static net.syscon.elite.repository.jpa.model.City.CITY;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
@@ -95,4 +95,8 @@ public class Address {
     })
     private Country country;
 
+    @OneToMany
+    @NotFound(action = IGNORE)
+    @JoinColumn(name = "ADDRESS_ID")
+    private List<AddressUsage> addressUsages;
 }
