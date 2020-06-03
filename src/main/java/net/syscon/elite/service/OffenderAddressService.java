@@ -31,7 +31,7 @@ public class OffenderAddressService {
         final var offenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, "Y")
                 .stream()
                 .findFirst()
-                .orElseThrow(EntityNotFoundException.withMessage(String.format("too many active bookings found for %s\n", offenderNo)));
+                .orElseThrow(EntityNotFoundException.withMessage(String.format("More than one active booking was returned for offender number %s\n", offenderNo)));
 
         final var offenderRootId = offenderBooking.getOffender().getRootOffenderId();
 
