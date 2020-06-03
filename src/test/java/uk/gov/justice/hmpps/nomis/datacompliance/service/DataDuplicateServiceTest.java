@@ -20,7 +20,6 @@ import java.util.Set;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toSet;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,8 +30,9 @@ class DataDuplicateServiceTest {
     private static final String FORMATTED_OFFENDER_PNC = "99/123456X";
     private static final String OFFENDER_CRO = "000001/11X";
     private static final String FORMATTED_OFFENDER_CRO = "11/1X";
-    private static final String DUPLICATE_OFFENDER_1 = "B1234BB";
-    private static final String DUPLICATE_OFFENDER_2 = "C1234CC";
+    private static final String PNC_DUPLICATE = "B1234BB";
+    private static final String CRO_DUPLICATE = "C1234CC";
+    private static final String LIDS_DUPLICATE = "D1234DD";
     private static final long RETENTION_CHECK_ID = 123;
 
     @Mock
@@ -59,17 +59,20 @@ class DataDuplicateServiceTest {
                 "CRO", OFFENDER_CRO));
 
         when(duplicateOffenderRepository.getOffendersWithMatchingPncNumbers(OFFENDER_NO, Set.of(FORMATTED_OFFENDER_PNC)))
-                .thenReturn(List.of(new DuplicateOffender(DUPLICATE_OFFENDER_1)));
+                .thenReturn(List.of(new DuplicateOffender(PNC_DUPLICATE)));
         when(duplicateOffenderRepository.getOffendersWithMatchingCroNumbers(OFFENDER_NO, Set.of(FORMATTED_OFFENDER_CRO)))
-                .thenReturn(List.of(new DuplicateOffender(DUPLICATE_OFFENDER_2)));
+                .thenReturn(List.of(new DuplicateOffender(CRO_DUPLICATE)));
+        when(duplicateOffenderRepository.getOffendersWithMatchingLidsNumbers(OFFENDER_NO))
+                .thenReturn(List.of(new DuplicateOffender(LIDS_DUPLICATE)));
 
         dataDuplicateService.checkForDataDuplicates(OFFENDER_NO, RETENTION_CHECK_ID);
 
         verify(dataComplianceEventPusher).send(DataDuplicateResult.builder()
                 .offenderIdDisplay(OFFENDER_NO)
                 .retentionCheckId(RETENTION_CHECK_ID)
-                .duplicateOffender(DUPLICATE_OFFENDER_1)
-                .duplicateOffender(DUPLICATE_OFFENDER_2)
+                .duplicateOffender(LIDS_DUPLICATE)
+                .duplicateOffender(CRO_DUPLICATE)
+                .duplicateOffender(PNC_DUPLICATE)
                 .build());
     }
 
@@ -83,6 +86,8 @@ class DataDuplicateServiceTest {
         when(duplicateOffenderRepository.getOffendersWithMatchingPncNumbers(OFFENDER_NO, Set.of(FORMATTED_OFFENDER_PNC)))
                 .thenReturn(emptyList());
         when(duplicateOffenderRepository.getOffendersWithMatchingCroNumbers(OFFENDER_NO, Set.of(FORMATTED_OFFENDER_CRO)))
+                .thenReturn(emptyList());
+        when(duplicateOffenderRepository.getOffendersWithMatchingLidsNumbers(OFFENDER_NO))
                 .thenReturn(emptyList());
 
         dataDuplicateService.checkForDataDuplicates(OFFENDER_NO, RETENTION_CHECK_ID);
@@ -100,9 +105,11 @@ class DataDuplicateServiceTest {
                 "PNC", "AN_INVALID_PNC",
                 "CRO", "AN_INVALID_CRO"));
 
+        when(duplicateOffenderRepository.getOffendersWithMatchingLidsNumbers(OFFENDER_NO))
+                .thenReturn(emptyList());
+
         dataDuplicateService.checkForDataDuplicates(OFFENDER_NO, RETENTION_CHECK_ID);
 
-        verifyNoInteractions(duplicateOffenderRepository);
         verify(dataComplianceEventPusher).send(DataDuplicateResult.builder()
                 .offenderIdDisplay(OFFENDER_NO)
                 .retentionCheckId(RETENTION_CHECK_ID)
