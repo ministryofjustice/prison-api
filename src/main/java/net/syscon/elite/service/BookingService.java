@@ -158,23 +158,27 @@ public class BookingService {
         final var keyDateAdjustments = offenderKeyDateAdjustmentRepository.findAllByOffenderBookId(bookingId).stream().filter(OffenderKeyDateAdjustment::isActive).collect(toList());
 
         return SentenceAdjustmentDetail.builder()
-                .additionalDaysAwarded(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "ADA"))
-                .lawfullyAtLarge(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "LAL"))
-                .unlawfullyAtLarge(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "UAL"))
-                .restoredAdditionalDaysAwarded(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RADA"))
-                .specialRemission(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "SREM"))
-                .recallSentenceRemand(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "RSR"))
-                .recallSentenceTaggedBail(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "RST"))
-                .remand(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "RX"))
-                .taggedBail(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "S240A"))
-                .unusedRemand(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "UR"))
+                .additionalDaysAwarded(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "ADA"))
+                .lawfullyAtLarge(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "LAL"))
+                .unlawfullyAtLarge(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "UAL"))
+                .restoredAdditionalDaysAwarded(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "RADA"))
+                .specialRemission(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "SREM"))
+                .recallSentenceRemand(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RSR"))
+                .recallSentenceTaggedBail(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RST"))
+                .remand(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RX"))
+                .taggedBail(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "S240A"))
+                .unusedRemand(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "UR"))
                 .build();
     }
 
     private Integer getDaysForSentenceAdjustmentsCode(final List<OffenderSentenceAdjustment> adjustmentsList, final String code) {
         return adjustmentsList
                 .stream()
-                .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
+                .filter(adj -> {
+                    System.out.println(code);
+                    System.out.println(adj.getSentenceAdjustCode());
+                    return code.equals(adj.getSentenceAdjustCode());
+                })
                 .mapToInt(OffenderSentenceAdjustment::getAdjustDays).sum();
     }
 

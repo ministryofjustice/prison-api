@@ -643,9 +643,13 @@ public class BookingServiceTest {
         assertThat(sentenceAdjustmentDetail).isEqualTo(
                 SentenceAdjustmentDetail.builder()
                         .additionalDaysAwarded(17)
+                        .lawfullyAtLarge(0)
+                        .specialRemission(0)
+                        .recallSentenceTaggedBail(0)
                         .unlawfullyAtLarge(7)
                         .restoredAdditionalDaysAwarded(2)
                         .recallSentenceRemand(4)
+                        .taggedBail(0)
                         .remand(8)
                         .unusedRemand(4)
                         .build());
@@ -662,7 +666,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getOffenderProprtyContainers_errors_for_unknown_booking() {
+    void getOffenderPropertyContainers_errors_for_unknown_booking() {
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookingService.getOffenderPropertyContainers(-1L))
