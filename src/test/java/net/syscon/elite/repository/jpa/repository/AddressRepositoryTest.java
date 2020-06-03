@@ -30,6 +30,11 @@ public class AddressRepositoryTest {
     private AddressRepository repository;
 
     @Test
+    public void noAddressesForOffender() {
+        assertThat(repository.findAllByOwnerClassAndOwnerId("non-existent-offender-number", -1000000L)).isEmpty();
+    }
+
+    @Test
     public void findAllForPerson() {
         final var expected = List.of(
                                 Address.builder()
