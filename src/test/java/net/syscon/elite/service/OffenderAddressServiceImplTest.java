@@ -185,7 +185,7 @@ public class OffenderAddressServiceImplTest {
 
         assertThatThrownBy(() -> {
             offenderAddressService.getAddressesByOffenderNo("A12345");
-        }).isInstanceOf(RuntimeException.class)
+        }).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("More than one active booking was returned for offender number A12345\n");
     }
 
