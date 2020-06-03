@@ -52,6 +52,7 @@ public class PersonService {
                     .premise(address.getPremise())
                     .primary(address.getPrimaryFlag().equals("Y"))
                     .startDate(address.getStartDate())
+                    .endDate(address.getEndDate())
                     .street(address.getStreet())
                     .phones(phoneRepository.findAllByOwnerClassAndOwnerId("ADDR", address.getAddressId()).stream().map(phone ->
                             Telephone.builder()
