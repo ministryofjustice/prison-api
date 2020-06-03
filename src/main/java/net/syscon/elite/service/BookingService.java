@@ -174,11 +174,7 @@ public class BookingService {
     private Integer getDaysForSentenceAdjustmentsCode(final List<OffenderSentenceAdjustment> adjustmentsList, final String code) {
         return adjustmentsList
                 .stream()
-                .filter(adj -> {
-                    System.out.println(code);
-                    System.out.println(adj.getSentenceAdjustCode());
-                    return code.equals(adj.getSentenceAdjustCode());
-                })
+                .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
                 .mapToInt(OffenderSentenceAdjustment::getAdjustDays).sum();
     }
 
