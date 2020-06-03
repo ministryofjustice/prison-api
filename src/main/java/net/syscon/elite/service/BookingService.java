@@ -19,6 +19,7 @@ import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.PrivilegeSummary;
 import net.syscon.elite.api.model.PropertyContainer;
 import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceAdjustmentDetail;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.Visit;
@@ -30,9 +31,13 @@ import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
+import net.syscon.elite.repository.jpa.model.OffenderKeyDateAdjustment;
+import net.syscon.elite.repository.jpa.model.OffenderSentenceAdjustment;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.LocationProcessor;
@@ -98,6 +103,8 @@ public class BookingService {
     private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
+    private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
+    private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -111,6 +118,8 @@ public class BookingService {
                           final ReferenceDomainService referenceDomainService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                           final AgencyInternalLocationRepository agencyInternalLocationRepository,
+                          final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository,
+                          final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository,
                           final AuthenticationFacade securityUtils,
                           final AuthenticationFacade authenticationFacade,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
@@ -123,6 +132,8 @@ public class BookingService {
         this.referenceDomainService = referenceDomainService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.agencyInternalLocationRepository = agencyInternalLocationRepository;
+        this.offenderSentenceAdjustmentRepository = offenderSentenceAdjustmentRepository;
+        this.offenderKeyDateAdjustmentRepository = offenderKeyDateAdjustmentRepository;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;
@@ -139,6 +150,41 @@ public class BookingService {
 
         return deriveSentenceDetail(sentenceDetail);
     }
+
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
+
+        final var activeSentenceAdjustments = offenderSentenceAdjustmentRepository.findAllByOffenderBookId(bookingId).stream().filter(OffenderSentenceAdjustment::isActive).collect(toList());
+        final var keyDateAdjustments = offenderKeyDateAdjustmentRepository.findAllByOffenderBookId(bookingId).stream().filter(OffenderKeyDateAdjustment::isActive).collect(toList());
+
+        return SentenceAdjustmentDetail.builder()
+                .additionalDaysAwarded(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "ADA"))
+                .lawfullyAtLarge(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "LAL"))
+                .unlawfullyAtLarge(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "UAL"))
+                .restoredAdditionalDaysAwarded(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RADA"))
+                .specialRemission(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "SREM"))
+                .recallSentenceRemand(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "RSR"))
+                .recallSentenceTaggedBail(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "RST"))
+                .remand(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "RX"))
+                .taggedBail(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "S240A"))
+                .unusedRemand(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "UR"))
+                .build();
+    }
+
+    private Integer getDaysForSentenceAdjustmentsCode(final List<OffenderSentenceAdjustment> adjustmentsList, final String code) {
+        return adjustmentsList
+                .stream()
+                .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
+                .mapToInt(OffenderSentenceAdjustment::getAdjustDays).sum();
+    }
+
+    private Integer getDaysForKeyDateAdjustmentsCode(final List<OffenderKeyDateAdjustment> adjustmentsList, final String code) {
+        return adjustmentsList
+                .stream()
+                .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
+                .mapToInt(OffenderKeyDateAdjustment::getAdjustDays).sum();
+    }
+
 
     private SentenceDetail getSentenceDetail(final Long bookingId) {
         final var optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);

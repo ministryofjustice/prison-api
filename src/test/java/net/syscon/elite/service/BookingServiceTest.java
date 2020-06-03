@@ -10,6 +10,7 @@ import net.syscon.elite.api.model.MilitaryRecords;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceAdjustmentDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.support.Order;
@@ -18,6 +19,8 @@ import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CaseStatus;
+import net.syscon.elite.repository.jpa.model.OffenderKeyDateAdjustment;
+import net.syscon.elite.repository.jpa.model.OffenderSentenceAdjustment;
 import net.syscon.elite.repository.jpa.model.PropertyContainer;
 import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
 import net.syscon.elite.repository.jpa.model.LegalCaseType;
@@ -32,6 +35,8 @@ import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
 import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,6 +83,10 @@ public class BookingServiceTest {
     @Mock
     private AgencyInternalLocationRepository agencyInternalLocationRepository;
     @Mock
+    private OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
+    @Mock
+    private OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
+    @Mock
     private AuthenticationFacade securityUtils;
     @Mock
     private AuthenticationFacade authenticationFacade;
@@ -97,6 +106,8 @@ public class BookingServiceTest {
                 referenceDomainService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
+                offenderSentenceAdjustmentRepository,
+                offenderKeyDateAdjustmentRepository,
                 securityUtils, authenticationFacade,
                 "1",
                 10);
@@ -524,6 +535,120 @@ public class BookingServiceTest {
                         .locationId(10L)
                         .build())
                 .containerType(new PropertyContainer("BULK", "Bulk"));
+    }
+
+    @Test
+    void getSentenceAdjustments() {
+        final var offenderSentenceAdjustments = List.of(
+                OffenderSentenceAdjustment.builder()
+                        .id(-8L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("RSR")
+                        .activeFlag(ActiveFlag.Y)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-9L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("RST")
+                        .activeFlag(ActiveFlag.N)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-10L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("RX")
+                        .activeFlag(ActiveFlag.Y)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-11L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("S240A")
+                        .activeFlag(ActiveFlag.N)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-12L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("UR")
+                        .activeFlag(ActiveFlag.Y)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-13L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("RX")
+                        .activeFlag(ActiveFlag.Y)
+                        .adjustDays(4)
+                        .build()
+        );
+
+        final var offenderKeyDateAdjustments = List.of(
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-8L)
+                        .sentenceAdjustCode("ADA")
+                        .activeFlag(ActiveFlag.Y)
+                        .offenderBookId(-6L)
+                        .adjustDays(4)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-9L)
+                        .sentenceAdjustCode("ADA")
+                        .activeFlag(ActiveFlag.N)
+                        .offenderBookId(-6L)
+                        .adjustDays(9)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-10L)
+                        .sentenceAdjustCode("ADA")
+                        .activeFlag(ActiveFlag.Y)
+                        .offenderBookId(-6L)
+                        .adjustDays(13)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-11L)
+                        .sentenceAdjustCode("UAL")
+                        .activeFlag(ActiveFlag.N)
+                        .offenderBookId(-6L)
+                        .adjustDays(1)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-12L)
+                        .sentenceAdjustCode("RADA")
+                        .activeFlag(ActiveFlag.Y)
+                        .offenderBookId(-6L)
+                        .adjustDays(2)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-13L)
+                        .sentenceAdjustCode("UAL")
+                        .activeFlag(ActiveFlag.Y)
+                        .offenderBookId(-6L)
+                        .adjustDays(7)
+                        .build()
+        );
+
+        when(offenderKeyDateAdjustmentRepository.findAllByOffenderBookId(-6L)).thenReturn(offenderKeyDateAdjustments);
+        when(offenderSentenceAdjustmentRepository.findAllByOffenderBookId(-6L)).thenReturn(offenderSentenceAdjustments);
+
+        final SentenceAdjustmentDetail sentenceAdjustmentDetail = bookingService.getBookingSentenceAdjustments(-6L);
+
+        assertThat(sentenceAdjustmentDetail).isEqualTo(
+                SentenceAdjustmentDetail.builder()
+                        .additionalDaysAwarded(17)
+                        .unlawfullyAtLarge(7)
+                        .restoredAdditionalDaysAwarded(2)
+                        .recallSentenceRemand(4)
+                        .remand(8)
+                        .unusedRemand(4)
+                        .build());
     }
 
 
