@@ -51,4 +51,22 @@ public interface DuplicateOffenderRepository extends org.springframework.data.re
                     ")",
             nativeQuery = true)
     List<DuplicateOffender> getOffendersWithMatchingCroNumbers(String offenderNo, Set<String> formattedIds);
+
+    /**
+     * The following query finds offenders that share the same
+     * LIDS booking number.
+     */
+    @Query(value =
+            "SELECT DISTINCT(O1.OFFENDER_ID_DISPLAY) FROM OFFENDERS O1 " +
+            "INNER JOIN OFFENDER_BOOKINGS OB1 " +
+            "ON OB1.OFFENDER_ID = O1.OFFENDER_ID " +
+            "WHERE O1.OFFENDER_ID_DISPLAY != :offenderNo " +
+            "AND OB1.BOOKING_NO IN ( " +
+            "    SELECT DISTINCT(OB2.BOOKING_NO) FROM OFFENDERS O2" +
+            "    INNER JOIN OFFENDER_BOOKINGS OB2" +
+            "    ON OB2.OFFENDER_ID = O2.OFFENDER_ID" +
+            "    WHERE O2.OFFENDER_ID_DISPLAY = :offenderNo" +
+            ")",
+            nativeQuery = true)
+    List<DuplicateOffender> getOffendersWithMatchingLidsNumbers(String offenderNo);
 }

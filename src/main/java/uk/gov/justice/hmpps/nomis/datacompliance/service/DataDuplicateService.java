@@ -39,12 +39,12 @@ public class DataDuplicateService {
                 offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNo);
 
         final var duplicateOffenders = ImmutableSet.<String>builder()
-                .addAll(getOffendersWithMatchingPncNumbers(offenderNo, offenderAliases))
+                .addAll(getOffendersWithMatchingLidsNumbers(offenderNo))
                 .addAll(getOffendersWithMatchingCroNumbers(offenderNo, offenderAliases))
+                .addAll(getOffendersWithMatchingPncNumbers(offenderNo, offenderAliases))
                 .build();
 
         // TODO GDPR-110 duplicate checks including:
-        //  * LIDS Number
         //  * Personal data
 
         dataComplianceEventPusher.send(DataDuplicateResult.builder()
@@ -52,6 +52,18 @@ public class DataDuplicateService {
                 .retentionCheckId(retentionCheckId)
                 .duplicateOffenders(duplicateOffenders)
                 .build());
+    }
+
+    private Set<String> getOffendersWithMatchingLidsNumbers(final String offenderNo) {
+        final var duplicates = duplicateOffenderRepository.getOffendersWithMatchingLidsNumbers(offenderNo).stream()
+                .map(DuplicateOffender::getOffenderNumber)
+                .collect(toSet());
+
+        if (!duplicates.isEmpty()) {
+            log.info("Found offender(s) ({}) with matching LIDS numbers for offender '{}'", duplicates, offenderNo);
+        }
+
+        return duplicates;
     }
 
     private Set<String> getOffendersWithMatchingCroNumbers(final String offenderNo,
