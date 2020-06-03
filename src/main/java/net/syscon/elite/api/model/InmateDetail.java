@@ -139,6 +139,9 @@ public class InmateDetail {
     @ApiModelProperty(value = "Identifiers", notes = "Only returned when requesting extra details")
     private List<OffenderIdentifier> identifiers;
 
+    @ApiModelProperty(value = "Personal Care Needs", notes = "Only returned when requesting extra details")
+    private List<PersonalCareNeed> personalCareNeeds;
+
     @ApiModelProperty(value = "Sentence Detail", notes = "Only returned when requesting extra details")
     private SentenceDetail sentenceDetail;
 
@@ -173,5 +176,4 @@ public class InmateDetail {
                 .map(ProfileInformation::getResultValue)
                 .orElse(null);
     }
-
 }

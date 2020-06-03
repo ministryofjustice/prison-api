@@ -253,6 +253,7 @@ public class InmateService {
             inmate.setSentenceDetail(bookingService.getBookingSentenceDetail(bookingId));
             inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
             inmate.setOffenceHistory(bookingService.getOffenceHistory(inmate.getOffenderNo()));
+            inmate.setPersonalCareNeeds(getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
 
             repository.getImprisonmentStatus(bookingId).ifPresent(status -> {
                 inmate.setLegalStatus(status.getLegalStatus());
@@ -290,10 +291,7 @@ public class InmateService {
         final var assessments = getAllAssessmentsOrdered(bookingId);
         if (!CollectionUtils.isEmpty(assessments)) {
             inmate.setAssessments(filterAssessmentsByCode(assessments));
-            final var csra = assessments.get(0);
-            if (csra != null) {
-                inmate.setCsra(csra.getClassification());
-            }
+            findCsra(assessments).ifPresent(csra -> inmate.setCsra(csra.getClassification()));
             findCategory(assessments).ifPresent(category -> {
                 inmate.setCategory(category.getClassification());
                 inmate.setCategoryCode(category.getClassificationCode());
@@ -479,7 +477,7 @@ public class InmateService {
         return Optional.ofNullable(assessment);
     }
 
-    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, final boolean activeOnly) {
+    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, final boolean activeOnly, final boolean csra) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
             final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
@@ -490,18 +488,25 @@ public class InmateService {
             batch.forEach(offenderBatch -> {
                 final var assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly, activeOnly);
 
-                for (final var assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
+                InmatesHelper.createMapOfBookings(assessments).values().forEach( assessmentForBooking -> {
 
                     if (latestOnly) {
-                        // The first is the most recent date / seq for each booking (where cellSharingAlertFlag = Y if CSR)
-                        results.add(createAssessment(assessmentForBooking.get(0)));
+                        final var firstAssessment = createAssessment(assessmentForBooking.get(0));
+                        // The first is the most recent date / seq for each booking (where cellSharingAlertFlag = Y if a CSRA)
+                        if (!csra || validCsra(firstAssessment)) {
+                            results.add(firstAssessment);
+                        }
                     } else {
-                        assessmentForBooking.forEach(assessment -> results.add(createAssessment(assessment)));
+                        assessmentForBooking.stream().map(this::createAssessment).filter(a -> !csra || validCsra(a)).forEach(results::add);
                     }
-                }
+                });
             });
         }
         return results;
+    }
+
+    private boolean validCsra(final Assessment firstAssessment) {
+        return (firstAssessment.isCellSharingAlertFlag() && !"PEND".equals(firstAssessment.getClassificationCode()));
     }
 
     @VerifyAgencyAccess
@@ -528,6 +533,10 @@ public class InmateService {
 
     private Optional<Assessment> findCategory(final List<Assessment> assessmentsForOffender) {
         return assessmentsForOffender.stream().filter(a -> "CATEGORY".equals(a.getAssessmentCode())).findFirst();
+    }
+
+    private Optional<Assessment> findCsra(final List<Assessment> assessmentsForOffender) {
+        return assessmentsForOffender.stream().filter(Assessment::isCellSharingAlertFlag).findFirst();
     }
 
     private Assessment createAssessment(final AssessmentDto assessmentDto) {

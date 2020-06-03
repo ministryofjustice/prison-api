@@ -1,6 +1,11 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategorisationUpdateDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
+import net.syscon.elite.api.model.CategoryRejectionDetail;
+import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.resource.OffenderAssessmentResource;
 import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.CategoryInformationType;
@@ -48,13 +53,13 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
         final var latest = latestOnly == null ? true : latestOnly;
         final var active = activeOnly == null ? true : activeOnly;
 
-        return inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, latest, active);
+        return inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, latest, active, false);
     }
 
     @Override
     public List<Assessment> postOffenderAssessmentsCsraList(final List<String> offenderList) {
         validateOffenderList(offenderList);
-        return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true);
+        return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true, true);
     }
 
     @Override

@@ -21,7 +21,7 @@ public class IdentifierValidation {
 
     private static final Pattern VALID_PNC_FORMAT = Pattern.compile("^[0-9]{0,2}([0-9]{2})/([0-9]{1,7})([A-Z])$");
     private static final Pattern VALID_CRO_FORMAT = Pattern.compile("^([0-9]{1,6})/([0-9]{2})([A-Z])$");
-    private static final Pattern VALID_CRO_SF_FORMAT = Pattern.compile("^SF([0-9]{2})/([0-9]{1,6})([A-Z])$");
+    private static final Pattern VALID_CRO_SF_FORMAT = Pattern.compile("^SF([0-9]{2})/([0-9]{1,5})([A-Z])$");
 
     // All letters from the alphabet excluding 'I', 'O' and 'S', with 'Z' at the 0th index:
     private static final char[] VALID_CHECKSUM_CHARACTERS = {'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'T', 'U', 'V', 'W', 'X', 'Y'};
@@ -58,7 +58,7 @@ public class IdentifierValidation {
                 .map(match -> ChecksumComponents.builder()
                         .year(match.group(1))
                         .serial(match.group(2))
-                        .serialFormat("%06d")
+                        .serialFormat("%05d")
                         .checksum(match.group(3))
                         .build())
                 .filter(IdentifierValidation::isChecksumAMatch);
