@@ -5,7 +5,7 @@ import net.syscon.elite.api.model.AddressDto;
 import net.syscon.elite.api.model.AddressUsageDto;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.jpa.repository.AddressRepository;
-import net.syscon.elite.repository.jpa.repository.OffenderRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.PhoneRepository;
 import net.syscon.elite.security.VerifyOffenderAccess;
 import org.springframework.stereotype.Service;
@@ -22,13 +22,18 @@ import static java.util.stream.Collectors.toList;
 @Transactional(readOnly = true)
 public class OffenderAddressService {
 
-    private final OffenderRepository offenderRepository;
+    private final OffenderBookingRepository offenderBookingRepository;
     private final AddressRepository addressRepository;
     private final PhoneRepository phoneRepository;
 
     @VerifyOffenderAccess
     public List<AddressDto> getAddressesByOffenderNo(@NotNull String offenderNo) {
-        final var offenderRootId = offenderRepository.findByNomsId(offenderNo).getRootOffenderId();
+        final var offenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, "Y")
+                .stream()
+                .findFirst()
+                .orElseThrow(EntityNotFoundException.withMessage(String.format("too many active bookings found for %s\n", offenderNo)));
+
+        final var offenderRootId = offenderBooking.getOffender().getRootOffenderId();
 
         return addressRepository.findAllByOwnerClassAndOwnerId("OFF", offenderRootId).stream().map(address -> {
             final var country = address.getCountry() != null ? address.getCountry().getDescription() : null;
