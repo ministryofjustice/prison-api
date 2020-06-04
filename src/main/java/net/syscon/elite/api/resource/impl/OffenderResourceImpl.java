@@ -60,8 +60,7 @@ public class OffenderResourceImpl implements OffenderResource {
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public InmateDetail getOffender(final String offenderNo) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-        return inmateService.findInmate(bookingId, true);
+        return inmateService.findOffender(offenderNo, true);
     }
 
     @Override

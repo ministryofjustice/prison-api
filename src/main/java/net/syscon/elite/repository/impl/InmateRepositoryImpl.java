@@ -659,6 +659,18 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
+    public Optional<InmateDetail> findOffender(final String offenderNo) {
+        final var offender = jdbcTemplate.query(
+                getQuery("FIND_OFFENDER"),
+                createParams("offenderNo", offenderNo),
+                new StandardBeanPropertyRowMapper<>(InmateDetail.class))
+                .stream()
+                .findFirst();
+        offender.ifPresent(o -> o.setAge(DateTimeConverter.getAge(o.getDateOfBirth())));
+        return offender;
+    }
+
+    @Override
     public Optional<InmateDetail> getBasicInmateDetail(final Long bookingId) {
         final var builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_BASIC_INMATE_DETAIL"), inmateDetailsMapping);
         final var sql = builder.build();

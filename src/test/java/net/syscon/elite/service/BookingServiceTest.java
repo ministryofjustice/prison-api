@@ -15,13 +15,11 @@ import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.impl.OffenderBookingIdSeq;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CaseStatus;
-import net.syscon.elite.repository.jpa.model.OffenderKeyDateAdjustment;
-import net.syscon.elite.repository.jpa.model.OffenderSentenceAdjustment;
-import net.syscon.elite.repository.jpa.model.PropertyContainer;
 import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
 import net.syscon.elite.repository.jpa.model.LegalCaseType;
 import net.syscon.elite.repository.jpa.model.MilitaryBranch;
@@ -30,8 +28,11 @@ import net.syscon.elite.repository.jpa.model.MilitaryRank;
 import net.syscon.elite.repository.jpa.model.Offender;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
+import net.syscon.elite.repository.jpa.model.OffenderKeyDateAdjustment;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
 import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
+import net.syscon.elite.repository.jpa.model.OffenderSentenceAdjustment;
+import net.syscon.elite.repository.jpa.model.PropertyContainer;
 import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
@@ -120,7 +121,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
@@ -133,7 +134,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
@@ -148,7 +149,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
@@ -160,7 +161,7 @@ public class BookingServiceTest {
     public void verifyCanViewSensitiveBookingInfo_systemUser() {
         when(securityUtils.isOverrideRole(any())).thenReturn(true);
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(-1L));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(-1L).build()));
 
         bookingService.verifyCanViewSensitiveBookingInfo("off-1");
 
@@ -178,7 +179,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 

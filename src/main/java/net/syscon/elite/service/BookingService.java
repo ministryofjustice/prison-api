@@ -29,6 +29,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.repository.impl.OffenderBookingIdSeq;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderKeyDateAdjustment;
@@ -420,19 +421,19 @@ public class BookingService {
     }
 
     public void verifyCanViewSensitiveBookingInfo(final String offenderNo, final String... rolesAllowed) {
-        getBookingIdByOffenderNo(offenderNo, rolesAllowed);
+        getOffenderIdentifiers(offenderNo, rolesAllowed);
     }
 
-    public Long getBookingIdByOffenderNo(final String offenderNo, final String... rolesAllowed) {
-        final var bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (!isViewAllBookings()) {
+    public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
+        final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        if (offenderIdentifier.getBookingId() != null && !isViewAllBookings()) {
             try {
-                verifyBookingAccess(bookingId, rolesAllowed);
+                verifyBookingAccess(offenderIdentifier.getBookingId(), rolesAllowed);
             } catch (final EntityNotFoundException e) {
                 throw EntityNotFoundException.withId(offenderNo);
             }
         }
-        return bookingId;
+        return offenderIdentifier;
     }
 
 

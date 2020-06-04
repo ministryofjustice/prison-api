@@ -1,6 +1,8 @@
 {
   "bookingId": -9,
   "bookingNo": "A00119",
+  "offenderId": -1009,
+  "rootOffenderId": -1009,
   "offenderNo": "A1234AI",
   "firstName": "CHESTER",
   "middleName": "JAMES",
@@ -130,5 +132,9 @@
   ],
   "status": "ACTIVE IN",
   "legalStatus": "Convicted",
-  "imprisonmentStatus": "SENT"
+  "imprisonmentStatus": "SENT",
+  "privilegeSummary": {
+    "bookingId": -9,
+    "iepLevel": "Entry"
+  }
 }

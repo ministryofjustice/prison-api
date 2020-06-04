@@ -1,6 +1,8 @@
 {
   "bookingId": -2,
   "bookingNo": "A00112",
+  "offenderId": -1002,
+  "rootOffenderId": -1002,
   "offenderNo": "A1234AB",
   "firstName": "GILLIAN",
   "middleName": "EVE",
@@ -10,6 +12,8 @@
   "activeFlag": true,
   "religion": "Baptist",
   "language": "Polish",
+  "interpreterRequired": false,
+  "writtenLanguage": "Polish",
   "alertsCodes": [
     "H",
     "X"
@@ -97,6 +101,17 @@
   "birthCountryCode": "UK",
   "inOutStatus": "IN",
   "identifiers": [],
+  "personalCareNeeds": [
+    {
+      "problemType": "DISAB",
+      "problemCode": "ND",
+      "problemStatus": "ON",
+      "problemDescription": "No Disability",
+      "commentText": null,
+      "startDate": "2010-06-22",
+      "endDate": null
+    }
+  ],
   "sentenceDetail": {
     "sentenceExpiryDate": "2019-05-21",
     "automaticReleaseDate": "2018-05-21",
@@ -113,5 +128,11 @@
   "aliases": [],
   "status": "ACTIVE IN",
   "legalStatus": "Convicted",
-  "imprisonmentStatus": "SENT"
+  "imprisonmentStatus": "SENT",
+  "privilegeSummary": {
+    "bookingId": -2,
+    "iepLevel": "Basic",
+    "iepDate": "2017-09-06",
+    "iepTime": "2017-09-06T09:44:01"
+  }
 }

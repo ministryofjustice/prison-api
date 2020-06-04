@@ -1,6 +1,8 @@
 {
   "bookingId": -1,
   "bookingNo": "A00111",
+  "offenderId": -1001,
+  "rootOffenderId": -1001,
   "offenderNo": "A1234AA",
   "firstName": "ARTHUR",
   "middleName": "BORIS",
@@ -220,5 +222,11 @@
   "aliases": [],
   "status": "ACTIVE IN",
   "legalStatus": "Convicted",
-  "imprisonmentStatus": "SENT"
+  "imprisonmentStatus": "SENT",
+  "privilegeSummary": {
+    "bookingId": -1,
+    "iepLevel": "Standard",
+    "iepDate": "2017-08-15",
+    "iepTime": "2017-08-15T16:04:35"
+  }
 }
