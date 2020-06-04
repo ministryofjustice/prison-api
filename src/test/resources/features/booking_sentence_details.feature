@@ -209,21 +209,24 @@ Feature: Booking Sentence Details
     And confirmed release date matches "<confRelDate>"
     And release date matches "<releaseDate>"
     And tariff date matches "<tariffDate>"
+    And tariff early removal scheme eligibility date matches "<tersed>"
+    And effective sentence end date matches "<effectiveEndDate>"
+    And detention training order post-recall release date matches "<dtoPostRecall>"
 
     Examples:
-      | offenderNo| ssd        | hdced      | ped        | led        | hdcad      | apd        | confRelDate | releaseDate | tariffDate |
-      | A1234AA   | 2017-03-25 |            |            |            |            | 2018-09-27 | 2018-04-23  | 2018-04-23  |            |
-      | A1234AB   | 2017-05-22 |            |            |            |            |            | 2018-04-19  | 2018-04-19  |            |
-      | A1234AC   | 2015-03-16 |            |            |            |            |            |             | 2018-03-15  |            |
-      | A1234AD   | 2007-10-16 |            |            |            |            |            |             | 2021-08-31  |            |
-      | A1234AE   | 2017-02-08 | 2019-06-02 | 2019-06-01 |            |            |            |             | 2023-05-07  |            |
-      | A1234AF   | 2017-09-01 |            |            |            | 2018-05-15 |            |             | 2018-05-15  |            |
-      | A1234AG   | 2017-09-01 |            |            |            |            |            | 2018-01-05  | 2018-01-05  |            |
-      | A1234AH   | 2017-09-01 |            |            |            |            | 2017-12-23 |             | 2017-12-23  |            |
-      | A1234AI   | 2017-09-01 |            |            |            | 2018-01-15 |            | 2018-01-13  | 2018-01-13  |            |
-      | A1234AJ   | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |            |
-      | A1234AK   | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
-      | A1234AL   | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
+      | offenderNo| ssd        | hdced      | ped        | led        | hdcad      | apd        | confRelDate | releaseDate | tariffDate | tersed      | effectiveEndDate | dtoPostRecall |
+      | A1234AA   | 2017-03-25 |            |            |            |            | 2018-09-27 | 2018-04-23  | 2018-04-23  |            | 2020-06-25  | 2025-05-05       | 2020-03-22    |
+      | A1234AB   | 2017-05-22 |            |            |            |            |            | 2018-04-19  | 2018-04-19  |            |             |                  |               |
+      | A1234AC   | 2015-03-16 |            |            |            |            |            |             | 2018-03-15  |            |             |                  |               |
+      | A1234AD   | 2007-10-16 |            |            |            |            |            |             | 2021-08-31  |            |             |                  |               |
+      | A1234AE   | 2017-02-08 | 2019-06-02 | 2019-06-01 |            |            |            |             | 2023-05-07  |            |             |                  |               |
+      | A1234AF   | 2017-09-01 |            |            |            | 2018-05-15 |            |             | 2018-05-15  |            |             |                  |               |
+      | A1234AG   | 2017-09-01 |            |            |            |            |            | 2018-01-05  | 2018-01-05  |            |             |                  |               |
+      | A1234AH   | 2017-09-01 |            |            |            |            | 2017-12-23 |             | 2017-12-23  |            |             |                  |               |
+      | A1234AI   | 2017-09-01 |            |            |            | 2018-01-15 |            | 2018-01-13  | 2018-01-13  |            |             |                  |               |
+      | A1234AJ   | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |            |             |                  |               |
+      | A1234AK   | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |             |                  |               |
+      | A1234AL   | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |             |                  |               |
 
   Scenario: Retrieve sentence details as a list
     When sentence details are requested of offenders for the logged in users caseloads
