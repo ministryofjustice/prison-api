@@ -245,7 +245,7 @@ public class BookingService {
     }
 
     public Map<Long, PrivilegeSummary> getBookingIEPSummary(final List<Long> bookingIds, final boolean withDetails) {
-        if (withDetails || !isViewAllBookings()) {
+        if (withDetails || !isViewAllOffenders()) {
             bookingIds.forEach(this::verifyBookingAccess);
         }
         final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
@@ -426,13 +426,18 @@ public class BookingService {
 
     public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
         final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (offenderIdentifier.getBookingId() != null && !isViewAllBookings()) {
-            try {
-                verifyBookingAccess(offenderIdentifier.getBookingId(), rolesAllowed);
-            } catch (final EntityNotFoundException e) {
-                throw EntityNotFoundException.withId(offenderNo);
-            }
-        }
+
+        offenderIdentifier.getBookingAndSeq().ifPresentOrElse(
+                booking -> {
+                    if (isRestrictedByCaseload()) {
+                        verifyBookingAccess(booking.getBookingId(), rolesAllowed);
+                    }
+                }, () -> {
+                    if (isRestrictedByCaseload()) {
+                        throw EntityNotFoundException.withMessage("Offender with id %d not found.", offenderIdentifier.getOffenderNo());
+                    }
+                }
+        );
         return offenderIdentifier;
     }
 
@@ -670,14 +675,14 @@ public class BookingService {
     }
 
     public List<OffenderSentenceDetail> getBookingSentencesSummary(final List<Long> bookingIds) {
-        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false), !isViewAllBookings());
+        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false), !isViewAllOffenders());
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
         final var query = format("offenderNo:eq:'%s'", offenderNo);
         return getOffenderSentenceDetails(bookingRepository.getOffenderSentenceSummary(query, getCaseLoadIdForUserIfRequired(),
-                !isViewAllBookings(), isViewInactiveBookings()))
+                !isViewAllOffenders(), isViewInactiveBookings()))
                 .stream()
                 .findFirst();
     }
@@ -756,7 +761,7 @@ public class BookingService {
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
-        return isViewAllBookings() ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        return isViewAllOffenders() ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
     }
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
@@ -824,7 +829,7 @@ public class BookingService {
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final List<String> offenderNos) {
 
-        final var viewAllBookings = isViewAllBookings();
+        final var viewAllBookings = isViewAllOffenders();
         final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
 
         if (offenderNos == null || offenderNos.isEmpty()) {
@@ -866,8 +871,12 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-    private boolean isViewAllBookings() {
+    private boolean isViewAllOffenders() {
         return securityUtils.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION");
+    }
+
+    private boolean isRestrictedByCaseload() {
+        return !isViewAllOffenders();
     }
 
     private boolean isViewInactiveBookings() {
