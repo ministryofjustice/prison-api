@@ -140,7 +140,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                     .put("LATE_TERM_DATE", new FieldMapper("lateTermDate", DateTimeConverter::toISO8601LocalDate))
                     .put("DPRRD_CALCULATED_DATE", new FieldMapper("dtoPostRecallReleaseDate", DateTimeConverter::toISO8601LocalDate))
                     .put("DPRRD_OVERRIDED_DATE", new FieldMapper("dtoPostRecallReleaseDateOverride", DateTimeConverter::toISO8601LocalDate))
-                    .put("TARIFF_EARLY_REMOVAL_SCHEME_ELIG_DATE", new FieldMapper("tariffEarlyRemovalSchemeEligibilityDate", DateTimeConverter::toISO8601LocalDate))
+                    .put("TARIFF_ERS_SCHEME_ELIG_DATE", new FieldMapper("tariffEarlyRemovalSchemeEligibilityDate", DateTimeConverter::toISO8601LocalDate))
                     .put("EFFECTIVE_SENTENCE_END_DATE", new FieldMapper("effectiveSentenceEndDate", DateTimeConverter::toISO8601LocalDate))
                     .put("ADDITIONAL_DAYS_AWARDED", new FieldMapper("additionalDaysAwarded"))
                     .build();
