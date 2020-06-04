@@ -60,6 +60,7 @@ public class OffenderAddressService {
                                             .addressId(address.getAddressId())
                                             .activeFlag("Y".equalsIgnoreCase(addressUsage.getActiveFlag()))
                                             .addressUsage(addressUsage.getAddressUsage())
+                                            .addressUsageDescription(addressUsage.getAddressUsageType().getDescription())
                                             .build()).collect(Collectors.toList()))
                     .phones(phoneRepository.findAllByOwnerClassAndOwnerId("ADDR", address.getAddressId()).stream().map(phone ->
                             Telephone.builder()
