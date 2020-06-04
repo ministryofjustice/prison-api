@@ -427,17 +427,9 @@ public class BookingService {
     public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
         final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
 
-        offenderIdentifier.getBookingAndSeq().ifPresentOrElse(
-                booking -> {
-                    if (isRestrictedByCaseload()) {
-                        verifyBookingAccess(booking.getBookingId(), rolesAllowed);
-                    }
-                }, () -> {
-                    if (isRestrictedByCaseload()) {
-                        throw EntityNotFoundException.withMessage("Offender with id %d not found.", offenderIdentifier.getOffenderNo());
-                    }
-                }
-        );
+        if (isRestrictedByCaseload()) {
+            verifyBookingAccess(offenderIdentifier.getBookingAndSeq().orElseThrow(EntityNotFoundException.withId(offenderIdentifier.getOffenderNo())).getBookingId(), rolesAllowed);
+        }
         return offenderIdentifier;
     }
 
