@@ -171,6 +171,21 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
         bookingSentenceDetail.verifyTariffDate(tariffDate);
     }
 
+    @And("^detention training order post-recall release date matches \"([^\"]*)\"$")
+    public void dtoPostRecallMatches(final String dtoPostRecallReleaseDate) {
+        bookingSentenceDetail.verifyDtoPostRecallReleaseDateOverride(dtoPostRecallReleaseDate);
+    }
+
+    @And("^tariff early removal scheme eligibility date matches \"([^\"]*)\"$")
+    public void tariffEarlyRemovalMatches(final String tariffEarlyRemovalDate) {
+        bookingSentenceDetail.verifyTariffEarlyRemovalSchemeEligibilityDate(tariffEarlyRemovalDate);
+    }
+
+    @And("^effective sentence end date matches \"([^\"]*)\"$")
+    public void effectiveEndDateMatches(final String effectiveEndDate) {
+        bookingSentenceDetail.verifyEffectiveSentenceEndDate(effectiveEndDate);
+    }
+
     @When("^sentence details are requested for an offenders in logged in users caseloads with offender No \"([^\"]*)\"$")
     public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloadsWithBookingId(final String offenderNos) {
         bookingSentenceDetail.getOffenderSentenceDetails(offenderNos, null);

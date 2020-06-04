@@ -113,6 +113,18 @@ public class OffenderSentenceDetailDto {
     @ApiModelProperty(value = "Date on which minimum term is reached for parole (indeterminate/life sentences).", example = "2019-04-02")
     private LocalDate tariffDate;
 
+    @ApiModelProperty(value = "DPRRD - Detention training order post recall release date", example = "2020-02-03")
+    private LocalDate dtoPostRecallReleaseDate;
+
+    @ApiModelProperty(value = "DPRRD - Detention training order post recall release date override", example = "2020-02-03")
+    private LocalDate dtoPostRecallReleaseDateOverride;
+
+    @ApiModelProperty(value = "TERSED - Tariff early removal scheme eligibility date", example = "2020-02-03")
+    private LocalDate tariffEarlyRemovalSchemeEligibilityDate;
+
+    @ApiModelProperty(value = "Effective sentence end date", example = "2020-02-03")
+    private LocalDate effectiveSentenceEndDate;
+
     @ApiModelProperty(required = true, value = "Offender Unique Reference (NOMSID)", example = "A1234AA")
     @NotBlank
     private String offenderNo;

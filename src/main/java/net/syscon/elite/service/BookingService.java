@@ -813,6 +813,10 @@ public class BookingService {
                         .confirmedReleaseDate(os.getConfirmedReleaseDate())
                         .releaseDate(os.getReleaseDate())
                         .tariffDate(os.getTariffDate())
+                        .tariffEarlyRemovalSchemeEligibilityDate(os.getTariffEarlyRemovalSchemeEligibilityDate())
+                        .effectiveSentenceEndDate(os.getEffectiveSentenceEndDate())
+                        .dtoPostRecallReleaseDate(os.getDtoPostRecallReleaseDate())
+                        .dtoPostRecallReleaseDateOverride(os.getDtoPostRecallReleaseDateOverride())
                         .build())
                 .build();
     }

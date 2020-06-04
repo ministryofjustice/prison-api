@@ -55,5 +55,10 @@ public class BaseSentenceDetail {
     private LocalDate topupSupervisionExpiryDate;
     @ApiModelProperty(value = "Date on which minimum term is reached for parole (indeterminate/life sentences).", position = 66, example = "2020-02-03")
     private LocalDate tariffDate;
-
+    @ApiModelProperty(value = "DPRRD - Detention training order post recall release date", position = 66, example = "2020-02-03")
+    private LocalDate dtoPostRecallReleaseDate;
+    @ApiModelProperty(value = "TERSED - Tariff early removal scheme eligibility date", position = 67, example = "2020-02-03")
+    private LocalDate tariffEarlyRemovalSchemeEligibilityDate;
+    @ApiModelProperty(value = "Effective sentence end date", position = 68, example = "2020-02-03")
+    private LocalDate effectiveSentenceEndDate;
 }
