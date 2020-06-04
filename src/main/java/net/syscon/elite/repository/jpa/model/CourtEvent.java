@@ -110,6 +110,11 @@ public class CourtEvent extends AuditableEntity {
         return eventDate.atTime(startTime.toLocalTime());
     }
 
+    public void setEventDateTime(final LocalDateTime dateTime) {
+        this.eventDate = dateTime.toLocalDate();
+        this.startTime = dateTime;
+    }
+
     @PrePersist
     private void carryOverPreExistingChargesOnCreation() {
         if (offenderCourtCase != null) {
