@@ -22,6 +22,8 @@ Feature: Booking Sentence Details
     - for NOMIS only, the release on temporary licence date value is the override ROTL value (there is no calculated ROTL value).
     - for NOMIS only, the early removal scheme eligibility date value is the override ERSED value (there is no calculated ERSED value).
     - for NOMIS only, the topup supervision expiry date value is the override TUSED value, otherwise it is the calculated TUSED value.
+    - for NOMIS only, the tariff early removal scheme eligibility date is the override TERSED value (there is no calculated TERSED value).
+    - the detention training order post recall date is the overriden DPRRD value of present, otherwise the calculated one.
     - the release date for a non-DTO sentence type is derived from one or more of ARD, CRD, NPD and/or PRRD as follows:
       - if more than one ARD, CRD, NPD and/or PRRD value is present (calculated or overridden), the latest date is the release date
   Additional days awarded is the sum of all active sentence adjustment records for an offender booking with the 'ADA' adjustment type.
@@ -139,59 +141,62 @@ Feature: Booking Sentence Details
     And confirmed release date matches "<confRelDate>"
     And release date matches "<releaseDate>"
     And tariff date matches "<tariffDate>"
+    And detention training order post-recall release date matches "<dtoPostRecall>"
+    And effective sentence end date matches "<effectiveEndDate>"
 
     Examples:
-      | bookingId | ssd        | hdced      | ped        | led        | hdcad      | apd        | confRelDate | releaseDate | tariffDate |
-      | -1        | 2017-03-25 |            |            |            |            | 2018-09-27 | 2018-04-23  | 2018-04-23  |            |
-      | -2        | 2017-05-22 |            |            |            |            |            | 2018-04-19  | 2018-04-19  |            |
-      | -3        | 2015-03-16 |            |            |            |            |            |             | 2018-03-15  |            |
-      | -4        | 2007-10-16 |            |            |            |            |            |             | 2021-08-31  |            |
-      | -5        | 2017-02-08 | 2019-06-02 | 2019-06-01 |            |            |            |             | 2023-05-07  |            |
-      | -6        | 2017-09-01 |            |            |            | 2018-05-15 |            |             | 2018-05-15  |            |
-      | -7        | 2017-09-01 |            |            |            |            |            | 2018-01-05  | 2018-01-05  |            |
-      | -8        | 2017-09-01 |            |            |            |            | 2017-12-23 |             | 2017-12-23  |            |
-      | -9        | 2017-09-01 |            |            |            | 2018-01-15 |            | 2018-01-13  | 2018-01-13  |            |
-      | -10       | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |            |
-      | -11       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
-      | -12       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
-      | -17       | 2015-05-05 |            |            |            |            |            | 2018-01-16  | 2018-01-16  |            |
-      | -18       | 2016-11-17 |            |            |            | 2019-09-19 |            |             | 2019-09-19  |            |
-      | -24       | 2017-07-07 |            |            |            |            | 2022-06-06 | 2022-02-02  | 2022-02-02  |            |
-      | -25       | 2009-09-09 |            |            |            |            | 2019-09-08 | 2023-03-03  | 2023-03-03  |            |
-      | -27       | 2014-09-09 |            |            |            |            |            |             |             | 2029-09-08 |
-      | -28       | 2014-09-09 |            |            |            |            |            |             |             | 2031-03-08 |
-      | -29       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |             | 2017-12-31  |            |
-      | -30       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |            |
-      | -32       |            |            |            |            |            |            |             |             |            |
+      | bookingId | ssd        | hdced      | ped        | led        | hdcad      | apd        | confRelDate | releaseDate | tariffDate | dtoPostRecall | effectiveEndDate |
+      | -1        | 2017-03-25 |            |            |            |            | 2018-09-27 | 2018-04-23  | 2018-04-23  |            | 2020-03-22    | 2025-05-05       |
+      | -2        | 2017-05-22 |            |            |            |            |            | 2018-04-19  | 2018-04-19  |            |               |                  |
+      | -3        | 2015-03-16 |            |            |            |            |            |             | 2018-03-15  |            |               |                  |
+      | -4        | 2007-10-16 |            |            |            |            |            |             | 2021-08-31  |            |               |                  |
+      | -5        | 2017-02-08 | 2019-06-02 | 2019-06-01 |            |            |            |             | 2023-05-07  |            |               |                  |
+      | -6        | 2017-09-01 |            |            |            | 2018-05-15 |            |             | 2018-05-15  |            |               |                  |
+      | -7        | 2017-09-01 |            |            |            |            |            | 2018-01-05  | 2018-01-05  |            |               |                  |
+      | -8        | 2017-09-01 |            |            |            |            | 2017-12-23 |             | 2017-12-23  |            |               |                  |
+      | -9        | 2017-09-01 |            |            |            | 2018-01-15 |            | 2018-01-13  | 2018-01-13  |            |               |                  |
+      | -10       | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |            |               |                  |
+      | -11       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |               |                  |
+      | -12       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |               |                  |
+      | -17       | 2015-05-05 |            |            |            |            |            | 2018-01-16  | 2018-01-16  |            |               |                  |
+      | -18       | 2016-11-17 |            |            |            | 2019-09-19 |            |             | 2019-09-19  |            |               |                  |
+      | -24       | 2017-07-07 |            |            |            |            | 2022-06-06 | 2022-02-02  | 2022-02-02  |            |               |                  |
+      | -25       | 2009-09-09 |            |            |            |            | 2019-09-08 | 2023-03-03  | 2023-03-03  |            |               |                  |
+      | -27       | 2014-09-09 |            |            |            |            |            |             |             | 2029-09-08 |               |                  |
+      | -28       | 2014-09-09 |            |            |            |            |            |             |             | 2031-03-08 |               |                  |
+      | -29       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |             | 2017-12-31  |            |               |                  |
+      | -30       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |            |               |                  |
+      | -32       |            |            |            |            |            |            |             |             |            |               |                  |
 
-  Scenario Outline: Retrieve sentence details for an offender, check other dates - NOMIS only - for ROTL, ERSED and TUSED
+  Scenario Outline: Retrieve sentence details for an offender, check other dates - NOMIS only - for ROTL, ERSED, TUSED and TERSED
     When sentence details are requested for an offender with booking id "<bookingId>"
     Then sentence start date matches "<ssd>"
     And release on temporary licence date matches "<rotl>"
     And early removal scheme eligibility date matches "<ersed>"
     And topup supervision expiry date matches "<tused>"
+    And tariff early removal scheme eligibility date matches "<tersed>"
 
     Examples:
-      | bookingId | ssd        | rotl       | ersed      | tused      |
-      | -1        | 2017-03-25 |            |            |            |
-      | -2        | 2017-05-22 | 2018-02-25 |            |            |
-      | -3        | 2015-03-16 |            |            |            |
-      | -4        | 2007-10-16 |            | 2019-09-01 |            |
-      | -5        | 2017-02-08 |            |            |            |
-      | -6        | 2017-09-01 |            |            | 2021-03-30 |
-      | -7        | 2017-09-01 |            |            | 2021-03-31 |
-      | -8        | 2017-09-01 |            |            |            |
-      | -9        | 2017-09-01 |            |            |            |
-      | -10       | 2017-09-01 |            |            |            |
-      | -11       | 2017-09-01 |            |            |            |
-      | -12       | 2017-09-01 |            |            |            |
-      | -17       | 2015-05-05 |            |            |            |
-      | -18       | 2016-11-17 |            |            |            |
-      | -24       | 2017-07-07 |            |            |            |
-      | -25       | 2009-09-09 |            |            |            |
-      | -29       | 2017-02-08 |            |            |            |
-      | -30       | 2007-10-16 |            |            |            |
-      | -32       |            |            |            |            |
+      | bookingId | ssd        | rotl       | ersed      | tused      | tersed     |
+      | -1        | 2017-03-25 |            |            |            | 2020-06-25 |
+      | -2        | 2017-05-22 | 2018-02-25 |            |            |            |
+      | -3        | 2015-03-16 |            |            |            |            |
+      | -4        | 2007-10-16 |            | 2019-09-01 |            |            |
+      | -5        | 2017-02-08 |            |            |            |            |
+      | -6        | 2017-09-01 |            |            | 2021-03-30 |            |
+      | -7        | 2017-09-01 |            |            | 2021-03-31 |            |
+      | -8        | 2017-09-01 |            |            |            |            |
+      | -9        | 2017-09-01 |            |            |            |            |
+      | -10       | 2017-09-01 |            |            |            |            |
+      | -11       | 2017-09-01 |            |            |            |            |
+      | -12       | 2017-09-01 |            |            |            |            |
+      | -17       | 2015-05-05 |            |            |            |            |
+      | -18       | 2016-11-17 |            |            |            |            |
+      | -24       | 2017-07-07 |            |            |            |            |
+      | -25       | 2009-09-09 |            |            |            |            |
+      | -29       | 2017-02-08 |            |            |            |            |
+      | -30       | 2007-10-16 |            |            |            |            |
+      | -32       |            |            |            |            |            |
 
   Scenario Outline: Retrieve sentence details as a list and filter by booking id and check data matches
     When sentence details are requested for an offenders in logged in users caseloads with offender No "<offenderNo>"

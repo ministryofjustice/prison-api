@@ -207,6 +207,21 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         verifyLocalDate(sentenceDetail.getTopupSupervisionExpiryDate(), topupSupervisionExpiryDate);
     }
 
+    @Step("Verify detention training order post-recall release date")
+    public void verifyDtoPostRecallReleaseDateOverride(final String dtoPostRecallReleaseDateOverride) {
+        verifyLocalDate(sentenceDetail.getDtoPostRecallReleaseDateOverride(), dtoPostRecallReleaseDateOverride);
+    }
+
+    @Step("Verify tariff early removal scheme eligibility date")
+    public void verifyTariffEarlyRemovalSchemeEligibilityDate(final String tariffEarlyRemovalSchemeEligibilityDate) {
+        verifyLocalDate(sentenceDetail.getTariffEarlyRemovalSchemeEligibilityDate(), tariffEarlyRemovalSchemeEligibilityDate);
+    }
+
+    @Step("Verify effective sentence end date")
+    public void verifyEffectiveSentenceEndDate(final String effectiveSentenceEndDate) {
+        verifyLocalDate(sentenceDetail.getEffectiveSentenceEndDate(), effectiveSentenceEndDate);
+    }
+
     @Step("Request sentence details for Home Detention Curfew Candidates")
     public void requestSentenceDetailsForHomeDetentionCurfewCandidates() {
         dispatchOffenderSentencesForHomeDetentionCurfewCandidates();
