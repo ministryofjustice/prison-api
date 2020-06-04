@@ -110,7 +110,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     private final StandardBeanPropertyRowMapper<VisitBalances> VISIT_BALANCES_MAPPER =
             new StandardBeanPropertyRowMapper<>(VisitBalances.class);
 
-
     private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
@@ -525,22 +524,13 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Optional<Long> getBookingIdByOffenderNo(final String offenderNo) {
+    public Optional<OffenderBookingIdSeq> getLatestBookingIdentifierForOffender(final String offenderNo) {
         Validate.notBlank("Offender number must be specified.");
+        final var sql = getQuery("FIND_BOOKING_IDS_BY_OFFENDER_NO");
 
-        final var sql = getQuery("FIND_BOOKING_ID_BY_OFFENDER_NO");
-
-        Long bookingId;
-
-        try {
-            bookingId = jdbcTemplate.queryForObject(
-                    sql,
-                    createParams("offenderNo", offenderNo, "bookingSeq", 1), Long.class);
-        } catch (final EmptyResultDataAccessException ex) {
-            bookingId = null;
-        }
-
-        return Optional.ofNullable(bookingId);
+        return jdbcTemplate.query(sql, createParams("offenderNo", offenderNo), new StandardBeanPropertyRowMapper<>(OffenderBookingIdSeq.class))
+                .stream()
+                .findFirst();
     }
 
     @Override

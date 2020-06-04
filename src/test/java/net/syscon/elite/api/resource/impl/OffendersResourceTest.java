@@ -122,6 +122,41 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void getOffenderInformationWithoutBooking() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "A1234DD");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_detail_min.json");
+    }
+
+    @Test
+    public void getOffenderNotFound() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "B1234DD");
+
+        assertThatStatus(response, 404);
+    }
+
+
+    @Test
     public void getFullOffenderInformation_WithAliases() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
 
@@ -284,7 +319,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
+        assertThat(response.getHeaders().get("Total-Records")).containsExactly("52");
     }
 
     @Test
@@ -296,7 +331,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
+        assertThat(response.getHeaders().get("Total-Records")).containsExactly("52");
     }
 
     @Test

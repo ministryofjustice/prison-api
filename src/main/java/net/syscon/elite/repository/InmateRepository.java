@@ -65,6 +65,8 @@ public interface InmateRepository {
 
     Optional<InmateDetail> findInmate(Long inmateId);
 
+    Optional<InmateDetail> findOffender(final String offenderNo);
+
     Optional<InmateDetail> getBasicInmateDetail(Long bookingId);
 
     Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);

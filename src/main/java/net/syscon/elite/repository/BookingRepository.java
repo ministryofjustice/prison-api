@@ -1,15 +1,33 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.NewBooking;
+import net.syscon.elite.api.model.OffenderSentenceCalculation;
+import net.syscon.elite.api.model.OffenderSentenceDetailDto;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PrivilegeDetail;
+import net.syscon.elite.api.model.RecallBooking;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.repository.impl.OffenderBookingIdSeq;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Bookings API repository interface.
@@ -71,7 +89,7 @@ public interface BookingRepository {
 
     Visit getBookingVisitNext(Long bookingId, LocalDateTime from);
 
-    Optional<Long> getBookingIdByOffenderNo(String offenderNo);
+    Optional<OffenderBookingIdSeq> getLatestBookingIdentifierForOffender(String offenderNo);
 
     List<OffenderSummary> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType);
 

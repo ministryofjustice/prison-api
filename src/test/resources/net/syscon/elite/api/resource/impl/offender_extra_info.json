@@ -1,6 +1,8 @@
 {
   "bookingId": -7,
   "bookingNo": "A00117",
+  "offenderId": -1007,
+  "rootOffenderId": -1007,
   "offenderNo": "A1234AG",
   "firstName": "GILES",
   "middleName": "DAVID",
@@ -151,5 +153,11 @@
   "aliases": [],
   "status": "ACTIVE IN",
   "legalStatus": "Convicted",
-  "imprisonmentStatus": "DEPORT"
+  "imprisonmentStatus": "DEPORT",
+  "privilegeSummary": {
+    "bookingId": -7,
+    "iepLevel": "Standard",
+    "iepDate": "2017-09-06",
+    "iepTime": "2017-09-06T09:44:01"
+  }
 }

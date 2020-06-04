@@ -215,11 +215,11 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public InmateDetail getOffenderBookingByOffenderNo(final String offenderNo, final boolean fullInfo, final boolean extraInfo) {
 
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo);
 
         return fullInfo || extraInfo ?
-                inmateService.findInmate(bookingId, extraInfo) :
-                inmateService.getBasicInmateDetail(bookingId);
+                inmateService.findOffender(identifiers.getOffenderNo(), extraInfo) :
+                inmateService.findOffender(identifiers.getOffenderNo(), false);
     }
 
     @Override
@@ -516,7 +516,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
-        return contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType, true);
+        return contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType);
     }
 
     @Override
@@ -604,16 +604,22 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public VisitBalances getBookingVisitBalances(final String offenderNo) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo);
 
-        return bookingService.getBookingVisitBalances(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        if (identifiers.getBookingId() == null) {
+            throw EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo);
+        }
+        return bookingService.getBookingVisitBalances(identifiers.getBookingId()).orElseThrow(EntityNotFoundException.withId(identifiers.getBookingId()));
     }
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Keyworker getKeyworkerByOffenderNo(final String offenderNo) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-        return keyworkerService.getKeyworkerDetailsByBooking(bookingId);
+        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo);
+        if (offenderIdentifiers.getBookingId() == null) {
+            throw EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo);
+        }
+        return keyworkerService.getKeyworkerDetailsByBooking(offenderIdentifiers.getBookingId());
     }
 
     @Override
