@@ -63,9 +63,6 @@
       "caseloadType": "INST"
     }
   ],
-  "sentenceDetail": {
-    "bookingId": -41
-  }
   "status": "ACTIVE IN",
   "privilegeSummary": {
     "bookingId": -41,
