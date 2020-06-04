@@ -14,5 +14,6 @@ import lombok.NoArgsConstructor;
 public class AddressUsageDto {
     private Long addressId;
     private String addressUsage;
+    private String addressUsageDescription;
     private Boolean activeFlag;
 }

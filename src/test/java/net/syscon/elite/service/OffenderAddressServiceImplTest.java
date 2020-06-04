@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.AddressDto;
 import net.syscon.elite.api.model.AddressUsageDto;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.jpa.model.Address;
+import net.syscon.elite.repository.jpa.model.AddressType;
 import net.syscon.elite.repository.jpa.model.AddressUsage;
 import net.syscon.elite.repository.jpa.model.City;
 import net.syscon.elite.repository.jpa.model.Country;
@@ -77,7 +78,7 @@ public class OffenderAddressServiceImplTest {
                         .city(new City("25343", "Sheffield"))
                         .startDate(LocalDate.of(2016, 8, 2))
                         .endDate(null)
-                        .addressUsages(List.of(AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()))
+                        .addressUsages(List.of(AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressType("HDC", "HDC address")).build()))
                         .build(),
                 Address.builder()
                         .addressId(-16L)
@@ -156,6 +157,7 @@ public class OffenderAddressServiceImplTest {
                                 .addressId(-15L)
                                 .activeFlag(true)
                                 .addressUsage("HDC")
+                                .addressUsageDescription("HDC address")
                                 .build())
                         )
                         .build(),
