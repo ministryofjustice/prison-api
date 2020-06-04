@@ -68,16 +68,22 @@ public class ContactService {
                 .collect(Collectors.toList());
     }
 
-    public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType, final boolean activeOnly) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-        return getRelationships(bookingId, relationshipType, true);
+    public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
+        final var booking = bookingService.getBookingIdByOffenderNo(offenderNo);
+        if (booking.getBookingId() == null) {
+            throw EntityNotFoundException.withMessage("No booking found for offender {}", offenderNo);
+        }
+        return getRelationships(booking.getBookingId(), relationshipType, true);
     }
     
     @PreAuthorize("hasRole('CONTACT_CREATE')")
     @Transactional
     public Contact createRelationshipByOffenderNo(final String offenderNo, final OffenderRelationship relationshipDetail) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-        return createRelationship(bookingId, relationshipDetail);
+        final var booking = bookingService.getBookingIdByOffenderNo(offenderNo);
+        if (booking.getBookingId() == null) {
+            throw EntityNotFoundException.withMessage("No booking found for offender {}", offenderNo);
+        }
+        return createRelationship(booking.getBookingId(), relationshipDetail);
     }
 
     @PreAuthorize("hasRole('CONTACT_CREATE')")

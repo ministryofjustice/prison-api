@@ -38,6 +38,7 @@ import net.syscon.elite.repository.jpa.repository.OffenderLanguageRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.security.VerifyOffenderAccess;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.InmatesHelper;
@@ -222,49 +223,62 @@ public class InmateService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public InmateDetail findInmate(final Long bookingId, final boolean extraInfo) {
         final var inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        return getOffenderDetails(inmate, extraInfo);
+    }
 
-        inmate.setStatus(format("%s %s", inmate.isActiveFlag() ? "ACTIVE" : "INACTIVE", inmate.getInOutStatus()));
-        getFirstPreferredSpokenLanguage(bookingId).ifPresent(offenderLanguage -> {
-            inmate.setLanguage(offenderLanguage.getReferenceCode().getDescription());
-            inmate.setInterpreterRequired("Y".equalsIgnoreCase(offenderLanguage.getInterpreterRequestedFlag()));
-        });
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public InmateDetail findOffender(final String offenderNo, final boolean extraInfo) {
+        final var inmate = repository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        return getOffenderDetails(inmate, extraInfo);
+    }
 
-        getFirstPreferredWrittenLanguage(bookingId).ifPresent(offenderLanguage -> {
-            inmate.setWrittenLanguage(offenderLanguage.getReferenceCode().getDescription());
-        });
-
-        inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
-        inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
-        inmate.setProfileInformation(getProfileInformation(bookingId));
-        repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).ifPresent(assignedLivingUnit -> {
-            assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
-            inmate.setAssignedLivingUnit(assignedLivingUnit);
-        });
-        setAlertsFields(inmate);
-        setAssessmentsFields(bookingId, inmate);
-
-        try {
-            inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
-        } catch (Exception e) {
-            // TODO: Hack for now to make sure there wasn't a reason this was removed.
-        }
-        if (extraInfo) {
-            inmate.setIdentifiers(getOffenderIdentifiers(bookingId, null));
-            inmate.setSentenceDetail(bookingService.getBookingSentenceDetail(bookingId));
-            inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
-            inmate.setOffenceHistory(bookingService.getOffenceHistory(inmate.getOffenderNo()));
-            inmate.setPersonalCareNeeds(getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
-
-            repository.getImprisonmentStatus(bookingId).ifPresent(status -> {
-                inmate.setLegalStatus(status.getLegalStatus());
-                inmate.setImprisonmentStatus(status.getImprisonmentStatus());
+    private InmateDetail getOffenderDetails(final InmateDetail inmate, final boolean extraInfo) {
+        if (inmate.getBookingId() != null) {
+            final var bookingId = inmate.getBookingId();
+            inmate.setStatus(format("%s %s", inmate.isActiveFlag() ? "ACTIVE" : "INACTIVE", inmate.getInOutStatus()));
+            getFirstPreferredSpokenLanguage(bookingId).ifPresent(offenderLanguage -> {
+                inmate.setLanguage(offenderLanguage.getReferenceCode().getDescription());
+                inmate.setInterpreterRequired("Y".equalsIgnoreCase(offenderLanguage.getInterpreterRequestedFlag()));
             });
-        }
 
-        //TODO: Remove once KW service available - Nomis only!
-        final var nomisProfile = ProfileUtil.isNomisProfile(env);
-        if (nomisProfile) {
-            keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
+            getFirstPreferredWrittenLanguage(bookingId).ifPresent(offenderLanguage -> {
+                inmate.setWrittenLanguage(offenderLanguage.getReferenceCode().getDescription());
+            });
+
+            inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
+            inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
+            inmate.setProfileInformation(getProfileInformation(bookingId));
+            repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).ifPresent(assignedLivingUnit -> {
+                assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
+                inmate.setAssignedLivingUnit(assignedLivingUnit);
+            });
+            setAlertsFields(inmate);
+            setAssessmentsFields(bookingId, inmate);
+
+            try {
+                inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
+            } catch (Exception e) {
+                // TODO: Hack for now to make sure there wasn't a reason this was removed.
+            }
+            if (extraInfo) {
+                inmate.setOffenceHistory(bookingService.getOffenceHistory(inmate.getOffenderNo()));
+                inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
+                inmate.setPrivilegeSummary(bookingService.getBookingIEPSummary(bookingId, false));
+                inmate.setIdentifiers(getOffenderIdentifiers(bookingId, null));
+                inmate.setSentenceDetail(bookingService.getBookingSentenceDetail(bookingId));
+                inmate.setPersonalCareNeeds(getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
+
+                repository.getImprisonmentStatus(bookingId).ifPresent(status -> {
+                    inmate.setLegalStatus(status.getLegalStatus());
+                    inmate.setImprisonmentStatus(status.getImprisonmentStatus());
+                });
+            }
+
+            //TODO: Remove once KW service available - Nomis only!
+            final var nomisProfile = ProfileUtil.isNomisProfile(env);
+            if (nomisProfile) {
+                keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
+            }
         }
         return inmate;
     }

@@ -1,6 +1,7 @@
 package net.syscon.elite.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ import java.util.List;
  **/
 @SuppressWarnings("unused")
 @ApiModel(description = "Inmate Detail")
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(Include.NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,39 +30,55 @@ import java.util.List;
 @Data
 public class InmateDetail {
 
-    @ApiModelProperty(required = true, value = "Offender Booking Id")
-    @NotNull
-    private Long bookingId;
-
-    @ApiModelProperty(required = true, value = "Booking Number")
-    @NotBlank
-    private String bookingNo;
-
-    @ApiModelProperty(required = true, value = "Offender Unique Reference")
+    @ApiModelProperty(required = true, value = "Offender Unique Reference", position = 1, example = "A1234AA")
     @NotBlank
     private String offenderNo;
 
-    @ApiModelProperty(required = true, value = "First Name")
+    @ApiModelProperty(value = "Offender Booking Id", position = 2, example = "432132")
+    private Long bookingId;
+
+    @ApiModelProperty(value = "Booking Number", position = 3)
+    private String bookingNo;
+
+    @ApiModelProperty(required = true, value = "Internal Offender ID", position = 4)
+    @NotBlank
+    private Long offenderId;
+
+    @ApiModelProperty(required = true, value = "Internal Root Offender ID", position = 5)
+    @NotBlank
+    private Long rootOffenderId;
+
+
+    @ApiModelProperty(required = true, value = "First Name", position = 6)
     @NotBlank
     private String firstName;
 
-    @ApiModelProperty(value = "Middle Name(s)")
+    @ApiModelProperty(value = "Middle Name(s)", position = 7)
     private String middleName;
 
-    @ApiModelProperty(required = true, value = "Last Name")
+    @ApiModelProperty(required = true, value = "Last Name", position = 8)
     @NotBlank
     private String lastName;
 
-    @ApiModelProperty(required = true, value = "Identifier of agency to which the offender is associated.")
-    @NotBlank
+    @ApiModelProperty(required = true, value = "Date of Birth of offender", example = "1970-03-15", position = 9)
+    @NotNull
+    private LocalDate dateOfBirth;
+
+    @ApiModelProperty(value = "Age of offender", notes = "Full Details Only", position = 10)
+    private Integer age;
+
+    @ApiModelProperty(required = true, value = "Indicates that the offender is currently in prison", position = 11)
+    @NotNull
+    private boolean activeFlag;
+
+    @ApiModelProperty(value = "Image Id Ref of Offender")
+    private Long facialImageId;
+
+    @ApiModelProperty(value = "Identifier of agency to which the offender is associated.")
     private String agencyId;
 
     @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that offender is assigned to.")
     private Long assignedLivingUnitId;
-
-    @ApiModelProperty(required = true, value = "Indicates that the offender is currently in prison")
-    @NotNull
-    private boolean activeFlag;
 
     @ApiModelProperty(value = "Religion of the prisoner")
     private String religion;
@@ -89,16 +106,6 @@ public class InmateDetail {
 
     @ApiModelProperty(value = "Where the offender is staying")
     private AssignedLivingUnit assignedLivingUnit;
-
-    @ApiModelProperty(value = "Image Id Ref of Offender")
-    private Long facialImageId;
-
-    @ApiModelProperty(required = true, value = "Date of Birth of offender", example = "1970-03-15")
-    @NotNull
-    private LocalDate dateOfBirth;
-
-    @ApiModelProperty(value = "Age of offender", notes = "Full Details Only")
-    private Integer age;
 
     @ApiModelProperty(value = "A set of physical attributes")
     private PhysicalAttributes physicalAttributes;
@@ -159,6 +166,9 @@ public class InmateDetail {
 
     @ApiModelProperty(value = "The prisoner's imprisonment status.", example="LIFE", notes = "Only returned when requesting extra details")
     private String imprisonmentStatus;
+
+    @ApiModelProperty(value = "The prisoner's IEP Status", notes = "Only returned when requesting extra details")
+    private PrivilegeSummary privilegeSummary;
 
     public void setProfileInformation(final List<ProfileInformation> profileInformation) {
         this.profileInformation = profileInformation;

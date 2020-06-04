@@ -1,6 +1,8 @@
 {
   "bookingId": -41,
   "bookingNo": "Z00041",
+  "offenderId": -1041,
+  "rootOffenderId": -1041,
   "offenderNo": "A1184MA",
   "firstName": "MOEEN",
   "lastName": "ALI",
@@ -43,10 +45,32 @@
   "categoryCode": "B",
   "birthCountryCode": "UK",
   "inOutStatus": "IN",
+  "identifiers": [
+    {
+      "type": "PNC",
+      "value": " - 20/0009n ",
+      "offenderNo": "A1184MA",
+      "bookingId": -41,
+      "issuedDate": "2017-08-28",
+      "caseloadType": "INST"
+    },
+    {
+      "type": "CRO",
+      "value": "  01/11x  ",
+      "offenderNo": "A1184MA",
+      "bookingId": -41,
+      "issuedDate": "2017-08-28",
+      "caseloadType": "INST"
+    }
+  ],
   "sentenceDetail": {
     "bookingId": -41
-  },
-  "offenceHistory": [],
-  "aliases": [],
-  "status": "ACTIVE IN"
+  }
+  "status": "ACTIVE IN",
+  "privilegeSummary": {
+    "bookingId": -41,
+    "iepLevel": "Standard",
+    "iepDate": "2017-09-06",
+    "iepTime": "2017-09-06T09:44:01"
+  }
 }

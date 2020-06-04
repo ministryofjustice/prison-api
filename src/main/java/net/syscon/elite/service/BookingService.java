@@ -29,6 +29,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.repository.impl.OffenderBookingIdSeq;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.OffenderKeyDateAdjustment;
@@ -423,16 +424,16 @@ public class BookingService {
         getBookingIdByOffenderNo(offenderNo, rolesAllowed);
     }
 
-    public Long getBookingIdByOffenderNo(final String offenderNo, final String... rolesAllowed) {
-        final var bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (!isViewAllBookings()) {
+    public OffenderBookingIdSeq getBookingIdByOffenderNo(final String offenderNo, final String... rolesAllowed) {
+        final var offenderBookIds = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        if (offenderBookIds.getBookingId() != null && !isViewAllBookings()) {
             try {
-                verifyBookingAccess(bookingId, rolesAllowed);
+                verifyBookingAccess(offenderBookIds.getBookingId(), rolesAllowed);
             } catch (final EntityNotFoundException e) {
                 throw EntityNotFoundException.withId(offenderNo);
             }
         }
-        return bookingId;
+        return offenderBookIds;
     }
 
 
