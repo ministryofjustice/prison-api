@@ -10,6 +10,7 @@ import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.service.CourtHearingReschedulingService;
 import net.syscon.elite.service.CourtHearingsService;
 import net.syscon.elite.service.MovementUpdateService;
 import net.syscon.elite.service.PrisonToPrisonMoveSchedulingService;
@@ -33,13 +34,16 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     private final CourtHearingsService courtHearingsService;
     private final MovementUpdateService movementUpdateService;
     private final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService;
+    private final CourtHearingReschedulingService courtHearingReschedulingService;
 
     public OffenderMovementsResourceImpl(final CourtHearingsService courtHearingsService,
                                          final MovementUpdateService movementUpdateService,
-                                         final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService) {
+                                         final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService,
+                                         final CourtHearingReschedulingService courtHearingReschedulingService) {
         this.courtHearingsService = courtHearingsService;
         this.movementUpdateService = movementUpdateService;
         this.prisonToPrisonMoveSchedulingService = prisonToPrisonMoveSchedulingService;
+        this.courtHearingReschedulingService = courtHearingReschedulingService;
     }
 
     @ProxyUser
@@ -83,5 +87,11 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
         prisonToPrisonMoveSchedulingService.cancel(bookingId, eventId, cancellation.getReasonCode());
 
         return ResponseEntity.ok().build();
+    }
+
+    @ProxyUser
+    @Override
+    public CourtHearing prisonToCourtDateChange(final Long bookingId, final Long hearingId, final LocalDateTime revisedDateTime) {
+        return courtHearingReschedulingService.reschedule(bookingId, hearingId, revisedDateTime);
     }
 }

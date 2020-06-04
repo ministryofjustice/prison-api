@@ -179,6 +179,18 @@ public class ControllerAdvice {
                         .build());
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(final IllegalStateException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .userMessage(e.getMessage())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
     public ResponseEntity<ErrorResponse> handleInvalidDataAccessApiUsageException(final InvalidDataAccessApiUsageException e) {
         return ResponseEntity
