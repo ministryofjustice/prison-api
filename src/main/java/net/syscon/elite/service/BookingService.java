@@ -421,19 +421,19 @@ public class BookingService {
     }
 
     public void verifyCanViewSensitiveBookingInfo(final String offenderNo, final String... rolesAllowed) {
-        getBookingIdByOffenderNo(offenderNo, rolesAllowed);
+        getOffenderIdentifiers(offenderNo, rolesAllowed);
     }
 
-    public OffenderBookingIdSeq getBookingIdByOffenderNo(final String offenderNo, final String... rolesAllowed) {
-        final var offenderBookIds = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (offenderBookIds.getBookingId() != null && !isViewAllBookings()) {
+    public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
+        final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        if (offenderIdentifier.getBookingId() != null && !isViewAllBookings()) {
             try {
-                verifyBookingAccess(offenderBookIds.getBookingId(), rolesAllowed);
+                verifyBookingAccess(offenderIdentifier.getBookingId(), rolesAllowed);
             } catch (final EntityNotFoundException e) {
                 throw EntityNotFoundException.withId(offenderNo);
             }
         }
-        return offenderBookIds;
+        return offenderIdentifier;
     }
 
 

@@ -121,7 +121,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
@@ -134,7 +134,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
@@ -149,7 +149,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
@@ -161,7 +161,7 @@ public class BookingServiceTest {
     public void verifyCanViewSensitiveBookingInfo_systemUser() {
         when(securityUtils.isOverrideRole(any())).thenReturn(true);
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(-1L).build()));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(-1L).build()));
 
         bookingService.verifyCanViewSensitiveBookingInfo("off-1");
 
@@ -179,7 +179,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(OffenderBookingIdSeq.builder().offenderNo("off-1").bookingId(bookingId).build()));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 

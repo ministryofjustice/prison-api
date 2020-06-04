@@ -520,9 +520,9 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Optional<OffenderBookingIdSeq> getBookingIdByOffenderNo(final String offenderNo) {
+    public Optional<OffenderBookingIdSeq> getLatestBookingIdentifierForOffender(final String offenderNo) {
         Validate.notBlank("Offender number must be specified.");
-        final var sql = getQuery("FIND_BOOKING_ID_BY_OFFENDER_NO");
+        final var sql = getQuery("FIND_BOOKING_IDS_BY_OFFENDER_NO");
 
         return jdbcTemplate.query(sql, createParams("offenderNo", offenderNo), new StandardBeanPropertyRowMapper<>(OffenderBookingIdSeq.class))
                 .stream()

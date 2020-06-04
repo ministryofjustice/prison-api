@@ -69,21 +69,21 @@ public class ContactService {
     }
 
     public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
-        final var booking = bookingService.getBookingIdByOffenderNo(offenderNo);
-        if (booking.getBookingId() == null) {
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo);
+        if (identifiers.getBookingId() == null) {
             throw EntityNotFoundException.withMessage("No booking found for offender {}", offenderNo);
         }
-        return getRelationships(booking.getBookingId(), relationshipType, true);
+        return getRelationships(identifiers.getBookingId(), relationshipType, true);
     }
     
     @PreAuthorize("hasRole('CONTACT_CREATE')")
     @Transactional
     public Contact createRelationshipByOffenderNo(final String offenderNo, final OffenderRelationship relationshipDetail) {
-        final var booking = bookingService.getBookingIdByOffenderNo(offenderNo);
-        if (booking.getBookingId() == null) {
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo);
+        if (identifiers.getBookingId() == null) {
             throw EntityNotFoundException.withMessage("No booking found for offender {}", offenderNo);
         }
-        return createRelationship(booking.getBookingId(), relationshipDetail);
+        return createRelationship(identifiers.getBookingId(), relationshipDetail);
     }
 
     @PreAuthorize("hasRole('CONTACT_CREATE')")

@@ -89,7 +89,7 @@ public interface BookingRepository {
 
     Visit getBookingVisitNext(Long bookingId, LocalDateTime from);
 
-    Optional<OffenderBookingIdSeq> getBookingIdByOffenderNo(String offenderNo);
+    Optional<OffenderBookingIdSeq> getLatestBookingIdentifierForOffender(String offenderNo);
 
     List<OffenderSummary> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType);
 

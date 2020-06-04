@@ -215,11 +215,11 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public InmateDetail getOffenderBookingByOffenderNo(final String offenderNo, final boolean fullInfo, final boolean extraInfo) {
 
-        final var booking = bookingService.getBookingIdByOffenderNo(offenderNo);
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo);
 
         return fullInfo || extraInfo ?
-                inmateService.findOffender(booking.getOffenderNo(), extraInfo) :
-                inmateService.findOffender(booking.getOffenderNo(), false);
+                inmateService.findOffender(identifiers.getOffenderNo(), extraInfo) :
+                inmateService.findOffender(identifiers.getOffenderNo(), false);
     }
 
     @Override
@@ -604,22 +604,22 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public VisitBalances getBookingVisitBalances(final String offenderNo) {
-        final var booking = bookingService.getBookingIdByOffenderNo(offenderNo);
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo);
 
-        if (booking.getBookingId() == null) {
-            throw EntityNotFoundException.withMessage("No booking found for offender {}", offenderNo);
+        if (identifiers.getBookingId() == null) {
+            throw EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo);
         }
-        return bookingService.getBookingVisitBalances(booking.getBookingId()).orElseThrow(EntityNotFoundException.withId(booking.getBookingId()));
+        return bookingService.getBookingVisitBalances(identifiers.getBookingId()).orElseThrow(EntityNotFoundException.withId(identifiers.getBookingId()));
     }
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Keyworker getKeyworkerByOffenderNo(final String offenderNo) {
-        final var booking = bookingService.getBookingIdByOffenderNo(offenderNo);
-        if (booking.getBookingId() == null) {
-            throw EntityNotFoundException.withMessage("No booking found for offender {}", offenderNo);
+        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo);
+        if (offenderIdentifiers.getBookingId() == null) {
+            throw EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo);
         }
-        return keyworkerService.getKeyworkerDetailsByBooking(booking.getBookingId());
+        return keyworkerService.getKeyworkerDetailsByBooking(offenderIdentifiers.getBookingId());
     }
 
     @Override
