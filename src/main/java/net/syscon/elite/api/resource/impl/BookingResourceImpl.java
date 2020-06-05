@@ -604,21 +604,15 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public VisitBalances getBookingVisitBalances(final String offenderNo) {
-        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo);
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo).getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
 
-        if (identifiers.getBookingId() == null) {
-            throw EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo);
-        }
         return bookingService.getBookingVisitBalances(identifiers.getBookingId()).orElseThrow(EntityNotFoundException.withId(identifiers.getBookingId()));
     }
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Keyworker getKeyworkerByOffenderNo(final String offenderNo) {
-        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo);
-        if (offenderIdentifiers.getBookingId() == null) {
-            throw EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo);
-        }
+        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo).getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
         return keyworkerService.getKeyworkerDetailsByBooking(offenderIdentifiers.getBookingId());
     }
 

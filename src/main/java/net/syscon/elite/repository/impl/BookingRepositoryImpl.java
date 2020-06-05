@@ -528,9 +528,17 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         Validate.notBlank("Offender number must be specified.");
         final var sql = getQuery("FIND_BOOKING_IDS_BY_OFFENDER_NO");
 
-        return jdbcTemplate.query(sql, createParams("offenderNo", offenderNo), new StandardBeanPropertyRowMapper<>(OffenderBookingIdSeq.class))
+        return jdbcTemplate.query(sql, createParams("offenderNo", offenderNo), new StandardBeanPropertyRowMapper<>(OffenderBookingSeq.class))
                 .stream()
-                .findFirst();
+                .findFirst()
+                .map(r -> new OffenderBookingIdSeq(r.offenderNo, r.bookingId, r.bookingSeq));
+    }
+
+    @Data
+    private static class OffenderBookingSeq {
+        private String offenderNo;
+        private Long bookingId;
+        private Integer bookingSeq;
     }
 
     @Override
