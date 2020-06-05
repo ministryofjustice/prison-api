@@ -30,10 +30,10 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
 
         assertThat(scheduledHearing.getDateTime()).isEqualTo(initialHearingDateTime);
 
-        final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "2030-03-11T14:00"));
+        final var request = createHttpEntity(token, Map.of("hearingDateTime", "2030-03-11T14:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-1/prison-to-court-hearings/" + scheduledHearing.getId() + "/hearing-date",
+                "/api/bookings/-1/court-hearings/" + scheduledHearing.getId() + "/hearing-date",
                 HttpMethod.PUT,
                 request,
                 new ParameterizedTypeReference<CourtHearing>() {
@@ -63,10 +63,10 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
     public void reschedule_court_hearing_fails_when_no_matching_booking() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
-        final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "2030-03-11T14:00"));
+        final var request = createHttpEntity(token, Map.of("hearingDateTime", "2030-03-11T14:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/9999999/prison-to-court-hearings/-1/hearing-date",
+                "/api/bookings/9999999/court-hearings/-1/hearing-date",
                 HttpMethod.PUT,
                 request,
                 ErrorResponse.class);
@@ -83,10 +83,10 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
     public void reschedule_court_hearing_fails_when_date_in_past() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
-        final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "1970-01-01T00:00"));
+        final var request = createHttpEntity(token, Map.of("hearingDateTime", "1970-01-01T00:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-8/prison-to-court-hearings/-208/hearing-date",
+                "/api/bookings/-8/court-hearings/-208/hearing-date",
                 HttpMethod.PUT,
                 request,
                 ErrorResponse.class);
@@ -103,10 +103,10 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
     public void schedules_court_hearing_fails_when_unauthorised() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.RENEGADE_USER);
 
-        final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "2030-03-11T14:00"));
+        final var request = createHttpEntity(token, Map.of("hearingDateTime", "2030-03-11T14:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/9999999/prison-to-court-hearings/-1/hearing-date",
+                "/api/bookings/9999999/court-hearings/-1/hearing-date",
                 HttpMethod.PUT,
                 request,
                 ErrorResponse.class);
@@ -122,10 +122,10 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
     public void reschedule_court_hearing_fails_when_hearing_in_past() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
-        final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "2030-03-11T14:00"));
+        final var request = createHttpEntity(token, Map.of("hearingDateTime", "2030-03-11T14:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-8/prison-to-court-hearings/-209/hearing-date",
+                "/api/bookings/-8/court-hearings/-209/hearing-date",
                 HttpMethod.PUT,
                 request,
                 ErrorResponse.class);
@@ -136,5 +136,23 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
                         .userMessage("The existing court hearing '-209' must be in a scheduled state to reschedule.")
                         .developerMessage("The existing court hearing '-209' must be in a scheduled state to reschedule.")
                         .build());
+    }
+
+    @Test
+    public void reschedule_court_hearing_fails_when_date_not_provided() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var request = createHttpEntity(token, Map.of());
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-8/court-hearings/-208/hearing-date",
+                HttpMethod.PUT,
+                request,
+                ErrorResponse.class);
+
+        final var error = response.getBody();
+
+        assertThat(error.getStatus()).isEqualTo(400);
+        assertThat(error.getUserMessage()).contains("The court hearing date and time must be provided");
     }
 }

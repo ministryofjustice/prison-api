@@ -92,7 +92,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
 
     @ProxyUser
     @Override
-    public CourtHearing prisonToCourtDateAmendment(final Long bookingId, final Long hearingId, @Valid CourtHearingDateAmendment amendment) {
-        return courtHearingReschedulingService.reschedule(bookingId, hearingId, amendment.getRevisedHearingDateTime());
+    public CourtHearing courtHearingDateAmendment(final Long bookingId, final Long hearingId, @Valid CourtHearingDateAmendment amendment) {
+        return courtHearingReschedulingService.reschedule(bookingId, hearingId, amendment.getHearingDateTime());
     }
 }

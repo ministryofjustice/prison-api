@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -29,16 +30,16 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtCaseHearing exten
                 "/api/bookings/-2/court-cases/-2/prison-to-court-hearings",
                 HttpMethod.POST,
                 request,
-                new ParameterizedTypeReference<String>() {
+                new ParameterizedTypeReference<CourtHearing>() {
                 });
 
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.id").isNotNull();
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.dateTime").isEqualTo("2030-03-11T14:00:00");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathBooleanValue("$.location.active").isEqualTo(true);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.location.agencyId").isEqualTo("COURT1");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.location.agencyType").isEqualTo("CRT");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.location.description").isEqualTo("Court 1");
+        assertThat(response.getBody().getId()).isNotNull();
+        assertThat(response.getBody().getDateTime()).isEqualTo("2030-03-11T14:00:00");
+        assertThat(response.getBody().getLocation().isActive()).isEqualTo(true);
+        assertThat(response.getBody().getLocation().getAgencyId()).isEqualTo("COURT1");
+        assertThat(response.getBody().getLocation().getAgencyType()).isEqualTo("CRT");
+        assertThat(response.getBody().getLocation().getDescription()).isEqualTo("Court 1");
     }
 
     @Test
