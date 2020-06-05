@@ -38,10 +38,7 @@ public class IncidentService {
 
     @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER')")
     public List<IncidentCase> getIncidentCasesByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
-        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo);
-        if (identifiers.getBookingId() == null) {
-            throw EntityNotFoundException.withMessage("No booking found for offender {}", offenderNo);
-        }
+        bookingService.getOffenderIdentifiers(offenderNo);
         return repository.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
     }
 
