@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static org.springframework.http.HttpStatus.OK;
 
 public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends ResourceTest {
@@ -34,7 +33,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
         final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "2030-03-11T14:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-1/prison-to-court-hearings/" + scheduledHearing.getId() + "/revised-hearing-date",
+                "/api/bookings/-1/prison-to-court-hearings/" + scheduledHearing.getId() + "/hearing-date",
                 HttpMethod.PUT,
                 request,
                 new ParameterizedTypeReference<CourtHearing>() {
@@ -67,7 +66,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
         final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "2030-03-11T14:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/9999999/prison-to-court-hearings/-1/revised-hearing-date",
+                "/api/bookings/9999999/prison-to-court-hearings/-1/hearing-date",
                 HttpMethod.PUT,
                 request,
                 ErrorResponse.class);
@@ -87,7 +86,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
         final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "1970-01-01T00:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-8/prison-to-court-hearings/-208/revised-hearing-date",
+                "/api/bookings/-8/prison-to-court-hearings/-208/hearing-date",
                 HttpMethod.PUT,
                 request,
                 ErrorResponse.class);
@@ -107,7 +106,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
         final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "2030-03-11T14:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/9999999/prison-to-court-hearings/-1/revised-hearing-date",
+                "/api/bookings/9999999/prison-to-court-hearings/-1/hearing-date",
                 HttpMethod.PUT,
                 request,
                 ErrorResponse.class);
@@ -126,7 +125,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
         final var request = createHttpEntity(token, Map.of("revisedHearingDateTime", "2030-03-11T14:00"));
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-8/prison-to-court-hearings/-209/revised-hearing-date",
+                "/api/bookings/-8/prison-to-court-hearings/-209/hearing-date",
                 HttpMethod.PUT,
                 request,
                 ErrorResponse.class);

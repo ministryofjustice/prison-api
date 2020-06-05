@@ -101,7 +101,7 @@ public interface OffenderMovementsResource {
                                                   @ApiParam(value = "The scheduled event identifier for the prison to prison.", required = true) @PathVariable("eventId") Long eventId,
                                                   @ApiParam(value = "The cancellation details.", required = true) @RequestBody @Valid PrisonMoveCancellation cancellation);
 
-    @PutMapping("/{bookingId}/prison-to-court-hearings/{hearingId}/revised-hearing-date")
+    @PutMapping("/{bookingId}/prison-to-court-hearings/{hearingId}/hearing-date")
     @ApiOperation(value = "Amends the scheduled court hearing for an offender.", notes = "Revises the scheduled court hearing date and/or time for an offender.", nickname = "prisonToCourtDateChange")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
