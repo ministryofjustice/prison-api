@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.CourtHearings;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.PrisonMoveCancellation;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.api.model.CourtHearingDateAmendment;
 import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
@@ -91,7 +92,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
 
     @ProxyUser
     @Override
-    public CourtHearing prisonToCourtDateChange(final Long bookingId, final Long hearingId, final LocalDateTime revisedDateTime) {
-        return courtHearingReschedulingService.reschedule(bookingId, hearingId, revisedDateTime);
+    public CourtHearing prisonToCourtDateAmendment(final Long bookingId, final Long hearingId, @Valid CourtHearingDateAmendment amendment) {
+        return courtHearingReschedulingService.reschedule(bookingId, hearingId, amendment.getRevisedHearingDateTime());
     }
 }

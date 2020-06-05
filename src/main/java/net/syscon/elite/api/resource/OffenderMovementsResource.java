@@ -11,6 +11,7 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.PrisonMoveCancellation;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.api.model.CourtHearingDateAmendment;
 import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -100,13 +101,13 @@ public interface OffenderMovementsResource {
                                                   @ApiParam(value = "The scheduled event identifier for the prison to prison.", required = true) @PathVariable("eventId") Long eventId,
                                                   @ApiParam(value = "The cancellation details.", required = true) @RequestBody @Valid PrisonMoveCancellation cancellation);
 
-    @PutMapping("/{bookingId}/prison-to-court-hearings/{hearingId}/revised-hearing-date/{revisedDateTime}")
-    @ApiOperation(value = "Revises the scheduled court hearing date and/or time for an offender.", notes = "Revises the scheduled court hearing date and/or time for an offender.", nickname = "prisonToCourtDateChange")
+    @PutMapping("/{bookingId}/prison-to-court-hearings/{hearingId}/revised-hearing-date")
+    @ApiOperation(value = "Amends the scheduled court hearing for an offender.", notes = "Revises the scheduled court hearing date and/or time for an offender.", nickname = "prisonToCourtDateChange")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    CourtHearing prisonToCourtDateChange(@ApiParam(value = "The offender booking to associate the update with.", required = true) @PathVariable("bookingId") Long bookingId,
-                                         @ApiParam(value = "The prison to court hearing to be updated.", required = true) @PathVariable Long hearingId,
-                                         @ApiParam(value = "The revised court hearing date and time.", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable(value = "revisedDateTime") LocalDateTime revisedDateTime);
+    CourtHearing prisonToCourtDateAmendment(@ApiParam(value = "The offender booking to associate the update with.", required = true) @PathVariable("bookingId") Long bookingId,
+                                            @ApiParam(value = "The prison to court hearing to be updated.", required = true) @PathVariable Long hearingId,
+                                            @ApiParam(value = "The amendments for the scheduled court hearing.", required = true) @RequestBody @Valid CourtHearingDateAmendment amendment);
 }
