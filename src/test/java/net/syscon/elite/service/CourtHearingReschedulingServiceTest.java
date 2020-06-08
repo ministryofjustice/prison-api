@@ -16,12 +16,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 
-import static java.time.Instant.ofEpochMilli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,9 +35,9 @@ public class CourtHearingReschedulingServiceTest {
     @Mock
     private CourtEventRepository eventRepository;
 
-    private final Clock clock = Clock.fixed(ofEpochMilli(0), ZoneId.systemDefault());
+    private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
-    private final CourtEvent scheduledHearing = CourtEvent.builder()
+    private final CourtEvent scheduledFutureHearing = CourtEvent.builder()
             .id(1L)
             .eventStatus(new EventStatus("SCH", "Scheduled"))
             .offenderBooking(OffenderBooking.builder()
@@ -54,6 +54,25 @@ public class CourtHearingReschedulingServiceTest {
                     .build())
             .eventDate(LocalDate.now(clock))
             .startTime(LocalDateTime.now(clock).plusMinutes(1))
+            .build();
+
+    private final CourtEvent scheduledPastHearing = CourtEvent.builder()
+            .id(1L)
+            .eventStatus(new EventStatus("SCH", "Scheduled"))
+            .offenderBooking(OffenderBooking.builder()
+                    .bookingId(2L)
+                    .offender(Offender.builder()
+                            .nomsId("123456")
+                            .build())
+                    .build())
+            .courtLocation(AgencyLocation.builder()
+                    .id("ABC")
+                    .description("Description")
+                    .type("CRT")
+                    .activeFlag(ActiveFlag.Y)
+                    .build())
+            .eventDate(LocalDate.now(clock))
+            .startTime(LocalDateTime.now(clock).minusMinutes(1))
             .build();
 
 
@@ -82,94 +101,94 @@ public class CourtHearingReschedulingServiceTest {
 
     @Test
     void reschedule_date_only_change_applied() {
-        given(scheduledHearing)
-                .andIsPersisted(scheduledHearing);
+        given(scheduledFutureHearing)
+                .andIsPersisted(scheduledFutureHearing);
 
-        final var revisedDate = scheduledHearing.getEventDateTime().plusDays(1);
+        final var revisedDate = scheduledFutureHearing.getEventDateTime().plusDays(1);
 
         final var revisedHearing = service.reschedule(
-                scheduledHearing.getOffenderBooking().getBookingId(),
-                scheduledHearing.getId(),
+                scheduledFutureHearing.getOffenderBooking().getBookingId(),
+                scheduledFutureHearing.getId(),
                 revisedDate);
 
         assertThat(revisedHearing).isEqualTo(
                 CourtHearing.builder()
-                        .id(scheduledHearing.getId())
+                        .id(scheduledFutureHearing.getId())
                         .dateTime(revisedDate)
-                        .location(AgencyTransformer.transform(scheduledHearing.getCourtLocation()))
+                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation()))
                         .build());
     }
 
     @Test
     void reschedule_time_only_change_applied() {
-        given(scheduledHearing)
-                .andIsPersisted(scheduledHearing);
+        given(scheduledFutureHearing)
+                .andIsPersisted(scheduledFutureHearing);
 
-        final var revisedTime = scheduledHearing.getEventDateTime().plusMinutes(1);
+        final var revisedTime = scheduledFutureHearing.getEventDateTime().plusMinutes(1);
 
         final var revisedHearing = service.reschedule(
-                scheduledHearing.getOffenderBooking().getBookingId(),
-                scheduledHearing.getId(),
+                scheduledFutureHearing.getOffenderBooking().getBookingId(),
+                scheduledFutureHearing.getId(),
                 revisedTime);
 
         assertThat(revisedHearing).isEqualTo(
                 CourtHearing.builder()
-                        .id(scheduledHearing.getId())
+                        .id(scheduledFutureHearing.getId())
                         .dateTime(revisedTime)
-                        .location(AgencyTransformer.transform(scheduledHearing.getCourtLocation()))
+                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation()))
                         .build());
     }
 
     @Test
     void reschedule_date_and_time_change_applied() {
-        given(scheduledHearing)
-                .andIsPersisted(scheduledHearing);
+        given(scheduledFutureHearing)
+                .andIsPersisted(scheduledFutureHearing);
 
-        final var revisedDateTime = scheduledHearing.getEventDateTime().plusDays(1).plusMinutes(1);
+        final var revisedDateTime = scheduledFutureHearing.getEventDateTime().plusDays(1).plusMinutes(1);
 
         final var revisedHearing = service.reschedule(
-                scheduledHearing.getOffenderBooking().getBookingId(),
-                scheduledHearing.getId(),
+                scheduledFutureHearing.getOffenderBooking().getBookingId(),
+                scheduledFutureHearing.getId(),
                 revisedDateTime);
 
         assertThat(revisedHearing).isEqualTo(
                 CourtHearing.builder()
-                        .id(scheduledHearing.getId())
+                        .id(scheduledFutureHearing.getId())
                         .dateTime(revisedDateTime)
-                        .location(AgencyTransformer.transform(scheduledHearing.getCourtLocation()))
+                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation()))
                         .build());
     }
 
     @Test
     void reschedule_idempotent_behaviour() {
-        given(scheduledHearing);
+        given(scheduledFutureHearing);
 
-        final var sameDateTime = scheduledHearing.getEventDateTime();
+        final var sameDateTime = scheduledFutureHearing.getEventDateTime();
 
         final var unchangedHearing = service.reschedule(
-                scheduledHearing.getOffenderBooking().getBookingId(),
-                scheduledHearing.getId(),
+                scheduledFutureHearing.getOffenderBooking().getBookingId(),
+                scheduledFutureHearing.getId(),
                 sameDateTime);
 
-        verify(eventRepository, never()).save(scheduledHearing);
+        verify(eventRepository, never()).save(scheduledFutureHearing);
 
         assertThat(unchangedHearing).isEqualTo(
                 CourtHearing.builder()
-                        .id(scheduledHearing.getId())
+                        .id(scheduledFutureHearing.getId())
                         .dateTime(sameDateTime)
-                        .location(AgencyTransformer.transform(scheduledHearing.getCourtLocation()))
+                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation()))
                         .build());
     }
 
     @Test
     void reschedule_fails_when_revised_date_time_not_in_future() {
-        given(scheduledHearing);
+        given(scheduledFutureHearing);
 
         final var notFutureDate = LocalDateTime.now(clock);
 
         assertThatThrownBy(() -> service.reschedule(
-                scheduledHearing.getOffenderBooking().getBookingId(),
-                scheduledHearing.getId(),
+                scheduledFutureHearing.getOffenderBooking().getBookingId(),
+                scheduledFutureHearing.getId(),
                 notFutureDate))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Revised court hearing date '%s' must be in the future.", notFutureDate);
@@ -179,16 +198,32 @@ public class CourtHearingReschedulingServiceTest {
 
     @Test
     void reschedule_fails_when_booking_does_not_match_hearings() {
-        given(scheduledHearing);
+        given(scheduledFutureHearing);
 
-        final var revisedDateTime = scheduledHearing.getEventDateTime().plusDays(1).plusMinutes(1);
+        final var revisedDateTime = scheduledFutureHearing.getEventDateTime().plusDays(1).plusMinutes(1);
 
         assertThatThrownBy(() -> service.reschedule(
-                scheduledHearing.getOffenderBooking().getBookingId() + 1,
-                scheduledHearing.getId(),
+                scheduledFutureHearing.getOffenderBooking().getBookingId() + 1,
+                scheduledFutureHearing.getId(),
                 revisedDateTime))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Booking id '%s'does not match that on the hearing.", scheduledHearing.getOffenderBooking().getBookingId() + 1);
+                .hasMessage("Booking id '%s'does not match that on the hearing.", scheduledFutureHearing.getOffenderBooking().getBookingId() + 1);
+
+        verify(eventRepository, never()).save(any());
+    }
+
+    @Test
+    void reschedule_fails_when_existing_hearing_scheduled_date_in_past() {
+        given(scheduledPastHearing);
+
+        final var revisedDateTime = LocalDateTime.now(clock).plusDays(1);
+
+        assertThatThrownBy(() -> service.reschedule(
+                unscheduledHearing.getOffenderBooking().getBookingId(),
+                unscheduledHearing.getId(),
+                revisedDateTime))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("The existing court hearing '%s' cannot be rescheduled as its start date is in the past.", unscheduledHearing.getId());
 
         verify(eventRepository, never()).save(any());
     }

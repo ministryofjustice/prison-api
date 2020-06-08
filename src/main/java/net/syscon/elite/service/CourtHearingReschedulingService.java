@@ -80,7 +80,7 @@ public class CourtHearingReschedulingService {
         final var hearing = courtEventRepository.findById(hearingId).orElseThrow(() -> EntityNotFoundException.withMessage("Court hearing with id '{}' not found.", hearingId));
 
         checkState(hearing.getEventStatus().isScheduled(), "The existing court hearing '%s' must be in a scheduled state to reschedule.", hearingId);
-
+        checkState(hearing.getEventDateTime().isAfter(LocalDateTime.now(clock)), "The existing court hearing '%s' cannot be rescheduled as its start date is in the past.", hearingId);
         return hearing;
     }
 
