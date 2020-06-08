@@ -78,7 +78,10 @@ public class OffenderAddressServiceImplTest {
                         .city(new City("25343", "Sheffield"))
                         .startDate(LocalDate.of(2016, 8, 2))
                         .endDate(null)
-                        .addressUsages(List.of(AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressType("HDC", "HDC address")).build()))
+                        .addressUsages(List.of(
+                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressType("HDC", "HDC address")).build(),
+                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()
+                        ))
                         .build(),
                 Address.builder()
                         .addressId(-16L)
@@ -154,11 +157,18 @@ public class OffenderAddressServiceImplTest {
                                         .type("BUS")
                                         .build()))
                         .addressUsages(List.of(AddressUsageDto.builder()
-                                .addressId(-15L)
-                                .activeFlag(true)
-                                .addressUsage("HDC")
-                                .addressUsageDescription("HDC address")
-                                .build())
+                                        .addressId(-15L)
+                                        .activeFlag(true)
+                                        .addressUsage("HDC")
+                                        .addressUsageDescription("HDC address")
+                                        .build(),
+                                AddressUsageDto.builder()
+                                        .addressId(-15L)
+                                        .activeFlag(true)
+                                        .addressUsage("HDC")
+                                        .addressUsageDescription(null)
+                                        .build()
+                                )
                         )
                         .build(),
                 AddressDto.builder()
@@ -192,7 +202,7 @@ public class OffenderAddressServiceImplTest {
     }
 
     @Test
-    public void testThatExceptionIsThrown_WhenNoActiveOffenderBookingsAreFound(){
+    public void testThatExceptionIsThrown_WhenNoActiveOffenderBookingsAreFound() {
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any()))
                 .thenReturn(Collections.emptyList());
 

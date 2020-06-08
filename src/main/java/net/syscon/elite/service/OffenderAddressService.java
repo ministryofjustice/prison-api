@@ -29,9 +29,10 @@ public class OffenderAddressService {
     @VerifyOffenderAccess
     public List<AddressDto> getAddressesByOffenderNo(@NotNull String offenderNo) {
         final var offenderBookings = offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
-        if(offenderBookings.size() > 1) throw new IllegalStateException(String.format("More than one active booking was returned for offender number %s\n", offenderNo));
+        if (offenderBookings.size() > 1)
+            throw new IllegalStateException(String.format("More than one active booking was returned for offender number %s\n", offenderNo));
 
-        final var offenderBooking = offenderBookings.stream().findFirst().orElseThrow(EntityNotFoundException.withMessage(String.format("No active offender bookings found for offender number %s\n",offenderNo)));
+        final var offenderBooking = offenderBookings.stream().findFirst().orElseThrow(EntityNotFoundException.withMessage(String.format("No active offender bookings found for offender number %s\n", offenderNo)));
         final var offenderRootId = offenderBooking.getOffender().getRootOffenderId();
 
         return addressRepository.findAllByOwnerClassAndOwnerId("OFF", offenderRootId).stream().map(address -> {
@@ -60,7 +61,7 @@ public class OffenderAddressService {
                                             .addressId(address.getAddressId())
                                             .activeFlag("Y".equalsIgnoreCase(addressUsage.getActiveFlag()))
                                             .addressUsage(addressUsage.getAddressUsage())
-                                            .addressUsageDescription(addressUsage.getAddressUsageType().getDescription())
+                                            .addressUsageDescription(addressUsage.getAddressUsageType() == null ? null : addressUsage.getAddressUsageType().getDescription())
                                             .build()).collect(Collectors.toList()))
                     .phones(phoneRepository.findAllByOwnerClassAndOwnerId("ADDR", address.getAddressId()).stream().map(phone ->
                             Telephone.builder()
