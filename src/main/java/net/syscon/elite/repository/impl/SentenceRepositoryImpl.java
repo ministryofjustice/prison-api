@@ -9,11 +9,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRepository {
@@ -45,13 +41,13 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
     }
 
     @Override
-    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
+    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo, final boolean convictionsOnly) {
         Objects.requireNonNull(offenderNo, "offenderNo is a required parameter");
         final var sql = getQuery("GET_OFFENCES");
 
         return jdbcTemplate.query(
                 sql,
-                createParams("offenderNo", offenderNo),
+                createParams("offenderNo", offenderNo, "convictionsOnly", convictionsOnly ? "Y": "N"),
                 offenceHistoryMapper);
     }
 

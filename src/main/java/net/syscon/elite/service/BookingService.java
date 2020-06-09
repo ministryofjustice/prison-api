@@ -597,8 +597,8 @@ public class BookingService {
         return results;
     }
 
-    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
-        return sentenceRepository.getOffenceHistory(offenderNo);
+    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo, final boolean convictionsOnly) {
+        return sentenceRepository.getOffenceHistory(offenderNo, convictionsOnly);
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
