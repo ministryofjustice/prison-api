@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.AddressUsageDto;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.jpa.model.Address;
 import net.syscon.elite.repository.jpa.model.AddressType;
+import net.syscon.elite.repository.jpa.model.AddressUsageType;
 import net.syscon.elite.repository.jpa.model.AddressUsage;
 import net.syscon.elite.repository.jpa.model.City;
 import net.syscon.elite.repository.jpa.model.Country;
@@ -61,7 +62,7 @@ public class OffenderAddressServiceImplTest {
         when(addressRepository.findAllByOwnerClassAndOwnerId(any(), anyLong())).thenReturn(List.of(
                 Address.builder()
                         .addressId(-15L)
-                        .addressType("HOME")
+                        .addressType(new AddressType("HOME", "Home Address"))
                         .ownerClass("PER")
                         .ownerId(-8L)
                         .noFixedAddressFlag("N")
@@ -79,13 +80,13 @@ public class OffenderAddressServiceImplTest {
                         .startDate(LocalDate.of(2016, 8, 2))
                         .endDate(null)
                         .addressUsages(List.of(
-                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressType("HDC", "HDC address")).build(),
+                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
                                 AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()
                         ))
                         .build(),
                 Address.builder()
                         .addressId(-16L)
-                        .addressType("BUS")
+                        .addressType(new AddressType("BUS", "Business Address"))
                         .ownerClass("PER")
                         .ownerId(-8L)
                         .noFixedAddressFlag("Y")
@@ -132,7 +133,7 @@ public class OffenderAddressServiceImplTest {
 
         assertThat(results).isEqualTo(List.of(
                 AddressDto.builder()
-                        .addressType("HOME")
+                        .addressType("Home Address")
                         .noFixedAddress(false)
                         .primary(true)
                         .comment(null)
@@ -172,7 +173,7 @@ public class OffenderAddressServiceImplTest {
                         )
                         .build(),
                 AddressDto.builder()
-                        .addressType("BUS")
+                        .addressType("Business Address")
                         .noFixedAddress(true)
                         .primary(false)
                         .comment(null)

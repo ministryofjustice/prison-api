@@ -18,7 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 
-import static net.syscon.elite.repository.jpa.model.AddressType.*;
+import static net.syscon.elite.repository.jpa.model.AddressUsageType.*;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
@@ -55,5 +55,5 @@ public class AddressUsage extends AuditableEntity {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + ADDRESS_TYPE + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "ADDRESS_USAGE", referencedColumnName = "code"))
     })
-    private AddressType addressUsageType;
+    private AddressUsageType addressUsageType;
 }

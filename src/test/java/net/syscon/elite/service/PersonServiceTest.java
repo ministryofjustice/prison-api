@@ -7,6 +7,7 @@ import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.PersonRepository;
 import net.syscon.elite.repository.jpa.model.Address;
 import net.syscon.elite.repository.jpa.model.AddressType;
+import net.syscon.elite.repository.jpa.model.AddressUsageType;
 import net.syscon.elite.repository.jpa.model.AddressUsage;
 import net.syscon.elite.repository.jpa.model.City;
 import net.syscon.elite.repository.jpa.model.Country;
@@ -57,7 +58,7 @@ public class PersonServiceTest {
         when(addressRepository.findAllByOwnerClassAndOwnerId("PER", -8L)).thenReturn(List.of(
                 Address.builder()
                         .addressId(-15L)
-                        .addressType("HOME")
+                        .addressType(new AddressType("HOME", "Home Address"))
                         .ownerClass("PER")
                         .ownerId(-8L)
                         .noFixedAddressFlag("N")
@@ -74,14 +75,14 @@ public class PersonServiceTest {
                         .city(new City("25343", "Sheffield"))
                         .startDate(LocalDate.of(2016, 8, 2))
                         .addressUsages(List.of(
-                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressType("HDC", "HDC address")).build(),
+                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
                                 AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()
                         ))
                         .endDate(null)
                         .build(),
                 Address.builder()
                         .addressId(-16L)
-                        .addressType("BUS")
+                        .addressType(new AddressType("BUS", "Business Address"))
                         .ownerClass("PER")
                         .ownerId(-8L)
                         .noFixedAddressFlag("Y")
@@ -127,7 +128,7 @@ public class PersonServiceTest {
 
         assertThat(results).isEqualTo(List.of(
                 AddressDto.builder()
-                    .addressType("HOME")
+                    .addressType("Home Address")
                     .noFixedAddress(false)
                     .primary(true)
                     .comment(null)
@@ -167,7 +168,7 @@ public class PersonServiceTest {
                     )
                 .build(),
                 AddressDto.builder()
-                        .addressType("BUS")
+                        .addressType("Business Address")
                         .noFixedAddress(true)
                         .primary(false)
                         .comment(null)
