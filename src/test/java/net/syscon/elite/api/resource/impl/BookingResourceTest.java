@@ -414,6 +414,15 @@ public class BookingResourceTest extends ResourceTest {
     }
 
     @Test
+    public void getOffenceHistoryIncludeOffenderWithoutConviction() {
+        final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}/offenceHistory?convictionsOnly=false", GET,
+                createHttpEntity(AuthToken.CATEGORISATION_CREATE, null),
+                String.class, "A1234AB");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_offence_history_A12234AB_include_non_convictions.json");
+    }
+
+    @Test
     public void getSecondaryLanguages() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/secondary-languages", GET,
                 createHttpEntity(AuthToken.NORMAL_USER, null),

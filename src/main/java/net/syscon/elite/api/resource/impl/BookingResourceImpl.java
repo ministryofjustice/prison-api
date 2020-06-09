@@ -463,8 +463,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
-        return bookingService.getOffenceHistory(offenderNo);
+    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo, final boolean convictionsOnly) {
+        return bookingService.getOffenceHistory(offenderNo, convictionsOnly);
     }
 
     @Override

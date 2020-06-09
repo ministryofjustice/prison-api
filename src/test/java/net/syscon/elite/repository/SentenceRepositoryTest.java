@@ -72,20 +72,34 @@ public class SentenceRepositoryTest {
 
     @Test
     public final void testGetOffenceHistory() {
-        final var offenceDetails = repository.getOffenceHistory("A1234AA");
-        assertThat(offenceDetails).extracting("bookingId", "offenceDate", "offenceRangeDate", "offenceDescription", "mostSerious").containsExactly(
+        final var offenceDetails = repository.getOffenceHistory("A1234AA", true);
+        assertThat(offenceDetails).extracting("bookingId", "offenceDate", "offenceRangeDate", "offenceDescription", "mostSerious", "primaryResultCode", "secondaryResultCode", "courtDate").containsExactly(
                 Tuple.tuple(-1L, LocalDate.of(2017, 12, 24), null,
                         "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)",
-                        true),
+                        true, "1004", null, LocalDate.of(2017, 7, 2)),
                 Tuple.tuple(-1L, LocalDate.of(2018, 9, 1), LocalDate.of(2018, 9, 15),
                         "Cause another to use a vehicle where the seat belt buckle/other fastening was not maintained so that the belt could be readily fastened or unfastened/kept free from temporary or permanent obstruction/readily accessible to a person sitting in the seat.",
-                        false)
+                        false, null, "1006", null)
         );
     }
 
     @Test
-    public final void testGetOffenceHistoryNoConviction() {
-        final var offenceDetails = repository.getOffenceHistory("A1234AB");
+    public final void testGetOffenceHistoryOffenderWithoutConvictions() {
+        final var offenceDetails = repository.getOffenceHistory("A1234AB", true);
         assertThat(offenceDetails).isEmpty();
+    }
+
+    @Test
+    public final void testGetOffenceHistoryGetAllOffencesOffenderWithoutConvictions() {
+        final var offenceDetails = repository.getOffenceHistory("A1234AB", false);
+        assertThat(offenceDetails).extracting("bookingId", "primaryResultConviction", "primaryResultDescription",
+                "secondaryResultConviction", "secondaryResultDescription","offenceDescription", "courtDate").containsExactly(
+                Tuple.tuple(-2L, false, // no conviction result 1
+                        "Adjourned for Consideration of an ASBO", // description of result 1
+                        false, // no conviction result 2
+                        null, // description of result 2 (no result 2 provided)
+                        "Actual bodily harm", // offence description
+                        LocalDate.of(2017, 2, 20))
+        );
     }
 }

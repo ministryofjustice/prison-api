@@ -12,7 +12,7 @@ public interface SentenceRepository {
 
     List<OffenceDetail> getMainOffenceDetails(List<Long> bookingIds);
 
-    List<OffenceHistoryDetail> getOffenceHistory(String offenderNo);
+    List<OffenceHistoryDetail> getOffenceHistory(String offenderNo, boolean convictionsOnly);
 
     Optional<LocalDate> getConfirmedReleaseDate(Long bookingId);
 }

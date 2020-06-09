@@ -261,7 +261,7 @@ public class InmateService {
                 // TODO: Hack for now to make sure there wasn't a reason this was removed.
             }
             if (extraInfo) {
-                inmate.setOffenceHistory(bookingService.getOffenceHistory(inmate.getOffenderNo()));
+                inmate.setOffenceHistory(bookingService.getOffenceHistory(inmate.getOffenderNo(), true));
                 inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
                 inmate.setPrivilegeSummary(bookingService.getBookingIEPSummary(bookingId, false));
                 inmate.setIdentifiers(getOffenderIdentifiers(bookingId, null));
