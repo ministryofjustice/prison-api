@@ -2,6 +2,7 @@ package net.syscon.elite.service;
 
 import lombok.RequiredArgsConstructor;
 import net.syscon.elite.api.model.AddressDto;
+import net.syscon.elite.api.model.AddressUsageDto;
 import net.syscon.elite.api.model.Email;
 import net.syscon.elite.api.model.PersonIdentifier;
 import net.syscon.elite.api.model.Telephone;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -54,6 +56,14 @@ public class PersonService {
                     .startDate(address.getStartDate())
                     .endDate(address.getEndDate())
                     .street(address.getStreet())
+                    .addressUsages(address.getAddressUsages() == null ? null : address.getAddressUsages().stream()
+                            .map(addressUsage ->
+                                    AddressUsageDto.builder()
+                                            .addressId(address.getAddressId())
+                                            .activeFlag("Y".equalsIgnoreCase(addressUsage.getActiveFlag()))
+                                            .addressUsage(addressUsage.getAddressUsage())
+                                            .addressUsageDescription(addressUsage.getAddressUsageType() == null ? null : addressUsage.getAddressUsageType().getDescription())
+                                            .build()).collect(Collectors.toList()))
                     .phones(phoneRepository.findAllByOwnerClassAndOwnerId("ADDR", address.getAddressId()).stream().map(phone ->
                             Telephone.builder()
                                     .ext(phone.getExtNo())

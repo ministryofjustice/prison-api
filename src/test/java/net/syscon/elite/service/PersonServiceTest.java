@@ -1,10 +1,13 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.AddressDto;
+import net.syscon.elite.api.model.AddressUsageDto;
 import net.syscon.elite.api.model.Email;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.PersonRepository;
 import net.syscon.elite.repository.jpa.model.Address;
+import net.syscon.elite.repository.jpa.model.AddressType;
+import net.syscon.elite.repository.jpa.model.AddressUsage;
 import net.syscon.elite.repository.jpa.model.City;
 import net.syscon.elite.repository.jpa.model.Country;
 import net.syscon.elite.repository.jpa.model.County;
@@ -70,6 +73,10 @@ public class PersonServiceTest {
                         .county(new County("S.YORKSHIRE", "South Yorkshire"))
                         .city(new City("25343", "Sheffield"))
                         .startDate(LocalDate.of(2016, 8, 2))
+                        .addressUsages(List.of(
+                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressType("HDC", "HDC address")).build(),
+                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()
+                        ))
                         .endDate(null)
                         .build(),
                 Address.builder()
@@ -144,6 +151,20 @@ public class PersonServiceTest {
                                     .ext(null)
                                     .type("BUS")
                                     .build()))
+                    .addressUsages(List.of(AddressUsageDto.builder()
+                                    .addressId(-15L)
+                                    .activeFlag(true)
+                                    .addressUsage("HDC")
+                                    .addressUsageDescription("HDC address")
+                                    .build(),
+                            AddressUsageDto.builder()
+                                    .addressId(-15L)
+                                    .activeFlag(true)
+                                    .addressUsage("HDC")
+                                    .addressUsageDescription(null)
+                                    .build()
+                            )
+                    )
                 .build(),
                 AddressDto.builder()
                         .addressType("BUS")
