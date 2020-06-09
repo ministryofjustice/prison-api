@@ -2,7 +2,6 @@ package net.syscon.elite.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +26,8 @@ import java.time.LocalDate;
 @Table(name = "OFFENDER_CHARGES")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 public class OffenderCharge extends AuditableEntity {
+
+    private static final String ACTIVE = "A";
 
     @Id
     @Column(name = "OFFENDER_CHARGE_ID", nullable = false)
@@ -90,4 +91,8 @@ public class OffenderCharge extends AuditableEntity {
 
     @Column(name = "MOST_SERIOUS_FLAG")
     private String mostSeriousFlag;
+
+    public boolean isActive() {
+        return ACTIVE.equals(chargeStatus);
+    }
 }
