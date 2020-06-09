@@ -214,12 +214,10 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public InmateDetail getOffenderBookingByOffenderNo(final String offenderNo, final boolean fullInfo, final boolean extraInfo) {
-
-        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo);
-
+        final var offenderSummary = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return fullInfo || extraInfo ?
-                inmateService.findOffender(identifiers.getOffenderNo(), extraInfo) :
-                inmateService.findOffender(identifiers.getOffenderNo(), false);
+                inmateService.findInmate(offenderSummary.getBookingId(), extraInfo) :
+                inmateService.getBasicInmateDetail(offenderSummary.getBookingId());
     }
 
     @Override
