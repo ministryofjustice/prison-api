@@ -182,6 +182,7 @@ public class PersonServiceTest {
                         .startDate(LocalDate.of(2016, 8, 2))
                         .addressId(-16L)
                         .phones(List.of())
+                        .addressUsages(List.of())
                         .build())
         );
     }

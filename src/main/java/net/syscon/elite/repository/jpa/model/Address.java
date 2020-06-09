@@ -105,5 +105,6 @@ public class Address {
     @OneToMany
     @NotFound(action = IGNORE)
     @JoinColumn(name = "ADDRESS_ID")
+    @Builder.Default
     private List<AddressUsage> addressUsages = new ArrayList<>();
 }
