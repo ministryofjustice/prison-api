@@ -116,11 +116,11 @@ public class CourtEvent extends AuditableEntity {
     }
 
     @PrePersist
-    private void carryOverPreExistingChargesOnCreation() {
+    private void carryOverPreExistingActiveChargesOnCreation() {
         if (offenderCourtCase != null) {
-            log.debug("Adding pre-existing charges to new court event for court case '{}", offenderCourtCase.getId());
+            log.debug("Adding pre-existing active charges to new court event for court case '{}", offenderCourtCase.getId());
 
-            offenderCourtCase.getCharges().forEach(this::addPreExisting);
+            offenderCourtCase.getCharges().stream().filter(OffenderCharge::isActive).forEach(this::addPreExisting);
         }
     }
 

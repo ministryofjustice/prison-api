@@ -4,6 +4,8 @@ import net.syscon.elite.repository.jpa.model.CourtEvent;
 import net.syscon.elite.repository.jpa.model.CourtEvent.CourtEventBuilder;
 import net.syscon.elite.repository.jpa.model.EventStatus;
 import net.syscon.elite.repository.jpa.model.EventType;
+import net.syscon.elite.repository.jpa.model.OffenderCharge;
+import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +22,7 @@ import java.time.LocalDate;
 
 import static net.syscon.elite.repository.jpa.model.EventStatus.SCHEDULED_APPROVED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
@@ -52,8 +55,6 @@ public class CourtEventRepositoryTest {
     private TestEntityManager entityManager;
 
     private final CourtEventBuilder builder = CourtEvent.builder();
-    private CourtEvent persisted;
-    private CourtEvent courtEvent;
 
     @BeforeEach
     void setup() {
@@ -103,10 +104,13 @@ public class CourtEventRepositoryTest {
     }
 
     @Test
-    void court_event_charges_are_carried_over_from_court_case_on_creation() {
+    void court_event_only_active_charges_are_carried_over_from_court_case_on_creation() {
         final var prePersistCourtEvent = builder.build();
 
+        addInactiveChargeTo(prePersistCourtEvent.getOffenderCourtCase().get());
+
         assertThat(prePersistCourtEvent.getCharges()).isEmpty();
+        assertThat(prePersistCourtEvent.getOffenderCourtCase().get().getCharges()).hasSize(2);
 
         final var savedCourtEventWithCourtCase = courtEventRepository.save(prePersistCourtEvent);
 
@@ -114,7 +118,18 @@ public class CourtEventRepositoryTest {
 
         final var postPersistCourtEvent = courtEventRepository.findById(savedCourtEventWithCourtCase.getId()).orElseThrow();
 
-        assertThat(postPersistCourtEvent.getCharges()).isNotEmpty();
+        assertThat(postPersistCourtEvent.getCharges()).hasSize(1);
+        assertThat(postPersistCourtEvent.getCharges())
+                .extracting(charge -> charge.getEventAndCharge().getOffenderCharge().isActive())
+                .containsExactly(true);
+    }
+
+    private void addInactiveChargeTo(final OffenderCourtCase courtCase) {
+        final var inactiveCharge = OffenderCharge.builder().chargeStatus("I").build();
+
+        assertThat(inactiveCharge.isActive()).isFalse();
+        
+        courtCase.add(inactiveCharge);
     }
 
     @Test
