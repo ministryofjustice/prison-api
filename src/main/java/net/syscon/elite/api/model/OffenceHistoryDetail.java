@@ -47,7 +47,7 @@ public class OffenceHistoryDetail {
     @ApiModelProperty(value = "Primary result code ", position = 8)
     private String primaryResultCode;
 
-    @ApiModelProperty(value = "Conviction flag for Secondary result", position = 9)
+    @ApiModelProperty(value = "Secondary result code", position = 9)
     private String secondaryResultCode;
 
     @ApiModelProperty(value = "Description for Primary result", position = 10)
