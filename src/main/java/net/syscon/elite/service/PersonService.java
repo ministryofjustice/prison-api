@@ -40,10 +40,11 @@ public class PersonService {
             final var country = address.getCountry() != null ? address.getCountry().getDescription() : null;
             final var county = address.getCounty() != null ? address.getCounty().getDescription() : null;
             final var town = address.getCity() != null ? address.getCity().getDescription() : null;
+            final var addressType = address.getAddressType() != null ? address.getAddressType().getDescription() : null;
 
             return AddressDto.builder()
                     .addressId(address.getAddressId())
-                    .addressType(address.getAddressType())
+                    .addressType(addressType)
                     .flat(address.getFlat())
                     .comment(address.getCommentText())
                     .country(country)
@@ -56,7 +57,7 @@ public class PersonService {
                     .startDate(address.getStartDate())
                     .endDate(address.getEndDate())
                     .street(address.getStreet())
-                    .addressUsages(address.getAddressUsages() == null ? null : address.getAddressUsages().stream()
+                    .addressUsages(address.getAddressUsages().stream()
                             .map(addressUsage ->
                                     AddressUsageDto.builder()
                                             .addressId(address.getAddressId())

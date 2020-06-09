@@ -17,11 +17,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static net.syscon.elite.repository.jpa.model.City.CITY;
 import static net.syscon.elite.repository.jpa.model.Country.COUNTRY;
 import static net.syscon.elite.repository.jpa.model.County.COUNTY;
+import static net.syscon.elite.repository.jpa.model.AddressType.ADDR_TYPE;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
@@ -43,8 +45,13 @@ public class Address {
 
     private String flat;
 
-    @Column(name = "ADDRESS_TYPE")
-    private String addressType;
+    @ManyToOne
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + ADDR_TYPE + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(column = @JoinColumn(name = "ADDRESS_TYPE", referencedColumnName = "code"))
+    })
+    private AddressType addressType;
 
     private String premise;
     private String street;
@@ -98,5 +105,6 @@ public class Address {
     @OneToMany
     @NotFound(action = IGNORE)
     @JoinColumn(name = "ADDRESS_ID")
-    private List<AddressUsage> addressUsages;
+    @Builder.Default
+    private List<AddressUsage> addressUsages = new ArrayList<>();
 }
