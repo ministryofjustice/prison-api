@@ -99,7 +99,7 @@ public class SentenceRepositoryTest {
                         false, // no conviction result 2
                         null, // description of result 2 (no result 2 provided)
                         "Actual bodily harm", // offence description
-                        LocalDate.of(2017, 2, 20))
+                        LocalDate.of(2017, 2, 22))
         );
     }
 }
