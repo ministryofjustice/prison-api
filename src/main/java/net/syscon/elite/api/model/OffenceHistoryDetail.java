@@ -62,6 +62,6 @@ public class OffenceHistoryDetail {
     @ApiModelProperty(value = "Conviction flag for Secondary result ", position = 13)
     private Boolean secondaryResultConviction;
 
-    @ApiModelProperty(value = "Court date associated with the offence", example = "2018-02-10", position = 14)
+    @ApiModelProperty(value = "Latest court date associated with the offence", example = "2018-02-10", position = 14)
     private LocalDate courtDate;
 }
