@@ -68,19 +68,19 @@ class DataComplianceEventListenerTest {
     }
 
     @Test
-    void handleDataDuplicateCheck() {
+    void handleDuplicateIdCheck() {
 
         handleMessage(
                 "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123}",
-                Map.of("eventType", "DATA_COMPLIANCE_DATA-DUPLICATE-CHECK"));
+                Map.of("eventType", "DATA_COMPLIANCE_DATA-DUPLICATE-ID-CHECK"));
 
-        verify(dataDuplicateService).checkForDataDuplicates("A1234AA", 123L);
+        verify(dataDuplicateService).checkForDuplicateIds("A1234AA", 123L);
     }
 
     @Test
-    void handleDataDuplicateCheckThrowsIfOffenderIdDisplayEmpty() {
+    void handleDuplicateIdCheckThrowsIfOffenderIdDisplayEmpty() {
 
-        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"\",\"retentionCheckId\":123}", Map.of("eventType", "DATA_COMPLIANCE_DATA-DUPLICATE-CHECK")))
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"\",\"retentionCheckId\":123}", Map.of("eventType", "DATA_COMPLIANCE_DATA-DUPLICATE-ID-CHECK")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No offender specified in request");
 
@@ -88,9 +88,39 @@ class DataComplianceEventListenerTest {
     }
 
     @Test
-    void handleOffenderDeletionEventThrowsIfRetentionCheckIdNull() {
+    void handleDuplicateIdCheckThrowsIfRetentionCheckIdNull() {
 
-        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\"}", Map.of("eventType", "DATA_COMPLIANCE_DATA-DUPLICATE-CHECK")))
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\"}", Map.of("eventType", "DATA_COMPLIANCE_DATA-DUPLICATE-ID-CHECK")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("No retention check ID specified in request");
+
+        verifyNoInteractions(offenderDeletionService);
+    }
+
+    @Test
+    void handleDuplicateDataCheck() {
+
+        handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123}",
+                Map.of("eventType", "DATA_COMPLIANCE_DATA-DUPLICATE-DB-CHECK"));
+
+        verify(dataDuplicateService).checkForDataDuplicates("A1234AA", 123L);
+    }
+
+    @Test
+    void handleDuplicateDataCheckThrowsIfOffenderIdDisplayEmpty() {
+
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"\",\"retentionCheckId\":123}", Map.of("eventType", "DATA_COMPLIANCE_DATA-DUPLICATE-DB-CHECK")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("No offender specified in request");
+
+        verifyNoInteractions(offenderDeletionService);
+    }
+
+    @Test
+    void handleDuplicateDataCheckThrowsIfRetentionCheckIdNull() {
+
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\"}", Map.of("eventType", "DATA_COMPLIANCE_DATA-DUPLICATE-DB-CHECK")))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("No retention check ID specified in request");
 

@@ -106,14 +106,14 @@ class DataComplianceEventPusherTest {
     }
 
     @Test
-    void sendDataDuplicateResult() {
+    void sendDuplicateIdResult() {
 
         final var request = ArgumentCaptor.forClass(SendMessageRequest.class);
 
         when(client.sendMessage(request.capture()))
                 .thenReturn(new SendMessageResult().withMessageId("message1"));
 
-        eventPusher.send(DataDuplicateResult.builder()
+        eventPusher.sendDuplicateIdResult(DataDuplicateResult.builder()
                 .offenderIdDisplay("offender1")
                 .retentionCheckId(123L)
                 .duplicateOffender("offender2")
@@ -123,7 +123,28 @@ class DataComplianceEventPusherTest {
         assertThat(request.getValue().getMessageBody())
                 .isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"retentionCheckId\":123,\"duplicateOffenders\":[\"offender2\"]}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
-                .isEqualTo("DATA_COMPLIANCE_DATA-DUPLICATE-RESULT");
+                .isEqualTo("DATA_COMPLIANCE_DATA-DUPLICATE-ID-RESULT");
+    }
+
+    @Test
+    void sendDuplicateDataResult() {
+
+        final var request = ArgumentCaptor.forClass(SendMessageRequest.class);
+
+        when(client.sendMessage(request.capture()))
+                .thenReturn(new SendMessageResult().withMessageId("message1"));
+
+        eventPusher.sendDuplicateDataResult(DataDuplicateResult.builder()
+                .offenderIdDisplay("offender1")
+                .retentionCheckId(123L)
+                .duplicateOffender("offender2")
+                .build());
+
+        assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
+        assertThat(request.getValue().getMessageBody())
+                .isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"retentionCheckId\":123,\"duplicateOffenders\":[\"offender2\"]}");
+        assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
+                .isEqualTo("DATA_COMPLIANCE_DATA-DUPLICATE-DB-RESULT");
     }
 
     @Test

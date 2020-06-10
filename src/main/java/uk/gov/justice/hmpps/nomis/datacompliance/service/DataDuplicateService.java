@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.lang.Integer.parseInt;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
@@ -33,7 +34,7 @@ public class DataDuplicateService {
     private final DuplicateOffenderRepository duplicateOffenderRepository;
     private final DataComplianceEventPusher dataComplianceEventPusher;
 
-    public void checkForDataDuplicates(final String offenderNo, final Long retentionCheckId) {
+    public void checkForDuplicateIds(final String offenderNo, final Long retentionCheckId) {
 
         final var offenderAliases =
                 offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNo);
@@ -44,13 +45,21 @@ public class DataDuplicateService {
                 .addAll(getOffendersWithMatchingPncNumbers(offenderNo, offenderAliases))
                 .build();
 
-        // TODO GDPR-110 duplicate checks including:
-        //  * Personal data
-
-        dataComplianceEventPusher.send(DataDuplicateResult.builder()
+        dataComplianceEventPusher.sendDuplicateIdResult(DataDuplicateResult.builder()
                 .offenderIdDisplay(offenderNo)
                 .retentionCheckId(retentionCheckId)
                 .duplicateOffenders(duplicateOffenders)
+                .build());
+    }
+
+    public void checkForDataDuplicates(final String offenderNo, final Long retentionCheckId) {
+
+        // TODO GDPR-110 Implement points based similarity query
+
+        dataComplianceEventPusher.sendDuplicateIdResult(DataDuplicateResult.builder()
+                .offenderIdDisplay(offenderNo)
+                .retentionCheckId(retentionCheckId)
+                .duplicateOffenders(emptyList())
                 .build());
     }
 

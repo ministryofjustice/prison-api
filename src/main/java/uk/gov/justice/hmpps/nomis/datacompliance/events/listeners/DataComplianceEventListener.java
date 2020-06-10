@@ -25,11 +25,13 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 public class DataComplianceEventListener {
 
     private static final String OFFENDER_DELETION_GRANTED = "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED";
-    private static final String DATA_DUPLICATE_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-CHECK";
+    private static final String DATA_DUPLICATE_ID_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-ID-CHECK";
+    private static final String DATA_DUPLICATE_DB_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-DB-CHECK";
 
     private final Map<String, MessageHandler> messageHandlers = Map.of(
             OFFENDER_DELETION_GRANTED, this::handleDeletionGranted,
-            DATA_DUPLICATE_CHECK, this::handleDataDuplicateCheck);
+            DATA_DUPLICATE_ID_CHECK, this::handleDuplicateIdCheck,
+            DATA_DUPLICATE_DB_CHECK, this::handleDuplicateDataCheck);
 
     private final DataDuplicateService dataDuplicateService;
     private final OffenderDeletionService offenderDeletionService;
@@ -76,13 +78,23 @@ public class DataComplianceEventListener {
         offenderDeletionService.deleteOffender(event.getOffenderIdDisplay(), event.getReferralId());
     }
 
-    private void handleDataDuplicateCheck(final Message<String> message) {
+    private void handleDuplicateIdCheck(final Message<String> message) {
+        final var event = parseDataDuplicateEvent(message);
+        dataDuplicateService.checkForDuplicateIds(event.getOffenderIdDisplay(), event.getRetentionCheckId());
+    }
+
+    private void handleDuplicateDataCheck(final Message<String> message) {
+        final var event = parseDataDuplicateEvent(message);
+        dataDuplicateService.checkForDataDuplicates(event.getOffenderIdDisplay(), event.getRetentionCheckId());
+    }
+
+    private DataDuplicateCheck parseDataDuplicateEvent(final Message<String> message) {
         final var event = parseEvent(message.getPayload(), DataDuplicateCheck.class);
 
         checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", message.getPayload());
         checkNotNull(event.getRetentionCheckId(), "No retention check ID specified in request: %s", message.getPayload());
 
-        dataDuplicateService.checkForDataDuplicates(event.getOffenderIdDisplay(), event.getRetentionCheckId());
+        return event;
     }
 
     private <T> T parseEvent(final String requestJson, final Class<T> eventType) {

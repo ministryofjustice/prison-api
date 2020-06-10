@@ -9,5 +9,6 @@ public interface DataComplianceEventPusher {
     void send(OffenderPendingDeletion event);
     void send(OffenderPendingDeletionReferralComplete event);
     void send(OffenderDeletionComplete event);
-    void send(DataDuplicateResult event);
+    void sendDuplicateIdResult(DataDuplicateResult event);
+    void sendDuplicateDataResult(DataDuplicateResult event);
 }

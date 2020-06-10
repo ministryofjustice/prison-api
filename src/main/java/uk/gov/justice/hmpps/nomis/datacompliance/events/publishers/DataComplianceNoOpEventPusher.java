@@ -33,7 +33,12 @@ public class DataComplianceNoOpEventPusher implements DataComplianceEventPusher 
     }
 
     @Override
-    public void send(final DataDuplicateResult event) {
-        log.warn("Pretending to push data duplicate result for '{}' to queue", event.getOffenderIdDisplay());
+    public void sendDuplicateIdResult(final DataDuplicateResult event) {
+        log.warn("Pretending to push duplicate ID result for '{}' to queue", event.getOffenderIdDisplay());
+    }
+
+    @Override
+    public void sendDuplicateDataResult(final DataDuplicateResult event) {
+        log.warn("Pretending to push duplicate data result for '{}' to queue", event.getOffenderIdDisplay());
     }
 }
