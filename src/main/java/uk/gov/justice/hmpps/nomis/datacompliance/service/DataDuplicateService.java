@@ -56,7 +56,7 @@ public class DataDuplicateService {
 
         // TODO GDPR-110 Implement points based similarity query
 
-        dataComplianceEventPusher.sendDuplicateIdResult(DataDuplicateResult.builder()
+        dataComplianceEventPusher.sendDuplicateDataResult(DataDuplicateResult.builder()
                 .offenderIdDisplay(offenderNo)
                 .retentionCheckId(retentionCheckId)
                 .duplicateOffenders(emptyList())
