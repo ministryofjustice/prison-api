@@ -124,6 +124,7 @@ class DataDuplicateServiceTest {
         verify(dataComplianceEventPusher).sendDuplicateDataResult(DataDuplicateResult.builder()
                 .offenderIdDisplay(OFFENDER_NO)
                 .retentionCheckId(RETENTION_CHECK_ID)
+                .duplicateOffenders(emptyList())
                 .build());
     }
 
