@@ -52,7 +52,7 @@ class DataDuplicateServiceTest {
     }
 
     @Test
-    void checkForDataDuplicates() {
+    void checkForDuplicateIds() {
 
         mockIdentifiers(OFFENDER_NO, Map.of(
                 "PNC", OFFENDER_PNC,
@@ -65,9 +65,9 @@ class DataDuplicateServiceTest {
         when(duplicateOffenderRepository.getOffendersWithMatchingLidsNumbers(OFFENDER_NO))
                 .thenReturn(List.of(new DuplicateOffender(LIDS_DUPLICATE)));
 
-        dataDuplicateService.checkForDataDuplicates(OFFENDER_NO, RETENTION_CHECK_ID);
+        dataDuplicateService.checkForDuplicateIds(OFFENDER_NO, RETENTION_CHECK_ID);
 
-        verify(dataComplianceEventPusher).send(DataDuplicateResult.builder()
+        verify(dataComplianceEventPusher).sendDuplicateIdResult(DataDuplicateResult.builder()
                 .offenderIdDisplay(OFFENDER_NO)
                 .retentionCheckId(RETENTION_CHECK_ID)
                 .duplicateOffender(LIDS_DUPLICATE)
@@ -77,7 +77,7 @@ class DataDuplicateServiceTest {
     }
 
     @Test
-    void checkForDataDuplicatesReturnsEmptyIfNoMatchingIdentifiers() {
+    void checkForDuplicateIdsReturnsEmptyIfNoMatchingIdentifiers() {
 
         mockIdentifiers(OFFENDER_NO, Map.of(
                 "PNC", OFFENDER_PNC,
@@ -90,16 +90,16 @@ class DataDuplicateServiceTest {
         when(duplicateOffenderRepository.getOffendersWithMatchingLidsNumbers(OFFENDER_NO))
                 .thenReturn(emptyList());
 
-        dataDuplicateService.checkForDataDuplicates(OFFENDER_NO, RETENTION_CHECK_ID);
+        dataDuplicateService.checkForDuplicateIds(OFFENDER_NO, RETENTION_CHECK_ID);
 
-        verify(dataComplianceEventPusher).send(DataDuplicateResult.builder()
+        verify(dataComplianceEventPusher).sendDuplicateIdResult(DataDuplicateResult.builder()
                 .offenderIdDisplay(OFFENDER_NO)
                 .retentionCheckId(RETENTION_CHECK_ID)
                 .build());
     }
 
     @Test
-    void checkForDataDuplicatesReturnsEmptyIfNoValidIdentifiers() {
+    void checkForDuplicateIdsReturnsEmptyIfNoValidIdentifiers() {
 
         mockIdentifiers(OFFENDER_NO, Map.of(
                 "PNC", "AN_INVALID_PNC",
@@ -108,11 +108,23 @@ class DataDuplicateServiceTest {
         when(duplicateOffenderRepository.getOffendersWithMatchingLidsNumbers(OFFENDER_NO))
                 .thenReturn(emptyList());
 
-        dataDuplicateService.checkForDataDuplicates(OFFENDER_NO, RETENTION_CHECK_ID);
+        dataDuplicateService.checkForDuplicateIds(OFFENDER_NO, RETENTION_CHECK_ID);
 
-        verify(dataComplianceEventPusher).send(DataDuplicateResult.builder()
+        verify(dataComplianceEventPusher).sendDuplicateIdResult(DataDuplicateResult.builder()
                 .offenderIdDisplay(OFFENDER_NO)
                 .retentionCheckId(RETENTION_CHECK_ID)
+                .build());
+    }
+
+    @Test
+    void checkForDataDuplicatesReturnsEmptyDuplicatesList() {
+
+        dataDuplicateService.checkForDataDuplicates(OFFENDER_NO, RETENTION_CHECK_ID);
+
+        verify(dataComplianceEventPusher).sendDuplicateDataResult(DataDuplicateResult.builder()
+                .offenderIdDisplay(OFFENDER_NO)
+                .retentionCheckId(RETENTION_CHECK_ID)
+                .duplicateOffenders(emptyList())
                 .build());
     }
 

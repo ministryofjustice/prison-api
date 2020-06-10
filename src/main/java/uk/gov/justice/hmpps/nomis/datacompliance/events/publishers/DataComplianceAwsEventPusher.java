@@ -43,7 +43,7 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
 
         log.trace("Sending referral of offender pending deletion: {}", event.getOffenderIdDisplay());
 
-        sqsClient.sendMessage(generatePendingDeletionRequest(event));
+        sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION", event));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
 
         log.trace("Sending process completed event for request: {}", event.getBatchId());
 
-        sqsClient.sendMessage(generateReferralCompleteRequest(event));
+        sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-REFERRAL-COMPLETE", event));
     }
 
     @Override
@@ -59,31 +59,23 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
 
         log.trace("Sending offender deletion complete event: {}", event.getOffenderIdDisplay());
 
-        sqsClient.sendMessage(generateDeletionCompleteRequest(event));
+        sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE", event));
     }
 
     @Override
-    public void send(final DataDuplicateResult event) {
+    public void sendDuplicateIdResult(final DataDuplicateResult event) {
 
-        log.trace("Sending data duplicate result for offender: {}", event.getOffenderIdDisplay());
+        log.trace("Sending duplicate ID result for offender: {}", event.getOffenderIdDisplay());
 
-        sqsClient.sendMessage(generateDataDuplicateResult(event));
+        sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DATA-DUPLICATE-ID-RESULT", event));
     }
 
-    private SendMessageRequest generatePendingDeletionRequest(final OffenderPendingDeletion event) {
-        return generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION", event);
-    }
+    @Override
+    public void sendDuplicateDataResult(final DataDuplicateResult event) {
 
-    private SendMessageRequest generateReferralCompleteRequest(final OffenderPendingDeletionReferralComplete event) {
-        return generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-REFERRAL-COMPLETE", event);
-    }
+        log.trace("Sending duplicate data result for offender: {}", event.getOffenderIdDisplay());
 
-    private SendMessageRequest generateDeletionCompleteRequest(final OffenderDeletionComplete event) {
-        return generateRequest("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE", event);
-    }
-
-    private SendMessageRequest generateDataDuplicateResult(final DataDuplicateResult event) {
-        return generateRequest("DATA_COMPLIANCE_DATA-DUPLICATE-RESULT", event);
+        sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DATA-DUPLICATE-DB-RESULT", event));
     }
 
     private SendMessageRequest generateRequest(final String eventType, final Object messageBody) {
