@@ -13,7 +13,7 @@
         </layout>
     </appender>
 
-    <springProfile name="!logstash">
+    <springProfile name="dev || stdout">
         <appender name="logAppender" class="ch.qos.logback.core.ConsoleAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
                 <Pattern>${LOG_PATTERN}</Pattern>
@@ -21,9 +21,15 @@
         </appender>
     </springProfile>
 
-    <springProfile name="logstash">
+    <springProfile name="!(dev || stdout)">
         <appender name="logAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender"/>
     </springProfile>
+
+
+    <logger name="net.syscon.elite.Elite2ApiServer" additivity="false" level="DEBUG">
+        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
+    </logger>
 
     <logger name="net.syscon" additivity="false" level="DEBUG">
         <appender-ref ref="logAppender"/>
