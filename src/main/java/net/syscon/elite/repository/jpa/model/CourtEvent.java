@@ -3,8 +3,8 @@ package net.syscon.elite.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -12,30 +12,41 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkState;
 import static net.syscon.elite.repository.jpa.model.EventStatus.EVENT_STS;
 import static net.syscon.elite.repository.jpa.model.EventType.EVENT_TYPE;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
-@Data
+@Getter
 @Entity
+@EntityListeners({
+        CourtEvent.OnCreate.class,
+        CourtEvent.OnDelete.class
+})
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -115,19 +126,48 @@ public class CourtEvent extends AuditableEntity {
         this.startTime = dateTime;
     }
 
-    @PrePersist
-    private void carryOverPreExistingActiveChargesOnCreation() {
-        if (offenderCourtCase != null) {
-            log.debug("Adding pre-existing active charges to new court event for court case '{}", offenderCourtCase.getId());
+    private void add(final CourtEventCharge charge) {
+        charges.add(charge);
+    }
 
-            offenderCourtCase.getCharges().stream().filter(OffenderCharge::isActive).forEach(this::addPreExisting);
+    static class OnCreate {
+        /**
+         * On court event creation on NOMIS existing active charges are applied to the new court event if associated with a court case.
+         */
+        @PrePersist
+        void applyActiveCourtCaseChargesFor(final CourtEvent event) {
+            event.getOffenderCourtCase().ifPresent(courtCase -> {
+                        courtCase.getCharges(OffenderCharge::isActive).forEach(charge ->
+                                event.add(CourtEventCharge.builder()
+                                        .offenderCharge(charge)
+                                        .courtEvent(event)
+                                        .build())
+                        );
+
+                        if (!event.getCharges().isEmpty()) {
+                            log.debug("Carried over '{}' active charge(s) for court case '{}' to court event '{}'", event.getCharges().size(), courtCase.getId(), event.getId());
+                        }
+                    }
+            );
         }
     }
 
-    private void addPreExisting(final OffenderCharge charge) {
-        charges.add(CourtEventCharge.builder()
-                .offenderCharge(charge)
-                .courtEvent(this)
-                .build());
+    @Component
+    static class OnDelete {
+
+        private Clock clock;
+
+        @Autowired
+        void setClock(final Clock clock) {
+            this.clock = clock;
+        }
+
+        @PreRemove
+        void checkIsScheduledFutureEventPriorToRemovalOf(final CourtEvent event) {
+            Objects.requireNonNull(clock, "Clock not set.");
+
+            checkState(event.getEventDateTime().isAfter(LocalDateTime.now(clock)), "Court hearing '%s' cannot be deleted as its start date/time is in the past.", event.getId());
+            checkState(event.getEventStatus().isScheduled(), "Court hearing '%s' must be in a scheduled state to delete.", event.getId());
+        }
     }
 }

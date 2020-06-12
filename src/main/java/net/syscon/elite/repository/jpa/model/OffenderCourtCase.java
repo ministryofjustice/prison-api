@@ -22,8 +22,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.jpa.model.CaseStatus.CASE_STS;
 import static net.syscon.elite.repository.jpa.model.LegalCaseType.LEG_CASE_TYP;
@@ -103,5 +106,9 @@ public class OffenderCourtCase extends AuditableEntity {
 
     public boolean isActive() {
         return caseStatus != null && caseStatus.isActive();
+    }
+
+    public Collection<OffenderCharge> getCharges(final Predicate<OffenderCharge> filter) {
+        return charges.stream().filter(filter).collect(Collectors.toList());
     }
 }
