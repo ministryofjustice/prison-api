@@ -21,7 +21,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.lang.Integer.parseInt;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
@@ -54,12 +53,10 @@ public class DataDuplicateService {
 
     public void checkForDataDuplicates(final String offenderNo, final Long retentionCheckId) {
 
-        // TODO GDPR-110 Implement points based similarity query
-
         dataComplianceEventPusher.sendDuplicateDataResult(DataDuplicateResult.builder()
                 .offenderIdDisplay(offenderNo)
                 .retentionCheckId(retentionCheckId)
-                .duplicateOffenders(emptyList())
+                .duplicateOffenders(getOffendersWithMatchingDetails(offenderNo))
                 .build());
     }
 
@@ -144,5 +141,18 @@ public class DataDuplicateService {
                 .map(OffenderIdentifierPendingDeletion::getIdentifier)
                 .map(String::toUpperCase)
                 .map(String::strip);
+    }
+
+    private Set<String> getOffendersWithMatchingDetails(final String offenderNo) {
+
+        final var duplicates = duplicateOffenderRepository.getOffendersWithMatchingDetails(offenderNo).stream()
+                .map(DuplicateOffender::getOffenderNumber)
+                .collect(toSet());
+
+        if (!duplicates.isEmpty()) {
+            log.info("Found offender(s) ({}) with matching details for offender '{}'", duplicates, offenderNo);
+        }
+
+        return duplicates;
     }
 }
