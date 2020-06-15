@@ -229,7 +229,7 @@ public class CourtEventRepositoryTest {
         final var id = savedCourtEventWithCourtCase.getId();
 
         assertThatThrownBy(() -> courtEventRepository.deleteById(id))
-                .isInstanceOf(DataAccessException.class)
+                .hasRootCauseInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Court hearing '%s' must be in a scheduled state to delete.", id);
     }
 }

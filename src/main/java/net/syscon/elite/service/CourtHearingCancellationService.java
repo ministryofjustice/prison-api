@@ -25,7 +25,7 @@ public class CourtHearingCancellationService {
     @HasWriteScope
     public void cancel(final Long bookingId, final Long hearingId) {
         final var courtHearing = courtEventRepository.findByOffenderBooking_BookingIdAndId(bookingId, hearingId)
-                .orElseThrow(EntityNotFoundException.withMessage("Count hearing '%s' with booking '%s' not found.", hearingId, bookingId));
+                .orElseThrow(EntityNotFoundException.withMessage("Court hearing '%s' with booking '%s' not found.", hearingId, bookingId));
 
         courtEventRepository.delete(courtHearing);
 
