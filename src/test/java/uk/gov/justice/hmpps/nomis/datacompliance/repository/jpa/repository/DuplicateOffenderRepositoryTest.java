@@ -21,7 +21,11 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = { Elite2ApiServer.class })
 @Sql(value = "define_regexp_substr.sql")
+@Sql(value = "define_jaro_winkler_similarity.sql")
+@Sql(value = "mv_offender_match_details.sql")
+@Sql(value = "drop_mv_offender_match_details.sql", executionPhase = AFTER_TEST_METHOD)
 @Sql(value = "drop_regexp_substr.sql", executionPhase = AFTER_TEST_METHOD)
+@Sql(value = "drop_jaro_winkler_similarity.sql", executionPhase = AFTER_TEST_METHOD)
 class DuplicateOffenderRepositoryTest {
 
     @Autowired
@@ -70,5 +74,32 @@ class DuplicateOffenderRepositoryTest {
         assertThat(repository.getOffendersWithMatchingLidsNumbers("A1184JR"))
                 .extracting(DuplicateOffender::getOffenderNumber)
                 .containsExactlyInAnyOrder("A1183CW");
+    }
+
+    @Test
+    void getOffendersWithMatchingDetails() {
+        assertThat(repository.getOffendersWithMatchingDetails("A1234AA"))
+                .extracting(DuplicateOffender::getOffenderNumber)
+                .containsExactlyInAnyOrder(
+                        "B1234BB",
+                        "C1234CC",
+                        "D1234DD",
+                        "E1234EE");
+    }
+
+    @Test
+    void getOffendersWithMatchingDetailsIsCommutative() {
+        assertThat(repository.getOffendersWithMatchingDetails("B1234BB"))
+                .extracting(DuplicateOffender::getOffenderNumber)
+                .containsExactlyInAnyOrder(
+                        "A1234AA",
+                        "C1234CC",
+                        "D1234DD",
+                        "E1234EE");
+    }
+
+    @Test
+    void getOffendersWithMatchingDetailsReturnsEmpty() {
+        assertThat(repository.getOffendersWithMatchingDetails("Z1234ZZ")).isEmpty();
     }
 }
