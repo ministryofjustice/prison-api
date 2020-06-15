@@ -17,6 +17,7 @@ import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -97,8 +98,8 @@ public interface OffenderMovementsResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    ResponseEntity<Void> cancelPrisonToPrisonMove(@ApiParam(value = "The offender booking to associate the prison to prison move with.", required = true) @PathVariable("bookingId") Long bookingId,
-                                                  @ApiParam(value = "The scheduled event identifier for the prison to prison.", required = true) @PathVariable("eventId") Long eventId,
+    ResponseEntity<Void> cancelPrisonToPrisonMove(@ApiParam(value = "The offender booking linked to the scheduled event.", required = true) @PathVariable("bookingId") Long bookingId,
+                                                  @ApiParam(value = "The identifier of the scheduled event to be cancelled.", required = true) @PathVariable("eventId") Long eventId,
                                                   @ApiParam(value = "The cancellation details.", required = true) @RequestBody @Valid PrisonMoveCancellation cancellation);
 
     @PutMapping("/{bookingId}/court-hearings/{hearingId}/hearing-date")
@@ -110,4 +111,13 @@ public interface OffenderMovementsResource {
     CourtHearing courtHearingDateAmendment(@ApiParam(value = "The offender booking to associate the update with.", required = true) @PathVariable("bookingId") Long bookingId,
                                            @ApiParam(value = "The  court hearing to be updated.", required = true) @PathVariable Long hearingId,
                                            @ApiParam(value = "The amendments for the scheduled court hearing.", required = true) @RequestBody @Valid CourtHearingDateAmendment amendment);
+
+    @DeleteMapping("/{bookingId}/court-hearings/{hearingId}/cancel")
+    @ApiOperation(value = "Cancels the scheduled court hearing an offender.", notes = "Cancels the scheduled court hearing an offender.", nickname = "cancelCourtHearing")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    ResponseEntity<Void> cancelCourtHearing(@ApiParam(value = "The offender booking to linked to the scheduled event.", required = true) @PathVariable("bookingId") final Long bookingId,
+                                            @ApiParam(value = "The identifier of the scheduled event to be cancelled.", required = true) @PathVariable("hearingId") final Long hearingId);
 }

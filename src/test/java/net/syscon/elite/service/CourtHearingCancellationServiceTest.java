@@ -37,7 +37,7 @@ public class CourtHearingCancellationServiceTest {
 
         assertThatThrownBy(() -> cancellationService.cancel(1L, 2L))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Count hearing '2' with booking '1' not found.");
+                .hasMessage("Court hearing '2' with booking '1' not found.");
     }
 
     @Test

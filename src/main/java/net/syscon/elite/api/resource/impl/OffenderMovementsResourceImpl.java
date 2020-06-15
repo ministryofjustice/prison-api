@@ -11,6 +11,7 @@ import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
+import net.syscon.elite.service.CourtHearingCancellationService;
 import net.syscon.elite.service.CourtHearingReschedulingService;
 import net.syscon.elite.service.CourtHearingsService;
 import net.syscon.elite.service.MovementUpdateService;
@@ -36,15 +37,18 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     private final MovementUpdateService movementUpdateService;
     private final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService;
     private final CourtHearingReschedulingService courtHearingReschedulingService;
+    private final CourtHearingCancellationService courtHearingCancellationService;
 
     public OffenderMovementsResourceImpl(final CourtHearingsService courtHearingsService,
                                          final MovementUpdateService movementUpdateService,
                                          final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService,
-                                         final CourtHearingReschedulingService courtHearingReschedulingService) {
+                                         final CourtHearingReschedulingService courtHearingReschedulingService,
+                                         final CourtHearingCancellationService courtHearingCancellationService) {
         this.courtHearingsService = courtHearingsService;
         this.movementUpdateService = movementUpdateService;
         this.prisonToPrisonMoveSchedulingService = prisonToPrisonMoveSchedulingService;
         this.courtHearingReschedulingService = courtHearingReschedulingService;
+        this.courtHearingCancellationService = courtHearingCancellationService;
     }
 
     @ProxyUser
@@ -94,5 +98,12 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     @Override
     public CourtHearing courtHearingDateAmendment(final Long bookingId, final Long hearingId, @Valid CourtHearingDateAmendment amendment) {
         return courtHearingReschedulingService.reschedule(bookingId, hearingId, amendment.getHearingDateTime());
+    }
+
+    @Override
+    public ResponseEntity<Void> cancelCourtHearing(final Long bookingId, final Long hearingId) {
+        courtHearingCancellationService.cancel(bookingId, hearingId);
+
+        return ResponseEntity.ok().build();
     }
 }
