@@ -907,10 +907,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     public Optional<ImprisonmentStatus> getImprisonmentStatus(final long bookingId) {
         Optional<ImprisonmentStatus> imprisonmentStatus;
         try {
-            imprisonmentStatus = Optional.ofNullable(jdbcTemplate.queryForObject(
+            imprisonmentStatus = jdbcTemplate.query(
                     getQuery("GET_IMPRISONMENT_STATUS"),
                     createParams("bookingId", bookingId),
-                    IMPRISONMENT_STATUS_MAPPER));
+                    IMPRISONMENT_STATUS_MAPPER)
+                    .stream().max(Comparator.comparingInt(ImprisonmentStatus::getImprisonStatusSeq));
             imprisonmentStatus.ifPresent(ImprisonmentStatus::deriveLegalStatus);
         } catch (final EmptyResultDataAccessException e) {
             imprisonmentStatus = Optional.empty();
