@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -112,8 +113,9 @@ public interface OffenderMovementsResource {
                                            @ApiParam(value = "The  court hearing to be updated.", required = true) @PathVariable Long hearingId,
                                            @ApiParam(value = "The amendments for the scheduled court hearing.", required = true) @RequestBody @Valid CourtHearingDateAmendment amendment);
 
+    @ApiIgnore("Not visible until tested in pre-prod")
     @DeleteMapping("/{bookingId}/court-hearings/{hearingId}/cancel")
-    @ApiOperation(value = "Cancels the scheduled court hearing an offender.", notes = "Cancels the scheduled court hearing an offender.", nickname = "cancelCourtHearing")
+    @ApiOperation(value = "Cancels the scheduled court hearing for an offender.", notes = "Cancels the scheduled court hearing for an offender.", nickname = "cancelCourtHearing")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
