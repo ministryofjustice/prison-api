@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   new-nomis-ui:
-    image: mojdigitalstudio/new-nomis-ui:latest
+    image: quay.io/hmpps/new-nomis-ui:latest
     depends_on:
       - oauth-server
       - elite2-api
@@ -40,7 +40,7 @@ services:
       - MAINTAIN_ROLES_ENABLED=true
 
   prisonstaffhub:
-    image: mojdigitalstudio/prisonstaffhub:latest
+    image: quay.io/hmpps/prisonstaffhub:latest
     depends_on:
       - oauth-server
       - elite2-api
