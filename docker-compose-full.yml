@@ -21,7 +21,7 @@ services:
       - WHEREABOUTS_UI_URL=http://localhost:3002/whereaboutssearch
 
   omic-ui:
-    image: mojdigitalstudio/omic-ui:latest
+    image: mojdigitalstudio/manage-key-workers:latest
     depends_on:
       - oauth-server
       - elite2-api
@@ -56,7 +56,7 @@ services:
       - NN_ENDPOINT_URL=http://localhost:3000/
 
   oauth-server:
-    image: quay.io/hmpps/nomis-oauth2-server:latest
+    image: quay.io/hmpps/hmpps-auth:latest
     container_name: oauth-server
     ports:
       - "9090:8080"
