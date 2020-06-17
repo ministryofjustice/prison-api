@@ -6,12 +6,12 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.CourtHearing;
+import net.syscon.elite.api.model.CourtHearingDateAmendment;
 import net.syscon.elite.api.model.CourtHearings;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.PrisonMoveCancellation;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
-import net.syscon.elite.api.model.CourtHearingDateAmendment;
 import net.syscon.elite.api.model.PrisonToPrisonMove;
 import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -113,7 +112,6 @@ public interface OffenderMovementsResource {
                                            @ApiParam(value = "The  court hearing to be updated.", required = true) @PathVariable Long hearingId,
                                            @ApiParam(value = "The amendments for the scheduled court hearing.", required = true) @RequestBody @Valid CourtHearingDateAmendment amendment);
 
-    @ApiIgnore("Not visible until tested in pre-prod")
     @DeleteMapping("/{bookingId}/court-hearings/{hearingId}/cancel")
     @ApiOperation(value = "Cancels the scheduled court hearing for an offender.", notes = "Cancels the scheduled court hearing for an offender.", nickname = "cancelCourtHearing")
     @ApiResponses(value = {
