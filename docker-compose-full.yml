@@ -21,7 +21,7 @@ services:
       - WHEREABOUTS_UI_URL=http://localhost:3002/whereaboutssearch
 
   omic-ui:
-    image: mojdigitalstudio/manage-key-workers:latest
+    image: quay.io/hmpps/manage-key-workers:latest
     depends_on:
       - oauth-server
       - elite2-api
