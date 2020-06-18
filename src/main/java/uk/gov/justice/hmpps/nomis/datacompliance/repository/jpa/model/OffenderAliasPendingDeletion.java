@@ -50,6 +50,6 @@ public class OffenderAliasPendingDeletion {
     private List<OffenderBookingPendingDeletion> offenderBookings;
 
     @Singular
-    @OneToMany(mappedBy = "offenderAlias")
+    @OneToMany(mappedBy = "offenderAlias", fetch = FetchType.EAGER)
     private List<OffenderIdentifierPendingDeletion> offenderIdentifiers;
 }
