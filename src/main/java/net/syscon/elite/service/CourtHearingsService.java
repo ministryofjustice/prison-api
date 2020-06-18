@@ -18,6 +18,7 @@ import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.transformers.AgencyTransformer;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -66,6 +67,7 @@ public class CourtHearingsService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
+    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
     public CourtHearing scheduleHearing(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
@@ -89,8 +91,8 @@ public class CourtHearingsService {
 
         final var courtHearing = toCourtHearing(courtEventRepository.save(courtEvent));
 
-        log.debug("created court hearing id '{}' for court case id '{}', booking id '{}', offender id '{} and noms id '{}'",
-                courtHearing.getId(), courtCase.getId(), offenderBooking.getBookingId(), offenderBooking.getOffender().getId(), offenderBooking.getOffender().getNomsId());
+        log.debug("created court hearing id '{}' for court case id '{}', booking id '{}', offender id '{} and noms id '{}, location '{}', datetime '{}'",
+                courtHearing.getId(), courtCase.getId(), offenderBooking.getBookingId(), offenderBooking.getOffender().getId(), offenderBooking.getOffender().getNomsId(), courtHearing.getLocation().getAgencyId(), courtHearing.getDateTime());
 
         return courtHearing;
     }
@@ -98,6 +100,7 @@ public class CourtHearingsService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
+    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
     public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
@@ -118,8 +121,8 @@ public class CourtHearingsService {
 
         final var courtHearing = toCourtHearing(courtEventRepository.save(courtEvent));
 
-        log.debug("created court hearing id '{}' for  booking id '{}', offender id '{} and noms id '{}'",
-                courtHearing.getId(), offenderBooking.getBookingId(), offenderBooking.getOffender().getId(), offenderBooking.getOffender().getNomsId());
+        log.debug("created court hearing id '{}' for  booking id '{}', offender id '{} and noms id '{}, location '{}', datetime '{}''",
+                courtHearing.getId(), offenderBooking.getBookingId(), offenderBooking.getOffender().getId(), offenderBooking.getOffender().getNomsId(), courtHearing.getLocation().getAgencyId(), courtHearing.getDateTime());
 
         return courtHearing;
     }

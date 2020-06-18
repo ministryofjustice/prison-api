@@ -18,7 +18,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
 
     @Test
     public void reschedule_court_hearing() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var initialHearingDateTime = LocalDateTime.of(2050, 3, 11, 12, 0, 0);
 
@@ -61,7 +61,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
 
     @Test
     public void reschedule_court_hearing_fails_when_no_matching_booking() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of("hearingDateTime", "2030-03-11T14:00"));
 
@@ -81,7 +81,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
 
     @Test
     public void reschedule_court_hearing_fails_when_date_in_past() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of("hearingDateTime", "1970-01-01T00:00"));
 
@@ -120,7 +120,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
 
     @Test
     public void reschedule_court_hearing_fails_when_hearing_in_past() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of("hearingDateTime", "2030-03-11T14:00"));
 
@@ -140,7 +140,7 @@ public class OffenderMovementsResourceImplIntTest_rescheduleCourtHearing extends
 
     @Test
     public void reschedule_court_hearing_fails_when_date_not_provided() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of());
 

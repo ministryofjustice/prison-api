@@ -42,7 +42,7 @@ public class OffenderMovementsResourceImplIntTest_cancelCourtHearing extends Res
 
     @Before
     public void setup() {
-        token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
     }
 
     @Test
