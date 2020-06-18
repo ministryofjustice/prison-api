@@ -11,10 +11,16 @@ import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.UpdateAttendanceBatch;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken;
 import org.junit.Test;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.context.ContextConfiguration;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +31,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
+@ContextConfiguration(classes = BookingResourceTest.TestClock.class)
 public class BookingResourceTest extends ResourceTest {
+
+    @TestConfiguration
+    static class TestClock {
+        @Bean
+        public Clock clock() {
+            return Clock.fixed(
+                    LocalDateTime.of(2020, 1, 2, 3, 4, 5).atZone(ZoneId.systemDefault()).toInstant(),
+                    ZoneId.systemDefault());
+        }
+    }
 
     @Test
     public void testGetBooking() {
