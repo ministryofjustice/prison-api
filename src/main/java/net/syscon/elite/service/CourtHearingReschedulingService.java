@@ -8,6 +8,7 @@ import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.repository.CourtEventRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.transformers.AgencyTransformer;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -39,6 +40,7 @@ public class CourtHearingReschedulingService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
+    @PreAuthorize("hasRole('PECS_PRISON')")
     public CourtHearing reschedule(final Long bookingId, final Long hearingId, final LocalDateTime revisedDateTime) {
         final var scheduledCourtHearing = getScheduledHearingFor(hearingId);
 

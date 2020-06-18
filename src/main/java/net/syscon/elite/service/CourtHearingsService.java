@@ -18,6 +18,7 @@ import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.transformers.AgencyTransformer;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -66,6 +67,7 @@ public class CourtHearingsService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
+    @PreAuthorize("hasRole('PECS_PRISON')")
     public CourtHearing scheduleHearing(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
@@ -98,6 +100,7 @@ public class CourtHearingsService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
+    @PreAuthorize("hasRole('PECS_PRISON')")
     public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 

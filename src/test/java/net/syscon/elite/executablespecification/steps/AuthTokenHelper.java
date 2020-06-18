@@ -39,7 +39,8 @@ public class AuthTokenHelper {
         // ITAG_USER with ROLE_MAINTAIN_IEP and scope ['read','write]
         MAINTAIN_IEP,
         PAY,
-        UPDATE_ALERT
+        UPDATE_ALERT,
+        PECS_PRISON_USER
     }
 
 
@@ -65,6 +66,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.NORMAL_USER), normalUser());
         tokens.put(String.valueOf(AuthToken.PAY), payUser());
         tokens.put(String.valueOf(AuthToken.UPDATE_ALERT), updateAlert());
+        tokens.put(String.valueOf(AuthToken.PECS_PRISON_USER), pecsPrisonUser());
     }
 
     public String getToken() {
@@ -294,5 +296,14 @@ public class AuthTokenHelper {
 
     }
 
-
+    private String pecsPrisonUser() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("ITAG_USER")
+                        .scope(List.of("read", "write"))
+                        .roles(List.of("ROLE_PECS_PRISON"))
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
 }
