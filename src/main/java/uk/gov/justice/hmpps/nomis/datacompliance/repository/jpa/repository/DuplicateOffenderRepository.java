@@ -212,7 +212,7 @@ public interface DuplicateOffenderRepository extends org.springframework.data.re
             "    BIRTH_PLACE_SCORE +" +
             "    ((STREET_SCORE + LOCALITY_SCORE + CITY_CODE_SCORE + COUNTY_CODE_SCORE) / 2) +" +
             "    2 * POSTAL_CODE_SCORE" +
-            "    > 11;",
+            "    > 11",
             nativeQuery = true)
     List<DuplicateOffender> getOffendersWithMatchingDetails(String offenderNo);
 }
