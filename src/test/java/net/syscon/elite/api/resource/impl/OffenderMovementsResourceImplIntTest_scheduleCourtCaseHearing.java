@@ -140,7 +140,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtCaseHearing exten
 
     @Test
     public void schedules_court_case_hearing_fails_when_unauthorised() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.RENEGADE_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
