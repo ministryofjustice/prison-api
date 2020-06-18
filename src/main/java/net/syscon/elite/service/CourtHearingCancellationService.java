@@ -24,7 +24,7 @@ public class CourtHearingCancellationService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    @PreAuthorize("hasRole('PECS_PRISON')")
+    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
     public void cancel(final Long bookingId, final Long hearingId) {
         final var courtHearing = courtEventRepository.findByOffenderBooking_BookingIdAndId(bookingId, hearingId)
                 .orElseThrow(EntityNotFoundException.withMessage("Court hearing '%s' with booking '%s' not found.", hearingId, bookingId));

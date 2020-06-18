@@ -40,7 +40,7 @@ public class CourtHearingReschedulingService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    @PreAuthorize("hasRole('PECS_PRISON')")
+    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
     public CourtHearing reschedule(final Long bookingId, final Long hearingId, final LocalDateTime revisedDateTime) {
         final var scheduledCourtHearing = getScheduledHearingFor(hearingId);
 
