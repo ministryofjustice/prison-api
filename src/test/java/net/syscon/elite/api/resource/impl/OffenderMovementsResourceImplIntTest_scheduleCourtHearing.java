@@ -16,7 +16,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
@@ -44,7 +44,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing_fails_when_no_matching_booking() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
@@ -68,7 +68,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing_fails_when_no_matching_prison() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "PRISON",
@@ -92,7 +92,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing_fails_when_no_matching_court() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
@@ -116,7 +116,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_case_hearing_fails_when_unauthorised() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.RENEGADE_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
@@ -139,7 +139,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing_fails_when_prison_not_supplied() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "toCourtLocation", "COURT1",
@@ -160,7 +160,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing_fails_when_court_not_supplied() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
@@ -181,7 +181,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing_fails_when_date_not_supplied() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
@@ -202,7 +202,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing_fails_when_prison_longer_than_6_chars() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "PRISONx",
@@ -224,7 +224,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing_fails_when_court_longer_than_6_chars() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "PRISON",
@@ -246,7 +246,7 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
 
     @Test
     public void schedules_court_hearing_fails_when_comments_longer_than_240_chars() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",

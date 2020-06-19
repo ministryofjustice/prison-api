@@ -2,7 +2,7 @@ version: '3.1'
 services:
 
   oauth-server:
-    image: quay.io/hmpps/nomis-oauth2-server:latest
+    image: quay.io/hmpps/hmpps-auth:latest
     container_name: oauth-server
     networks:
       - hmpps

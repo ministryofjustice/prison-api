@@ -164,8 +164,8 @@ public class DateTimeConverter {
      * @param dateOfBirth
      * @return age in years
      */
-    public static int getAge(final LocalDate dateOfBirth) {
-        final var period = Period.between(dateOfBirth, LocalDate.now());
+    public static int getAge(final LocalDate dateOfBirth, final LocalDate now) {
+        final var period = Period.between(dateOfBirth, now);
         return period.getYears();
     }
 

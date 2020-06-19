@@ -48,6 +48,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.sql.Types;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -60,6 +61,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
+import static net.syscon.util.DateTimeConverter.getAge;
 
 @Repository
 @Slf4j
@@ -139,9 +141,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     private static final StandardBeanPropertyRowMapper<ImprisonmentStatus> IMPRISONMENT_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(ImprisonmentStatus.class);
 
-    private final Map<String, FieldMapper> PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP;
-
-    private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
+    private static final Map<String, FieldMapper> ALIAS_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("LAST_NAME", new FieldMapper("lastName"))
             .put("FIRST_NAME", new FieldMapper("firstName"))
             .put("MIDDLE_NAME", new FieldMapper("middleName"))
@@ -154,14 +154,26 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     private static final Set<String> UNSENTENCED_OR_UNCLASSIFIED_CATEGORY_CODES = Set.of("U", "X", "Z");
 
-    InmateRepositoryImpl() {
+    private final Map<String, FieldMapper> PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP;
+    private final Clock clock;
+
+    InmateRepositoryImpl(final Clock clock) {
         final Map<String, FieldMapper> map = new HashMap<>(PRISONER_DETAIL_MAPPER.getFieldMap());
         map.put("OFFENDER_ID", new FieldMapper("OFFENDER_ID"));
         PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP = map;
+        this.clock = clock;
     }
 
     @Override
-    public Page<OffenderBooking> findInmatesByLocation(final Long locationId, final String locationTypeRoot, final String caseLoadId, final String query, final String orderByField, final Order order, final long offset, final long limit) {
+    public Page<OffenderBooking> findInmatesByLocation(final Long locationId,
+                                                       final String locationTypeRoot,
+                                                       final String caseLoadId,
+                                                       final String query,
+                                                       final String orderByField,
+                                                       final Order order,
+                                                       final long offset,
+                                                       final long limit) {
+
         final var initialSql = getQuery("FIND_INMATES_BY_LOCATION");
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 
@@ -186,7 +198,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", limit),
                 paRowMapper);
 
-        results.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
+        results.forEach(b -> b.setAge(getAge(b.getDateOfBirth(), LocalDate.now(clock))));
 
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
@@ -225,7 +237,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", pageRequest.getLimit()),
                 paRowMapper);
 
-        inmates.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
+        inmates.forEach(b -> b.setAge(getAge(b.getDateOfBirth(), LocalDate.now(clock))));
 
         return new Page<>(inmates, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
@@ -311,7 +323,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", request.getPageRequest().getLimit()),
                 paRowMapper);
 
-        offenderBookings.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
+        offenderBookings.forEach(b -> b.setAge(getAge(b.getDateOfBirth(), LocalDate.now(clock))));
 
         return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), request.getPageRequest().getOffset(), request.getPageRequest().getLimit());
     }
@@ -649,7 +661,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                     createParams("bookingId", bookingId),
                     inmateRowMapper);
             if (inmate != null) {
-                inmate.setAge(DateTimeConverter.getAge(inmate.getDateOfBirth()));
+                inmate.setAge(getAge(inmate.getDateOfBirth(), LocalDate.now(clock)));
             }
         } catch (final EmptyResultDataAccessException ex) {
             inmate = null;
@@ -666,7 +678,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 new StandardBeanPropertyRowMapper<>(InmateDetail.class))
                 .stream()
                 .findFirst();
-        offender.ifPresent(o -> o.setAge(DateTimeConverter.getAge(o.getDateOfBirth())));
+        offender.ifPresent(o -> o.setAge(getAge(o.getDateOfBirth(), LocalDate.now(clock))));
         return offender;
     }
 
@@ -692,7 +704,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     @Override
     public Page<Alias> findInmateAliases(final Long bookingId, final String orderByFields, final Order order, final long offset, final long limit) {
         final var initialSql = getQuery("FIND_INMATE_ALIASES");
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, aliasMapping);
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, ALIAS_MAPPING);
 
         final var sql = builder
                 .addRowCount()
@@ -700,14 +712,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .addOrderBy(order, orderByFields)
                 .build();
 
-        final var aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, aliasMapping);
+        final var aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, ALIAS_MAPPING);
         final var paRowMapper = new PageAwareRowMapper<>(aliasAttributesRowMapper);
 
         final var results = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId, "offset", offset, "limit", limit),
                 paRowMapper);
-        results.forEach(alias -> alias.setAge(DateTimeConverter.getAge(alias.getDob())));
+        results.forEach(alias -> alias.setAge(getAge(alias.getDob(), LocalDate.now(clock))));
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
 
@@ -907,10 +919,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     public Optional<ImprisonmentStatus> getImprisonmentStatus(final long bookingId) {
         Optional<ImprisonmentStatus> imprisonmentStatus;
         try {
-            imprisonmentStatus = Optional.ofNullable(jdbcTemplate.queryForObject(
+            imprisonmentStatus = jdbcTemplate.query(
                     getQuery("GET_IMPRISONMENT_STATUS"),
                     createParams("bookingId", bookingId),
-                    IMPRISONMENT_STATUS_MAPPER));
+                    IMPRISONMENT_STATUS_MAPPER)
+                    .stream().max(Comparator.comparingInt(ImprisonmentStatus::getImprisonStatusSeq));
             imprisonmentStatus.ifPresent(ImprisonmentStatus::deriveLegalStatus);
         } catch (final EmptyResultDataAccessException e) {
             imprisonmentStatus = Optional.empty();

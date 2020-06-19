@@ -13,6 +13,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class OffenderDeletionService {
 
@@ -20,7 +21,6 @@ public class OffenderDeletionService {
     private final DataComplianceEventPusher dataComplianceEventPusher;
     private final TelemetryClient telemetryClient;
 
-    @Transactional
     public void deleteOffender(final String offenderNumber, final Long referralId) {
 
         // TODO GDPR-70 Conduct final double-check that the record hasn't been updated before deleting

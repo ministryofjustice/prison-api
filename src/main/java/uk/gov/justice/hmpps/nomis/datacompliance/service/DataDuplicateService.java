@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.Dupli
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.IdentifierValidation.ChecksumComponents;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,7 @@ import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class DataDuplicateService {
 

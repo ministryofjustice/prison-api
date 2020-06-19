@@ -9,6 +9,7 @@ public class ImprisonmentStatus {
     private String bandCode;
     private String imprisonmentStatus;
     private String legalStatus;
+    private Integer imprisonStatusSeq;
 
     public void deriveLegalStatus() {
         if (this.bandCode != null) {
