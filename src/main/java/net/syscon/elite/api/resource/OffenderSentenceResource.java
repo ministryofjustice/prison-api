@@ -111,6 +111,6 @@ public interface OffenderSentenceResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Sentence term details for a prisoner.", response = OffenderSentenceTerms.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List")})
-    List<OffenderSentenceTerms> getOffenderSentenceTerms(@ApiParam(value = "The required booking id (mandatory)", required = true) @PathVariable("bookingId") Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", defaultValue = "IMP") List<String> filterBySentenceTermCodes);
+    List<OffenderSentenceTerms> getOffenderSentenceTerms(@ApiParam(value = "The required booking id (mandatory)", required = true) @PathVariable("bookingId") Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) List<String> filterBySentenceTermCodes);
 
 }

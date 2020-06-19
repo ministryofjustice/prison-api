@@ -658,7 +658,7 @@ public class BookingService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
 
-        final var sentenceTermCodes = filterBySentenceTermCodes.isEmpty() ? List.of("IMP") : filterBySentenceTermCodes;
+        final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
 
         return bookingRepository.getOffenderSentenceTerms(bookingId, sentenceTermCodes);
     }
