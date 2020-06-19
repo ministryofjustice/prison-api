@@ -1,7 +1,12 @@
 package net.syscon.elite.api.resource.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.ApprovalStatus;
+import net.syscon.elite.api.model.HdcChecks;
+import net.syscon.elite.api.model.HomeDetentionCurfew;
+import net.syscon.elite.api.model.OffenderSentenceCalc;
+import net.syscon.elite.api.model.OffenderSentenceDetail;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -14,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -96,8 +100,8 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     @Override
-    public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId) {
-        return bookingService.getOffenderSentenceTerms(bookingId);
+    public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
+        return bookingService.getOffenderSentenceTerms(bookingId, filterBySentenceTermCodes);
     }
 
     private void validateOffenderList(final List<?> offenderList) {

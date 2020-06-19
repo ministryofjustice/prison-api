@@ -83,7 +83,7 @@ public interface BookingRepository {
 
     List<OffenderSentenceCalculation> getOffenderSentenceCalculations(Set<String> agencyIds);
 
-    List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId, String sentenceTermCode);
+    List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId, List<String> sentenceTermCode);
 
     Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
 

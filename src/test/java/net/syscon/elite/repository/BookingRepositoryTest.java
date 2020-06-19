@@ -406,15 +406,15 @@ public class BookingRepositoryTest {
     @Test
     public void testGetOffenderSentenceTerms() {
 
-        final var results = repository.getOffenderSentenceTerms(-2L, "IMP");
+        final var results = repository.getOffenderSentenceTerms(-2L, List.of("IMP"));
 
         assertThat(results)
                 .asList()
                 .containsExactlyInAnyOrder(
                         // Terms with start date = 2016-11-22 is ignored as sentence is inactive
-                        new OffenderSentenceTerms(-2L, 2, 1, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 5, 22), 2, null, null, null, false),
-                        new OffenderSentenceTerms(-2L, 2, 2, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 6, 22), null, null, 2, 3, false),
-                        new OffenderSentenceTerms(-2L, 2, 3, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 7, 22), 25, null, null, null, true)
+                        new OffenderSentenceTerms(-2L, 2, 1, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 5, 22), 2, null, null, null, false, null,null,0.0, null),
+                        new OffenderSentenceTerms(-2L, 2, 2, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 6, 22), null, null, 2, 3, false,null,null,0.0, null),
+                        new OffenderSentenceTerms(-2L, 2, 3, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 7, 22), 25, null, null, null, true,null,null,0.0, null)
                 );
     }
 

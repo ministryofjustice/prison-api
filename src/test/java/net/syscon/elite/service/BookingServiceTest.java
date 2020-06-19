@@ -420,6 +420,20 @@ public class BookingServiceTest {
     }
 
     @Test
+    public void getOffenderSentenceTerms_shouldDefaultToImp() {
+        bookingService.getOffenderSentenceTerms(-1L, Collections.emptyList());
+
+        verify(bookingRepository).getOffenderSentenceTerms(-1L, List.of("IMP"));
+    }
+
+    @Test
+    public void getOffenderSentenceTerms() {
+        bookingService.getOffenderSentenceTerms(-1L, List.of("LIC"));
+
+        verify(bookingRepository).getOffenderSentenceTerms(-1L, List.of("LIC"));
+    }
+
+    @Test
     void getOffenderCourtCases_active_only_mapped() {
         final var activeCourtCase = caseWithDefaults().id(-1L).caseSeq(-1L).caseStatus(new CaseStatus("A", "Active")).build();
         final var inactiveCourtCase = caseWithDefaults().id(-2L).caseSeq(-2L).caseStatus(new CaseStatus("I", "Inactive")).build();
