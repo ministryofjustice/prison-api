@@ -23,6 +23,8 @@ import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.VisitWithVisitors;
+import net.syscon.elite.api.model.Visitor;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
@@ -41,6 +43,7 @@ import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -346,44 +349,46 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public List<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final Long bookingId) {
-        final var visits = visitRepository.getVisits(bookingId);
+    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final Long bookingId) {
+        final var visits = visitRepository.findAllByBookingId(bookingId);
 
-        return visits.stream().map(v -> {
-            var visitorsList = visitorRepository.getVisitorsForVisitAndBooking(v.getVisitId(), bookingId)
+        final var visitsWithVisitors = visits.stream().map(v -> {
+            var visitorsList = visitorRepository.findAllByVisitIdAndBookingId(v.getVisitId(), bookingId)
                     .stream()
                     .map(visitor ->
-                        Visitor.builder()
-                        .dateOfBirth(visitor.getBirthdate())
-                        .firstName(visitor.getFirstName())
-                        .lastName(visitor.getLastName())
-                        .leadVisitor(visitor.getLeadVisitor().equals("Y"))
-                        .personId(visitor.getPersonId())
-                        .relationship(visitor.getRelationship())
-                        .build())
+                            Visitor.builder()
+                                    .dateOfBirth(visitor.getBirthdate())
+                                    .firstName(visitor.getFirstName())
+                                    .lastName(visitor.getLastName())
+                                    .leadVisitor(visitor.getLeadVisitor().equals("Y"))
+                                    .personId(visitor.getPersonId())
+                                    .relationship(visitor.getRelationship())
+                                    .build())
                     .collect(Collectors.toList());
 
             return VisitWithVisitors.builder()
                     .visitDetail(
                             Visit.builder()
-                            .visitType(v.getVisitType())
-                            .visitTypeDescription(v.getVisitTypeDescription())
-                            .cancellationReason(v.getCancellationReason())
-                            .cancelReasonDescription(v.getCancelReasonDescription())
-                            .endTime(v.getEndTime())
-                            .startTime(v.getStartTime())
-                            .eventOutcome(v.getEventOutcome())
-                            .eventOutcomeDescription(v.getEventOutcomeDescription())
-                            .eventStatus(v.getEventStatus())
-                            .eventStatusDescription(v.getEventStatusDescription())
-                            .leadVisitor(v.getLeadVisitor())
-                            .location(v.getLocation())
-                            .relationship(v.getRelationship())
-                            .relationshipDescription(v.getRelationshipDescription())
-                            .build())
+                                    .visitType(v.getVisitType())
+                                    .visitTypeDescription(v.getVisitTypeDescription())
+                                    .cancellationReason(v.getCancellationReason())
+                                    .cancelReasonDescription(v.getCancelReasonDescription())
+                                    .endTime(v.getEndTime())
+                                    .startTime(v.getStartTime())
+                                    .eventOutcome(v.getEventOutcome())
+                                    .eventOutcomeDescription(v.getEventOutcomeDescription())
+                                    .eventStatus(v.getEventStatus())
+                                    .eventStatusDescription(v.getEventStatusDescription())
+                                    .leadVisitor(v.getLeadVisitor())
+                                    .location(v.getLocation())
+                                    .relationship(v.getRelationship())
+                                    .relationshipDescription(v.getRelationshipDescription())
+                                    .build())
                     .visitors(visitorsList)
                     .build();
         }).collect(Collectors.toList());
+
+        return new PageImpl<>(visitsWithVisitors);
     }
 
     @VerifyBookingAccess

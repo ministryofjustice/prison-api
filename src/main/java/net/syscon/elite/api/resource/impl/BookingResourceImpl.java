@@ -15,6 +15,8 @@ import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import net.syscon.elite.service.support.WrappedErrorResponseException;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -528,8 +530,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final Long bookingId) {
-        return bookingService.getBookingVisitsWithVisitor(bookingId);
+    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final Long bookingId, Pageable pageable) {
+        return bookingService.getBookingVisitsWithVisitor(bookingId, pageable);
     }
 
     @Override

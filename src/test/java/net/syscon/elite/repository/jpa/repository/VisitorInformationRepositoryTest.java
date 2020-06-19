@@ -25,8 +25,8 @@ public class VisitorInformationRepositoryTest {
     private VisitorRepository repository;
 
     @Test
-    public void getVisits() {
-        var visits = repository.getVisitorsForVisitAndBooking(-15L, -1L);
+    public void findAllByVisitIdAndBookingId() {
+        var visits = repository.findAllByVisitIdAndBookingId(-15L, -1L);
 
         assertThat(visits).hasSize(2);
         assertThat(visits).extracting(VisitorInformation::getPersonId).containsOnly(-1L, -2L);

@@ -406,47 +406,47 @@ public class BookingServiceTest {
 
     @Test
     public void getBookingVisitsWithVisitor() {
-        when(visitRepository.getVisits(anyLong())).thenReturn(List.of(
+        when(visitRepository.findAllByBookingId(anyLong())).thenReturn(List.of(
                 VisitInformation
-                .builder()
-                .visitId(-1L)
-                .cancellationReason(null)
-                .cancelReasonDescription(null)
-                .eventStatus("ATT")
-                .eventStatusDescription("Attended")
-                .eventOutcome("ATT")
-                .eventOutcomeDescription("Attended")
-                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                .location("Visits")
-                .visitType("SOC")
-                .visitTypeDescription("Social")
-                .leadVisitor("John Smith")
-                .relationship("UNC")
-                .relationshipDescription("Uncle")
-                .build()));
+                        .builder()
+                        .visitId(-1L)
+                        .cancellationReason(null)
+                        .cancelReasonDescription(null)
+                        .eventStatus("ATT")
+                        .eventStatusDescription("Attended")
+                        .eventOutcome("ATT")
+                        .eventOutcomeDescription("Attended")
+                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                        .location("Visits")
+                        .visitType("SOC")
+                        .visitTypeDescription("Social")
+                        .leadVisitor("John Smith")
+                        .relationship("UNC")
+                        .relationshipDescription("Uncle")
+                        .build()));
 
-        when(visitorRepository.getVisitorsForVisitAndBooking(anyLong(), anyLong())).thenReturn(List.of(
+        when(visitorRepository.findAllByVisitIdAndBookingId(anyLong(), anyLong())).thenReturn(List.of(
                 VisitorInformation
-                .builder()
-                .birthdate(LocalDate.parse("1980-10-01"))
-                .firstName("John")
-                .lastName("Smith")
-                .leadVisitor("Y")
-                .personId(-1L)
-                .relationship("Uncle")
-                .visitId(-1L)
-                .build(),
+                        .builder()
+                        .birthdate(LocalDate.parse("1980-10-01"))
+                        .firstName("John")
+                        .lastName("Smith")
+                        .leadVisitor("Y")
+                        .personId(-1L)
+                        .relationship("Uncle")
+                        .visitId(-1L)
+                        .build(),
                 VisitorInformation
-                .builder()
-                .birthdate(LocalDate.parse("2010-10-01"))
-                .firstName("Jenny")
-                .lastName("Smith")
-                .leadVisitor("N")
-                .personId(-2L)
-                .relationship("Niece")
-                .visitId(-1L)
-                .build()
+                        .builder()
+                        .birthdate(LocalDate.parse("2010-10-01"))
+                        .firstName("Jenny")
+                        .lastName("Smith")
+                        .leadVisitor("N")
+                        .personId(-2L)
+                        .relationship("Niece")
+                        .visitId(-1L)
+                        .build()
 
         ));
 
@@ -455,23 +455,24 @@ public class BookingServiceTest {
                 VisitWithVisitors.builder()
                         .visitDetail(
                                 Visit
-                                .builder()
-                                .cancellationReason(null)
-                                .cancelReasonDescription(null)
-                                .eventStatus("ATT")
-                                .eventStatusDescription("Attended")
-                                .eventOutcome("ATT")
-                                .eventOutcomeDescription("Attended")
-                                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                                .location("Visits")
-                                .visitType("SOC")
-                                .visitTypeDescription("Social")
-                                .leadVisitor("John Smith")
-                                .relationship("UNC")
-                                .relationshipDescription("Uncle")
-                                .build())
-                        .visitors(List.of(net.syscon.elite.api.model.Visitor
+                                        .builder()
+                                        .cancellationReason(null)
+                                        .cancelReasonDescription(null)
+                                        .eventStatus("ATT")
+                                        .eventStatusDescription("Attended")
+                                        .eventOutcome("ATT")
+                                        .eventOutcomeDescription("Attended")
+                                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                                        .location("Visits")
+                                        .visitType("SOC")
+                                        .visitTypeDescription("Social")
+                                        .leadVisitor("John Smith")
+                                        .relationship("UNC")
+                                        .relationshipDescription("Uncle")
+                                        .build())
+                        .visitors(List.of(
+                                Visitor
                                         .builder()
                                         .dateOfBirth(LocalDate.parse("1980-10-01"))
                                         .firstName("John")
@@ -490,6 +491,7 @@ public class BookingServiceTest {
                                         .relationship("Niece")
                                         .build()))
                         .build());
+    }
 
     @Test
     void getOffenderCourtCases_active_only_mapped() {

@@ -27,8 +27,8 @@ public class VisitInformationRepositoryTest {
     private VisitRepository repository;
 
     @Test
-    public void getVisits() {
-        var visits = repository.getVisits(-1L);
+    public void findAllByBookingId() {
+        var visits = repository.findAllByBookingId(-1L);
 
         assertThat(visits).hasSize(15);
         assertThat(visits).extracting(VisitInformation::getVisitId).containsOnly(-3L, -2L, -4L, -5L, -1L, -6L, -8L, -7L, -10L, -9L, -13L, -14L, -12L, -11L, -15L);

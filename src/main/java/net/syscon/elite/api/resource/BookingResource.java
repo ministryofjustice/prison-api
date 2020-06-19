@@ -8,6 +8,10 @@ import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.support.Order;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -507,7 +511,8 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+    Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
+                                                               @PageableDefault() final Pageable pageable);
 
     @GetMapping("/{bookingId}/visits/last")
     @ApiOperation(value = "The most recent visit for the offender.", notes = "The most recent visit for the offender.", nickname = "getBookingVisitsLast")
