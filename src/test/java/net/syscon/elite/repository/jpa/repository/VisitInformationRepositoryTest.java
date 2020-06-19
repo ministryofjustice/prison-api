@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -28,7 +31,8 @@ public class VisitInformationRepositoryTest {
 
     @Test
     public void findAllByBookingId() {
-        var visits = repository.findAllByBookingId(-1L);
+        Pageable pageable = PageRequest.of(0, 20);
+        var visits = repository.findAllByBookingId(-1L, pageable);
 
         assertThat(visits).hasSize(15);
         assertThat(visits).extracting(VisitInformation::getVisitId).containsOnly(-3L, -2L, -4L, -5L, -1L, -6L, -8L, -7L, -10L, -9L, -13L, -14L, -12L, -11L, -15L);

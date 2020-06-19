@@ -26,7 +26,6 @@ import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.VisitWithVisitors;
 import net.syscon.elite.api.model.Visitor;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
@@ -43,7 +42,9 @@ import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -265,7 +267,7 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public Page<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
+    public net.syscon.elite.api.support.Page<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
         final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
@@ -329,7 +331,7 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public Page<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
+    public net.syscon.elite.api.support.Page<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
         final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
@@ -349,8 +351,8 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final Long bookingId) {
-        final var visits = visitRepository.findAllByBookingId(bookingId);
+    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final @NotNull Long bookingId, final Pageable pageable) {
+        final var visits = visitRepository.findAllByBookingId(bookingId, pageable);
 
         final var visitsWithVisitors = visits.stream().map(v -> {
             var visitorsList = visitorRepository.findAllByVisitIdAndBookingId(v.getVisitId(), bookingId)
@@ -441,7 +443,7 @@ public class BookingService {
 
 
     @VerifyBookingAccess
-    public Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
+    public net.syscon.elite.api.support.Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
         final var sortFields = StringUtils.defaultString(orderByFields, "startTime");

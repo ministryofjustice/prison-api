@@ -33,6 +33,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
@@ -406,25 +409,29 @@ public class BookingServiceTest {
 
     @Test
     public void getBookingVisitsWithVisitor() {
-        when(visitRepository.findAllByBookingId(anyLong())).thenReturn(List.of(
-                VisitInformation
-                        .builder()
-                        .visitId(-1L)
-                        .cancellationReason(null)
-                        .cancelReasonDescription(null)
-                        .eventStatus("ATT")
-                        .eventStatusDescription("Attended")
-                        .eventOutcome("ATT")
-                        .eventOutcomeDescription("Attended")
-                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                        .location("Visits")
-                        .visitType("SOC")
-                        .visitTypeDescription("Social")
-                        .leadVisitor("John Smith")
-                        .relationship("UNC")
-                        .relationshipDescription("Uncle")
-                        .build()));
+        Pageable pageable = PageRequest.of(0, 20);
+        var visits = List.of(VisitInformation
+                .builder()
+                .visitId(-1L)
+                .cancellationReason(null)
+                .cancelReasonDescription(null)
+                .eventStatus("ATT")
+                .eventStatusDescription("Attended")
+                .eventOutcome("ATT")
+                .eventOutcomeDescription("Attended")
+                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                .location("Visits")
+                .visitType("SOC")
+                .visitTypeDescription("Social")
+                .leadVisitor("John Smith")
+                .relationship("UNC")
+                .relationshipDescription("Uncle")
+                .build());
+
+        var page = new PageImpl<>(visits);
+        when(visitRepository.findAllByBookingId(-1L, pageable))
+                .thenReturn(page);
 
         when(visitorRepository.findAllByVisitIdAndBookingId(anyLong(), anyLong())).thenReturn(List.of(
                 VisitorInformation
@@ -450,7 +457,7 @@ public class BookingServiceTest {
 
         ));
 
-        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L);
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, pageable);
         assertThat(visitsWithVisitors).containsOnly(
                 VisitWithVisitors.builder()
                         .visitDetail(
