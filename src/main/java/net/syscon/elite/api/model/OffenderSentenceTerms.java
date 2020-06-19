@@ -57,12 +57,12 @@ public class OffenderSentenceTerms {
     @ApiModelProperty(required = true, value = "Line sequence for sentence.", position = 13)
     private String lineSeq;
 
-    @ApiModelProperty(required = true, value = "Court case id", position = 15)
+    @ApiModelProperty(required = true, value = "Court case id", position = 14)
     private String caseId;
 
-    @ApiModelProperty(required = true, value = "Fine amount.", position = 16)
+    @ApiModelProperty(required = true, value = "Fine amount.", position = 15)
     private Double fineAmount;
 
-    @ApiModelProperty(required = true, value = "Sentence term code.", position = 17, example = "IMP")
+    @ApiModelProperty(required = true, value = "Sentence term code.", position = 16, example = "IMP")
     private String sentenceTermCode;
 }
