@@ -118,6 +118,7 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderBookId("OFFENDER_SENTENCES").is(condition);
         queryByOffenderBookId("ORDERS").is(condition);
         queryByOffenderBookId("OFFENDER_BELIEFS").is(condition);
+        queryByOffenderBookId("AGENCY_INCIDENT_PARTIES").is(condition);
 
         queryByOffenderId("GL_TRANSACTIONS").is(condition);
         queryByOffenderId("OFFENDER_BOOKINGS").is(condition);
