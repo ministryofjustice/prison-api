@@ -42,7 +42,7 @@ public class OffenderMovementsResourceImplIntTest_cancelCourtHearing extends Res
 
     @Before
     public void setup() {
-        token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class OffenderMovementsResourceImplIntTest_cancelCourtHearing extends Res
 
     @Test
     public void cancel_fails_when_not_authorised() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.RENEGADE_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
                 "/api/bookings/-8/court-hearings/-209/cancel",

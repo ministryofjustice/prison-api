@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAl
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
@@ -24,9 +25,10 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@Service
+@Transactional
+@RequiredArgsConstructor
 public class DataComplianceReferralService {
 
     private final OffenderPendingDeletionRepository offenderPendingDeletionRepository;
