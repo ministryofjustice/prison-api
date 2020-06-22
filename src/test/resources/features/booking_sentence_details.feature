@@ -304,11 +304,3 @@ Feature: Booking Sentence Details
   Scenario: Retrieve sentence details for offenders who are candidates for Home Detention Curfew.
     When sentence details are requested for offenders who are candidates for Home Detention Curfew
     Then some offender sentence details are returned
-
-  Scenario: Retrieve all sentence terms for a booking id.
-    When sentence terms are requested for booking id "-5"
-    Then correct sentence terms data is returned as follows:
-      | bookingId | sentenceSequence | termSequence | consecutiveTo | sentenceType | sentenceTypeDescription      | startDate  | years | months | lifeSentence |
-      | -5        | 1                | 1            |               | R            | Prohibited Activity          | 2017-02-08 | 6     | 6      | false        |
-      | -5        | 2                | 1            | 1             | FTR_ORA      | ORA 28 Day Fixed Term Recall | 2023-08-07 | 3     | 2      | false        |
-      | -5        | 2                | 2            | 1             | FTR_ORA      | ORA 28 Day Fixed Term Recall | 2023-09-17 | 0     | 4      | false        |

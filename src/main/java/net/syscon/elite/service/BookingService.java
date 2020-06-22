@@ -717,8 +717,11 @@ public class BookingService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId) {
-        return bookingRepository.getOffenderSentenceTerms(bookingId, "IMP");
+    public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
+
+        final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
+
+        return bookingRepository.getOffenderSentenceTerms(bookingId, sentenceTermCodes);
     }
 
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final List<String> offenderNos) {

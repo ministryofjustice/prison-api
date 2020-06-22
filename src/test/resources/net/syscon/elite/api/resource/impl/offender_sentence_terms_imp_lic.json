@@ -1,0 +1,30 @@
+[
+  {
+    "bookingId": -31,
+    "sentenceSequence": 2,
+    "termSequence": 1,
+    "sentenceType": "R",
+    "sentenceTypeDescription": "Prohibited Activity",
+    "startDate": "2007-10-16",
+    "years": 15,
+    "lifeSentence": false,
+    "lineSeq": "1",
+    "caseId": "-30",
+    "fineAmount": 120.0,
+    "sentenceTermCode": "IMP"
+  },
+  {
+    "bookingId": -31,
+    "sentenceSequence": 2,
+    "termSequence": 2,
+    "sentenceType": "R",
+    "sentenceTypeDescription": "Prohibited Activity",
+    "startDate": "2007-10-16",
+    "years": 5,
+    "lifeSentence": false,
+    "lineSeq": "1",
+    "caseId": "-30",
+    "fineAmount": 120.0,
+    "sentenceTermCode": "LIC"
+  }
+]
