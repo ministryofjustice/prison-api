@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @ApiModel(description = "Visitor")
@@ -24,7 +25,7 @@ public class Visitor {
 
     @ApiModelProperty(value = "Person id of visitor")
     @JsonProperty("personId")
-    @NotBlank
+    @NotNull
     private Long personId;
 
     @ApiModelProperty(value = "Last name of visitor")
@@ -39,12 +40,12 @@ public class Visitor {
 
     @ApiModelProperty(value = "Date of birth of visitor")
     @JsonProperty("dateOfBirth")
-    @NotBlank
+    @NotNull
     private LocalDate dateOfBirth;
 
     @ApiModelProperty(value = "Flag marking the visitor as main or not", example = "true")
     @JsonProperty("leadVisitor")
-    @NotBlank
+    @NotNull
     private boolean leadVisitor;
 
     @ApiModelProperty(value = "Relationship of visitor to offender")
