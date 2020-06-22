@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -13,10 +14,15 @@ import static org.springframework.http.HttpStatus.OK;
 
 public class OffenderMovementsResourceImplIntTest_cancelPrisonToPrisonMove extends ResourceTest {
 
+    private String token;
+
+    @Before
+    public void setup() {
+        token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.PRISON_MOVE_MAINTAINER);
+    }
+
     @Test
     public void cancels_prison_to_prison_move() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of("reasonCode", "ADMI"));
 
         final var response = testRestTemplate.exchange(
@@ -32,8 +38,6 @@ public class OffenderMovementsResourceImplIntTest_cancelPrisonToPrisonMove exten
 
     @Test
     public void cancels_prison_to_prison_move_fails_for_unknown_cancellation_reason() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of("reasonCode", "ADMIX"));
 
         final var response = testRestTemplate.exchange(
@@ -53,8 +57,6 @@ public class OffenderMovementsResourceImplIntTest_cancelPrisonToPrisonMove exten
 
     @Test
     public void cancel_prison_to_prison_move_fails_when_no_matching_booking() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of("reasonCode", "ADMI"));
 
         final var response = testRestTemplate.exchange(
@@ -73,8 +75,6 @@ public class OffenderMovementsResourceImplIntTest_cancelPrisonToPrisonMove exten
 
     @Test
     public void cancel_prison_to_prison_move_fails_when_event_booking_does_not_match_booking() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of("reasonCode", "ADMI"));
 
         final var response = testRestTemplate.exchange(
@@ -93,7 +93,7 @@ public class OffenderMovementsResourceImplIntTest_cancelPrisonToPrisonMove exten
 
     @Test
     public void schedule_prison_to_prison_fails_when_from_prison_when_unauthorised() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.RENEGADE_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, Map.of("reasonCode", "ADMI"));
 
@@ -112,8 +112,6 @@ public class OffenderMovementsResourceImplIntTest_cancelPrisonToPrisonMove exten
 
     @Test
     public void cancel_prison_to_prison_move_fails_when_no_matching_move() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of("reasonCode", "ADMI"));
 
         final var response = testRestTemplate.exchange(
