@@ -9,12 +9,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -81,5 +83,15 @@ class OffenderPendingDeletionRepositoryTest {
                 DELETION_DUE_DATE.minusDays(1),
                 PAGE_REQUEST))
                 .isEmpty();
+    }
+
+    @Test
+    @Sql("add_iwp_document.sql")
+    @Sql(value = "remove_iwp_document.sql", executionPhase = AFTER_TEST_METHOD)
+    void getOffendersDueForDeletionFiltersOutThoseWithDocuments() {
+        assertThat(repository.getOffendersDueForDeletionBetween(
+                DELETION_DUE_DATE.minusDays(1),
+                DELETION_DUE_DATE.plusDays(1),
+                PAGE_REQUEST)).isEmpty();
     }
 }
