@@ -19,7 +19,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VisitWithVisitors<V extends Visit> {
+public class VisitWithVisitors<V extends net.syscon.elite.api.model.Visit> {
     @ApiModelProperty(value = "List of visitors on visit", required = true)
     @JsonProperty("visitors")
     @NotEmpty
