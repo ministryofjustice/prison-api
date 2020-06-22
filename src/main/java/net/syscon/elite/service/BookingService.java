@@ -408,7 +408,7 @@ public class BookingService {
 
         final var visitsWithVisitors = visits.stream()
                 .filter(visit -> fromDate == null || visit.getStartTime().isAfter(fromDate.atStartOfDay()))
-                .filter(visit -> toDate == null || visit.getStartTime().isBefore(toDate.atTime(LocalTime.of(23, 59))))
+                .filter(visit -> toDate == null || visit.getStartTime().isBefore(toDate.atTime(LocalTime.MAX)))
                 .filter(visit -> visitType == null || visitType.equals(visit.getVisitType()))
                 .map(v -> {
                     var visitorsList = visitorRepository.findAllByVisitIdAndBookingId(v.getVisitId(), bookingId)
