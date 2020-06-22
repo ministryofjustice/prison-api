@@ -24,8 +24,9 @@ import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.VisitWithVisitors;
+import net.syscon.elite.api.model.Visitor;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
@@ -37,6 +38,8 @@ import net.syscon.elite.repository.jpa.model.OffenderSentenceAdjustment;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
+import net.syscon.elite.repository.jpa.repository.VisitRepository;
+import net.syscon.elite.repository.jpa.repository.VisitorRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -49,6 +52,9 @@ import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -58,8 +64,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -98,6 +106,8 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final OffenderBookingRepository offenderBookingRepository;
+    private final VisitRepository visitRepository;
+    private final VisitorRepository visitorRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
@@ -113,6 +123,8 @@ public class BookingService {
 
     public BookingService(final BookingRepository bookingRepository,
                           final OffenderBookingRepository offenderBookingRepository,
+                          final VisitorRepository visitorRepository,
+                          final VisitRepository visitRepository,
                           final SentenceRepository sentenceRepository,
                           final AgencyService agencyService,
                           final CaseLoadService caseLoadService,
@@ -127,6 +139,8 @@ public class BookingService {
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
         this.offenderBookingRepository = offenderBookingRepository;
+        this.visitRepository = visitRepository;
+        this.visitorRepository = visitorRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
@@ -305,7 +319,7 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public Page<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
+    public net.syscon.elite.api.support.Page<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
         final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
@@ -369,7 +383,7 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public Page<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
+    public net.syscon.elite.api.support.Page<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
         final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
@@ -386,6 +400,53 @@ public class BookingService {
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    @VerifyBookingAccess
+    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final @NotNull Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Pageable pageable) {
+        final var visits = visitRepository.findAllByBookingId(bookingId, pageable);
+
+        final var visitsWithVisitors = visits.stream()
+                .filter(visit -> fromDate == null || visit.getStartTime().isAfter(fromDate.atStartOfDay()))
+                .filter(visit -> toDate == null || visit.getStartTime().isBefore(toDate.atTime(LocalTime.MAX)))
+                .filter(visit -> visitType == null || visitType.equals(visit.getVisitType()))
+                .map(v -> {
+                    var visitorsList = visitorRepository.findAllByVisitIdAndBookingId(v.getVisitId(), bookingId)
+                            .stream()
+                            .map(visitor ->
+                                    Visitor.builder()
+                                            .dateOfBirth(visitor.getBirthdate())
+                                            .firstName(visitor.getFirstName())
+                                            .lastName(visitor.getLastName())
+                                            .leadVisitor(visitor.getLeadVisitor().equals("Y"))
+                                            .personId(visitor.getPersonId())
+                                            .relationship(visitor.getRelationship())
+                                            .build())
+                            .collect(Collectors.toList());
+
+                    return VisitWithVisitors.builder()
+                            .visitDetail(
+                                    Visit.builder()
+                                            .visitType(v.getVisitType())
+                                            .visitTypeDescription(v.getVisitTypeDescription())
+                                            .cancellationReason(v.getCancellationReason())
+                                            .cancelReasonDescription(v.getCancelReasonDescription())
+                                            .endTime(v.getEndTime())
+                                            .startTime(v.getStartTime())
+                                            .eventOutcome(v.getEventOutcome())
+                                            .eventOutcomeDescription(v.getEventOutcomeDescription())
+                                            .eventStatus(v.getEventStatus())
+                                            .eventStatusDescription(v.getEventStatusDescription())
+                                            .leadVisitor(v.getLeadVisitor())
+                                            .location(v.getLocation())
+                                            .relationship(v.getRelationship())
+                                            .relationshipDescription(v.getRelationshipDescription())
+                                            .build())
+                    .visitors(visitorsList)
+                    .build();
+                }).collect(Collectors.toList());
+
+        return new PageImpl<>(visitsWithVisitors);
     }
 
     @VerifyBookingAccess
@@ -435,7 +496,7 @@ public class BookingService {
 
 
     @VerifyBookingAccess
-    public Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
+    public net.syscon.elite.api.support.Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
         final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
