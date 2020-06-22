@@ -49,6 +49,7 @@ import net.syscon.elite.api.model.UpdateAttendanceBatch;
 import net.syscon.elite.api.model.UpdateCaseNote;
 import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.VisitWithVisitors;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.support.Order;
@@ -76,6 +77,8 @@ import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import net.syscon.elite.service.support.WrappedErrorResponseException;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -586,6 +589,11 @@ public class BookingResourceImpl implements BookingResource {
                 sortFields,
                 sortOrder)
                 .getResponse();
+    }
+
+    @Override
+    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, Pageable pageable) {
+        return bookingService.getBookingVisitsWithVisitor(bookingId, fromDate, toDate, visitType, pageable);
     }
 
     @Override
