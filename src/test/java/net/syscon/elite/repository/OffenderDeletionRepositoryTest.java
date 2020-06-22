@@ -81,9 +81,15 @@ public class OffenderDeletionRepositoryTest {
         queryByProgramId("OFFENDER_PRG_PRF_PAY_BANDS").is(condition);
         queryByProgramId("OFFENDER_PROGRAM_PROFILES").is(condition);
 
+        queryByOffenderBookId("INCIDENT_CASE_PARTIES").is(condition);
+
+        queryByIncidentCaseId("INCIDENT_CASES").is(condition);
+        queryByIncidentCaseId("INCIDENT_CASE_QUESTIONS").is(condition);
+        queryByIncidentCaseId("INCIDENT_CASE_RESPONSES").is(condition);
+        queryByIncidentCaseId("INCIDENT_CASE_REQUIREMENTS").is(condition);
+
         queryByOffenderBookId("BED_ASSIGNMENT_HISTORIES").is(condition);
         queryByOffenderBookId("COURT_EVENTS").is(condition);
-        queryByOffenderBookId("INCIDENT_CASE_PARTIES").is(condition);
         queryByOffenderBookId("OFFENDER_ALERTS").is(condition);
         queryByOffenderBookId("OFFENDER_ASSESSMENTS").is(condition);
         queryByOffenderBookId("OFFENDER_BOOKING_DETAILS").is(condition);
@@ -111,6 +117,7 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderBookId("OFFENDER_SENTENCE_TERMS").is(condition);
         queryByOffenderBookId("OFFENDER_SENTENCES").is(condition);
         queryByOffenderBookId("ORDERS").is(condition);
+        queryByOffenderBookId("OFFENDER_BELIEFS").is(condition);
 
         queryByOffenderId("GL_TRANSACTIONS").is(condition);
         queryByOffenderId("OFFENDER_BOOKINGS").is(condition);
@@ -133,6 +140,18 @@ public class OffenderDeletionRepositoryTest {
                 String.class));
     }
 
+    private ListAssert<String> queryForCourtEventCharges() {
+        return assertThat(jdbcTemplate.queryForList(
+                "SELECT event_id FROM court_event_charges WHERE event_id = -201 AND offender_charge_id = -1",
+                String.class));
+    }
+
+    private ListAssert<String> queryByIncidentCaseId(final String tableName) {
+        return assertThat(jdbcTemplate.queryForList(
+                "SELECT incident_case_id FROM " + tableName + " WHERE incident_case_id IN (-1, -2, -3)",
+                String.class));
+    }
+
     private ListAssert<String> queryByOffenderBookId(final String tableName) {
         return assertThat(jdbcTemplate.queryForList(
                 "SELECT offender_book_id FROM " + tableName + " WHERE offender_book_id = -1",
@@ -145,9 +164,4 @@ public class OffenderDeletionRepositoryTest {
                 String.class));
     }
 
-    private ListAssert<String> queryForCourtEventCharges() {
-        return assertThat(jdbcTemplate.queryForList(
-                "SELECT event_id FROM court_event_charges WHERE event_id = -201 AND offender_charge_id = -1",
-                String.class));
-    }
 }

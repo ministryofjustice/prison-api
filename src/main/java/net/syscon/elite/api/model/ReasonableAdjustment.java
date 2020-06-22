@@ -25,4 +25,7 @@ public class ReasonableAdjustment {
 
     @ApiModelProperty(value = "End Date", position = 4, example = "2010-06-21")
     private LocalDate endDate;
+
+    @ApiModelProperty(value = "The agency id where the adjustment was created", position = 5, example = "LEI")
+    private String agencyId;
 }

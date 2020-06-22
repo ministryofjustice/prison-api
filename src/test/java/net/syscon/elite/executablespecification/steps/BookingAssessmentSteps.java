@@ -21,7 +21,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.Assert.assertNotNull;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 
@@ -147,7 +146,11 @@ public class BookingAssessmentSteps extends CommonSteps {
                     restTemplate.exchange(
                             API_ASSESSMENTS_PREFIX + "category/categorise",
                             POST,
-                            createEntity(CategorisationDetail.builder().bookingId(bookingId).category(category).committee(committee).build()), new ParameterizedTypeReference<Map>() {
+                            createEntity(CategorisationDetail.builder()
+                                    .bookingId(bookingId)
+                                    .category(category)
+                                    .committee(committee)
+                                    .build()), new ParameterizedTypeReference<Map>() {
                             });
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             createResponse = response.getBody();
@@ -188,7 +191,7 @@ public class BookingAssessmentSteps extends CommonSteps {
     }
 
     public void verifyField(final String field, final String value) throws ReflectiveOperationException {
-        assertNotNull(assessment);
+        assertThat(assessment).isNotNull();
         super.verifyField(assessment, field, value);
     }
 

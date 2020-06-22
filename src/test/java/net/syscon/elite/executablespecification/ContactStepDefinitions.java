@@ -36,6 +36,11 @@ public class ContactStepDefinitions extends AbstractStepDefinitions {
         contactSteps.verifyNextOfKinField(field, value);
     }
 
+    @Then("^the other contacts (\\w+) is \"([^\"]*)\"$")
+    public void theOtherContactsFieldIs(final String field, final String value) throws Throwable {
+        contactSteps.verifyOtherContactsField(field, value);
+    }
+
     @Then("^the next of kin results are:$")
     public void nextOfKinResultListIsAsFollows(final List<Contact> list) throws Throwable {
         contactSteps.verifyNextOfKinList(list);

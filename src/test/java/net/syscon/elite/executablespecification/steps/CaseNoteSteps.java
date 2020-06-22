@@ -1,7 +1,12 @@
 package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.base.Splitter;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.CaseNoteCount;
+import net.syscon.elite.api.model.CaseNoteStaffUsage;
+import net.syscon.elite.api.model.CaseNoteUsage;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.UpdateCaseNote;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 /**
  * BDD step implementations for Case Note domain.
@@ -164,12 +168,12 @@ public class CaseNoteSteps extends CommonSteps {
 
     @Step("Verify case note usage size")
     public void verifyCaseNoteUsageSize(final int size) {
-        assertEquals(size, caseNoteUsageList.size());
+        assertThat(caseNoteUsageList).hasSize(size);
     }
 
     @Step("Verify case note usage size")
     public void verifyCaseNoteStaffUsageSize(final int size) {
-        assertEquals(caseNoteStaffUsageList.size(), size);
+        assertThat(size).isEqualTo(caseNoteStaffUsageList.size());
     }
 
 

@@ -16,16 +16,6 @@ Feature: Booking Alerts
        | -1        | 4      | XA,HC,RSS,XTACT |
        | -2        | 2      | HA,XTACT        |
 
-  Scenario Outline: Retrieve alerts for an offender by Offender No
-    When alerts are requested for an offender booking using offender No "<offenderNo>"
-    Then "<number>" alerts are returned
-    And alerts codes match "<alert code list>"
-
-    Examples:
-      | offenderNo | number | alert code list |
-      | A1234AA    | 4      | XA,HC,RSS,XTACT |
-      | A1234AB    | 2      | HA,XTACT        |
-
   Scenario Outline: Retrieve alert for an offender booking
     When alert is requested for an offender booking "<bookingId>" and alert id "<alertId>"
     Then alert alertType is "<alertType>"
@@ -64,10 +54,10 @@ Feature: Booking Alerts
       | offenderNo | bookingId | alertId | alertType | alertTypeDescription | alertCode | alertCodeDescription    | comment               | dateCreated | dateExpires | expired | active |
       | A1234AF    | -6        | 1       | P         | MAPPP Case           | P1        | MAPPA Level 1 Case      | Alert Text 6          | today       |             | false   | true   |
       | A1234AF    | -6        | 2       | X         | Security             | XTACT     | XTACT                   | Alert XTACT 6         | today       |             | false   | true   |
-      | A1234AA    | -1        | 1       | X         | Security             | XA        | Arsonist                | Alert Text 1-1        | today       |             | false   | true   |
-      | A1234AA    | -1        | 2       | H         | Self Harm            | HC        | Self Harm - Custody     | Alert Text 1-2        | today       |             | false   | true   |
-      | A1234AA    | -1        | 3       | R         | Risk                 | RSS       | Risk to Staff - Custody | Inactive Alert        | today       | today       | true    | false  |
-      | A1234AA    | -1        | 4       | X         | Security             | XTACT     | XTACT                   | Alert XTACT 1         | today       |             | false   | true   |
+      | A1234AA    | -1        | 1       | X         | Security             | XA        | Arsonist                | Alert Text 1-1        | 2020-06-01  |             | false   | true   |
+      | A1234AA    | -1        | 2       | H         | Self Harm            | HC        | Self Harm - Custody     | Alert Text 1-2        | 2020-06-01  |             | false   | true   |
+      | A1234AA    | -1        | 3       | R         | Risk                 | RSS       | Risk to Staff - Custody | Inactive Alert        | 2020-06-01  | 2020-06-01  | true    | false  |
+      | A1234AA    | -1        | 4       | X         | Security             | XTACT     | XTACT                   | Alert XTACT 1         | 2020-06-01  |             | false   | true   |
 
   Scenario: Alerts are requested for multiple offender numbers without agency nor authorisation
     When alerts are requested for offender nos "A1234AA,A1234AF" and no agency

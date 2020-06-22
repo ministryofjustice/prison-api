@@ -7,11 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,12 +35,12 @@ public class NewAllocation {
     @NotNull
     private Long staffId;
 
-    @Length(max = 1)
+    @Size(max = 1)
     @Pattern(regexp = "[AM]")
     @NotBlank
     private String type;
 
-    @Length(max = 12)
+    @Size(max = 12)
     @Pattern(regexp = "\\w*")
     private String reason;
 

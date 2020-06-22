@@ -12,7 +12,6 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -23,8 +22,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.jpa.model.CaseStatus.CASE_STS;
 import static net.syscon.elite.repository.jpa.model.LegalCaseType.LEG_CASE_TYP;
@@ -83,9 +85,12 @@ public class OffenderCourtCase extends AuditableEntity {
     @JoinColumn(name = "COMBINED_CASE_ID")
     private OffenderCourtCase combinedCase;
 
-    @OneToMany(mappedBy = "offenderCourtCase", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "offenderCourtCase")
     @Default
-    private List<CourtEvent> courtEvents = new ArrayList<>();
+    private final List<CourtEvent> courtEvents = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderCourtCase")
+    private final List<OffenderCharge> charges = new ArrayList<>();
 
     public Optional<LegalCaseType> getLegalCaseType() {
         return Optional.ofNullable(legalCaseType);
@@ -95,14 +100,15 @@ public class OffenderCourtCase extends AuditableEntity {
         return Optional.ofNullable(caseStatus);
     }
 
-    public void add(final CourtEvent courtEvent) {
-        this.courtEvents.add(courtEvent);
-
-        courtEvent.setOffenderCourtCase(this);
-        courtEvent.setOffenderBooking(getOffenderBooking());
+    public void add(final OffenderCharge charge) {
+        charges.add(charge);
     }
 
     public boolean isActive() {
         return caseStatus != null && caseStatus.isActive();
+    }
+
+    public Collection<OffenderCharge> getCharges(final Predicate<OffenderCharge> filter) {
+        return charges.stream().filter(filter).collect(Collectors.toList());
     }
 }

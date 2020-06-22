@@ -1,0 +1,232 @@
+{
+  "bookingId": -1,
+  "bookingNo": "A00111",
+  "offenderId": -1001,
+  "rootOffenderId": -1001,
+  "offenderNo": "A1234AA",
+  "firstName": "ARTHUR",
+  "middleName": "BORIS",
+  "lastName": "ANDERSON",
+  "agencyId": "LEI",
+  "assignedLivingUnitId": -3,
+  "activeFlag": true,
+  "religion": "Church of England",
+  "language": "Polish",
+  "interpreterRequired": false,
+  "alertsCodes": [
+    "X",
+    "H"
+  ],
+  "activeAlertCount": 3,
+  "inactiveAlertCount": 1,
+  "alerts": [
+    {
+      "alertId": 1,
+      "alertType": "X",
+      "alertTypeDescription": "Security",
+      "alertCode": "XA",
+      "alertCodeDescription": "Arsonist",
+      "comment": "Alert Text 1-1",
+      "dateCreated": "2020-06-01",
+      "expired": false,
+      "active": true
+    },
+    {
+      "alertId": 2,
+      "alertType": "H",
+      "alertTypeDescription": "Self Harm",
+      "alertCode": "HC",
+      "alertCodeDescription": "Self Harm - Custody",
+      "comment": "Alert Text 1-2",
+      "dateCreated": "2020-06-01",
+      "expired": false,
+      "active": true
+    },
+    {
+      "alertId": 4,
+      "alertType": "X",
+      "alertTypeDescription": "Security",
+      "alertCode": "XTACT",
+      "alertCodeDescription": "XTACT",
+      "comment": "Alert XTACT 1",
+      "dateCreated": "2020-06-01",
+      "expired": false,
+      "active": true
+    },
+    {
+      "alertId": 3,
+      "alertType": "R",
+      "alertTypeDescription": "Risk",
+      "alertCode": "RSS",
+      "alertCodeDescription": "Risk to Staff - Custody",
+      "comment": "Inactive Alert",
+      "dateCreated": "2020-06-01",
+      "dateExpires": "2020-06-01",
+      "expired": true,
+      "active": false
+    }
+  ],
+  "assignedLivingUnit": {
+    "agencyId": "LEI",
+    "locationId": -3,
+    "description": "A-1-1",
+    "agencyName": "Leeds"
+  },
+  "facialImageId": -1,
+  "dateOfBirth": "1969-12-30",
+  "age": 50,
+  "physicalAttributes": {
+    "gender": "Male",
+    "raceCode": "W1",
+    "ethnicity": "White: British",
+    "heightFeet": 5,
+    "heightInches": 6,
+    "heightMetres": 1.68,
+    "heightCentimetres": 168,
+    "weightPounds": 165,
+    "weightKilograms": 75,
+    "sexCode": "M"
+  },
+  "physicalCharacteristics": [
+    {
+      "type": "R_EYE_C",
+      "characteristic": "Right Eye Colour",
+      "detail": "Blue"
+    },
+    {
+      "type": "FACE",
+      "characteristic": "Shape of Face",
+      "detail": "Oval"
+    }
+  ],
+  "profileInformation": [
+    {
+      "type": "RELF",
+      "question": "Religion",
+      "resultValue": "Church of England"
+    },
+    {
+      "type": "SMOKE",
+      "question": "Is the Offender a smoker?",
+      "resultValue": "No"
+    },
+    {
+      "type": "NAT",
+      "question": "Nationality?",
+      "resultValue": "Spaniard"
+    }
+  ],
+  "physicalMarks": [],
+  "assessments": [
+    {
+      "bookingId": -1,
+      "classificationCode": "HI",
+      "classification": "High",
+      "assessmentCode": "CSR",
+      "assessmentDescription": "CSR Rating",
+      "cellSharingAlertFlag": true,
+      "assessmentDate": "2017-02-05",
+      "nextReviewDate": "2018-06-01",
+      "assessmentStatus": "A",
+      "assessmentSeq": 7
+    },
+    {
+      "bookingId": -1,
+      "classificationCode": "LOW",
+      "classification": "Low",
+      "assessmentCode": "CATEGORY",
+      "assessmentDescription": "Categorisation",
+      "cellSharingAlertFlag": false,
+      "assessmentDate": "2017-02-04",
+      "assessmentStatus": "A",
+      "assessmentSeq": 6
+    }
+  ],
+  "csra": "High",
+  "category": "Low",
+  "categoryCode": "LOW",
+  "assignedOfficerId": -1,
+  "birthPlace": "WALES",
+  "birthCountryCode": "UK",
+  "inOutStatus": "IN",
+  "identifiers": [
+    {
+      "type": "MERGED",
+      "value": "A3333AB",
+      "offenderNo": "A1234AA",
+      "bookingId": -1,
+      "issuedDate": "2017-08-28",
+      "caseloadType": "INST"
+    }
+  ],
+  "personalCareNeeds": [
+    {
+      "problemType": "DISAB",
+      "problemCode": "ND",
+      "problemStatus": "ON",
+      "problemDescription": "No Disability",
+      "commentText": "description 1",
+      "startDate": "2010-06-21",
+      "endDate": null
+    },
+    {
+      "problemType": "PHY",
+      "problemCode": "ASTH",
+      "problemStatus": "ON",
+      "problemDescription": "Asthmatic",
+      "commentText": null,
+      "startDate": "2010-06-21",
+      "endDate": null
+    },
+    {
+      "problemType": "MATSTAT",
+      "problemCode": "ACCU9",
+      "problemStatus": "ON",
+      "problemDescription": "Preg, acc under 9mths",
+      "commentText": "P1",
+      "startDate": "2010-06-21",
+      "endDate": null
+    }
+  ],
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2020-03-24",
+    "conditionalReleaseDate": "2019-03-24",
+    "actualParoleDate": "2018-09-27",
+    "bookingId": -1,
+    "sentenceStartDate": "2017-03-25",
+    "additionalDaysAwarded": 12,
+    "nonDtoReleaseDate": "2019-03-24",
+    "nonDtoReleaseDateType": "CRD",
+    "confirmedReleaseDate": "2018-04-23",
+    "releaseDate": "2018-04-23"
+  },
+  "offenceHistory": [
+    {
+      "bookingId": -1,
+      "offenceDate": "2017-12-24",
+      "offenceDescription": "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)",
+      "offenceCode": "RV98011",
+      "statuteCode": "RV98",
+      "mostSerious": true
+    },
+    {
+      "bookingId": -1,
+      "offenceDate": "2018-09-01",
+      "offenceRangeDate": "2018-09-15",
+      "offenceDescription": "Cause another to use a vehicle where the seat belt buckle/other fastening was not maintained so that the belt could be readily fastened or unfastened/kept free from temporary or permanent obstruction/readily accessible to a person sitting in the seat.",
+      "offenceCode": "RC86356",
+      "statuteCode": "RC86",
+      "mostSerious": false
+    }
+  ],
+  "aliases": [],
+  "status": "ACTIVE IN",
+  "legalStatus": "Convicted",
+  "imprisonmentStatus": "SENT",
+  "privilegeSummary": {
+    "bookingId": -1,
+    "iepLevel": "Standard",
+    "iepDate": "2017-08-15",
+    "iepTime": "2017-08-15T16:04:35"
+  }
+}

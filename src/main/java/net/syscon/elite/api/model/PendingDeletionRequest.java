@@ -1,19 +1,19 @@
 package net.syscon.elite.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static java.time.LocalDate.EPOCH;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
 @Getter
 @Builder
@@ -24,19 +24,22 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 @ApiModel(description = "PendingDeletionRequest")
 public class PendingDeletionRequest {
 
-    @ApiModelProperty(value = "A UUID uniquely identifying the request")
-    @JsonProperty("requestId")
-    private String requestId;
+    @NotNull
+    @ApiModelProperty(value = "An ID uniquely identifying the deletion request batch", example = "123", required = true)
+    @JsonProperty("batchId")
+    private Long batchId;
 
     @Builder.Default
-    @DateTimeFormat(iso = DATE)
-    @ApiModelProperty(value = "The start of the deletion-due-date window (defaults to epoch)")
+    @ApiModelProperty(value = "The start of the deletion-due-date window in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS (defaults to epoch)", example = "2020-02-28T14:40:00")
     @JsonProperty("dueForDeletionWindowStart")
     private LocalDateTime dueForDeletionWindowStart = EPOCH.atStartOfDay();
 
     @NotNull
-    @DateTimeFormat(iso = DATE)
-    @ApiModelProperty(value = "The end of the deletion-due-date window")
+    @ApiModelProperty(value = "The end of the deletion-due-date window in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS", example = "2020-02-28T14:40:00", required = true)
     @JsonProperty("dueForDeletionWindowEnd")
     private LocalDateTime dueForDeletionWindowEnd;
+
+    @ApiModelProperty(value = "The limit of the number of offenders retrieved and referred for deletion", example = "10")
+    @JsonProperty("limit")
+    private Integer limit;
 }

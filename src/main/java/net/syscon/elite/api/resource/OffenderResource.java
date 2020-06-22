@@ -1,27 +1,55 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
-import net.syscon.elite.api.model.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.IncidentCase;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.AddressDto;
+import net.syscon.elite.api.model.OffenderNumber;
+import net.syscon.elite.api.model.OffenderSentenceDetail;
+import net.syscon.elite.api.model.UpdateCaseNote;
 import net.syscon.elite.api.model.adjudications.AdjudicationDetail;
 import net.syscon.elite.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.elite.api.support.Order;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Api(tags = {"/offenders"})
+@Validated
 public interface OffenderResource {
+
+    @GetMapping("/{offenderNo}")
+    @ApiOperation(value = "Full details about the current state of an offender")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    InmateDetail getOffender(@ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) @PathVariable("offenderNo") @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") final String offenderNo);
 
     @GetMapping("/{offenderNo}/incidents")
     @ApiOperation(value = "Return a set Incidents for a given offender No.",
-            notes = "Can be filtered by participation type and incident type",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
+            notes = "Can be filtered by participation type and incident type")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = IncidentCase.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -33,8 +61,7 @@ public interface OffenderResource {
 
     @GetMapping("/incidents/candidates")
     @ApiOperation(value = "Return a list of offender nos across the estate for which an incident has recently occurred or changed",
-            notes = "This query is slow and can take several minutes",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
+            notes = "This query is slow and can take several minutes")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
     ResponseEntity<List<String>> getIncidentCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDateTime") @NotNull LocalDateTime fromDateTime,
@@ -44,11 +71,10 @@ public interface OffenderResource {
     @GetMapping("/{offenderNo}/addresses")
     @ApiOperation(value = "Return a list of addresses for a given offender, most recent first.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderAddress.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<OffenderAddress> getAddressesByOffenderNo(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo);
+    List<AddressDto> getAddressesByOffenderNo(@ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo);
 
     @GetMapping("/{offenderNo}/adjudications")
     @ApiOperation(value = "Return a list of adjudications for a given offender")
@@ -76,8 +102,7 @@ public interface OffenderResource {
                                        @ApiParam(value = "adjudicationNo", required = true) @PathVariable("adjudicationNo") @NotNull long adjudicationNo);
 
     @GetMapping("/{offenderNo}/alerts")
-    @ApiOperation(value = "Return a list of alerts for a given offender No.", notes = "System or cat tool access only",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY"), @Authorization("CREATE_CATEGORISATION"), @Authorization("APPROVE_CATEGORISATION")})
+    @ApiOperation(value = "Return a list of alerts for a given offender No.", notes = "System or cat tool access only")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = Alert.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -95,8 +120,7 @@ public interface OffenderResource {
 
     @GetMapping("/alerts/candidates")
     @ApiOperation(value = "Return a list of offender nos across the estate for which an alert has recently been created or changed",
-            notes = "This query is slow and can take several minutes",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
+            notes = "This query is slow and can take several minutes")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
     ResponseEntity<List<String>>  getAlertCandidates(@ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDateTime") @NotNull LocalDateTime fromDateTime,

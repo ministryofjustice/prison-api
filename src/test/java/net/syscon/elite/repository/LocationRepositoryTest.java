@@ -20,9 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static net.syscon.elite.repository.support.StatusFilter.*;
+import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
+import static net.syscon.elite.repository.support.StatusFilter.ALL;
+import static net.syscon.elite.repository.support.StatusFilter.INACTIVE_ONLY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -44,8 +45,8 @@ public class LocationRepositoryTest {
     @Test
     public void findLocationsByAgencyAndType() {
         final var result = repository.findLocationsByAgencyAndType("LEI", "CELL", false);
-        assertEquals(30, result.size());
-        assertEquals("LEI-A-1-1", result.get(0).getLocationPrefix());
+        assertThat(result).hasSize(32);
+        assertThat(result.get(0).getLocationPrefix()).isEqualTo("LEI-A-1-1");
     }
 
     @Test

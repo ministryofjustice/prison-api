@@ -105,6 +105,75 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void getFullOffenderInformation() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                OFFENDER_NUMBER);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_detail.json");
+    }
+
+    @Test
+    public void getOffenderInformationWithoutBooking() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "A1234DD");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_detail_min.json");
+    }
+
+    @Test
+    public void getOffenderNotFound() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "B1234DD");
+
+        assertThatStatus(response, 404);
+    }
+
+
+    @Test
+    public void getFullOffenderInformation_WithAliases() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "A1234AI");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_detail_aliases.json");
+    }
+
+    @Test
     public void testGetIncidents() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
 
@@ -250,7 +319,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
+        assertThat(response.getHeaders().get("Total-Records")).containsExactly("52");
     }
 
     @Test
@@ -262,8 +331,23 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("51");
+        assertThat(response.getHeaders().get("Total-Records")).containsExactly("52");
     }
+
+    @Test
+    public void testCanRetrieveAddresses() {
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER), null, Map.of());
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{offenderNumber}/addresses",
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<String>() {},
+                OFFENDER_NUMBER);
+
+        assertThatJsonFileAndStatus(response, 200, "offender-address.json");
+    }
+
 
     private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER), null, headers);

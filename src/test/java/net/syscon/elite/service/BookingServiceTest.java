@@ -1,9 +1,24 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.BookingActivity;
+import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.MilitaryRecord;
+import net.syscon.elite.api.model.MilitaryRecords;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PrivilegeDetail;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceAdjustmentDetail;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.VisitWithVisitors;
+import net.syscon.elite.api.model.Visitor;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.impl.OffenderBookingIdSeq;
 import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
@@ -18,12 +33,18 @@ import net.syscon.elite.repository.jpa.model.OffenderBooking;
 import net.syscon.elite.repository.jpa.model.VisitInformation;
 import net.syscon.elite.repository.jpa.model.VisitorInformation;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
+import net.syscon.elite.repository.jpa.model.OffenderKeyDateAdjustment;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
+import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
+import net.syscon.elite.repository.jpa.model.OffenderSentenceAdjustment;
+import net.syscon.elite.repository.jpa.model.PropertyContainer;
 import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.VisitRepository;
 import net.syscon.elite.repository.jpa.repository.VisitorRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,6 +98,10 @@ public class BookingServiceTest {
     @Mock
     private AgencyInternalLocationRepository agencyInternalLocationRepository;
     @Mock
+    private OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
+    @Mock
+    private OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
+    @Mock
     private AuthenticationFacade securityUtils;
     @Mock
     private AuthenticationFacade authenticationFacade;
@@ -98,7 +123,10 @@ public class BookingServiceTest {
                 referenceDomainService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
-                securityUtils, authenticationFacade, "1",
+                offenderSentenceAdjustmentRepository,
+                offenderKeyDateAdjustmentRepository,
+                securityUtils, authenticationFacade,
+                "1",
                 10);
     }
 
@@ -109,7 +137,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
@@ -122,7 +150,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
@@ -137,7 +165,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
@@ -149,7 +177,7 @@ public class BookingServiceTest {
     public void verifyCanViewSensitiveBookingInfo_systemUser() {
         when(securityUtils.isOverrideRole(any())).thenReturn(true);
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(-1L));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
 
         bookingService.verifyCanViewSensitiveBookingInfo("off-1");
 
@@ -167,7 +195,7 @@ public class BookingServiceTest {
         final var agencyIds = Set.of("agency-1");
         final var bookingId = 1L;
 
-        when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
@@ -404,7 +432,7 @@ public class BookingServiceTest {
     @Test
     public void getMilitaryRecords_notfound() {
         when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
+        assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Offender booking with id -1 not found.");
     }
 
     @Test
@@ -757,9 +785,171 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getOffenderCourtCases_notfound() {
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L, false)).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [-1] not found.");
+    void getOffenderPropertyContainers() {
+        final var activePropertyContainer = containerWithDefaults().containerId(-1L).activeFlag("Y").build();
+        final var inactivePropertyContainer = containerWithDefaults().containerId(-2L).activeFlag("N").build();
+
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
+                .propertyContainers(List.of(activePropertyContainer, inactivePropertyContainer))
+                .build()));
+
+        final var propertyContainers = bookingService.getOffenderPropertyContainers(-1L);
+
+        assertThat(propertyContainers).containsExactly(net.syscon.elite.api.model.PropertyContainer.builder()
+                .sealMark("TEST1")
+                .location(Location.builder()
+                        .locationId(10L)
+                        .description(null)
+                        .build())
+                .containerType("Bulk")
+                .build());
+    }
+
+    private OffenderPropertyContainer.OffenderPropertyContainerBuilder containerWithDefaults() {
+        return OffenderPropertyContainer.builder()
+                .sealMark("TEST1")
+                .internalLocation(AgencyInternalLocation.builder()
+                        .activeFlag(ActiveFlag.Y)
+                        .locationId(10L)
+                        .build())
+                .containerType(new PropertyContainer("BULK", "Bulk"));
+    }
+
+    @Test
+    void getSentenceAdjustments() {
+        final var offenderSentenceAdjustments = List.of(
+                OffenderSentenceAdjustment.builder()
+                        .id(-8L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("RSR")
+                        .activeFlag(ActiveFlag.Y)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-9L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("RST")
+                        .activeFlag(ActiveFlag.N)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-10L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("RX")
+                        .activeFlag(ActiveFlag.Y)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-11L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("S240A")
+                        .activeFlag(ActiveFlag.N)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-12L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("UR")
+                        .activeFlag(ActiveFlag.Y)
+                        .adjustDays(4)
+                        .build(),
+                OffenderSentenceAdjustment.builder()
+                        .id(-13L)
+                        .offenderBookId(-6L)
+                        .sentenceAdjustCode("RX")
+                        .activeFlag(ActiveFlag.Y)
+                        .adjustDays(4)
+                        .build()
+        );
+
+        final var offenderKeyDateAdjustments = List.of(
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-8L)
+                        .sentenceAdjustCode("ADA")
+                        .activeFlag(ActiveFlag.Y)
+                        .offenderBookId(-6L)
+                        .adjustDays(4)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-9L)
+                        .sentenceAdjustCode("ADA")
+                        .activeFlag(ActiveFlag.N)
+                        .offenderBookId(-6L)
+                        .adjustDays(9)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-10L)
+                        .sentenceAdjustCode("ADA")
+                        .activeFlag(ActiveFlag.Y)
+                        .offenderBookId(-6L)
+                        .adjustDays(13)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-11L)
+                        .sentenceAdjustCode("UAL")
+                        .activeFlag(ActiveFlag.N)
+                        .offenderBookId(-6L)
+                        .adjustDays(1)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-12L)
+                        .sentenceAdjustCode("RADA")
+                        .activeFlag(ActiveFlag.Y)
+                        .offenderBookId(-6L)
+                        .adjustDays(2)
+                        .build(),
+                OffenderKeyDateAdjustment
+                        .builder()
+                        .id(-13L)
+                        .sentenceAdjustCode("UAL")
+                        .activeFlag(ActiveFlag.Y)
+                        .offenderBookId(-6L)
+                        .adjustDays(7)
+                        .build()
+        );
+
+        when(offenderKeyDateAdjustmentRepository.findAllByOffenderBookId(-6L)).thenReturn(offenderKeyDateAdjustments);
+        when(offenderSentenceAdjustmentRepository.findAllByOffenderBookId(-6L)).thenReturn(offenderSentenceAdjustments);
+
+        final SentenceAdjustmentDetail sentenceAdjustmentDetail = bookingService.getBookingSentenceAdjustments(-6L);
+
+        assertThat(sentenceAdjustmentDetail).isEqualTo(
+                SentenceAdjustmentDetail.builder()
+                        .additionalDaysAwarded(17)
+                        .lawfullyAtLarge(0)
+                        .specialRemission(0)
+                        .recallSentenceTaggedBail(0)
+                        .unlawfullyAtLarge(7)
+                        .restoredAdditionalDaysAwarded(2)
+                        .recallSentenceRemand(4)
+                        .taggedBail(0)
+                        .remand(8)
+                        .unusedRemand(4)
+                        .build());
+    }
+
+
+    @Test
+    void getOffenderCourtCases_errors_for_unknown_booking() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L, true))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Offender booking with id -1 not found.");
+    }
+
+    @Test
+    void getOffenderPropertyContainers_errors_for_unknown_booking() {
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> bookingService.getOffenderPropertyContainers(-1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Offender booking with id -1 not found.");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {
@@ -782,7 +972,9 @@ public class BookingServiceTest {
         final Long SOME_BOOKING_ID = 1L;
         final Long BAD_BOOKING_ID = 2L;
         final Long OLD_LIVING_UNIT_ID = 11L;
+        final String OLD_LIVING_UNIT_DESC = "A-1";
         final Long NEW_LIVING_UNIT_ID = 12L;
+        final String NEW_LIVING_UNIT_DESC = "Z-1";
         final String SOME_AGENCY_ID = "MDI";
         final String DIFFERENT_AGENCY_ID = "NOT_MDI";
 
@@ -790,7 +982,7 @@ public class BookingServiceTest {
         void bookingNotFound_throws() {
             when(offenderBookingRepository.findById(BAD_BOOKING_ID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, NEW_LIVING_UNIT_ID))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining(valueOf(BAD_BOOKING_ID));
         }
@@ -798,19 +990,34 @@ public class BookingServiceTest {
         @Test
         void livingUnitNotFound_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
-            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.empty());
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(EntityNotFoundException.class)
-                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_ID));
+                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC));
+        }
+
+        @Test
+        void livingUnitNotCell_throws() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID, "WING")));
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC))
+                    .hasMessageContaining("WING");
         }
 
         @Test
         void differentAgency_throws() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
-            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, DIFFERENT_AGENCY_ID)));
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(SOME_AGENCY_ID)
                     .hasMessageContaining(DIFFERENT_AGENCY_ID);
@@ -818,30 +1025,42 @@ public class BookingServiceTest {
 
         @Test
         void ok_updatesRepo() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
-            when(agencyInternalLocationRepository.findById(NEW_LIVING_UNIT_ID)).thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID)));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID)));
 
-            bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID);
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
-            assertThat(updatedOffenderBooking.getValue().getLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
+            assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
 
-        private Optional<OffenderBooking> anOffenderBooking(Long bookingId, Long livingUnitId, String agencyId) {
+        private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId, final String agencyId) {
             final var agencyLocation = AgencyLocation.builder().id(agencyId).build();
+            final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
             final var offender = Offender.builder().nomsId("any noms id").build();
             return Optional.of(
                     OffenderBooking.builder()
                             .bookingId(bookingId)
-                            .livingUnitId(livingUnitId)
+                            .assignedLivingUnit(livingUnit)
                             .location(agencyLocation)
                             .offender(offender)
                             .build());
         }
 
-        private AgencyInternalLocation aLocation(Long locationId, String agencyId) {
-            return AgencyInternalLocation.builder().locationId(locationId).agencyId(agencyId).build();
+        private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId) {
+            return aLocation(locationId, locationDescription, agencyId, "CELL");
+        }
+
+        private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId, final String locationType) {
+            return AgencyInternalLocation.builder()
+                    .locationId(locationId)
+                    .description(locationDescription)
+                    .agencyId(agencyId)
+                    .locationType(locationType)
+                    .build();
         }
     }
 }

@@ -12,10 +12,12 @@ import org.hibernate.annotations.ListIndexBase;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
@@ -32,8 +34,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @Table(name = "OFFENDER_BOOKINGS")
 public class OffenderBooking {
 
-    private static final Integer ACTIVE_BOOKING = 1;
-
     @Id
     @Column(name = "OFFENDER_BOOK_ID")
     private Long bookingId;
@@ -48,6 +48,10 @@ public class OffenderBooking {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     private List<OffenderCourtCase> courtCases;
 
+    @ListIndexBase(1)
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    private List<OffenderPropertyContainer> propertyContainers;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation location;
@@ -60,8 +64,12 @@ public class OffenderBooking {
     @JoinColumn(name = "OFFENDER_ID", nullable = false)
     private Offender offender;
 
-    @Column(name = "LIVING_UNIT_ID")
-    private Long livingUnitId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LIVING_UNIT_ID")
+    private AgencyInternalLocation assignedLivingUnit;
+
+    @Column(name = "ACTIVE_FLAG")
+    private String activeFlag;
 
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
@@ -78,10 +86,14 @@ public class OffenderBooking {
     }
 
     public boolean isActive() {
-        return ACTIVE_BOOKING.equals(bookingSequence);
+        return activeFlag != null && activeFlag.equals("Y");
     }
 
     public List<OffenderCourtCase> getActiveCourtCases() {
         return courtCases.stream().filter(OffenderCourtCase::isActive).collect(toUnmodifiableList());
+    }
+
+    public List<OffenderPropertyContainer> getActivePropertyContainers() {
+        return propertyContainers.stream().filter(OffenderPropertyContainer::isActive).collect(toUnmodifiableList());
     }
 }

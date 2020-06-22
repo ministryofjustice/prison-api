@@ -10,7 +10,6 @@ import org.springframework.http.HttpMethod;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 public class AdjudicationSteps extends CommonSteps {
     private static final String BOOKING_ADJUDICATIONS_API_URL = API_PREFIX + "bookings/{bookingId}/adjudications?";
@@ -53,7 +52,7 @@ public class AdjudicationSteps extends CommonSteps {
     }
 
     public void verifyNoAwards() {
-        assertTrue("There are " + summary.getAwards().size() + " awards", summary.getAwards().isEmpty());
+        assertThat(summary.getAwards().isEmpty()).as("There are " + summary.getAwards().size() + " awards").isTrue();
     }
 
     public void setIndex(final int i) {
@@ -61,11 +60,11 @@ public class AdjudicationSteps extends CommonSteps {
     }
 
     public void verifyAwardsNumber(final int n) {
-        assertEquals(n, summary.getAwards().size());
+        assertThat(summary.getAwards()).hasSize(n);
     }
 
     public void verifyAdjudicationCount(final Integer n) {
-        assertEquals(n, summary.getAdjudicationCount());
+        assertThat(summary.getAdjudicationCount()).isEqualTo(n);
     }
 
     public void verifyAwards(final List<Award> expected) {
@@ -74,18 +73,18 @@ public class AdjudicationSteps extends CommonSteps {
         while (expectedIterator.hasNext()) {
             final var expectedThis = expectedIterator.next();
             final var actualThis = awardsIterator.next();
-            assertEquals(expectedThis.getSanctionCode(), actualThis.getSanctionCode());
-            assertEquals(expectedThis.getSanctionCodeDescription(), actualThis.getSanctionCodeDescription());
-            assertEquals(expectedThis.getMonths(), actualThis.getMonths());
-            assertEquals(expectedThis.getDays(), actualThis.getDays());
+            assertThat(actualThis.getSanctionCode()).isEqualTo(expectedThis.getSanctionCode());
+            assertThat(actualThis.getSanctionCodeDescription()).isEqualTo(expectedThis.getSanctionCodeDescription());
+            assertThat(actualThis.getMonths()).isEqualTo(expectedThis.getMonths());
+            assertThat(actualThis.getDays()).isEqualTo(expectedThis.getDays());
             if (expectedThis.getLimit() == null) {
-                assertNull(actualThis.getLimit());
+                assertThat(actualThis.getLimit()).isNull();
             } else {
                 assertThat(actualThis.getLimit()).isEqualByComparingTo(expectedThis.getLimit());
             }
             assertEqualsBlankIsNull(expectedThis.getComment(), actualThis.getComment());
-            assertEquals(expectedThis.getEffectiveDate(), actualThis.getEffectiveDate());
+            assertThat(actualThis.getEffectiveDate()).isEqualTo(expectedThis.getEffectiveDate());
         }
-        assertFalse("Too many actual awards", awardsIterator.hasNext());
+        assertThat(awardsIterator.hasNext()).as("Too many actual awards").isFalse();
     }
 }

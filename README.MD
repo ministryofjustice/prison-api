@@ -1,7 +1,7 @@
 # Elite2 API server #
 
 
-[![CircleCI](https://circleci.com/gh/ministryofjustice/elite2-api/tree/master.svg?style=svg)](https://circleci.com/gh/ministryofjustice/elite2-api)
+[![CircleCI](https://circleci.com/gh/ministryofjustice/elite2-api/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/elite2-api)
 [![Known Vulnerabilities](https://snyk.io/test/github/ministryofjustice/elite2-api/badge.svg)](https://snyk.io/test/github/ministryofjustice/elite2-api)
 
 ### How do I get set up? ###
@@ -128,12 +128,12 @@ Build Docker image and run
 ```bash
 ./gradlew clean assemble
 
-docker build -t mojdigitalstudio/elite2-api .
+docker build -t quay.io/hmpps/elite2-api .
 
 docker run -d -p 8888:8080             \
        -h elite2-api                   \
        --name=elite2-api               \
-    mojdigitalstudio/elite2-api:latest
+    quay.io/hmpps/elite2-api:latest
 ```
 
 ### Using Docker compose ###
@@ -169,20 +169,24 @@ To do this, simply run:
 TMPDIR=/private$TMPDIR docker-compose -f docker-compose-data-compliance.yml up
 ```
 
-#### To publish to the inbound deletion queue:
+#### To publish to the data compliance request queue:
 (Warning, if configured, this will prompt Elite2 to delete the Offender provided)
+
+The `referralId` should match an existing referral in the `OFFENDER_DELETION_REFERRAL` table
+in the Data Compliance database.
+
 ```bash
 
 aws --endpoint-url=http://localhost:4576 sqs send-message \
-    --queue-url http://localstack:4576/queue/inbound_deletion_queue \
-    --message-body '{"offenderIdDisplay":"A1234AA"}' \
+    --queue-url http://localstack:4576/queue/data_compliance_request_queue \
+    --message-body '{"offenderIdDisplay":"A1234AA","referralId":123}' \
     --message-attributes "eventType={StringValue=DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED,DataType=String}"
 ```
 
-#### To read off the outbound referral queue: 
+#### To read off the data compliance response queue: 
 ```bash
 aws --endpoint-url=http://localhost:4576 sqs receive-message \
-    --queue-url http://localhost:4576/queue/outbound_referral_queue
+    --queue-url http://localhost:4576/queue/data_compliance_response_queue
 ```
 
 ### Project related links ###

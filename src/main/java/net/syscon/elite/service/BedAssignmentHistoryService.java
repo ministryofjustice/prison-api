@@ -1,8 +1,10 @@
 package net.syscon.elite.service;
 
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.jpa.model.BedAssignmentHistory;
 import net.syscon.elite.repository.jpa.repository.BedAssignmentHistoriesRepository;
+import net.syscon.elite.security.VerifyBookingAccess;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +17,13 @@ public class BedAssignmentHistoryService {
 
     private final BedAssignmentHistoriesRepository repository;
 
-    public BedAssignmentHistoryService(BedAssignmentHistoriesRepository repository) {
+    public BedAssignmentHistoryService(final BedAssignmentHistoriesRepository repository) {
         this.repository = repository;
     }
 
-    public void add(Long bookingId, Long livingUnitId, String reasonCode, LocalDateTime time) {
+    @VerifyBookingAccess
+    @HasWriteScope
+    public void add(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime time) {
         final var maxSequence = repository.getMaxSeqForBookingId(bookingId);
         final var bookingAndSequence = new BedAssignmentHistory.BedAssignmentHistoryPK(bookingId, maxSequence + 1);
         final var bedAssignmentHistory =

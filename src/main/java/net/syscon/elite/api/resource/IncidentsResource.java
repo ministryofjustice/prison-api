@@ -1,6 +1,10 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.IncidentCase;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +16,7 @@ import javax.validation.constraints.NotNull;
 public interface IncidentsResource {
 
     @GetMapping("/{incidentId}")
-    @ApiOperation(value = "Return an Incident for a given incident ID", notes = "System access only",
-            authorizations = {@Authorization("SYSTEM_USER"), @Authorization("SYSTEM_READ_ONLY")})
+    @ApiOperation(value = "Return an Incident for a given incident ID", notes = "System access only")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = IncidentCase.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),

@@ -2,10 +2,21 @@ package net.syscon.elite.service;
 
 import com.google.common.collect.ImmutableList;
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.OffenderCategorise;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PersonalCareNeed;
+import net.syscon.elite.api.model.PersonalCareNeeds;
+import net.syscon.elite.api.model.ReasonableAdjustment;
+import net.syscon.elite.api.model.SecondaryLanguage;
+import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.repository.jpa.model.LanguageReferenceCode;
+import net.syscon.elite.repository.jpa.model.OffenderLanguage;
+import net.syscon.elite.repository.jpa.repository.OffenderLanguageRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.support.AssessmentDto;
 import org.assertj.core.api.Assertions;
@@ -23,13 +34,21 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +63,8 @@ public class InmateServiceImplTest {
     @Mock
     private BookingService bookingService;
     @Mock
+    private AgencyService agencyService;
+    @Mock
     private UserRepository userRepository;
     @Mock
     private UserService userService;
@@ -57,6 +78,10 @@ public class InmateServiceImplTest {
     private Environment env;
     @Mock
     private TelemetryClient telemetryClient;
+    @Mock
+    private OffenderLanguageRepository offenderLanguageRepository;
+
+
     @Captor
     private ArgumentCaptor<List<Long>> bookingIdsArgument;
 
@@ -65,8 +90,8 @@ public class InmateServiceImplTest {
     @BeforeEach
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
-                referenceDomainService, bookingService, userService, userRepository, authenticationFacade,
-                keyWorkerAllocationRepository, env, telemetryClient, "WING", 100);
+                referenceDomainService, bookingService, agencyService, userService, userRepository, authenticationFacade,
+                keyWorkerAllocationRepository, env, telemetryClient, "WING", 100, offenderLanguageRepository);
     }
 
     @Test
@@ -111,7 +136,7 @@ public class InmateServiceImplTest {
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", Collections.emptySet(), true, true)).thenReturn(data);
 
-        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", true, true);
+        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", true, true, false);
 
         assertThat(assessments).hasSize(2); // 1 per offender
         assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate", "assessmentAgencyId", "approvalDate", "assessmentSeq").containsExactly(
@@ -133,7 +158,7 @@ public class InmateServiceImplTest {
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", Collections.emptySet(), false, true)).thenReturn(data);
 
-        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", false, true);
+        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", false, true, false);
 
         assertThat(assessments).hasSize(6);
         assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate").containsExactly(
@@ -159,7 +184,7 @@ public class InmateServiceImplTest {
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet(), true, true)).thenReturn(data);
 
-        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null, true, true);
+        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null, true, true, false);
 
         assertThat(assessments).hasSize(2); // 1 per offender
         assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate", "classification").contains(
@@ -386,6 +411,63 @@ public class InmateServiceImplTest {
         serviceToTest.getReasonableAdjustments(1L, types);
 
         verify(repository).findReasonableAdjustments(1L, types);
+    }
+
+    @Test
+    public void testGetSecondaryLanguages() {
+       when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of(
+               OffenderLanguage.builder()
+                       .offenderBookId(-1l)
+                       .speakSkill("Y")
+                       .readSkill("n")
+                       .writeSkill("Y")
+                       .code("ENG")
+                       .type("SEC")
+                       .referenceCode(new LanguageReferenceCode("ENG", "English"))
+                       .build(),
+               OffenderLanguage.builder()
+                       .offenderBookId(-1l)
+                       .speakSkill("Y")
+                       .readSkill("n")
+                       .writeSkill("Y")
+                       .code("ENG")
+                       .referenceCode(new LanguageReferenceCode("ENG", "English"))
+                       .build(),
+               OffenderLanguage.builder()
+                       .offenderBookId(-1l)
+                       .code("LAT")
+                       .type("SEC")
+                       .referenceCode(new LanguageReferenceCode("LAT", "Latvian"))
+                       .build(),
+               OffenderLanguage.builder()
+                       .offenderBookId(-1l)
+                       .code("TUR")
+                       .type("PREF_SPEAK")
+                       .referenceCode(new LanguageReferenceCode("TUR", "Turkish"))
+                       .build()
+               )
+       );
+
+       final var secondaryLanguages = serviceToTest.getSecondaryLanguages(-1L);
+
+       assertThat(secondaryLanguages).containsExactlyInAnyOrder(
+               SecondaryLanguage.builder()
+                       .bookingId(-1L)
+                       .code("ENG")
+                       .description("English")
+                       .canSpeak(true)
+                       .canRead(false)
+                       .canWrite(true)
+                       .build(),
+               SecondaryLanguage.builder()
+                       .bookingId(-1L)
+                       .code("LAT")
+                       .description("Latvian")
+                       .canSpeak(false)
+                       .canRead(false)
+                       .canWrite(false)
+                       .build()
+       );
     }
 
 }

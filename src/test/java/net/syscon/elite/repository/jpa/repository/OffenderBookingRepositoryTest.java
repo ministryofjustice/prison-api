@@ -4,10 +4,7 @@ import net.syscon.elite.repository.jpa.model.ActiveFlag;
 import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
 import net.syscon.elite.repository.jpa.model.AgencyLocation;
 import net.syscon.elite.repository.jpa.model.CaseStatus;
-import net.syscon.elite.repository.jpa.model.CourtEvent;
 import net.syscon.elite.repository.jpa.model.DisciplinaryAction;
-import net.syscon.elite.repository.jpa.model.EventStatus;
-import net.syscon.elite.repository.jpa.model.EventType;
 import net.syscon.elite.repository.jpa.model.LegalCaseType;
 import net.syscon.elite.repository.jpa.model.MilitaryBranch;
 import net.syscon.elite.repository.jpa.model.MilitaryDischarge;
@@ -15,6 +12,8 @@ import net.syscon.elite.repository.jpa.model.MilitaryRank;
 import net.syscon.elite.repository.jpa.model.OffenderCourtCase;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord;
 import net.syscon.elite.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import net.syscon.elite.repository.jpa.model.OffenderPropertyContainer;
+import net.syscon.elite.repository.jpa.model.PropertyContainer;
 import net.syscon.elite.repository.jpa.model.WarZone;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.web.config.AuditorAwareImpl;
@@ -26,7 +25,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.transaction.TestTransaction;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -41,8 +39,6 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @WithMockUser
 public class OffenderBookingRepositoryTest {
 
-    private static final Long BOOKING_WITH_COURT_CASE_BUT_NO_EVENTS = -8L;
-
     @Autowired
     private OffenderBookingRepository repository;
 
@@ -50,16 +46,13 @@ public class OffenderBookingRepositoryTest {
     private AgencyLocationRepository agencyLocationRepository;
 
     @Autowired
-    private ReferenceCodeRepository<EventStatus> eventStatusRepository;
-
-    @Autowired
-    private ReferenceCodeRepository<EventType> eventTypeRepository;
-
-    @Autowired
     private ReferenceCodeRepository<MilitaryBranch> militaryBranchRepository;
 
     @Autowired
     private ReferenceCodeRepository<DisciplinaryAction> disciplinaryActionRepository;
+
+    @Autowired
+    private AgencyInternalLocationRepository agencyInternalLocationRepository;
 
     @Autowired
     private TestEntityManager entityManager;
@@ -107,9 +100,8 @@ public class OffenderBookingRepositoryTest {
                         .disciplinaryAction(disciplinaryActionRepository.findById(DisciplinaryAction.COURT_MARTIAL).orElseThrow())
                         .build());
         repository.save(booking);
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-        TestTransaction.start();
+
+        entityManager.flush();
 
         final var persistedBooking = repository.findById(-2L).orElseThrow();
 
@@ -148,9 +140,8 @@ public class OffenderBookingRepositoryTest {
                         .build());
 
         repository.save(booking);
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-        TestTransaction.start();
+
+        entityManager.flush();
 
         final var persistedBooking = repository.findById(-3L).orElseThrow();
 
@@ -178,7 +169,7 @@ public class OffenderBookingRepositoryTest {
 
     @Test
     void saveOffenderCourtCases() {
-        var booking = repository.findById(-2L).orElseThrow();
+        final var booking = repository.findById(-2L).orElseThrow();
 
         assertThat(booking.getCourtCases()).extracting(OffenderCourtCase::getId).containsOnly(-2L);
 
@@ -187,84 +178,11 @@ public class OffenderBookingRepositoryTest {
 
         repository.save(booking);
 
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-        TestTransaction.start();
-
-        var persistedBooking = repository.findById(-2L).orElseThrow();
-
-        assertThat(persistedBooking.getCourtCases()).extracting(OffenderCourtCase::getId).containsExactly(-2L, -98L, -99L);
-    }
-
-    @Test
-    void saveCourtCaseEvent() {
-        var offenderBooking = repository.findById(BOOKING_WITH_COURT_CASE_BUT_NO_EVENTS).orElseThrow();
-
-        assertThat(offenderBooking.getCourtCases()).hasSize(1);
-
-        var offenderCourtCase = offenderBooking.getCourtCases().stream().findFirst().orElseThrow();
-
-        assertThat(offenderCourtCase.getCourtEvents()).isEmpty();
-
-        CourtEvent courtEvent = courtEventFor(offenderCourtCase);
-
-        offenderCourtCase.add(courtEvent);
-
-        repository.save(offenderBooking);
-
         entityManager.flush();
 
-        var persistedBooking = repository.findById(BOOKING_WITH_COURT_CASE_BUT_NO_EVENTS).orElseThrow();
+        final var persistedBooking = repository.findById(-2L).orElseThrow();
 
-        assertThat(persistedBooking.getCourtCases().get(0).getCourtEvents()).hasSize(1);
-
-        CourtEvent persistedCourtEvent = persistedBooking.getCourtCases().stream()
-                .map(OffenderCourtCase::getCourtEvents).findFirst().orElseThrow().get(0);
-
-        assertThat(persistedCourtEvent)
-                .extracting(
-                        CourtEvent::getCommentText,
-                        CourtEvent::getCourtEventType,
-                        CourtEvent::getCourtLocation,
-                        CourtEvent::getDirectionCode,
-                        CourtEvent::getEventDate,
-                        CourtEvent::getEventStatus,
-                        CourtEvent::getNextEventRequestFlag,
-                        CourtEvent::getOffenderBooking,
-                        CourtEvent::getOffenderCourtCase,
-                        CourtEvent::getOrderRequestedFlag,
-                        CourtEvent::getStartTime)
-                .containsExactly(
-                        courtEvent.getCommentText(),
-                        courtEvent.getCourtEventType(),
-                        courtEvent.getCourtLocation(),
-                        courtEvent.getDirectionCode(),
-                        courtEvent.getEventDate(),
-                        courtEvent.getEventStatus(),
-                        courtEvent.getNextEventRequestFlag(),
-                        courtEvent.getOffenderBooking(),
-                        courtEvent.getOffenderCourtCase(),
-                        courtEvent.getOrderRequestedFlag(),
-                        courtEvent.getStartTime());
-    }
-
-    private CourtEvent courtEventFor(final OffenderCourtCase courtCase) {
-        var eventDate = LocalDate.now();
-
-        return CourtEvent.builder()
-                .commentText("Comment text for court event")
-                .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
-                .courtLocation(agencyLocationRepository.findById("COURT1").orElseThrow())
-                .directionCode("OUT")
-                .eventDate(eventDate)
-                .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED).orElseThrow())
-                .nextEventRequestFlag("X")
-                .offenderBooking(courtCase.getOffenderBooking())
-                .offenderCourtCase(courtCase)
-                .orderRequestedFlag("Y")
-                .startTime(eventDate.atTime(12, 0))
-                .build();
-
+        assertThat(persistedBooking.getCourtCases()).extracting(OffenderCourtCase::getId).containsExactly(-2L, -98L, -99L);
     }
 
     private OffenderCourtCase offenderCourtCase(final Long caseIdentifier) {
@@ -278,15 +196,41 @@ public class OffenderBookingRepositoryTest {
 
     @Test
     void updateLivingUnit() {
-        var offenderBooking = repository.findById(-1L).orElseThrow();
-        offenderBooking.setLivingUnitId(22L);
+        final var offenderBooking = repository.findById(-1L).orElseThrow();
+        final var livingUnit = agencyInternalLocationRepository.findById(-4L).orElseThrow();
+        offenderBooking.setAssignedLivingUnit(livingUnit);
         repository.save(offenderBooking);
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
 
-        TestTransaction.start();
+        entityManager.flush();
         final var result = repository.findById(-1L).orElseThrow();
-        assertThat(result.getLivingUnitId()).isEqualTo(22L);
+        assertThat(result.getAssignedLivingUnit().getLocationId()).isEqualTo(-4L);
+    }
+
+    @Test
+    void getOffenderPropertyContainers() {
+        assertThat(repository.findById(-1L).orElseThrow().getPropertyContainers()).flatExtracting(
+                OffenderPropertyContainer::getContainerId,
+                OffenderPropertyContainer::getSealMark,
+                OffenderPropertyContainer::getInternalLocation,
+                OffenderPropertyContainer::getActiveFlag,
+                OffenderPropertyContainer::getContainerType)
+                .containsExactly(
+                        -1L,
+                        "TEST10",
+                        AgencyInternalLocation.builder()
+                                .locationId(-10L)
+                                .activeFlag(ActiveFlag.Y)
+                                .locationType("CELL")
+                                .agencyId("LEI")
+                                .description("LEI-A-1-8")
+                                .parentLocationId(-2L)
+                                .currentOccupancy(0)
+                                .operationalCapacity(1)
+                                .userDescription(null)
+                                .locationCode("8")
+                                .build(),
+                        "Y",
+                        new PropertyContainer("BULK", "Bulk"));
     }
 }
 

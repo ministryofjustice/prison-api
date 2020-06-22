@@ -1,25 +1,30 @@
 package net.syscon.elite.api.resource.impl;
 
-import com.amazonaws.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CourtHearing;
 import net.syscon.elite.api.model.CourtHearings;
-import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.PrisonMoveCancellation;
 import net.syscon.elite.api.model.PrisonToCourtHearing;
+import net.syscon.elite.api.model.CourtHearingDateAmendment;
+import net.syscon.elite.api.model.PrisonToPrisonMove;
+import net.syscon.elite.api.model.ScheduledPrisonToPrisonMove;
 import net.syscon.elite.api.resource.OffenderMovementsResource;
 import net.syscon.elite.core.ProxyUser;
-import net.syscon.elite.repository.jpa.model.OffenderBooking;
+import net.syscon.elite.service.CourtHearingCancellationService;
+import net.syscon.elite.service.CourtHearingReschedulingService;
 import net.syscon.elite.service.CourtHearingsService;
-import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementUpdateService;
+import net.syscon.elite.service.PrisonToPrisonMoveSchedulingService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static java.lang.String.valueOf;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 @RestController
@@ -30,16 +35,32 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
 
     private final CourtHearingsService courtHearingsService;
     private final MovementUpdateService movementUpdateService;
+    private final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService;
+    private final CourtHearingReschedulingService courtHearingReschedulingService;
+    private final CourtHearingCancellationService courtHearingCancellationService;
 
-    public OffenderMovementsResourceImpl(final CourtHearingsService courtHearingsService, final MovementUpdateService movementUpdateService) {
+    public OffenderMovementsResourceImpl(final CourtHearingsService courtHearingsService,
+                                         final MovementUpdateService movementUpdateService,
+                                         final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService,
+                                         final CourtHearingReschedulingService courtHearingReschedulingService,
+                                         final CourtHearingCancellationService courtHearingCancellationService) {
         this.courtHearingsService = courtHearingsService;
         this.movementUpdateService = movementUpdateService;
+        this.prisonToPrisonMoveSchedulingService = prisonToPrisonMoveSchedulingService;
+        this.courtHearingReschedulingService = courtHearingReschedulingService;
+        this.courtHearingCancellationService = courtHearingCancellationService;
     }
 
     @ProxyUser
     @Override
-    public CourtHearing prisonToCourt(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
+    public CourtHearing prisonToCourt(final Long bookingId, final Long courtCaseId, final @Valid PrisonToCourtHearing hearing) {
         return courtHearingsService.scheduleHearing(bookingId, courtCaseId, hearing);
+    }
+
+    @ProxyUser
+    @Override
+    public CourtHearing prisonToCourt(final Long bookingId, final @Valid PrisonToCourtHearing hearing) {
+        return courtHearingsService.scheduleHearing(bookingId, hearing);
     }
 
     @Override
@@ -47,41 +68,42 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
         return courtHearingsService.getCourtHearingsFor(bookingId, fromDate, toDate);
     }
 
+    @ProxyUser
     @Override
-    public OffenderSummary moveToCell(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime dateTime) {
+    public OffenderBooking moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         log.debug("Received moveToCell request for booking id {}, cell location {}, reasonCode {}, date/time {}",
                 bookingId,
-                livingUnitId,
+                internalLocationDescription,
                 reasonCode,
                 dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
 
-        validateMoveToCellRequest(reasonCode);
-        final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now();
-
-        // TODO DT-235 Just done enough here to write tests for the API - remove once MovementUpdateService has been implemented
-
-        if (bookingId == 123L) {
-            throw new EntityNotFoundException("Simulating a not found for bookingId 123");
-        }
-
-        if (bookingId == 456L) {
-            throw new RuntimeException("Simulating a server error");
-        }
-
-        if (livingUnitId == 123L) {
-            throw new EntityNotFoundException("Simulating a not found for livingUnitId 123");
-        }
-
-        if (reasonCode.equals("123")) {
-            throw new EntityNotFoundException("Simulating a not found for reasonCode '123'");
-        }
-
-        return movementUpdateService.moveToCell(bookingId, livingUnitId, reasonCode, movementDateTime);
+        return movementUpdateService.moveToCell(bookingId, internalLocationDescription, reasonCode, dateTime);
     }
 
-    private void validateMoveToCellRequest(final String reasonCode) {
-        if (StringUtils.isNullOrEmpty(reasonCode)) {
-            throw new IllegalArgumentException("Reason code is mandatory");
-        }
+    @ProxyUser
+    @Override
+    public ScheduledPrisonToPrisonMove prisonToPrison(final Long bookingId, final @Valid PrisonToPrisonMove prisonMove) {
+        return prisonToPrisonMoveSchedulingService.schedule(bookingId, prisonMove);
+    }
+
+    @ProxyUser
+    @Override
+    public ResponseEntity<Void> cancelPrisonToPrisonMove(final Long bookingId, final Long eventId, @Valid final PrisonMoveCancellation cancellation) {
+        prisonToPrisonMoveSchedulingService.cancel(bookingId, eventId, cancellation.getReasonCode());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @ProxyUser
+    @Override
+    public CourtHearing courtHearingDateAmendment(final Long bookingId, final Long hearingId, @Valid CourtHearingDateAmendment amendment) {
+        return courtHearingReschedulingService.reschedule(bookingId, hearingId, amendment.getHearingDateTime());
+    }
+
+    @Override
+    public ResponseEntity<Void> cancelCourtHearing(final Long bookingId, final Long hearingId) {
+        courtHearingCancellationService.cancel(bookingId, hearingId);
+
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,0 +1,138 @@
+{
+  "bookingId": -2,
+  "bookingNo": "A00112",
+  "offenderId": -1002,
+  "rootOffenderId": -1002,
+  "offenderNo": "A1234AB",
+  "firstName": "GILLIAN",
+  "middleName": "EVE",
+  "lastName": "ANDERSON",
+  "agencyId": "LEI",
+  "assignedLivingUnitId": -19,
+  "activeFlag": true,
+  "religion": "Baptist",
+  "language": "Polish",
+  "interpreterRequired": false,
+  "writtenLanguage": "Polish",
+  "alertsCodes": [
+    "H",
+    "X"
+  ],
+  "activeAlertCount": 2,
+  "inactiveAlertCount": 0,
+  "alerts": [
+    {
+      "alertId": 1,
+      "alertType": "H",
+      "alertTypeDescription": "Self Harm",
+      "alertCode": "HA",
+      "alertCodeDescription": "ACCT Open (HMPS)",
+      "comment": "Alert Text 2",
+      "expired": false,
+      "active": true
+    },
+    {
+      "alertId": 2,
+      "alertType": "X",
+      "alertTypeDescription": "Security",
+      "alertCode": "XTACT",
+      "alertCodeDescription": "XTACT",
+      "comment": "Alert XTACT 2",
+      "expired": false,
+      "active": true
+    }
+  ],
+  "assignedLivingUnit": {
+    "agencyId": "LEI",
+    "locationId": -19,
+    "description": "H-1-5",
+    "agencyName": "Leeds"
+  },
+  "facialImageId": -2,
+  "dateOfBirth": "1998-08-28",
+  "age": 21,
+  "physicalAttributes": {
+    "gender": "Female",
+    "raceCode": "W2",
+    "ethnicity": "White: Irish",
+    "weightPounds": 120,
+    "weightKilograms": 55,
+    "sexCode": "F"
+  },
+  "physicalCharacteristics": [
+    {
+      "type": "FACE",
+      "characteristic": "Shape of Face",
+      "detail": "Round"
+    }
+  ],
+  "profileInformation": [
+    {
+      "type": "RELF",
+      "question": "Religion",
+      "resultValue": "Baptist"
+    },
+    {
+      "type": "SMOKE",
+      "question": "Is the Offender a smoker?",
+      "resultValue": "No"
+    },
+    {
+      "type": "NAT",
+      "question": "Nationality?",
+      "resultValue": "Israeli"
+    }
+  ],
+  "physicalMarks": [],
+  "assessments": [
+    {
+      "bookingId": -2,
+      "classificationCode": "PEND",
+      "assessmentCode": "CSR",
+      "assessmentDescription": "CSR Rating",
+      "cellSharingAlertFlag": true,
+      "assessmentDate": "2017-03-05",
+      "nextReviewDate": "2018-06-02",
+      "assessmentStatus": "A",
+      "assessmentSeq": 1
+    }
+  ],
+  "assignedOfficerId": -1,
+  "birthCountryCode": "UK",
+  "inOutStatus": "IN",
+  "identifiers": [],
+  "personalCareNeeds": [
+    {
+      "problemType": "DISAB",
+      "problemCode": "ND",
+      "problemStatus": "ON",
+      "problemDescription": "No Disability",
+      "commentText": null,
+      "startDate": "2010-06-22",
+      "endDate": null
+    }
+  ],
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2019-05-21",
+    "automaticReleaseDate": "2018-05-21",
+    "releaseOnTemporaryLicenceDate": "2018-02-25",
+    "bookingId": -2,
+    "sentenceStartDate": "2017-05-22",
+    "automaticReleaseOverrideDate": "2018-04-21",
+    "nonDtoReleaseDate": "2018-04-21",
+    "nonDtoReleaseDateType": "ARD",
+    "confirmedReleaseDate": "2018-04-19",
+    "releaseDate": "2018-04-19"
+  },
+  "offenceHistory": [],
+  "aliases": [],
+  "status": "ACTIVE IN",
+  "legalStatus": "Convicted",
+  "imprisonmentStatus": "SENT",
+  "privilegeSummary": {
+    "bookingId": -2,
+    "iepLevel": "Basic",
+    "iepDate": "2017-09-06",
+    "iepTime": "2017-09-06T09:44:01"
+  }
+}

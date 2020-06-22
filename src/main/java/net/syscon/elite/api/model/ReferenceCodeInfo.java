@@ -4,13 +4,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @ApiModel(description = "Reference Code Data")
@@ -27,19 +32,19 @@ public class ReferenceCodeInfo {
 
     @ApiModelProperty(required = true, value = "Reference data item description.", position = 1, example = "Some description")
     @NotBlank
-    @Length(max = 40)
+    @Size(max = 40)
     private String description;
 
     @ApiModelProperty(value = "Parent reference data item domain.", position = 2, example = "TASK_TYPE")
-    @Length(max = 12)
+    @Size(max = 12)
     private String parentDomain;
 
     @ApiModelProperty(value = "Parent reference data item code.", position = 3, example = "MIGRATION")
-    @Length(max = 12)
+    @Size(max = 12)
     private String parentCode;
 
     @ApiModelProperty(required = true, value = "Reference data item active indicator flag.", example = "Y", allowableValues = "Y,N", position = 4)
-    @Length(max = 1)
+    @Size(max = 1)
     @Pattern(regexp = "[N|Y]")
     @Builder.Default
     private String activeFlag = "Y";
@@ -49,7 +54,7 @@ public class ReferenceCodeInfo {
     private Integer listSeq;
 
     @ApiModelProperty(value = "System Data Flag", position = 6, example = "Y", allowableValues = "Y,N")
-    @Length(max = 1)
+    @Size(max = 1)
     @Pattern(regexp = "[N|Y]")
     @Builder.Default
     private String systemDataFlag = "Y";

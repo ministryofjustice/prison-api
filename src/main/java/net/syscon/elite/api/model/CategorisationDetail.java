@@ -39,6 +39,10 @@ public class CategorisationDetail {
     @Size(max = 4000, message = "Comment text must be a maximum of 4000 characters")
     private String comment;
 
+    @ApiModelProperty(required = true, value = "The prison to be transferred to", position = 6)
+    @Size(max = 6, message = "Agency id must be a maximum of 6 characters")
+    private String placementAgencyId;
+
     public LocalDate getNextReviewDate() {
         return nextReviewDate == null ? LocalDate.now().plusMonths(6) : nextReviewDate;
     }

@@ -51,6 +51,11 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
+    public List<OffenderCell> getAgencyActiveCellsWithCapacity(final String agencyId, final String attribute) {
+        return agencyService.getCellsWithCapacityInAgency(agencyId, attribute);
+    }
+
+    @Override
     public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
         return agencyService.getAgencyLocationsByType(agencyId, type);
     }

@@ -1,7 +1,17 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
-import net.syscon.elite.api.model.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.IepLevel;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.LocationGroup;
+import net.syscon.elite.api.model.OffenderCell;
+import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.service.OffenderIepReview;
@@ -22,7 +32,6 @@ public interface AgencyResource {
     @GetMapping
     @ApiOperation(value = "List of active agencies.", notes = "List of active agencies.", nickname = "getAgencies")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Agency.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -32,17 +41,15 @@ public interface AgencyResource {
     @GetMapping("/type/{type}")
     @ApiOperation(value = "List of agencies by type", notes = "List of active agencies by type")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Agency.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<Agency> getAgenciesByType(@ApiParam(value = "Agency Type") @PathVariable(value = "type") final String type,
+    List<Agency> getAgenciesByType(@ApiParam(value = "Agency Type", required = true) @PathVariable(value = "type") final String type,
                                    @ApiParam(value = "Only return active agencies") @RequestParam(value = "activeOnly", defaultValue = "true", required = false) boolean activeOnly);
 
     @GetMapping("/{agencyId}")
     @ApiOperation(value = "Agency detail.", notes = "Agency detail.", nickname = "getAgency")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Agency.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -53,7 +60,6 @@ public interface AgencyResource {
     @GetMapping("/{agencyId}/eventLocations")
     @ApiOperation(value = "List of locations for agency where events (appointments, visits, activities) could be held.", notes = "List of locations for agency where events (appointments, visits, activities) could be held.", nickname = "getAgencyEventLocations")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -64,7 +70,6 @@ public interface AgencyResource {
     @GetMapping("/{agencyId}/eventLocationsBooked")
     @ApiOperation(value = "List of locations for agency where events (appointments, visits, activities) are being held.", notes = "List of locations for agency where events (appointments, visits, activities) are being held.", nickname = "getAgencyEventLocationsBooked")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -75,7 +80,6 @@ public interface AgencyResource {
     @GetMapping("/{agencyId}/locations")
     @ApiOperation(value = "List of active internal locations for agency.", notes = "List of active internal locations for agency.", nickname = "getAgencyLocations")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -84,10 +88,19 @@ public interface AgencyResource {
                                                   @ApiParam(value = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
                                                   @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
 
+
+    @GetMapping("/{agencyId}/cellsWithCapacity")
+    @ApiOperation(value = "List of active cells with capacity for agency.", notes = "List of active cells with capacity for agency.", nickname = "getAgencyActiveCellsWithCapacity")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    List<OffenderCell> getAgencyActiveCellsWithCapacity(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId,
+                                                        @ApiParam(value = "Restricts list of cells returned to those that have a specified attribute.") @RequestParam(value = "attribute", required = false) String attribute);
+
     @GetMapping("/{agencyId}/locations/type/{type}")
     @ApiOperation(value = "List of active internal locations for agency by type.", notes = "List of active internal locations for agency by type.", nickname = "getAgencyLocationsByType")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -97,7 +110,6 @@ public interface AgencyResource {
     @GetMapping("/{agencyId}/iepLevels")
     @ApiOperation(value = "List of active IEP levels for agency.", notes = "List of active IEP levels for agency.", nickname = "getAgencyIepLevels")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = IepLevel.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -106,7 +118,6 @@ public interface AgencyResource {
     @GetMapping("/{agencyId}/locations/groups")
     @ApiOperation(value = "List of all available Location Groups at agency.", notes = "List of all available Location Groups at agency.", nickname = "getAvailableLocationGroups")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = LocationGroup.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -115,7 +126,6 @@ public interface AgencyResource {
     @GetMapping("/caseload/{caseload}")
     @ApiOperation(value = "List of agencies for caseload.", notes = "List of agencies for caseload.", nickname = "getAgenciesByCaseload")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Agency.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
@@ -133,7 +143,6 @@ public interface AgencyResource {
     @GetMapping("/prison/{agencyId}")
     @ApiOperation(value = "Prison contact detail.", notes = "Prison contact detail.", nickname = "getPrisonContactDetail")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonContactDetail.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -142,7 +151,6 @@ public interface AgencyResource {
     @GetMapping("/{agencyId}/iepReview")
     @ApiOperation(value = "Per offender information necessary for IEP review.", notes = "IEP review information", nickname = "getPrisonIepReview")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderIepReview.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})

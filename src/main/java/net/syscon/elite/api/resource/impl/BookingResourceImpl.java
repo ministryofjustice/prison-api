@@ -1,7 +1,55 @@
 package net.syscon.elite.api.resource.impl;
 
 import lombok.AllArgsConstructor;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Account;
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.AlertChanges;
+import net.syscon.elite.api.model.AlertCreated;
+import net.syscon.elite.api.model.Alias;
+import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.CaseNoteCount;
+import net.syscon.elite.api.model.Contact;
+import net.syscon.elite.api.model.ContactDetail;
+import net.syscon.elite.api.model.CourtCase;
+import net.syscon.elite.api.model.CreateAlert;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.api.model.IncidentCase;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.MilitaryRecords;
+import net.syscon.elite.api.model.Movement;
+import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.NewBooking;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.OffenceDetail;
+import net.syscon.elite.api.model.OffenceHistoryDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderIdentifier;
+import net.syscon.elite.api.model.OffenderRelationship;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PersonalCareNeeds;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
+import net.syscon.elite.api.model.PhysicalMark;
+import net.syscon.elite.api.model.PrivilegeSummary;
+import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.PropertyContainer;
+import net.syscon.elite.api.model.ReasonableAdjustments;
+import net.syscon.elite.api.model.RecallBooking;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SecondaryLanguage;
+import net.syscon.elite.api.model.SentenceAdjustmentDetail;
+import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.UpdateAttendanceBatch;
+import net.syscon.elite.api.model.UpdateCaseNote;
+import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.VisitWithVisitors;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.support.Order;
@@ -10,7 +58,21 @@ import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyOffenderAccess;
-import net.syscon.elite.service.*;
+import net.syscon.elite.service.AdjudicationService;
+import net.syscon.elite.service.AppointmentsService;
+import net.syscon.elite.service.BookingMaintenanceService;
+import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.CaseNoteService;
+import net.syscon.elite.service.ContactService;
+import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.FinanceService;
+import net.syscon.elite.service.IdempotentRequestService;
+import net.syscon.elite.service.ImageService;
+import net.syscon.elite.service.IncidentService;
+import net.syscon.elite.service.InmateAlertService;
+import net.syscon.elite.service.InmateSearchCriteria;
+import net.syscon.elite.service.InmateService;
+import net.syscon.elite.service.MovementsService;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import net.syscon.elite.service.support.WrappedErrorResponseException;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
@@ -146,21 +208,19 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public InmateDetail getOffenderBooking(final Long bookingId, final boolean basicInfo) {
+    public InmateDetail getOffenderBooking(final Long bookingId, final boolean basicInfo, final boolean extraInfo) {
 
-        return basicInfo ?
+        return basicInfo && !extraInfo ?
                 inmateService.getBasicInmateDetail(bookingId)
-                : inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername());
+                : inmateService.findInmate(bookingId, extraInfo);
     }
 
     @Override
-    public InmateDetail getOffenderBookingByOffenderNo(final String offenderNo, final boolean fullInfo) {
-
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-
-        return fullInfo ?
-                inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername()) :
-                inmateService.getBasicInmateDetail(bookingId);
+    public InmateDetail getOffenderBookingByOffenderNo(final String offenderNo, final boolean fullInfo, final boolean extraInfo) {
+        final var offenderSummary = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        return fullInfo || extraInfo ?
+                inmateService.findInmate(offenderSummary.getBookingId(), extraInfo) :
+                inmateService.getBasicInmateDetail(offenderSummary.getBookingId());
     }
 
     @Override
@@ -257,13 +317,6 @@ public class BookingResourceImpl implements BookingResource {
         return ResponseEntity.ok()
                 .headers(inmateAlerts.getPaginationHeaders())
                 .body(inmateAlerts.getItems());
-    }
-
-    @Override
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public ResponseEntity<List<Alert>> getOffenderAlertsByOffenderNo(final String offenderNo, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-        return getOffenderAlerts(bookingId, query, pageOffset, pageLimit, sortFields, sortOrder);
     }
 
     @Override
@@ -367,6 +420,10 @@ public class BookingResourceImpl implements BookingResource {
         return bookingService.getBookingSentenceDetail(bookingId);    }
 
     @Override
+    public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
+        return bookingService.getBookingSentenceAdjustments(bookingId);    }
+
+    @Override
     @HasWriteScope
     @ProxyUser
     public CaseNote createBookingCaseNote(final Long bookingId, final NewCaseNote body) {
@@ -394,18 +451,23 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
+        return bookingService.getOffenderPropertyContainers(bookingId);
+    }
+
+    @Override
     public List<OffenceDetail> getMainOffence(final Long bookingId) {
         return bookingService.getMainOffenceDetails(bookingId);
     }
 
     @Override
-    public List<Offence> getMainOffence(final Set<Long> bookingIds) {
+    public List<OffenceDetail> getMainOffence(final Set<Long> bookingIds) {
         return bookingService.getMainOffenceDetails(bookingIds);
     }
 
     @Override
-    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
-        return bookingService.getOffenceHistory(offenderNo);
+    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo, final boolean convictionsOnly) {
+        return bookingService.getOffenceHistory(offenderNo, convictionsOnly);
     }
 
     @Override
@@ -455,7 +517,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
-        return contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType, true);
+        return contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType);
     }
 
     @Override
@@ -548,16 +610,16 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public VisitBalances getBookingVisitBalances(final String offenderNo) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo).getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
 
-        return bookingService.getBookingVisitBalances(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        return bookingService.getBookingVisitBalances(identifiers.getBookingId()).orElseThrow(EntityNotFoundException.withId(identifiers.getBookingId()));
     }
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Keyworker getKeyworkerByOffenderNo(final String offenderNo) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-        return keyworkerService.getKeyworkerDetailsByBooking(bookingId);
+        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo).getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
+        return keyworkerService.getKeyworkerDetailsByBooking(offenderIdentifiers.getBookingId());
     }
 
     @Override
@@ -631,5 +693,10 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public List<CourtCase> getCourtCases(final Long bookingId, final boolean activeOnly) {
         return bookingService.getOffenderCourtCases(bookingId, activeOnly);
+    }
+
+    @Override
+    public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
+        return inmateService.getSecondaryLanguages(bookingId);
     }
 }

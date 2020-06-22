@@ -14,7 +14,9 @@
     "internalLocation": "LEI-A-1-1",
     "croNumber": "CRO112233",
     "ethnicity": "White: British",
+    "ethnicityCode": "W1",
     "religion": "Anglican",
+    "religionCode": "CHRANG",
     "convictedStatus": "Convicted",
     "imprisonmentStatus": "SENT",
     "imprisonmentStatusDesc": "Adult Imprisonment Without Option"

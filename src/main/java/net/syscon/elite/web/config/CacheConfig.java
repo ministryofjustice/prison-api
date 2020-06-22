@@ -8,7 +8,12 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
-import org.springframework.cache.interceptor.*;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.CacheResolver;
+import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
+import org.springframework.cache.interceptor.SimpleCacheResolver;
+import org.springframework.cache.interceptor.SimpleKeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,18 +35,8 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.agency:3600}")
     private int agencyTimeoutSeconds;
 
-    @Value("${cache.timeout.seconds.booking:3600}")
-    private int bookingTimeoutSeconds;
-
-    @Value("${cache.timeout.seconds.assessment:5}")
-    // essentially disabled due to importance of up-to-date csra info
-    private int assessmentTimeoutSeconds;
-
     @Value("${cache.timeout.seconds.location:3600}")
     private int locationTimeoutSeconds;
-
-    @Value("${cache.timeout.seconds.offender.search:300}")
-    private int offenderSearchTimeoutSeconds;
 
     @Value("${cache.timeout.seconds.activity:3600}")
     private int activityTimeoutSeconds;
@@ -64,29 +59,8 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("loadUserByUsername", 5000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findByStaffIdAndStaffUserType", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
         config.addCache(config("findAgenciesByUsername", 1000, agencyTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
-        config.addCache(config("verifyBookingAccess", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("getBookingAgency", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
         config.addCache(config("findLocationsByAgencyAndType", 1000, locationTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("searchForOffenderBookings", 1000, offenderSearchTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("basicInmateDetail", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
-        config.addCache(config("bookingAssessments", 200, assessmentTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("offenderAssessments", 200, assessmentTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingPhysicalMarks", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingProfileInformation", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingLanguages", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingPersonalCareNeeds", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingReasonableAdjustments", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingPhysicalCharacteristics", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingPhysicalAttributes", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("offenderIdentifiers", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingIdByOffenderNo", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("payableAttendanceOutcomes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
         config.addCache(config(GET_AGENCY_LOCATIONS_BOOKED, 500, activityTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         return net.sf.ehcache.CacheManager.newInstance(config);

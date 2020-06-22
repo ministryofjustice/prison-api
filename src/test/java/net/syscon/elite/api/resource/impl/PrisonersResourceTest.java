@@ -90,6 +90,22 @@ public class PrisonersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCanReturnPrisonerInformationByNomsIdWhenReleased() {
+        final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null, Map.of());
+
+        final var response = testRestTemplate.exchange(
+                "/api/prisoners/Z0023ZZ/full-status",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatJsonFileAndStatus(response, 200, "prisoners_information_Z0023ZZ.json");
+    }
+
+    @Test
     public void testReturn404WhenOffenderNotFound() {
         final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
 

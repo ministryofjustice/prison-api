@@ -4,16 +4,46 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.support.*;
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.model.Alias;
+import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategorisationUpdateDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
+import net.syscon.elite.api.model.CategoryRejectionDetail;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderCategorise;
+import net.syscon.elite.api.model.OffenderIdentifier;
+import net.syscon.elite.api.model.PersonalCareNeed;
+import net.syscon.elite.api.model.PersonalCareNeeds;
+import net.syscon.elite.api.model.PhysicalAttributes;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
+import net.syscon.elite.api.model.PhysicalMark;
+import net.syscon.elite.api.model.ProfileInformation;
+import net.syscon.elite.api.model.ReasonableAdjustments;
+import net.syscon.elite.api.model.SecondaryLanguage;
+import net.syscon.elite.api.support.AssessmentStatusType;
+import net.syscon.elite.api.support.CategoryInformationType;
+import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.repository.jpa.model.OffenderLanguage;
+import net.syscon.elite.repository.jpa.repository.OffenderLanguageRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.security.VerifyOffenderAccess;
+import net.syscon.elite.service.support.AssessmentDto;
+import net.syscon.elite.service.support.InmateDto;
+import net.syscon.elite.service.support.InmatesHelper;
+import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
-import net.syscon.elite.service.support.*;
 import net.syscon.util.ProfileUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,14 +58,26 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+import static net.syscon.elite.repository.support.StatusFilter.ACTIVE_ONLY;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassification;
 import static net.syscon.elite.service.support.InmatesHelper.deriveClassificationCode;
 
@@ -47,6 +89,7 @@ public class InmateService {
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
+    private final AgencyService agencyService;
     private final UserService userService;
     private final InmateAlertService inmateAlertService;
     private final ReferenceDomainService referenceDomainService;
@@ -54,24 +97,27 @@ public class InmateService {
     private final int maxBatchSize;
     private final UserRepository userRepository;
     private final KeyWorkerAllocationRepository keyWorkerAllocationRepository;
+    private final OffenderLanguageRepository offenderLanguageRepository;
     private final Environment env;
     private final TelemetryClient telemetryClient;
 
     private final String locationTypeGranularity;
 
     public InmateService(final InmateRepository repository,
-                             final CaseLoadService caseLoadService,
-                             final InmateAlertService inmateAlertService,
-                             final ReferenceDomainService referenceDomainService,
-                             final BookingService bookingService,
-                             final UserService userService,
-                             final UserRepository userRepository,
-                             final AuthenticationFacade authenticationFacade,
-                             final KeyWorkerAllocationRepository keyWorkerAllocationRepository,
-                             final Environment env,
-                             final TelemetryClient telemetryClient,
-                             @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
-                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                         final CaseLoadService caseLoadService,
+                         final InmateAlertService inmateAlertService,
+                         final ReferenceDomainService referenceDomainService,
+                         final BookingService bookingService,
+                         final AgencyService agencyService,
+                         final UserService userService,
+                         final UserRepository userRepository,
+                         final AuthenticationFacade authenticationFacade,
+                         final KeyWorkerAllocationRepository keyWorkerAllocationRepository,
+                         final Environment env,
+                         final TelemetryClient telemetryClient,
+                         @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
+                         @Value("${batch.max.size:1000}") final int maxBatchSize,
+                         final OffenderLanguageRepository offenderLanguageRepository) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
@@ -79,12 +125,14 @@ public class InmateService {
         this.telemetryClient = telemetryClient;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
+        this.agencyService = agencyService;
         this.userRepository = userRepository;
         this.keyWorkerAllocationRepository = keyWorkerAllocationRepository;
         this.env = env;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
         this.userService = userService;
+        this.offenderLanguageRepository = offenderLanguageRepository;
     }
 
     public Page<OffenderBooking> findAllInmates(final InmateSearchCriteria criteria) {
@@ -173,45 +221,91 @@ public class InmateService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public InmateDetail findInmate(final Long bookingId, final String username) {
+    public InmateDetail findInmate(final Long bookingId, final boolean extraInfo) {
         final var inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        return getOffenderDetails(inmate, extraInfo);
+    }
 
-        getFirstPreferredSpokenLanguage(bookingId).ifPresent(inmate::setLanguage);
-        inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
-        inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
-        inmate.setProfileInformation(getProfileInformation(bookingId));
-        repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).ifPresent(assignedLivingUnit -> {
-            assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
-            inmate.setAssignedLivingUnit(assignedLivingUnit);
-        });
-        setAlertsFields(inmate);
-        setAssessmentsFields(bookingId, inmate);
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public InmateDetail findOffender(final String offenderNo, final boolean extraInfo) {
+        final var inmate = repository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        return getOffenderDetails(inmate, extraInfo);
+    }
 
-        //TODO: Remove once KW service available - Nomis only!
-        final var nomisProfile = ProfileUtil.isNomisProfile(env);
-        if (nomisProfile) {
-            keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
+    private InmateDetail getOffenderDetails(final InmateDetail inmate, final boolean extraInfo) {
+        if (inmate.getBookingId() != null) {
+            final var bookingId = inmate.getBookingId();
+            inmate.setStatus(format("%s %s", inmate.isActiveFlag() ? "ACTIVE" : "INACTIVE", inmate.getInOutStatus()));
+            getFirstPreferredSpokenLanguage(bookingId).ifPresent(offenderLanguage -> {
+                inmate.setLanguage(offenderLanguage.getReferenceCode().getDescription());
+                inmate.setInterpreterRequired("Y".equalsIgnoreCase(offenderLanguage.getInterpreterRequestedFlag()));
+            });
+
+            getFirstPreferredWrittenLanguage(bookingId).ifPresent(offenderLanguage -> {
+                inmate.setWrittenLanguage(offenderLanguage.getReferenceCode().getDescription());
+            });
+
+            inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
+            inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
+            inmate.setProfileInformation(getProfileInformation(bookingId));
+            repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).ifPresent(assignedLivingUnit -> {
+                assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
+                inmate.setAssignedLivingUnit(assignedLivingUnit);
+            });
+            setAlertsFields(inmate);
+            setAssessmentsFields(bookingId, inmate);
+
+            try {
+                inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
+            } catch (Exception e) {
+                // TODO: Hack for now to make sure there wasn't a reason this was removed.
+            }
+            if (extraInfo) {
+                inmate.setOffenceHistory(bookingService.getOffenceHistory(inmate.getOffenderNo(), true));
+                inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
+                inmate.setPrivilegeSummary(bookingService.getBookingIEPSummary(bookingId, false));
+                inmate.setIdentifiers(getOffenderIdentifiers(bookingId, null));
+                inmate.setSentenceDetail(bookingService.getBookingSentenceDetail(bookingId));
+                inmate.setPersonalCareNeeds(getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
+
+                repository.getImprisonmentStatus(bookingId).ifPresent(status -> {
+                    inmate.setLegalStatus(status.getLegalStatus());
+                    inmate.setImprisonmentStatus(status.getImprisonmentStatus());
+                });
+            }
+
+            //TODO: Remove once KW service available - Nomis only!
+            final var nomisProfile = ProfileUtil.isNomisProfile(env);
+            if (nomisProfile) {
+                keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
+            }
         }
         return inmate;
     }
 
-    private Optional<String> getFirstPreferredSpokenLanguage(final Long bookingId) {
-        return repository
-                .getLanguages(bookingId)
+    private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final Long bookingId) {
+        return offenderLanguageRepository
+                .findByOffenderBookId(bookingId)
                 .stream()
-                .filter(l -> "PREF_SPEAK".equals(l.getType()))
-                .map(Language::getDescription)
-                .max(Comparator.naturalOrder());
+                .filter(l -> "PREF_SPEAK".equals(l.getType()) && l.getReferenceCode() != null)
+                .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
+                .reduce((first, second) -> second);
+    }
+
+    private Optional<OffenderLanguage> getFirstPreferredWrittenLanguage(final long bookingId) {
+        return offenderLanguageRepository
+                .findByOffenderBookId(bookingId)
+                .stream()
+                .filter(l -> "PREF_WRITE".equals(l.getType()) && l.getReferenceCode() != null)
+                .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
+                .reduce((first, second) -> second);
     }
 
     private void setAssessmentsFields(final Long bookingId, final InmateDetail inmate) {
         final var assessments = getAllAssessmentsOrdered(bookingId);
         if (!CollectionUtils.isEmpty(assessments)) {
             inmate.setAssessments(filterAssessmentsByCode(assessments));
-            final var csra = assessments.get(0);
-            if (csra != null) {
-                inmate.setCsra(csra.getClassification());
-            }
+            findCsra(assessments).ifPresent(csra -> inmate.setCsra(csra.getClassification()));
             findCategory(assessments).ifPresent(category -> {
                 inmate.setCategory(category.getClassification());
                 inmate.setCategoryCode(category.getClassificationCode());
@@ -349,7 +443,7 @@ public class InmateService {
     }
 
     @VerifyBookingAccess
-    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, final String identifierType) {
+    public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, @Nullable final String identifierType) {
         return repository.getOffenderIdentifiers(bookingId)
                 .stream()
                     .filter( i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))
@@ -397,7 +491,7 @@ public class InmateService {
         return Optional.ofNullable(assessment);
     }
 
-    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, final boolean activeOnly) {
+    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, final boolean activeOnly, final boolean csra) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
             final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
@@ -408,18 +502,25 @@ public class InmateService {
             batch.forEach(offenderBatch -> {
                 final var assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly, activeOnly);
 
-                for (final var assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
+                InmatesHelper.createMapOfBookings(assessments).values().forEach( assessmentForBooking -> {
 
                     if (latestOnly) {
-                        // The first is the most recent date / seq for each booking (where cellSharingAlertFlag = Y if CSR)
-                        results.add(createAssessment(assessmentForBooking.get(0)));
+                        final var firstAssessment = createAssessment(assessmentForBooking.get(0));
+                        // The first is the most recent date / seq for each booking (where cellSharingAlertFlag = Y if a CSRA)
+                        if (!csra || validCsra(firstAssessment)) {
+                            results.add(firstAssessment);
+                        }
                     } else {
-                        assessmentForBooking.forEach(assessment -> results.add(createAssessment(assessment)));
+                        assessmentForBooking.stream().map(this::createAssessment).filter(a -> !csra || validCsra(a)).forEach(results::add);
                     }
-                }
+                });
             });
         }
         return results;
+    }
+
+    private boolean validCsra(final Assessment firstAssessment) {
+        return (firstAssessment.isCellSharingAlertFlag() && !"PEND".equals(firstAssessment.getClassificationCode()));
     }
 
     @VerifyAgencyAccess
@@ -446,6 +547,10 @@ public class InmateService {
 
     private Optional<Assessment> findCategory(final List<Assessment> assessmentsForOffender) {
         return assessmentsForOffender.stream().filter(a -> "CATEGORY".equals(a.getAssessmentCode())).findFirst();
+    }
+
+    private Optional<Assessment> findCsra(final List<Assessment> assessmentsForOffender) {
+        return assessmentsForOffender.stream().filter(Assessment::isCellSharingAlertFlag).findFirst();
     }
 
     private Assessment createAssessment(final AssessmentDto assessmentDto) {
@@ -549,21 +654,31 @@ public class InmateService {
 
     private void validate(CategorisationDetail detail) {
         try {
-            referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
+            referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.CATEGORY.getDomain(),
+                    detail.getCategory(), false);
         } catch (final EntityNotFoundException ex) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Category not recognised.");
         }
         try {
-            referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(), detail.getCommittee(), false);
+            referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(),
+                    detail.getCommittee(), false);
         } catch (final EntityNotFoundException ex) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Committee Code not recognised.");
+        }
+        if (StringUtils.isNotBlank(detail.getPlacementAgencyId())) {
+            try {
+                agencyService.getAgency(detail.getPlacementAgencyId(), ACTIVE_ONLY, "INST");
+            } catch (final EntityNotFoundException ex) {
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Placement agency id not recognised.");
+            }
         }
     }
 
     private void validate(CategorisationUpdateDetail detail) {
         if (detail.getCategory() != null) {
             try {
-                referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
+                referenceDomainService.getReferenceCodeByDomainAndCode(net.syscon.elite.service.support.ReferenceDomain.CATEGORY.getDomain(),
+                        detail.getCategory(), false);
             } catch (final EntityNotFoundException ex) {
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Category not recognised.");
             }
@@ -588,6 +703,13 @@ public class InmateService {
         } catch (final EntityNotFoundException ex) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Committee Code not recognised.");
         }
+        if (StringUtils.isNotBlank(detail.getApprovedPlacementAgencyId())) {
+            try {
+                agencyService.getAgency(detail.getApprovedPlacementAgencyId(), ACTIVE_ONLY, "INST");
+            } catch (final EntityNotFoundException ex) {
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Review placement agency id not recognised.");
+            }
+        }
     }
 
     private void validate(final CategoryRejectionDetail detail) {
@@ -604,6 +726,24 @@ public class InmateService {
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
 
         return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);
+    }
+
+    @VerifyBookingAccess
+    public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
+        return offenderLanguageRepository
+                .findByOffenderBookId(bookingId)
+                .stream()
+                .filter(lang -> "SEC".equalsIgnoreCase(lang.getType()))
+                .map(lang -> SecondaryLanguage
+                        .builder()
+                        .bookingId(lang.getOffenderBookId())
+                        .code(lang.getCode())
+                        .description(lang.getReferenceCode() != null ? lang.getReferenceCode().getDescription() : null)
+                        .canRead("Y".equalsIgnoreCase(lang.getReadSkill()))
+                        .canWrite("Y".equalsIgnoreCase(lang.getWriteSkill()))
+                        .canSpeak("Y".equalsIgnoreCase(lang.getSpeakSkill()))
+                        .build()
+                ).collect(Collectors.toList());
     }
 
     public List<Long> getPersonalOfficerBookings(final String username) {

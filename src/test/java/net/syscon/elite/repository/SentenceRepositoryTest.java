@@ -1,6 +1,6 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.Offence;
+import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -18,10 +18,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
@@ -43,57 +42,64 @@ public class SentenceRepositoryTest {
     @Test
     public final void testGetMainOffenceDetailsSingleOffence() {
         final var offenceDetails = repository.getMainOffenceDetails(-1L);
-        assertNotNull(offenceDetails);
-        assertEquals(1, offenceDetails.size());
-        assertEquals("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)", offenceDetails.get(0).getOffenceDescription());
+        assertThat(offenceDetails).extracting(OffenceDetail::getOffenceDescription).containsExactly("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)");
     }
 
     @Test
     public final void testGetMainOffenceDetailsMultipleOffences() {
         final var offenceDetails = repository.getMainOffenceDetails(-7L);
-        assertNotNull(offenceDetails);
-        assertEquals(2, offenceDetails.size());
-        assertEquals("Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury", offenceDetails.get(0).getOffenceDescription());
-        assertEquals("Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.", offenceDetails.get(1).getOffenceDescription());
+        assertThat(offenceDetails).extracting(OffenceDetail::getOffenceDescription).containsExactly(
+                "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+                "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.");
     }
 
     @Test
     public final void testGetMainOffenceDetailsInvalidBookingId() {
         final var offenceDetails = repository.getMainOffenceDetails(1001L);
-        assertNotNull(offenceDetails);
-        assertTrue(offenceDetails.isEmpty());
+        assertThat(offenceDetails).isEmpty();
     }
 
     @Test
     public final void testGetMainOffenceDetailsMultipleBookings() {
-        final var offences = repository.getMainOffenceDetails(Arrays.asList(-1L, -7L));
-        assertNotNull(offences);
-        assertEquals(3, offences.size());
-        assertThat(offences).asList().containsExactlyInAnyOrder(
-                new Offence(-1L, "RV98011", "RV98"),
-                new Offence(-7L, "RC86360", "RC86"),
-                new Offence(-7L, "RC86355", "RC86")
+        final var offences = repository.getMainOffenceDetails(List.of(-1L, -7L));
+
+        assertThat(offences).containsExactlyInAnyOrder(
+                new OffenceDetail(-1L, "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)", "RV98011", "RV98"),
+                new OffenceDetail(-7L, "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.", "RC86360", "RC86"),
+                new OffenceDetail(-7L, "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury", "RC86355", "RC86")
         );
     }
 
     @Test
     public final void testGetOffenceHistory() {
-        final var offenceDetails = repository.getOffenceHistory("A1234AA");
-
-        assertThat(offenceDetails).asList().extracting("bookingId", "offenceDate", "offenceRangeDate", "offenceDescription", "mostSerious").containsExactly(
+        final var offenceDetails = repository.getOffenceHistory("A1234AA", true);
+        assertThat(offenceDetails).extracting("bookingId", "offenceDate", "offenceRangeDate", "offenceDescription", "mostSerious", "primaryResultCode", "secondaryResultCode", "courtDate").containsExactly(
                 Tuple.tuple(-1L, LocalDate.of(2017, 12, 24), null,
                         "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)",
-                        true),
+                        true, "1004", null, LocalDate.of(2017, 7, 2)),
                 Tuple.tuple(-1L, LocalDate.of(2018, 9, 1), LocalDate.of(2018, 9, 15),
                         "Cause another to use a vehicle where the seat belt buckle/other fastening was not maintained so that the belt could be readily fastened or unfastened/kept free from temporary or permanent obstruction/readily accessible to a person sitting in the seat.",
-                        false)
+                        false, null, "1006", null)
         );
     }
 
     @Test
-    public final void testGetOffenceHistoryNoConviction() {
-        final var offenceDetails = repository.getOffenceHistory("A1234AB");
+    public final void testGetOffenceHistoryOffenderWithoutConvictions() {
+        final var offenceDetails = repository.getOffenceHistory("A1234AB", true);
+        assertThat(offenceDetails).isEmpty();
+    }
 
-        assertThat(offenceDetails).asList().isEmpty();
+    @Test
+    public final void testGetOffenceHistoryGetAllOffencesOffenderWithoutConvictions() {
+        final var offenceDetails = repository.getOffenceHistory("A1234AB", false);
+        assertThat(offenceDetails).extracting("bookingId", "primaryResultConviction", "primaryResultDescription",
+                "secondaryResultConviction", "secondaryResultDescription","offenceDescription", "courtDate").containsExactly(
+                Tuple.tuple(-2L, false, // no conviction result 1
+                        "Adjourned for Consideration of an ASBO", // description of result 1
+                        false, // no conviction result 2
+                        null, // description of result 2 (no result 2 provided)
+                        "Actual bodily harm", // offence description
+                        LocalDate.of(2017, 2, 22))
+        );
     }
 }

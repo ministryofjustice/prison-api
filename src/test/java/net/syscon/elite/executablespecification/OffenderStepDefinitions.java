@@ -5,7 +5,6 @@ import com.google.common.base.Splitter;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.api.model.OffenderAddress;
 import net.syscon.elite.executablespecification.steps.OffenderAdjudicationSteps;
 import net.syscon.elite.executablespecification.steps.OffenderSteps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,9 @@ public class OffenderStepDefinitions extends AbstractStepDefinitions {
         offenderSteps.findAddresses(offenderNumber);
     }
 
-    @Then("^the address results are:$")
-    public void addressResultListIsAsFollows(final List<OffenderAddress> list) {
-        offenderSteps.verifyAddressList(list);
+    @Then("^the address results are returned$")
+    public void addressResultListIsAsFollows() {
+        offenderSteps.verifyAddressList();
     }
 
     @When("^I view the adjudications of offender with offender display number of \"([^\"]*)\"$")

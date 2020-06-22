@@ -1,7 +1,45 @@
 package net.syscon.elite.executablespecification;
 
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.executablespecification.steps.*;
+import net.syscon.elite.executablespecification.steps.AccessRoleSteps;
+import net.syscon.elite.executablespecification.steps.AddIepLevelSteps;
+import net.syscon.elite.executablespecification.steps.AdjudicationSteps;
+import net.syscon.elite.executablespecification.steps.AgencySteps;
+import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
+import net.syscon.elite.executablespecification.steps.BookingActivitySteps;
+import net.syscon.elite.executablespecification.steps.BookingAlertSteps;
+import net.syscon.elite.executablespecification.steps.BookingAliasSteps;
+import net.syscon.elite.executablespecification.steps.BookingAppointmentSteps;
+import net.syscon.elite.executablespecification.steps.BookingAssessmentSteps;
+import net.syscon.elite.executablespecification.steps.BookingDetailSteps;
+import net.syscon.elite.executablespecification.steps.BookingEventSteps;
+import net.syscon.elite.executablespecification.steps.BookingIEPSteps;
+import net.syscon.elite.executablespecification.steps.BookingSearchSteps;
+import net.syscon.elite.executablespecification.steps.BookingSentenceDetailSteps;
+import net.syscon.elite.executablespecification.steps.BookingVisitSteps;
+import net.syscon.elite.executablespecification.steps.BulkAppointmentSteps;
+import net.syscon.elite.executablespecification.steps.CaseNoteSteps;
+import net.syscon.elite.executablespecification.steps.ContactSteps;
+import net.syscon.elite.executablespecification.steps.CurfewSteps;
+import net.syscon.elite.executablespecification.steps.FinanceSteps;
+import net.syscon.elite.executablespecification.steps.KeyWorkerAllocatedOffendersSteps;
+import net.syscon.elite.executablespecification.steps.KeyWorkerAllocationSteps;
+import net.syscon.elite.executablespecification.steps.KeyWorkerSteps;
+import net.syscon.elite.executablespecification.steps.LocationsSteps;
+import net.syscon.elite.executablespecification.steps.MovementsSteps;
+import net.syscon.elite.executablespecification.steps.MyAssignmentsSteps;
+import net.syscon.elite.executablespecification.steps.NomisApiV1Steps;
+import net.syscon.elite.executablespecification.steps.OffenderAdjudicationSteps;
+import net.syscon.elite.executablespecification.steps.OffenderIdentifierSteps;
+import net.syscon.elite.executablespecification.steps.OffenderSearchSteps;
+import net.syscon.elite.executablespecification.steps.OffenderSteps;
+import net.syscon.elite.executablespecification.steps.PersonIdentifierSteps;
+import net.syscon.elite.executablespecification.steps.PrisonContactDetailsSteps;
+import net.syscon.elite.executablespecification.steps.PrisonerSearchSteps;
+import net.syscon.elite.executablespecification.steps.ReferenceDomainsSteps;
+import net.syscon.elite.executablespecification.steps.SchedulesSteps;
+import net.syscon.elite.executablespecification.steps.StaffSteps;
+import net.syscon.elite.executablespecification.steps.UserSteps;
 import net.syscon.elite.test.DatasourceActiveProfilesResolver;
 import net.syscon.elite.util.JwtAuthenticationHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +70,7 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public AuthTokenHelper auth(JwtAuthenticationHelper jwtAuthenticationHelper) {
+        public AuthTokenHelper auth(final JwtAuthenticationHelper jwtAuthenticationHelper) {
             return new AuthTokenHelper(jwtAuthenticationHelper);
         }
 
@@ -129,11 +167,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public FinanceSteps bookingFinance() {
             return new FinanceSteps();
-        }
-
-        @Bean
-        public BookingSentenceSteps bookingSentence() {
-            return new BookingSentenceSteps();
         }
 
         @Bean

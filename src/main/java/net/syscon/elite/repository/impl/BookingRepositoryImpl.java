@@ -6,7 +6,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.IepLevelAndComment;
+import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.NewBooking;
+import net.syscon.elite.api.model.OffenderSentenceCalculation;
+import net.syscon.elite.api.model.OffenderSentenceDetailDto;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.PrivilegeDetail;
+import net.syscon.elite.api.model.RecallBooking;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.support.Order;
@@ -22,7 +35,6 @@ import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -34,7 +46,15 @@ import org.springframework.util.CollectionUtils;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -90,7 +110,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     private final StandardBeanPropertyRowMapper<VisitBalances> VISIT_BALANCES_MAPPER =
             new StandardBeanPropertyRowMapper<>(VisitBalances.class);
 
-
     private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
@@ -119,6 +138,10 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                     .put("EARLY_TERM_DATE", new FieldMapper("earlyTermDate", DateTimeConverter::toISO8601LocalDate))
                     .put("MID_TERM_DATE", new FieldMapper("midTermDate", DateTimeConverter::toISO8601LocalDate))
                     .put("LATE_TERM_DATE", new FieldMapper("lateTermDate", DateTimeConverter::toISO8601LocalDate))
+                    .put("DPRRD_CALCULATED_DATE", new FieldMapper("dtoPostRecallReleaseDate", DateTimeConverter::toISO8601LocalDate))
+                    .put("DPRRD_OVERRIDED_DATE", new FieldMapper("dtoPostRecallReleaseDateOverride", DateTimeConverter::toISO8601LocalDate))
+                    .put("TARIFF_ERS_SCHEME_ELIG_DATE", new FieldMapper("tariffEarlyRemovalSchemeEligibilityDate", DateTimeConverter::toISO8601LocalDate))
+                    .put("EFFECTIVE_SENTENCE_END_DATE", new FieldMapper("effectiveSentenceEndDate", DateTimeConverter::toISO8601LocalDate))
                     .put("ADDITIONAL_DAYS_AWARDED", new FieldMapper("additionalDaysAwarded"))
                     .build();
 
@@ -146,7 +169,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    @Cacheable("verifyBookingAccess")
     public boolean verifyBookingAccess(final Long bookingId, final Set<String> agencyIds) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         Objects.requireNonNull(agencyIds, "agencyIds is a required parameter");
@@ -177,7 +199,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    @Cacheable("getBookingAgency")
     public Optional<String> getBookingAgency(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
@@ -367,7 +388,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    @Cacheable("payableAttendanceOutcomes")
     public PayableAttendanceOutcomeDto getPayableAttendanceOutcome(final String eventType, final String outcomeCode) {
 
         Objects.requireNonNull(eventType, "eventType is a required parameter");
@@ -504,23 +524,21 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    @Cacheable("bookingIdByOffenderNo")
-    public Optional<Long> getBookingIdByOffenderNo(final String offenderNo) {
+    public Optional<OffenderBookingIdSeq> getLatestBookingIdentifierForOffender(final String offenderNo) {
         Validate.notBlank("Offender number must be specified.");
+        final var sql = getQuery("FIND_BOOKING_IDS_BY_OFFENDER_NO");
 
-        final var sql = getQuery("FIND_BOOKING_ID_BY_OFFENDER_NO");
+        return jdbcTemplate.query(sql, createParams("offenderNo", offenderNo), new StandardBeanPropertyRowMapper<>(OffenderBookingSeq.class))
+                .stream()
+                .findFirst()
+                .map(r -> new OffenderBookingIdSeq(r.offenderNo, r.bookingId, r.bookingSeq));
+    }
 
-        Long bookingId;
-
-        try {
-            bookingId = jdbcTemplate.queryForObject(
-                    sql,
-                    createParams("offenderNo", offenderNo, "bookingSeq", 1), Long.class);
-        } catch (final EmptyResultDataAccessException ex) {
-            bookingId = null;
-        }
-
-        return Optional.ofNullable(bookingId);
+    @Data
+    private static class OffenderBookingSeq {
+        private String offenderNo;
+        private Long bookingId;
+        private Integer bookingSeq;
     }
 
     @Override

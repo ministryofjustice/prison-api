@@ -8,7 +8,6 @@ import net.syscon.elite.api.model.CourtCase;
 import net.syscon.elite.api.model.IepLevelAndComment;
 import net.syscon.elite.api.model.MilitaryRecord;
 import net.syscon.elite.api.model.MilitaryRecords;
-import net.syscon.elite.api.model.Offence;
 import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.api.model.OffenceHistoryDetail;
 import net.syscon.elite.api.model.OffenderSentenceCalculation;
@@ -18,7 +17,9 @@ import net.syscon.elite.api.model.OffenderSentenceTerms;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.PrivilegeSummary;
+import net.syscon.elite.api.model.PropertyContainer;
 import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.SentenceAdjustmentDetail;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.Visit;
@@ -26,18 +27,27 @@ import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.VisitWithVisitors;
 import net.syscon.elite.api.model.Visitor;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.repository.impl.OffenderBookingIdSeq;
+import net.syscon.elite.repository.jpa.model.AgencyInternalLocation;
+import net.syscon.elite.repository.jpa.model.OffenderBooking;
+import net.syscon.elite.repository.jpa.model.OffenderKeyDateAdjustment;
+import net.syscon.elite.repository.jpa.model.OffenderSentenceAdjustment;
 import net.syscon.elite.repository.jpa.model.ReferenceCode;
 import net.syscon.elite.repository.jpa.repository.AgencyInternalLocationRepository;
 import net.syscon.elite.repository.jpa.repository.OffenderBookingRepository;
 import net.syscon.elite.repository.jpa.repository.VisitRepository;
 import net.syscon.elite.repository.jpa.repository.VisitorRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import net.syscon.elite.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
 import net.syscon.elite.service.transformers.CourtCaseTransformer;
+import net.syscon.elite.service.transformers.PropertyContainerTransformer;
 import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -104,6 +114,8 @@ public class BookingService {
     private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
+    private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
+    private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -119,6 +131,8 @@ public class BookingService {
                           final ReferenceDomainService referenceDomainService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                           final AgencyInternalLocationRepository agencyInternalLocationRepository,
+                          final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository,
+                          final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository,
                           final AuthenticationFacade securityUtils,
                           final AuthenticationFacade authenticationFacade,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
@@ -133,6 +147,8 @@ public class BookingService {
         this.referenceDomainService = referenceDomainService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.agencyInternalLocationRepository = agencyInternalLocationRepository;
+        this.offenderSentenceAdjustmentRepository = offenderSentenceAdjustmentRepository;
+        this.offenderKeyDateAdjustmentRepository = offenderKeyDateAdjustmentRepository;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;
@@ -149,6 +165,41 @@ public class BookingService {
 
         return deriveSentenceDetail(sentenceDetail);
     }
+
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
+
+        final var activeSentenceAdjustments = offenderSentenceAdjustmentRepository.findAllByOffenderBookId(bookingId).stream().filter(OffenderSentenceAdjustment::isActive).collect(toList());
+        final var keyDateAdjustments = offenderKeyDateAdjustmentRepository.findAllByOffenderBookId(bookingId).stream().filter(OffenderKeyDateAdjustment::isActive).collect(toList());
+
+        return SentenceAdjustmentDetail.builder()
+                .additionalDaysAwarded(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "ADA"))
+                .lawfullyAtLarge(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "LAL"))
+                .unlawfullyAtLarge(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "UAL"))
+                .restoredAdditionalDaysAwarded(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "RADA"))
+                .specialRemission(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "SREM"))
+                .recallSentenceRemand(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RSR"))
+                .recallSentenceTaggedBail(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RST"))
+                .remand(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RX"))
+                .taggedBail(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "S240A"))
+                .unusedRemand(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "UR"))
+                .build();
+    }
+
+    private Integer getDaysForSentenceAdjustmentsCode(final List<OffenderSentenceAdjustment> adjustmentsList, final String code) {
+        return adjustmentsList
+                .stream()
+                .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
+                .mapToInt(OffenderSentenceAdjustment::getAdjustDays).sum();
+    }
+
+    private Integer getDaysForKeyDateAdjustmentsCode(final List<OffenderKeyDateAdjustment> adjustmentsList, final String code) {
+        return adjustmentsList
+                .stream()
+                .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
+                .mapToInt(OffenderKeyDateAdjustment::getAdjustDays).sum();
+    }
+
 
     private SentenceDetail getSentenceDetail(final Long bookingId) {
         final var optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);
@@ -208,7 +259,7 @@ public class BookingService {
     }
 
     public Map<Long, PrivilegeSummary> getBookingIEPSummary(final List<Long> bookingIds, final boolean withDetails) {
-        if (withDetails || !isViewAllBookings()) {
+        if (withDetails || !isViewAllOffenders()) {
             bookingIds.forEach(this::verifyBookingAccess);
         }
         final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
@@ -431,19 +482,16 @@ public class BookingService {
     }
 
     public void verifyCanViewSensitiveBookingInfo(final String offenderNo, final String... rolesAllowed) {
-        getBookingIdByOffenderNo(offenderNo, rolesAllowed);
+        getOffenderIdentifiers(offenderNo, rolesAllowed);
     }
 
-    public Long getBookingIdByOffenderNo(final String offenderNo, final String... rolesAllowed) {
-        final var bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (!isViewAllBookings()) {
-            try {
-                verifyBookingAccess(bookingId, rolesAllowed);
-            } catch (final EntityNotFoundException e) {
-                throw EntityNotFoundException.withId(offenderNo);
-            }
+    public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
+        final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+
+        if (isRestrictedByCaseload()) {
+            verifyBookingAccess(offenderIdentifier.getBookingAndSeq().orElseThrow(EntityNotFoundException.withId(offenderIdentifier.getOffenderNo())).getBookingId(), rolesAllowed);
         }
-        return bookingId;
+        return offenderIdentifier;
     }
 
 
@@ -576,10 +624,10 @@ public class BookingService {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty()) {
-            throw EntityNotFoundException.withId(bookingId);
+            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
-            throw EntityNotFoundException.withId(bookingId);
+            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
     }
 
@@ -587,7 +635,7 @@ public class BookingService {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         if (!bookingRepository.checkBookingExists(bookingId)) {
-            throw EntityNotFoundException.withId(bookingId);
+            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
     }
 
@@ -597,9 +645,9 @@ public class BookingService {
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY')")
-    public List<Offence> getMainOffenceDetails(final Set<Long> bookingIds) {
+    public List<OffenceDetail> getMainOffenceDetails(final Set<Long> bookingIds) {
 
-        final List<Offence> results = new ArrayList<>();
+        final List<OffenceDetail> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(bookingIds)) {
             final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
             batch.forEach(bookingBatch -> {
@@ -610,9 +658,8 @@ public class BookingService {
         return results;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
-    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
-        return sentenceRepository.getOffenceHistory(offenderNo);
+    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo, final boolean convictionsOnly) {
+        return sentenceRepository.getOffenceHistory(offenderNo, convictionsOnly);
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
@@ -681,14 +728,14 @@ public class BookingService {
     }
 
     public List<OffenderSentenceDetail> getBookingSentencesSummary(final List<Long> bookingIds) {
-        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false), !isViewAllBookings());
+        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false), !isViewAllOffenders());
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
         final var query = format("offenderNo:eq:'%s'", offenderNo);
         return getOffenderSentenceDetails(bookingRepository.getOffenderSentenceSummary(query, getCaseLoadIdForUserIfRequired(),
-                !isViewAllBookings(), isViewInactiveBookings()))
+                !isViewAllOffenders(), isViewInactiveBookings()))
                 .stream()
                 .findFirst();
     }
@@ -718,7 +765,7 @@ public class BookingService {
                                 .disciplinaryActionDescription(ReferenceCode.getDescriptionOrNull(mr.getDisciplinaryAction()))
                                 .build())
                         .collect(Collectors.toUnmodifiableList())
-                )).orElseThrow(EntityNotFoundException.withId(bookingId));
+                )).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
     @VerifyBookingAccess
@@ -726,29 +773,48 @@ public class BookingService {
         return offenderBookingRepository.findById(bookingId)
                 .map(booking -> activeOnly ? booking.getActiveCourtCases() : booking.getCourtCases())
                 .map(CourtCaseTransformer::transform)
-                .orElseThrow(EntityNotFoundException.withId(bookingId));
+                .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
+    }
+
+    @VerifyBookingAccess
+    public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
+        return offenderBookingRepository.findById(bookingId)
+                .map(OffenderBooking::getActivePropertyContainers)
+                .map(PropertyContainerTransformer::transform)
+                .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
     @Transactional
-    public void updateLivingUnit(final Long bookingId, final Long livingUnitId) {
-        var offenderBooking = offenderBookingRepository.findById(bookingId)
-                .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking for booking id %d not found", bookingId)));
-        final var location = agencyInternalLocationRepository.findById(livingUnitId)
-                .orElseThrow(EntityNotFoundException.withMessage(format("Living unit with id %d not found", livingUnitId)));
+    @VerifyBookingAccess
+    @HasWriteScope
+    public void updateLivingUnit(final Long bookingId, final String livingUnitDescription) {
+        final var offenderBooking = offenderBookingRepository.findById(bookingId)
+                .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking with booking id %d not found", bookingId)));
+        final var location = agencyInternalLocationRepository.findOneByDescription(livingUnitDescription)
+                .orElseThrow(EntityNotFoundException.withMessage(format("Living unit %s not found", livingUnitDescription)));
 
+        validateUpdateLivingUnit(offenderBooking, location);
+
+        offenderBooking.setAssignedLivingUnit(location);
+        offenderBookingRepository.save(offenderBooking);
+        log.info("Updated offender {} booking id {} to living unit description {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitDescription);
+    }
+
+    private void validateUpdateLivingUnit(final OffenderBooking offenderBooking, final AgencyInternalLocation location) {
         checkArgument(
                 offenderBooking.getLocation().getId().equals(location.getAgencyId()),
                 "Move to living unit in prison %s invalid for offender %s in prison %s",
                 location.getAgencyId(), offenderBooking.getOffender().getNomsId(), offenderBooking.getLocation().getId()
         );
-
-        offenderBooking.setLivingUnitId(livingUnitId);
-        offenderBookingRepository.save(offenderBooking);
-        log.info("Updated offender {} booking id {} to living unit id {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitId);
+        checkArgument(
+                location.isCell(),
+                "Living unit %s of type %s is not a cell",
+                location.getDescription(), location.getLocationType()
+        );
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
-        return isViewAllBookings() ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        return isViewAllOffenders() ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
     }
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
@@ -805,6 +871,10 @@ public class BookingService {
                         .confirmedReleaseDate(os.getConfirmedReleaseDate())
                         .releaseDate(os.getReleaseDate())
                         .tariffDate(os.getTariffDate())
+                        .tariffEarlyRemovalSchemeEligibilityDate(os.getTariffEarlyRemovalSchemeEligibilityDate())
+                        .effectiveSentenceEndDate(os.getEffectiveSentenceEndDate())
+                        .dtoPostRecallReleaseDate(os.getDtoPostRecallReleaseDate())
+                        .dtoPostRecallReleaseDateOverride(os.getDtoPostRecallReleaseDateOverride())
                         .build())
                 .build();
     }
@@ -812,7 +882,7 @@ public class BookingService {
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final List<String> offenderNos) {
 
-        final var viewAllBookings = isViewAllBookings();
+        final var viewAllBookings = isViewAllOffenders();
         final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
 
         if (offenderNos == null || offenderNos.isEmpty()) {
@@ -854,8 +924,12 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-    private boolean isViewAllBookings() {
+    private boolean isViewAllOffenders() {
         return securityUtils.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION");
+    }
+
+    private boolean isRestrictedByCaseload() {
+        return !isViewAllOffenders();
     }
 
     private boolean isViewInactiveBookings() {

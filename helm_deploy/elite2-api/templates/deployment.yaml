@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "app.fullname" . }}
+  labels:
+    app: {{ template "app.name" . }}
+    chart: {{ template "app.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 2
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 50%
+  selector:
+    matchLabels:
+      app: {{ template "app.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "app.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{ template "app.name" . }}
+              topologyKey: kubernetes.io/hostname
+      dnsPolicy: Default
+      containers:
+        - name: {{ template "app.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" 
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.image.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /elite2api/ping
+              port: {{ .Values.image.port }}
+            periodSeconds: 30
+            initialDelaySeconds: 90
+            timeoutSeconds: 20
+            failureThreshold: 10
+          readinessProbe:
+            httpGet:
+              path: /elite2api/ping
+              port: {{ .Values.image.port }}
+            periodSeconds: 20
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 15
+{{ include "deployment.envs" . | nindent 10 }}

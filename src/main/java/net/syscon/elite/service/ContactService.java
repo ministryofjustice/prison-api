@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -49,12 +50,14 @@ public class ContactService {
 
         sortCriteria = sortCriteria.thenComparing(Contact::getLastName);
 
-        final var list = contacts.stream()
-                .filter(Contact::isActiveFlag)
-                .filter(Contact::isNextOfKin)
-                .sorted(sortCriteria)
-                .collect(toList());
-        return ContactDetail.builder().nextOfKin(list).build();
+        final Map<Boolean, List<Contact>> activeContactsMap = contacts.stream().filter(Contact::isActiveFlag).collect(Collectors.partitioningBy(Contact::isNextOfKin));
+        return ContactDetail.builder()
+                .nextOfKin(activeContactsMap.get(true).stream()
+                        .sorted(sortCriteria)
+                        .collect(toList()))
+                .otherContacts(activeContactsMap.get(false).stream()
+                        .sorted(sortCriteria)
+                        .collect(toList())).build();
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
@@ -65,16 +68,16 @@ public class ContactService {
                 .collect(Collectors.toList());
     }
 
-    public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType, final boolean activeOnly) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-        return getRelationships(bookingId, relationshipType, true);
+    public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo).getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
+        return getRelationships(identifiers.getBookingId(), relationshipType, true);
     }
     
     @PreAuthorize("hasRole('CONTACT_CREATE')")
     @Transactional
     public Contact createRelationshipByOffenderNo(final String offenderNo, final OffenderRelationship relationshipDetail) {
-        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
-        return createRelationship(bookingId, relationshipDetail);
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo).getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
+        return createRelationship(identifiers.getBookingId(), relationshipDetail);
     }
 
     @PreAuthorize("hasRole('CONTACT_CREATE')")

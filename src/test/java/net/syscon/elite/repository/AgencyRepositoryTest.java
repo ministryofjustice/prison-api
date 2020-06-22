@@ -104,6 +104,12 @@ public class AgencyRepositoryTest {
     }
 
     @Test
+    public void testGetAgencyLocationsEventTypeOccur() {
+        final var locations = repository.getAgencyLocations("LEI", List.of("OCCUR"), null, null);
+        assertThat(locations).extracting("locationType").contains("WING", "WING", "WING", "WING", "WING", "WING");
+    }
+
+    @Test
     public void testGetAgencyIepLevels() {
         final var iepLevels = repository.getAgencyIepLevels("LEI");
         assertThat(iepLevels).extracting("iepDescription").contains("Entry", "Basic", "Standard", "Enhanced");
@@ -135,7 +141,7 @@ public class AgencyRepositoryTest {
     @Test
     public void testGetAgencyLocationsAll() {
         final var locations = repository.getAgencyLocations("LEI", List.of(), null, null);
-        assertThat(locations).hasSize(137);
+        assertThat(locations).hasSize(139);
     }
 
     @Test
@@ -241,7 +247,7 @@ public class AgencyRepositoryTest {
             .firstName("HAROLD")
             .middleName(null)
             .lastName("LLOYD")
-            .cellLocation("LEI-H-1")
+            .cellLocation("LEI-H-1-1")
             .build();
 
 

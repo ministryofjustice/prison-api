@@ -1,23 +1,18 @@
-defaults: &defaults
-  working_directory: ~/app
-  environment:
-    JAVA_TOOL_OPTIONS: -Xmx1024m -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
-
 version: 2.1
 
 orbs:
-  owasp: entur/owasp@0.0.6
+  hmpps: ministryofjustice/hmpps@1.1.0
+  owasp: entur/owasp@0.0.10
+
+defaults: &defaults
 
 executors:
   builder:
-    <<: *defaults
     docker:
       - image: circleci/openjdk:11-jdk-browsers
-
-  deployer:
-    <<: *defaults
-    docker:
-      - image: circleci/python:latest-browsers
+    working_directory: ~/app
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx1024m -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
 
 jobs:
   build:
@@ -43,43 +38,14 @@ jobs:
           path: build/serenity
       - store_artifacts:
           path: build/libs
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build/libs
-            - build.gradle
-            - Dockerfile
-            - run.sh
-            - AI-Agent.xml
-
-  build_docker:
-    executor: deployer
-    steps:
-      - setup_remote_docker:
-          exclusive: true
-      - attach_workspace:
-          at: ~/app
-      - run:
-          name: Build container and publish to docker hub
-          command: |
-            jar xvf build/libs/elite2-api-*.jar BOOT-INF/classes/META-INF/build-info.properties
-            API_VERSION=$(grep 'build.version=' BOOT-INF/classes/META-INF/build-info.properties | awk -F= '{print $2}')
-            rm BOOT-INF/classes/META-INF/build-info.properties
-
-            # build the container
-            docker build --rm=false . \
-               --tag "mojdigitalstudio/elite2-api:$API_VERSION" \
-               --label "maintainer=feedback@digital.justice.gov.uk" \
-               --label "app.version=$API_VERSION" \
-               --label "build.version=$API_VERSION" \
-               --label "build.number=$CIRCLE_BUILD_NUM" \
-               --label "build.url=$CIRCLE_BUILD_URL" \
-               --label "build.gitref=$CIRCLE_SHA1"
-
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push mojdigitalstudio/elite2-api:$API_VERSION
-            docker tag mojdigitalstudio/elite2-api:$API_VERSION mojdigitalstudio/elite2-api:latest
-            docker push mojdigitalstudio/elite2-api:latest
+      # - persist_to_workspace:
+      #     root: .
+      #     paths:
+      #       - build/libs
+      #       - build.gradle
+      #       - Dockerfile
+      #       - run.sh
+      #       - AI-Agent.xml
 
 workflows:
   version: 2
@@ -89,15 +55,56 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-      - build_docker:
-          requires:
-            - build
+      - hmpps/build_docker:
+          name: build_docker
           filters:
             branches:
               only:
-                - master
-                - nomis-api
+                - main
+      - hmpps/deploy_env:
+          name: deploy_dev
+          env: "t3"
+          filters:
+            branches:
+              only:
+                - main
+          requires:
+            - build_docker
+            - build
+      - request-stage-approval:
+          type: approval
+          requires:
+            - deploy_dev
 
+      - hmpps/deploy_env:
+          name: deploy_stage
+          env: "t2"
+          context: elite2-api-t2
+          requires:
+            - request-stage-approval
+      - request-preprod-approval:
+          type: approval
+          requires:
+            - deploy_stage
+
+      - hmpps/deploy_env:
+          name: deploy_preprod
+          env: "preprod"
+          context: elite2-api-preprod
+          requires:
+            - request-preprod-approval
+      - request-prod-approval:
+          type: approval
+          requires:
+            - deploy_preprod
+
+      - hmpps/deploy_env:
+          name: deploy_prod
+          env: "prod"
+          slack_notification: true
+          context: elite2-api-prod
+          requires:
+            - request-prod-approval
   scheduled:
     triggers:
       - schedule:
@@ -105,7 +112,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
     jobs:
       - owasp/gradle_owasp_dependency_check:
           executor: builder
