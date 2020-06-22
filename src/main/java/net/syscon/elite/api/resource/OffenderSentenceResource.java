@@ -1,12 +1,28 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
-import net.syscon.elite.api.model.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import net.syscon.elite.api.model.ApprovalStatus;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.HdcChecks;
+import net.syscon.elite.api.model.HomeDetentionCurfew;
+import net.syscon.elite.api.model.OffenderSentenceCalc;
+import net.syscon.elite.api.model.OffenderSentenceCalculation;
+import net.syscon.elite.api.model.OffenderSentenceDetail;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Api(tags = {"/offender-sentences"})
@@ -95,6 +111,6 @@ public interface OffenderSentenceResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Sentence term details for a prisoner.", response = OffenderSentenceTerms.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List")})
-    List<OffenderSentenceTerms> getOffenderSentenceTerms(@ApiParam(value = "The required booking id (mandatory)", required = true) @PathVariable("bookingId") Long bookingId);
+    List<OffenderSentenceTerms> getOffenderSentenceTerms(@ApiParam(value = "The required booking id (mandatory)", required = true) @PathVariable("bookingId") Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) List<String> filterBySentenceTermCodes);
 
 }
