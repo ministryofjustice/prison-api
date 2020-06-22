@@ -9,8 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @ApiModel(description = "List of visitors for a visit")
@@ -22,11 +22,11 @@ import java.util.List;
 public class VisitWithVisitors<V extends Visit> {
     @ApiModelProperty(value = "List of visitors on visit", required = true)
     @JsonProperty("visitors")
-    @NotBlank
+    @NotEmpty
     private List<Visitor> visitors;
 
     @ApiModelProperty(value = "Visit Information", required = true)
     @JsonProperty("visitDetails")
-    @NotBlank
+    @NotNull
     private V visitDetail;
 }
