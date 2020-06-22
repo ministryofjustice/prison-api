@@ -514,7 +514,6 @@ public interface BookingResource {
     @GetMapping("/{bookingId}/visits-with-visitors")
     @ApiOperation(value = "All visits for offender.", notes = "All visits for offender.", nickname = "getBookingVisitsWithVisitor")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = VisitWithVisitors.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
