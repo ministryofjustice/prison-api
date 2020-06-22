@@ -38,11 +38,10 @@ public class OffenderSentenceResourceImplIntTest extends ResourceTest {
 
 
     @Test
-    public void offenderSentenceTerms_success() {
+    public void retrieveAllSentenceTerms_forABookingId() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_GLOBAL_SEARCH"), Map.of());
 
-        final var url = "/api/offender-sentences/booking/-31/sentenceTerms";
-
+        final var url = "/api/offender-sentences/booking/-5/sentenceTerms";
         final var responseEntity = testRestTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
 
         assertThatJsonFileAndStatus(responseEntity, 200, "offender_sentence_terms_imp.json");
