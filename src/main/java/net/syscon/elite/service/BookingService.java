@@ -57,6 +57,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -351,44 +352,48 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final @NotNull Long bookingId, final Pageable pageable) {
+    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final @NotNull Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Pageable pageable) {
         final var visits = visitRepository.findAllByBookingId(bookingId, pageable);
 
-        final var visitsWithVisitors = visits.stream().map(v -> {
-            var visitorsList = visitorRepository.findAllByVisitIdAndBookingId(v.getVisitId(), bookingId)
-                    .stream()
-                    .map(visitor ->
-                            Visitor.builder()
-                                    .dateOfBirth(visitor.getBirthdate())
-                                    .firstName(visitor.getFirstName())
-                                    .lastName(visitor.getLastName())
-                                    .leadVisitor(visitor.getLeadVisitor().equals("Y"))
-                                    .personId(visitor.getPersonId())
-                                    .relationship(visitor.getRelationship())
-                                    .build())
-                    .collect(Collectors.toList());
+        final var visitsWithVisitors = visits.stream()
+                .filter(visit -> fromDate == null || visit.getStartTime().isAfter(fromDate.atStartOfDay()))
+                .filter(visit -> toDate == null || visit.getStartTime().isBefore(toDate.atTime(LocalTime.of(23, 59))))
+                .filter(visit -> visitType == null || visitType.equals(visit.getVisitType()))
+                .map(v -> {
+                    var visitorsList = visitorRepository.findAllByVisitIdAndBookingId(v.getVisitId(), bookingId)
+                            .stream()
+                            .map(visitor ->
+                                    Visitor.builder()
+                                            .dateOfBirth(visitor.getBirthdate())
+                                            .firstName(visitor.getFirstName())
+                                            .lastName(visitor.getLastName())
+                                            .leadVisitor(visitor.getLeadVisitor().equals("Y"))
+                                            .personId(visitor.getPersonId())
+                                            .relationship(visitor.getRelationship())
+                                            .build())
+                            .collect(Collectors.toList());
 
-            return VisitWithVisitors.builder()
-                    .visitDetail(
-                            Visit.builder()
-                                    .visitType(v.getVisitType())
-                                    .visitTypeDescription(v.getVisitTypeDescription())
-                                    .cancellationReason(v.getCancellationReason())
-                                    .cancelReasonDescription(v.getCancelReasonDescription())
-                                    .endTime(v.getEndTime())
-                                    .startTime(v.getStartTime())
-                                    .eventOutcome(v.getEventOutcome())
-                                    .eventOutcomeDescription(v.getEventOutcomeDescription())
-                                    .eventStatus(v.getEventStatus())
-                                    .eventStatusDescription(v.getEventStatusDescription())
-                                    .leadVisitor(v.getLeadVisitor())
-                                    .location(v.getLocation())
-                                    .relationship(v.getRelationship())
-                                    .relationshipDescription(v.getRelationshipDescription())
-                                    .build())
+                    return VisitWithVisitors.builder()
+                            .visitDetail(
+                                    Visit.builder()
+                                            .visitType(v.getVisitType())
+                                            .visitTypeDescription(v.getVisitTypeDescription())
+                                            .cancellationReason(v.getCancellationReason())
+                                            .cancelReasonDescription(v.getCancelReasonDescription())
+                                            .endTime(v.getEndTime())
+                                            .startTime(v.getStartTime())
+                                            .eventOutcome(v.getEventOutcome())
+                                            .eventOutcomeDescription(v.getEventOutcomeDescription())
+                                            .eventStatus(v.getEventStatus())
+                                            .eventStatusDescription(v.getEventStatusDescription())
+                                            .leadVisitor(v.getLeadVisitor())
+                                            .location(v.getLocation())
+                                            .relationship(v.getRelationship())
+                                            .relationshipDescription(v.getRelationshipDescription())
+                                            .build())
                     .visitors(visitorsList)
                     .build();
-        }).collect(Collectors.toList());
+                }).collect(Collectors.toList());
 
         return new PageImpl<>(visitsWithVisitors);
     }

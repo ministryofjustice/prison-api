@@ -511,6 +511,9 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
+                                                               @ApiParam(value = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+                                                               @ApiParam(value = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate,
+                                                               @ApiParam(value = "Type of visit. One of SCON, OFFI") @RequestParam(value = "visitType", required = false) String visitType,
                                                                @PageableDefault() final Pageable pageable);
 
     @GetMapping("/{bookingId}/visits/last")

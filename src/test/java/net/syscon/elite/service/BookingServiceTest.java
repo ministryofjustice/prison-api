@@ -457,7 +457,7 @@ public class BookingServiceTest {
 
         ));
 
-        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, pageable);
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, null, null, null, pageable);
         assertThat(visitsWithVisitors).containsOnly(
                 VisitWithVisitors.builder()
                         .visitDetail(
@@ -498,6 +498,174 @@ public class BookingServiceTest {
                                         .relationship("Niece")
                                         .build()))
                         .build());
+    }
+
+    @Test
+    public void getBookingVisitsWithVisitor_filtered() {
+        Pageable pageable = PageRequest.of(0, 20);
+        var visits = List.of(VisitInformation
+                .builder()
+                .visitId(-1L)
+                .cancellationReason(null)
+                .cancelReasonDescription(null)
+                .eventStatus("ATT")
+                .eventStatusDescription("Attended")
+                .eventOutcome("ATT")
+                .eventOutcomeDescription("Attended")
+                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                .location("Visits")
+                .visitType("SCON")
+                .visitTypeDescription("Social")
+                .leadVisitor("John Smith")
+                .relationship("UNC")
+                .relationshipDescription("Uncle")
+                .build(),
+                VisitInformation
+                        .builder()
+                        .visitId(-1L)
+                        .cancellationReason(null)
+                        .cancelReasonDescription(null)
+                        .eventStatus("ATT")
+                        .eventStatusDescription("Attended")
+                        .eventOutcome("ATT")
+                        .eventOutcomeDescription("Attended")
+                        .startTime(LocalDateTime.parse("2019-10-12T14:00"))
+                        .endTime(LocalDateTime.parse("2019-10-12T15:00"))
+                        .location("Visits")
+                        .visitType("SCON")
+                        .visitTypeDescription("Social")
+                        .leadVisitor("John Smith")
+                        .relationship("UNC")
+                        .relationshipDescription("Uncle")
+                        .build(),
+                VisitInformation
+                        .builder()
+                        .visitId(-1L)
+                        .cancellationReason(null)
+                        .cancelReasonDescription(null)
+                        .eventStatus("ATT")
+                        .eventStatusDescription("Attended")
+                        .eventOutcome("ATT")
+                        .eventOutcomeDescription("Attended")
+                        .startTime(LocalDateTime.parse("2019-10-13T14:00"))
+                        .endTime(LocalDateTime.parse("2019-10-13T15:00"))
+                        .location("Visits")
+                        .visitType("OFFI")
+                        .visitTypeDescription("Social")
+                        .leadVisitor("John Smith")
+                        .relationship("UNC")
+                        .relationshipDescription("Uncle")
+                        .build());
+
+        var page = new PageImpl<>(visits);
+        when(visitRepository.findAllByBookingId(-1L, pageable))
+                .thenReturn(page);
+
+        when(visitorRepository.findAllByVisitIdAndBookingId(anyLong(), anyLong())).thenReturn(List.of(
+                VisitorInformation
+                        .builder()
+                        .birthdate(LocalDate.parse("1980-10-01"))
+                        .firstName("John")
+                        .lastName("Smith")
+                        .leadVisitor("Y")
+                        .personId(-1L)
+                        .relationship("Uncle")
+                        .visitId(-1L)
+                        .build(),
+                VisitorInformation
+                        .builder()
+                        .birthdate(LocalDate.parse("2010-10-01"))
+                        .firstName("Jenny")
+                        .lastName("Smith")
+                        .leadVisitor("N")
+                        .personId(-2L)
+                        .relationship("Niece")
+                        .visitId(-1L)
+                        .build()
+
+        ));
+
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, LocalDate.of(2019, 10, 10), LocalDate.of(2019, 10, 12), "SCON", pageable);
+        assertThat(visitsWithVisitors).containsOnly(
+                VisitWithVisitors.builder()
+                        .visitDetail(
+                                Visit
+                                        .builder()
+                                        .cancellationReason(null)
+                                        .cancelReasonDescription(null)
+                                        .eventStatus("ATT")
+                                        .eventStatusDescription("Attended")
+                                        .eventOutcome("ATT")
+                                        .eventOutcomeDescription("Attended")
+                                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                                        .location("Visits")
+                                        .visitType("SCON")
+                                        .visitTypeDescription("Social")
+                                        .leadVisitor("John Smith")
+                                        .relationship("UNC")
+                                        .relationshipDescription("Uncle")
+                                        .build())
+                        .visitors(List.of(
+                                Visitor
+                                        .builder()
+                                        .dateOfBirth(LocalDate.parse("1980-10-01"))
+                                        .firstName("John")
+                                        .lastName("Smith")
+                                        .leadVisitor(true)
+                                        .personId(-1L)
+                                        .relationship("Uncle")
+                                        .build(),
+                                Visitor
+                                        .builder()
+                                        .dateOfBirth(LocalDate.parse("2010-10-01"))
+                                        .firstName("Jenny")
+                                        .lastName("Smith")
+                                        .leadVisitor(false)
+                                        .personId(-2L)
+                                        .relationship("Niece")
+                                        .build()))
+                        .build(),
+                        VisitWithVisitors.builder()
+                                .visitDetail(
+                                        Visit
+                                                .builder()
+                                                .cancellationReason(null)
+                                                .cancelReasonDescription(null)
+                                                .eventStatus("ATT")
+                                                .eventStatusDescription("Attended")
+                                                .eventOutcome("ATT")
+                                                .eventOutcomeDescription("Attended")
+                                                .startTime(LocalDateTime.parse("2019-10-12T14:00"))
+                                                .endTime(LocalDateTime.parse("2019-10-12T15:00"))
+                                                .location("Visits")
+                                                .visitType("SCON")
+                                                .visitTypeDescription("Social")
+                                                .leadVisitor("John Smith")
+                                                .relationship("UNC")
+                                                .relationshipDescription("Uncle")
+                                                .build())
+                                .visitors(List.of(
+                                        Visitor
+                                                .builder()
+                                                .dateOfBirth(LocalDate.parse("1980-10-01"))
+                                                .firstName("John")
+                                                .lastName("Smith")
+                                                .leadVisitor(true)
+                                                .personId(-1L)
+                                                .relationship("Uncle")
+                                                .build(),
+                                        Visitor
+                                                .builder()
+                                                .dateOfBirth(LocalDate.parse("2010-10-01"))
+                                                .firstName("Jenny")
+                                                .lastName("Smith")
+                                                .leadVisitor(false)
+                                                .personId(-2L)
+                                                .relationship("Niece")
+                                                .build()))
+                                .build());
     }
 
     @Test
