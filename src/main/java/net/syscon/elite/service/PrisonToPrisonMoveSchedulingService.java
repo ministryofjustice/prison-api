@@ -16,6 +16,7 @@ import net.syscon.elite.repository.jpa.repository.OffenderIndividualScheduleRepo
 import net.syscon.elite.repository.jpa.repository.ReferenceCodeRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.transformers.AgencyTransformer;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -71,6 +72,7 @@ public class PrisonToPrisonMoveSchedulingService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
+    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER')")
     public ScheduledPrisonToPrisonMove schedule(final Long bookingId, final PrisonToPrisonMove move) {
         log.debug("Scheduling a prison to prison move for booking: {} with details: {}", bookingId, move);
 
@@ -153,6 +155,7 @@ public class PrisonToPrisonMoveSchedulingService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
+    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER')")
     public void cancel(final Long bookingId, final Long scheduledMoveId, final String transferCancellationReasonCode) {
         final var move = scheduleRepository.findById(scheduledMoveId).orElseThrow(() -> EntityNotFoundException.withMessage("Scheduled prison move with id %s not found.", scheduledMoveId));
 
