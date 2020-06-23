@@ -65,7 +65,7 @@ public class CourtHearingsService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
     @HasWriteScope
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
     public CourtHearing scheduleHearing(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
@@ -98,7 +98,7 @@ public class CourtHearingsService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
     @HasWriteScope
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
     public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
@@ -130,7 +130,7 @@ public class CourtHearingsService {
     /**
      * Returns all court hearings for a given booking ID for the given date range.
      */
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
     public CourtHearings getCourtHearingsFor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate) {
         checkFromAndToDatesAreValid(fromDate, toDate);
 
