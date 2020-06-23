@@ -40,7 +40,8 @@ public class AuthTokenHelper {
         MAINTAIN_IEP,
         PAY,
         UPDATE_ALERT,
-        COURT_HEARING_MAINTAINER
+        COURT_HEARING_MAINTAINER,
+        PRISON_MOVE_MAINTAINER,
     }
 
 
@@ -67,6 +68,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.PAY), payUser());
         tokens.put(String.valueOf(AuthToken.UPDATE_ALERT), updateAlert());
         tokens.put(String.valueOf(AuthToken.COURT_HEARING_MAINTAINER), courtHearingMaintainer());
+        tokens.put(String.valueOf(AuthToken.PRISON_MOVE_MAINTAINER), prisonMoveMaintiner());
     }
 
     public String getToken() {
@@ -302,6 +304,17 @@ public class AuthTokenHelper {
                         .username("ITAG_USER")
                         .scope(List.of("read", "write"))
                         .roles(List.of("ROLE_COURT_HEARING_MAINTAINER"))
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
+    private String prisonMoveMaintiner() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("ITAG_USER")
+                        .scope(List.of("read", "write"))
+                        .roles(List.of("ROLE_PRISON_MOVE_MAINTAINER"))
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );

@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.executablespecification.steps.AuthTokenHelper;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -13,10 +14,15 @@ import static org.springframework.http.HttpStatus.CREATED;
 
 public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove extends ResourceTest {
 
+    private String token;
+
+    @Before
+    public void setup() {
+        token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.PRISON_MOVE_MAINTAINER);
+    }
+
     @Test
     public void schedules_prison_to_prison_move() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
                 "toPrisonLocation", "BXI",
@@ -40,8 +46,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_move_fails_when_no_matching_booking() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
                 "toPrisonLocation", "BXI",
@@ -65,8 +69,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_to_prison_does_not_match_booking() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "BXI",
                 "toPrisonLocation", "LEI",
@@ -90,8 +92,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_from_prison_not_found() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
                 "toPrisonLocation", "PRISON",
@@ -115,7 +115,7 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_from_prison_when_unauthorised() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.RENEGADE_USER);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
@@ -139,8 +139,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_from_prison_not_supplied() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "toPrisonLocation", "BXI",
                 "escortType", "PECS",
@@ -161,8 +159,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_to_prison_not_supplied() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
                 "escortType", "PECS",
@@ -183,8 +179,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_escort_type_not_supplied() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
                 "toPrisonLocation", "BXI",
@@ -205,8 +199,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_move_date_time_not_supplied() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
                 "toPrisonLocation", "BXI",
@@ -227,8 +219,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_from_prison_longer_than_6_chars() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEIxxxx",
                 "toPrisonLocation", "BXI",
@@ -250,8 +240,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_to_prison_longer_than_6_chars() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
                 "toPrisonLocation", "BXIxxxx",
@@ -273,8 +261,6 @@ public class OffenderMovementsResourceImplIntTest_schedulePrisonToPrisonMove ext
 
     @Test
     public void schedule_prison_to_prison_fails_when_escort_type_longer_than_12_chars() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
         final var request = createHttpEntity(token, Map.of(
                 "fromPrisonLocation", "LEI",
                 "toPrisonLocation", "BXI",
