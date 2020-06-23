@@ -51,9 +51,15 @@ class FreeTextRepositoryTest {
                         "INCIDENT_CASE_REQUIREMENTS",
                         "INCIDENT_CASE_RESPONSES",
                         "INCIDENT_QUE_RESPONSE_HTY",
+                        "IWP_DOCUMENTS",
                         "OFFENDER_ALERTS",
                         "OFFENDER_ASSESSMENTS",
+                        "OFFENDER_ASSESSMENT_ITEMS",
+                        "OFFENDER_BELIEFS",
+                        "OFFENDER_CASES",
                         "OFFENDER_CASE_NOTES",
+                        "OFFENDER_CASE_STATUSES",
+                        "OFFENDER_CONTACT_PERSONS",
                         "OFFENDER_COURSE_ATTENDANCES",
                         "OFFENDER_VISIT_VISITORS"
                 );
