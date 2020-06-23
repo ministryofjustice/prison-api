@@ -130,7 +130,7 @@ public class CourtHearingsService {
     /**
      * Returns all court hearings for a given booking ID for the given date range.
      */
-    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "COURT_HEARING_MAINTAINER"})
     public CourtHearings getCourtHearingsFor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate) {
         checkFromAndToDatesAreValid(fromDate, toDate);
 
