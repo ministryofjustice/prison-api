@@ -18,8 +18,11 @@ public interface FreeTextRepository extends org.springframework.data.repository.
             "WITH incident_case_ids AS (" +
             "SELECT incident_case_id FROM incident_case_parties " +
             "WHERE offender_book_id IN (:bookIds) " +
+            "), " +
+            "offender_csip_ids AS (" +
+            "SELECT csip_id FROM offender_csip_reports " +
+            "WHERE offender_book_id IN (:bookIds) " +
             ") " +
-
             "SELECT 'ADDRESSES' AS table_name " +
             "FROM addresses " +
             "WHERE OWNER_ID IN (:bookIds) " +
@@ -226,6 +229,79 @@ public interface FreeTextRepository extends org.springframework.data.repository.
             "AND REGEXP_LIKE(comment_text, :regex, 'i') " +
 
             "UNION " +
+            "SELECT 'OFFENDER_CSIP_ATTENDEES' AS table_name " +
+            "FROM offender_csip_attendees oca " +
+            "INNER JOIN offender_csip_reviews ocr " +
+            "ON oca.review_id = ocr.review_id " +
+            "INNER JOIN offender_csip_ids oci " +
+            "ON ocr.csip_id = oci.csip_id " +
+            "WHERE REGEXP_LIKE(oca.contribution, :regex, 'i') " +
+
+            "UNION " +
+            "SELECT 'OFFENDER_CSIP_FACTORS' AS table_name " +
+            "FROM offender_csip_factors ocf " +
+            "INNER JOIN offender_csip_ids oci " +
+            "ON ocf.csip_id = oci.csip_id " +
+            "WHERE REGEXP_LIKE(ocf.comments, :regex, 'i') " +
+
+            "UNION " +
+            "SELECT 'OFFENDER_CSIP_INTVW' AS table_name " +
+            "FROM offender_csip_intvw oci " +
+            "INNER JOIN offender_csip_ids ids " +
+            "ON oci.csip_id = ids.csip_id " +
+            "WHERE REGEXP_LIKE(oci.comments, :regex, 'i') " +
+
+            "UNION " +
+            "SELECT 'OFFENDER_CSIP_PLANS' AS table_name " +
+            "FROM offender_csip_plans ocp " +
+            "INNER JOIN offender_csip_ids oci " +
+            "ON ocp.csip_id = oci.csip_id " +
+            "WHERE (" +
+            "REGEXP_LIKE(ocp.identified_need, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocp.progression, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocp.intervention, :regex, 'i') " +
+            ") " +
+
+            "UNION " +
+            "SELECT 'OFFENDER_CSIP_REPORTS' AS table_name " +
+            "FROM offender_csip_reports ocr " +
+            "INNER JOIN offender_csip_ids oci " +
+            "ON ocr.csip_id = oci.csip_id " +
+            "WHERE (" +
+            "REGEXP_LIKE(ocr.rfr_comment, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.cdr_other_information, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.cdr_concern_description, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_known_reasons, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_persons_trigger, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_staff_involved, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_evidence_secured, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_conclusion, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_next_steps, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_other, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_occurrence_reason, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_usual_behaviour, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.inv_protective_factors, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.reason, :regex, 'i') " +
+            "OR REGEXP_LIKE(ocr.cdr_decision_reason, :regex, 'i') " +
+            ") " +
+
+            "UNION " +
+            "SELECT 'OFFENDER_CSIP_REVIEWS' AS table_name " +
+            "FROM offender_csip_reviews ocr " +
+            "INNER JOIN offender_csip_ids oci " +
+            "ON ocr.csip_id = oci.csip_id " +
+            "WHERE REGEXP_LIKE(ocr.summary, :regex, 'i') " +
+
+            "UNION " +
+            "SELECT 'OFFENDER_CURFEWS' AS table_name " +
+            "FROM offender_curfews " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND (" +
+            "REGEXP_LIKE(comment_text, :regex, 'i')" +
+            "OR REGEXP_LIKE(alternate_curfew_detail, :regex, 'i')" +
+            ")" +
+
+            "UNION " +
             "SELECT 'OFFENDER_VISIT_VISITORS' AS table_name " +
             "FROM offender_visit_visitors ovv " +
             "INNER JOIN offender_visits ov " +
@@ -234,5 +310,15 @@ public interface FreeTextRepository extends org.springframework.data.repository.
             "AND REGEXP_LIKE(ovv.comment_text, :regex, 'i')",
 
             nativeQuery = true)
-    List<FreeTextMatch> findMatch(Set<Long> bookIds, String regex);
+    List<FreeTextMatch> findMatchUsingBookIds(Set<Long> bookIds, String regex);
+
+    @Query(value =
+
+            "SELECT 'OFFENDER_DAMAGE_OBLIGATIONS' AS table_name " +
+            "FROM offender_damage_obligations " +
+            "WHERE offender_id IN (:offenderIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i') ",
+
+            nativeQuery = true)
+    List<FreeTextMatch> findMatchUsingOffenderIds(Set<Long> offenderIds, String regex);
 }
