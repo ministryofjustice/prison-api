@@ -65,6 +65,6 @@ public class OffenceHistoryDetail {
     @ApiModelProperty(value = "Latest court date associated with the offence", example = "2018-02-10", position = 14)
     private LocalDate courtDate;
 
-    @ApiModelProperty(value = "Court case id", example = "2018-02-10", position = 14)
+    @ApiModelProperty(value = "Court case id", example = "100", position = 14)
     private String caseId;
 }
