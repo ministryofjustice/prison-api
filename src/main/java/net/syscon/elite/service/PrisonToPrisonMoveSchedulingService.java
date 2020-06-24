@@ -70,7 +70,7 @@ public class PrisonToPrisonMoveSchedulingService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = "PRISON_MOVE_MAINTAINER")
     @HasWriteScope
     @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER')")
     public ScheduledPrisonToPrisonMove schedule(final Long bookingId, final PrisonToPrisonMove move) {
@@ -153,7 +153,7 @@ public class PrisonToPrisonMoveSchedulingService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = "PRISON_MOVE_MAINTAINER")
     @HasWriteScope
     @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER')")
     public void cancel(final Long bookingId, final Long scheduledMoveId, final String transferCancellationReasonCode) {

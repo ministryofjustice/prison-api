@@ -22,7 +22,7 @@ public class CourtHearingCancellationService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
     @HasWriteScope
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
     public void cancel(final Long bookingId, final Long hearingId) {
