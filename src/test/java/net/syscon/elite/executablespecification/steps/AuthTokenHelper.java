@@ -301,7 +301,7 @@ public class AuthTokenHelper {
     private String courtHearingMaintainer() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()
-                        .username("ITAG_USER")
+                        .username("DOES_NOT_EXIST")
                         .scope(List.of("read", "write"))
                         .roles(List.of("ROLE_COURT_HEARING_MAINTAINER"))
                         .expiryTime(Duration.ofDays(365 * 10))
@@ -312,7 +312,7 @@ public class AuthTokenHelper {
     private String prisonMoveMaintiner() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()
-                        .username("ITAG_USER")
+                        .username("DOES_NOT_EXIST")
                         .scope(List.of("read", "write"))
                         .roles(List.of("ROLE_PRISON_MOVE_MAINTAINER"))
                         .expiryTime(Duration.ofDays(365 * 10))

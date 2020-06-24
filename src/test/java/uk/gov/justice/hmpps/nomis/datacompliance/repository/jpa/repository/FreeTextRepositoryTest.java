@@ -28,8 +28,8 @@ class FreeTextRepositoryTest {
     private FreeTextRepository repository;
 
     @Test
-    void findMatch() {
-        assertThat(repository.findMatch(Set.of(-1L), ".*Text.*"))
+    void findMatchUsingBookIds() {
+        assertThat(repository.findMatchUsingBookIds(Set.of(-1L), ".*Text.*"))
                 .extracting(FreeTextMatch::getTableName)
                 .extracting(String::trim)
                 .containsExactlyInAnyOrder(
@@ -51,17 +51,46 @@ class FreeTextRepositoryTest {
                         "INCIDENT_CASE_REQUIREMENTS",
                         "INCIDENT_CASE_RESPONSES",
                         "INCIDENT_QUE_RESPONSE_HTY",
+                        "IWP_DOCUMENTS",
                         "OFFENDER_ALERTS",
                         "OFFENDER_ASSESSMENTS",
+                        "OFFENDER_ASSESSMENT_ITEMS",
+                        "OFFENDER_BELIEFS",
+                        "OFFENDER_CASES",
                         "OFFENDER_CASE_NOTES",
+                        "OFFENDER_CASE_STATUSES",
+                        "OFFENDER_CONTACT_PERSONS",
                         "OFFENDER_COURSE_ATTENDANCES",
+                        "OFFENDER_CSIP_ATTENDEES",
+                        "OFFENDER_CSIP_FACTORS",
+                        "OFFENDER_CSIP_INTVW",
+                        "OFFENDER_CSIP_PLANS",
+                        "OFFENDER_CSIP_REPORTS",
+                        "OFFENDER_CSIP_REVIEWS",
+                        "OFFENDER_CURFEWS",
                         "OFFENDER_VISIT_VISITORS"
                 );
     }
 
     @Test
-    void findMatchReturnsEmpty() {
-        assertThat(repository.findMatch(Set.of(-1L), ".*NO MATCH.*"))
+    void findMatchUsingBookIdsReturnsEmpty() {
+        assertThat(repository.findMatchUsingBookIds(Set.of(-1L), ".*NO MATCH.*"))
+                .isEmpty();
+    }
+
+    @Test
+    void findMatchUsingOffenderIds() {
+        assertThat(repository.findMatchUsingOffenderIds(Set.of(-1001L), ".*Text.*"))
+                .extracting(FreeTextMatch::getTableName)
+                .extracting(String::trim)
+                .containsExactlyInAnyOrder(
+                        "OFFENDER_DAMAGE_OBLIGATIONS"
+                );
+    }
+
+    @Test
+    void findMatchUsingOffenderIdsReturnsEmpty() {
+        assertThat(repository.findMatchUsingOffenderIds(Set.of(-1001L), ".*NO MATCH.*"))
                 .isEmpty();
     }
 }
