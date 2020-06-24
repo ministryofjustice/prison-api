@@ -60,23 +60,23 @@ public class BookingRepositoryTest {
                 .setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
-    private static void assertVisitDetails(final Visit visit) {
-        assertThat(visit).isNotNull();
+    private static void assertVisitDetails(final VisitDetails visitDetails) {
+        assertThat(visitDetails).isNotNull();
 
-        assertThat(visit.getStartTime().toString()).isEqualTo("2016-12-11T14:30");
-        assertThat(visit.getEndTime().toString()).isEqualTo("2016-12-11T15:30");
-        assertThat(visit.getEventOutcome()).isEqualTo("ABS");
-        assertThat(visit.getEventOutcomeDescription()).isEqualTo("Absence");
-        assertThat(visit.getLeadVisitor()).isEqualTo("JESSY SMITH1");
-        assertThat(visit.getRelationship()).isEqualTo("UN");
-        assertThat(visit.getRelationshipDescription()).isEqualTo("Uncle");
-        assertThat(visit.getLocation()).isEqualTo("Visiting Room");
-        assertThat(visit.getEventStatus()).isEqualTo("CANC");
-        assertThat(visit.getEventStatusDescription()).isEqualTo("Cancelled");
-        assertThat(visit.getCancellationReason()).isEqualTo("NSHOW");
-        assertThat(visit.getCancelReasonDescription()).isEqualTo("Visitor Did Not Arrive");
-        assertThat(visit.getVisitType()).isEqualTo("SCON");
-        assertThat(visit.getVisitTypeDescription()).isEqualTo("Social Contact");
+        assertThat(visitDetails.getStartTime().toString()).isEqualTo("2016-12-11T14:30");
+        assertThat(visitDetails.getEndTime().toString()).isEqualTo("2016-12-11T15:30");
+        assertThat(visitDetails.getEventOutcome()).isEqualTo("ABS");
+        assertThat(visitDetails.getEventOutcomeDescription()).isEqualTo("Absence");
+        assertThat(visitDetails.getLeadVisitor()).isEqualTo("JESSY SMITH1");
+        assertThat(visitDetails.getRelationship()).isEqualTo("UN");
+        assertThat(visitDetails.getRelationshipDescription()).isEqualTo("Uncle");
+        assertThat(visitDetails.getLocation()).isEqualTo("Visiting Room");
+        assertThat(visitDetails.getEventStatus()).isEqualTo("CANC");
+        assertThat(visitDetails.getEventStatusDescription()).isEqualTo("Cancelled");
+        assertThat(visitDetails.getCancellationReason()).isEqualTo("NSHOW");
+        assertThat(visitDetails.getCancelReasonDescription()).isEqualTo("Visitor Did Not Arrive");
+        assertThat(visitDetails.getVisitType()).isEqualTo("SCON");
+        assertThat(visitDetails.getVisitTypeDescription()).isEqualTo("Social Contact");
     }
 
     @Test

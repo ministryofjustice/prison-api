@@ -12,7 +12,7 @@ import net.syscon.elite.api.model.RecallBooking;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitDetails;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
@@ -85,9 +85,9 @@ public interface BookingRepository {
 
     List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId, List<String> sentenceTermCodes);
 
-    Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
+    VisitDetails getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
 
-    Visit getBookingVisitNext(Long bookingId, LocalDateTime from);
+    VisitDetails getBookingVisitNext(Long bookingId, LocalDateTime from);
 
     Optional<OffenderBookingIdSeq> getLatestBookingIdentifierForOffender(String offenderNo);
 

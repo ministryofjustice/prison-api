@@ -12,7 +12,7 @@ import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceAdjustmentDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitDetails;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.VisitWithVisitors;
 import net.syscon.elite.api.model.Visitor;
@@ -489,7 +489,7 @@ public class BookingServiceTest {
         assertThat(visitsWithVisitors).containsOnly(
                 VisitWithVisitors.builder()
                         .visitDetail(
-                                Visit
+                                VisitDetails
                                         .builder()
                                         .cancellationReason(null)
                                         .cancelReasonDescription(null)
@@ -618,7 +618,7 @@ public class BookingServiceTest {
         assertThat(visitsWithVisitors).containsOnly(
                 VisitWithVisitors.builder()
                         .visitDetail(
-                                Visit
+                                VisitDetails
                                         .builder()
                                         .cancellationReason(null)
                                         .cancelReasonDescription(null)
@@ -657,7 +657,7 @@ public class BookingServiceTest {
                         .build(),
                 VisitWithVisitors.builder()
                         .visitDetail(
-                                Visit
+                                VisitDetails
                                         .builder()
                                         .cancellationReason(null)
                                         .cancelReasonDescription(null)
