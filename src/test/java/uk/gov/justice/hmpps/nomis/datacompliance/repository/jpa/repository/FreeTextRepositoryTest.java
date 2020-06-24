@@ -68,6 +68,25 @@ class FreeTextRepositoryTest {
                         "OFFENDER_CSIP_REPORTS",
                         "OFFENDER_CSIP_REVIEWS",
                         "OFFENDER_CURFEWS",
+                        "OFFENDER_DATA_CORRECTIONS_HTY",
+                        "OFFENDER_EDUCATIONS",
+                        "OFFENDER_EMPLOYMENTS",
+                        "OFFENDER_EXTERNAL_MOVEMENTS",
+                        "OFFENDER_FINE_PAYMENTS",
+                        "OFFENDER_FIXED_TERM_RECALLS",
+                        "OFFENDER_GANG_AFFILIATIONS",
+                        "OFFENDER_GANG_INVESTS",
+                        "OFFENDER_HEALTH_PROBLEMS",
+                        "OFFENDER_IDENTIFYING_MARKS",
+                        "OFFENDER_IEP_LEVELS",
+                        "OFFENDER_IMPRISON_STATUSES",
+                        "OFFENDER_IND_SCHEDULES",
+                        "OFFENDER_KEY_DATE_ADJUSTS",
+                        "OFFENDER_LANGUAGES",
+                        "OFFENDER_LICENCE_RECALLS",
+                        "OFFENDER_MEDICAL_TREATMENTS",
+                        "OFFENDER_MILITARY_RECORDS",
+                        "OFFENDER_MOVEMENT_APPS",
                         "OFFENDER_VISIT_VISITORS"
                 );
     }
@@ -84,7 +103,9 @@ class FreeTextRepositoryTest {
                 .extracting(FreeTextMatch::getTableName)
                 .extracting(String::trim)
                 .containsExactlyInAnyOrder(
-                        "OFFENDER_DAMAGE_OBLIGATIONS"
+                        "OFFENDER_DAMAGE_OBLIGATIONS",
+                        "OFFENDER_FREEZE_DISBURSEMENTS",
+                        "OFFENDER_IDENTIFIERS"
                 );
     }
 

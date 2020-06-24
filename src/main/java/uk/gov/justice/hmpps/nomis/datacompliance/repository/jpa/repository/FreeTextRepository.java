@@ -19,10 +19,12 @@ public interface FreeTextRepository extends org.springframework.data.repository.
             "SELECT incident_case_id FROM incident_case_parties " +
             "WHERE offender_book_id IN (:bookIds) " +
             "), " +
+
             "offender_csip_ids AS (" +
             "SELECT csip_id FROM offender_csip_reports " +
             "WHERE offender_book_id IN (:bookIds) " +
             ") " +
+
             "SELECT 'ADDRESSES' AS table_name " +
             "FROM addresses " +
             "WHERE OWNER_ID IN (:bookIds) " +
@@ -302,6 +304,128 @@ public interface FreeTextRepository extends org.springframework.data.repository.
             ")" +
 
             "UNION " +
+            "SELECT 'OFFENDER_DATA_CORRECTIONS_HTY' AS table_name " +
+            "FROM offender_data_corrections_hty " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_EDUCATIONS ' AS table_name " +
+            "FROM offender_educations " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_EMPLOYMENTS ' AS table_name " +
+            "FROM offender_employments " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND (" +
+            "REGEXP_LIKE(termination_reason_text, :regex, 'i')" +
+            "OR REGEXP_LIKE(comment_text, :regex, 'i')" +
+            ") " +
+
+            "UNION " +
+            "SELECT 'OFFENDER_EXTERNAL_MOVEMENTS ' AS table_name " +
+            "FROM offender_external_movements " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_FINE_PAYMENTS ' AS table_name " +
+            "FROM offender_fine_payments " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_FIXED_TERM_RECALLS ' AS table_name " +
+            "FROM offender_fixed_term_recalls " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_GANG_AFFILIATIONS ' AS table_name " +
+            "FROM offender_gang_affiliations " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_GANG_INVESTS ' AS table_name " +
+            "FROM offender_gang_invests " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_HEALTH_PROBLEMS' AS table_name " +
+            "FROM offender_health_problems " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(description, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_IDENTIFYING_MARKS' AS table_name " +
+            "FROM offender_identifying_marks " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_IEP_LEVELS' AS table_name " +
+            "FROM offender_iep_levels " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_IMPRISON_STATUSES' AS table_name " +
+            "FROM offender_imprison_statuses " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_IND_SCHEDULES' AS table_name " +
+            "FROM offender_ind_schedules " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_KEY_DATE_ADJUSTS' AS table_name " +
+            "FROM offender_key_date_adjusts " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_LANGUAGES' AS table_name " +
+            "FROM offender_languages " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_LICENCE_RECALLS' AS table_name " +
+            "FROM offender_licence_recalls " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_MEDICAL_TREATMENTS' AS table_name " +
+            "FROM offender_medical_treatments omt " +
+            "INNER JOIN offender_health_problems ohp " +
+            "ON omt.offender_health_problem_id = ohp.offender_health_problem_id " +
+            "WHERE ohp.offender_book_id IN (:bookIds) " +
+            "AND (" +
+            "REGEXP_LIKE(omt.comment_text, :regex, 'i') " +
+            "OR REGEXP_LIKE(omt.description, :regex, 'i') " +
+            ")" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_MILITARY_RECORDS' AS table_name " +
+            "FROM offender_military_records " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(description, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_MOVEMENT_APPS' AS table_name " +
+            "FROM offender_movement_apps " +
+            "WHERE offender_book_id IN (:bookIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
             "SELECT 'OFFENDER_VISIT_VISITORS' AS table_name " +
             "FROM offender_visit_visitors ovv " +
             "INNER JOIN offender_visits ov " +
@@ -317,7 +441,19 @@ public interface FreeTextRepository extends org.springframework.data.repository.
             "SELECT 'OFFENDER_DAMAGE_OBLIGATIONS' AS table_name " +
             "FROM offender_damage_obligations " +
             "WHERE offender_id IN (:offenderIds) " +
-            "AND REGEXP_LIKE(comment_text, :regex, 'i') ",
+            "AND REGEXP_LIKE(comment_text, :regex, 'i') " +
+
+            "UNION " +
+            "SELECT 'OFFENDER_FREEZE_DISBURSEMENTS ' AS table_name " +
+            "FROM offender_freeze_disbursements " +
+            "WHERE offender_id IN (:offenderIds) " +
+            "AND REGEXP_LIKE(comment_text, :regex, 'i')" +
+
+            "UNION " +
+            "SELECT 'OFFENDER_IDENTIFIERS' AS table_name " +
+            "FROM offender_identifiers " +
+            "WHERE offender_id IN (:offenderIds) " +
+            "AND REGEXP_LIKE(issued_authority_text, :regex, 'i')",
 
             nativeQuery = true)
     List<FreeTextMatch> findMatchUsingOffenderIds(Set<Long> offenderIds, String regex);

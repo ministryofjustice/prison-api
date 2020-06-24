@@ -1,5 +1,5 @@
 -- Single detail record for offender - IEP level and date will come from this record
-INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID) VALUES (-1, 1, TO_DATE('2017-08-15', 'YYYY-MM-DD'), TO_DATE('2017-08-15 16:04:35', 'YYYY-MM-DD HH24:MI:SS'), 'LEI', 'STD', null, null);
+INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID) VALUES (-1, 1, TO_DATE('2017-08-15', 'YYYY-MM-DD'), TO_DATE('2017-08-15 16:04:35', 'YYYY-MM-DD HH24:MI:SS'), 'LEI', 'STD', 'Some Comment Text', null);
 
 -- Multiple detail records (with different IEP dates) for offender
 --  IEP level and date will come from latest record (one with most recent IEP_DATE value)

@@ -1,1 +1,2 @@
--- Pending insertion of seed/test data
+INSERT INTO OFFENDER_MOVEMENT_APPS (offender_movement_app_id,offender_book_id,event_class,event_type,event_sub_type,application_date,application_time,from_date,release_time,to_date,return_time,application_status,application_type,comment_text)
+VALUES (-1,-1,'EXT_MOV','TAP','R3',TIMESTAMP '2001-01-01 00:00:00.000000',TIMESTAMP '2001-01-01 00:00:00.000000',TIMESTAMP '2001-01-01 00:00:00.000000',TIMESTAMP '2001-01-01 00:00:00.000000',TIMESTAMP '2001-01-02 00:00:00.000000',TIMESTAMP '2001-01-02 00:00:00.000000','PEN','SINGLE','Some Comment Text')
