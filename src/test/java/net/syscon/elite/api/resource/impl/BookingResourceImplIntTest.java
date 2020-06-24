@@ -384,6 +384,23 @@ public class BookingResourceImplIntTest extends ResourceTest {
         assertThatJsonFileAndStatus(responseEntity, 200, "offender_property_containers.json");
     }
 
+    @Test
+    public void getOffences() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_USER"), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/A1234AA/offenceHistory?convictionsOnly=false", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "offender_offences.json");
+    }
+
+    @Test
+    public void getOffencesNotAuthorised() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/A1234AA/offenceHistory?convictionsOnly=false", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(403);
+
+    }
+
     private ScheduledEvent createEvent(final String type, final String time) {
         return ScheduledEvent.builder().bookingId(-1L)
                 .startTime(Optional.ofNullable(time).map(t -> "2019-01-02T" + t).map(LocalDateTime::parse).orElse(null))

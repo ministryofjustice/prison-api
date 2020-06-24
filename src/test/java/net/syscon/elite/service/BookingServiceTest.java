@@ -695,6 +695,8 @@ public class BookingServiceTest {
                                         .build()))
                         .build());
     }
+
+    @Test
     public void getOffenderSentenceTerms_shouldDefaultToImp() {
         bookingService.getOffenderSentenceTerms(-1L, Collections.emptyList());
 
