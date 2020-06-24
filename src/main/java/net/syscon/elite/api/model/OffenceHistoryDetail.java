@@ -66,5 +66,5 @@ public class OffenceHistoryDetail {
     private LocalDate courtDate;
 
     @ApiModelProperty(value = "Court case id", example = "100", position = 15)
-    private String caseId;
+    private Long caseId;
 }
