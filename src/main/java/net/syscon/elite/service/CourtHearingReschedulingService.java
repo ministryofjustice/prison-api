@@ -38,7 +38,7 @@ public class CourtHearingReschedulingService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
     @HasWriteScope
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
     public CourtHearing reschedule(final Long bookingId, final Long hearingId, final LocalDateTime revisedDateTime) {
