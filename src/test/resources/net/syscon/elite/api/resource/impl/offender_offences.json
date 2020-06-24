@@ -11,7 +11,7 @@
     "primaryResultConviction": true,
     "secondaryResultConviction": false,
     "courtDate": "2017-07-02",
-    "caseId": "-1"
+    "caseId": -1
   },
   {
     "bookingId": -1,
@@ -25,7 +25,7 @@
     "secondaryResultDescription": "Detention Centre",
     "primaryResultConviction": false,
     "secondaryResultConviction": true,
-    "caseId": "-2"
+    "caseId": -2
   }
 ]
 
