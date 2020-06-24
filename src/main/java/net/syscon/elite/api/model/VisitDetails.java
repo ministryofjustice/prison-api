@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class Visit {
+public class VisitDetails {
 
     @NotBlank
     @ApiModelProperty(required = true, value = "Status of event")

@@ -18,7 +18,7 @@ import net.syscon.elite.api.model.RecallBooking;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitDetails;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
@@ -104,8 +104,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     private static final StandardBeanPropertyRowMapper<OffenderSentenceTerms> SENTENCE_TERMS_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSentenceTerms.class);
 
-    private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(Visit.class);
+    private static final StandardBeanPropertyRowMapper<VisitDetails> VISIT_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(VisitDetails.class);
 
     private final StandardBeanPropertyRowMapper<VisitBalances> VISIT_BALANCES_MAPPER =
             new StandardBeanPropertyRowMapper<>(VisitBalances.class);
@@ -490,7 +490,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Visit getBookingVisitLast(final Long bookingId, final LocalDateTime cutoffDate) {
+    public VisitDetails getBookingVisitLast(final Long bookingId, final LocalDateTime cutoffDate) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         Objects.requireNonNull(cutoffDate, "cutoffDate is a required parameter");
 
@@ -507,7 +507,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Visit getBookingVisitNext(final Long bookingId, final LocalDateTime from) {
+    public VisitDetails getBookingVisitNext(final Long bookingId, final LocalDateTime from) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         Objects.requireNonNull(from, "from is a required parameter");
 

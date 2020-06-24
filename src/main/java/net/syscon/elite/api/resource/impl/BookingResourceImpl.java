@@ -47,7 +47,7 @@ import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.UpdateAttendanceBatch;
 import net.syscon.elite.api.model.UpdateCaseNote;
-import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitDetails;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.VisitWithVisitors;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
@@ -593,7 +593,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, Pageable pageable) {
+    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, Pageable pageable) {
         return bookingService.getBookingVisitsWithVisitor(bookingId, fromDate, toDate, visitType, pageable);
     }
 
@@ -624,12 +624,12 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public Visit getBookingVisitsLast(final Long bookingId) {
+    public VisitDetails getBookingVisitsLast(final Long bookingId) {
         return bookingService.getBookingVisitLast(bookingId);
     }
 
     @Override
-    public Visit getBookingVisitsNext(final Long bookingId) {
+    public VisitDetails getBookingVisitsNext(final Long bookingId) {
         return bookingService.getBookingVisitNext(bookingId);
     }
 

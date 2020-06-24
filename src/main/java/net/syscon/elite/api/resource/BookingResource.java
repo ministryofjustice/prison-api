@@ -51,7 +51,7 @@ import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.UpdateAttendanceBatch;
 import net.syscon.elite.api.model.UpdateCaseNote;
-import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitDetails;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.VisitWithVisitors;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
@@ -515,11 +515,11 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
-                                                               @ApiParam(value = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-                                                               @ApiParam(value = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate,
-                                                               @ApiParam(value = "Type of visit. One of SCON, OFFI") @RequestParam(value = "visitType", required = false) String visitType,
-                                                               @PageableDefault() final Pageable pageable);
+    Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
+                                                                      @ApiParam(value = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+                                                                      @ApiParam(value = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate,
+                                                                      @ApiParam(value = "Type of visit. One of SCON, OFFI") @RequestParam(value = "visitType", required = false) String visitType,
+                                                                      @PageableDefault() final Pageable pageable);
 
     @GetMapping("/{bookingId}/visits/last")
     @ApiOperation(value = "The most recent visit for the offender.", notes = "The most recent visit for the offender.", nickname = "getBookingVisitsLast")
@@ -527,7 +527,7 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    Visit getBookingVisitsLast(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+    VisitDetails getBookingVisitsLast(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
 
     @GetMapping("/{bookingId}/visits/next")
     @ApiOperation(value = "The next visit for the offender.", notes = "The next visit for the offender.", nickname = "getBookingVisitsNext")
@@ -535,7 +535,7 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    Visit getBookingVisitsNext(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+    VisitDetails getBookingVisitsNext(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
 
     @GetMapping("/{bookingId}/visits/today")
     @ApiOperation(value = "Today's scheduled visits for offender.", notes = "Today's scheduled visits for offender.", nickname = "getBookingVisitsForToday")

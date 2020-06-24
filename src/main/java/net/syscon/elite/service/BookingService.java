@@ -22,7 +22,7 @@ import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceAdjustmentDetail;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitDetails;
 import net.syscon.elite.api.model.VisitBalances;
 import net.syscon.elite.api.model.VisitWithVisitors;
 import net.syscon.elite.api.model.Visitor;
@@ -403,7 +403,7 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public Page<VisitWithVisitors<Visit>> getBookingVisitsWithVisitor(final @NotNull Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Pageable pageable) {
+    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final @NotNull Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Pageable pageable) {
         final var visits = visitRepository.findAllByBookingId(bookingId, pageable);
 
         final var visitsWithVisitors = visits.stream()
@@ -426,7 +426,7 @@ public class BookingService {
 
                     return VisitWithVisitors.builder()
                             .visitDetail(
-                                    Visit.builder()
+                                    VisitDetails.builder()
                                             .visitType(v.getVisitType())
                                             .visitTypeDescription(v.getVisitTypeDescription())
                                             .cancellationReason(v.getCancellationReason())
@@ -464,12 +464,12 @@ public class BookingService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public Visit getBookingVisitLast(final Long bookingId) {
+    public VisitDetails getBookingVisitLast(final Long bookingId) {
         return bookingRepository.getBookingVisitLast(bookingId, LocalDateTime.now());
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public Visit getBookingVisitNext(final Long bookingId) {
+    public VisitDetails getBookingVisitNext(final Long bookingId) {
         return bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
     }
 

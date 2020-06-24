@@ -1,6 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.VisitDetails;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -21,7 +21,7 @@ public class BookingVisitSteps extends ScheduledEventSteps {
     private static final String BOOKING_VISIT_NEXT_API_URL = API_PREFIX + "bookings/{bookingId}/visits/next";
 
 
-    private Visit lastVisit;
+    private VisitDetails lastVisitDetails;
 
     @Override
     protected String getResourcePath() {
@@ -50,16 +50,16 @@ public class BookingVisitSteps extends ScheduledEventSteps {
 
     private void dispatchRequest(final String url, final Long bookingId) {
         init();
-        final ResponseEntity<Visit> response;
+        final ResponseEntity<VisitDetails> response;
         try {
             response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<Visit>() {
+                    new ParameterizedTypeReference<VisitDetails>() {
                     },
                     bookingId);
-            lastVisit = response.getBody();
+            lastVisitDetails = response.getBody();
 
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -67,15 +67,15 @@ public class BookingVisitSteps extends ScheduledEventSteps {
     }
 
     public void verifyVisitField(final String field, final String value) throws ReflectiveOperationException {
-        verifyField(lastVisit, field, value);
+        verifyField(lastVisitDetails, field, value);
     }
 
     public void verifyStartDateTime(final LocalDateTime expectedStartDateTime) {
-        assertThat(lastVisit.getStartTime()).isEqualTo(expectedStartDateTime);
+        assertThat(lastVisitDetails.getStartTime()).isEqualTo(expectedStartDateTime);
     }
 
     public void verifyEndDateTime(final LocalDateTime expectedEndDateTime) {
-        assertThat(lastVisit.getEndTime()).isEqualTo(expectedEndDateTime);
+        assertThat(lastVisitDetails.getEndTime()).isEqualTo(expectedEndDateTime);
 
     }
 }
