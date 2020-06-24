@@ -466,6 +466,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo, final boolean convictionsOnly) {
         return bookingService.getOffenceHistory(offenderNo, convictionsOnly);
     }

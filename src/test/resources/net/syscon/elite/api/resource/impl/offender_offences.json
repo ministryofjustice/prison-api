@@ -1,0 +1,31 @@
+[
+  {
+    "bookingId": -1,
+    "offenceDate": "2017-12-24",
+    "offenceDescription": "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)",
+    "offenceCode": "RV98011",
+    "statuteCode": "RV98",
+    "mostSerious": true,
+    "primaryResultCode": "1004",
+    "primaryResultDescription": "Restriction Order",
+    "primaryResultConviction": true,
+    "secondaryResultConviction": false,
+    "courtDate": "2017-07-02",
+    "caseId": "-1"
+  },
+  {
+    "bookingId": -1,
+    "offenceDate": "2018-09-01",
+    "offenceRangeDate": "2018-09-15",
+    "offenceDescription": "Cause another to use a vehicle where the seat belt buckle/other fastening was not maintained so that the belt could be readily fastened or unfastened/kept free from temporary or permanent obstruction/readily accessible to a person sitting in the seat.",
+    "offenceCode": "RC86356",
+    "statuteCode": "RC86",
+    "mostSerious": false,
+    "secondaryResultCode": "1006",
+    "secondaryResultDescription": "Detention Centre",
+    "primaryResultConviction": false,
+    "secondaryResultConviction": true,
+    "caseId": "-2"
+  }
+]
+
