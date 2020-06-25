@@ -16,7 +16,6 @@ import net.syscon.elite.api.support.AssessmentStatusType;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.AssessmentDto;
-import net.syscon.elite.service.support.Language;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -1244,7 +1243,7 @@ public class InmateRepositoryTest {
         final var info = repository.findPersonalCareNeeds(-1, Set.of("DISAB", "MATSTAT"));
         assertThat(info).containsExactly(
                 PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
-                        .problemDescription("No Disability").commentText("description 1")
+                        .problemDescription("No Disability").commentText("Some Description Text 1")
                         .startDate(LocalDate.parse("2010-06-21")).build(),
                 PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
                         .problemDescription("Preg, acc under 9mths").commentText("P1")
@@ -1259,7 +1258,7 @@ public class InmateRepositoryTest {
                         .problemDescription("Preg, acc under 9mths").commentText("P1")
                         .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
                 PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
-                        .problemDescription("No Disability").commentText("description 1")
+                        .problemDescription("No Disability").commentText("Some Description Text 1")
                         .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
                 PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
                         .problemDescription("No Disability").commentText(null)
@@ -1268,7 +1267,7 @@ public class InmateRepositoryTest {
                         .problemDescription("No Disability").commentText(null)
                         .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
                 PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
-                        .problemDescription("No Disability").commentText("description 2")
+                        .problemDescription("No Disability").commentText("Some Description Text 2")
                         .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build());
     }
 
@@ -1277,7 +1276,7 @@ public class InmateRepositoryTest {
         final var expectedInfo = List.of(
                 ReasonableAdjustment.builder()
                         .treatmentCode("WHEELCHR_ACC")
-                        .commentText("abcd")
+                        .commentText("Some Comment Text")
                         .startDate(LocalDate.of(2010, 6, 21))
                         .build(),
                 ReasonableAdjustment.builder()

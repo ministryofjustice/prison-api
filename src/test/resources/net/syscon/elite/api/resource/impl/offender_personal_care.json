@@ -116,7 +116,13 @@
       "resultValue": "Spaniard"
     }
   ],
-  "physicalMarks": [],
+  "physicalMarks": [
+    {
+      "type":"Tattoo",
+      "bodyPart":"Torso",
+      "comment":"Some Comment Text"
+    }
+  ],
   "assessments": [
     {
       "bookingId": -1,
@@ -165,7 +171,7 @@
       "problemCode": "ND",
       "problemStatus": "ON",
       "problemDescription": "No Disability",
-      "commentText": "description 1",
+      "commentText": "Some Description Text 1",
       "startDate": "2010-06-21",
       "endDate": null
     },

@@ -6,7 +6,7 @@ INSERT INTO OFFENDER_MILITARY_RECORDS (OFFENDER_BOOK_ID, MILITARY_SEQ, WAR_ZONE_
                                        AUDIT_MODULE_NAME, AUDIT_CLIENT_USER_ID, AUDIT_CLIENT_IP_ADDRESS,
                                        AUDIT_CLIENT_WORKSTATION_NAME, AUDIT_ADDITIONAL_INFO)
 VALUES (-1, 1, 'AFG', TIMESTAMP '2000-01-01 00:00:00.000000', TIMESTAMP '2020-10-17 00:00:00.000000',
-        'DIS', 'ARM', 'left', 'auno', 'Somewhere', 'Sheffield', 'N', 'LCPL_RMA', 'asno', 'CM', sysdate,
+        'DIS', 'ARM', 'Some Description Text', 'auno', 'Somewhere', 'Sheffield', 'N', 'LCPL_RMA', 'asno', 'CM', sysdate,
         'PPHILLIPS_GEN', sysdate - 1 / 24, 'PPHILLIPS_GEN', sysdate - 2 / 24,
         'PPHILLIPS_GEN', 'OIDMHIST', 'pphillips', '10.102.2.4', 'MGMRW0100', null),
        (-1, 2, null, TIMESTAMP '2001-01-01 00:00:00.000000', null, null, 'NAV', 'second record', null, null, null, 'N',
