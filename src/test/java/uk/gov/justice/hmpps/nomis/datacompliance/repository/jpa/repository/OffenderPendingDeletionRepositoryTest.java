@@ -94,4 +94,14 @@ class OffenderPendingDeletionRepositoryTest {
                 DELETION_DUE_DATE.plusDays(1),
                 PAGE_REQUEST)).isEmpty();
     }
+
+    @Test
+    @Sql("add_offender_non_association.sql")
+    @Sql(value = "remove_offender_non_association.sql", executionPhase = AFTER_TEST_METHOD)
+    void getOffendersDueForDeletionFiltersOutThoseWithNonAssociations() {
+        assertThat(repository.getOffendersDueForDeletionBetween(
+                DELETION_DUE_DATE.minusDays(1),
+                DELETION_DUE_DATE.plusDays(1),
+                PAGE_REQUEST)).isEmpty();
+    }
 }
