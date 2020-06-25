@@ -87,6 +87,11 @@ public interface OffenderPendingDeletionRepository extends CrudRepository<Offend
                     "    SELECT 1 FROM IWP_DOCUMENTS ID" +
                     "    WHERE ID.OFFENDER_BOOK_ID = SB.OFFENDER_BOOK_ID" +
                     ") " +
+                    "AND NOT EXISTS (" +
+                    "    SELECT 1 FROM OFFENDER_NON_ASSOCIATIONS ONA" +
+                    "    WHERE ONA.OFFENDER_BOOK_ID = SB.OFFENDER_BOOK_ID" +
+                    "    OR ONA.NS_OFFENDER_BOOK_ID = SB.OFFENDER_BOOK_ID" +
+                    ") " +
                     "ORDER BY SB.OFFENDER_ID_DISPLAY ASC",
             countQuery =
                     "WITH SINGLE_BOOKINGS(OFFENDER_ID_DISPLAY, OFFENDER_BOOK_ID) AS (" +
@@ -145,6 +150,11 @@ public interface OffenderPendingDeletionRepository extends CrudRepository<Offend
                     "AND NOT EXISTS (" +
                     "    SELECT 1 FROM IWP_DOCUMENTS ID" +
                     "    WHERE ID.OFFENDER_BOOK_ID = SB.OFFENDER_BOOK_ID" +
+                    ") " +
+                    "AND NOT EXISTS (" +
+                    "    SELECT 1 FROM OFFENDER_NON_ASSOCIATIONS ONA" +
+                    "    WHERE ONA.OFFENDER_BOOK_ID = SB.OFFENDER_BOOK_ID" +
+                    "    OR ONA.NS_OFFENDER_BOOK_ID = SB.OFFENDER_BOOK_ID" +
                     ")",
                     nativeQuery = true)
     Page<OffenderPendingDeletion> getOffendersDueForDeletionBetween(@Param("fromDate") final LocalDate fromDate,
