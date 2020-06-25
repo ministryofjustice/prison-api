@@ -69,7 +69,7 @@ public class OffenderBookingRepositoryTest {
                         .militaryDischarge(new MilitaryDischarge("DIS", "Dishonourable"))
                         .warZone(new WarZone("AFG", "Afghanistan"))
                         .militaryBranch(new MilitaryBranch("ARM", "Army"))
-                        .description("left")
+                        .description("Some Description Text")
                         .unitNumber("auno")
                         .enlistmentLocation("Somewhere")
                         .militaryRank(new MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
