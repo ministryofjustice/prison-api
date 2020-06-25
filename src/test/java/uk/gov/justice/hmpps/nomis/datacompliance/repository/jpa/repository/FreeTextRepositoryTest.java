@@ -87,6 +87,11 @@ class FreeTextRepositoryTest {
                         "OFFENDER_MEDICAL_TREATMENTS",
                         "OFFENDER_MILITARY_RECORDS",
                         "OFFENDER_MOVEMENT_APPS",
+                        "OFFENDER_NA_DETAILS",
+                        "OFFENDER_NO_PAY_PERIODS",
+                        "OFFENDER_OIC_SANCTIONS",
+                        "OFFENDER_PAY_STATUSES",
+                        "OFFENDER_PERSON_RESTRICTS",
                         "OFFENDER_VISIT_VISITORS"
                 );
     }
@@ -105,7 +110,8 @@ class FreeTextRepositoryTest {
                 .containsExactlyInAnyOrder(
                         "OFFENDER_DAMAGE_OBLIGATIONS",
                         "OFFENDER_FREEZE_DISBURSEMENTS",
-                        "OFFENDER_IDENTIFIERS"
+                        "OFFENDER_IDENTIFIERS",
+                        "OFFENDER_PAYMENT_PROFILES"
                 );
     }
 

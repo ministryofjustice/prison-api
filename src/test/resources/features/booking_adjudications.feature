@@ -18,9 +18,9 @@ Feature: Booking Adjudications
     And the award effectiveDate is "<effectiveDate>"
 
     Examples:
-      | bookingId | count | sanctionCode | sanctionCodeDescription | months | days | limit | comment | effectiveDate |
-      | -2        | 1     | ADA          | Additional Days Added   |        |  11  |       |         | 2016-11-09    |
-      | -1        | 1     | ADA          | Additional Days Added   |        |      |       |         | 2016-10-17    |
+      | bookingId | count | sanctionCode | sanctionCodeDescription | months | days | limit | comment           | effectiveDate |
+      | -2        | 1     | ADA          | Additional Days Added   |        |  11  |       |                   | 2016-11-09    |
+      | -1        | 1     | ADA          | Additional Days Added   |        |      |       | Some Comment Text | 2016-10-17    |
 
   Scenario: Offender has no awards, no data
     When adjudication summary with booking id -4 is requested

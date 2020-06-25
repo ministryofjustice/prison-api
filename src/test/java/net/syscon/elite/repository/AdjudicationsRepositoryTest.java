@@ -88,7 +88,7 @@ public class AdjudicationsRepositoryTest {
         assertThat(awards).asList()
                 .hasSize(2)
                 .extracting("sanctionCode", "sanctionCodeDescription", "limit", "months", "days", "comment", "status", "statusDescription", "effectiveDate")
-                .contains(tuple("ADA", "Additional Days Added", null, null, null, null, "SUSPENDED", "Suspended", LocalDate.of(2016, 10, 17)),
+                .contains(tuple("ADA", "Additional Days Added", null, null, null, "Some Comment Text", "SUSPENDED", "Suspended", LocalDate.of(2016, 10, 17)),
                         tuple("CC", "Cellular Confinement", null, null, 15, null, "IMMEDIATE", "Immediate", LocalDate.of(2016, 11, 9)));
     }
 
