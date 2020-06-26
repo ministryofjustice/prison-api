@@ -15,10 +15,6 @@ import java.util.stream.Collectors;
  * Utility class containing methods for processing of {@link net.syscon.elite.api.model.Location} objects.
  */
 public class LocationProcessor {
-    /**
-     * List of the abbreviations that should remain in all capitals after location description processing
-     */
-    public static final List<String> ABBREVIATIONS = List.of("HMP", "YOI", "VCC", "CSC", "CSU", "CASU", "MCASU", "MDT", "VDT", "OMU", "ITQ", "SPU", "CES", "UK", "ROTL", "SOTP", "IMB", "RAPT", "PICTA", "HCC", "AIC", "BICS", "IPSO", "IAG", "IPD", "PACT", "PIPE", "DART", "VP");
 
     /**
      * Strips agency id from description if agency id is used as prefix for description. If either description or agency
