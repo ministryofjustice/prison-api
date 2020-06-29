@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.DataDuplicateResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.FreeTextSearchResult;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
@@ -145,6 +146,27 @@ class DataComplianceEventPusherTest {
                 .isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"retentionCheckId\":123,\"duplicateOffenders\":[\"offender2\"]}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
                 .isEqualTo("DATA_COMPLIANCE_DATA-DUPLICATE-DB-RESULT");
+    }
+
+    @Test
+    void sendFreeTextSearchResult() {
+
+        final var request = ArgumentCaptor.forClass(SendMessageRequest.class);
+
+        when(client.sendMessage(request.capture()))
+                .thenReturn(new SendMessageResult().withMessageId("message1"));
+
+        eventPusher.send(FreeTextSearchResult.builder()
+                .offenderIdDisplay("offender1")
+                .retentionCheckId(123L)
+                .matchingTable("table1")
+                .build());
+
+        assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
+        assertThat(request.getValue().getMessageBody())
+                .isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"retentionCheckId\":123,\"matchingTables\":[\"table1\"]}");
+        assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
+                .isEqualTo("DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-RESULT");
     }
 
     @Test

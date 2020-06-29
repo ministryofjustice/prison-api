@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.DataDuplicateResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.FreeTextSearchResult;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
@@ -76,6 +77,14 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
         log.trace("Sending duplicate data result for offender: {}", event.getOffenderIdDisplay());
 
         sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DATA-DUPLICATE-DB-RESULT", event));
+    }
+
+    @Override
+    public void send(final FreeTextSearchResult event) {
+
+        log.trace("Sending duplicate data result for offender: {}", event.getOffenderIdDisplay());
+
+        sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-RESULT", event));
     }
 
     private SendMessageRequest generateRequest(final String eventType, final Object messageBody) {
