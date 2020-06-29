@@ -447,4 +447,22 @@ public class BookingResourceTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(response, 200, "secondary_languages.json");
     }
+
+    @Test
+    public void getVisitsWithVisitors() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -3L);
+
+        assertThatJsonFileAndStatus(response, 200, "visits_with_visitors.json");
+    }
+
+    @Test
+    public void getVisitsWithVisitorsPagination() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?paged=true&size=5&page=1", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -3L);
+
+        assertThatJsonFileAndStatus(response, 200, "visits_with_visitors_paged.json");
+    }
 }

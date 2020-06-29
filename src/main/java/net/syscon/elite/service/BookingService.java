@@ -406,7 +406,7 @@ public class BookingService {
     public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final @NotNull Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Pageable pageable) {
         final var visits = visitRepository.findAllByBookingId(bookingId, pageable);
 
-        final var visitsWithVisitors = visits.stream()
+        final var visitsWithVisitors = visits.getContent().stream()
                 .filter(visit -> fromDate == null || visit.getStartTime().isAfter(fromDate.atStartOfDay()))
                 .filter(visit -> toDate == null || visit.getStartTime().isBefore(toDate.atTime(LocalTime.MAX)))
                 .filter(visit -> visitType == null || visitType.equals(visit.getVisitType()))
@@ -446,7 +446,7 @@ public class BookingService {
                     .build();
                 }).collect(Collectors.toList());
 
-        return new PageImpl<>(visitsWithVisitors);
+        return new PageImpl<>(visitsWithVisitors, pageable, visits.getTotalElements());
     }
 
     @VerifyBookingAccess
