@@ -519,7 +519,7 @@ public interface BookingResource {
                                                                       @ApiParam(value = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
                                                                       @ApiParam(value = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate,
                                                                       @ApiParam(value = "Type of visit. One of SCON, OFFI") @RequestParam(value = "visitType", required = false) String visitType,
-                                                                      @PageableDefault() final Pageable pageable);
+                                                                      final Pageable pageable);
 
     @GetMapping("/{bookingId}/visits/last")
     @ApiOperation(value = "The most recent visit for the offender.", notes = "The most recent visit for the offender.", nickname = "getBookingVisitsLast")
