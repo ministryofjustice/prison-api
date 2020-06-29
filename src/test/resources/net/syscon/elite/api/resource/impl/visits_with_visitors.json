@@ -130,14 +130,14 @@
     },
     "offset": 0,
     "pageNumber": 0,
-    "pageSize": 10,
+    "pageSize": 20,
     "paged": true,
     "unpaged": false
   },
   "totalElements": 9,
   "totalPages": 1,
   "last": true,
-  "size": 10,
+  "size": 20,
   "number": 0,
   "sort": {
     "sorted": false,
