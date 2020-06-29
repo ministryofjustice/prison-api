@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import net.syscon.elite.api.model.LegalStatusCalc.LegalStatus;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -161,8 +162,8 @@ public class InmateDetail {
     @ApiModelProperty(value = "Status of prisoner", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT", position = 18)
     private String status;
 
-    @ApiModelProperty(value = "Legal Status", example = "Convicted", allowableValues = "Convicted,Remand", notes = "Only returned when requesting extra details")
-    private String legalStatus;
+    @ApiModelProperty(value = "Legal Status", example = "REMAND", notes = "Only returned when requesting extra details")
+    private LegalStatus legalStatus;
 
     @ApiModelProperty(value = "The prisoner's imprisonment status.", example="LIFE", notes = "Only returned when requesting extra details")
     private String imprisonmentStatus;

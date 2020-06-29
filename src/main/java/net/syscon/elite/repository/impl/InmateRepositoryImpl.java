@@ -12,6 +12,7 @@ import net.syscon.elite.api.model.ImageDetail;
 import net.syscon.elite.api.model.ImprisonmentStatus;
 import net.syscon.elite.api.model.InmateBasicDetails;
 import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.LegalStatusCalc;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.model.OffenderIdentifier;
@@ -198,9 +199,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", limit),
                 paRowMapper);
 
-        results.forEach(b -> b.setAge(getAge(b.getDateOfBirth(), LocalDate.now(clock))));
+        results.forEach(this::calcAdditionalInformation);
 
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
+    }
+
+    private void calcAdditionalInformation(final OffenderBooking booking) {
+        booking.setAge(getAge(booking.getDateOfBirth(), LocalDate.now(clock)));
+        booking.setLegalStatus(LegalStatusCalc.getLegalStatus(booking.getBandCode(), booking.getImprisonmentStatus()));
+        booking.setConvictedStatus(LegalStatusCalc.getConvictedStatus(booking.getBandCode()));
     }
 
     @Override
@@ -237,7 +244,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", pageRequest.getLimit()),
                 paRowMapper);
 
-        inmates.forEach(b -> b.setAge(getAge(b.getDateOfBirth(), LocalDate.now(clock))));
+        inmates.forEach(this::calcAdditionalInformation);
 
         return new Page<>(inmates, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
@@ -323,7 +330,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", request.getPageRequest().getLimit()),
                 paRowMapper);
 
-        offenderBookings.forEach(b -> b.setAge(getAge(b.getDateOfBirth(), LocalDate.now(clock))));
+        offenderBookings.forEach(this::calcAdditionalInformation);
 
         return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), request.getPageRequest().getOffset(), request.getPageRequest().getLimit());
     }
@@ -373,7 +380,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var params = createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
         final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
-
+        prisonerDetails.forEach(pd -> {
+            pd.setLegalStatus(LegalStatusCalc.getLegalStatus(pd.getBandCode(), pd.getImprisonmentStatus()));
+            pd.setConvictedStatus(LegalStatusCalc.getConvictedStatus(pd.getBandCode()));
+        });
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
@@ -924,7 +934,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                     createParams("bookingId", bookingId),
                     IMPRISONMENT_STATUS_MAPPER)
                     .stream().max(Comparator.comparingInt(ImprisonmentStatus::getImprisonStatusSeq));
-            imprisonmentStatus.ifPresent(ImprisonmentStatus::deriveLegalStatus);
+            imprisonmentStatus.ifPresent(s -> {
+                s.setLegalStatus(LegalStatusCalc.getLegalStatus(s.getBandCode(), s.getImprisonmentStatus()));
+            });
         } catch (final EmptyResultDataAccessException e) {
             imprisonmentStatus = Optional.empty();
         }

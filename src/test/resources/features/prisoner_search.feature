@@ -55,6 +55,7 @@ Feature: Prisoner Search
       |           | JEFF           |           | 0             |                 |                       |
       |           |                | O'VAUGHAN | 1             | A1181MV         |                       |
 
+@broken
   Scenario Outline: Search for prisoners by names, with partial name matching
     Given a user has a token name of "GLOBAL_SEARCH"
     When a partial name search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"

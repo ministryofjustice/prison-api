@@ -26,7 +26,8 @@ import java.time.LocalDate;
                 "       dt_admission.admission_date                                                               ADMISSION_DATE, " +
                 "       OB.ACTIVE_FLAG                                                                            ACTIVE_FLAG, " +
                 "       OB.in_out_status                                                                          IN_OUT_STATUS, " +
-                "       IST.BAND_CODE                                                                             BAND_CODE " +
+                "       IST.BAND_CODE                                                                             BAND_CODE, " +
+                "       OIS.IMPRISONMENT_STATUS                                                                   IMPRISONMENT_STATUS " +
                 " FROM OFFENDER_BOOKINGS OB " +
                 "          INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID AND OB.BOOKING_SEQ = 1 " +
                 "          LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID " +
@@ -69,4 +70,5 @@ public class PrisonerStatusInformation {
     private String activeFlag;
     private String inOutStatus;
     private String bandCode;
+    private String imprisonmentStatus;
 }

@@ -114,7 +114,6 @@
   ],
   "category": "Cat C",
   "categoryCode": "C",
-  "assignedOfficerId": -1,
   "birthCountryCode": "UK",
   "inOutStatus": "IN",
   "identifiers": [],
@@ -152,7 +151,7 @@
   ],
   "aliases": [],
   "status": "ACTIVE IN",
-  "legalStatus": "Convicted",
+  "legalStatus": "IMMIGRATION_DETAINEE",
   "imprisonmentStatus": "DEPORT",
   "privilegeSummary": {
     "bookingId": -7,

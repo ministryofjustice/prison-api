@@ -44,7 +44,6 @@ import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.InmatesHelper;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
-import net.syscon.util.ProfileUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
@@ -272,12 +271,6 @@ public class InmateService {
                     inmate.setLegalStatus(status.getLegalStatus());
                     inmate.setImprisonmentStatus(status.getImprisonmentStatus());
                 });
-            }
-
-            //TODO: Remove once KW service available - Nomis only!
-            final var nomisProfile = ProfileUtil.isNomisProfile(env);
-            if (nomisProfile) {
-                keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
             }
         }
         return inmate;
