@@ -593,8 +593,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, org.springframework.data.domain.PageRequest pageable) {
-        return bookingService.getBookingVisitsWithVisitor(bookingId, fromDate, toDate, visitType, PageRequest.of(pageable));
+    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, Pageable pageable) {
+        return bookingService.getBookingVisitsWithVisitor(bookingId, fromDate, toDate, visitType, pageable);
     }
 
     @Override
