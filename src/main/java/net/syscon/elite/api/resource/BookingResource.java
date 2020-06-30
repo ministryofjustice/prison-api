@@ -592,7 +592,7 @@ public interface BookingResource {
 
     @Deprecated
     @GetMapping("/offenderNo/{offenderNo}/key-worker")
-    @ApiOperation(value = "Key worker details.", notes = "Key worker details.", nickname = "getKeyworkerByOffenderNo")
+    @ApiOperation(value = "Key worker details.", notes = "Key worker details. This should not be used - call keywork API instead")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),

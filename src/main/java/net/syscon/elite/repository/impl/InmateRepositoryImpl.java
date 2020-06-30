@@ -204,8 +204,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     private void calcAdditionalInformation(final OffenderBooking booking) {
         booking.setAge(getAge(booking.getDateOfBirth(), LocalDate.now(clock)));
-        booking.setLegalStatus(LegalStatusCalc.getLegalStatus(booking.getBandCode(), booking.getImprisonmentStatus()));
-        booking.setConvictedStatus(LegalStatusCalc.getConvictedStatus(booking.getBandCode()));
+        booking.deriveLegalDetails();
     }
 
     @Override
@@ -333,15 +332,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), request.getPageRequest().getOffset(), request.getPageRequest().getLimit());
     }
 
-
-    @Override
-    public List<Long> getPersonalOfficerBookings(final long staffId) {
-        return jdbcTemplate.queryForList(
-                getQuery("FIND_PERSONAL_OFFICER_BOOKINGS"),
-                createParams("staffId", staffId),
-                Long.class);
-    }
-
     @Override
     public Page<PrisonerDetail> findOffenders(final String query, final PageRequest pageRequest) {
         final var initialSql = getQuery("FIND_OFFENDERS");
@@ -378,10 +368,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var params = createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
         final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
-        prisonerDetails.forEach(pd -> {
-            pd.setLegalStatus(LegalStatusCalc.getLegalStatus(pd.getBandCode(), pd.getImprisonmentStatus()));
-            pd.setConvictedStatus(LegalStatusCalc.getConvictedStatus(pd.getBandCode()));
-        });
+        prisonerDetails.forEach(PrisonerDetail::deriveLegalDetails);
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
@@ -932,15 +919,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                     createParams("bookingId", bookingId),
                     IMPRISONMENT_STATUS_MAPPER)
                     .stream().max(Comparator.comparingInt(ImprisonmentStatus::getImprisonStatusSeq));
-            imprisonmentStatus.ifPresent(s -> {
-                s.setLegalStatus(LegalStatusCalc.getLegalStatus(s.getBandCode(), s.getImprisonmentStatus()));
-            });
+            imprisonmentStatus.ifPresent(s -> s.setLegalStatus(LegalStatusCalc.getLegalStatus(s.getBandCode(), s.getImprisonmentStatus())));
         } catch (final EmptyResultDataAccessException e) {
             imprisonmentStatus = Optional.empty();
         }
         return imprisonmentStatus;
     }
-
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final List<Long> bookingIds) {

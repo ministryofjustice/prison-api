@@ -1,10 +1,29 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
-import net.syscon.elite.api.model.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import net.syscon.elite.api.model.AccessRole;
+import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.api.model.CaseloadUpdate;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.api.support.Order;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Set;
@@ -99,17 +118,6 @@ public interface UserResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     UserDetail getMyUserInformation();
-
-    @GetMapping("/me/bookingAssignments")
-    @Deprecated
-    @ApiOperation(value = "List of offender bookings assigned to current user.", notes = "Deprecated: Use <b>/bookings?iepLevel=true&offenderNo=&offenderNo=</b> instead. This API will be removed in a future release as keyworker holds the relationship to offender", nickname = "getMyAssignments")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<OffenderBooking>> getMyAssignments(@ApiParam(value = "Requested offset of first record in returned collection of bookingAssignment records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
-                                                           @ApiParam(value = "Requested limit to number of bookingAssignment records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit);
 
     @GetMapping("/me/caseLoads")
     @ApiOperation(value = "List of caseloads accessible to current user.", notes = "List of caseloads accessible to current user.", nickname = "getMyCaseLoads")

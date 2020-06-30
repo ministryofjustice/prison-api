@@ -5,21 +5,18 @@ import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.CaseloadUpdate;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.api.resource.UserResource;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.HasWriteScope;
 import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.CaseNoteService;
-import net.syscon.elite.service.InmateSearchCriteria;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.LocationService;
 import net.syscon.elite.service.StaffService;
@@ -29,11 +26,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -208,29 +203,5 @@ public class UserResourceImpl implements UserResource {
             return ResponseEntity.status(HttpStatus.CREATED).body(caseloadUpdate);
         }
         return ResponseEntity.ok().body(caseloadUpdate);    }
-
-    @Override
-    public ResponseEntity<List<OffenderBooking>> getMyAssignments(final Long pageOffset, final Long pageLimit) {
-        var iepLevel = false;
-        List<Long> bookingIds = inmateService.getPersonalOfficerBookings(authenticationFacade.getCurrentUsername());
-        List<String> offenderNos = null;
-
-        final var pageRequest = new PageRequest(null, Order.ASC, pageOffset, pageLimit);
-        var assignments = new Page<OffenderBooking>(Collections.emptyList(), 0, pageRequest.getOffset(), pageRequest.getLimit());
-
-        if (!CollectionUtils.isEmpty(bookingIds)) {
-            assignments = inmateService.findAllInmates(
-                    InmateSearchCriteria.builder()
-                            .username(authenticationFacade.getCurrentUsername())
-                            .iepLevel(iepLevel)
-                            .offenderNos(offenderNos)
-                            .bookingIds(bookingIds)
-                            .pageRequest(pageRequest)
-                            .build());
-        }
-        return ResponseEntity.ok()
-                .headers(assignments.getPaginationHeaders())
-                .body(assignments.getItems());
-    }
 
 }

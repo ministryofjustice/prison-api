@@ -101,4 +101,8 @@ public class OffenderBooking implements CategoryCodeAware {
     @ApiModelProperty(value = "Legal Status", name = "legalStatus", position = 23, example = "REMAND")
     private LegalStatus legalStatus;
 
+    public void deriveLegalDetails() {
+        legalStatus = LegalStatusCalc.getLegalStatus(bandCode, imprisonmentStatus);
+        convictedStatus = LegalStatusCalc.getConvictedStatus(bandCode);
+    }
 }

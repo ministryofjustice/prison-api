@@ -136,4 +136,9 @@ public class PrisonerDetail {
     @NotNull
     private LocalDate currentWorkingBirthDate;
 
+    public void deriveLegalDetails() {
+        legalStatus = LegalStatusCalc.getLegalStatus(bandCode, imprisonmentStatus);
+        convictedStatus = LegalStatusCalc.getConvictedStatus(bandCode);
+    }
+
 }

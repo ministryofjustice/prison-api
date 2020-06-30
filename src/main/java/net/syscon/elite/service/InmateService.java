@@ -739,11 +739,6 @@ public class InmateService {
                 ).collect(Collectors.toList());
     }
 
-    public List<Long> getPersonalOfficerBookings(final String username) {
-        final var loggedInUser = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
-        return repository.getPersonalOfficerBookings(loggedInUser.getStaffId());
-    }
-
     private Set<String> getUserCaseloadIds(final String username) {
         return caseLoadService.getCaseLoadIdsForUser(username, false);
     }
