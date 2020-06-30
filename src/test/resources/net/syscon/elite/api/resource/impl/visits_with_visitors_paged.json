@@ -48,18 +48,6 @@
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
-    },
-    {
-      "visitors": [],
-      "visitDetails": {
-        "visitType": "OFFI",
-        "visitTypeDescription": "Official Visit",
-        "startTime": "2020-06-29T00:00:00",
-        "endTime": "2020-06-29T00:00:00",
-        "location": "Chapel",
-        "eventOutcome": "ATT",
-        "eventOutcomeDescription": "Attended"
-      }
     }
   ],
   "pageable": {
@@ -76,7 +64,7 @@
   },
   "totalPages": 2,
   "last": true,
-  "totalElements": 9,
+  "totalElements": 8,
   "size": 5,
   "number": 1,
   "sort": {
@@ -85,6 +73,6 @@
     "empty": true
   },
   "first": false,
-  "numberOfElements": 4,
+  "numberOfElements": 3,
   "empty": false
 }
