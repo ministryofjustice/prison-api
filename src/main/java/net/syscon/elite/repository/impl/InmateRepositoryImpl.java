@@ -82,7 +82,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("FACE_IMAGE_ID", new FieldMapper("facialImageId"))
             .put("LIVING_UNIT_ID", new FieldMapper("assignedLivingUnitId"))
             .put("LIVING_UNIT_DESC", new FieldMapper("assignedLivingUnitDesc", value -> RegExUtils.replaceFirst((String) value, "^[A-Z|a-z|0-9]+\\-", "")))
-            .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
             .put("BAND_CODE", new FieldMapper("bandCode"))
             .put("IMPRISONMENT_STATUS", new FieldMapper("imprisonmentStatus"))
             .build();
@@ -99,7 +98,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("RELIGION", new FieldMapper("religion")) // deprecated, please remove
             .put("FACE_IMAGE_ID", new FieldMapper("facialImageId"))
             .put("BIRTH_DATE", new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
-            .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
             .put("ACTIVE_FLAG", new FieldMapper("activeFlag", value -> "Y".equalsIgnoreCase(value.toString())))
             .build();
 

@@ -132,9 +132,6 @@ public class InmateDetail {
     @ApiModelProperty(value = "Category code (from list of assessments)")
     private String categoryCode;
 
-    @ApiModelProperty(value = "Staff Id reference for assigned officer / keyworker")
-    private Long assignedOfficerId;
-
     @ApiModelProperty(value = "Place of birth", example = "WALES")
     private String birthPlace;
 
