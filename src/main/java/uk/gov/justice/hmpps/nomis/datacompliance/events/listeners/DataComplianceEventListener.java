@@ -17,9 +17,11 @@ import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService
 import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 @Slf4j
@@ -86,16 +88,28 @@ public class DataComplianceEventListener {
         offenderDeletionService.deleteOffender(event.getOffenderIdDisplay(), event.getReferralId());
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void handleFreeTextMoratoriumCheck(final Message<String> message) {
         final var event = parseEvent(message.getPayload(), FreeTextCheck.class);
 
-        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", message.getPayload());
-        checkNotNull(event.getRetentionCheckId(), "No retention check ID specified in request: %s", message.getPayload());
-        checkState(isNotEmpty(event.getRegex()), "No regex specified in request: %s", message.getPayload());
-        Pattern.compile(event.getRegex());
+        validateFreeTextCheck(event, message.getPayload());
 
         freeTextSearchService.checkForMatchingContent(event.getOffenderIdDisplay(), event.getRetentionCheckId(), event.getRegex());
+    }
+
+    private void validateFreeTextCheck(final FreeTextCheck event, final String payload) {
+        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", payload);
+        checkNotNull(event.getRetentionCheckId(), "No retention check ID specified in request: %s", payload);
+        checkState(isNotEmpty(event.getRegex()), "No regex provided in request: %s", payload);
+        event.getRegex().forEach(regex -> validateRegex(regex, payload));
+    }
+
+    private void validateRegex(final String regex, final String payload) {
+        checkState(isNotEmpty(regex), "Empty regex provided in request: %s", payload);
+        try {
+            Pattern.compile(regex);
+        } catch (PatternSyntaxException ex) {
+            throw new IllegalStateException(format("Invalid regex provided in request: %s", payload), ex);
+        }
     }
 
     private void handleDuplicateIdCheck(final Message<String> message) {

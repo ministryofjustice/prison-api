@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,6 +21,6 @@ public class FreeTextCheck {
     private Long retentionCheckId;
 
     @JsonProperty("regex")
-    private String regex;
+    private List<String> regex;
 }
 

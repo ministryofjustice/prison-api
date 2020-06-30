@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.FreeT
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -29,7 +30,7 @@ public class FreeTextSearchService {
     private final FreeTextRepository freeTextRepository;
     private final DataComplianceEventPusher dataComplianceEventPusher;
 
-    public void checkForMatchingContent(final String offenderNumber, final long retentionCheckId, final String regex) {
+    public void checkForMatchingContent(final String offenderNumber, final long retentionCheckId, final List<String> regex) {
         dataComplianceEventPusher.send(FreeTextSearchResult.builder()
                 .offenderIdDisplay(offenderNumber)
                 .retentionCheckId(retentionCheckId)
@@ -37,17 +38,21 @@ public class FreeTextSearchService {
                 .build());
     }
 
-    private Set<String> getTablesWithMatchingContent(final String offenderNumber, final String regex) {
+    private Set<String> getTablesWithMatchingContent(final String offenderNumber, final List<String> regex) {
 
         final var offenderAliases = offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber);
 
         checkState(!offenderAliases.isEmpty(),
                 "Expecting to find at least one offender id for offender: '%s'", offenderNumber);
 
-        return ImmutableSet.<String>builder()
-                .addAll(getTableNames(freeTextRepository.findMatchUsingOffenderIds(getOffenderIds(offenderAliases), regex)))
-                .addAll(getTableNames(freeTextRepository.findMatchUsingBookIds(getBookIds(offenderAliases), regex)))
-                .build();
+        final var tables = ImmutableSet.<String>builder();
+
+        regex.forEach(rx -> {
+            tables.addAll(getTableNames(freeTextRepository.findMatchUsingOffenderIds(getOffenderIds(offenderAliases), rx)));
+            tables.addAll(getTableNames(freeTextRepository.findMatchUsingBookIds(getBookIds(offenderAliases), rx)));
+        });
+
+        return tables.build();
     }
 
     private Set<Long> getOffenderIds(final Collection<OffenderAliasPendingDeletion> offenderAliases) {

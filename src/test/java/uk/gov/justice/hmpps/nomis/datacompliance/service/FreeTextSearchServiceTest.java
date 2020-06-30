@@ -63,7 +63,7 @@ class FreeTextSearchServiceTest {
                         .offenderBooking(OffenderBookingPendingDeletion.builder().bookingId(BOOK_ID).build())
                         .build()));
 
-        freeTextSearchService.checkForMatchingContent(OFFENDER_NO, RETENTION_CHECK_ID, REGEX);
+        freeTextSearchService.checkForMatchingContent(OFFENDER_NO, RETENTION_CHECK_ID, List.of(REGEX));
 
         verify(dataComplianceEventPusher).send(FreeTextSearchResult.builder()
                 .offenderIdDisplay(OFFENDER_NO)
@@ -85,7 +85,7 @@ class FreeTextSearchServiceTest {
                         .offenderBooking(OffenderBookingPendingDeletion.builder().bookingId(BOOK_ID).build())
                         .build()));
 
-        freeTextSearchService.checkForMatchingContent(OFFENDER_NO, RETENTION_CHECK_ID, REGEX);
+        freeTextSearchService.checkForMatchingContent(OFFENDER_NO, RETENTION_CHECK_ID, List.of(REGEX));
 
         verify(dataComplianceEventPusher).send(FreeTextSearchResult.builder()
                 .offenderIdDisplay(OFFENDER_NO)
@@ -99,7 +99,7 @@ class FreeTextSearchServiceTest {
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NO))
                 .thenReturn(emptyList());
 
-        assertThatThrownBy(() -> freeTextSearchService.checkForMatchingContent(OFFENDER_NO, RETENTION_CHECK_ID, REGEX))
+        assertThatThrownBy(() -> freeTextSearchService.checkForMatchingContent(OFFENDER_NO, RETENTION_CHECK_ID, List.of(REGEX)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Expecting to find at least one offender id for offender: 'A1234AA'");
 

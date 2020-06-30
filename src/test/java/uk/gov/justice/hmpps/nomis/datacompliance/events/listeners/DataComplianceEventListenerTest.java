@@ -12,8 +12,8 @@ import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 
+import java.util.List;
 import java.util.Map;
-import java.util.regex.PatternSyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.lenient;
@@ -141,17 +141,17 @@ class DataComplianceEventListenerTest {
     void handleFreeTextCheck() {
 
         handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":\"^(some|regex)$\"}",
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":[\"^(regex|1)$\",\"^(regex|2)$\"]}",
                 Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK"));
 
-        verify(freeTextSearchService).checkForMatchingContent("A1234AA", 123L, "^(some|regex)$");
+        verify(freeTextSearchService).checkForMatchingContent("A1234AA", 123L, List.of("^(regex|1)$","^(regex|2)$"));
     }
 
     @Test
     void handleFreeTextCheckThrowsIfOffenderIdDisplayEmpty() {
 
         assertThatThrownBy(() -> handleMessage(
-                "{\"offenderIdDisplay\":\"\",\"retentionCheckId\":123,\"regex\":\"^(some|regex)$\"}",
+                "{\"offenderIdDisplay\":\"\",\"retentionCheckId\":123,\"regex\":[\"^(some|regex)$\"]}",
                 Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No offender specified in request");
@@ -163,7 +163,7 @@ class DataComplianceEventListenerTest {
     void handleFreeTextCheckThrowsIfRetentionCheckIdNull() {
 
         assertThatThrownBy(() -> handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\",\"regex\":\"^(some|regex)$\"}",
+                "{\"offenderIdDisplay\":\"A1234AA\",\"regex\":[\"^(some|regex)$\"]}",
                 Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("No retention check ID specified in request");
@@ -172,13 +172,25 @@ class DataComplianceEventListenerTest {
     }
 
     @Test
+    void handleFreeTextCheckThrowsIfEmptyRegexList() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":[]}",
+                Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("No regex provided in request");
+
+        verifyNoInteractions(freeTextSearchService);
+    }
+
+    @Test
     void handleFreeTextCheckThrowsIfRegexEmpty() {
 
         assertThatThrownBy(() -> handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":\"\"}",
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":[\"\"]}",
                 Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("No regex specified in request");
+                .hasMessageContaining("Empty regex provided in request");
 
         verifyNoInteractions(freeTextSearchService);
     }
@@ -187,9 +199,10 @@ class DataComplianceEventListenerTest {
     void handleFreeTextCheckThrowsIfRegexInvalid() {
 
         assertThatThrownBy(() -> handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":\".**INVALID\"}",
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":[\".**INVALID\"]}",
                 Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
-                .isInstanceOf(PatternSyntaxException.class);
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Invalid regex provided in request");
 
         verifyNoInteractions(freeTextSearchService);
     }
