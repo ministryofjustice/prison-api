@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 
 import java.util.Map;
+import java.util.regex.PatternSyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.lenient;
@@ -178,6 +179,17 @@ class DataComplianceEventListenerTest {
                 Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No regex specified in request");
+
+        verifyNoInteractions(freeTextSearchService);
+    }
+
+    @Test
+    void handleFreeTextCheckThrowsIfRegexInvalid() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":\".**INVALID\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
+                .isInstanceOf(PatternSyntaxException.class);
 
         verifyNoInteractions(freeTextSearchService);
     }

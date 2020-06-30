@@ -16,6 +16,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -85,12 +86,14 @@ public class DataComplianceEventListener {
         offenderDeletionService.deleteOffender(event.getOffenderIdDisplay(), event.getReferralId());
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void handleFreeTextMoratoriumCheck(final Message<String> message) {
         final var event = parseEvent(message.getPayload(), FreeTextCheck.class);
 
         checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", message.getPayload());
-        checkState(isNotEmpty(event.getRegex()), "No regex specified in request: %s", message.getPayload());
         checkNotNull(event.getRetentionCheckId(), "No retention check ID specified in request: %s", message.getPayload());
+        checkState(isNotEmpty(event.getRegex()), "No regex specified in request: %s", message.getPayload());
+        Pattern.compile(event.getRegex());
 
         freeTextSearchService.checkForMatchingContent(event.getOffenderIdDisplay(), event.getRetentionCheckId(), event.getRegex());
     }
