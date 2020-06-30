@@ -9,9 +9,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 
 import java.util.Map;
+import java.util.regex.PatternSyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.lenient;
@@ -24,17 +26,25 @@ import static org.mockito.Mockito.when;
 class DataComplianceEventListenerTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
     @Mock
     private DataDuplicateService dataDuplicateService;
 
     @Mock
     private OffenderDeletionService offenderDeletionService;
 
+    @Mock
+    private FreeTextSearchService freeTextSearchService;
+
     private DataComplianceEventListener listener;
 
     @BeforeEach
     void setUp() {
-        listener = new DataComplianceEventListener(dataDuplicateService, offenderDeletionService, MAPPER);
+        listener = new DataComplianceEventListener(
+                dataDuplicateService,
+                offenderDeletionService,
+                freeTextSearchService,
+                MAPPER);
     }
 
     @Test
@@ -114,7 +124,7 @@ class DataComplianceEventListenerTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No offender specified in request");
 
-        verifyNoInteractions(offenderDeletionService);
+        verifyNoInteractions(dataDuplicateService);
     }
 
     @Test
@@ -124,7 +134,64 @@ class DataComplianceEventListenerTest {
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("No retention check ID specified in request");
 
-        verifyNoInteractions(offenderDeletionService);
+        verifyNoInteractions(dataDuplicateService);
+    }
+
+    @Test
+    void handleFreeTextCheck() {
+
+        handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":\"^(some|regex)$\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK"));
+
+        verify(freeTextSearchService).checkForMatchingContent("A1234AA", 123L, "^(some|regex)$");
+    }
+
+    @Test
+    void handleFreeTextCheckThrowsIfOffenderIdDisplayEmpty() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"\",\"retentionCheckId\":123,\"regex\":\"^(some|regex)$\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("No offender specified in request");
+
+        verifyNoInteractions(freeTextSearchService);
+    }
+
+    @Test
+    void handleFreeTextCheckThrowsIfRetentionCheckIdNull() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"regex\":\"^(some|regex)$\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("No retention check ID specified in request");
+
+        verifyNoInteractions(freeTextSearchService);
+    }
+
+    @Test
+    void handleFreeTextCheckThrowsIfRegexEmpty() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":\"\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("No regex specified in request");
+
+        verifyNoInteractions(freeTextSearchService);
+    }
+
+    @Test
+    void handleFreeTextCheckThrowsIfRegexInvalid() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"regex\":\".**INVALID\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK")))
+                .isInstanceOf(PatternSyntaxException.class);
+
+        verifyNoInteractions(freeTextSearchService);
     }
 
     @Test

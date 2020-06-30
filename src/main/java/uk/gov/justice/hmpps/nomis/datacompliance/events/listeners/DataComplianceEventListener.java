@@ -8,12 +8,15 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.DataDuplicateCheck;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.FreeTextCheck;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderDeletionGranted;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -27,24 +30,29 @@ public class DataComplianceEventListener {
     private static final String OFFENDER_DELETION_GRANTED = "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED";
     private static final String DATA_DUPLICATE_ID_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-ID-CHECK";
     private static final String DATA_DUPLICATE_DB_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-DB-CHECK";
+    private static final String FREE_TEXT_MORATORIUM_CHECK = "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK";
 
     private final Map<String, MessageHandler> messageHandlers = Map.of(
             OFFENDER_DELETION_GRANTED, this::handleDeletionGranted,
             DATA_DUPLICATE_ID_CHECK, this::handleDuplicateIdCheck,
-            DATA_DUPLICATE_DB_CHECK, this::handleDuplicateDataCheck);
+            DATA_DUPLICATE_DB_CHECK, this::handleDuplicateDataCheck,
+            FREE_TEXT_MORATORIUM_CHECK, this::handleFreeTextMoratoriumCheck);
 
     private final DataDuplicateService dataDuplicateService;
     private final OffenderDeletionService offenderDeletionService;
+    private final FreeTextSearchService freeTextSearchService;
     private final ObjectMapper objectMapper;
 
     public DataComplianceEventListener(final DataDuplicateService dataDuplicateService,
                                        final OffenderDeletionService offenderDeletionService,
+                                       final FreeTextSearchService freeTextSearchService,
                                        final ObjectMapper objectMapper) {
 
         log.info("Configured to listen to data compliance events");
 
         this.dataDuplicateService = dataDuplicateService;
         this.offenderDeletionService = offenderDeletionService;
+        this.freeTextSearchService = freeTextSearchService;
         this.objectMapper = objectMapper;
     }
 
@@ -76,6 +84,18 @@ public class DataComplianceEventListener {
         checkNotNull(event.getReferralId(), "No referral ID specified in request: %s", message.getPayload());
 
         offenderDeletionService.deleteOffender(event.getOffenderIdDisplay(), event.getReferralId());
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void handleFreeTextMoratoriumCheck(final Message<String> message) {
+        final var event = parseEvent(message.getPayload(), FreeTextCheck.class);
+
+        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", message.getPayload());
+        checkNotNull(event.getRetentionCheckId(), "No retention check ID specified in request: %s", message.getPayload());
+        checkState(isNotEmpty(event.getRegex()), "No regex specified in request: %s", message.getPayload());
+        Pattern.compile(event.getRegex());
+
+        freeTextSearchService.checkForMatchingContent(event.getOffenderIdDisplay(), event.getRetentionCheckId(), event.getRegex());
     }
 
     private void handleDuplicateIdCheck(final Message<String> message) {

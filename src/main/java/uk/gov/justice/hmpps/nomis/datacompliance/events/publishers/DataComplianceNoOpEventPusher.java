@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.DataDuplicateResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.FreeTextSearchResult;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
@@ -40,5 +41,10 @@ public class DataComplianceNoOpEventPusher implements DataComplianceEventPusher 
     @Override
     public void sendDuplicateDataResult(final DataDuplicateResult event) {
         log.warn("Pretending to push duplicate data result for '{}' to queue", event.getOffenderIdDisplay());
+    }
+
+    @Override
+    public void send(final FreeTextSearchResult event) {
+        log.warn("Pretending to push free text search result for '{}' to queue", event.getOffenderIdDisplay());
     }
 }

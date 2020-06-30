@@ -18,6 +18,8 @@
         "leadVisitor": "JOHN JOHNSON",
         "relationship": "BRO",
         "relationshipDescription": "Brother",
+        "startTime": "2020-06-30T10:00:00",
+        "endTime": "2020-06-30T11:00:00",
         "location": "Carpentry Workshop",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -28,6 +30,8 @@
       "visitDetails": {
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
+        "startTime": "2020-06-29T14:00:00",
+        "endTime": "2020-06-29T15:00:00",
         "location": "Carpentry Workshop",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -38,17 +42,9 @@
       "visitDetails": {
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
+        "startTime": "2020-06-29T01:00:00",
+        "endTime": "2020-06-29T01:00:00",
         "location": "Visiting Room",
-        "eventOutcome": "ATT",
-        "eventOutcomeDescription": "Attended"
-      }
-    },
-    {
-      "visitors": [],
-      "visitDetails": {
-        "visitType": "OFFI",
-        "visitTypeDescription": "Official Visit",
-        "location": "Chapel",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -68,7 +64,7 @@
   },
   "totalPages": 2,
   "last": true,
-  "totalElements": 9,
+  "totalElements": 8,
   "size": 5,
   "number": 1,
   "sort": {
@@ -77,6 +73,6 @@
     "empty": true
   },
   "first": false,
-  "numberOfElements": 4,
+  "numberOfElements": 3,
   "empty": false
 }
