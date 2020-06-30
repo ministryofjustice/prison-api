@@ -1,7 +1,6 @@
 package net.syscon.elite.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.LegalStatusCalc;
 import net.syscon.elite.api.model.OffenderNumber;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.model.PrisonerDetailSearchCriteria;
@@ -49,10 +48,7 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
 
         final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
 
-        prisonerDetails.forEach(pd -> {
-            pd.setLegalStatus(LegalStatusCalc.getLegalStatus(pd.getBandCode(), pd.getImprisonmentStatus()));
-            pd.setConvictedStatus(LegalStatusCalc.getConvictedStatus(pd.getBandCode()));
-        });
+        prisonerDetails.forEach(PrisonerDetail::deriveLegalDetails);
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
