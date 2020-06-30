@@ -10,9 +10,6 @@ import java.util.Set;
 @Repository
 public interface FreeTextRepository extends org.springframework.data.repository.Repository<FreeTextMatch, String> {
 
-    // TODO GDPR-57 Extend query to cover all tables with relevant free text fields
-    // TODO GDPR-137 Investigate Oracle Text, Lucene as alternative solutions.
-
     @Query(value =
 
             "WITH incident_case_ids AS (" +
