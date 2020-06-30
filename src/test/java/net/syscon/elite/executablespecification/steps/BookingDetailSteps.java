@@ -223,14 +223,6 @@ public class BookingDetailSteps extends CommonSteps {
         assertThat(inmateDetail.isActiveFlag()).isEqualTo(activeFlag);
     }
 
-    @Step("Verify offender assigned officer id")
-    public void verifyOffenderAssignedOfficerId(final Long assignedOfficerId) {
-        assertThat(inmateDetail.getAssignedOfficerId())
-                .as("assignedOfficerId expected %d but was %d, inmateDetail = %s", assignedOfficerId,
-                        inmateDetail.getAssignedOfficerId(), inmateDetail.toString())
-                .isEqualTo(assignedOfficerId);
-    }
-
     @Step("Verify language")
     public void verifyLanguage(final String language) throws ReflectiveOperationException {
         verifyField(inmateDetail, "language", language);

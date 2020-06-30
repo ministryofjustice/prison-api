@@ -12,6 +12,7 @@ import net.syscon.elite.api.model.ImageDetail;
 import net.syscon.elite.api.model.ImprisonmentStatus;
 import net.syscon.elite.api.model.InmateBasicDetails;
 import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.LegalStatusCalc;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.model.OffenderIdentifier;
@@ -81,7 +82,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("FACE_IMAGE_ID", new FieldMapper("facialImageId"))
             .put("LIVING_UNIT_ID", new FieldMapper("assignedLivingUnitId"))
             .put("LIVING_UNIT_DESC", new FieldMapper("assignedLivingUnitDesc", value -> RegExUtils.replaceFirst((String) value, "^[A-Z|a-z|0-9]+\\-", "")))
-            .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
             .put("BAND_CODE", new FieldMapper("bandCode"))
             .put("IMPRISONMENT_STATUS", new FieldMapper("imprisonmentStatus"))
             .build();
@@ -98,7 +98,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("RELIGION", new FieldMapper("religion")) // deprecated, please remove
             .put("FACE_IMAGE_ID", new FieldMapper("facialImageId"))
             .put("BIRTH_DATE", new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
-            .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
             .put("ACTIVE_FLAG", new FieldMapper("activeFlag", value -> "Y".equalsIgnoreCase(value.toString())))
             .build();
 
@@ -198,9 +197,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", limit),
                 paRowMapper);
 
-        results.forEach(b -> b.setAge(getAge(b.getDateOfBirth(), LocalDate.now(clock))));
+        results.forEach(this::calcAdditionalInformation);
 
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
+    }
+
+    private void calcAdditionalInformation(final OffenderBooking booking) {
+        booking.setAge(getAge(booking.getDateOfBirth(), LocalDate.now(clock)));
+        booking.deriveLegalDetails();
     }
 
     @Override
@@ -237,7 +241,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", pageRequest.getLimit()),
                 paRowMapper);
 
-        inmates.forEach(b -> b.setAge(getAge(b.getDateOfBirth(), LocalDate.now(clock))));
+        inmates.forEach(this::calcAdditionalInformation);
 
         return new Page<>(inmates, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
@@ -323,18 +327,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", request.getPageRequest().getLimit()),
                 paRowMapper);
 
-        offenderBookings.forEach(b -> b.setAge(getAge(b.getDateOfBirth(), LocalDate.now(clock))));
+        offenderBookings.forEach(this::calcAdditionalInformation);
 
         return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), request.getPageRequest().getOffset(), request.getPageRequest().getLimit());
-    }
-
-
-    @Override
-    public List<Long> getPersonalOfficerBookings(final long staffId) {
-        return jdbcTemplate.queryForList(
-                getQuery("FIND_PERSONAL_OFFICER_BOOKINGS"),
-                createParams("staffId", staffId),
-                Long.class);
     }
 
     @Override
@@ -373,7 +368,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         final var params = createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
         final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
-
+        prisonerDetails.forEach(PrisonerDetail::deriveLegalDetails);
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
@@ -924,13 +919,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                     createParams("bookingId", bookingId),
                     IMPRISONMENT_STATUS_MAPPER)
                     .stream().max(Comparator.comparingInt(ImprisonmentStatus::getImprisonStatusSeq));
-            imprisonmentStatus.ifPresent(ImprisonmentStatus::deriveLegalStatus);
+            imprisonmentStatus.ifPresent(s -> s.setLegalStatus(LegalStatusCalc.getLegalStatus(s.getBandCode(), s.getImprisonmentStatus())));
         } catch (final EmptyResultDataAccessException e) {
             imprisonmentStatus = Optional.empty();
         }
         return imprisonmentStatus;
     }
-
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final List<Long> bookingIds) {

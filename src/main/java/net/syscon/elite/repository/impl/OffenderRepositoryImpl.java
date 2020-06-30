@@ -13,7 +13,6 @@ import net.syscon.elite.repository.support.OffenderRepositorySearchHelper;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Repository
@@ -49,6 +48,7 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
 
         final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
 
+        prisonerDetails.forEach(PrisonerDetail::deriveLegalDetails);
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 

@@ -3,7 +3,13 @@ package net.syscon.elite.api.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import net.syscon.elite.api.model.LegalStatusCalc.LegalStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 
@@ -75,15 +81,8 @@ public class PrisonerInformation implements CategoryCodeAware, ReleaseDateAware 
     @ApiModelProperty(value = "Status of prisoner in community", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT", position = 18)
     private String communityStatus;
 
-    @ApiModelProperty(value = "Legal Status", example = "Convicted", allowableValues = "Convicted,Remand", position = 19)
-    private String legalStatus;
-
-    public void deriveLegalStatus(String bandCodeStr) {
-        if (bandCodeStr != null) {
-            final var bandCode = Integer.parseInt(bandCodeStr);
-            legalStatus = (bandCode <= 8 || bandCode == 11) ? "Convicted" : "Remand";
-        }
-    }
+    @ApiModelProperty(value = "Legal Status", example = "REMAND", position = 19)
+    private LegalStatus legalStatus;
 
     public void deriveUnitCodes(final String cellLocation) {
         if (StringUtils.isNotBlank(cellLocation)) {

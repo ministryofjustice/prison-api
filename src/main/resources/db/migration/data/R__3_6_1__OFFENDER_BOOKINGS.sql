@@ -59,7 +59,7 @@ INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO,
         (-48, TO_DATE('2000-08-16', 'YYYY-MM-DD'), 'A09113', -1006, 2, 'N', 'OUT',  'N', 'N', 'OUT', -1006, null),
 
 -- For adjudications.feature
-        (-49, TO_DATE('2000-08-16', 'YYYY-MM-DD'), 'Z00045', -1048, 2, 'N', 'LEI',  'N', 'N', 'LEI', -1048, null),
+        (-49, TO_DATE('2000-08-16', 'YYYY-MM-DD'), 'Z00045', -1048, 2, 'N', 'OUT',  'N', 'N', 'OUT', -1048, null),
         (-50, sysdate, 'Z00046', -1048, 1, 'N', 'IN',  'N', 'N', 'MDI', -1048, null),
         (-51, sysdate, 'Z00047', -1049, 1, 'N', 'IN',  'N', 'N', 'LEI', -1049, null),
 

@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import com.google.common.collect.Lists;
+import net.syscon.elite.api.model.LegalStatusCalc;
 import net.syscon.elite.api.model.PrisonerInformation;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.jpa.model.PrisonerStatusInformation;
@@ -85,7 +86,7 @@ public class PrisonerInformationService {
                 .englishSpeaking("Y".equals(entity.getEnglishSpeakingFlag()))
                 .communityStatus(format("%s %s", "Y".equals(entity.getActiveFlag()) ? "ACTIVE" : "INACTIVE", entity.getInOutStatus()))
                 .build();
-        prisonerInformation.deriveLegalStatus(entity.getBandCode());
+        prisonerInformation.setLegalStatus(LegalStatusCalc.getLegalStatus(entity.getBandCode(), entity.getImprisonmentStatus()));
         prisonerInformation.deriveUnitCodes(entity.getCellLocation());
         return prisonerInformation;
     }

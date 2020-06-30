@@ -2,13 +2,13 @@ package net.syscon.elite.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.syscon.elite.api.model.LegalStatusCalc.LegalStatus;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -79,18 +79,11 @@ public class OffenderBooking implements CategoryCodeAware {
     @ApiModelProperty(value = "The Cat A/B/C/D of the offender", position = 18, example = "C", allowableValues = "A,B,C,D,I,J")
     private String categoryCode;
 
-    /**
-     * Specialised setter for the 'virtual' attribute convictedStatus, an interpreted value based on the bandCode
-     */
     @ApiModelProperty(value = "Convicted Status", name = "convictedStatus", position = 19, example = "Convicted", allowableValues = "Convicted,Remand")
-    @JsonProperty("convictedStatus")
-    public String getConvictedStatus() {
-        if (this.bandCode != null) {
-            final var band = Integer.parseInt(this.bandCode);
-            return band <= 8 || band == 11 ? "Convicted" : "Remand";
-        }
-        return null;
-    }
+    private String convictedStatus;
+
+    @JsonIgnore
+    private String bandCode;
 
     @ApiModelProperty(value = "The imprisonment status of the offender", position = 20, example = "SENT")
     private String imprisonmentStatus;
@@ -105,7 +98,11 @@ public class OffenderBooking implements CategoryCodeAware {
     @ApiModelProperty(required = true, value = "List of offender's current alert codes.", position = 22)
     private List<String> alertsDetails = new ArrayList<>();
 
-    @JsonIgnore
-    private String bandCode;
+    @ApiModelProperty(value = "Legal Status", name = "legalStatus", position = 23, example = "REMAND")
+    private LegalStatus legalStatus;
 
+    public void deriveLegalDetails() {
+        legalStatus = LegalStatusCalc.getLegalStatus(bandCode, imprisonmentStatus);
+        convictedStatus = LegalStatusCalc.getConvictedStatus(bandCode);
+    }
 }

@@ -1,15 +1,20 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import net.syscon.elite.api.model.LegalStatusCalc.LegalStatus;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Prisoner Details
@@ -22,9 +27,8 @@ import java.util.Map;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Data
+@ToString
 public class PrisonerDetail {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
 
     @ApiModelProperty(required = true, value = "The prisoner's unique offender number (aka NOMS Number in the UK).", example="A0000AA")
     @NotBlank
@@ -99,8 +103,14 @@ public class PrisonerDetail {
     @ApiModelProperty(value = "The prisoner's religion code.", example="PAG")
     private String religionCode;
 
-    @ApiModelProperty(value = "Status code of prisoner's latest conviction.", example="Convicted")
+    @ApiModelProperty(value = "Status code of prisoner's latest conviction.", example="Convicted", allowableValues = "Convicted,Remand")
     private String convictedStatus;
+
+    @ApiModelProperty(value = "Legal Status", example="REMAND")
+    private LegalStatus legalStatus;
+
+    @JsonIgnore
+    private String bandCode;
 
     @ApiModelProperty(value = "The prisoner's imprisonment status.", example="LIFE")
     private String imprisonmentStatus;
@@ -126,51 +136,9 @@ public class PrisonerDetail {
     @NotNull
     private LocalDate currentWorkingBirthDate;
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
+    public void deriveLegalDetails() {
+        legalStatus = LegalStatusCalc.getLegalStatus(bandCode, imprisonmentStatus);
+        convictedStatus = LegalStatusCalc.getConvictedStatus(bandCode);
     }
 
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
-
-    @Override
-    public String toString() {
-
-        return new StringBuilder()
-                .append("class PrisonerDetail {\n")
-                .append("  offenderNo: ").append(offenderNo).append("\n")
-                .append("  title: ").append(title).append("\n")
-                .append("  suffix: ").append(suffix).append("\n")
-                .append("  firstName: ").append(firstName).append("\n")
-                .append("  middleNames: ").append(middleNames).append("\n")
-                .append("  lastName: ").append(lastName).append("\n")
-                .append("  dateOfBirth: ").append(dateOfBirth).append("\n")
-                .append("  gender: ").append(gender).append("\n")
-                .append("  nationalities: ").append(nationalities).append("\n")
-                .append("  currentlyInPrison: ").append(currentlyInPrison).append("\n")
-                .append("  latestBookingId: ").append(latestBookingId).append("\n")
-                .append("  latestLocationId: ").append(latestLocationId).append("\n")
-                .append("  latestLocation: ").append(latestLocation).append("\n")
-                .append("  internalLocation: ").append(internalLocation).append("\n")
-                .append("  pncNumber: ").append(pncNumber).append("\n")
-                .append("  croNumber: ").append(croNumber).append("\n")
-                .append("  ethnicity: ").append(ethnicity).append("\n")
-                .append("  ethnicityCode: ").append(ethnicityCode).append("\n")
-                .append("  birthCountry: ").append(birthCountry).append("\n")
-                .append("  religion: ").append(religion).append("\n")
-                .append("  religionCode: ").append(religionCode).append("\n")
-                .append("  convictedStatus: ").append(convictedStatus).append("\n")
-                .append("  imprisonmentStatus: ").append(imprisonmentStatus).append("\n")
-                .append("  receptionDate: ").append(receptionDate).append("\n")
-                .append("  maritalStatus: ").append(maritalStatus).append("\n")
-                .append("  currentWorkingFirstName: ").append(currentWorkingFirstName).append("\n")
-                .append("  currentWorkingLastName: ").append(currentWorkingLastName).append("\n")
-                .append("  currentWorkingBirthDate: ").append(currentWorkingBirthDate).append("\n")
-                .append("}\n")
-                .toString();
-    }
 }

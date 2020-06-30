@@ -51,8 +51,8 @@ import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.UpdateAttendanceBatch;
 import net.syscon.elite.api.model.UpdateCaseNote;
-import net.syscon.elite.api.model.VisitDetails;
 import net.syscon.elite.api.model.VisitBalances;
+import net.syscon.elite.api.model.VisitDetails;
 import net.syscon.elite.api.model.VisitWithVisitors;
 import net.syscon.elite.api.model.adjudications.AdjudicationSummary;
 import net.syscon.elite.api.support.Order;
@@ -590,8 +590,9 @@ public interface BookingResource {
     ResponseEntity<byte[]> getMainBookingImageDataByNo(@ApiParam(value = "The offender No of offender", required = true) @PathVariable("offenderNo") String offenderNo,
                                                   @ApiParam(value = "Return full size image", defaultValue = "false") @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) boolean fullSizeImage);
 
+    @Deprecated
     @GetMapping("/offenderNo/{offenderNo}/key-worker")
-    @ApiOperation(value = "Key worker details.", notes = "Key worker details.", nickname = "getKeyworkerByOffenderNo")
+    @ApiOperation(value = "Key worker details.", notes = "Key worker details. This should not be used - call keywork API instead")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),

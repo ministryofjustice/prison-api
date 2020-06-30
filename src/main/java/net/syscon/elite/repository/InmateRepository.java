@@ -71,8 +71,6 @@ public interface InmateRepository {
 
     Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
 
-    List<Long> getPersonalOfficerBookings(long staffId);
-
     /**
      * Perform global search for offenders, based on specified criteria.
      *

@@ -89,7 +89,6 @@
     }
   ],
   "physicalMarks": [],
-  "assignedOfficerId": -1,
   "birthCountryCode": "UK",
   "inOutStatus": "IN",
   "identifiers": [],
@@ -131,7 +130,7 @@
     }
   ],
   "status": "ACTIVE IN",
-  "legalStatus": "Convicted",
+  "legalStatus": "SENTENCED",
   "imprisonmentStatus": "SENT",
   "privilegeSummary": {
     "bookingId": -9,

@@ -93,7 +93,7 @@
     "unitCode2": "1",
     "releaseDate": "2017-12-31",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Remand"
+    "legalStatus": "REMAND"
   },
   {
     "nomsId": "A9876RS",
@@ -120,7 +120,7 @@
     "unitCode1": "H",
     "unitCode2": "1",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Remand"
+    "legalStatus": "REMAND"
   },
   {
     "nomsId": "Z0025ZZ",
@@ -150,7 +150,7 @@
     "unitCode2": "1",
     "releaseDate": "2022-02-02",
     "communityStatus": "ACTIVE OUT",
-    "legalStatus": "Remand"
+    "legalStatus": "REMAND"
   },
   {
     "nomsId": "Z0019ZZ",
@@ -254,7 +254,7 @@
     "unitCode3": "5",
     "releaseDate": "2018-01-13",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Convicted"
+    "legalStatus": "SENTENCED"
   },
   {
     "nomsId": "A1234AH",
@@ -287,7 +287,7 @@
     "releaseDate": "2018-01-05",
     "categoryCode": "C",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Convicted"
+    "legalStatus": "IMMIGRATION_DETAINEE"
   },
   {
     "nomsId": "A1234AF",
@@ -304,7 +304,7 @@
     "releaseDate": "2018-05-15",
     "categoryCode": "C",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Convicted"
+    "legalStatus": "SENTENCED"
   },
   {
     "nomsId": "A1234AE",
@@ -322,7 +322,7 @@
     "releaseDate": "2023-05-07",
     "categoryCode": "Z",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Convicted"
+    "legalStatus": "SENTENCED"
   },
   {
     "nomsId": "A1234AD",
@@ -339,7 +339,7 @@
     "releaseDate": "2021-08-31",
     "categoryCode": "U",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Convicted"
+    "legalStatus": "SENTENCED"
   },
   {
     "nomsId": "A1234AC",
@@ -357,7 +357,7 @@
     "releaseDate": "2018-03-15",
     "categoryCode": "X",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Convicted"
+    "legalStatus": "SENTENCED"
   },
   {
     "nomsId": "A1234AB",
@@ -374,7 +374,7 @@
     "unitCode3": "5",
     "releaseDate": "2018-04-19",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Convicted"
+    "legalStatus": "SENTENCED"
   },
   {
     "nomsId": "A1234AA",
@@ -389,10 +389,9 @@
     "unitCode1": "A",
     "unitCode2": "1",
     "unitCode3": "1",
-    "admissionDate": "2019-10-17",
     "releaseDate": "2018-04-23",
     "categoryCode": "LOW",
     "communityStatus": "ACTIVE IN",
-    "legalStatus": "Convicted"
+    "legalStatus": "SENTENCED"
   }
 ]

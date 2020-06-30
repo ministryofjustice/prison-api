@@ -183,11 +183,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyOffenderBookingNo(bookingNo);
     }
 
-    @And("^assigned officer id of offender booking returned is \"([^\"]*)\"$")
-    public void assignedOfficerIdOfOffenderBookingReturnedIs(final Long assignedOfficerId) {
-        bookingDetail.verifyOffenderAssignedOfficerId(assignedOfficerId);
-    }
-
     @And("^language of offender booking returned is \"([^\"]*)\"$")
     public void languageOfOffenderBookingReturnedIs(final String language) throws ReflectiveOperationException {
         bookingDetail.verifyLanguage(language);
