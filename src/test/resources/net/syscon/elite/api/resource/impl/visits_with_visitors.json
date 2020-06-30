@@ -5,8 +5,6 @@
       "visitDetails": {
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
-        "startTime": "2020-07-15T00:00:00",
-        "endTime": "2020-07-15T00:00:00",
         "location": "Visiting Room",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -17,8 +15,6 @@
       "visitDetails": {
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
-        "startTime": "2020-07-09T00:00:00",
-        "endTime": "2020-07-09T00:00:00",
         "location": "Classroom 1",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -29,8 +25,6 @@
       "visitDetails": {
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
-        "startTime": "2020-07-07T00:00:00",
-        "endTime": "2020-07-07T00:00:00",
         "location": "Carpentry Workshop",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -41,8 +35,6 @@
       "visitDetails": {
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
-        "startTime": "2020-07-03T00:00:00",
-        "endTime": "2020-07-03T00:00:00",
         "location": "LEI-H",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -53,8 +45,6 @@
       "visitDetails": {
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
-        "startTime": "2020-07-01T00:00:00",
-        "endTime": "2020-07-01T00:00:00",
         "location": "Medical Centre",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -78,8 +68,6 @@
         "leadVisitor": "JOHN JOHNSON",
         "relationship": "BRO",
         "relationshipDescription": "Brother",
-        "startTime": "2020-06-30T10:00:00",
-        "endTime": "2020-06-30T11:00:00",
         "location": "Carpentry Workshop",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -90,8 +78,6 @@
       "visitDetails": {
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
-        "startTime": "2020-06-29T14:00:00",
-        "endTime": "2020-06-29T15:00:00",
         "location": "Carpentry Workshop",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -102,8 +88,6 @@
       "visitDetails": {
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
-        "startTime": "2020-06-29T01:00:00",
-        "endTime": "2020-06-29T01:00:00",
         "location": "Visiting Room",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
@@ -114,8 +98,6 @@
       "visitDetails": {
         "visitType": "OFFI",
         "visitTypeDescription": "Official Visit",
-        "startTime": "2020-06-29T00:00:00",
-        "endTime": "2020-06-29T00:00:00",
         "location": "Chapel",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
