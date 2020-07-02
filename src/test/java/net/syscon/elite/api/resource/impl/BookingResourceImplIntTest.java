@@ -401,6 +401,14 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     }
 
+    @Test
+    public void getOffenderContacts() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/-1/contacts", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "offender_contacts.json");
+    }
+
     private ScheduledEvent createEvent(final String type, final String time) {
         return ScheduledEvent.builder().bookingId(-1L)
                 .startTime(Optional.ofNullable(time).map(t -> "2019-01-02T" + t).map(LocalDateTime::parse).orElse(null))

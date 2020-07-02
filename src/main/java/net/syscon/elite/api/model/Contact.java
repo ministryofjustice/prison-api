@@ -3,11 +3,16 @@ package net.syscon.elite.api.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Contact
@@ -84,4 +89,6 @@ public class Contact {
     @ApiModelProperty(required = true, value = "Offender Booking Id for this contact", example = "2468081", position = 18)
     private Long bookingId;
 
+    @ApiModelProperty(required = true, value = "Date time the contact was created", example = "2020-10-10T:20:00", position = 19)
+    private LocalDateTime createDateTime;
 }

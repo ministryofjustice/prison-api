@@ -42,6 +42,7 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
             .commentText(rs.getString("COMMENT_TEXT"))
             .bookingId(rs.getLong("BOOKING_ID"))
             .contactRootOffenderId(rs.getLong("CONTACT_ROOT_OFFENDER_ID"))
+            .createDateTime(DateTimeConverter.toISO8601LocalDateTime(rs.getObject("CREATE_DATETIME")))
             .build();
 
     @Override
