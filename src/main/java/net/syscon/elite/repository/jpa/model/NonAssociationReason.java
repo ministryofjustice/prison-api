@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 public class NonAssociationReason extends ReferenceCode {
 
-    static final String DOMAIN = "NON_ASSO_RSN";
+    public static final String DOMAIN = "NON_ASSO_RSN";
 
     public NonAssociationReason(final String code, final String description) {
         super(DOMAIN, code, description);

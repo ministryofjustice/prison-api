@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 public class NonAssociationType extends ReferenceCode {
 
-    static final String DOMAIN = "NON_ASSO_TYP";
+    public static final String DOMAIN = "NON_ASSO_TYP";
 
     public NonAssociationType(final String code, final String description) {
         super(DOMAIN, code, description);
