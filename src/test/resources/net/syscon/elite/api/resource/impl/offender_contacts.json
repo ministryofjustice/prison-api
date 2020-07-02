@@ -1,0 +1,46 @@
+{
+  "nextOfKin": [
+    {
+      "lastName": "SMITH1",
+      "firstName": "JESSY",
+      "contactType": "S",
+      "contactTypeDescription": "Social/Family",
+      "relationship": "UN",
+      "relationshipDescription": "Uncle",
+      "commentText": "Some Comment Text",
+      "emergencyContact": false,
+      "nextOfKin": true,
+      "relationshipId": -100,
+      "personId": -1,
+      "activeFlag": true,
+      "approvedVisitorFlag": false,
+      "canBeContactedFlag": false,
+      "awareOfChargesFlag": false,
+      "contactRootOffenderId": 0,
+      "bookingId": -1,
+      "createDateTime": "2017-09-06T09:44:01"
+    }
+  ],
+  "otherContacts": [
+    {
+      "lastName": "BREAKFAST",
+      "firstName": "ENGLISH",
+      "contactType": "O",
+      "contactTypeDescription": "Official",
+      "relationship": "COM",
+      "relationshipDescription": "Community Offender Manager",
+      "emergencyContact": false,
+      "nextOfKin": false,
+      "relationshipId": -119,
+      "personId": -5,
+      "activeFlag": true,
+      "expiryDate": "2018-01-02",
+      "approvedVisitorFlag": false,
+      "canBeContactedFlag": false,
+      "awareOfChargesFlag": false,
+      "contactRootOffenderId": 0,
+      "bookingId": -1,
+      "createDateTime": "2017-09-06T09:44:01"
+    }
+  ]
+}

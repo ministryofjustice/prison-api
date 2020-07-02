@@ -9,7 +9,6 @@
     "years": 6,
     "months": 6,
     "lifeSentence": false,
-    "lineSeq": "1",
     "caseId": "-5",
     "fineAmount": 120.0,
     "sentenceTermCode": "IMP"
@@ -25,7 +24,6 @@
     "years": 3,
     "months": 2,
     "lifeSentence": false,
-    "lineSeq": "1",
     "caseId": "-5",
     "fineAmount": 120.0,
     "sentenceTermCode": "IMP"
@@ -41,7 +39,6 @@
     "years": 0,
     "months": 4,
     "lifeSentence": false,
-    "lineSeq": "1",
     "caseId": "-5",
     "fineAmount": 120.0,
     "sentenceTermCode": "IMP"

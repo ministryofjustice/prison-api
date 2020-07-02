@@ -223,7 +223,6 @@ GET_OFFENDER_SENTENCE_TERMS {
        OST.MONTHS,
        OST.WEEKS,
        OST.DAYS,
-       os.LINE_SEQ,
        OS.CASE_ID,
        OS.FINE_AMOUNT,
        OST.SENTENCE_TERM_CODE,

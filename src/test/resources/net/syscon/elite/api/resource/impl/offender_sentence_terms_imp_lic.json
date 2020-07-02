@@ -8,7 +8,6 @@
     "startDate": "2007-10-16",
     "years": 15,
     "lifeSentence": false,
-    "lineSeq": "1",
     "caseId": "-30",
     "fineAmount": 120.0,
     "sentenceTermCode": "IMP"
@@ -22,7 +21,6 @@
     "startDate": "2007-10-16",
     "years": 5,
     "lifeSentence": false,
-    "lineSeq": "1",
     "caseId": "-30",
     "fineAmount": 120.0,
     "sentenceTermCode": "LIC"
