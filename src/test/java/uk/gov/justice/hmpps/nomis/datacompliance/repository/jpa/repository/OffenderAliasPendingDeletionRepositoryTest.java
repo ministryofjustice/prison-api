@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
 
 import java.time.LocalDate;
 
@@ -40,6 +41,9 @@ class OffenderAliasPendingDeletionRepositoryTest {
 
         assertThat(offender.getOffenderBookings()).hasSize(1);
         assertThat(offender.getOffenderBookings().get(0).getBookingId()).isEqualTo(-1);
+        assertThat(offender.getOffenderBookings().get(0).getOffenderCharges())
+                .extracting(OffenderChargePendingDeletion::getOffenceCode)
+                .containsExactlyInAnyOrder("RC86356", "RV98011");
     }
 
     @Test
