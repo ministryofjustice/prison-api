@@ -56,7 +56,10 @@ class DataComplianceEventPusherTest {
                 .birthDate(LocalDate.of(1990, 1, 2))
                 .offender(OffenderWithBookings.builder()
                         .offenderId(123L)
-                        .booking(new Booking(321L))
+                        .booking(Booking.builder()
+                                .offenderBookId(321L)
+                                .offenceCode("offence1")
+                                .build())
                         .build())
                 .build());
 
@@ -68,7 +71,9 @@ class DataComplianceEventPusherTest {
                         "\"middleName\":\"Middle\"," +
                         "\"lastName\":\"Jones\"," +
                         "\"birthDate\":\"1990-01-02\"," +
-                        "\"offenders\":[{\"offenderId\":123,\"bookings\":[{\"offenderBookId\":321}]}]" +
+                        "\"offenders\":[{" +
+                            "\"offenderId\":123,\"bookings\":[{\"offenderBookId\":321,\"offenceCodes\":[\"offence1\"]}]" +
+                        "}]" +
                 "}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
                 .isEqualTo("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION");

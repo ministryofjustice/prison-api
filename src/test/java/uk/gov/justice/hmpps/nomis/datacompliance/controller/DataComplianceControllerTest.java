@@ -64,7 +64,10 @@ public class DataComplianceControllerTest extends ResourceTest {
                         .birthDate(LocalDate.of(1966, 1, 1))
                         .offender(OffenderWithBookings.builder()
                                 .offenderId(-1020L)
-                                .booking(new Booking(-20L))
+                                .booking(Booking.builder()
+                                        .offenderBookId(-20L)
+                                        .offenceCode("RC86355")
+                                        .build())
                                 .build())
                         .build());
 

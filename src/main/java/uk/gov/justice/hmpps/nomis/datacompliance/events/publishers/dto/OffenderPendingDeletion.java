@@ -15,6 +15,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -73,6 +74,7 @@ public class OffenderPendingDeletion {
     }
 
     @Getter
+    @Builder
     @ToString
     @EqualsAndHashCode
     @NoArgsConstructor
@@ -81,6 +83,10 @@ public class OffenderPendingDeletion {
 
         @JsonProperty("offenderBookId")
         private Long offenderBookId;
+
+        @Singular
+        @JsonProperty("offenceCodes")
+        private Set<String> offenceCodes;
     }
 }
 

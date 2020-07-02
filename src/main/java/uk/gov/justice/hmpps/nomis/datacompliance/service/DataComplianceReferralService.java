@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderWithBookings;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 
@@ -23,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Slf4j
@@ -107,7 +109,12 @@ public class DataComplianceReferralService {
         return OffenderWithBookings.builder()
                 .offenderId(alias.getOffenderId())
                 .bookings(alias.getOffenderBookings().stream()
-                        .map(booking -> new Booking(booking.getBookingId()))
+                        .map(booking -> Booking.builder()
+                                .offenderBookId(booking.getBookingId())
+                                .offenceCodes(booking.getOffenderCharges().stream()
+                                        .map(OffenderChargePendingDeletion::getOffenceCode)
+                                        .collect(toSet()))
+                                .build())
                         .collect(toUnmodifiableList()))
                 .build();
     }

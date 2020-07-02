@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 
@@ -126,7 +127,10 @@ public class DataComplianceReferralServiceTest {
                 .birthDate(LocalDate.of(2020, 1, (int) offenderId))
                 .offender(OffenderWithBookings.builder()
                         .offenderId(offenderId)
-                        .booking(new Booking(offenderId))
+                        .booking(Booking.builder()
+                                .offenderBookId(offenderId)
+                                .offenceCode("offence" + offenderId)
+                                .build())
                         .build())
                 .build();
     }
@@ -147,6 +151,7 @@ public class DataComplianceReferralServiceTest {
                 .rootOffenderId(offenderId)
                 .offenderBooking(OffenderBookingPendingDeletion.builder()
                         .bookingId(offenderId)
+                        .offenderCharge(OffenderChargePendingDeletion.builder().offenceCode("offence" + offenderId).build())
                         .build())
                 .build();
     }
