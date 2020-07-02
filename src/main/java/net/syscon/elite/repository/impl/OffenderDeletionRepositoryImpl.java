@@ -219,16 +219,30 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_CHARGES", bookIds);
     }
 
+    private Set<String> agencyIncidentIdsFor(final Set<String> bookIds) {
+        return new HashSet<>(jdbcTemplate.queryForList(
+                getQuery("OD_AGENCY_INCIDENT_IDS"),
+                createParams("bookIds", bookIds),
+                String.class));
+    }
+
     private void deleteAgencyIncidents(final Set<String> bookIds) {
         executeNamedSqlWithBookingIds("OD_DELETE_OFFENDER_OIC_SANCTIONS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OIC_HEARING_RESULTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OIC_HEARING_COMMENTS", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OIC_HEARING_NOTICES", bookIds);
         executeNamedSqlWithBookingIds("OD_DELETE_OIC_HEARINGS", bookIds);
-        executeNamedSqlWithBookingIds("OD_DELETE_AGY_INC_INV_STATEMENTS", bookIds);
-        executeNamedSqlWithBookingIds("OD_DELETE_AGY_INC_INVESTIGATIONS", bookIds);
-        executeNamedSqlWithBookingIds("OD_DELETE_AGENCY_INCIDENT_CHARGES", bookIds);
-        executeNamedSqlWithBookingIds("OD_DELETE_AGENCY_INCIDENT_PARTIES", bookIds);
+
+        final var agencyIncidentIds = agencyIncidentIdsFor(bookIds);
+
+        if (!agencyIncidentIds.isEmpty()) {
+            executeNamedSqlWithAgencyIncidentIds("OD_DELETE_AGY_INC_INV_STATEMENTS", agencyIncidentIds);
+            executeNamedSqlWithAgencyIncidentIds("OD_DELETE_AGY_INC_INVESTIGATIONS", agencyIncidentIds);
+            executeNamedSqlWithAgencyIncidentIds("OD_DELETE_AGENCY_INCIDENT_REPAIRS", agencyIncidentIds);
+            executeNamedSqlWithAgencyIncidentIds("OD_DELETE_AGENCY_INCIDENT_CHARGES", agencyIncidentIds);
+            executeNamedSqlWithAgencyIncidentIds("OD_DELETE_AGENCY_INCIDENT_PARTIES", agencyIncidentIds);
+            executeNamedSqlWithAgencyIncidentIds("OD_DELETE_AGENCY_INCIDENTS", agencyIncidentIds);
+        }
     }
 
     private void deleteOffenderContactPersons(final Set<String> bookIds) {
@@ -423,5 +437,9 @@ public class OffenderDeletionRepositoryImpl extends RepositoryBase implements Of
 
     private void executeNamedSqlWithIncidentCaseIds(final String sql, final Set<String> ids) {
         jdbcTemplate.update(getQuery(sql), createParams("incidentCaseIds", ids));
+    }
+
+    private void executeNamedSqlWithAgencyIncidentIds(final String sql, final Set<String> ids) {
+        jdbcTemplate.update(getQuery(sql), createParams("agencyIncidentIds", ids));
     }
 }
