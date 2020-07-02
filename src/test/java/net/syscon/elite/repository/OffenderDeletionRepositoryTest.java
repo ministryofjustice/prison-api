@@ -81,13 +81,17 @@ public class OffenderDeletionRepositoryTest {
         queryByProgramId("OFFENDER_PRG_PRF_PAY_BANDS").is(condition);
         queryByProgramId("OFFENDER_PROGRAM_PROFILES").is(condition);
 
-        queryByOffenderBookId("INCIDENT_CASE_PARTIES").is(condition);
+        queryByAgencyIncidentId("AGENCY_INCIDENT_REPAIRS").is(condition);
+        queryByAgencyIncidentId("AGENCY_INCIDENT_CHARGES").is(condition);
+        queryByAgencyIncidentId("AGENCY_INCIDENT_PARTIES").is(condition);
+        queryByAgencyIncidentId("AGENCY_INCIDENTS").is(condition);
 
         queryByIncidentCaseId("INCIDENT_CASES").is(condition);
         queryByIncidentCaseId("INCIDENT_CASE_QUESTIONS").is(condition);
         queryByIncidentCaseId("INCIDENT_CASE_RESPONSES").is(condition);
         queryByIncidentCaseId("INCIDENT_CASE_REQUIREMENTS").is(condition);
 
+        queryByOffenderBookId("INCIDENT_CASE_PARTIES").is(condition);
         queryByOffenderBookId("BED_ASSIGNMENT_HISTORIES").is(condition);
         queryByOffenderBookId("COURT_EVENTS").is(condition);
         queryByOffenderBookId("OFFENDER_ALERTS").is(condition);
@@ -118,7 +122,6 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderBookId("OFFENDER_SENTENCES").is(condition);
         queryByOffenderBookId("ORDERS").is(condition);
         queryByOffenderBookId("OFFENDER_BELIEFS").is(condition);
-        queryByOffenderBookId("AGENCY_INCIDENT_PARTIES").is(condition);
 
         queryByOffenderId("GL_TRANSACTIONS").is(condition);
         queryByOffenderId("OFFENDER_BOOKINGS").is(condition);
@@ -127,6 +130,12 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderId("OFFENDER_TRANSACTIONS").is(condition);
         queryByOffenderId("OFFENDER_TRUST_ACCOUNTS").is(condition);
         queryByOffenderId("OFFENDERS").is(condition);
+    }
+
+    private ListAssert<String> queryByAgencyIncidentId(final String tableName) {
+        return assertThat(jdbcTemplate.queryForList(
+                "SELECT agency_incident_id FROM " + tableName + " WHERE agency_incident_id IN (-6)",
+                String.class));
     }
 
     private ListAssert<String> queryByHealthProblemId(final String tableName) {
