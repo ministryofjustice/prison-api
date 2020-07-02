@@ -102,7 +102,7 @@ public class SchedulesResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
         assertThat(schedules).extracting("cellLocation").isSorted();
-        assertThat(schedules).extracting("cellLocation").containsOnly("LEI-A-1-1", "LEI-A-1-2", "LEI-A-1-10");
+        assertThat(schedules).extracting("cellLocation").containsOnly("LEI-A-1-1", "LEI-A-1-10");
 
     }
 
