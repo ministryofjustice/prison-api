@@ -128,12 +128,12 @@ Build Docker image and run
 ```bash
 ./gradlew clean assemble
 
-docker build -t quay.io/hmpps/elite2-api .
+docker build -t quay.io/hmpps/prison-api .
 
 docker run -d -p 8888:8080             \
        -h prison-api                   \
        --name=prison-api               \
-    quay.io/hmpps/elite2-api:latest
+    quay.io/hmpps/prison-api:latest
 ```
 
 ### Using Docker compose ###

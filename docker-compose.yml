@@ -12,7 +12,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
 
   prison-api:
-    image: quay.io/hmpps/elite2-api:latest
+    image: quay.io/hmpps/prison-api:latest
     container_name: prison-api
     depends_on:
       - oauth-server

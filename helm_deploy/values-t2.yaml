@@ -4,7 +4,7 @@
 replicaCount: 2
 
 image:
-  repository: quay.io/hmpps/elite2-api
+  repository: quay.io/hmpps/prison-api
   tag: latest
   pullPolicy: IfNotPresent
   port: 8080
