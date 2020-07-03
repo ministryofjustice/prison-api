@@ -6,10 +6,12 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
@@ -54,7 +56,6 @@ public interface MovementResource {
             @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId,
             @ApiParam(value = "If false return data for prisoners in cell locations, if true return unassigned prisoners, i.e. those in non-cell locations.", defaultValue = "false") @RequestParam(value = "unassigned", required = false, defaultValue = "false") boolean unassigned);
 
-    @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/rollcount/{agencyId}/movements")
     @ApiOperation(value = "Rollcount movement numbers.", notes = "Rollcount movement numbers.", nickname = "getRollcountMovements")
     @ApiResponses(value = {
@@ -72,7 +73,6 @@ public interface MovementResource {
             @ApiParam(value = "movement type codes to filter by") @RequestParam(value = "movementTypes", required = false) List<String> movementTypes,
             @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") Boolean latestOnly);
 
-    @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/{agencyId}/enroute")
     @ApiOperation(value = "Enroute prisoner movement details.", notes = "Enroute to reception", nickname = "getEnrouteOffenderMovements")
     @ApiResponses(value = {
@@ -82,7 +82,6 @@ public interface MovementResource {
             @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId,
             @ApiParam(value = "Optional filter on date of movement") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "movementDate", required = false) LocalDate movementDate);
 
-    @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/rollcount/{agencyId}/enroute")
     @ApiOperation(value = "Enroute prisoner movement count.", notes = "Enroute to reception count", nickname = "getEnrouteOffenderMovementCount")
     @ApiResponses(value = {
@@ -91,9 +90,8 @@ public interface MovementResource {
     int getEnrouteOffenderMovementCount(
             @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId, @ApiParam(value = "Optional filter on date of movement. Defaults to today") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "movementDate", required = false) LocalDate movementDate);
 
-    @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/{agencyId}/in/{isoDate}")
-    @ApiOperation(value = "Information on offenders in today.", notes = "Information on offenders in on given date.", nickname = "getMovementsIn")
+    @ApiOperation(value = "Information on offenders in today.", notes = "Information on offenders in on given date.", nickname = "getMovementsInOnDate")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
@@ -101,6 +99,21 @@ public interface MovementResource {
     List<OffenderIn> getMovementsIn(
             @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId,
             @ApiParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("isoDate") LocalDate movementsDate);
+
+    @GetMapping("/{agencyId}/in")
+    @ApiOperation(value = "Offenders who entered a prison during a time period.", notes = "Offenders who entered a prison during a time period.", nickname = "getMovementsInBetweeen")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    ResponseEntity<List<OffenderIn>> getMovementsIn(
+            @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId,
+            @ApiParam(value = "fromDateTime", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDateTime") LocalDateTime fromDate,
+            @ApiParam(value = "toDateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(value = "toDateTime", required = false) LocalDateTime toDate,
+            @ApiParam(value = "Requested offset of first record in returned collection of prisoner records.", defaultValue = "0")
+            @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
+            @ApiParam(value = "Requested limit to number of records returned.", defaultValue = "10")
+            @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false)  Long pageLimit);
 
     @GetMapping("/livingUnit/{livingUnitId}/currently-out")
     @ApiOperation(value = "Information on offenders currently out.", notes = "Information on offenders currently out.", nickname = "getOffendersCurrentlyOut")
@@ -120,7 +133,6 @@ public interface MovementResource {
     List<OffenderOut> getOffendersCurrentlyOut(
             @ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId);
 
-    @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/{agencyId}/out/{isoDate}")
     @ApiOperation(value = "", nickname = "getOffendersOut")
     @ApiResponses(value = {
@@ -139,7 +151,6 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderInReception> getOffendersInReception(@ApiParam(value = "The prison id", required = true) @PathVariable("agencyId") String agencyId);
 
-    @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/transfers")
     @ApiOperation(value = "Information on scheduled court, transfer and release events, and confirmed movements between two dates/times for a specified number of agencies.",
             notes = "Planned movements are recorded as events of type court, release or transfers/appointments. When these events are started they are actualised as external movements.",

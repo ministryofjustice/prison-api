@@ -99,6 +99,11 @@ public class PageRequest {
         return org.springframework.data.domain.PageRequest.of((int) Math.floor((float)offset / limit), Math.toIntExact(limit), Sort.Direction.valueOf(order.name()), orderBy);
     }
 
+    public static org.springframework.data.domain.PageRequest of(final Long offset, final Long limit) {
+        return org.springframework.data.domain.PageRequest.of((int) Math.floor((float)offset / limit), Math.toIntExact(limit));
+    }
+
+
     public boolean isAscendingOrder() {
         return Order.ASC == order;
     }

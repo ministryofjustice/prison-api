@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
@@ -12,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
 import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
 import uk.gov.justice.hmpps.prison.api.resource.MovementResource;
+import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 
 import java.time.LocalDate;
@@ -46,6 +49,20 @@ public class MovementResourceImpl implements MovementResource {
     @Override
     public List<OffenderIn> getMovementsIn(final String agencyId, final LocalDate date) {
         return movementsService.getOffendersIn(agencyId, date);
+    }
+
+    @Override
+    public ResponseEntity<List<OffenderIn>> getMovementsIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Long pageOffset, final Long pageLimit) {
+        final var page = movementsService.getOffendersIn(agencyId, fromDate, toDate, PageRequest.of(pageOffset, pageLimit));
+
+        final var responseHeaders = new HttpHeaders();
+        responseHeaders.set("Total-Records", String.valueOf(page.getTotalElements()));
+        responseHeaders.set("Page-Offset", String.valueOf(page.getPageable().getOffset()));
+        responseHeaders.set("Page-Limit", String.valueOf(page.getPageable().getPageSize()));
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(page.getContent());
     }
 
     @Override
