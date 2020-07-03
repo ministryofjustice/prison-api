@@ -3,6 +3,7 @@ package net.syscon.prison.api.resource.impl;
 import net.syscon.prison.api.model.ErrorResponse;
 import net.syscon.prison.api.model.PrisonerSchedule;
 import net.syscon.prison.executablespecification.steps.AuthTokenHelper;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -86,6 +87,7 @@ public class SchedulesResourceTest extends ResourceTest {
 
     }
 
+    @Ignore
     @Test
     public void schedulesAgencyIdActivitiesByLocationId_LocationGroupScheduleEventsInOrder_OffenderSchedulesAreInOrder() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
