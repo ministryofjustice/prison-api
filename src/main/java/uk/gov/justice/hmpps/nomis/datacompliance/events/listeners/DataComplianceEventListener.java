@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderDe
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService.OffenderDeletionGrant;
 
 import java.io.IOException;
 import java.util.Map;
@@ -85,7 +86,12 @@ public class DataComplianceEventListener {
         checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", message.getPayload());
         checkNotNull(event.getReferralId(), "No referral ID specified in request: %s", message.getPayload());
 
-        offenderDeletionService.deleteOffender(event.getOffenderIdDisplay(), event.getReferralId());
+        offenderDeletionService.deleteOffender(OffenderDeletionGrant.builder()
+                .offenderNo(event.getOffenderIdDisplay())
+                .referralId(event.getReferralId())
+                .offenderIds(event.getOffenderIds())
+                .offenderBookIds(event.getOffenderBookIds())
+                .build());
     }
 
     private void handleFreeTextMoratoriumCheck(final Message<String> message) {

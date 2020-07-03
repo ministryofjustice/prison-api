@@ -43,7 +43,7 @@ public class OffenderDeletionRepositoryTest {
         assertOffenderDataExists();
 
         assertThat(repository.deleteOffender("A1234AA"))
-                .containsExactly("-1001");
+                .containsExactly(-1001L);
 
         assertOffenderDataDeleted();
 
