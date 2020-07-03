@@ -2,7 +2,7 @@ package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.Contact;
 import net.syscon.prison.api.model.ContactDetail;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
 
@@ -36,7 +36,7 @@ public class ContactSteps extends CommonSteps {
             final var response = restTemplate.exchange(BOOKING_CONTACTS_API_URL, HttpMethod.GET,
                     createEntity(), ContactDetail.class, bookingId);
             details = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

@@ -2,7 +2,7 @@ package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.adjudications.AdjudicationSummary;
 import net.syscon.prison.api.model.adjudications.Award;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
@@ -41,7 +41,7 @@ public class AdjudicationSteps extends CommonSteps {
             final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
                     AdjudicationSummary.class, bookingId);
             summary = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

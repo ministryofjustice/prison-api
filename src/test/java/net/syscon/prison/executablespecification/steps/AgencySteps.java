@@ -5,7 +5,7 @@ import net.syscon.prison.api.model.IepLevel;
 import net.syscon.prison.api.model.Location;
 import net.syscon.prison.api.support.Order;
 import net.syscon.prison.api.support.TimeSlot;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -61,7 +61,7 @@ public class AgencySteps extends CommonSteps {
             agencies = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -84,7 +84,7 @@ public class AgencySteps extends CommonSteps {
             locations = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -110,7 +110,7 @@ public class AgencySteps extends CommonSteps {
             locations = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -130,7 +130,7 @@ public class AgencySteps extends CommonSteps {
                     });
 
             iepLevels = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -153,7 +153,7 @@ public class AgencySteps extends CommonSteps {
                     });
 
             agency = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -167,7 +167,7 @@ public class AgencySteps extends CommonSteps {
 
             agencies = response.getBody();
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

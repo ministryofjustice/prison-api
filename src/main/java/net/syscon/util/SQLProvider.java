@@ -1,7 +1,7 @@
 package net.syscon.util;
 
 
-import net.syscon.prison.exception.EliteRuntimeException;
+import net.syscon.prison.exception.PrisonApiRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public class SQLProvider {
             }
             parse(out.toCharArray());
         } catch (final Exception ex) {
-            throw new EliteRuntimeException(ex);
+            throw new PrisonApiRuntimeException(ex);
         }
     }
 

@@ -111,7 +111,6 @@ public class CaseNoteService {
     @VerifyBookingAccess
     public CaseNote createCaseNote(final Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid final NewCaseNote caseNote, final String username) {
         final var userDetail = userService.getUserByUsername(username);
-        // TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
         final var caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
 
         return getCaseNote(bookingId, caseNoteId);

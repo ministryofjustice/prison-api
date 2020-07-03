@@ -245,7 +245,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 });
 //Expecting:
 // <"Validation failed for argument [0] in public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.
-// Long>> net.syscon.elite.api.resource.impl.OffenderAssessmentResourceImpl.createCategorisation(net.syscon.elite.api.model.CategorisationDetail) with 4 errors:
+// Long>> net.syscon.prison.api.resource.impl.OffenderAssessmentResourceImpl.createCategorisation(net.syscon.prison.api.model.CategorisationDetail) with 4 errors:
 // [Field error in object 'categorisationDetail' on field 'category': rejected value [null]; codes [NotNull.categorisationDetail.category,NotNull.category,NotNull.java.lang.String,NotNull];
 // arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [categorisationDetail.category,category]; arguments [];
 // default message [category]]; default message [category must be provided]] [Field error in object 'categorisationDetail' on field 'bookingId':

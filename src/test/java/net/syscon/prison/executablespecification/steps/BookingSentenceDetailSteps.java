@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import net.syscon.prison.api.model.OffenderSentenceDetail;
 import net.syscon.prison.api.model.OffenderSentenceTerms;
 import net.syscon.prison.api.model.SentenceDetail;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -254,7 +254,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
                     SentenceDetail.class, bookingId);
 
             sentenceDetail = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -271,7 +271,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
             offenderSentenceTermsList = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -300,7 +300,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             if (offenderSentenceDetails != null && offenderSentenceDetails.size() == 1) {
                 sentenceDetail = offenderSentenceDetails.get(0).getSentenceDetail();
             }
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -318,7 +318,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             buildResourceData(response);
 
             offenderSentenceDetails = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -335,7 +335,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             buildResourceData(response);
 
             offenderSentenceDetails = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

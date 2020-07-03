@@ -7,7 +7,7 @@ import net.syscon.prison.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.prison.api.model.bulkappointments.AppointmentsToCreate;
 import net.syscon.prison.api.model.bulkappointments.Repeat;
 import net.syscon.prison.api.model.bulkappointments.RepeatPeriod;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -66,7 +66,7 @@ public class BulkAppointmentSteps extends CommonSteps {
                     Void.class
             );
             httpStatus = response.getStatusCodeValue();
-        } catch (final EliteClientException e) {
+        } catch (final PrisonApiClientException e) {
             errorResponse = e.getErrorResponse();
             httpStatus = errorResponse.getStatus();
         }

@@ -2,7 +2,7 @@ package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.UpdateAttendance;
 import net.syscon.prison.api.support.Order;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -36,7 +36,7 @@ public class BookingActivitySteps extends ScheduledEventSteps {
         try {
             restTemplate.exchange(API_REQUEST_FOR_UPDATE, HttpMethod.PUT,
                     createEntity(updateAttendance), Object.class, offenderNo, eventId);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -46,7 +46,7 @@ public class BookingActivitySteps extends ScheduledEventSteps {
         try {
             restTemplate.exchange(BOOKING_ACTIVITIES_API_URL + "/{activityId}/attendance", HttpMethod.PUT,
                     createEntity(updateAttendance), Object.class, bookingId, eventId);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

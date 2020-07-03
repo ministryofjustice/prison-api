@@ -3,7 +3,7 @@ package net.syscon.prison.executablespecification.steps;
 import net.syscon.prison.api.model.NewAppointment;
 import net.syscon.prison.api.model.ScheduledEvent;
 import net.syscon.prison.api.support.Order;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -62,7 +62,7 @@ public class BookingAppointmentSteps extends ScheduledEventSteps {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             scheduledEvent = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

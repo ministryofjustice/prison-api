@@ -2,7 +2,7 @@ package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.Location;
 import net.syscon.prison.api.model.LocationGroup;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -63,7 +63,7 @@ public class LocationsSteps extends CommonSteps {
             final List<?> resources = Collections.singletonList(location);
             setResourceMetaData(resources);
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -76,7 +76,7 @@ public class LocationsSteps extends CommonSteps {
                     new ParameterizedTypeReference<List<Location>>() {
                     }, agencyId, name);
             locationList = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -88,7 +88,7 @@ public class LocationsSteps extends CommonSteps {
                     new ParameterizedTypeReference<List<LocationGroup>>() {
                     }, agencyId);
             groupList = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -156,7 +156,7 @@ public class LocationsSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
             bookingList = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

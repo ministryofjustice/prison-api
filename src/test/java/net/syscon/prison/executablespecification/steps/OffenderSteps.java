@@ -2,7 +2,7 @@ package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.AddressDto;
 import net.syscon.prison.api.model.Telephone;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -37,7 +37,7 @@ public class OffenderSteps extends CommonSteps {
 
             buildResourceData(responseEntity);
 
-        } catch (EliteClientException ex) {
+        } catch (PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

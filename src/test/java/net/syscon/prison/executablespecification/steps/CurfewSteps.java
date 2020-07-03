@@ -3,7 +3,7 @@ package net.syscon.prison.executablespecification.steps;
 import net.syscon.prison.api.model.ErrorResponse;
 import net.syscon.prison.api.model.HomeDetentionCurfew;
 import net.syscon.prison.repository.OffenderCurfewRepositoryTest;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,7 +125,7 @@ public class CurfewSteps extends CommonSteps {
             httpStatus = response.getStatusCode();
         } catch (final RestClientException e) {
             extractHttpStatusCode(e);
-        } catch (final EliteClientException e) {
+        } catch (final PrisonApiClientException e) {
             errorResponse = e.getErrorResponse();
         } catch (final Throwable t) {
             fail("Unexpected outcome from Http PUT request", t);

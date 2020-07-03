@@ -3,7 +3,7 @@ package net.syscon.prison.executablespecification.steps;
 import net.syscon.prison.api.model.StaffDetail;
 import net.syscon.prison.api.model.StaffLocationRole;
 import net.syscon.prison.api.model.StaffRole;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -63,7 +63,7 @@ public class StaffSteps extends CommonSteps {
                     staffId);
 
             staffDetail = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -156,7 +156,7 @@ public class StaffSteps extends CommonSteps {
 
             roles = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -178,7 +178,7 @@ public class StaffSteps extends CommonSteps {
             staffDetails = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -201,7 +201,7 @@ public class StaffSteps extends CommonSteps {
             }
             emailResponseCode = response.getStatusCode().value();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             // This will produce an ErrorResponse body
             setErrorResponse(ex.getErrorResponse());
             emailResponseCode = ex.getErrorResponse().getStatus().intValue();

@@ -1,7 +1,7 @@
 package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.Alert;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -57,7 +57,7 @@ public class BookingAlertSteps extends CommonSteps {
             alerts = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -80,7 +80,7 @@ public class BookingAlertSteps extends CommonSteps {
             alerts = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -102,7 +102,7 @@ public class BookingAlertSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             alert = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -122,7 +122,7 @@ public class BookingAlertSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             alerts = response.getBody();
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

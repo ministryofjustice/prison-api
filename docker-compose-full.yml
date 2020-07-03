@@ -4,7 +4,7 @@ services:
     image: quay.io/hmpps/new-nomis-ui:latest
     depends_on:
       - oauth-server
-      - elite2-api
+      - prison-api
       - keyworker-api
     container_name: new-nomis-ui
     ports:
@@ -14,7 +14,7 @@ services:
     environment:
       - PORT=3000
       - OAUTH_ENDPOINT_URL=http://oauth-server:8080/auth/
-      - API_ENDPOINT_URL=http://elite2-api:8080/
+      - API_ENDPOINT_URL=http://prison-api:8080/
       - KEYWORKER_API_URL=http://keyworker-api:8080/
       - OMIC_UI_URL=http://localhost:3001/
       - ESTABLISHMENT_ROLLCHECK_URL=http://localhost:3002/establishmentroll
@@ -24,7 +24,7 @@ services:
     image: quay.io/hmpps/manage-key-workers:latest
     depends_on:
       - oauth-server
-      - elite2-api
+      - prison-api
       - keyworker-api
     container_name: omic-ui
     ports:
@@ -34,7 +34,7 @@ services:
     environment:
       - PORT=3000
       - OAUTH_ENDPOINT_URL=http://oauth-server:8080/auth/
-      - API_ENDPOINT_URL=http://elite2-api:8080/
+      - API_ENDPOINT_URL=http://prison-api:8080/
       - KEYWORKER_API_URL=http://keyworker-api:8080/
       - NN_ENDPOINT_URL=http://localhost:3000/
       - MAINTAIN_ROLES_ENABLED=true
@@ -43,7 +43,7 @@ services:
     image: quay.io/hmpps/prisonstaffhub:latest
     depends_on:
       - oauth-server
-      - elite2-api
+      - prison-api
     container_name: prisonstaffhub
     ports:
       - "3002:3000"
@@ -52,7 +52,7 @@ services:
     environment:
       - PORT=3000
       - OAUTH_ENDPOINT_URL=http://oauth-server:8080/auth/
-      - API_ENDPOINT_URL=http://elite2-api:8080/
+      - API_ENDPOINT_URL=http://prison-api:8080/
       - NN_ENDPOINT_URL=http://localhost:3000/
 
   oauth-server:
@@ -66,9 +66,9 @@ services:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
 
-  elite2-api:
+  prison-api:
     image: quay.io/hmpps/elite2-api:latest
-    container_name: elite2-api
+    container_name: prison-api
     depends_on:
       - oauth-server
     ports:
@@ -82,7 +82,7 @@ services:
   keyworker-api:
     image: quay.io/hmpps/keyworker-api:latest
     depends_on:
-      - elite2-api
+      - prison-api
       - oauth-server
     container_name: keyworker-api
     ports:
@@ -91,6 +91,6 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
     environment:
       - SERVER_PORT=8080
-      - ELITE2_URI_ROOT=http://elite2-api:8080
+      - ELITE2_URI_ROOT=http://prison-api:8080
       - AUTH_URI_ROOT=http://oauth-server:8080/auth
       - security.require-ssl=false

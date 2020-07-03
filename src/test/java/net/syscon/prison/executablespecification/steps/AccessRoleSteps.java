@@ -1,7 +1,7 @@
 package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.AccessRole;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -67,7 +67,7 @@ public class AccessRoleSteps extends CommonSteps {
                             createEntity(AccessRole.builder().roleCode(roleCode).roleName(roleName).parentRoleCode(parentRoleCode).build()), ResponseEntity.class);
 
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             createUpdateResponse = null;
             setErrorResponse(ex.getErrorResponse());
         }
@@ -84,7 +84,7 @@ public class AccessRoleSteps extends CommonSteps {
                     new ParameterizedTypeReference<List<AccessRole>>() {
                     });
             accessRoles = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

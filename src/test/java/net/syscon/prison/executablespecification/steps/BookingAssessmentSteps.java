@@ -6,7 +6,7 @@ import net.syscon.prison.api.model.CategorisationDetail;
 import net.syscon.prison.api.model.CategoryApprovalDetail;
 import net.syscon.prison.api.model.OffenderCategorise;
 import net.syscon.prison.api.support.CategorisationStatus;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -50,7 +50,7 @@ public class BookingAssessmentSteps extends CommonSteps {
                     });
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assessment = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -69,7 +69,7 @@ public class BookingAssessmentSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
             return response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             return null;
         }
@@ -89,7 +89,7 @@ public class BookingAssessmentSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
             return response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             return null;
         }
@@ -104,7 +104,7 @@ public class BookingAssessmentSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assessment = response.getBody().isEmpty() ? null : response.getBody().get(0);
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -119,7 +119,7 @@ public class BookingAssessmentSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             offenderCatList = response.getBody();
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -134,7 +134,7 @@ public class BookingAssessmentSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             offenderCatList = response.getBody();
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -155,7 +155,7 @@ public class BookingAssessmentSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             createResponse = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -175,7 +175,7 @@ public class BookingAssessmentSteps extends CommonSteps {
                                     .reviewCommitteeCode("GOV")
                                     .build()), ResponseEntity.class);
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

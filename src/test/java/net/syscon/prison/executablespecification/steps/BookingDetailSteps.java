@@ -7,7 +7,7 @@ import net.syscon.prison.api.model.OffenderIdentifier;
 import net.syscon.prison.api.model.PhysicalAttributes;
 import net.syscon.prison.api.model.PhysicalCharacteristic;
 import net.syscon.prison.api.model.ProfileInformation;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -68,7 +68,7 @@ public class BookingDetailSteps extends CommonSteps {
             inmateDetail = response.getBody();
             physicalAttributes = inmateDetail.getPhysicalAttributes();
             physicalCharacteristics = inmateDetail.getPhysicalCharacteristics();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -88,7 +88,7 @@ public class BookingDetailSteps extends CommonSteps {
                             bookingId);
 
             physicalAttributes = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -104,7 +104,7 @@ public class BookingDetailSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             physicalCharacteristics = response.getBody();
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -120,7 +120,7 @@ public class BookingDetailSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             profileInformation = response.getBody();
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -135,7 +135,7 @@ public class BookingDetailSteps extends CommonSteps {
                     }, bookingId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -155,7 +155,7 @@ public class BookingDetailSteps extends CommonSteps {
                             bookingId);
 
             imageDetail = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -174,7 +174,7 @@ public class BookingDetailSteps extends CommonSteps {
                             bookingId);
 
             imageBytes = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -193,7 +193,7 @@ public class BookingDetailSteps extends CommonSteps {
                             offenderNo);
 
             imageBytes = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -325,7 +325,7 @@ public class BookingDetailSteps extends CommonSteps {
                             });
 
             offenders = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -342,7 +342,7 @@ public class BookingDetailSteps extends CommonSteps {
                             }, agencyId);
 
             offendersBasic = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

@@ -8,8 +8,6 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -20,9 +18,6 @@ import java.util.Arrays;
 @Slf4j
 @Component
 public class LoggingAspect {
-
-    @Autowired
-    private Environment env;
 
     @Pointcut("within(net.syscon.prison.repository..*) || within(net.syscon.prison.service..*) || within(net.syscon.prison.aop..*)")
     public void loggingPointcut() {

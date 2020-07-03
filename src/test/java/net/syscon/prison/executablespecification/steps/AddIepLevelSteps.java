@@ -2,7 +2,7 @@ package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.ErrorResponse;
 import net.syscon.prison.api.model.IepLevelAndComment;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -44,7 +44,7 @@ public class AddIepLevelSteps extends CommonSteps {
             httpStatus = responseEntity.getStatusCodeValue();
         } catch (final RestClientException e) {
             extractHttpStatusCode(e);
-        } catch (final EliteClientException e) {
+        } catch (final PrisonApiClientException e) {
             errorResponse = e.getErrorResponse();
             httpStatus = errorResponse.getStatus();
         } catch (final Throwable t) {

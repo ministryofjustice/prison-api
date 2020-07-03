@@ -2,7 +2,7 @@ package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.PrisonContactDetail;
 import net.syscon.prison.api.model.Telephone;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -51,7 +51,7 @@ public class PrisonContactDetailsSteps extends CommonSteps {
 
             detailsList = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -62,7 +62,7 @@ public class PrisonContactDetailsSteps extends CommonSteps {
             final var response = restTemplate.exchange(PRISON_CONTACT_DETAILS_URL, HttpMethod.GET, createEntity(),
                     PrisonContactDetail.class, agencyId);
             details = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

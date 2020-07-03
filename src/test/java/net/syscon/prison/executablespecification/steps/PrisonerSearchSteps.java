@@ -1,7 +1,7 @@
 package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.PrisonerDetail;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -126,7 +126,7 @@ public class PrisonerSearchSteps extends CommonSteps {
             prisonerDetails = responseEntity.getBody();
             buildResourceData(responseEntity);
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             assertThat(isErrorExpected).isTrue();
         }

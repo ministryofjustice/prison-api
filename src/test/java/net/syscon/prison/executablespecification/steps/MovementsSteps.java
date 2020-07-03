@@ -9,7 +9,7 @@ import net.syscon.prison.api.model.OffenderMovement;
 import net.syscon.prison.api.model.OffenderOutTodayDto;
 import net.syscon.prison.api.model.RollCount;
 import net.syscon.prison.api.model.TransferSummary;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -121,7 +121,7 @@ public class MovementsSteps extends CommonSteps {
             movements = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -187,7 +187,7 @@ public class MovementsSteps extends CommonSteps {
             movements = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -207,7 +207,7 @@ public class MovementsSteps extends CommonSteps {
             rollCounts = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -226,7 +226,7 @@ public class MovementsSteps extends CommonSteps {
 
             movementCount = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -247,7 +247,7 @@ public class MovementsSteps extends CommonSteps {
 
             offendersOutToday = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -266,7 +266,7 @@ public class MovementsSteps extends CommonSteps {
 
             offenderMovements = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -284,7 +284,7 @@ public class MovementsSteps extends CommonSteps {
                     movementsDate
             );
             offendersIn = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -305,7 +305,7 @@ public class MovementsSteps extends CommonSteps {
                     agencyId
             );
             offendersInReception = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -362,7 +362,7 @@ public class MovementsSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             transferSummary = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

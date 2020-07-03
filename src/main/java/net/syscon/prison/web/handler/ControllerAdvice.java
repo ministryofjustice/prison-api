@@ -31,7 +31,7 @@ import static java.lang.String.format;
 
 
 @RestControllerAdvice(
-        basePackages = {"net.syscon.elite.api.resource", "uk.gov.justice.hmpps.nomis.api.resource.controller"}
+        basePackages = {"net.syscon.prison.api.resource", "uk.gov.justice.hmpps.nomis.api.resource.controller"}
 )
 @Slf4j
 public class ControllerAdvice {

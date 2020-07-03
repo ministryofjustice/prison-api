@@ -1,7 +1,7 @@
 package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.ReferenceCode;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -237,7 +237,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
             referenceCodes = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -264,7 +264,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
                     code);
 
             referenceCode = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -284,7 +284,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
 
             scheduleReasons = response.getBody();
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

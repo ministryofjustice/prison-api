@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {ApprovalStatusValidator.class})
 public @interface ValidApprovalStatus {
-    String message() default "{net.syscon.elite.service.validation.ApprovalStatusValidator.message}";
+    String message() default "{net.syscon.prison.service.validation.ApprovalStatusValidator.message}";
 
     Class<?>[] groups() default {};
 

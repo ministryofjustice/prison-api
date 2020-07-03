@@ -1,7 +1,7 @@
 package net.syscon.prison.executablespecification.steps;
 
 import net.syscon.prison.api.model.Alias;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -56,7 +56,7 @@ public class BookingAliasSteps extends CommonSteps {
             aliases = response.getBody();
 
             buildResourceData(response);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

@@ -7,7 +7,7 @@ import net.syscon.prison.api.model.CaseNoteStaffUsage;
 import net.syscon.prison.api.model.CaseNoteUsage;
 import net.syscon.prison.api.model.NewCaseNote;
 import net.syscon.prison.api.model.UpdateCaseNote;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -235,7 +235,7 @@ public class CaseNoteSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
             caseNoteId = response.getBody().getCaseNoteId();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
 
             caseNoteId = null;
@@ -250,7 +250,7 @@ public class CaseNoteSteps extends CommonSteps {
                     createEntity(), CaseNote.class, bookingId, caseNoteId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             caseNote = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -260,7 +260,7 @@ public class CaseNoteSteps extends CommonSteps {
             final var response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.PUT,
                     createEntity(caseNote), CaseNote.class, bookingId, caseNoteId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -286,7 +286,7 @@ public class CaseNoteSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
             caseNotes = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -323,7 +323,7 @@ public class CaseNoteSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             caseNoteCount = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -368,7 +368,7 @@ public class CaseNoteSteps extends CommonSteps {
 
             caseNoteUsageList = response.getBody();
             caseNoteUsage = caseNoteUsageList.isEmpty() ? null : caseNoteUsageList.get(0);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -391,7 +391,7 @@ public class CaseNoteSteps extends CommonSteps {
 
             caseNoteUsageList = response.getBody();
             caseNoteUsage = caseNoteUsageList.isEmpty() ? null : caseNoteUsageList.get(0);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -428,7 +428,7 @@ public class CaseNoteSteps extends CommonSteps {
 
             caseNoteStaffUsageList = response.getBody();
             caseNoteStaffUsage = caseNoteStaffUsageList.isEmpty() ? null : caseNoteStaffUsageList.get(0);
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

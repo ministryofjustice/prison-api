@@ -52,7 +52,7 @@ public class AnnotationScannerTest {
 
     @Test
     public void testFindAnnotatedClassesMultiplePackages4Self() {
-        final var packages = new String[]{AnnotationScanner.class.getPackage().getName(), "net.syscon.elite.not.a.real.package"};
+        final var packages = new String[]{AnnotationScanner.class.getPackage().getName(), "net.syscon.prison.not.a.real.package"};
 
         final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(AnnotationScanner.class, packages);
 
@@ -61,7 +61,7 @@ public class AnnotationScannerTest {
 
     @Test
     public void testFindAnnotatedClassesMultiplePackages4Deprecated() {
-        final var packages = new String[]{AnnotationScanner.class.getPackage().getName(), "net.syscon.elite.not.a.real.package"};
+        final var packages = new String[]{AnnotationScanner.class.getPackage().getName(), "net.syscon.prison.not.a.real.package"};
 
         final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(Here.class, packages);
 

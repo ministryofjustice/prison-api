@@ -27,7 +27,7 @@ public class ErrorResponseErrorHandler extends DefaultResponseErrorHandler {
         } catch (final Exception e) {
             super.handleError(response);
         }
-        throw new EliteClientException(errorResponse);
+        throw new PrisonApiClientException(errorResponse);
     }
 
     private List<HttpMessageConverter<?>> getMessageConverters() {

@@ -3,7 +3,7 @@ package net.syscon.prison.executablespecification.steps;
 import net.syscon.prison.api.model.KeyWorkerAllocationDetail;
 import net.syscon.prison.api.model.Keyworker;
 import net.syscon.prison.api.model.OffenderKeyWorker;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -57,7 +57,7 @@ public class KeyWorkerSteps extends CommonSteps {
 
             keyworkerList = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -77,7 +77,7 @@ public class KeyWorkerSteps extends CommonSteps {
 
             allocationsList = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -116,7 +116,7 @@ public class KeyWorkerSteps extends CommonSteps {
 
             allocationsList = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -135,7 +135,7 @@ public class KeyWorkerSteps extends CommonSteps {
 
             allocationHistoryList = response.getBody();
 
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -150,7 +150,7 @@ public class KeyWorkerSteps extends CommonSteps {
                     Keyworker.class, staffId);
 
             keyworker = response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

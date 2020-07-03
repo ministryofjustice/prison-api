@@ -3,7 +3,7 @@ package net.syscon.prison.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.prison.exception.EliteRuntimeException;
+import net.syscon.prison.exception.PrisonApiRuntimeException;
 import net.syscon.prison.repository.IdempotentRequestRepository;
 import net.syscon.prison.repository.support.IdempotentRequestControl;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +50,7 @@ public class IdempotentRequestService {
                 response = objectMapper.readValue(irc.getResponse(), responseType);
             } catch (final IOException e) {
                 log.error("Error converting response to JSON.");
-                throw new EliteRuntimeException(e);
+                throw new PrisonApiRuntimeException(e);
             }
         } else {
             response = null;
@@ -69,7 +69,7 @@ public class IdempotentRequestService {
             jsonResponse = objectMapper.writeValueAsString(response);
         } catch (final JsonProcessingException e) {
             log.error("Error converting response to JSON.");
-            throw new EliteRuntimeException(e);
+            throw new PrisonApiRuntimeException(e);
         }
 
         updateResponse(correlationId, jsonResponse, responseStatus);

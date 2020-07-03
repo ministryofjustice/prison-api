@@ -10,7 +10,7 @@ import net.syscon.prison.api.model.adjudications.AdjudicationDetail;
 import net.syscon.prison.api.model.adjudications.AdjudicationOffence;
 import net.syscon.prison.api.model.adjudications.AdjudicationSearchResponse;
 import net.syscon.prison.api.model.adjudications.Hearing;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -65,7 +65,7 @@ public class OffenderAdjudicationSteps extends CommonSteps {
             offences = body.getOffences();
             agencies = body.getAgencies();
 
-        } catch (EliteClientException ex) {
+        } catch (PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -90,7 +90,7 @@ public class OffenderAdjudicationSteps extends CommonSteps {
             detail = responseEntity.getBody();
 
 
-        } catch (EliteClientException ex) {
+        } catch (PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

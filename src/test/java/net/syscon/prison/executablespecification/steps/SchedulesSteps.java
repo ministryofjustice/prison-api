@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import net.syscon.prison.api.model.PrisonerSchedule;
 import net.syscon.prison.api.support.Order;
 import net.syscon.prison.api.support.TimeSlot;
-import net.syscon.prison.test.EliteClientException;
+import net.syscon.prison.test.PrisonApiClientException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -296,7 +296,7 @@ public class SchedulesSteps extends CommonSteps {
             buildResourceData(response);
 
             return response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             return null;
         }
@@ -315,7 +315,7 @@ public class SchedulesSteps extends CommonSteps {
                     }, agencyId, name);
             buildResourceData(response);
             return response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             return null;
         }
@@ -332,7 +332,7 @@ public class SchedulesSteps extends CommonSteps {
                     }, agencyId, locationId, usage1);
             buildResourceData(response);
             return response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             return null;
         }
@@ -352,7 +352,7 @@ public class SchedulesSteps extends CommonSteps {
                     }, agencyId);
             buildResourceData(response);
             return response.getBody();
-        } catch (final EliteClientException ex) {
+        } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             return null;
         }
