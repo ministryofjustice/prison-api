@@ -38,14 +38,6 @@ jobs:
           path: build/serenity
       - store_artifacts:
           path: build/libs
-      # - persist_to_workspace:
-      #     root: .
-      #     paths:
-      #       - build/libs
-      #       - build.gradle
-      #       - Dockerfile
-      #       - run.sh
-      #       - AI-Agent.xml
 
 workflows:
   version: 2
