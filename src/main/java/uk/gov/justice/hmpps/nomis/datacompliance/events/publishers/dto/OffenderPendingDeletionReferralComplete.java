@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.syscon.prison.api.model.PendingDeletionRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.controller.DataComplianceController;
+import uk.gov.justice.hmpps.prison.api.model.PendingDeletionRequest;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 

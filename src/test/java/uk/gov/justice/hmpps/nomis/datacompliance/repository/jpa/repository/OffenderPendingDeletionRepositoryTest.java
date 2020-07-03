@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository;
 
-import net.syscon.prison.PrisonApiServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -11,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
+import uk.gov.justice.hmpps.prison.PrisonApiServer;
 
 import java.time.LocalDate;
 

@@ -3,7 +3,7 @@ plugins {
     id 'groovy'
 }
 
-group 'net.syscon.prison'
+group 'uk.gov.justice.hmpps.prison'
 
 configurations {
     compile.exclude module: 'commons-logging'

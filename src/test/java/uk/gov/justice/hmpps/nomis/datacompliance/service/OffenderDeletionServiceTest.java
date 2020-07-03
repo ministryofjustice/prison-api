@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.prison.repository.OffenderDeletionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +12,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAl
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService.OffenderDeletionGrant;
+import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository;
 
 import java.util.List;
 import java.util.Map;

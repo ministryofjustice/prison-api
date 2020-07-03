@@ -30,7 +30,7 @@
 
 ### How to run the Application? ###
 
-1) Run `net.syscon.prison.PrisonApiServer` using spring boot profile `nomis-hsqldb`
+1) Run `uk.gov.justice.hmpps.prison.PrisonApiServer` using spring boot profile `nomis-hsqldb`
 
 2) Using Gradle directly via command-line (optionally setting the spring profile variable to select the in-memory database)
 
@@ -143,7 +143,7 @@ docker-compose up -d
 
 ### Running Feature Tests ###
 
-All feature tests can be run from `net.syscon.prison.executablespecification.AllFeatureTest`
+All feature tests can be run from `uk.gov.justice.hmpps.prison.executablespecification.AllFeatureTest`
 
 Tests can be run individually by adding a `@wip` tag to the top of the feature file, or to an individual feature scenario, and
 then adding the environment variable `cucumber.options=--tags '@wip'` to the executable arguments in 'Edit Confgurations'.
