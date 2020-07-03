@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   prison-api:
-    image: quay.io/hmpps/elite2-api:latest
+    image: quay.io/hmpps/prison-api:latest
     container_name: prison-api
     ports:
       - "8080:8080"
