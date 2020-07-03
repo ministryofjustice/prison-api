@@ -6,16 +6,28 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
+import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +37,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -34,12 +47,14 @@ public class MovementsServiceImplTest {
     private static final String TEST_OFFENDER_NO = "AA1234A";
     @Mock
     private MovementsRepository movementsRepository;
+    @Mock
+    private ExternalMovementRepository externalMovementRepository;
 
     private MovementsService movementsService;
 
     @BeforeEach
     public void init() {
-        movementsService = new MovementsService(movementsRepository, 1);
+        movementsService = new MovementsService(movementsRepository, externalMovementRepository, 1);
     }
 
     @Test
@@ -395,6 +410,71 @@ public class MovementsServiceImplTest {
         verify(movementsRepository).getOffenderTransfers(agencyList, from, to);
 
         verifyNoMoreInteractions(movementsRepository);
+    }
+
+    @Test
+    public void getOffenderIn_verifyRetrieval() {
+
+        when(externalMovementRepository.findMovements(any(), any(), any(), any(), any(), any()))
+                .thenReturn(
+                        new PageImpl<>(Collections.singletonList(ExternalMovement.builder()
+                                .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
+                                .booking(OffenderBooking.builder()
+                                        .bookingId(-1L)
+                                        .assignedLivingUnit(AgencyInternalLocation.builder().description("INSIDE").build())
+                                        .offender(Offender.builder()
+                                                .nomsId("A1234AA")
+                                                .firstName("BOB")
+                                                .middleName("JOHN")
+                                                .lastName("SMITH")
+                                                .birthDate(LocalDate.of(2001, 1, 2))
+                                                .build())
+                                        .build())
+                                .activeFlag(ActiveFlag.Y)
+                                .fromCity(new City("CIT-1", "City 1"))
+                                .toCity(new City("CIT-2", "City 2"))
+                                .toAgency(AgencyLocation.builder()
+                                        .id("LEI")
+                                        .description("LEEDS")
+                                        .build())
+                                .fromAgency(AgencyLocation.builder()
+                                        .id("MDI")
+                                        .description("MOORLAND")
+                                        .build()
+                                ).build())));
+
+        final var offenders = movementsService.getOffendersIn(
+                "LEI",
+                LocalDateTime.of(2020, 1, 2, 1, 2),
+                LocalDateTime.of(2020, 2, 2, 1, 2),
+                PageRequest.of(1, 2));
+
+        assertThat(offenders).containsExactly(OffenderIn.builder()
+                .offenderNo("A1234AA")
+                .firstName("Bob")
+                .middleName("John")
+                .lastName("Smith")
+                .bookingId(-1L)
+                .dateOfBirth(LocalDate.of(2001, 1, 2))
+                .movementDateTime(LocalDateTime.of(2020, 1, 30, 12, 30))
+                .movementTime(LocalTime.of(12, 30))
+                .fromCity("City 1")
+                .toCity("City 2")
+                .fromAgencyId("MDI")
+                .fromAgencyDescription("MOORLAND")
+                .toAgencyId("LEI")
+                .toAgencyDescription("LEEDS")
+                .location("INSIDE")
+                .build());
+
+
+        verify(externalMovementRepository).findMovements(
+                "LEI",
+                ActiveFlag.Y,
+                MovementDirection.IN,
+                LocalDateTime.of(2020, 1, 2, 1, 2),
+                LocalDateTime.of(2020, 2, 2, 1, 2),
+                PageRequest.of(1, 2));
     }
 
 }
