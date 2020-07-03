@@ -1,4 +1,4 @@
-# Elite2 API server #
+# Prison API server #
 
 
 [![CircleCI](https://circleci.com/gh/ministryofjustice/elite2-api/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/elite2-api)
@@ -11,11 +11,11 @@
 * The mobile API Server uses the configuration file in YAML format. There is at least one initial configuration
   packaged in the jar on
 
-    `elite2-api/src/main/resources/application.yaml`
+    `prison-api/src/main/resources/application.yaml`
 
     Let's say you want to create a specific configuration to the DEV profile: just copy a file to your configurations.
 
-    `elite2-api/src/main/configs/application-dev.yml`
+    `prison-api/src/main/configs/application-dev.yml`
 
 * Dependencies
   To minimise dependency management we use Spring Boot because it gives us a broad set of
@@ -30,7 +30,7 @@
 
 ### How to run the Application? ###
 
-1) Run `net.syscon.elite.Elite2ApiServer` using spring boot profile `nomis-hsqldb`
+1) Run `net.syscon.prison.PrisonApiServer` using spring boot profile `nomis-hsqldb`
 
 2) Using Gradle directly via command-line (optionally setting the spring profile variable to select the in-memory database)
 
@@ -64,10 +64,10 @@ There are some recent examples around PrisonStatusController and OffenderImageRe
   
 #### Health
 
-- `/ping`: will respond `pong` to all requests.  This should be used by dependent systems to check connectivity to elite 2,
+- `/ping`: will respond `pong` to all requests.  This should be used by dependent systems to check connectivity to prison api,
 rather than calling the `/health` endpoint.
 - `/health`: provides information about the application health and its dependencies.  This should only be used
-by elite 2 health monitoring (e.g. pager duty) and not other systems who wish to find out the state of elite 2.
+by prison-api health monitoring (e.g. pager duty) and not other systems who wish to find out the state of prison api
 - `/info`: provides information about the version of deployed application.
 
 ### Querying a local HSQLDB Database 
@@ -131,8 +131,8 @@ Build Docker image and run
 docker build -t quay.io/hmpps/elite2-api .
 
 docker run -d -p 8888:8080             \
-       -h elite2-api                   \
-       --name=elite2-api               \
+       -h prison-api                   \
+       --name=prison-api               \
     quay.io/hmpps/elite2-api:latest
 ```
 
@@ -143,7 +143,7 @@ docker-compose up -d
 
 ### Running Feature Tests ###
 
-All feature tests can be run from `net.syscon.elite.executablespecification.AllFeatureTest`
+All feature tests can be run from `net.syscon.prison.executablespecification.AllFeatureTest`
 
 Tests can be run individually by adding a `@wip` tag to the top of the feature file, or to an individual feature scenario, and
 then adding the environment variable `cucumber.options=--tags '@wip'` to the executable arguments in 'Edit Confgurations'.
@@ -157,10 +157,10 @@ To run all feature tests in IntelliJ, avoiding known @wip or @broken tests, add 
 
 ### Running with Data Compliance Queues
 
-Elite2 API is currently being used to retrieve data from the NOMIS database for assessing
+Prison API is currently being used to retrieve data from the NOMIS database for assessing
 an offender's eligibility of deletion under data compliance law.
 
-A suite of services can be started with docker-compose that will also attach Elite2 API to
+A suite of services can be started with docker-compose that will also attach Prison API to
 a couple of queues used to communicate deletions and deletion referrals.
 
 To do this, simply run:
@@ -170,7 +170,7 @@ TMPDIR=/private$TMPDIR docker-compose -f docker-compose-data-compliance.yml up
 ```
 
 #### To publish to the data compliance request queue:
-(Warning, if configured, this will prompt Elite2 to delete the Offender provided)
+(Warning, if configured, this will prompt Prison-api to delete the Offender provided)
 
 The `referralId` should match an existing referral in the `OFFENDER_DELETION_REFERRAL` table
 in the Data Compliance database.
@@ -189,7 +189,3 @@ aws --endpoint-url=http://localhost:4576 sqs receive-message \
     --queue-url http://localhost:4576/queue/data_compliance_response_queue
 ```
 
-### Project related links ###
-* [GitHub](https://github.com/ministryofjustice/elite2-api)
-* [Old location - BitBucket](https://bitbucket.org/cool_syscon_team/mobile)
-* [CircleCi](https://circleci.com/bb/cool_syscon_team)

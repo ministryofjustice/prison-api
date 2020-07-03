@@ -1,8 +1,8 @@
 version: '3.1'
 services:
-  elite2-api:
+  prison-api:
     image: quay.io/hmpps/elite2-api:latest
-    container_name: elite2-api
+    container_name: prison-api
     ports:
       - "8080:8080"
     healthcheck:

@@ -1,14 +1,14 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.repository.OffenderDeletionRepository;
+import net.syscon.prison.repository.OffenderDeletionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 
 import java.util.Map;
 import java.util.Set;

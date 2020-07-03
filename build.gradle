@@ -3,7 +3,7 @@ plugins {
     id 'groovy'
 }
 
-group 'net.syscon.elite'
+group 'net.syscon.prison'
 
 configurations {
     compile.exclude module: 'commons-logging'

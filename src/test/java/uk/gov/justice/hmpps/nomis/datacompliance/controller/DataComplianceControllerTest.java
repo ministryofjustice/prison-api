@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.controller;
 
-import net.syscon.elite.api.model.PendingDeletionRequest;
-import net.syscon.elite.api.resource.impl.ResourceTest;
+import net.syscon.prison.api.model.PendingDeletionRequest;
+import net.syscon.prison.api.resource.impl.ResourceTest;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +15,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralS
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static net.syscon.elite.executablespecification.steps.AuthTokenHelper.AuthToken.ELITE2_API_USER;
+import static net.syscon.prison.executablespecification.steps.AuthTokenHelper.AuthToken.ELITE2_API_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jetty.http.HttpStatus.ACCEPTED_202;
 import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;

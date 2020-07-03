@@ -14,9 +14,9 @@ services:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
 
-  elite2-api:
+  prison-api:
     image: quay.io/hmpps/elite2-api:latest
-    container_name: elite2-api
+    container_name: prison-api
     depends_on:
       - localstack
     networks:
