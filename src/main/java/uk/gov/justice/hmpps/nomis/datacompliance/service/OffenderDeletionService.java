@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Singular;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.prison.repository.OffenderDeletionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
@@ -17,6 +16,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderD
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
+import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository;
 
 import java.util.Collection;
 import java.util.Map;

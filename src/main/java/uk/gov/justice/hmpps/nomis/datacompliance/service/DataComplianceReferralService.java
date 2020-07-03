@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.prison.api.model.OffenderNumber;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAl
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
+import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;

@@ -25,20 +25,20 @@
         <appender name="logAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender"/>
     </springProfile>
 
-    <logger name="net.syscon.prison.PrisonApiServer" additivity="false" level="DEBUG">
+    <logger name="uk.gov.justice.hmpps.prison.PrisonApiServer" additivity="false" level="DEBUG">
         <appender-ref ref="logAppender"/>
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="net.syscon" additivity="false" level="DEBUG">
+    <logger name="uk.gov.justice.hmpps" additivity="false" level="DEBUG">
         <appender-ref ref="logAppender"/>
     </logger>
 
-    <logger name="net.syscon.prison.repository.mapping" additivity="false" level="INFO">
+    <logger name="uk.gov.justice.hmpps.prison.repository.mapping" additivity="false" level="INFO">
         <appender-ref ref="logAppender"/>
     </logger>
 
-    <logger name="net.syscon.prison.repository.v1.storedprocs" additivity="false" level="INFO">
+    <logger name="uk.gov.justice.hmpps.prison.repository.v1.storedprocs" additivity="false" level="INFO">
         <appender-ref ref="logAppender"/>
     </logger>
 

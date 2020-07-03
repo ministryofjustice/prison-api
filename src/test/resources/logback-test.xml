@@ -12,7 +12,7 @@
 	<logger name="java.sql.DatabaseMetaData" level="ERROR"/>
 	<logger name="org.springframework.security.web.DefaultSecurityFilterChain" level="WARN"/>
 	<logger name="org.apache.catalina.startup.DigesterFactory" level="OFF"/>
-	<logger name="net.syscon.prison" level="DEBUG"/>
+	<logger name="uk.gov.justice.hmpps.prison" level="DEBUG"/>
 	<logger name="org.springframework.jdbc" level="TRACE"/>
 
 	<root level="INFO">
