@@ -2,10 +2,7 @@
 .gradle
 .idea
 history
-node_modules
-Restlet Tests
 scripts
 .gitignore
 *.iml
 README*
-yarn*
