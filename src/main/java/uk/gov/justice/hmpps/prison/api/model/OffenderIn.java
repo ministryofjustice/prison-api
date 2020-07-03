@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @ApiModel(description = "Summary of an offender counted as Establishment Roll - In")
@@ -66,6 +67,10 @@ public class OffenderIn {
     @NotNull
     @ApiModelProperty(required = true, value = "Movement time")
     private LocalTime movementTime;
+
+    @NotNull
+    @ApiModelProperty(required = true, value = "Movement date time")
+    private LocalDateTime movementDateTime;
 
     @NotNull
     @ApiModelProperty(required = true, value = "Description of the offender's (internal) location")

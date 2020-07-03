@@ -4,12 +4,16 @@ import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+import static java.util.Map.entry;
+import static java.util.Map.of;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MovementResourceTest extends ResourceTest {
 
@@ -40,7 +44,7 @@ public class MovementResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {
                 },
                 LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            );
+        );
 
         assertThatStatus(response, 200);
         assertThatJson(response.getBody()).isEqualTo("[]");
@@ -93,6 +97,61 @@ public class MovementResourceTest extends ResourceTest {
 
         assertThatStatus(response, 200);
         assertThatJson(response.getBody()).isEqualTo("2");
+    }
+
+    @Test
+    public void testGetMovementsSince() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+                "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}",
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                new ParameterizedTypeReference<String>() {
+                }, "LEI", LocalDateTime.of(2019, 1, 1, 0, 1)
+        );
+
+        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_since.json");
+    }
+
+    @Test
+    public void testGetMovementsPagination() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+                "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}",
+                HttpMethod.GET,
+                createHttpEntity(token, null, of("Page-Offset", "1", "Page-Limit", "1")),
+                new ParameterizedTypeReference<String>() {
+                }, "LEI", LocalDateTime.of(2019, 1, 1, 0, 1)
+        );
+
+        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(response.getHeaders().toSingleValueMap()).contains(
+                entry("Page-Limit", "1"),
+                entry("Page-Offset", "1"),
+                entry("Total-Records", "2"));
+
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_paged.json");
+    }
+
+    @Test
+    public void testGetMovementsBetween() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+                "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}&toDateTime={toDateTime}",
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                new ParameterizedTypeReference<String>() {
+                }, "LEI",
+                LocalDateTime.of(2019, 4, 1, 0, 1),
+                LocalDateTime.of(2019, 6, 1, 0, 1)
+        );
+
+        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_between.json");
     }
 
 }

@@ -168,6 +168,7 @@ public class MovementsRepositoryTest {
                         .toAgencyDescription("LEEDS")
                         .fromAgencyId("BMI")
                         .toAgencyId("LEI")
+                        .movementDateTime(LocalDateTime.of(2017, 10, 12, 10, 45, 0))
                         .movementTime(LocalTime.of(10, 45, 0))
                         .location("Landing H/1")
                         .build()

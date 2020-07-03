@@ -45,8 +45,17 @@ public class Offender extends AuditableEntity {
     @Builder.Default
     private String idSourceCode = "SEQ";
 
+    @Column(name = "FIRST_NAME", nullable = true)
+    private String firstName;
+
+    @Column(name = "MIDDLE_NAME", nullable = true)
+    private String middleName;
+
     @Column(name = "LAST_NAME", nullable = false)
     private String lastName;
+
+    @Column(name = "BIRTH_DATE", nullable = true)
+    private LocalDate birthDate;
 
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;

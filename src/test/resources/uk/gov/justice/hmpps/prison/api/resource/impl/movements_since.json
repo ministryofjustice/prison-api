@@ -1,0 +1,33 @@
+[
+  {
+    "firstName": "Arthur",
+    "bookingId": -1,
+    "dateOfBirth": "1969-12-30",
+    "fromAgencyDescription": "OUTSIDE",
+    "fromAgencyId": "OUT",
+    "lastName": "Anderson",
+    "location": "LEI-A-1-1",
+    "middleName": "Boris",
+    "movementDateTime": "2019-10-17T00:00:00",
+    "movementTime": "00:00:00",
+    "offenderNo": "A1234AA",
+    "toAgencyDescription": "LEEDS",
+    "toAgencyId": "LEI"
+  },
+  {
+    "firstName": "Marcus",
+    "bookingId": -35,
+    "dateOfBirth": "1975-12-25",
+    "fromAgencyDescription": "MOORLAND",
+    "fromAgencyId": "MDI",
+    "lastName": "Trescothick",
+    "location": "MDI-1-1-001",
+    "movementDateTime": "2019-05-01T13:00:00",
+    "movementTime": "13:00:00",
+    "offenderNo": "A1179MT",
+    "toAgencyDescription": "LEEDS",
+    "toAgencyId": "LEI",
+    "fromCity": "Birmingham",
+    "toCity": "Leicester"
+  }
+]
