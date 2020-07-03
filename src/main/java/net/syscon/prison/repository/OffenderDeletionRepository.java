@@ -4,5 +4,5 @@ import java.util.Set;
 
 public interface OffenderDeletionRepository {
 
-    Set<String> deleteOffender(String offenderNo);
+    Set<Long> deleteOffender(String offenderNo);
 }

@@ -11,6 +11,7 @@ import org.springframework.messaging.MessageHeaders;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService.OffenderDeletionGrant;
 
 import java.util.List;
 import java.util.Map;
@@ -51,16 +52,22 @@ class DataComplianceEventListenerTest {
     void handleOffenderDeletionEvent() {
 
         handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\",\"referralId\":123}",
+                "{\"offenderIdDisplay\":\"A1234AA\",\"referralId\":123,\"offenderIds\":[456],\"offenderBookIds\":[789]}",
                 Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED"));
 
-        verify(offenderDeletionService).deleteOffender("A1234AA", 123L);
+        verify(offenderDeletionService).deleteOffender(OffenderDeletionGrant.builder()
+                .offenderNo("A1234AA")
+                .referralId(123L)
+                .offenderId(456L)
+                .offenderBookId(789L)
+                .build());
     }
 
     @Test
     void handleOffenderDeletionEventThrowsIfOffenderIdDisplayEmpty() {
 
-        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"\",\"referralId\":123}", Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"\",\"referralId\":123,\"offenderIds\":[456],\"offenderBookIds\":[789]}",
+                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No offender specified in request");
 
@@ -70,7 +77,8 @@ class DataComplianceEventListenerTest {
     @Test
     void handleOffenderDeletionEventThrowsIfReferralIdNull() {
 
-        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\"}", Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\",\"offenderIds\":[456],\"offenderBookIds\":[789]}",
+                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("No referral ID specified in request");
 
