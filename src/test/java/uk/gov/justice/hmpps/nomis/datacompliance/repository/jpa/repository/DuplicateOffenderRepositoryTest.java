@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository;
 
-import net.syscon.elite.Elite2ApiServer;
+import net.syscon.prison.PrisonApiServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -19,7 +19,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = { Elite2ApiServer.class })
+@ContextConfiguration(classes = { PrisonApiServer.class })
 @Sql(value = "define_regexp_substr.sql")
 @Sql(value = "define_jaro_winkler_similarity.sql")
 @Sql(value = "mv_offender_match_details.sql")

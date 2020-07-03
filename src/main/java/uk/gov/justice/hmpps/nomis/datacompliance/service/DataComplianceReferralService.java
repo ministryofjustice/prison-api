@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.nomis.datacompliance.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.OffenderNumber;
+import net.syscon.prison.api.model.OffenderNumber;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

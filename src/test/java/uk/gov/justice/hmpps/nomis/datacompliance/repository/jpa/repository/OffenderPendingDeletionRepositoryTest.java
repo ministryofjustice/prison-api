@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository;
 
-import net.syscon.elite.Elite2ApiServer;
+import net.syscon.prison.PrisonApiServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -21,7 +21,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = { Elite2ApiServer.class })
+@ContextConfiguration(classes = { PrisonApiServer.class })
 class OffenderPendingDeletionRepositoryTest {
 
     private static final LocalDate SENTENCE_END_DATE = LocalDate.of(2020, 3, 24);

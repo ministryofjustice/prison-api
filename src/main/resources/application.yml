@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: elite2-api
+    name: prison-api
 
   jpa:
     open-in-view: false

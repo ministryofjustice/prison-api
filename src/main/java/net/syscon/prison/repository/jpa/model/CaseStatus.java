@@ -1,0 +1,26 @@
+package net.syscon.prison.repository.jpa.model;
+
+import lombok.NoArgsConstructor;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+import static net.syscon.prison.repository.jpa.model.CaseStatus.CASE_STS;
+
+@Entity
+@DiscriminatorValue(CASE_STS)
+@NoArgsConstructor
+public class CaseStatus extends ReferenceCode {
+
+    private static final String ACTIVE_CODE = "A";
+
+    static final String CASE_STS = "CASE_STS";
+
+    public CaseStatus(final String code, final String description) {
+        super(CASE_STS, code, description);
+    }
+
+    boolean isActive() {
+        return ACTIVE_CODE.equalsIgnoreCase(this.getCode());
+    }
+}

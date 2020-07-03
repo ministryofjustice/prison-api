@@ -7,11 +7,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.PrisonerInformation;
-import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.service.PrisonerInformationService;
+import net.syscon.prison.api.model.ErrorResponse;
+import net.syscon.prison.api.model.PrisonerInformation;
+import net.syscon.prison.api.support.Order;
+import net.syscon.prison.api.support.PageRequest;
+import net.syscon.prison.service.PrisonerInformationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -46,7 +46,7 @@ public class PrisonerStatusController {
         return service.getPrisonerInformationById(offenderNo);
     }
 
-    /* NOTE: This is the old way of sending paging and returning information to existing elite2 ways of doing things **/
+    /* NOTE: This is the old way of sending paging and returning information to existing prison-api ways of doing things **/
 
     @Deprecated
     @GetMapping("/at-location/{establishmentCode}")

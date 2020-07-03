@@ -1,6 +1,6 @@
 package net.syscon.util;
 
-import net.syscon.elite.api.support.TimeSlot;
+import net.syscon.prison.api.support.TimeSlot;
 import org.junit.Test;
 
 import java.time.LocalDate;

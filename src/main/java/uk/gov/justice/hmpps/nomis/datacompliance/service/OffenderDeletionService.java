@@ -3,7 +3,7 @@ package uk.gov.justice.hmpps.nomis.datacompliance.service;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.repository.OffenderDeletionRepository;
+import net.syscon.prison.repository.OffenderDeletionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;

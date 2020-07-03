@@ -11,11 +11,11 @@
 * The mobile API Server uses the configuration file in YAML format. There is at least one initial configuration
   packaged in the jar on
 
-    `elite2-api/src/main/resources/application.yaml`
+    `prison-api/src/main/resources/application.yaml`
 
     Let's say you want to create a specific configuration to the DEV profile: just copy a file to your configurations.
 
-    `elite2-api/src/main/configs/application-dev.yml`
+    `prison-api/src/main/configs/application-dev.yml`
 
 * Dependencies
   To minimise dependency management we use Spring Boot because it gives us a broad set of
@@ -30,7 +30,7 @@
 
 ### How to run the Application? ###
 
-1) Run `net.syscon.elite.Elite2ApiServer` using spring boot profile `nomis-hsqldb`
+1) Run `net.syscon.prison.PrisonApiServer` using spring boot profile `nomis-hsqldb`
 
 2) Using Gradle directly via command-line (optionally setting the spring profile variable to select the in-memory database)
 
@@ -131,8 +131,8 @@ Build Docker image and run
 docker build -t quay.io/hmpps/elite2-api .
 
 docker run -d -p 8888:8080             \
-       -h elite2-api                   \
-       --name=elite2-api               \
+       -h prison-api                   \
+       --name=prison-api               \
     quay.io/hmpps/elite2-api:latest
 ```
 
@@ -143,7 +143,7 @@ docker-compose up -d
 
 ### Running Feature Tests ###
 
-All feature tests can be run from `net.syscon.elite.executablespecification.AllFeatureTest`
+All feature tests can be run from `net.syscon.prison.executablespecification.AllFeatureTest`
 
 Tests can be run individually by adding a `@wip` tag to the top of the feature file, or to an individual feature scenario, and
 then adding the environment variable `cucumber.options=--tags '@wip'` to the executable arguments in 'Edit Confgurations'.

@@ -1,7 +1,7 @@
 package net.syscon.util;
 
-import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.PageRequest;
+import net.syscon.prison.api.support.Order;
+import net.syscon.prison.api.support.PageRequest;
 
 public interface IQueryBuilder {
     IQueryBuilder addOrderBy(boolean isAscending, String fields);
