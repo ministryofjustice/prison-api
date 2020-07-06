@@ -46,7 +46,8 @@ public interface OffenderPendingDeletionRepository extends CrudRepository<Offend
                     "    AND OB.ACTIVE_FLAG = 'N'" +
                     "    AND OSC.OFFENDER_SENT_CALCULATION_ID = (SELECT MAX(OSC2.OFFENDER_SENT_CALCULATION_ID) FROM OFFENDER_SENT_CALCULATIONS OSC2 WHERE OSC2.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID)" +
                     "    AND COALESCE(OSC.SED_OVERRIDED_DATE, OSC.SED_CALCULATED_DATE) IS NOT NULL" +
-                    "    AND COALESCE(OSC.SED_OVERRIDED_DATE, OSC.SED_CALCULATED_DATE) BETWEEN add_months(:fromDate, -84) AND add_months(:toDate, -84)" +
+                    "    AND COALESCE(OSC.SED_OVERRIDED_DATE, OSC.SED_CALCULATED_DATE) >= add_months(:fromDate, -84)" +
+                    "    AND COALESCE(OSC.SED_OVERRIDED_DATE, OSC.SED_CALCULATED_DATE) < add_months(:toDate, -84)" +
                     ") " +
                     "SELECT SB.OFFENDER_ID_DISPLAY FROM SINGLE_BOOKINGS SB " +
                     "WHERE NOT EXISTS (" +
@@ -110,7 +111,8 @@ public interface OffenderPendingDeletionRepository extends CrudRepository<Offend
                     "    AND OB.ACTIVE_FLAG = 'N'" +
                     "    AND OSC.OFFENDER_SENT_CALCULATION_ID = (SELECT MAX(OSC2.OFFENDER_SENT_CALCULATION_ID) FROM OFFENDER_SENT_CALCULATIONS OSC2 WHERE OSC2.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID)" +
                     "    AND COALESCE(OSC.SED_OVERRIDED_DATE, OSC.SED_CALCULATED_DATE) IS NOT NULL" +
-                    "    AND COALESCE(OSC.SED_OVERRIDED_DATE, OSC.SED_CALCULATED_DATE) BETWEEN add_months(:fromDate, -84) AND add_months(:toDate, -84)" +
+                    "    AND COALESCE(OSC.SED_OVERRIDED_DATE, OSC.SED_CALCULATED_DATE) >= add_months(:fromDate, -84)" +
+                    "    AND COALESCE(OSC.SED_OVERRIDED_DATE, OSC.SED_CALCULATED_DATE) < add_months(:toDate, -84)" +
                     ") " +
                     "SELECT count(*) FROM SINGLE_BOOKINGS SB " +
                     "WHERE NOT EXISTS (" +
