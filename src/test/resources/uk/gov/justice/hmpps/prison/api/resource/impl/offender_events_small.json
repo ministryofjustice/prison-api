@@ -9,7 +9,6 @@
     "agencyLocationId": "LEI"
   },
   {
-    "eventId": null,
     "eventType": "BOOKING_NUMBER-CHANGED",
     "eventDatetime": "2019-01-30T22:30:01",
     "rootOffenderId": -1001,

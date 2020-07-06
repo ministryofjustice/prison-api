@@ -169,7 +169,7 @@ public class OffenderEventsTransformer {
             return null;
         }
 
-        log.info("Processing Xtag {}...", xtag);
+        log.debug("Processing Xtag {}...", xtag);
 
         try {
             switch (xtag.getEventType()) {
