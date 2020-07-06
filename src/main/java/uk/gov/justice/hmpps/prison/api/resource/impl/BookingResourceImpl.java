@@ -39,6 +39,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
+import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
@@ -83,6 +84,7 @@ import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateSearchCriteria;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
+import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 import uk.gov.justice.hmpps.prison.service.support.WrappedErrorResponseException;
 import uk.gov.justice.hmpps.prison.web.handler.ResourceExceptionHandler;
@@ -121,6 +123,7 @@ public class BookingResourceImpl implements BookingResource {
     private final IncidentService incidentService;
     private final MovementsService movementsService;
     private final AppointmentsService appointmentsService;
+    private final OffenderNonAssociationsService offenderNonAssociationsService;
 
     @Override
     public ResponseEntity<List<OffenderBooking>> getOffenderBookings(final String query, final List<Long> bookingId, final List<String> offenderNo, final boolean iepLevel, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
@@ -700,5 +703,10 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
         return inmateService.getSecondaryLanguages(bookingId);
+    }
+
+    @Override
+    public OffenderNonAssociationDetails getNonAssociationDetails(final Long bookingId) {
+        return offenderNonAssociationsService.retrieve(bookingId);
     }
 }
