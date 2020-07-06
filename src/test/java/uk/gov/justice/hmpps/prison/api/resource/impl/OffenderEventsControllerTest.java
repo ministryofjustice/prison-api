@@ -3,14 +3,17 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.OffenderEvent;
 import uk.gov.justice.hmpps.prison.service.XtagEventsService;
 import uk.gov.justice.hmpps.prison.service.filters.OffenderEventsFilter;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,7 +41,6 @@ public class OffenderEventsControllerTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange(format("/api/events?from=%s&to=%s", filter.getFrom().toString(), filter.getTo().toString()), HttpMethod.GET, requestEntity, String.class);
 
         assertThatStatus(responseEntity, 200);
-
         assertThatJsonFile(responseEntity.getBody(), "offender_events.json");
     }
 
@@ -52,12 +54,79 @@ public class OffenderEventsControllerTest extends ResourceTest {
         when(xtagEventsService.findAll(ArgumentMatchers.eq(filter))).thenReturn(someXtagEventsSmaller(from));
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_PRISON_OFFENDER_EVENTS"), null);
-
         final var responseEntity = testRestTemplate.exchange(format("/api/events?from=%s&to=%s", filter.getFrom().toString(), filter.getTo().toString()), HttpMethod.GET, requestEntity, String.class);
 
         assertThatStatus(responseEntity, 200);
-
         assertThatJsonFile(responseEntity.getBody(), "offender_events_small.json");
+    }
+
+    @Test
+    public void canFilterOffenderEvents() {
+        final var from = LocalDateTime.of(2018, 10, 29, 0, 0);
+        final var to = from.plusDays(1L);
+
+        final var filter = OffenderEventsFilter.builder().from(from).to(to).build();
+        Mockito.when(xtagEventsService.findAll(ArgumentMatchers.eq(filter))).thenReturn(someXtagEvents(from));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_PRISON_OFFENDER_EVENTS"), null);
+        final var responseEntity = testRestTemplate.exchange(format("/api/events?from=%s&to=%s&type=%s", filter.getFrom().toString(), filter.getTo().toString(), "KA-KS"), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<OffenderEvent>>() {});
+        assertThat(responseEntity.getBody()).extracting("eventType").containsOnly("KA-KS");
+
+    }
+
+    @Test
+    public void cannotSpecifyMadeUpSortOrder() {
+        final var from = LocalDateTime.of(2018, 10, 29, 0, 0);
+        final var to = from.plusDays(1L);
+
+        final var filter = OffenderEventsFilter.builder().from(from).to(to).build();
+        Mockito.when(xtagEventsService.findAll(ArgumentMatchers.eq(filter))).thenReturn(someXtagEvents(from));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_PRISON_OFFENDER_EVENTS"), null);
+        final var responseEntity = testRestTemplate.exchange(format("/api/events?from=%s&to=%s&sortBy=%s", filter.getFrom().toString(), filter.getTo().toString(), "POPULARITY"), HttpMethod.GET, requestEntity, String.class);
+        assertThatStatus(responseEntity, 400);
+    }
+
+    @Test
+    public void defaultSortOrderIsByEventTimestampDesc() {
+        final var from = LocalDateTime.of(2018, 10, 29, 0, 0);
+        final var to = from.plusDays(1L);
+
+        final var filter = OffenderEventsFilter.builder().from(from).to(to).build();
+        Mockito.when(xtagEventsService.findAll(ArgumentMatchers.eq(filter))).thenReturn(someXtagEvents(from));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_PRISON_OFFENDER_EVENTS"), null);
+        final var responseEntity = testRestTemplate.exchange(format("/api/events?from=%s&to=%s", filter.getFrom().toString(), filter.getTo().toString()), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<OffenderEvent>>() {});
+
+        assertThat(responseEntity.getBody()).isSortedAccordingTo(Comparator.comparing(OffenderEvent::getEventDatetime).reversed());
+    }
+
+    @Test
+    public void canSpecifyOrderByEventTimestampDesc() {
+        final var from = LocalDateTime.of(2018, 10, 29, 0, 0);
+        final var to = from.plusDays(1L);
+
+        final var filter = OffenderEventsFilter.builder().from(from).to(to).build();
+        Mockito.when(xtagEventsService.findAll(ArgumentMatchers.eq(filter))).thenReturn(someXtagEvents(from));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_PRISON_OFFENDER_EVENTS"), null);
+        final var responseEntity = testRestTemplate.exchange(format("/api/events?from=%s&to=%s&sortBy=%s", filter.getFrom().toString(), filter.getTo().toString(), "TIMESTAMP_DESC"), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<OffenderEvent>>() {});
+
+        assertThat(responseEntity.getBody()).isSortedAccordingTo(Comparator.comparing(OffenderEvent::getEventDatetime).reversed());
+    }
+
+    @Test
+    public void canSpecifyOrderByEventTimestampAsc() {
+        final var from = LocalDateTime.of(2018, 10, 29, 0, 0);
+        final var to = from.plusDays(1L);
+
+        final var filter = OffenderEventsFilter.builder().from(from).to(to).build();
+        Mockito.when(xtagEventsService.findAll(ArgumentMatchers.eq(filter))).thenReturn(someXtagEvents(from));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_PRISON_OFFENDER_EVENTS"), null);
+        final var responseEntity = testRestTemplate.exchange(format("/api/events?from=%s&to=%s&sortBy=%s", filter.getFrom().toString(), filter.getTo().toString(), "TIMESTAMP_ASC"), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<OffenderEvent>>() {});
+
+        assertThat(responseEntity.getBody()).isSortedAccordingTo(Comparator.comparing(OffenderEvent::getEventDatetime));
     }
 
     private List<OffenderEvent> someXtagEventsSmaller(final LocalDateTime now) {
