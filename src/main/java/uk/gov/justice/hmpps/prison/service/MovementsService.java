@@ -72,14 +72,14 @@ public class MovementsService {
     }
 
     @VerifyBookingAccess
-    public Movement getMovementByBookingIdAndSequence(@NotNull final Long bookingId, @NotNull final Integer sequenceNumber) {
-        final var movement = movementsRepository.getMovementByBookingIdAndSequence(bookingId, sequenceNumber);
-        return movement.toBuilder()
-                .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
-                .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
-                .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
-                .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
-                .build();
+    public Optional<Movement> getMovementByBookingIdAndSequence(@NotNull final Long bookingId, @NotNull final Integer sequenceNumber) {
+        return movementsRepository.getMovementByBookingIdAndSequence(bookingId, sequenceNumber)
+                .map(movement -> movement.toBuilder()
+                        .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
+                        .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
+                        .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
+                        .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
+                        .build());
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','GLOBAL_SEARCH')")

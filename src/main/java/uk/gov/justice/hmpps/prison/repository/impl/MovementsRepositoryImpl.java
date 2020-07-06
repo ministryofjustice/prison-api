@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -56,12 +57,12 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public Movement getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber) {
-        return jdbcTemplate.queryForObject(getQuery("GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE"),
+    public Optional<Movement> getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(getQuery("GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE"),
                 createParams(
                 "bookingId", bookingId,
                 "sequenceNumber", sequenceNumber),
-                MOVEMENT_MAPPER);
+                MOVEMENT_MAPPER));
     }
 
     @Override

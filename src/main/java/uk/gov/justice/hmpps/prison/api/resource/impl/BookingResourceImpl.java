@@ -94,6 +94,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
@@ -204,7 +205,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public Movement getMovementByBookingIdAndSequence(final Long bookingId, final Integer sequenceNumber) {
-        return movementsService.getMovementByBookingIdAndSequence(bookingId, sequenceNumber);
+        return movementsService.getMovementByBookingIdAndSequence(bookingId, sequenceNumber).orElseThrow(EntityNotFoundException.withMessage(format("Movement Not found booking Id %d, seq %d", bookingId, sequenceNumber)));
     }
 
     @Override
