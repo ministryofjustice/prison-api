@@ -21,6 +21,7 @@ GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE {
            OEM.CREATE_DATETIME            AS CREATE_DATE_TIME,
            OEM.FROM_AGY_LOC_ID            AS FROM_AGENCY,
            OEM.TO_AGY_LOC_ID              AS TO_AGENCY,
+           OEM.MOVEMENT_DATE,
            OEM.MOVEMENT_TIME,
            OEM.MOVEMENT_TYPE,
            OEM.DIRECTION_CODE,

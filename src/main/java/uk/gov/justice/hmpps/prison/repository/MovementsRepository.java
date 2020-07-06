@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface MovementsRepository {
 
@@ -24,7 +25,7 @@ public interface MovementsRepository {
 
     MovementCount getMovementCount(String agencyId, LocalDate date);
 
-    Movement getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber);
+    Optional<Movement> getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber);
 
     List<Movement> getMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes, final boolean latestOnly);
 

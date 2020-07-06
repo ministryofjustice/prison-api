@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -66,6 +67,9 @@ public class Movement {
     @ApiModelProperty(required = true, value = "IN or OUT")
     @NotBlank
     private String directionCode;
+
+    @ApiModelProperty(required = true, value = "Movement date")
+    private LocalDate movementDate;
 
     @ApiModelProperty(required = true, value = "Movement time")
     private LocalTime movementTime;
