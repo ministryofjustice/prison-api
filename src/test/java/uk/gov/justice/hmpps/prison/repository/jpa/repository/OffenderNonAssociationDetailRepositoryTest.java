@@ -61,15 +61,15 @@ public class OffenderNonAssociationDetailRepositoryTest {
         assertThat(expected.getTypeSequence()).isEqualTo(1);
         assertThat(expected.getEffectiveDate()).isEqualTo(LocalDateTime.of(2001, 1, 1, 0, 0));
         assertThat(expected.getExpiryDate()).isNull();
-        assertThat(expected.getNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "BUL"));
+        assertThat(expected.getNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "VIC"));
         assertThat(expected.getNonAssociationType()).isEqualTo(referenceCode(NonAssociationType.DOMAIN, "WING"));
-        assertThat(expected.getAuthorizedByStaffMember()).isEqualTo("Fred Bloggs");
+        assertThat(expected.getAuthorizedBy()).isEqualTo("Fred Bloggs");
         assertThat(expected.getComments()).isEqualTo("Some Comment Text");
         assertThat(expected.getRecipNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "BUL"));
         assertThat(expected.getNonAssociation().getOffender()).isEqualTo(offender(-1001L));
         assertThat(expected.getNonAssociation().getNsOffender()).isEqualTo(offender(-1002L));
-        assertThat(expected.getNonAssociation().getNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "BUL"));
-        assertThat(expected.getNonAssociation().getRecipNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "BUL"));
+        assertThat(expected.getNonAssociation().getNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "PER"));
+        assertThat(expected.getNonAssociation().getRecipNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "VIC"));
     }
 
     private Offender offender(final long id) {

@@ -46,6 +46,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
+import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
@@ -775,6 +776,13 @@ public interface BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-
     List<SecondaryLanguage> getSecondaryLanguages(@ApiParam(value = "bookingId", required = true) @PathVariable("bookingId") Long bookingId);
+
+    @GetMapping("/{bookingId}/non-association-details")
+    @ApiOperation(value = "Gets the offender non-association details for a given booking", notes = "Get offender non-association details", nickname = "getNonAssociationDetails")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    OffenderNonAssociationDetails getNonAssociationDetails(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
 }

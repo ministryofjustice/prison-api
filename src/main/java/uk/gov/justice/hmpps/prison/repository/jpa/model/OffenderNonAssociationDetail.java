@@ -87,7 +87,7 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     private LocalDateTime expiryDate;
 
     @Column(name = "AUTHORIZED_STAFF")
-    private String authorizedByStaffMember;
+    private String authorizedBy;
 
     @Column(name = "COMMENT_TEXT")
     private String comments;

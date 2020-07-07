@@ -1,0 +1,23 @@
+{
+  "details": [
+    {
+      "offenderNomsId" : "A1234AA",
+      "firstName" : "ARTHUR",
+      "lastName" : "ANDERSON",
+      "reasonCode" : "VIC",
+      "reasonDescription" : "Victim",
+      "typeCode" : "WING",
+      "typeDescription" : "Do Not Locate on Same Wing",
+      "effectiveDate" : "2001-01-01T00:00:00",
+      "authorisedBy" : "Fred Bloggs",
+      "comments" : "Some Comment Text",
+      "offenderNonAssociation" : {
+        "offenderNomsId" : "A1234AB",
+        "firstName" : "GILLIAN",
+        "lastName" : "ANDERSON",
+        "reasonCode" : "PER",
+        "reasonDescription" : "Perpetrator"
+      }
+    }
+  ]
+}
