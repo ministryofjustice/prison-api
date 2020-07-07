@@ -42,6 +42,7 @@ import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
+import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.impl.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -105,6 +106,7 @@ public class BookingService {
     private final Comparator<ScheduledEvent> startTimeComparator = Comparator.comparing(ScheduledEvent::getStartTime, nullsLast(naturalOrder()));
 
     private final BookingRepository bookingRepository;
+    private final InmateRepository inmateRepository;
     private final OffenderBookingRepository offenderBookingRepository;
     private final VisitRepository visitRepository;
     private final VisitorRepository visitorRepository;
@@ -122,6 +124,7 @@ public class BookingService {
     private final int maxBatchSize;
 
     public BookingService(final BookingRepository bookingRepository,
+                          final InmateRepository inmateRepository,
                           final OffenderBookingRepository offenderBookingRepository,
                           final VisitorRepository visitorRepository,
                           final VisitRepository visitRepository,
@@ -138,6 +141,7 @@ public class BookingService {
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
+        this.inmateRepository = inmateRepository;
         this.offenderBookingRepository = offenderBookingRepository;
         this.visitRepository = visitRepository;
         this.visitorRepository = visitorRepository;
@@ -736,11 +740,11 @@ public class BookingService {
     }
 
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
-        final var query = format("offenderNo:eq:'%s'", offenderNo);
-        return getOffenderSentenceDetails(bookingRepository.getOffenderSentenceSummary(query, getCaseLoadIdForUserIfRequired(),
-                !isViewAllOffenders(), isViewInactiveBookings()))
-                .stream()
-                .findFirst();
+        final var offender = inmateRepository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        return getBookingSentencesSummary(List.of(offender.getBookingId()))
+                    .stream()
+                    .filter(s -> s.getBookingId().equals(offender.getBookingId()))
+                    .findFirst();
     }
 
     @VerifyBookingAccess

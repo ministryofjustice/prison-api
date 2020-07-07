@@ -29,6 +29,7 @@ import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
+import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.impl.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -86,6 +87,8 @@ public class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
     @Mock
+    private InmateRepository inmateRepository;
+    @Mock
     private OffenderBookingRepository offenderBookingRepository;
     @Mock
     private VisitRepository visitRepository;
@@ -114,6 +117,7 @@ public class BookingServiceTest {
     public void init() {
         bookingService = new BookingService(
                 bookingRepository,
+                inmateRepository,
                 offenderBookingRepository,
                 visitorRepository,
                 visitRepository,

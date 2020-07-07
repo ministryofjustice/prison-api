@@ -67,7 +67,7 @@ public class OffenderNonAssociationsServiceTest {
                                 .offender(victim)
                                 .nsOffender(perpetrator)
                                 .nonAssociationReason(new NonAssociationReason("PER", "Perpetrator"))
-                                .recipNonAssociationReason(new NonAssociationReason("PER", "Perpetrator"))
+                                .recipNonAssociationReason(new NonAssociationReason("PER", "recip - Perpetrator"))
                                 .build())
                         .build()));
 
@@ -90,7 +90,7 @@ public class OffenderNonAssociationsServiceTest {
                                         .firstName(perpetrator.getFirstName())
                                         .lastName(perpetrator.getLastName())
                                         .reasonCode("PER")
-                                        .reasonDescription("Perpetrator")
+                                        .reasonDescription("recip - Perpetrator")
                                         .build())
                                 .build()
                 );

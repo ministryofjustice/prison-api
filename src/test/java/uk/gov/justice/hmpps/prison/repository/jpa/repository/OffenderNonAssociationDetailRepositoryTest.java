@@ -69,7 +69,7 @@ public class OffenderNonAssociationDetailRepositoryTest {
         assertThat(expected.getNonAssociation().getOffender()).isEqualTo(offender(-1001L));
         assertThat(expected.getNonAssociation().getNsOffender()).isEqualTo(offender(-1002L));
         assertThat(expected.getNonAssociation().getNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "PER"));
-        assertThat(expected.getNonAssociation().getRecipNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "VIC"));
+        assertThat(expected.getNonAssociation().getRecipNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "PER"));
     }
 
     private Offender offender(final long id) {
