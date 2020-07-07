@@ -53,8 +53,8 @@ public class OffenderNonAssociationsService {
                         .offenderNomsId(detail.getNonAssociation().getNsOffender().getNomsId())
                         .firstName(detail.getNonAssociation().getNsOffender().getFirstName())
                         .lastName(detail.getNonAssociation().getNsOffender().getLastName())
-                        .reasonCode(detail.getNonAssociation().getNonAssociationReason().getCode())
-                        .reasonDescription(detail.getNonAssociation().getNonAssociationReason().getDescription())
+                        .reasonCode(detail.getNonAssociation().getRecipNonAssociationReason().getCode())
+                        .reasonDescription(detail.getNonAssociation().getRecipNonAssociationReason().getDescription())
                         .build())
                 .build();
     }
