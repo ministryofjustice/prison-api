@@ -24,10 +24,14 @@ public class OffenderNonAssociationsServiceTest {
 
     private final Offender victim = Offender.builder()
             .nomsId("ABC")
+            .firstName("Fred")
+            .lastName("Bloggs")
             .build();
 
     private final Offender perpetrator = Offender.builder()
             .nomsId("DEF")
+            .firstName("Joseph")
+            .lastName("Bloggs")
             .build();
 
     @Mock
@@ -71,6 +75,8 @@ public class OffenderNonAssociationsServiceTest {
                 .containsExactly(
                         OffenderNonAssociationDetail.builder()
                                 .offenderNomsId(victim.getNomsId())
+                                .firstName(victim.getFirstName())
+                                .lastName(victim.getLastName())
                                 .effectiveDate(LocalDateTime.of(2020, 7, 3, 12, 0, 0))
                                 .expiryDate(LocalDateTime.of(2020, 12, 3, 12, 0, 0))
                                 .reasonCode("VIC")
@@ -81,6 +87,8 @@ public class OffenderNonAssociationsServiceTest {
                                 .authorisedBy("the boss")
                                 .offenderNonAssociation(OffenderNonAssociation.builder()
                                         .offenderNomsId(perpetrator.getNomsId())
+                                        .firstName(perpetrator.getFirstName())
+                                        .lastName(perpetrator.getLastName())
                                         .reasonCode("PER")
                                         .reasonDescription("Perpetrator")
                                         .build())

@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,15 +15,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
+@AllArgsConstructor
 @Validated
 @Slf4j
 public class OffenderNonAssociationsService {
 
     private final OffenderNonAssociationDetailRepository repository;
-
-    public OffenderNonAssociationsService(final OffenderNonAssociationDetailRepository repository) {
-        this.repository = repository;
-    }
 
     @VerifyBookingAccess
     public OffenderNonAssociationDetails retrieve(final long bookingId) {
@@ -41,6 +39,8 @@ public class OffenderNonAssociationsService {
     private uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetail transform(final OffenderNonAssociationDetail detail) {
         return uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetail.builder()
                 .offenderNomsId(detail.getOffender().getNomsId())
+                .firstName(detail.getOffender().getFirstName())
+                .lastName(detail.getOffender().getLastName())
                 .effectiveDate(detail.getEffectiveDate())
                 .expiryDate(detail.getExpiryDate())
                 .comments(detail.getComments())
@@ -51,6 +51,8 @@ public class OffenderNonAssociationsService {
                 .typeDescription(detail.getNonAssociationType().getDescription())
                 .offenderNonAssociation(OffenderNonAssociation.builder()
                         .offenderNomsId(detail.getNonAssociation().getNsOffender().getNomsId())
+                        .firstName(detail.getNonAssociation().getNsOffender().getFirstName())
+                        .lastName(detail.getNonAssociation().getNsOffender().getLastName())
                         .reasonCode(detail.getNonAssociation().getNonAssociationReason().getCode())
                         .reasonDescription(detail.getNonAssociation().getNonAssociationReason().getDescription())
                         .build())

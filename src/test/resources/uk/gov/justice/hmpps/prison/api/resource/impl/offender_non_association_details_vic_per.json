@@ -2,6 +2,8 @@
   "details": [
     {
       "offenderNomsId" : "A1234AA",
+      "firstName" : "ARTHUR",
+      "lastName" : "ANDERSON",
       "reasonCode" : "VIC",
       "reasonDescription" : "Victim",
       "typeCode" : "WING",
@@ -11,6 +13,8 @@
       "comments" : "Some Comment Text",
       "offenderNonAssociation" : {
         "offenderNomsId" : "A1234AB",
+        "firstName" : "GILLIAN",
+        "lastName" : "ANDERSON",
         "reasonCode" : "PER",
         "reasonDescription" : "Perpetrator"
       }
