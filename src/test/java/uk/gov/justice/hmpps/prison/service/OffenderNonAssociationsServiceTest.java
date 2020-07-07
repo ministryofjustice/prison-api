@@ -7,9 +7,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetail;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNonAssociationDetailRepository;
 
 import java.time.LocalDateTime;
@@ -57,6 +60,14 @@ public class OffenderNonAssociationsServiceTest {
                 uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail.builder()
                         .offender(victim)
                         .nsOffender(perpetrator)
+                        .offenderBooking(OffenderBooking.builder()
+                                .location(AgencyLocation.builder()
+                                        .description("Pentonville")
+                                        .build())
+                                .assignedLivingUnit(AgencyInternalLocation.builder()
+                                        .description("cell 1")
+                                        .build())
+                                .build())
                         .effectiveDate(LocalDateTime.of(2020, 7, 3, 12, 0, 0))
                         .expiryDate(LocalDateTime.of(2020, 12, 3, 12, 0, 0))
                         .comments("do not let these offenders share the same location")
@@ -68,6 +79,14 @@ public class OffenderNonAssociationsServiceTest {
                                 .nsOffender(perpetrator)
                                 .nonAssociationReason(new NonAssociationReason("PER", "Perpetrator"))
                                 .recipNonAssociationReason(new NonAssociationReason("PER", "recip - Perpetrator"))
+                                .offenderBooking(OffenderBooking.builder()
+                                        .location(AgencyLocation.builder()
+                                                .description("Moorland")
+                                                .build())
+                                        .assignedLivingUnit(AgencyInternalLocation.builder()
+                                                .description("cell 2")
+                                                .build())
+                                        .build())
                                 .build())
                         .build()));
 
@@ -85,12 +104,16 @@ public class OffenderNonAssociationsServiceTest {
                                 .typeDescription("Do Not Locate on Same Wing")
                                 .comments("do not let these offenders share the same location")
                                 .authorisedBy("the boss")
+                                .agencyDescription("Pentonville")
+                                .assignedLivingUnitDescription("cell 1")
                                 .offenderNonAssociation(OffenderNonAssociation.builder()
                                         .offenderNomsId(perpetrator.getNomsId())
                                         .firstName(perpetrator.getFirstName())
                                         .lastName(perpetrator.getLastName())
                                         .reasonCode("PER")
                                         .reasonDescription("recip - Perpetrator")
+                                        .agencyDescription("Moorland")
+                                        .assignedLivingUnitDescription("cell 2")
                                         .build())
                                 .build()
                 );
