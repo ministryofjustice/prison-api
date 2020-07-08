@@ -21,6 +21,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -106,5 +107,13 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
             @JoinColumnOrFormula(column = @JoinColumn(name = "NS_OFFENDER_ID", referencedColumnName = "NS_OFFENDER_ID")),
     })
     private OffenderNonAssociation nonAssociation;
+
+    public Optional<String> getAgencyDescription() {
+        return Optional.ofNullable(offenderBooking.getLocation()).map(AgencyLocation::getDescription);
+    }
+
+    public Optional<String> getAssignedLivingUnitDescription() {
+        return Optional.ofNullable(offenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription);
+    }
 }
 

@@ -49,12 +49,16 @@ public class OffenderNonAssociationsService {
                 .reasonDescription(detail.getNonAssociationReason().getDescription())
                 .typeCode(detail.getNonAssociationType().getCode())
                 .typeDescription(detail.getNonAssociationType().getDescription())
+                .agencyDescription(detail.getAgencyDescription().orElse(null))
+                .assignedLivingUnitDescription(detail.getAssignedLivingUnitDescription().orElse(null))
                 .offenderNonAssociation(OffenderNonAssociation.builder()
                         .offenderNomsId(detail.getNonAssociation().getNsOffender().getNomsId())
                         .firstName(detail.getNonAssociation().getNsOffender().getFirstName())
                         .lastName(detail.getNonAssociation().getNsOffender().getLastName())
-                        .reasonCode(detail.getNonAssociation().getNonAssociationReason().getCode())
-                        .reasonDescription(detail.getNonAssociation().getNonAssociationReason().getDescription())
+                        .reasonCode(detail.getNonAssociation().getRecipNonAssociationReason().getCode())
+                        .reasonDescription(detail.getNonAssociation().getRecipNonAssociationReason().getDescription())
+                        .agencyDescription(detail.getNonAssociation().getAgencyDescription().orElse(null))
+                        .assignedLivingUnitDescription(detail.getNonAssociation().getAssignedLivingUnitDescription().orElse(null))
                         .build())
                 .build();
     }

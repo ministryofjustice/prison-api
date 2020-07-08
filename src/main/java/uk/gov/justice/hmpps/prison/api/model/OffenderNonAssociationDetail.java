@@ -53,6 +53,12 @@ public class OffenderNonAssociationDetail {
     @ApiModelProperty(value = "Additional free text comments related to the non-association.", position = 11)
     private String comments;
 
-    @ApiModelProperty(required = true, value = "The offender with whom not to associate.", position = 12)
+    @ApiModelProperty(required = true, value = "Description of the agency (e.g. prison) the offender is assigned to.", position = 12, example = "Moorland (HMP & YOI)")
+    private String agencyDescription;
+
+    @ApiModelProperty(required = true, value = "Description of living unit (e.g. cell) the offender is assigned to.", position = 13, example = "MDI-1-1-3")
+    private String assignedLivingUnitDescription;
+
+    @ApiModelProperty(required = true, value = "The offender with whom not to associate.", position = 14)
     private OffenderNonAssociation offenderNonAssociation;
 }
