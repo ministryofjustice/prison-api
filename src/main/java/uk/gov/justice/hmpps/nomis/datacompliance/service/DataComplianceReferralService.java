@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderWithBookings;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderAlias;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
@@ -99,14 +99,14 @@ public class DataComplianceReferralService {
                 .middleName(rootOffenderAlias.getMiddleName())
                 .lastName(rootOffenderAlias.getLastName())
                 .birthDate(rootOffenderAlias.getBirthDate())
-                .offenders(offenderAliases.stream()
+                .offenderAliases(offenderAliases.stream()
                         .map(this::transform)
                         .collect(toUnmodifiableList()))
                 .build();
     }
 
-    private OffenderWithBookings transform(final OffenderAliasPendingDeletion alias) {
-        return OffenderWithBookings.builder()
+    private OffenderAlias transform(final OffenderAliasPendingDeletion alias) {
+        return OffenderAlias.builder()
                 .offenderId(alias.getOffenderId())
                 .bookings(alias.getOffenderBookings().stream()
                         .map(booking -> Booking.builder()

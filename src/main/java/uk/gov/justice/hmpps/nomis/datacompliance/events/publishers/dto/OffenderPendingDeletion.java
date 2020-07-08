@@ -54,8 +54,8 @@ public class OffenderPendingDeletion {
     private LocalDate birthDate;
 
     @Singular
-    @JsonProperty("offenders")
-    private List<OffenderWithBookings> offenders;
+    @JsonProperty("offenderAliases")
+    private List<OffenderAlias> offenderAliases;
 
     @Getter
     @Builder
@@ -63,7 +63,7 @@ public class OffenderPendingDeletion {
     @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class OffenderWithBookings {
+    public static class OffenderAlias {
 
         @JsonProperty("offenderId")
         private Long offenderId;
