@@ -35,7 +35,7 @@ class OffenderPendingDeletionRepositoryTest {
     void getOffendersDueForDeletionWithPaging() {
 
         var offenders = repository.getOffendersDueForDeletionBetween(
-                DELETION_DUE_DATE.minusDays(1),
+                DELETION_DUE_DATE,
                 DELETION_DUE_DATE.plusDays(1),
                 PAGE_REQUEST);
 
@@ -47,7 +47,7 @@ class OffenderPendingDeletionRepositoryTest {
     void getOffendersDueForDeletionUnpaged() {
 
         var offenders = repository.getOffendersDueForDeletionBetween(
-                DELETION_DUE_DATE.minusDays(1),
+                DELETION_DUE_DATE,
                 DELETION_DUE_DATE.plusDays(1),
                 Pageable.unpaged());
 
@@ -56,22 +56,21 @@ class OffenderPendingDeletionRepositoryTest {
     }
 
     @Test
-    void getOffendersDueForDeletionUsesDatesInclusively() {
+    void getOffendersDueForDeletionUsesToDateExclusively() {
 
         var offenders = repository.getOffendersDueForDeletionBetween(
                 DELETION_DUE_DATE,
                 DELETION_DUE_DATE,
                 PAGE_REQUEST);
 
-        assertThat(offenders).hasSize(1);
-        assertThat(offenders).extracting(OffenderPendingDeletion::getOffenderNumber).containsOnly("Z0020ZZ");
+        assertThat(offenders).hasSize(0);
     }
 
     @Test
     void getOffendersDueForDeletionReturnsEmpty() {
         assertThat(repository.getOffendersDueForDeletionBetween(
                 LocalDate.of(1970, 1, 1),
-                LocalDate.of(1970, 1, 1),
+                LocalDate.of(1970, 1, 2),
                 PAGE_REQUEST))
                 .isEmpty();
     }
@@ -90,7 +89,7 @@ class OffenderPendingDeletionRepositoryTest {
     @Sql(value = "remove_iwp_document.sql", executionPhase = AFTER_TEST_METHOD)
     void getOffendersDueForDeletionFiltersOutThoseWithDocuments() {
         assertThat(repository.getOffendersDueForDeletionBetween(
-                DELETION_DUE_DATE.minusDays(1),
+                DELETION_DUE_DATE,
                 DELETION_DUE_DATE.plusDays(1),
                 PAGE_REQUEST)).isEmpty();
     }
@@ -100,7 +99,7 @@ class OffenderPendingDeletionRepositoryTest {
     @Sql(value = "remove_offender_non_association.sql", executionPhase = AFTER_TEST_METHOD)
     void getOffendersDueForDeletionFiltersOutThoseWithNonAssociations() {
         assertThat(repository.getOffendersDueForDeletionBetween(
-                DELETION_DUE_DATE.minusDays(1),
+                DELETION_DUE_DATE,
                 DELETION_DUE_DATE.plusDays(1),
                 PAGE_REQUEST)).isEmpty();
     }

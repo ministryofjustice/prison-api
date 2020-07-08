@@ -29,7 +29,7 @@ public class DataComplianceControllerTest extends ResourceTest {
 
     // This date is 7 years after the SED_CALCULATED_DATE of the expected record
     private static final LocalDateTime WINDOW_START = LocalDateTime.of(2027, 3, 24, 0, 0);
-    private static final LocalDateTime WINDOW_END = WINDOW_START;
+    private static final LocalDateTime WINDOW_END = WINDOW_START.plusDays(1);
     private static final PageRequest PAGE_REQUEST = PageRequest.of(0, 1);
 
     @SpyBean
