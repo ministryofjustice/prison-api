@@ -18,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.Optional;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -70,4 +71,12 @@ public class OffenderNonAssociation extends AuditableEntity {
             @JoinColumnOrFormula(column = @JoinColumn(name = "RECIP_NS_REASON_CODE", referencedColumnName = "code"))
     })
     private NonAssociationReason recipNonAssociationReason;
+
+    public Optional<String> getAgencyDescription() {
+        return Optional.ofNullable(offenderBooking.getLocation()).map(AgencyLocation::getDescription);
+    }
+
+    public Optional<String> getAssignedLivingUnitDescription() {
+        return Optional.ofNullable(offenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription);
+    }
 }

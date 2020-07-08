@@ -32,4 +32,10 @@ public class OffenderNonAssociation {
 
     @ApiModelProperty(required = true, value = "The non-association reason description", position = 5, example = "Perpetrator")
     private String reasonDescription;
+
+    @ApiModelProperty(required = true, value = "Description of the agency (e.g. prison) the offender is assigned to.", position = 6, example = "Pentonville (PVI)")
+    private String agencyDescription;
+
+    @ApiModelProperty(required = true, value = "Description of living unit (e.g. cell) the offender is assigned to.", position = 7, example = "PVI-1-2-4")
+    private String assignedLivingUnitDescription;
 }
