@@ -56,6 +56,10 @@ public class OffenderNonAssociation extends AuditableEntity {
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "NS_OFFENDER_BOOK_ID", nullable = false)
+    private OffenderBooking nsOffenderBooking;
+
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
@@ -72,11 +76,11 @@ public class OffenderNonAssociation extends AuditableEntity {
     })
     private NonAssociationReason recipNonAssociationReason;
 
-    public Optional<String> getAgencyDescription() {
-        return Optional.ofNullable(offenderBooking.getLocation()).map(AgencyLocation::getDescription);
+    public Optional<String> getNsAgencyDescription() {
+        return Optional.ofNullable(nsOffenderBooking.getLocation()).map(AgencyLocation::getDescription);
     }
 
-    public Optional<String> getAssignedLivingUnitDescription() {
-        return Optional.ofNullable(offenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription);
+    public Optional<String> getNsAssignedLivingUnitDescription() {
+        return Optional.ofNullable(nsOffenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription);
     }
 }
