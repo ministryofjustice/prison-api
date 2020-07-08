@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderWithBookings;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderAlias;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 import uk.gov.justice.hmpps.prison.api.model.PendingDeletionRequest;
@@ -62,7 +62,7 @@ public class DataComplianceControllerTest extends ResourceTest {
                         .firstName("BURT")
                         .lastName("REYNOLDS")
                         .birthDate(LocalDate.of(1966, 1, 1))
-                        .offender(OffenderWithBookings.builder()
+                        .offenderAlias(OffenderAlias.builder()
                                 .offenderId(-1020L)
                                 .booking(Booking.builder()
                                         .offenderBookId(-20L)
