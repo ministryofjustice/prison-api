@@ -79,7 +79,7 @@ public class OffenderNonAssociationsServiceTest {
                                 .nsOffender(perpetrator)
                                 .nonAssociationReason(new NonAssociationReason("PER", "Perpetrator"))
                                 .recipNonAssociationReason(new NonAssociationReason("PER", "recip - Perpetrator"))
-                                .offenderBooking(OffenderBooking.builder()
+                                .nsOffenderBooking(OffenderBooking.builder()
                                         .location(AgencyLocation.builder()
                                                 .description("Moorland")
                                                 .build())
