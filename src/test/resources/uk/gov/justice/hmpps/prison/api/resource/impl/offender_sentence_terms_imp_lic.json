@@ -11,7 +11,8 @@
     "caseId": "-30",
     "fineAmount": 120.0,
     "sentenceTermCode": "IMP",
-    "lineSeq": 1
+    "lineSeq": 1,
+    "sentenceStartDate": "2017-07-05"
   },
   {
     "bookingId": -31,
@@ -25,6 +26,7 @@
     "caseId": "-30",
     "fineAmount": 120.0,
     "sentenceTermCode": "LIC",
-    "lineSeq": 1
+    "lineSeq": 1,
+    "sentenceStartDate": "2017-07-05"
   }
 ]
