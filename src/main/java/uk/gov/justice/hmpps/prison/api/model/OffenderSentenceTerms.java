@@ -36,7 +36,7 @@ public class OffenderSentenceTerms {
     @ApiModelProperty(value = "Sentence type description.", position = 6, example = "2")
     private String sentenceTypeDescription;
 
-    @ApiModelProperty(required = true, value = "Start date of sentence.", position = 7, example = "2018-12-31")
+    @ApiModelProperty(required = true, value = "Start date of sentence term.", position = 7, example = "2018-12-31")
     private LocalDate startDate;
 
     @ApiModelProperty(value = "Sentence length years.", position = 8)
@@ -65,4 +65,7 @@ public class OffenderSentenceTerms {
 
     @ApiModelProperty(required = true, value = "Sentence line number", position = 16, example = "1")
     private Long lineSeq;
+
+    @ApiModelProperty(required = true, value = "Sentence start date", position = 17, example = "2018-12-31")
+    private LocalDate sentenceStartDate;
 }

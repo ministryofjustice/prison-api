@@ -12,7 +12,8 @@
     "caseId": "-5",
     "fineAmount": 120.0,
     "sentenceTermCode": "IMP",
-    "lineSeq": 1
+    "lineSeq": 1,
+    "sentenceStartDate": "2017-07-05"
   },
   {
     "bookingId": -5,
@@ -28,7 +29,8 @@
     "caseId": "-5",
     "fineAmount": 120.0,
     "sentenceTermCode": "IMP",
-    "lineSeq": 1
+    "lineSeq": 1,
+    "sentenceStartDate": "2017-07-05"
   },
   {
     "bookingId": -5,
@@ -44,6 +46,7 @@
     "caseId": "-5",
     "fineAmount": 120.0,
     "sentenceTermCode": "IMP",
-    "lineSeq": 1
+    "lineSeq": 1,
+    "sentenceStartDate": "2017-07-05"
   }
 ]
