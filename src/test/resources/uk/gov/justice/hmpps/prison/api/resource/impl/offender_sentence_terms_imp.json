@@ -11,7 +11,8 @@
     "lifeSentence": false,
     "caseId": "-5",
     "fineAmount": 120.0,
-    "sentenceTermCode": "IMP"
+    "sentenceTermCode": "IMP",
+    "lineSeq": 1
   },
   {
     "bookingId": -5,
@@ -26,7 +27,8 @@
     "lifeSentence": false,
     "caseId": "-5",
     "fineAmount": 120.0,
-    "sentenceTermCode": "IMP"
+    "sentenceTermCode": "IMP",
+    "lineSeq": 1
   },
   {
     "bookingId": -5,
@@ -41,6 +43,7 @@
     "lifeSentence": false,
     "caseId": "-5",
     "fineAmount": 120.0,
-    "sentenceTermCode": "IMP"
+    "sentenceTermCode": "IMP",
+    "lineSeq": 1
   }
 ]

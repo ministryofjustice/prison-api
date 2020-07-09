@@ -62,4 +62,7 @@ public class OffenderSentenceTerms {
 
     @ApiModelProperty(required = true, value = "Sentence term code.", position = 15, example = "IMP")
     private String sentenceTermCode;
+
+    @ApiModelProperty(required = true, value = "Sentence line number", position = 16, example = "1")
+    private Long lineSeq;
 }
