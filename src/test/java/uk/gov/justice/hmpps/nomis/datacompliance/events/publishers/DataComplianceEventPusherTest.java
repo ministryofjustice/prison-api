@@ -15,7 +15,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.FreeTextS
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderWithBookings;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderAlias;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 
 import java.time.LocalDate;
@@ -54,7 +54,7 @@ class DataComplianceEventPusherTest {
                 .middleName("Middle")
                 .lastName("Jones")
                 .birthDate(LocalDate.of(1990, 1, 2))
-                .offender(OffenderWithBookings.builder()
+                .offenderAlias(OffenderAlias.builder()
                         .offenderId(123L)
                         .booking(Booking.builder()
                                 .offenderBookId(321L)
@@ -71,7 +71,7 @@ class DataComplianceEventPusherTest {
                         "\"middleName\":\"Middle\"," +
                         "\"lastName\":\"Jones\"," +
                         "\"birthDate\":\"1990-01-02\"," +
-                        "\"offenders\":[{" +
+                        "\"offenderAliases\":[{" +
                             "\"offenderId\":123,\"bookings\":[{\"offenderBookId\":321,\"offenceCodes\":[\"offence1\"]}]" +
                         "}]" +
                 "}");
