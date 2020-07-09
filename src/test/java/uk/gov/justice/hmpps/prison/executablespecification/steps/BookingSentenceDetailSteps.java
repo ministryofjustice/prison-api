@@ -351,7 +351,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     @Deprecated
     public void verifySentenceTermsOld() {
         assertThat(offenderSentenceTerms).isEqualTo(new OffenderSentenceTerms(
-                -3L, 2, 1, null, "R", "Prohibited Activity", LocalDate.of(2015, 3, 16), 5, null, null, null, false, null ,0.0 , null));
+                -3L, 2, 1, null, "R", "Prohibited Activity", LocalDate.of(2015, 3, 16), 5, null, null, null, false, null ,0.0 , null, null));
     }
 
     public void verifySentenceTerms(List<OffenderSentenceTerms> expected) {
