@@ -28,7 +28,7 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
                 // Can't have CSRF protection as requires session
                 .and().csrf().disable()
                 .authorizeRequests(auth ->
-                    auth.antMatchers("/webjars/**", "/favicon.ico", "/csrf", "/elite2api/**",
+                    auth.antMatchers("/webjars/**", "/favicon.ico", "/csrf",
                         "/health/**", "/info", "/ping", "/h2-console/**",
                         "/v2/api-docs", "/api/swagger.json",
                         "/swagger-ui.html", "/swagger-resources", "/swagger-resources/configuration/ui",
