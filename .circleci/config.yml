@@ -71,7 +71,7 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_stage
           env: "t2"
-          context: elite2-api-t2
+          context: prison-api-t2
           requires:
             - request-stage-approval
       - request-preprod-approval:
@@ -82,7 +82,7 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_preprod
           env: "preprod"
-          context: elite2-api-preprod
+          context: prison-api-preprod
           requires:
             - request-preprod-approval
       - request-prod-approval:
@@ -94,7 +94,7 @@ workflows:
           name: deploy_prod
           env: "prod"
           slack_notification: true
-          context: elite2-api-prod
+          context: prison-api-prod
           requires:
             - request-prod-approval
   scheduled:
