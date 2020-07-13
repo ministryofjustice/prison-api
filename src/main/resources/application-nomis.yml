@@ -1,3 +1,7 @@
+server:
+  servlet:
+    context-path: /elite2api
+
 spring:
   profiles:
     include: nomis-local,ai
