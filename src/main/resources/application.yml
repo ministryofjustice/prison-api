@@ -1,5 +1,11 @@
 server:
   port: 8080
+  forward-headers-strategy: native
+  tomcat:
+    remoteip:
+      remote-ip-header: x-forwarded-for
+      protocol-header: x-forwarded-proto
+  shutdown: graceful
 
 spring:
   application:
@@ -28,7 +34,10 @@ management:
     web:
       base-path: /
       exposure:
-        include: 'info, health, ping'
+        include: 'info, health'
+  health:
+    probes:
+      enabled: true
   endpoint:
     health:
       cache:

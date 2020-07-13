@@ -1,11 +1,3 @@
-server:
-  servlet:
-    context-path: /elite2api
-  use-forward-headers: true
-  tomcat:
-    remote-ip-header: x-forwarded-for
-    protocol_header: x-forwarded-proto
-
 spring:
   profiles:
     include: nomis-local,ai

@@ -4,7 +4,7 @@ Feature: Offenders Adjudications
   A logged in staff user can view an offender's adjudications
 
   Scenario: A staff user views the adjudications for an existing offender
-    Given a user has a token name of "ELITE2_API_USER"
+    Given a user has a token name of "PRISON_API_USER"
     When I view the adjudications of offender with offender display number of "A118HHH"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings      |
@@ -34,12 +34,12 @@ Feature: Offenders Adjudications
     And the associated agencies for this offender are: "MDI, LEI"
 
   Scenario: A staff user cannot view adjudications for an offender on a caseload they don't have access to.
-    Given a user has a token name of "ELITE2_API_USER"
+    Given a user has a token name of "PRISON_API_USER"
     When I view the adjudications of offender with offender display number of "A118GGG"
     Then resource not found response is received from adjudication API
 
   Scenario: A user fails to find adjudications as offender does not exist
-    Given a user has a token name of "ELITE2_API_USER"
+    Given a user has a token name of "PRISON_API_USER"
     When I view the adjudications of offender with offender display number of "Does Not Exist"
     Then resource not found response is received from adjudication API
 
@@ -49,6 +49,6 @@ Feature: Offenders Adjudications
     Then the adjudication details are found
 
   Scenario: A user fails to find adjudication details as offender does not exist
-    Given a user has a token name of "ELITE2_API_USER"
+    Given a user has a token name of "PRISON_API_USER"
     When I view the adjudication details of offender display number of "Does not exist" with a adjudication number of "-7"
     Then resource not found response is received from adjudication API

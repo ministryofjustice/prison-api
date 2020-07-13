@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.ELITE2_API_USER;
+import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
 
 public class OffendersResourceTest extends ResourceTest {
 
@@ -336,7 +336,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void testCanRetrieveAddresses() {
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER), null, Map.of());
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, Map.of());
 
         final var response = testRestTemplate.exchange(
                 "/api/offenders/{offenderNumber}/addresses",
@@ -350,7 +350,7 @@ public class OffendersResourceTest extends ResourceTest {
 
 
     private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER), null, headers);
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, headers);
         return testRestTemplate.exchange("/api/offenders/ids", HttpMethod.GET, requestEntity, String.class);
     }
 }

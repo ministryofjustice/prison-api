@@ -4,7 +4,7 @@ Feature: Offenders
     A logged in staff user can view the addresses of offenders
 
   Scenario: A staff user fails to find addresses as offender does not exist
-    Given a user has a token name of "ELITE2_API_USER"
+    Given a user has a token name of "PRISON_API_USER"
     When I view the addresses of offender with offender display number of "Does Not Exist"
     Then resource not found response is received from offender API
 

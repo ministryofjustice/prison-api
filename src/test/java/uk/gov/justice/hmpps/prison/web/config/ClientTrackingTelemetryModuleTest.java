@@ -61,7 +61,7 @@ public class ClientTrackingTelemetryModuleTest {
 
         final var insightTelemetry = ThreadContext.getRequestTelemetryContext().getHttpRequestTelemetry().getProperties();
 
-        assertThat(insightTelemetry).containsOnly(entry("username", "bob"), entry("clientId", "elite2apiclient"), entry("clientIpAddress", "127.0.0.1"));
+        assertThat(insightTelemetry).containsOnly(entry("username", "bob"), entry("clientId", "prison-api-client"), entry("clientIpAddress", "127.0.0.1"));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ClientTrackingTelemetryModuleTest {
 
         final var insightTelemetry = ThreadContext.getRequestTelemetryContext().getHttpRequestTelemetry().getProperties();
 
-        assertThat(insightTelemetry).containsOnly(entry("username", "Fred"), entry("clientId", "elite2apiclient"), entry("clientIpAddress", "127.0.0.1"));
+        assertThat(insightTelemetry).containsOnly(entry("username", "Fred"), entry("clientId", "prison-api-client"), entry("clientIpAddress", "127.0.0.1"));
     }
 
     private String createJwt(final String user, final List<String> roles, final Long duration) {

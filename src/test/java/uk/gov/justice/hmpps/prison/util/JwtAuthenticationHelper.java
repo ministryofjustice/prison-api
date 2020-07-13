@@ -26,7 +26,7 @@ public class JwtAuthenticationHelper {
 
     public JwtAuthenticationHelper(@Value("${jwt.signing.key.pair}") final String privateKeyPair,
                                    @Value("${jwt.keystore.password}") final String keystorePassword,
-                                   @Value("${jwt.keystore.alias:elite2api}") final String keystoreAlias) {
+                                   @Value("${jwt.keystore.alias}") final String keystoreAlias) {
         keyPair = getKeyPair(new ByteArrayResource(Base64.decodeBase64(privateKeyPair)), keystoreAlias, keystorePassword.toCharArray());
     }
 
