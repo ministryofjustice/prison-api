@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.sun.xml.bind:jaxb-core:2.3.0.1'
     implementation 'javax.activation:activation:1.1.1'
 
+    implementation 'org.tuckey:urlrewritefilter:4.0.4'
     implementation 'commons-codec:commons-codec:1.14'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0'
     implementation 'com.github.jsqlparser:jsqlparser:3.1'
