@@ -53,6 +53,7 @@ workflows:
             branches:
               only:
                 - main
+                - revert-648-DT-1014_revert
       - hmpps/deploy_env:
           name: deploy_dev
           env: "t3"
@@ -60,6 +61,7 @@ workflows:
             branches:
               only:
                 - main
+                - revert-648-DT-1014_revert
           requires:
             - build_docker
             - build

@@ -1,6 +1,6 @@
 <urlrewrite use-query-string="true">
     <rule>
         <from>^/elite2api/(.*)$</from>
-        <to type="redirect">/$1</to>
+        <to type="passthrough">/$1</to>
     </rule>
 </urlrewrite>
