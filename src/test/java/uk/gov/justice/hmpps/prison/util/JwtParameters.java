@@ -14,7 +14,7 @@ public class JwtParameters {
     private List<String> roles;
     private Duration expiryTime;
     @Builder.Default
-    private String clientId = "elite2apiclient";
+    private String clientId = "prison-api-client";
     @Builder.Default
     private boolean internalUser = true;
 }

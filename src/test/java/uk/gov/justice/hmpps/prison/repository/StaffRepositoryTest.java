@@ -38,7 +38,7 @@ public class StaffRepositoryTest {
         final var staffDetail = repository.findByStaffId(testStaffId)
                 .orElseThrow(EntityNotFoundException.withId(testStaffId));
 
-        assertThat(staffDetail.getFirstName()).isEqualTo("Elite2");
+        assertThat(staffDetail.getFirstName()).isEqualTo("Prison");
     }
 
     @Test
@@ -88,7 +88,7 @@ public class StaffRepositoryTest {
                 .orElseThrow(EntityNotFoundException.withId(testId));
 
         assertThat(staffDetail.getStaffId()).isEqualTo(-1L);
-        assertThat(staffDetail.getFirstName()).isEqualTo("Elite2");
+        assertThat(staffDetail.getFirstName()).isEqualTo("Prison");
         assertThat(staffDetail.getStatus()).isEqualTo("ACTIVE");
     }
 
@@ -288,7 +288,7 @@ public class StaffRepositoryTest {
 
         // The data has a single email address configured for this user
         final var staffEmails = repository.findEmailAddressesForStaffId(validStaffId);
-        assertThat(staffEmails).containsOnly("elite2-api-user@syscon.net");
+        assertThat(staffEmails).containsOnly("prison-api-user@test.com");
     }
 
     @Test

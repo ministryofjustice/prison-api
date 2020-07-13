@@ -693,7 +693,7 @@ public class InmateRepositoryTest {
 
         assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status",
                 "categoriserFirstName", "categoriserLastName", "category").contains(
-                Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL, "Elite2", "User", "B"));
+                Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL, "Prison", "User", "B"));
 
         assertThat(list).extracting("offenderNo").doesNotContain("A1234AF", "A1234AG"); // "Active" categorisation should be ignored
         // Note that size of list may vary depending on whether feature tests have run, e.g. approving booking id -34
@@ -717,7 +717,7 @@ public class InmateRepositoryTest {
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
                 .containsExactly(
-                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "B", "P"),
+                        Tuple.tuple("A1234AA", -1L, "API", "User", "Prison", "User", "B", "P"),
                         Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A", "A"));
     }
 
@@ -727,8 +727,8 @@ public class InmateRepositoryTest {
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "LOW", "A"),
-                        Tuple.tuple("A1234AA", -1L, "API", "User", "Elite2", "User", "B", "P"),
+                        Tuple.tuple("A1234AA", -1L, "API", "User", "Prison", "User", "LOW", "A"),
+                        Tuple.tuple("A1234AA", -1L, "API", "User", "Prison", "User", "B", "P"),
                         Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A", "A"),
                         Tuple.tuple("A5576RS", -31L, "API", "User", "API", "User", "C", "A"));
     }
@@ -739,7 +739,7 @@ public class InmateRepositoryTest {
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "lastName", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple("A1184MA", -41L, "ALI", null, null, "Elite2", "User", "B", "A"));
+                        Tuple.tuple("A1184MA", -41L, "ALI", null, null, "Prison", "User", "B", "A"));
     }
 
     @Test

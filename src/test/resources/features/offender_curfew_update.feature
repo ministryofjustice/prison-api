@@ -15,7 +15,7 @@ Feature: Updating Offender Curfew state
       | SYSTEM_USER_READ_WRITE | -35       | x            | 2018-01-31       | 400        |
       | SYSTEM_USER_READ_WRITE | -35       | true         | xxxxxxxxxx       | 400        |
       | SYSTEM_USER_READ_WRITE | 99999     | true         | 2018-01-31       | 404        |
-      | ELITE2_API_USER        | -35       | true         | 2018-01-31       | 403        |
+      | PRISON_API_USER        | -35       | true         | 2018-01-31       | 403        |
       | SYSTEM_USER_READ_WRITE | -35       | true         | 2018-02-31       | 400        |
 
   Scenario Outline:  Update the 'Approval status' for a booking's current (latest) curfew
@@ -47,7 +47,7 @@ Feature: Updating Offender Curfew state
       | SYSTEM_USER_READ_WRITE | -35       | false        | REJECTED       | ADDRESS       | 2018-01-31         | 204        |
       | SYSTEM_USER_READ_WRITE | -35       | true         | APPROVED       | BREACH        | 2018-01-31         | 400        |
       | SYSTEM_USER_READ_WRITE | -35       | true         | REJECTED       | XXXXXXXX      | 2018-01-31         | 400        |
-      | ELITE2_API_USER        | -35       |              | APPROVED       |               | 2018-01-31         | 403        |
+      | PRISON_API_USER        | -35       |              | APPROVED       |               | 2018-01-31         | 403        |
       | SYSTEM_USER_READ_WRITE | 99999     |              | APPROVED       |               | 2018-01-31         | 404        |
       | SYSTEM_USER_READ_WRITE | -35       | true         | APPROVED       |               | 2018-02-31         | 400        |
       | SYSTEM_USER_READ_WRITE | -35       | true         | APPROVED       |               |                    | 400        |

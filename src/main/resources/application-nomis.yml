@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /elite2api
+    context-path: /
   use-forward-headers: true
   tomcat:
     remote-ip-header: x-forwarded-for

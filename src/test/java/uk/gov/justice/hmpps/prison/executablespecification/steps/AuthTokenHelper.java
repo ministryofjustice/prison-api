@@ -20,7 +20,7 @@ public class AuthTokenHelper {
     private JwtAuthenticationHelper jwtAuthenticationHelper;
 
     public enum AuthToken {
-        ELITE2_API_USER,
+        PRISON_API_USER,
         API_TEST_USER,
         RENEGADE_USER,
         NO_CASELOAD_USER,
@@ -48,7 +48,7 @@ public class AuthTokenHelper {
     public AuthTokenHelper(final JwtAuthenticationHelper jwtAuthenticationHelper) {
         this.jwtAuthenticationHelper = jwtAuthenticationHelper;
 
-        tokens.put(String.valueOf(AuthToken.ELITE2_API_USER), elite2ApiUser());
+        tokens.put(String.valueOf(AuthToken.PRISON_API_USER), prisonApiUser());
         tokens.put(String.valueOf(AuthToken.API_TEST_USER), apiTestUser());
         tokens.put(String.valueOf(AuthToken.RENEGADE_USER), renegadeUser());
         tokens.put(String.valueOf(AuthToken.NO_CASELOAD_USER), noCaseloadUser());
@@ -83,10 +83,10 @@ public class AuthTokenHelper {
         return tokens.get(String.valueOf(clientId));
     }
 
-    private String elite2ApiUser() {
+    private String prisonApiUser() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()
-                        .username("ELITE2_API_USER")
+                        .username("PRISON_API_USER")
                         .scope(singletonList("read"))
                         .roles(emptyList())
                         .expiryTime(Duration.ofDays(365 * 10))
@@ -142,7 +142,7 @@ public class AuthTokenHelper {
     private String systemUserReadWrite() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()
-                        .clientId("ELITE2_API_USER")
+                        .clientId("PRISON_API_USER")
                         .internalUser(false)
                         .scope(List.of("read", "write"))
                         .roles(List.of("ROLE_SYSTEM_USER"))
@@ -189,7 +189,7 @@ public class AuthTokenHelper {
     private String superAdmin() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()
-                        .clientId("ELITE2_API_USER")
+                        .clientId("PRISON_API_USER")
                         .scope(List.of("read", "write"))
                         .roles(List.of("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_GLOBAL_SEARCH", "ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_OMIC_ADMIN"))
                         .expiryTime(Duration.ofDays(365 * 10))

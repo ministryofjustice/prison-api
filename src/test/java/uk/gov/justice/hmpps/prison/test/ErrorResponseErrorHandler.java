@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles error (i.e. 4xx or 5xx) from Elite2 API and converts response body to {@link ErrorResponse}.
+ * Handles error (i.e. 4xx or 5xx) from Prison API and converts response body to {@link ErrorResponse}.
  */
 public class ErrorResponseErrorHandler extends DefaultResponseErrorHandler {
 

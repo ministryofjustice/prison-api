@@ -95,7 +95,7 @@ public class UserRepositoryTest {
 
         final var user = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
 
-        assertThat(user.getUsername()).isEqualTo("ELITE2_API_USER");
+        assertThat(user.getUsername()).isEqualTo("PRISON_API_USER");
     }
 
     @Test
@@ -227,8 +227,8 @@ public class UserRepositoryTest {
     @Test
     public void testUpdateWorkingCaseLoad() {
         // STAFF_USER_ACCOUNTS for genUsername and admUsername have the same staff_id (-1).
-        final var genUsername = "ELITE2_API_USER";
-        final var admUsername = "ELITE2_API_USER_ADM";
+        final var genUsername = "PRISON_API_USER";
+        final var admUsername = "PRISON_API_USER_ADM";
 
         assertThat(caseLoadRepository.getWorkingCaseLoadByUsername(genUsername).map(CaseLoad::getCaseLoadId)).contains("LEI");
         assertThat(caseLoadRepository.getWorkingCaseLoadByUsername(admUsername).map(CaseLoad::getCaseLoadId)).contains("CADM_I");

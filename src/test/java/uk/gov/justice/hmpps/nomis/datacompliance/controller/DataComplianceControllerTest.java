@@ -21,7 +21,7 @@ import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.HttpMethod.POST;
-import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.ELITE2_API_USER;
+import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
 
 public class DataComplianceControllerTest extends ResourceTest {
 
@@ -41,7 +41,7 @@ public class DataComplianceControllerTest extends ResourceTest {
     @Test
     public void requestOffenderPendingDeletions() {
 
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER),
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER),
                 PendingDeletionRequest.builder()
                         .batchId(BATCH_ID)
                         .dueForDeletionWindowStart(WINDOW_START)
@@ -78,7 +78,7 @@ public class DataComplianceControllerTest extends ResourceTest {
     @Test
     public void requestOffenderPendingDeletionsExpectsBodyNotNull() {
 
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER), null);
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null);
 
         final var response = testRestTemplate.exchange("/api/data-compliance/offenders/pending-deletions", POST, requestEntity, Void.class);
 
@@ -88,7 +88,7 @@ public class DataComplianceControllerTest extends ResourceTest {
     @Test
     public void requestOffenderPendingDeletionsExpectsDeletionWindowEnd() {
 
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(ELITE2_API_USER),
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER),
                 PendingDeletionRequest.builder().build());
 
         final var response = testRestTemplate.exchange("/api/data-compliance/offenders/pending-deletions", POST, requestEntity, Void.class);

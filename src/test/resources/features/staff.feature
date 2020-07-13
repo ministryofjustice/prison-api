@@ -21,7 +21,7 @@ Feature: Staff Details and Roles
 
     Examples:
       | staffId | firstName | lastName | gender |   dob      |
-      | -1      | Elite2    | User     |   F    | 1970-01-01 |
+      | -1      | Prison    | User     |   F    | 1970-01-01 |
       | -2      | API       | User     |   M    | 1970-02-01 |
       | -3      | CA        | User     |   M    | 1970-03-01 |
       | -5      | RO        | User     |   M    | 1970-05-01 |

@@ -34,7 +34,7 @@ Feature: User Details and Roles
 
     Examples:
     | role     | caseload | usernames                          |
-    | WING_OFF | LEI      | ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE |
+    | WING_OFF | LEI      | PRISON_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE |
     | WING_OFF | MUL      | API_TEST_USER                      |
     | WING_OFF | XXXXXX   |                                    |
     | XXXXX    | LEI      |                                    |
@@ -75,12 +75,12 @@ Feature: User Details and Roles
   Scenario: A list of staff users by caseload can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
     When a request for users with caseload "LEI" is made
-    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,IEP_USER,PPL_USER,UOF_REVIEWER_USER,UOF_COORDINATOR_USER,RCTL_USER,POM_USER,PF_RO_USER,SOC_PRISON_LOCAL"
+    Then a list of users is returned with usernames "PRISON_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,IEP_USER,PPL_USER,UOF_REVIEWER_USER,UOF_COORDINATOR_USER,RCTL_USER,POM_USER,PF_RO_USER,SOC_PRISON_LOCAL"
 
   Scenario: A list of staff users can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
     When a request for users is made
-    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,ITAG_USER_ADM,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER,GLOBAL_SEARCH_USER,ELITE2_API_USER_ADM,LAA_USER,IEP_USER,PPL_USER,UOF_REVIEWER_USER,UOF_COORDINATOR_USER,RCTL_USER,POM_USER,PF_RO_USER,WAI_USER,SOC_PRISON_LOCAL"
+    Then a list of users is returned with usernames "PRISON_API_USER,ITAG_USER,ITAG_USER_ADM,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER,GLOBAL_SEARCH_USER,PRISON_API_USER_ADM,LAA_USER,IEP_USER,PPL_USER,UOF_REVIEWER_USER,UOF_COORDINATOR_USER,RCTL_USER,POM_USER,PF_RO_USER,WAI_USER,SOC_PRISON_LOCAL"
 
   Scenario: A list of staff users by usernames can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
@@ -90,7 +90,7 @@ Feature: User Details and Roles
   Scenario: A list of staff users by caseload and namefilter can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
     When a request for users with caseload "LEI" and namefilter "User" and role "" is made
-    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,CA_USER,DM_USER,PPL_USER,RCTL_USER,POM_USER,PF_RO_USER"
+    Then a list of users is returned with usernames "PRISON_API_USER,ITAG_USER,CA_USER,DM_USER,PPL_USER,RCTL_USER,POM_USER,PF_RO_USER"
 
   Scenario: A list of staff users by caseload and namefilter and access role can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
@@ -108,7 +108,7 @@ Feature: User Details and Roles
     Then a list of users is returned with usernames "ITAG_USER"
 
   Scenario: A list of staff users by inactive LAA cannot be retrieved
-    Given a user has a token name of "ELITE2_API_USER"
+    Given a user has a token name of "PRISON_API_USER"
     When a request for users by local administrator with namefilter "User" and role "" is made
     Then a list of users is returned with usernames ""
 
