@@ -8,3 +8,6 @@ image:
   tag: latest
   pullPolicy: IfNotPresent
   port: 8080
+
+env:
+  DATA_COMPLIANCE_DELETION_ENABLED: true

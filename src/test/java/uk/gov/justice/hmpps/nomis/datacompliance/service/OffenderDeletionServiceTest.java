@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.nomis.datacompliance.config.DataComplianceProperties;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
@@ -48,13 +49,8 @@ public class OffenderDeletionServiceTest {
     @BeforeEach
     public void setUp() {
 
-        when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER))
-                .thenReturn(List.of(OffenderAliasPendingDeletion.builder()
-                        .offenderId(OFFENDER_ID)
-                        .offenderBooking(OffenderBookingPendingDeletion.builder().bookingId(OFFENDER_BOOK_ID).build())
-                        .build()));
-
         service = new OffenderDeletionService(
+                new DataComplianceProperties(true),
                 offenderAliasPendingDeletionRepository,
                 offenderDeletionRepository,
                 dataComplianceEventPusher,
@@ -63,6 +59,8 @@ public class OffenderDeletionServiceTest {
 
     @Test
     public void deleteOffender() {
+
+        mockOffenderIds();
 
         when(offenderDeletionRepository.deleteOffender(OFFENDER_NUMBER)).thenReturn(Set.of(OFFENDER_ID));
 
@@ -80,6 +78,8 @@ public class OffenderDeletionServiceTest {
     @Test
     void deleteOffenderThrowsIfOffenderIdsDoNotMatch() {
 
+        mockOffenderIds();
+
         assertThatThrownBy(() -> service.deleteOffender(OffenderDeletionGrant.builder()
                 .offenderNo(OFFENDER_NUMBER)
                 .referralId(REFERRAL_ID)
@@ -95,6 +95,8 @@ public class OffenderDeletionServiceTest {
     @Test
     void deleteOffenderThrowsIfOffenderBookIdsDoNotMatch() {
 
+        mockOffenderIds();
+
         assertThatThrownBy(() -> service.deleteOffender(OffenderDeletionGrant.builder()
                 .offenderNo(OFFENDER_NUMBER)
                 .referralId(REFERRAL_ID)
@@ -105,5 +107,33 @@ public class OffenderDeletionServiceTest {
                 .hasMessage("The requested offender book ids ([999]) do not match those currently linked to offender 'A1234AA' ([789])");
 
         verifyNoInteractions(offenderDeletionRepository);
+    }
+
+    @Test
+    void deleteOffenderThrowsIfDeletionNotEnabled() {
+
+        service = new OffenderDeletionService(
+                new DataComplianceProperties(false),
+                offenderAliasPendingDeletionRepository,
+                offenderDeletionRepository,
+                dataComplianceEventPusher,
+                telemetryClient);
+
+        assertThatThrownBy(() -> service.deleteOffender(OffenderDeletionGrant.builder()
+                .offenderNo(OFFENDER_NUMBER)
+                .referralId(REFERRAL_ID)
+                .offenderId(OFFENDER_ID)
+                .offenderBookId(OFFENDER_BOOK_ID)
+                .build()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Deletion is not enabled!");
+    }
+
+    private void mockOffenderIds() {
+        when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER))
+                .thenReturn(List.of(OffenderAliasPendingDeletion.builder()
+                        .offenderId(OFFENDER_ID)
+                        .offenderBooking(OffenderBookingPendingDeletion.builder().bookingId(OFFENDER_BOOK_ID).build())
+                        .build()));
     }
 }

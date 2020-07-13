@@ -11,6 +11,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.nomis.datacompliance.config.DataComplianceProperties;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.DataComplianceEventPusher;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
@@ -31,12 +32,15 @@ import static java.util.stream.Collectors.toSet;
 @RequiredArgsConstructor
 public class OffenderDeletionService {
 
+    private final DataComplianceProperties properties;
     private final OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
     private final OffenderDeletionRepository offenderDeletionRepository;
     private final DataComplianceEventPusher dataComplianceEventPusher;
     private final TelemetryClient telemetryClient;
 
     public void deleteOffender(final OffenderDeletionGrant grant) {
+
+        checkState(properties.isDeletionEnabled(), "Deletion is not enabled!");
 
         checkRequestedDeletion(grant);
 
