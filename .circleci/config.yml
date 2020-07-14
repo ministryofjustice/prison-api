@@ -53,7 +53,6 @@ workflows:
             branches:
               only:
                 - main
-                - DT-1014_remove_context
       - hmpps/deploy_env:
           name: deploy_dev
           env: "t3"
