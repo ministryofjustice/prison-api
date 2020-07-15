@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class OffenderNonAssociation {
 
-    @ApiModelProperty(required = true, value = "The offenders noms ID", position = 1, example = "G0135GA")
-    private String offenderNomsId;
+    @ApiModelProperty(required = true, value = "The offenders number", position = 1, example = "G0135GA")
+    private String offenderNo;
 
     @ApiModelProperty(required = true, value = "The offenders first name", position = 2, example = "Joseph")
     private String firstName;
