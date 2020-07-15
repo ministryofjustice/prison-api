@@ -64,7 +64,7 @@ There are some recent examples around PrisonStatusController and OffenderImageRe
   
 #### Health
 
-- `/ping`: will respond `pong` to all requests.  This should be used by dependent systems to check connectivity to prison api,
+- `/health/ping`: will respond `{"status":"UP"}` to all requests.  This should be used by dependent systems to check connectivity to prison api,
 rather than calling the `/health` endpoint.
 - `/health`: provides information about the application health and its dependencies.  This should only be used
 by prison-api health monitoring (e.g. pager duty) and not other systems who wish to find out the state of prison api
