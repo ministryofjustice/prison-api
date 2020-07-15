@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNonAssociationDetailRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
@@ -20,27 +21,35 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OffenderNonAssociationsService {
 
-    private final OffenderNonAssociationDetailRepository repository;
+    private final OffenderNonAssociationDetailRepository nonAssociationDetailRepository;
+
+    private final OffenderBookingRepository bookingRepository;
 
     @VerifyBookingAccess
     public OffenderNonAssociationDetails retrieve(final long bookingId) {
         log.debug("Fetching non-associations for booking id '{}'", bookingId);
 
-        final var nonAssociations = repository.findAllByOffenderBooking_BookingId(bookingId)
+        final var booking = bookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
+
+        final var nonAssociations = nonAssociationDetailRepository.findAllByOffenderBooking_BookingId(booking.getBookingId())
                 .stream()
                 .map(this::transform)
                 .collect(Collectors.toList());
 
-        log.debug("'{}' non-associations found for booking '{}'", nonAssociations.size(), bookingId);
+        log.debug("'{}' non-association(s) found for booking '{}'", nonAssociations.size(), bookingId);
 
-        return new OffenderNonAssociationDetails(nonAssociations);
+        return OffenderNonAssociationDetails.builder()
+                .offenderNo(booking.getOffender().getNomsId())
+                .firstName(booking.getOffender().getFirstName())
+                .lastName(booking.getOffender().getLastName())
+                .agencyDescription(booking.getLocation().getDescription())
+                .assignedLivingUnitDescription(booking.getAssignedLivingUnit().getDescription())
+                .nonAssociations(nonAssociations)
+                .build();
     }
 
     private uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetail transform(final OffenderNonAssociationDetail detail) {
         return uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetail.builder()
-                .offenderNomsId(detail.getOffender().getNomsId())
-                .firstName(detail.getOffender().getFirstName())
-                .lastName(detail.getOffender().getLastName())
                 .effectiveDate(detail.getEffectiveDate())
                 .expiryDate(detail.getExpiryDate())
                 .comments(detail.getComments())
@@ -49,10 +58,8 @@ public class OffenderNonAssociationsService {
                 .reasonDescription(detail.getNonAssociationReason().getDescription())
                 .typeCode(detail.getNonAssociationType().getCode())
                 .typeDescription(detail.getNonAssociationType().getDescription())
-                .agencyDescription(detail.getAgencyDescription().orElse(null))
-                .assignedLivingUnitDescription(detail.getAssignedLivingUnitDescription().orElse(null))
                 .offenderNonAssociation(OffenderNonAssociation.builder()
-                        .offenderNomsId(detail.getNonAssociation().getNsOffender().getNomsId())
+                        .offenderNo(detail.getNonAssociation().getNsOffender().getNomsId())
                         .firstName(detail.getNonAssociation().getNsOffender().getFirstName())
                         .lastName(detail.getNonAssociation().getNsOffender().getLastName())
                         .reasonCode(detail.getNonAssociation().getRecipNonAssociationReason().getCode())

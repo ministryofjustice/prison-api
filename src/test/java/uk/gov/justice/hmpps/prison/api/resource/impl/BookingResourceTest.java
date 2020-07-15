@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch;
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.time.Clock;
@@ -473,5 +474,27 @@ public class BookingResourceTest extends ResourceTest {
                 String.class, -6L);
 
         assertThatJsonFileAndStatus(response, 200, "visits_with_visitors_filter_paged.json");
+    }
+
+    @Test
+    public void getNonAssociationDetails_victim_and_perpetrator() {
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-1/non-association-details",
+                HttpMethod.GET,
+                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
+                String.class);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_non_association_details_vic_per.json");
+    }
+
+    @Test
+    public void getNonAssociationDetails_perpetrator_and_victim() {
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-2/non-association-details",
+                HttpMethod.GET,
+                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
+                String.class);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_non_association_details_per_vic.json");
     }
 }
