@@ -468,7 +468,7 @@ public class BookingResourceTest extends ResourceTest {
 
     @Test
     public void getVisitsWithVisitorsFilteredPagination() {
-        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?fromDate=2019-06-30&paged=true&size=5", GET,
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?fromDate=2019-07-15&paged=true&size=5", GET,
                 createHttpEntity(AuthToken.NORMAL_USER, null),
                 String.class, -6L);
 
