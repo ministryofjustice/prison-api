@@ -34,7 +34,7 @@ management:
     web:
       base-path: /
       exposure:
-        include: 'info, health'
+        include: 'info, health, ping'
   health:
     probes:
       enabled: true
