@@ -64,10 +64,10 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         System.lineSeparator();
         return new ApiInfo(
-                "HMPPS NOMIS API Documentation",
-                "A RESTful API service for accessing HMPPS NOMIS Information.\n\nAll times sent to the API should be sent in local time without the timezone e.g. YYYY-MM-DDTHH:MM:SS.  All times returned in responses will be in Europe / London local time unless otherwise stated.",
+                "HMPPS Prison API Documentation",
+                "A RESTful API service for accessing NOMIS data sets.\n\nAll times sent to the API should be sent in local time without the timezone e.g. YYYY-MM-DDTHH:MM:SS.  All times returned in responses will be in Europe / London local time unless otherwise stated.",
                 getVersion(),
-                "https://gateway.nomis-api.service.justice.gov.uk/auth/terms",
+                "https://sign-in.hmpps.service.justice.gov.uk/auth/terms",
                 contactInfo(),
                 "Open Government Licence v3.0", "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/", List.of());
     }
