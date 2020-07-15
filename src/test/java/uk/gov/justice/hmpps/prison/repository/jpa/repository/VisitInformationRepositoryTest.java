@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,9 +30,9 @@ public class VisitInformationRepositoryTest {
     private VisitRepository repository;
 
     @Test
-    public void findAllByBookingId() {
+    public void findAll() {
         Pageable pageable = PageRequest.of(0, 20);
-        var visits = repository.findAllByBookingId(-1L, pageable);
+        var visits = repository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable);
 
         assertThat(visits).hasSize(15);
         assertThat(visits).extracting(VisitInformation::getVisitId).containsExactly(-3L, -2L, -4L, -5L, -1L, -6L, -8L, -7L, -10L, -9L, -13L, -14L, -12L, -11L, -15L);
@@ -49,6 +50,34 @@ public class VisitInformationRepositoryTest {
         assertThat(visits).extracting(VisitInformation::getLeadVisitor).containsExactly("JESSY SMITH1", null, null, null, null, null, null, null, null, null, null, null, null, null, "JESSY SMITH1");
         assertThat(visits).extracting(VisitInformation::getRelationship).containsExactly("UN", null, null, null, null, null, null, null, null, null, null, null, null, null, "UN");
         assertThat(visits).extracting(VisitInformation::getRelationshipDescription).containsExactly("Uncle", null, null, null, null, null, null, null, null, null, null, null, null, null, "Uncle");
+
+    }
+
+    @Test
+    public void findAll_filterByType() {
+        Pageable pageable = PageRequest.of(0, 20);
+        var visits = repository.findAll(VisitInformationFilter.builder().bookingId(-1L).visitType("OFFI").build(), pageable);
+
+        assertThat(visits).hasSize(3);
+        assertThat(visits).extracting(VisitInformation::getVisitId).containsExactly( -5L, -9L, -14L);
+        assertThat(visits).extracting(VisitInformation::getEventOutcome).containsExactly("ATT", "ATT", "ATT");
+        assertThat(visits).extracting(VisitInformation::getEventOutcomeDescription).containsExactly("Attended",  "Attended",  "Attended");
+        assertThat(visits).extracting(VisitInformation::getVisitType).containsExactly( "OFFI", "OFFI", "OFFI");
+        assertThat(visits).extracting(VisitInformation::getVisitTypeDescription).containsExactly("Official Visit", "Official Visit", "Official Visit");
+
+    }
+
+    @Test
+    public void findAll_filterByDates() {
+        Pageable pageable = PageRequest.of(0, 20);
+        var visits = repository.findAll(VisitInformationFilter.builder().bookingId(-1L).fromDate(LocalDate.of(2017, 9, 1)).toDate(LocalDate.of(2017, 10, 1)).build(), pageable);
+
+        assertThat(visits).hasSize(3);
+        assertThat(visits).extracting(VisitInformation::getVisitId).containsExactly( -5L, -1L, -6L);
+        assertThat(visits).extracting(VisitInformation::getEventOutcome).containsExactly("ATT", "ATT", "ATT");
+        assertThat(visits).extracting(VisitInformation::getEventOutcomeDescription).containsExactly("Attended",  "Attended",  "Attended");
+        assertThat(visits).extracting(VisitInformation::getVisitType).containsExactly( "OFFI", "SCON", "SCON");
+        assertThat(visits).extracting(VisitInformation::getVisitTypeDescription).containsExactly("Official Visit", "Social Contact", "Social Contact");
 
     }
 }

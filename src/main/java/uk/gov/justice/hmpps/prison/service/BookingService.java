@@ -54,6 +54,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -84,6 +85,7 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.time.LocalDate.from;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.Comparator.naturalOrder;
@@ -408,12 +410,14 @@ public class BookingService {
 
     @VerifyBookingAccess
     public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final @NotNull Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Pageable pageable) {
-        final var visits = visitRepository.findAllByBookingId(bookingId, pageable);
+        final var visits = visitRepository.findAll( VisitInformationFilter.builder()
+                .bookingId(bookingId)
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .visitType(visitType)
+                .build(), pageable);
 
         final var visitsWithVisitors = visits.getContent().stream()
-                .filter(visit -> fromDate == null || visit.getStartTime().isAfter(fromDate.atStartOfDay()))
-                .filter(visit -> toDate == null || visit.getStartTime().isBefore(toDate.atTime(LocalTime.MAX)))
-                .filter(visit -> visitType == null || visitType.equals(visit.getVisitType()))
                 .map(v -> {
                     var visitorsList = visitorRepository.findAllByVisitIdAndBookingId(v.getVisitId(), bookingId)
                             .stream()
