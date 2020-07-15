@@ -55,6 +55,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -462,7 +463,7 @@ public class BookingServiceTest {
                 .build());
 
         var page = new PageImpl<>(visits);
-        when(visitRepository.findAllByBookingId(-1L, pageable))
+        when(visitRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
                 .thenReturn(page);
 
         when(visitorRepository.findAllByVisitIdAndBookingId(anyLong(), anyLong())).thenReturn(List.of(
@@ -570,28 +571,15 @@ public class BookingServiceTest {
                         .leadVisitor("John Smith")
                         .relationship("UNC")
                         .relationshipDescription("Uncle")
-                        .build(),
-                VisitInformation
-                        .builder()
-                        .visitId(-1L)
-                        .cancellationReason(null)
-                        .cancelReasonDescription(null)
-                        .eventStatus("ATT")
-                        .eventStatusDescription("Attended")
-                        .eventOutcome("ATT")
-                        .eventOutcomeDescription("Attended")
-                        .startTime(LocalDateTime.parse("2019-10-13T14:00"))
-                        .endTime(LocalDateTime.parse("2019-10-13T15:00"))
-                        .location("Visits")
-                        .visitType("OFFI")
-                        .visitTypeDescription("Social")
-                        .leadVisitor("John Smith")
-                        .relationship("UNC")
-                        .relationshipDescription("Uncle")
                         .build());
 
         var page = new PageImpl<>(visits);
-        when(visitRepository.findAllByBookingId(-1L, pageable))
+        when(visitRepository.findAll(VisitInformationFilter.builder()
+                .bookingId(-1L)
+                .fromDate(LocalDate.of(2019, 10, 10))
+                .toDate(LocalDate.of(2019, 10, 12))
+                .visitType("SCON")
+                .build(), pageable))
                 .thenReturn(page);
 
         when(visitorRepository.findAllByVisitIdAndBookingId(anyLong(), anyLong())).thenReturn(List.of(

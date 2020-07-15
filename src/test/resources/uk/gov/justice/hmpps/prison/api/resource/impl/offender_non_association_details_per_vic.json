@@ -1,26 +1,26 @@
 {
-  "offenderNo" : "A1234AA",
-  "firstName" : "ARTHUR",
+  "offenderNo" : "A1234AB",
+  "firstName" : "GILLIAN",
   "lastName" : "ANDERSON",
   "agencyDescription" : "LEEDS",
-  "assignedLivingUnitDescription" : "LEI-A-1-1",
+  "assignedLivingUnitDescription" : "LEI-H-1-5",
   "nonAssociations": [
     {
-      "reasonCode" : "VIC",
-      "reasonDescription" : "Victim",
+      "reasonCode" : "PER",
+      "reasonDescription" : "Perpetrator",
       "typeCode" : "WING",
       "typeDescription" : "Do Not Locate on Same Wing",
       "effectiveDate" : "2001-01-01T00:00:00",
       "authorisedBy" : "Fred Bloggs",
       "comments" : "Some Comment Text",
       "offenderNonAssociation" : {
-        "offenderNo" : "A1234AB",
-        "firstName" : "GILLIAN",
+        "offenderNo" : "A1234AA",
+        "firstName" : "ARTHUR",
         "lastName" : "ANDERSON",
-        "reasonCode" : "PER",
-        "reasonDescription" : "Perpetrator",
+        "reasonCode" : "VIC",
+        "reasonDescription" : "Victim",
         "agencyDescription" : "LEEDS",
-        "assignedLivingUnitDescription" : "LEI-H-1-5"
+        "assignedLivingUnitDescription" : "LEI-A-1-1"
       }
     }
   ]
