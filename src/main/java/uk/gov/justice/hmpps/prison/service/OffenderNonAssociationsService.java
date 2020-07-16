@@ -9,7 +9,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNonAssociationDetailRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.util.stream.Collectors;
@@ -21,8 +20,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OffenderNonAssociationsService {
 
-    private final OffenderNonAssociationDetailRepository nonAssociationDetailRepository;
-
     private final OffenderBookingRepository bookingRepository;
 
     @VerifyBookingAccess
@@ -31,7 +28,7 @@ public class OffenderNonAssociationsService {
 
         final var booking = bookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
 
-        final var nonAssociations = nonAssociationDetailRepository.findAllByOffenderBooking_BookingId(booking.getBookingId())
+        final var nonAssociations = booking.getNonAssociationDetails()
                 .stream()
                 .map(this::transform)
                 .collect(Collectors.toList());

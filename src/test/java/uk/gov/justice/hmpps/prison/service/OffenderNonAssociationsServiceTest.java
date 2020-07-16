@@ -15,10 +15,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNonAssociationDetailRepository;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +33,7 @@ public class OffenderNonAssociationsServiceTest {
             .lastName("Bloggs")
             .build();
 
-    private final OffenderBooking victimsBooking = OffenderBooking.builder()
+    private final OffenderBooking.OffenderBookingBuilder victimsBookingBuilder = OffenderBooking.builder()
             .bookingId(1L)
             .offender(victim)
             .location(AgencyLocation.builder()
@@ -43,8 +41,7 @@ public class OffenderNonAssociationsServiceTest {
                     .build())
             .assignedLivingUnit(AgencyInternalLocation.builder()
                     .description("cell 1")
-                    .build())
-            .build();
+                    .build());
 
     private final Offender perpetrator = Offender.builder()
             .nomsId("DEF")
@@ -53,23 +50,22 @@ public class OffenderNonAssociationsServiceTest {
             .build();
 
     @Mock
-    private OffenderNonAssociationDetailRepository nonAssociationDetailRepository;
-
-    @Mock
     private OffenderBookingRepository bookingRepository;
+
+    private OffenderBooking victimsBooking;
 
     private OffenderNonAssociationsService service;
 
     @BeforeEach
     void setup() {
-        service = new OffenderNonAssociationsService(nonAssociationDetailRepository, bookingRepository);
+        service = new OffenderNonAssociationsService(bookingRepository);
     }
 
     @Test
     void retrieve_maps_no_non_associations_for_booking() {
-        when(bookingRepository.findById(victimsBooking.getBookingId())).thenReturn(Optional.of(victimsBooking));
+        victimsBooking = victimsBookingBuilder.build();
 
-        when(nonAssociationDetailRepository.findAllByOffenderBooking_BookingId(1L)).thenReturn(Collections.emptyList());
+        when(bookingRepository.findById(victimsBooking.getBookingId())).thenReturn(Optional.of(victimsBooking));
 
         assertThat(service.retrieve(1L)).isEqualTo(OffenderNonAssociationDetails.builder()
                 .offenderNo("ABC")
@@ -83,34 +79,36 @@ public class OffenderNonAssociationsServiceTest {
 
     @Test
     void retrieve_maps_associations_for_booking() {
-        when(bookingRepository.findById(victimsBooking.getBookingId())).thenReturn(Optional.of(victimsBooking));
-
-        when(nonAssociationDetailRepository.findAllByOffenderBooking_BookingId(victimsBooking.getBookingId())).thenReturn(List.of(
-                uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail.builder()
-                        .offender(victim)
-                        .nsOffender(perpetrator)
-                        .offenderBooking(victimsBooking)
-                        .effectiveDate(LocalDateTime.of(2020, 7, 3, 12, 0, 0))
-                        .expiryDate(LocalDateTime.of(2020, 12, 3, 12, 0, 0))
-                        .comments("do not let these offenders share the same location")
-                        .authorizedBy("the boss")
-                        .nonAssociationReason(new NonAssociationReason("VIC", "Victim"))
-                        .nonAssociationType(new NonAssociationType("WING", "Do Not Locate on Same Wing"))
-                        .nonAssociation(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociation.builder()
+        victimsBooking = victimsBookingBuilder
+                .nonAssociationDetails(List.of(
+                        uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail.builder()
                                 .offender(victim)
                                 .nsOffender(perpetrator)
-                                .nonAssociationReason(new NonAssociationReason("PER", "Perpetrator"))
-                                .recipNonAssociationReason(new NonAssociationReason("PER", "recip - Perpetrator"))
-                                .nsOffenderBooking(OffenderBooking.builder()
-                                        .location(AgencyLocation.builder()
-                                                .description("Moorland")
-                                                .build())
-                                        .assignedLivingUnit(AgencyInternalLocation.builder()
-                                                .description("cell 2")
+                                .offenderBooking(victimsBooking)
+                                .effectiveDate(LocalDateTime.of(2020, 7, 3, 12, 0, 0))
+                                .expiryDate(LocalDateTime.of(2020, 12, 3, 12, 0, 0))
+                                .comments("do not let these offenders share the same location")
+                                .authorizedBy("the boss")
+                                .nonAssociationReason(new NonAssociationReason("VIC", "Victim"))
+                                .nonAssociationType(new NonAssociationType("WING", "Do Not Locate on Same Wing"))
+                                .nonAssociation(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociation.builder()
+                                        .offender(victim)
+                                        .nsOffender(perpetrator)
+                                        .nonAssociationReason(new NonAssociationReason("PER", "Perpetrator"))
+                                        .recipNonAssociationReason(new NonAssociationReason("PER", "recip - Perpetrator"))
+                                        .nsOffenderBooking(OffenderBooking.builder()
+                                                .location(AgencyLocation.builder()
+                                                        .description("Moorland")
+                                                        .build())
+                                                .assignedLivingUnit(AgencyInternalLocation.builder()
+                                                        .description("cell 2")
+                                                        .build())
                                                 .build())
                                         .build())
-                                .build())
-                        .build()));
+                                .build()))
+                .build();
+
+        when(bookingRepository.findById(victimsBooking.getBookingId())).thenReturn(Optional.of(victimsBooking));
 
         assertThat(service.retrieve(victimsBooking.getBookingId()))
                 .isEqualTo(OffenderNonAssociationDetails.builder()

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Singular;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 
@@ -20,6 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,6 +71,12 @@ public class OffenderBooking {
 
     @Column(name = "ACTIVE_FLAG")
     private String activeFlag;
+
+    @OrderColumn(name = "TYPE_SEQ")
+    @ListIndexBase(1)
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<OffenderNonAssociationDetail> nonAssociationDetails = new ArrayList<>();
 
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
