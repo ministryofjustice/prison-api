@@ -37,5 +37,6 @@ public class OffenderNonAssociationDetails {
     private String assignedLivingUnitDescription;
 
     @ApiModelProperty(value = "Offender non-association details", position = 6)
+    @Builder.Default
     private Collection<OffenderNonAssociationDetail> nonAssociations = new ArrayList<>();
 }
