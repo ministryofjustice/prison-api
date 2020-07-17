@@ -32,4 +32,6 @@ public class AssessmentDto {
     private boolean cellSharingAlertFlag;
     private String assessStatus;
     private String caseloadType;
+    private String assessCommentText;
+
 }

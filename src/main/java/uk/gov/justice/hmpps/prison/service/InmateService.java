@@ -561,6 +561,7 @@ public class InmateService {
                 .assessmentAgencyId(assessmentDto.getAssessmentCreateLocation())
                 .assessmentStatus(assessmentDto.getAssessStatus())
                 .assessmentSeq(assessmentDto.getAssessmentSeq())
+                .assessmentComment(assessmentDto.getAssessCommentText())
                 .build();
     }
 

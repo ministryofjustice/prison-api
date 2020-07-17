@@ -75,4 +75,7 @@ public class Assessment {
 
     @ApiModelProperty(value = "Sequence number of assessment within booking", position = 13, example = "1")
     private Integer assessmentSeq;
+
+    @ApiModelProperty(value = "Comment from assessor", position = 14, example = "Comment details")
+    private String assessmentComment;
 }

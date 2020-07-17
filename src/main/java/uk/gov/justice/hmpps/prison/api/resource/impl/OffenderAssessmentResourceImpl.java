@@ -63,6 +63,14 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
+    public List<Assessment> getAssessments(final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly) {
+        final var latest = latestOnly == null || latestOnly;
+        final var active = activeOnly == null || activeOnly;
+        validateOffenderList(offenderList);
+        return inmateService.getInmatesAssessmentsByCode(offenderList, null, latest, active, false);
+    }
+
+    @Override
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final String type, final LocalDate date) {
         final CategoryInformationType enumType;
         try {
