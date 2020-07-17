@@ -562,6 +562,8 @@ public class InmateService {
                 .assessmentStatus(assessmentDto.getAssessStatus())
                 .assessmentSeq(assessmentDto.getAssessmentSeq())
                 .assessmentComment(assessmentDto.getAssessCommentText())
+                .assessorId(assessmentDto.getAssessStaffId())
+                .assessorUser(assessmentDto.getCreationUser())
                 .build();
     }
 

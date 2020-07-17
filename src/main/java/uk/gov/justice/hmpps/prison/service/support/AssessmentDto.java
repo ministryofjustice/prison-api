@@ -33,5 +33,6 @@ public class AssessmentDto {
     private String assessStatus;
     private String caseloadType;
     private String assessCommentText;
-
+    private Long assessStaffId;
+    private String creationUser;
 }
