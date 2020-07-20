@@ -17,6 +17,8 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.Offen
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 
 import javax.transaction.Transactional;
+import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
@@ -36,6 +38,7 @@ public class DataComplianceReferralService {
     private final OffenderPendingDeletionRepository offenderPendingDeletionRepository;
     private final OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
     private final DataComplianceEventPusher dataComplianceEventPusher;
+    private final Clock clock;
 
     public CompletableFuture<Void> acceptOffendersPendingDeletionRequest(final Long batchId,
                                                                          final LocalDateTime from,
@@ -54,6 +57,18 @@ public class DataComplianceReferralService {
                 .thenAccept(offenders -> dataComplianceEventPusher.send(
                         new OffenderPendingDeletionReferralComplete(
                                 batchId, (long) offenders.getNumberOfElements(), offenders.getTotalElements())));
+    }
+
+    public void referAdHocOffenderDeletion(final String offenderNumber, final Long batchId) {
+
+        final var offenderPendingDeletion =
+                offenderPendingDeletionRepository.findOffenderPendingDeletion(offenderNumber, LocalDate.now(clock))
+                        .map(this::transform);
+
+        checkState(offenderPendingDeletion.isPresent(),
+                "Unable to find offender that qualifies for deletion with number: '%s'", offenderNumber);
+
+        dataComplianceEventPusher.send(generateOffenderPendingDeletionEvent(offenderPendingDeletion.get(), batchId));
     }
 
     private OffenderPendingDeletion generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber,
