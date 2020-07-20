@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Singular;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 
@@ -47,7 +46,8 @@ public class OffenderBooking {
     @OrderColumn(name = "CASE_SEQ")
     @ListIndexBase(1)
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
-    private List<OffenderCourtCase> courtCases;
+    @Builder.Default
+    private List<OffenderCourtCase> courtCases = new ArrayList<>();
 
     @ListIndexBase(1)
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)

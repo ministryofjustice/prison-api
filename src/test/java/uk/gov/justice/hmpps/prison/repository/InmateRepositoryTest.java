@@ -846,6 +846,27 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testGetAssessmentsIncludingCsra() {
+        final var list = repository.findAssessmentsByOffenderNo(
+                List.of("A1234AF"), null, Collections.emptySet(), false, false);
+
+        list.sort(Comparator.comparing(AssessmentDto::getOffenderNo).thenComparing(AssessmentDto::getBookingId));
+        assertThat(list).extracting("offenderNo", "bookingId", "assessmentCode",
+                "assessmentDescription", "assessmentDate", "assessmentSeq", "nextReviewDate",
+                "reviewSupLevelType", "reviewSupLevelTypeDesc", "assessmentCreateLocation", "approvalDate", "overridedSupLevelType", "overridedSupLevelTypeDesc",
+                "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
+
+        ).containsExactlyInAnyOrder(
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 3, LocalDate.of(2016, 8, 8), "A", "Cat A", "LEI", LocalDate.of(2016, 7, 7), "D", "Cat D", "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 5, 4), 2, LocalDate.of(2018, 5, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 5, 9), "B", "Cat B", "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 3, 4), 1, LocalDate.of(2016, 3, 8), "B", "Cat B", "MDI", LocalDate.of(2016, 3, 9), "B", "Cat B", "B", "Cat B", false, "I"),
+                Tuple.tuple("A1234AF", -6L, "CSR", "CSR Rating", LocalDate.of(2017, 4, 4), 1, LocalDate.of(2018, 6, 6), "STANDARD", "Standard", null, null, null, null, "MED", "Medium", true, "A"),
+                Tuple.tuple("A1234AF", -6L, "PAROLE", "Parole", LocalDate.of(2017, 4, 4), 3, LocalDate.of(2018, 6, 8), null, null, null, null, "HI", "High", null, null, false, "A"),
+                Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, null, null, false, "A")
+        );
+    }
+
+    @Test
     @Transactional
     public void testInsertCategory() {
         final var uncat = repository.getUncategorised("LEI");

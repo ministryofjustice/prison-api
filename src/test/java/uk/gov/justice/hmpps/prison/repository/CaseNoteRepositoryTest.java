@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +37,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = {PersistenceConfigs.class, CacheConfig.class})
+@Slf4j
 public class CaseNoteRepositoryTest {
 
     @Autowired
@@ -134,12 +136,15 @@ public class CaseNoteRepositoryTest {
 
     @Test
     public void getCaseNoteEvents() {
-        final var start = LocalDateTime.now();
+        // NOTE: offender_case_notes.audit_timestamp is populated by hsqldb with a value TRUNCATED to the millisecond level, so it is
+        // possible that it could end up earlier than LocalDateTime.now(), causing a test failure!
+        final var start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         final var caseNote = newCaseNote();
-        caseNote.setText("Testing of events");
+        caseNote.setText("Testing of getCaseNoteEvents");
         final var id = repository.createCaseNote(-16, caseNote, "source", "user", -4L);
 
         final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("GEN", "BOB"), 1000);
+        log.info("Used start time of {}", start);
         assertThat(caseNoteEvents).extracting(
                 CaseNoteEvent::getNomsId,
                 CaseNoteEvent::getId,
@@ -150,21 +155,21 @@ public class CaseNoteRepositoryTest {
         ).contains(Tuple.tuple(
                 "A1234AP",
                 id,
-                "Testing of events",
+                "Testing of getCaseNoteEvents",
                 "MUL",
                 "GEN HIS",
                 "User, Test"
         ));
-        final var event = caseNoteEvents.stream().filter((e) -> e.getContent().equals("Testing of events")).findFirst().orElseThrow();
+        final var event = caseNoteEvents.stream().filter((e) -> e.getContent().equals("Testing of getCaseNoteEvents")).findFirst().orElseThrow();
         assertThat(event.getContactTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));
         assertThat(event.getNotificationTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));
     }
 
     @Test
     public void getCaseNoteEvents_Limit() {
-        final var start = LocalDateTime.now();
+        final var start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         final var caseNote = newCaseNote();
-        caseNote.setText("Testing of events");
+        caseNote.setText("Testing of getCaseNoteEvents_Limit");
         repository.createCaseNote(-16, caseNote, "source", "user", -4L);
         repository.createCaseNote(-16, caseNote, "source", "user", -4L);
 
@@ -174,9 +179,9 @@ public class CaseNoteRepositoryTest {
 
     @Test
     public void getCaseNoteEvents_Types() {
-        final var start = LocalDateTime.now();
+        final var start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         final var caseNote = newCaseNote();
-        caseNote.setText("Testing of events");
+        caseNote.setText("Testing of getCaseNoteEvents_Types");
         repository.createCaseNote(-16, caseNote, "source", "user", -4L);
         repository.createCaseNote(-16, caseNote, "source", "user", -4L);
 

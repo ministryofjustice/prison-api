@@ -1,0 +1,53 @@
+[
+  {
+    "classificationCode": "MED",
+    "nextReviewDate": "2018-06-04",
+    "offenderNo": "A1234AD",
+    "assessmentDate": "2017-04-02",
+    "assessmentDescription": "CSR Rating",
+    "assessmentCode": "CSR",
+    "assessmentStatus": "A",
+    "classification": "Medium",
+    "cellSharingAlertFlag": true,
+    "bookingId": -4,
+    "assessmentSeq": 1,
+    "approvalDate": "2017-04-14",
+    "assessmentComment": "Assess comment text 1",
+    "assessorUser": "User1",
+    "assessorId": -1
+  },
+  {
+    "bookingId": -4,
+    "offenderNo": "A1234AD",
+    "classificationCode": "Z",
+    "classification": "Unclass",
+    "assessmentCode": "CATEGORY",
+    "assessmentDescription": "Categorisation",
+    "cellSharingAlertFlag": false,
+    "assessmentDate": "2016-03-04",
+    "nextReviewDate": "2016-05-07",
+    "assessmentStatus": "I",
+    "assessmentSeq": 2,
+    "approvalDate": "2016-04-17",
+    "assessmentComment": "Assess comment text 2",
+    "assessorUser": "User2",
+    "assessorId": -2
+  },
+  {
+    "bookingId": -4,
+    "offenderNo": "A1234AD",
+    "classificationCode": "U",
+    "classification": "Unsentenced",
+    "assessmentCode": "CATEGORY",
+    "assessmentDescription": "Categorisation",
+    "cellSharingAlertFlag": false,
+    "assessmentDate": "2016-04-04",
+    "nextReviewDate": "2016-06-08",
+    "assessmentStatus": "A",
+    "assessmentSeq": 3,
+    "approvalDate": "2016-04-18",
+    "assessmentComment": "Assess comment text 3",
+    "assessorUser": "User3",
+    "assessorId": -3
+  }
+]
