@@ -7,9 +7,11 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.AdHocReferralRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.DataDuplicateCheck;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.FreeTextCheck;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderDeletionGranted;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
@@ -34,25 +36,30 @@ public class DataComplianceEventListener {
     private static final String DATA_DUPLICATE_ID_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-ID-CHECK";
     private static final String DATA_DUPLICATE_DB_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-DB-CHECK";
     private static final String FREE_TEXT_MORATORIUM_CHECK = "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK";
+    private static final String AD_HOC_REFERRAL = "DATA_COMPLIANCE_AD-HOC-REFERRAL";
 
     private final Map<String, MessageHandler> messageHandlers = Map.of(
             OFFENDER_DELETION_GRANTED, this::handleDeletionGranted,
             DATA_DUPLICATE_ID_CHECK, this::handleDuplicateIdCheck,
             DATA_DUPLICATE_DB_CHECK, this::handleDuplicateDataCheck,
-            FREE_TEXT_MORATORIUM_CHECK, this::handleFreeTextMoratoriumCheck);
+            FREE_TEXT_MORATORIUM_CHECK, this::handleFreeTextMoratoriumCheck,
+            AD_HOC_REFERRAL, this::handleAdHocReferralRequest);
 
+    private final DataComplianceReferralService dataComplianceReferralService;
     private final DataDuplicateService dataDuplicateService;
     private final OffenderDeletionService offenderDeletionService;
     private final FreeTextSearchService freeTextSearchService;
     private final ObjectMapper objectMapper;
 
-    public DataComplianceEventListener(final DataDuplicateService dataDuplicateService,
+    public DataComplianceEventListener(final DataComplianceReferralService dataComplianceReferralService,
+                                       final DataDuplicateService dataDuplicateService,
                                        final OffenderDeletionService offenderDeletionService,
                                        final FreeTextSearchService freeTextSearchService,
                                        final ObjectMapper objectMapper) {
 
         log.info("Configured to listen to data compliance events");
 
+        this.dataComplianceReferralService = dataComplianceReferralService;
         this.dataDuplicateService = dataDuplicateService;
         this.offenderDeletionService = offenderDeletionService;
         this.freeTextSearchService = freeTextSearchService;
@@ -100,6 +107,15 @@ public class DataComplianceEventListener {
         validateFreeTextCheck(event, message.getPayload());
 
         freeTextSearchService.checkForMatchingContent(event.getOffenderIdDisplay(), event.getRetentionCheckId(), event.getRegex());
+    }
+
+    private void handleAdHocReferralRequest(final Message<String> message) {
+        final var event = parseEvent(message.getPayload(), AdHocReferralRequest.class);
+
+        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", message.getPayload());
+        checkNotNull(event.getBatchId(), "No batch ID specified in request: %s", message.getPayload());
+
+        dataComplianceReferralService.referAdHocOffenderDeletion(event.getOffenderIdDisplay(), event.getBatchId());
     }
 
     private void validateFreeTextCheck(final FreeTextCheck event, final String payload) {

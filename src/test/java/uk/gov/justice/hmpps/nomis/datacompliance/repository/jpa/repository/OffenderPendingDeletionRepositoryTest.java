@@ -103,4 +103,25 @@ class OffenderPendingDeletionRepositoryTest {
                 DELETION_DUE_DATE.plusDays(1),
                 PAGE_REQUEST)).isEmpty();
     }
+
+    @Test
+    void findOffenderPendingDeletion() {
+
+        var offenders = repository.findOffenderPendingDeletion("Z0020ZZ", DELETION_DUE_DATE.plusDays(1));
+
+        assertThat(offenders).isPresent();
+        assertThat(offenders.get().getOffenderNumber()).isEqualTo("Z0020ZZ");
+    }
+
+    @Test
+    void findOffenderPendingDeletionReturnsEmptyIfDeletionNotDue() {
+        assertThat(repository.findOffenderPendingDeletion("Z0020ZZ", DELETION_DUE_DATE.minusDays(1)))
+                .isEmpty();
+    }
+
+    @Test
+    void findOffenderPendingDeletionReturnsEmptyIfOffenderNotFound() {
+        assertThat(repository.findOffenderPendingDeletion("UNKNOWN", DELETION_DUE_DATE.plusDays(1)))
+                .isEmpty();
+    }
 }
