@@ -152,10 +152,12 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
                 request,
                 ErrorResponse.class);
 
-        final var error = response.getBody();
-
-        assertThat(error.getStatus()).isEqualTo(400);
-        assertThat(error.getUserMessage()).contains("The from prison location must be provided");
+        assertThat(response.getBody()).isEqualTo(
+                ErrorResponse.builder()
+                        .status(400)
+                        .userMessage("Field: fromPrisonLocation - The from prison location must be provided.")
+                        .developerMessage("Field: fromPrisonLocation - The from prison location must be provided.")
+                        .build());
     }
 
     @Test
@@ -173,10 +175,33 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
                 request,
                 ErrorResponse.class);
 
+        assertThat(response.getBody()).isEqualTo(
+                ErrorResponse.builder()
+                        .status(400)
+                        .userMessage("Field: toCourtLocation - The court location to be moved to must be provided.")
+                        .developerMessage("Field: toCourtLocation - The court location to be moved to must be provided.")
+                        .build());
+    }
+
+    @Test
+    public void schedules_court_hearing_fails_when_prison_and_court_not_supplied() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
+
+        final var request = createHttpEntity(token, Map.of(
+                "courtHearingDateTime", "2030-03-11T14:00:00"
+        ));
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-1/prison-to-court-hearings",
+                HttpMethod.POST,
+                request,
+                ErrorResponse.class);
+
         final var error = response.getBody();
 
         assertThat(error.getStatus()).isEqualTo(400);
-        assertThat(error.getUserMessage()).contains("The court location to be moved to must be provided");
+        assertThat(error.getUserMessage()).contains("Field: fromPrisonLocation - The from prison location must be provided.");
+        assertThat(error.getUserMessage()).contains("Field: toCourtLocation - The court location to be moved to must be provided.");
     }
 
     @Test
@@ -194,10 +219,12 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
                 request,
                 ErrorResponse.class);
 
-        final var error = response.getBody();
-
-        assertThat(error.getStatus()).isEqualTo(400);
-        assertThat(error.getUserMessage()).contains("The future court hearing date time must be provided");
+        assertThat(response.getBody()).isEqualTo(
+                ErrorResponse.builder()
+                        .status(400)
+                        .userMessage("Field: courtHearingDateTime - The future court hearing date time must be provided.")
+                        .developerMessage("Field: courtHearingDateTime - The future court hearing date time must be provided.")
+                        .build());
     }
 
     @Test
@@ -216,10 +243,12 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
                 request,
                 ErrorResponse.class);
 
-        final var error = response.getBody();
-
-        assertThat(error.getStatus()).isEqualTo(400);
-        assertThat(error.getUserMessage()).contains("From location must be a maximum of 6 characters");
+        assertThat(response.getBody()).isEqualTo(
+                ErrorResponse.builder()
+                        .status(400)
+                        .userMessage("Field: fromPrisonLocation - From location must be a maximum of 6 characters.")
+                        .developerMessage("Field: fromPrisonLocation - From location must be a maximum of 6 characters.")
+                        .build());
     }
 
     @Test
@@ -238,10 +267,12 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
                 request,
                 ErrorResponse.class);
 
-        final var error = response.getBody();
-
-        assertThat(error.getStatus()).isEqualTo(400);
-        assertThat(error.getUserMessage()).contains("To location must be a maximum of 6 characters");
+        assertThat(response.getBody()).isEqualTo(
+                ErrorResponse.builder()
+                        .status(400)
+                        .userMessage("Field: toCourtLocation - To location must be a maximum of 6 characters.")
+                        .developerMessage("Field: toCourtLocation - To location must be a maximum of 6 characters.")
+                        .build());
     }
 
     @Test
@@ -261,9 +292,11 @@ public class OffenderMovementsResourceImplIntTest_scheduleCourtHearing extends R
                 request,
                 ErrorResponse.class);
 
-        final var error = response.getBody();
-
-        assertThat(error.getStatus()).isEqualTo(400);
-        assertThat(error.getUserMessage()).contains("Comment text must be a maximum of 240 characters");
+        assertThat(response.getBody()).isEqualTo(
+                ErrorResponse.builder()
+                        .status(400)
+                        .userMessage("Field: comments - Comment text must be a maximum of 240 characters.")
+                        .developerMessage("Field: comments - Comment text must be a maximum of 240 characters.")
+                        .build());
     }
 }
