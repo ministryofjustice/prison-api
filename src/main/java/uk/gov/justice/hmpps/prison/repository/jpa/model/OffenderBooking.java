@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Singular;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 
@@ -22,6 +21,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,7 +97,7 @@ public class OffenderBooking {
     }
 
     public List<OffenderCourtCase> getActiveCourtCases() {
-        return courtCases.stream().filter(OffenderCourtCase::isActive).collect(toUnmodifiableList());
+        return courtCases == null ? Collections.emptyList() : courtCases.stream().filter(OffenderCourtCase::isActive).collect(toUnmodifiableList());
     }
 
     public List<OffenderPropertyContainer> getActivePropertyContainers() {
