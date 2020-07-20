@@ -51,7 +51,7 @@ public class OffenderBookingTest {
     }
 
     @Test
-    void returnsEmptyList_whenCourtCasesIsNull() {
+    void returnsEmptyList_whenCourtCasesAreNull() {
         final var booking = OffenderBooking.builder().build();
 
         assertThat(booking.getActiveCourtCases()).isEqualTo(Collections.emptyList());
