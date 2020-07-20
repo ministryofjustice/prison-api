@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,5 +48,12 @@ public class OffenderBookingTest {
         final var booking = OffenderBooking.builder().courtCases(List.of(ACTIVE_COURT_CASE, INACTIVE_COURT_CASE)).build();
 
         assertThat(booking.getActiveCourtCases()).containsExactly(ACTIVE_COURT_CASE);
+    }
+
+    @Test
+    void returnsEmptyList_whenCourtCasesAreNull() {
+        final var booking = OffenderBooking.builder().build();
+
+        assertThat(booking.getActiveCourtCases()).isEqualTo(Collections.emptyList());
     }
 }
