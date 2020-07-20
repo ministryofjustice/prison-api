@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
@@ -34,6 +35,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Entity
 @Table(name = "OFFENDER_EXTERNAL_MOVEMENTS")
 @IdClass(ExternalMovement.PK.class)
+@EqualsAndHashCode(callSuper = false)
 public class ExternalMovement extends AuditableEntity {
 
     @NoArgsConstructor

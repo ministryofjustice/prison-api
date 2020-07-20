@@ -27,7 +27,6 @@ import java.time.LocalDate;
 @JsonPropertyOrder({"description", "parentDomain", "parentCode", "activeFlag", "listSeq", "systemDataFlag", "expiredDate"})
 @Data
 @ToString
-@Builder(toBuilder = true)
 public class ReferenceCodeInfo {
 
     @ApiModelProperty(required = true, value = "Reference data item description.", position = 1, example = "Some description")
