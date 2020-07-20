@@ -21,7 +21,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +46,8 @@ public class OffenderBooking {
     @OrderColumn(name = "CASE_SEQ")
     @ListIndexBase(1)
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
-    private List<OffenderCourtCase> courtCases;
+    @Builder.Default
+    private List<OffenderCourtCase> courtCases = new ArrayList<>();
 
     @ListIndexBase(1)
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -97,7 +97,7 @@ public class OffenderBooking {
     }
 
     public List<OffenderCourtCase> getActiveCourtCases() {
-        return courtCases == null ? Collections.emptyList() : courtCases.stream().filter(OffenderCourtCase::isActive).collect(toUnmodifiableList());
+        return courtCases.stream().filter(OffenderCourtCase::isActive).collect(toUnmodifiableList());
     }
 
     public List<OffenderPropertyContainer> getActivePropertyContainers() {
