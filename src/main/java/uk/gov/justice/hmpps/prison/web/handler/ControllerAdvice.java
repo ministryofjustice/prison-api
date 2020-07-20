@@ -26,6 +26,7 @@ import uk.gov.justice.hmpps.prison.service.NoContentException;
 import javax.persistence.EntityExistsException;
 import javax.validation.ValidationException;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -231,13 +232,18 @@ public class ControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+        final var errors = e.getBindingResult().getFieldErrors()
+                .stream()
+                .map(error -> "Field: " + error.getField() + " - " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
                         .builder()
-                        .userMessage(e.getMessage())
+                        .userMessage(errors)
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .developerMessage(e.getMessage())
+                        .developerMessage(errors)
                         .build());
     }
 
