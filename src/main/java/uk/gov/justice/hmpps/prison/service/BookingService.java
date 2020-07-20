@@ -69,7 +69,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -85,7 +84,6 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static java.time.LocalDate.from;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.Comparator.naturalOrder;
@@ -668,6 +666,10 @@ public class BookingService {
 
     public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo, final boolean convictionsOnly) {
         return sentenceRepository.getOffenceHistory(offenderNo, convictionsOnly);
+    }
+
+    public List<OffenceHistoryDetail> getOffencesForBooking(final Long bookingId, final boolean convictionsOnly) {
+        return sentenceRepository.getOffencesForBooking(bookingId, convictionsOnly);
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})

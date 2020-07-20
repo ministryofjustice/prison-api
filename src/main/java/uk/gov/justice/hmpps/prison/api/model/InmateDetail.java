@@ -153,6 +153,9 @@ public class InmateDetail {
     @ApiModelProperty(value = "Offence History", notes = "Only returned when requesting extra details")
     private List<OffenceHistoryDetail> offenceHistory;
 
+    @ApiModelProperty(value = "Current Sentence Terms", notes = "Only returned when requesting extra details")
+    private List<OffenderSentenceTerms> sentenceTerms;
+
     @ApiModelProperty(value = "Aliases", notes = "Only returned when requesting extra details")
     private List<Alias> aliases;
 
@@ -161,6 +164,9 @@ public class InmateDetail {
 
     @ApiModelProperty(value = "Legal Status", example = "REMAND", notes = "Only returned when requesting extra details")
     private LegalStatus legalStatus;
+
+    @ApiModelProperty(value = "Recall", example = "true", notes = "Only returned when requesting extra details")
+    private Boolean recall;
 
     @ApiModelProperty(value = "The prisoner's imprisonment status.", example="LIFE", notes = "Only returned when requesting extra details")
     private String imprisonmentStatus;

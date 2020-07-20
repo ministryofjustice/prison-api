@@ -14,5 +14,7 @@ public interface SentenceRepository {
 
     List<OffenceHistoryDetail> getOffenceHistory(String offenderNo, boolean convictionsOnly);
 
+    List<OffenceHistoryDetail> getOffencesForBooking(Long bookingId, boolean convictionsOnly);
+
     Optional<LocalDate> getConfirmedReleaseDate(Long bookingId);
 }

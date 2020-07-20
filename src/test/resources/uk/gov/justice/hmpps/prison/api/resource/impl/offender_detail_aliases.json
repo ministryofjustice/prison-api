@@ -1,12 +1,13 @@
 {
+  "offenderNo": "A1234AI",
   "bookingId": -9,
   "bookingNo": "A00119",
   "offenderId": -1009,
   "rootOffenderId": -1009,
-  "offenderNo": "A1234AI",
   "firstName": "CHESTER",
   "middleName": "JAMES",
   "lastName": "THOMPSON",
+  "dateOfBirth": "1970-03-01",
   "agencyId": "LEI",
   "assignedLivingUnitId": -7,
   "activeFlag": true,
@@ -45,9 +46,6 @@
     "description": "A-1-5",
     "agencyName": "Leeds"
   },
-  "facialImageId": -9,
-  "dateOfBirth": "1970-03-01",
-  "age": 50,
   "physicalAttributes": {
     "gender": "Male",
     "raceCode": "M2",
@@ -91,7 +89,6 @@
   "physicalMarks": [],
   "birthCountryCode": "UK",
   "inOutStatus": "IN",
-  "identifiers": [],
   "sentenceDetail": {
     "sentenceExpiryDate": "2018-05-31",
     "conditionalReleaseDate": "2018-01-31",
@@ -107,7 +104,23 @@
     "confirmedReleaseDate": "2018-01-13",
     "releaseDate": "2018-01-13"
   },
-  "offenceHistory": [],
+  "sentenceTerms": [
+    {
+      "bookingId": -9,
+      "sentenceSequence": 1,
+      "termSequence": 1,
+      "sentenceType": "R",
+      "sentenceTypeDescription": "Prohibited Activity",
+      "startDate": "2017-09-01",
+      "months": 9,
+      "lifeSentence": false,
+      "caseId": "-9",
+      "fineAmount": 120.0,
+      "sentenceTermCode": "IMP",
+      "lineSeq": 1,
+      "sentenceStartDate": "2017-07-05"
+    }
+  ],
   "aliases": [
     {
       "firstName": "CHESNEY",
@@ -131,6 +144,7 @@
   ],
   "status": "ACTIVE IN",
   "legalStatus": "SENTENCED",
+  "recall": false,
   "imprisonmentStatus": "SENT",
   "privilegeSummary": {
     "bookingId": -9,
