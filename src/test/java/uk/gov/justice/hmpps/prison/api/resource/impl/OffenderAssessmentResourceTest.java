@@ -192,6 +192,33 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testGetAssessments() {
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false",
+                HttpMethod.GET,
+                httpEntity,
+                String.class);
+
+        assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "assessments.json");
+    }
+
+    @Test
+    public void testGetAssessmentsMissingOffenderNo() {
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/assessments?latestOnly=false&activeOnly=false",
+                HttpMethod.GET,
+                httpEntity,
+                String.class);
+
+        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        assertThatJson(response.getBody()).node("userMessage").asString().contains("Required List parameter 'offenderNo' is not present");
+    }
+
+     @Test
     public void testCreateCategorisation() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.CATEGORISATION_CREATE);
 
