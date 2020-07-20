@@ -90,8 +90,7 @@ public class InmateServiceImplTest {
     @BeforeEach
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
-                referenceDomainService, bookingService, agencyService, userService, userRepository, authenticationFacade,
-                keyWorkerAllocationRepository, env, telemetryClient, "WING", 100, offenderLanguageRepository);
+                referenceDomainService, bookingService, agencyService, userService, authenticationFacade, telemetryClient, "WING", 100, offenderLanguageRepository);
     }
 
     @Test

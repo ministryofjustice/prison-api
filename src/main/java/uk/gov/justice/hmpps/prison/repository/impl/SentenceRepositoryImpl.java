@@ -56,6 +56,17 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
     }
 
     @Override
+    public List<OffenceHistoryDetail> getOffencesForBooking(final Long bookingId, final boolean convictionsOnly) {
+        Objects.requireNonNull(bookingId, "offenderNo is a required parameter");
+        final var sql = getQuery("GET_OFFENCES_FOR_BOOKING");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId, "convictionsOnly", convictionsOnly ? "Y": "N"),
+                offenceHistoryMapper);
+    }
+
+    @Override
     public Optional<LocalDate> getConfirmedReleaseDate(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         final var sql = getQuery("GET_BOOKING_CONFIRMED_RELEASE_DATE");
