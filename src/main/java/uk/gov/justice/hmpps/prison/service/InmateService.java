@@ -8,7 +8,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -26,6 +25,7 @@ import uk.gov.justice.hmpps.prison.api.model.CategoryRejectionDetail;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.LegalStatusCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
@@ -43,8 +43,6 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
-import uk.gov.justice.hmpps.prison.repository.KeyWorkerAllocationRepository;
-import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -94,10 +92,7 @@ public class InmateService {
     private final ReferenceDomainService referenceDomainService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
-    private final UserRepository userRepository;
-    private final KeyWorkerAllocationRepository keyWorkerAllocationRepository;
     private final OffenderLanguageRepository offenderLanguageRepository;
-    private final Environment env;
     private final TelemetryClient telemetryClient;
 
     private final String locationTypeGranularity;
@@ -109,10 +104,7 @@ public class InmateService {
                          final BookingService bookingService,
                          final AgencyService agencyService,
                          final UserService userService,
-                         final UserRepository userRepository,
                          final AuthenticationFacade authenticationFacade,
-                         final KeyWorkerAllocationRepository keyWorkerAllocationRepository,
-                         final Environment env,
                          final TelemetryClient telemetryClient,
                          @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
                          @Value("${batch.max.size:1000}") final int maxBatchSize,
@@ -125,9 +117,6 @@ public class InmateService {
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
         this.agencyService = agencyService;
-        this.userRepository = userRepository;
-        this.keyWorkerAllocationRepository = keyWorkerAllocationRepository;
-        this.env = env;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
         this.userService = userService;
@@ -240,9 +229,7 @@ public class InmateService {
                 inmate.setInterpreterRequired("Y".equalsIgnoreCase(offenderLanguage.getInterpreterRequestedFlag()));
             });
 
-            getFirstPreferredWrittenLanguage(bookingId).ifPresent(offenderLanguage -> {
-                inmate.setWrittenLanguage(offenderLanguage.getReferenceCode().getDescription());
-            });
+            getFirstPreferredWrittenLanguage(bookingId).ifPresent(offenderLanguage -> inmate.setWrittenLanguage(offenderLanguage.getReferenceCode().getDescription()));
 
             inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
             inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
@@ -260,7 +247,6 @@ public class InmateService {
                 // TODO: Hack for now to make sure there wasn't a reason this was removed.
             }
             if (extraInfo) {
-                inmate.setOffenceHistory(bookingService.getOffenceHistory(inmate.getOffenderNo(), true));
                 inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
                 inmate.setPrivilegeSummary(bookingService.getBookingIEPSummary(bookingId, false));
                 inmate.setIdentifiers(getOffenderIdentifiers(bookingId, null));
@@ -271,10 +257,18 @@ public class InmateService {
                     inmate.setLegalStatus(status.getLegalStatus());
                     inmate.setImprisonmentStatus(status.getImprisonmentStatus());
                 });
+
+                final var offenceHistory = bookingService.getOffencesForBooking(bookingId, true);
+                final var sentenceTerms = bookingService.getOffenderSentenceTerms(bookingId, null);
+                inmate.setOffenceHistory(offenceHistory);
+                inmate.setSentenceTerms(sentenceTerms);
+                inmate.setRecall(LegalStatusCalc.calcRecall(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
             }
         }
         return inmate;
     }
+
+
 
     private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final Long bookingId) {
         return offenderLanguageRepository

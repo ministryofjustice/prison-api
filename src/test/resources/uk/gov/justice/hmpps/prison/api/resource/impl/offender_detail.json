@@ -1,12 +1,13 @@
 {
+  "offenderNo": "A1234AB",
   "bookingId": -2,
   "bookingNo": "A00112",
   "offenderId": -1002,
   "rootOffenderId": -1002,
-  "offenderNo": "A1234AB",
   "firstName": "GILLIAN",
   "middleName": "EVE",
   "lastName": "ANDERSON",
+  "dateOfBirth": "1998-08-28",
   "agencyId": "LEI",
   "assignedLivingUnitId": -19,
   "activeFlag": true,
@@ -48,9 +49,6 @@
     "description": "H-1-5",
     "agencyName": "Leeds"
   },
-  "facialImageId": -2,
-  "dateOfBirth": "1998-08-28",
-  "age": 21,
   "physicalAttributes": {
     "gender": "Female",
     "raceCode": "W2",
@@ -124,14 +122,62 @@
     "releaseDate": "2018-04-19"
   },
   "offenceHistory": [],
+  "sentenceTerms": [
+    {
+      "bookingId": -2,
+      "sentenceSequence": 2,
+      "termSequence": 1,
+      "sentenceType": "FTR_ORA",
+      "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
+      "startDate": "2017-05-22",
+      "years": 2,
+      "lifeSentence": false,
+      "caseId": "-2",
+      "fineAmount": 120.0,
+      "sentenceTermCode": "IMP",
+      "lineSeq": 1,
+      "sentenceStartDate": "2017-07-05"
+    },
+    {
+      "bookingId": -2,
+      "sentenceSequence": 2,
+      "termSequence": 2,
+      "sentenceType": "FTR_ORA",
+      "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
+      "startDate": "2017-06-22",
+      "weeks": 2,
+      "days": 3,
+      "lifeSentence": false,
+      "caseId": "-2",
+      "fineAmount": 120.0,
+      "sentenceTermCode": "IMP",
+      "lineSeq": 1,
+      "sentenceStartDate": "2017-07-05"
+    },
+    {
+      "bookingId": -2,
+      "sentenceSequence": 2,
+      "termSequence": 3,
+      "sentenceType": "FTR_ORA",
+      "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
+      "startDate": "2017-07-22",
+      "years": 25,
+      "lifeSentence": true,
+      "caseId": "-2",
+      "fineAmount": 120.0,
+      "sentenceTermCode": "IMP",
+      "lineSeq": 1,
+      "sentenceStartDate": "2017-07-05"
+    }
+  ],
   "aliases": [],
   "status": "ACTIVE IN",
   "legalStatus": "SENTENCED",
+  "recall": true,
   "imprisonmentStatus": "SENT",
   "privilegeSummary": {
     "bookingId": -2,
     "iepLevel": "Basic",
-    "iepDate": "2017-09-06",
-    "iepTime": "2017-09-06T09:44:01"
+    "iepDate": "2017-09-06"
   }
 }
