@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
@@ -29,6 +30,9 @@ class DataComplianceEventListenerTest {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Mock
+    private DataComplianceReferralService dataComplianceReferralService;
+
+    @Mock
     private DataDuplicateService dataDuplicateService;
 
     @Mock
@@ -42,6 +46,7 @@ class DataComplianceEventListenerTest {
     @BeforeEach
     void setUp() {
         listener = new DataComplianceEventListener(
+                dataComplianceReferralService,
                 dataDuplicateService,
                 offenderDeletionService,
                 freeTextSearchService,
@@ -213,6 +218,40 @@ class DataComplianceEventListenerTest {
                 .hasMessageContaining("Invalid regex provided in request");
 
         verifyNoInteractions(freeTextSearchService);
+    }
+
+    @Test
+    void handleAdHocReferralRequest() {
+
+        handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"batchId\":123}",
+                Map.of("eventType", "DATA_COMPLIANCE_AD-HOC-REFERRAL"));
+
+        verify(dataComplianceReferralService).referAdHocOffenderDeletion("A1234AA", 123L);
+    }
+
+    @Test
+    void handleAdHocReferralRequestThrowsIfOffenderIdDisplayEmpty() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"\",\"batchId\":123}",
+                Map.of("eventType", "DATA_COMPLIANCE_AD-HOC-REFERRAL")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("No offender specified in request");
+
+        verifyNoInteractions(dataComplianceReferralService);
+    }
+
+    @Test
+    void handleAdHocReferralRequestThrowsIfBatchIdNull() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_AD-HOC-REFERRAL")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("No batch ID specified in request");
+
+        verifyNoInteractions(dataComplianceReferralService);
     }
 
     @Test

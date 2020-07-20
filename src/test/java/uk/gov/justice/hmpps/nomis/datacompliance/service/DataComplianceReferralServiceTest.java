@@ -18,13 +18,18 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderCh
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
+import static java.time.Instant.ofEpochMilli;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +54,8 @@ public class DataComplianceReferralServiceTest {
     @Mock
     private DataComplianceEventPusher eventPusher;
 
+    private final Clock clock = Clock.fixed(ofEpochMilli(0), ZoneId.systemDefault());
+
     private DataComplianceReferralService service;
 
     @BeforeEach
@@ -56,7 +63,8 @@ public class DataComplianceReferralServiceTest {
         service = new DataComplianceReferralService(
                 offenderPendingDeletionRepository,
                 offenderAliasPendingDeletionRepository,
-                eventPusher);
+                eventPusher,
+                clock);
     }
 
     @Test
@@ -117,10 +125,38 @@ public class DataComplianceReferralServiceTest {
                 .hasMessageContaining("Cannot find root offender alias for 'A1234AA'");
     }
 
+    @Test
+    void referAdHocOffenderDeletion() {
+
+        when(offenderPendingDeletionRepository.findOffenderPendingDeletion(OFFENDER_NUMBER_1, LocalDate.now(clock)))
+                .thenReturn(Optional.of(new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_1)));
+
+        when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
+                .thenReturn(List.of(offenderAliasPendingDeletion(1)));
+
+        service.referAdHocOffenderDeletion(OFFENDER_NUMBER_1, BATCH_ID);
+
+        verify(eventPusher).send(expectedPendingDeletionEvent(1L, OFFENDER_NUMBER_1));
+        verifyNoMoreInteractions(eventPusher);
+    }
+
+    @Test
+    void referAdHocOffenderDeletionThrowsIfOffenderPendingDeletionNotFound() {
+
+        when(offenderPendingDeletionRepository.findOffenderPendingDeletion(OFFENDER_NUMBER_1, LocalDate.now(clock)))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.referAdHocOffenderDeletion(OFFENDER_NUMBER_1, BATCH_ID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Unable to find offender that qualifies for deletion with number: 'A1234AA'");
+
+        verifyNoInteractions(eventPusher);
+    }
+
     private OffenderPendingDeletion expectedPendingDeletionEvent(final long offenderId, final String offenderNumber) {
         return OffenderPendingDeletion.builder()
                 .offenderIdDisplay(offenderNumber)
-                .batchId(123L)
+                .batchId(BATCH_ID)
                 .firstName("John" + offenderId)
                 .middleName("Middle" + offenderId)
                 .lastName("Smith" + offenderId)
