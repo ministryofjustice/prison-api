@@ -64,7 +64,8 @@ public interface OffenderAssessmentResource {
     @GetMapping("/assessments")
     @ApiOperation(value = "Returns assessment information on Offenders at a prison.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Assessment.class, responseContainer = "List")})
+            @ApiResponse(code = 200, message = "OK", response = Assessment.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request - e.g. no offender numbers provided.", response = ErrorResponse.class)})
     List<Assessment> getAssessments(@ApiParam(value = "The required offender numbers Ids (mandatory)", required = true) @RequestParam(value = "offenderNo") final List<String> offenderList,
                                     @ApiParam(value = "Only get the latest assessment for each offender", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") final Boolean latestOnly,
                                     @ApiParam(value = "Only get the active assessment for each offender", defaultValue = "true") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") final Boolean activeOnly);
