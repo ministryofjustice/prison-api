@@ -1,5 +1,5 @@
 plugins {
-    id 'uk.gov.justice.hmpps.gradle-spring-boot' version "0.4.5"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "0.4.6"
     id 'groovy'
 }
 
