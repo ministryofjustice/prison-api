@@ -68,15 +68,15 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2018-01-01"
     Then information about 'offenders in' is returned as follows:
       | offenderNo | bookingId | dateOfBirth | firstName |  lastName | middleName |  toAgencyDescription  | toAgencyId |  movementTime   |   movementDateTime  | location    | fromCity |
-      | A118FFF    |       -47 | 1980-01-02  | Janis     | Drp       |            | Leeds                 | LEI        | 00:00           |   2018-01-01 00:00 |             | Wadhurst |
+      | A1181FF    |       -47 | 1980-01-02  | Janis     | Drp       |            | Leeds                 | LEI        | 00:00           |   2018-01-01 00:00 |             | Wadhurst |
 
   Scenario Outline: Get brief information about most recent movements, specifically dealing with temporary absences
     Given a user has a token name of "GLOBAL_SEARCH"
-    When a make a request for recent movements for "A118FFF" and "A6676RS" for all movement types
+    When a make a request for recent movements for "A1181FF" and "A6676RS" for all movement types
     Then the records should contain a entry for "<offenderNo>" "<movementType>" "<fromDescription>" "<toDescription>" "<reasonDescription>" "<movementTime>" "<fromCity>" "<toCity>"
   Examples:
     |offenderNo | movementType | fromDescription    | toDescription | reasonDescription     | movementTime | fromCity  | toCity   |
-    | A118FFF   | TAP          |                    |  Leeds        | Funerals And Deaths   | 00:00        |  Wadhurst |          |
+    | A1181FF   | TAP          |                    |  Leeds        | Funerals And Deaths   | 00:00        |  Wadhurst |          |
     | A6676RS   | TAP          |   Leeds            |               | Funerals And Deaths   | 00:00        |           | Wadhurst |
 
   Scenario: Get offender in reception
@@ -84,7 +84,7 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
     When a request is made to retrieve 'offenders in reception' for agency "MDI"
     Then information about 'offenders in reception' is returned as follows:
       | bookingId | offenderNo | dateOfBirth   | firstName | lastName|
-      | -46       | A118DDD    | 1980-01-02    |  Amy      | Dude    |
+      | -46       | A1181DD    | 1980-01-02    |  Amy      | Dude    |
 
 
   Scenario: Get a days movement count for a prison
@@ -103,19 +103,19 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
     When a request is made to retrieve the 'offenders in' for agency "MDI" on date "2000-08-16"
     Then information about 'offenders in' is returned as follows:
       | offenderNo | bookingId | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription | fromAgencyId   | toAgencyId    |  movementTime | movementDateTime  |location    |
-      | A118FFF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Outside               | Moorland            | OUT            | MDI           | 00:00         | 2000-08-16 00:00  |            |
-      | A118FFF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Court 1               | Moorland            | COURT1         | MDI           | 00:00         | 2000-08-16 00:00  |            |
+      | A1181FF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Outside               | Moorland            | OUT            | MDI           | 00:00         | 2000-08-16 00:00  |            |
+      | A1181FF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Court 1               | Moorland            | COURT1         | MDI           | 00:00         | 2000-08-16 00:00  |            |
 
     When a request is made to retrieve the 'offenders out' for agency "MDI" for "2000-08-16"
     Then the following rows should be returned:
         | firstName | lastName  | offenderNo | dateOfBirth   | timeOut   | reasonDescription |
-        | Janis     | Drp       | A118FFF    | 1980-01-02    | 00:00     | Normal Transfer   |
-        | Janis     | Drp       | A118FFF    | 1980-01-02    | 00:00     | Normal Transfer   |
+        | Janis     | Drp       | A1181FF    | 1980-01-02    | 00:00     | Normal Transfer   |
+        | Janis     | Drp       | A1181FF    | 1980-01-02    | 00:00     | Normal Transfer   |
 
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2000-08-16"
     Then information about 'offenders in' is returned as follows:
       | offenderNo | bookingId | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription   | toAgencyDescription | fromAgencyId   | toAgencyId   |  movementTime | movementDateTime     | location    |
-      | A118FFF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Moorland                | Leeds               | MDI            | LEI          | 00:00         |   2000-08-16 00:00   |             |
+      | A1181FF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Moorland                | Leeds               | MDI            | LEI          | 00:00         |   2000-08-16 00:00   |             |
 
   Scenario Outline: Get the details of the external movements between two times for a list of agencies
 

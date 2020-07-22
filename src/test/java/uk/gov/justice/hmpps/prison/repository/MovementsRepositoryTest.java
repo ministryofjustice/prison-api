@@ -184,7 +184,7 @@ public class MovementsRepositoryTest {
                 OffenderInReception.builder()
                         .firstName("AMY")
                         .lastName("DUDE")
-                        .offenderNo("A118DDD")
+                        .offenderNo("A1181DD")
                         .bookingId(-46L)
                         .dateOfBirth(LocalDate.of(1980, 1, 2))
                         .build()
