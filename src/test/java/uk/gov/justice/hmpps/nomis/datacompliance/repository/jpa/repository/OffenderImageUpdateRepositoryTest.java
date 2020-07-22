@@ -28,9 +28,9 @@ class OffenderImageUpdateRepositoryTest {
     private OffenderImageUpdateRepository repository;
 
     @Test
-    void getOffendersWithImagesCapturedBetweenUnboundRange() {
-        final var offenders = repository.getOffendersWithImagesCapturedBetween(
-                LocalDateTime.of(2020, 1, 1, 0, 0), null, Pageable.unpaged());
+    void getOffendersWithImages() {
+        final var offenders = repository.getOffendersWithImagesCapturedAfter(
+                LocalDateTime.of(2020, 1, 1, 0, 0), Pageable.unpaged());
 
         assertThat(offenders).hasSize(5);
         assertThat(offenders).extracting(OffenderWithImage::getOffenderNumber)
@@ -38,19 +38,9 @@ class OffenderImageUpdateRepositoryTest {
     }
 
     @Test
-    void getOffendersWithImagesCapturedBetweenBoundRange() {
-        final var offenders = repository.getOffendersWithImagesCapturedBetween(
-                LocalDateTime.of(2020, 1, 1, 0, 0), LocalDateTime.of(2020, 1, 3, 0, 0), Pageable.unpaged());
-
-        assertThat(offenders).hasSize(1);
-        assertThat(offenders).extracting(OffenderWithImage::getOffenderNumber).containsExactly("Z0022ZZ");
-    }
-
-    @Test
     void getOffendersWithImagesWithPaging() {
-        final var offenders = repository.getOffendersWithImagesCapturedBetween(
+        final var offenders = repository.getOffendersWithImagesCapturedAfter(
                 LocalDateTime.of(2020, 1, 1, 0, 0),
-                LocalDateTime.of(2020, 10, 10, 0, 0),
                 PageRequest.of(1, 3, Sort.by(ASC, "offender_id_display")));
 
         assertThat(offenders).hasSize(2);
