@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class OffenderImageUpdateServiceTest {
 
-    private static final LocalDateTime NOW = LocalDateTime.now();
+    private static final LocalDateTime TIMESTAMP = LocalDateTime.now();
     private static final String OFFENDER_NUMBER = "A1234AA";
 
     @Mock
@@ -37,10 +37,10 @@ class OffenderImageUpdateServiceTest {
     @Test
     void getOffendersWithImages() {
 
-        when(repository.getOffendersWithImagesCapturedBetween(NOW, NOW.plusSeconds(1), Pageable.unpaged()))
+        when(repository.getOffendersWithImagesCapturedAfter(TIMESTAMP, Pageable.unpaged()))
                 .thenReturn(new PageImpl<>(List.of(new OffenderWithImage(OFFENDER_NUMBER))));
 
-        final var offenders = service.getOffendersWithImagesCapturedBetween(NOW, NOW.plusSeconds(1), Pageable.unpaged());
+        final var offenders = service.getOffendersWithImagesCapturedAfter(TIMESTAMP, Pageable.unpaged());
 
         assertThat(offenders).isEqualTo(new PageImpl<>(List.of(new OffenderNumber(OFFENDER_NUMBER))));
     }
@@ -48,10 +48,10 @@ class OffenderImageUpdateServiceTest {
     @Test
     void getOffendersWithImagesReturnsEmpty() {
 
-        when(repository.getOffendersWithImagesCapturedBetween(NOW, NOW.plusSeconds(1), Pageable.unpaged()))
+        when(repository.getOffendersWithImagesCapturedAfter(TIMESTAMP, Pageable.unpaged()))
                 .thenReturn(Page.empty());
 
-        assertThat(service.getOffendersWithImagesCapturedBetween(NOW, NOW.plusSeconds(1), Pageable.unpaged()))
+        assertThat(service.getOffendersWithImagesCapturedAfter(TIMESTAMP, Pageable.unpaged()))
                 .isEmpty();
     }
 }

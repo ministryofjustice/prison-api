@@ -77,8 +77,7 @@ public class DataComplianceController {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     public Page<OffenderNumber> getOffendersWithImagesCapturedInRange(
             @ApiParam(value = "fromDateTime", required = true) @DateTimeFormat(iso = DATE_TIME) @RequestParam("fromDateTime") final LocalDateTime fromDate,
-            @ApiParam(value = "toDateTime") @DateTimeFormat(iso = DATE_TIME) @RequestParam(value = "toDateTime", required = false) final LocalDateTime toDate,
             @PageableDefault(direction = ASC, sort = "offender_id_display") final Pageable pageable) {
-        return offenderImageUpdateService.getOffendersWithImagesCapturedBetween(fromDate, toDate, pageable);
+        return offenderImageUpdateService.getOffendersWithImagesCapturedAfter(fromDate, pageable);
     }
 }

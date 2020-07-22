@@ -19,10 +19,9 @@ public class OffenderImageUpdateService {
 
     private final OffenderImageUpdateRepository repository;
 
-    public Page<OffenderNumber> getOffendersWithImagesCapturedBetween(final LocalDateTime start,
-                                                                      final LocalDateTime end,
-                                                                      final Pageable pageable) {
-        return repository.getOffendersWithImagesCapturedBetween(start, end, pageable)
+    public Page<OffenderNumber> getOffendersWithImagesCapturedAfter(final LocalDateTime start,
+                                                                    final Pageable pageable) {
+        return repository.getOffendersWithImagesCapturedAfter(start, pageable)
                 .map(offender -> new OffenderNumber(offender.getOffenderNumber()));
     }
 }

@@ -117,8 +117,8 @@ public class DataComplianceControllerTest extends ResourceTest {
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null);
 
         final var response = testRestTemplate.exchange(
-                "/api/data-compliance/offenders-with-images?fromDateTime={fromDateTime}&toDateTime={toDateTime}&paged=true&size=3&page=1",
-                GET, requestEntity, String.class, LocalDateTime.of(2020, 1, 1, 0, 0), LocalDateTime.of(2020, 10, 10, 0, 0));
+                "/api/data-compliance/offenders-with-images?fromDateTime={fromDateTime}&paged=true&size=3&page=1",
+                GET, requestEntity, String.class, LocalDateTime.of(2020, 1, 1, 0, 0));
 
         assertThat(response.getStatusCodeValue()).isEqualTo(OK_200);
         assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("offenders_with_images_paged.json");
