@@ -23,7 +23,9 @@ public class OffenderResourceImplIntTest_getLatestBookingIEPSummaryForOffender e
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatJsonFileAndStatus(response, 200, "iep_summary_with_detail_A1234AA.json");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.iepLevel").isEqualTo("Standard");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(-1);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathArrayValue("$.iepDetails").hasSize(1);
     }
 
     @Test
@@ -39,7 +41,9 @@ public class OffenderResourceImplIntTest_getLatestBookingIEPSummaryForOffender e
                 new ParameterizedTypeReference<String>() {
                 });
 
-        assertThatJsonFileAndStatus(response, 200, "iep_summary_A1234AA.json");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.iepLevel").isEqualTo("Standard");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(-1);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathArrayValue("$.iepDetails").isEmpty();
     }
 
     @Test

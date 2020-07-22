@@ -176,7 +176,7 @@ public interface OffenderResource {
             @ApiParam(value = "Requested limit to the Noms IDs returned.", defaultValue = "100") @RequestHeader(value = "Page-Limit", defaultValue = "100", required = false) Long pageLimit);
 
     @GetMapping("/{offenderNo}/iepSummary")
-    @ApiOperation(value = "Offenders IEP (Incentives & Earned Privileges) summary for the latest booking only.", notes = "Offenders IEP (Incentives & Earned Privileges) summary.", nickname = "getBookingIEPSummaryForOffenders")
+    @ApiOperation(value = "Offenders IEP (Incentives & Earned Privileges) summary for the latest booking only.", notes = "Offenders IEP (Incentives & Earned Privileges) summary.", nickname = "getLatestBookingIEPSummaryForOffender")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
