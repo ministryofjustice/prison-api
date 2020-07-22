@@ -21,7 +21,9 @@ public interface OffenderImageUpdateRepository extends PagingAndSortingRepositor
             "INNER JOIN offender_images oi " +
             "ON oi.offender_book_id = ob.offender_book_id " +
             "WHERE oi.capture_datetime > :start " +
-            "AND (:end is null or oi.capture_datetime < :end)",
+            "AND (CASE WHEN :end IS NULL THEN 1 " +
+            "          WHEN oi.capture_datetime < :end THEN 1" +
+            "          ELSE 0 END) = 1",
             nativeQuery = true)
     Page<OffenderWithImage> getOffendersWithImagesCapturedBetween(@Param("start") LocalDateTime start,
                                                                   @Param("end") LocalDateTime end,
