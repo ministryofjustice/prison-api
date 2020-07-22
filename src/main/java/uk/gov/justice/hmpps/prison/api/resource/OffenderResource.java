@@ -15,16 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.gov.justice.hmpps.prison.api.model.AddressDto;
-import uk.gov.justice.hmpps.prison.api.model.Alert;
-import uk.gov.justice.hmpps.prison.api.model.CaseNote;
-import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
-import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
-import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.*;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -33,6 +24,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Api(tags = {"/offenders"})
@@ -182,4 +174,14 @@ public interface OffenderResource {
     ResponseEntity<List<OffenderNumber>> getOffenderNumbers(
             @ApiParam(value = "Requested offset of first Noms ID in returned list.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
             @ApiParam(value = "Requested limit to the Noms IDs returned.", defaultValue = "100") @RequestHeader(value = "Page-Limit", defaultValue = "100", required = false) Long pageLimit);
+
+    @GetMapping("/{offenderNo}/iepSummary")
+    @ApiOperation(value = "Offenders IEP (Incentives & Earned Privileges) summary for the latest booking only.", notes = "Offenders IEP (Incentives & Earned Privileges) summary.", nickname = "getLatestBookingIEPSummaryForOffender")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    PrivilegeSummary getLatestBookingIEPSummaryForOffender(
+            @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo,
+            @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) @RequestParam(value = "withDetails", required = false, defaultValue = "false") boolean withDetails);
 }
