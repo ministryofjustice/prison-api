@@ -6,15 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.AddressDto;
-import uk.gov.justice.hmpps.prison.api.model.Alert;
-import uk.gov.justice.hmpps.prison.api.model.CaseNote;
-import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
-import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
-import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.*;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.resource.OffenderResource;
@@ -39,6 +31,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
@@ -207,5 +200,12 @@ public class OffenderResourceImpl implements OffenderResource {
         return ResponseEntity.ok()
                 .headers(offenderNumbers.getPaginationHeaders())
                 .body(offenderNumbers.getItems());
+    }
+
+    @Override
+    public PrivilegeSummary getLatestBookingIEPSummaryForOffender(final String offenderNo, final boolean withDetails) {
+        var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        Optional.ofNullable(booking).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        return bookingService.getBookingIEPSummary(booking.getBookingId(), withDetails);
     }
 }
