@@ -89,7 +89,7 @@ public abstract class ResourceTest {
         assertThat(getBodyAsJsonContent(response)).isEqualToJson(jsonFile);
     }
 
-    <T> JsonContent<T> getBodyAsJsonContent(final ResponseEntity<String> response) {
+    protected <T> JsonContent<T> getBodyAsJsonContent(final ResponseEntity<String> response) {
         return new JsonContent<>(getClass(), forType(String.class), Objects.requireNonNull(response.getBody()));
     }
 }

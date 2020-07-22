@@ -18,8 +18,10 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jetty.http.HttpStatus.ACCEPTED_202;
 import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;
+import static org.eclipse.jetty.http.HttpStatus.OK_200;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
 
@@ -92,6 +94,44 @@ public class DataComplianceControllerTest extends ResourceTest {
                 PendingDeletionRequest.builder().build());
 
         final var response = testRestTemplate.exchange("/api/data-compliance/offenders/pending-deletions", POST, requestEntity, Void.class);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(BAD_REQUEST_400);
+    }
+
+    @Test
+    public void requestOffendersWithImages() {
+
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/data-compliance/offenders-with-images?fromDateTime={fromDateTime}",
+                GET, requestEntity, String.class, LocalDateTime.of(2020, 1, 1, 0, 0));
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(OK_200);
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("offenders_with_images.json");
+    }
+
+    @Test
+    public void requestOffendersWithImagesPaged() {
+
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/data-compliance/offenders-with-images?fromDateTime={fromDateTime}&toDateTime={toDateTime}&paged=true&size=3&page=1",
+                GET, requestEntity, String.class, LocalDateTime.of(2020, 1, 1, 0, 0), LocalDateTime.of(2020, 10, 10, 0, 0));
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(OK_200);
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("offenders_with_images_paged.json");
+    }
+
+    @Test
+    public void requestOffendersWithImagesFromDateRequired() {
+
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/data-compliance/offenders-with-images",
+                GET, requestEntity, String.class);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(BAD_REQUEST_400);
     }

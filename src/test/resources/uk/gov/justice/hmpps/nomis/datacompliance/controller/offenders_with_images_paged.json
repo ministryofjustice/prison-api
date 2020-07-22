@@ -1,0 +1,31 @@
+{
+  "content": [
+    { "offenderNumber": "Z0025ZZ" },
+    { "offenderNumber": "Z0026ZZ" }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 3,
+    "pageNumber": 1,
+    "pageSize": 3,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalElements": 5,
+  "totalPages": 2,
+  "last": true,
+  "size": 3,
+  "numberOfElements": 2,
+  "first": false,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "number": 1,
+  "empty": false
+}

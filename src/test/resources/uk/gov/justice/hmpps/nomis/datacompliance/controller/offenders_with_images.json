@@ -1,0 +1,34 @@
+{
+  "content": [
+    { "offenderNumber": "Z0022ZZ" },
+    { "offenderNumber": "Z0023ZZ" },
+    { "offenderNumber": "Z0024ZZ" },
+    { "offenderNumber": "Z0025ZZ" },
+    { "offenderNumber": "Z0026ZZ" }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalElements": 5,
+  "totalPages": 1,
+  "last": true,
+  "size": 10,
+  "numberOfElements": 5,
+  "first": true,
+  "number": 0,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "empty": false
+}
