@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.impl;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
@@ -58,11 +59,15 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
 
     @Override
     public Optional<Movement> getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(getQuery("GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE"),
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(getQuery("GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE"),
                 createParams(
-                "bookingId", bookingId,
-                "sequenceNumber", sequenceNumber),
+                        "bookingId", bookingId,
+                        "sequenceNumber", sequenceNumber),
                 MOVEMENT_MAPPER));
+        } catch (final EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
     }
 
     @Override
