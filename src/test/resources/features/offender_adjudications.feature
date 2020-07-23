@@ -5,7 +5,7 @@ Feature: Offenders Adjudications
 
   Scenario: A staff user views the adjudications for an existing offender
     Given a user has a token name of "PRISON_API_USER"
-    When I view the adjudications of offender with offender display number of "A118HHH"
+    When I view the adjudications of offender with offender display number of "A1181HH"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings      |
       | -7                 | 2019-08-25 00:03 | MDI      | 51:2D,51:2D  | PROVED,PROVED |
@@ -15,7 +15,7 @@ Feature: Offenders Adjudications
 
   Scenario: A staff user views many adjudications for an existing offender
     Given a user has a token name of "SYSTEM_USER_READ_WRITE"
-    When I view the adjudications of offender with offender display number of "A118GGG"
+    When I view the adjudications of offender with offender display number of "A1181GG"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings       |
       | -3                 | 2019-08-25 00:03 | MDI      | 51:2D        | PROVED         |
@@ -26,7 +26,7 @@ Feature: Offenders Adjudications
 
   Scenario: A staff user views many adjudications for an existing offender at a single prison
     Given a user has a token name of "SYSTEM_USER_READ_WRITE"
-    When I view the adjudications of offender with offender display number of "A118GGG" at "LEI" with charge of type: "86"
+    When I view the adjudications of offender with offender display number of "A1181GG" at "LEI" with charge of type: "86"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings      |
       | -5                 | 2019-01-25 00:02 | LEI      | 51:8D        | PROVED        |
@@ -35,7 +35,7 @@ Feature: Offenders Adjudications
 
   Scenario: A staff user cannot view adjudications for an offender on a caseload they don't have access to.
     Given a user has a token name of "PRISON_API_USER"
-    When I view the adjudications of offender with offender display number of "A118GGG"
+    When I view the adjudications of offender with offender display number of "A1181GG"
     Then resource not found response is received from adjudication API
 
   Scenario: A user fails to find adjudications as offender does not exist
@@ -45,7 +45,7 @@ Feature: Offenders Adjudications
 
   Scenario: A staff user views adjudication details for an existing offender
     Given a user has a token name of "SYSTEM_USER_READ_WRITE"
-    When I view the adjudication details of offender display number of "A118HHH" with a adjudication number of "-7"
+    When I view the adjudication details of offender display number of "A1181HH" with a adjudication number of "-7"
     Then the adjudication details are found
 
   Scenario: A user fails to find adjudication details as offender does not exist

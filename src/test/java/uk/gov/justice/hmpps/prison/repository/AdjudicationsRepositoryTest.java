@@ -101,7 +101,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void findAdjudicationOffences() {
 
-        var offences = repository.findAdjudicationOffences("A118GGG");
+        var offences = repository.findAdjudicationOffences("A1181GG");
         assertThat(offences).extracting("id", "code", "description").containsExactly(
                 tuple("81", "51:1N", "Commits any assault - assault on non prison officer member of staff"),
                 tuple("83", "51:2B", "Detains any person against his will - detention against will -non offr/staff/inmate"),
@@ -109,7 +109,7 @@ public class AdjudicationsRepositoryTest {
                 tuple("86", "51:8D", "Fails to comply with any condition upon which he is temporarily released under rule 9 - failure to comply with conditions of temp release")
         );
 
-        offences = repository.findAdjudicationOffences("A118HHH");
+        offences = repository.findAdjudicationOffences("A1181HH");
         assertThat(offences).extracting("id", "code", "description").containsExactly(
                 tuple("84", "51:2C", "Detains any person against his will - detention against will of prison officer grade"),
                 tuple("85", "51:2D", "Detains any person against his will - detention against will of staff (not prison offr)")
@@ -119,13 +119,13 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void findAdjudicationLocations() {
 
-        var locations = repository.findAdjudicationAgencies("A118GGG");
+        var locations = repository.findAdjudicationAgencies("A1181GG");
         assertThat(locations).extracting("agencyId", "description", "agencyType").containsExactly(
                 tuple("LEI", "LEEDS", "INST"),
                 tuple("MDI", "MOORLAND", "INST")
         );
 
-        locations = repository.findAdjudicationAgencies("A118HHH");
+        locations = repository.findAdjudicationAgencies("A1181HH");
         assertThat(locations).extracting("agencyId", "description", "agencyType").containsExactly(
                 tuple("LEI", "LEEDS", "INST"),
                 tuple("MDI", "MOORLAND", "INST")
@@ -136,7 +136,7 @@ public class AdjudicationsRepositoryTest {
     public void retrieveAdjudicationsForOffender() {
 
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
-                .offenderNumber("A118GGG")
+                .offenderNumber("A1181GG")
                 .pageRequest(new PageRequest(0L, 10L))
                 .build());
 
@@ -147,7 +147,7 @@ public class AdjudicationsRepositoryTest {
     public void filterByStartDate() {
 
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
-                .offenderNumber("A118GGG")
+                .offenderNumber("A1181GG")
                 .startDate(MIDDLE_ADJUDICATION.getReportTime().plusDays(1).toLocalDate())
                 .pageRequest(new PageRequest(0L, 10L))
                 .build());
@@ -159,7 +159,7 @@ public class AdjudicationsRepositoryTest {
     public void filterByEndDate() {
 
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
-                .offenderNumber("A118GGG")
+                .offenderNumber("A1181GG")
                 .endDate(MIDDLE_ADJUDICATION.getReportTime().minusDays(1).toLocalDate())
                 .pageRequest(new PageRequest(0L, 10L))
                 .build());
@@ -171,7 +171,7 @@ public class AdjudicationsRepositoryTest {
     public void filterByOffence() {
 
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
-                .offenderNumber("A118GGG")
+                .offenderNumber("A1181GG")
                 .offenceId("86")
                 .pageRequest(new PageRequest(0L, 10L))
                 .build());
@@ -183,7 +183,7 @@ public class AdjudicationsRepositoryTest {
     public void filterByLocation() {
 
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
-                .offenderNumber("A118GGG")
+                .offenderNumber("A1181GG")
                 .agencyId(LATEST_ADJUDICATION.getAgencyId())
                 .pageRequest(new PageRequest(0L, 10L))
                 .build());
@@ -214,7 +214,7 @@ public class AdjudicationsRepositoryTest {
 
     private ListAssert<Adjudication> resultsFor(final PageRequest pageRequest) {
         return assertThat(repository.findAdjudications(AdjudicationSearchCriteria.builder()
-                .offenderNumber("A118GGG")
+                .offenderNumber("A1181GG")
                 .pageRequest(pageRequest)
                 .build()).getItems());
     }
@@ -223,7 +223,7 @@ public class AdjudicationsRepositoryTest {
     public void anotherInmateHasAnAdjudicationForSameIncident() {
 
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
-                .offenderNumber("A118HHH")
+                .offenderNumber("A1181HH")
                 .pageRequest(new PageRequest(1L, 1L))
                 .build());
 
@@ -239,7 +239,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void findAdjudicationDetails() {
 
-        val results = repository.findAdjudicationDetails("A118HHH", -7);
+        val results = repository.findAdjudicationDetails("A1181HH", -7);
 
 
         assertThat(results.get()).isEqualTo(
