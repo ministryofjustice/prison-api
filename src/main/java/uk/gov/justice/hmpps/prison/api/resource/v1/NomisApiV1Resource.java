@@ -42,7 +42,6 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 
 @Api(tags = {"/v1"})
@@ -54,29 +53,24 @@ public interface NomisApiV1Resource {
     @GetMapping("/offenders/{noms_id}")
     @ApiOperation(value = "Returns general offender information.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Offender.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Offender getOffender(@ApiParam(name = "noms_id", value = "Offender Noms ID", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
 
-
     @GetMapping("/offenders/{noms_id}/image")
     @ApiOperation(value = "Get Current Photograph of the offender",
             notes = "Returns a 480wx600h JPEG photograph of the offender. The data is base64 encoded within the image key.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Image.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Image getOffenderImage(@ApiParam(name = "noms_id", value = "Offender Noms ID", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId);
 
-
     @GetMapping("/offenders/{noms_id}/location")
     @ApiOperation(value = "Current Location of the offender",
             notes = "The levels shows the type of each level of the location address as defined on the Agency Details tab in Maintain Agency Locations screen (OUMAGLOC).<br/><br/>Since the offender's location can change often and is fairly sensitive (and therefore should not automatically be exposed to all services), this information is not included in the general offender information call.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Location.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -90,7 +84,6 @@ public interface NomisApiV1Resource {
                     "<li><strong>legal_cases</strong>: Active cases followed by inactive cases, further ordered by begin_date, latest first</li>" +
                     "<li><strong>charges</strong>: Most serious active charge first, then remaining active charges, followed by inactive charges</li></ul>")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Bookings.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -103,7 +96,6 @@ public interface NomisApiV1Resource {
                     "<li>if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123</li>" +
                     "<li>If include_inactive=true is specified then inactive alerts are also returned.</li></ul>")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Alerts.class),
             @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -126,7 +118,6 @@ public interface NomisApiV1Resource {
                     "<li>SENTENCE_INFORMATION_CHANGED</li>" +
                     "<li>BALANCE_UPDATE</li></ul>")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Events.class),
             @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -147,7 +138,6 @@ public interface NomisApiV1Resource {
                     "<p>If the account was previously closed then it will be closed again.</p>" +
                     "<p>If the offender has been released then the funds are transferred to NACRO. Based on the Nomis Clear Inactive accounts screen (OTDCLINA).</p>")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Transaction Created", response = Transfer.class),
             @ApiResponse(code = 400, message = "One of: <ul><li>Invalid transaction type - The transaction type has not been set up for the API for {prison_id}</li>" +
                     "<li>Finance Exception - This indicates an unexpected financial problem, check the nomis_api_log table for details.</li>" +
                     "<li>Only receipt transaction types allowed - Only transaction types with a transaction usage of Receipt are allowed.</li>" +
@@ -206,7 +196,6 @@ public interface NomisApiV1Resource {
                     "<li>The field 'offender_details_request' contains a JSON block of data containing the offender data.</li></ul>" +
                     "The format of 'offender_details_request' is not specified here.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Event.class),
             @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -216,7 +205,6 @@ public interface NomisApiV1Resource {
     @ApiOperation(value = "Get holds.",
             notes = "Gets every hold on an offender’s account or just the hold identified by the client_unique_ref")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Transaction Created", response = Hold.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Offender Not Found - No offender matching the specified offender_id has been found on nomis.", response = ErrorResponse.class),
             @ApiResponse(code = 409, message = "Offender not in specified prison", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -229,7 +217,6 @@ public interface NomisApiV1Resource {
     @GetMapping("/prison/{prison_id}/live_roll")
     @ApiOperation(value = "Fetching live roll.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Live roll returned for this prison.", response = LiveRoll.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     LiveRoll getLiveRoll(
@@ -255,7 +242,6 @@ public interface NomisApiV1Resource {
                     "The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>" +
                     "This will be setup by script intially as part of the deployment process as shown below<br/><br/>")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Payment accepted", response = PaymentResponse.class),
             @ApiResponse(code = 400, message = "One of: <ul><li>Offender not in specified prison - prisoner identified by {noms_id} is not in prison {prison_id}</li><li>Invalid payment type</li>" +
                     "<li>Client reference more than 12 characters</li><li>Missing data in request</li>" +
                     "<li>Exception - An unexpected error has occurred. Details will have been logged in the nomis_api_logs table on the Nomis database.</li></ul>", response = ErrorResponse.class),
@@ -267,12 +253,10 @@ public interface NomisApiV1Resource {
             @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("noms_id") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String nomsId,
             @ApiParam(value = "Transaction Details", required = true) @RequestBody @NotNull @Valid StorePaymentRequest storePaymentRequest);
 
-
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts")
     @ApiOperation(value = "Retrieve an offender's financial account balances.", notes = "Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>" +
             "All balance values are represented as pence values.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Account balances returned for this offender and prison.", response = AccountBalance.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Prison or offender was not found", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -286,7 +270,6 @@ public interface NomisApiV1Resource {
     @ApiOperation(value = "Retrieve an offender's financial transaction history for cash, spends or savings.", notes = "Transactions are returned in NOMIS ordee (Descending date followed by id).<br/>" +
             "All transaction amounts are represented as pence values.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Account transactions returned", response = AccountTransactions.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -300,7 +283,6 @@ public interface NomisApiV1Resource {
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/transactions/{client_unique_ref}")
     @ApiOperation(value = "Retrieve a single financial transaction using client unique ref.", notes = "All transaction amounts are represented as pence values.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Account transaction returned", response = AccountTransaction.class),
             @ApiResponse(code = 400, message = "Not a digital prison.  Prison not found. Offender has no account at this prison.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -314,7 +296,6 @@ public interface NomisApiV1Resource {
     @GetMapping("/lookup/active_offender")
     @ApiOperation(value = "Retrieve active offender", notes = "offender id will be returned if offender is found")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Active Offender ID returned", response = ActiveOffender.class),
             @ApiResponse(code = 400, message = "Invalid Noms ID", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Parameter exception (invalid date, time, format, type)", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -327,7 +308,6 @@ public interface NomisApiV1Resource {
     @ApiOperation(value = "Fetch available_dates for offender",
             notes = "returns list of dates")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = AvailableDates.class),
             @ApiResponse(code = 400, message = "Invalid start and end date range", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -340,7 +320,6 @@ public interface NomisApiV1Resource {
     @ApiOperation(value = "Fetch contacts list for offender",
             notes = "returns list of contacts")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = ContactList.class),
             @ApiResponse(code = 400, message = "Invalid start and end date range", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -351,7 +330,6 @@ public interface NomisApiV1Resource {
     @ApiOperation(value = "Fetch unavailability reason for dates",
             notes = "returns list of reason if unavailable date")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Map.class),
             @ApiResponse(code = 400, message = "Dates requested must be in future", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Offender not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -364,7 +342,6 @@ public interface NomisApiV1Resource {
     @ApiOperation(value = "Fetch visit slots with capacity",
             notes = "returns list slots with capacity details")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = VisitSlots.class),
             @ApiResponse(code = 400, message = "Invalid start and end date range", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Prison Not Found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
