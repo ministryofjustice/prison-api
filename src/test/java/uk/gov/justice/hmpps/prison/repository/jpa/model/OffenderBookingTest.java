@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,5 +56,17 @@ public class OffenderBookingTest {
         final var booking = OffenderBooking.builder().build();
 
         assertThat(booking.getActiveCourtCases()).isEqualTo(Collections.emptyList());
+    }
+
+    @Test
+    void handleNullCourtCasesEntries() {
+        final var courtCases = new ArrayList<>();
+        courtCases.add(ACTIVE_COURT_CASE);
+        courtCases.add(INACTIVE_COURT_CASE);
+        courtCases.add(null);
+
+        final var booking = OffenderBooking.builder().courtCases((List)courtCases).build();
+
+        assertThat(booking.getActiveCourtCases()).containsExactly(ACTIVE_COURT_CASE);
     }
 }

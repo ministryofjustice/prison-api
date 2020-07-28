@@ -97,7 +97,7 @@ public class OffenderBooking {
     }
 
     public List<OffenderCourtCase> getActiveCourtCases() {
-        return courtCases.stream().filter(OffenderCourtCase::isActive).collect(toUnmodifiableList());
+        return courtCases.stream().filter(offenderCourtCase -> offenderCourtCase != null && offenderCourtCase.isActive()).collect(toUnmodifiableList());
     }
 
     public List<OffenderPropertyContainer> getActivePropertyContainers() {
