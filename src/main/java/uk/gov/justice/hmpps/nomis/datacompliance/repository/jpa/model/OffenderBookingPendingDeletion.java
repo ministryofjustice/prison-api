@@ -9,7 +9,6 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -35,6 +34,10 @@ public class OffenderBookingPendingDeletion {
     private OffenderAliasPendingDeletion offenderAlias;
 
     @Singular
-    @OneToMany(mappedBy = "offenderBooking", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "offenderBooking")
     private List<OffenderChargePendingDeletion> offenderCharges;
+
+    @Singular
+    @OneToMany(mappedBy = "offenderBooking")
+    private List<OffenderAlertPendingDeletion> offenderAlerts;
 }

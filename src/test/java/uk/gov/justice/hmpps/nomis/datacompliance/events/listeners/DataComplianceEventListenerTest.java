@@ -6,14 +6,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService.OffenderDeletionGrant;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -54,40 +56,101 @@ class DataComplianceEventListenerTest {
     }
 
     @Test
-    void handleOffenderDeletionEvent() {
+    void handleReferralRequest() {
 
         handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\",\"referralId\":123,\"offenderIds\":[456],\"offenderBookIds\":[789]}",
-                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED"));
+                "{\"batchId\":123,\"dueForDeletionWindowStart\":\"2020-01-01\",\"dueForDeletionWindowEnd\":\"2020-02-02\",\"limit\":10}",
+                Map.of("eventType", "DATA_COMPLIANCE_REFERRAL-REQUEST"));
 
-        verify(offenderDeletionService).deleteOffender(OffenderDeletionGrant.builder()
-                .offenderNo("A1234AA")
-                .referralId(123L)
-                .offenderId(456L)
-                .offenderBookId(789L)
-                .build());
+        verify(dataComplianceReferralService).referOffendersForDeletion(
+                123L,
+                LocalDate.of(2020, 1, 1),
+                LocalDate.of(2020, 2, 2),
+                PageRequest.of(0, 10));
     }
 
     @Test
-    void handleOffenderDeletionEventThrowsIfOffenderIdDisplayEmpty() {
+    void handleReferralRequestWithNoLimit() {
 
-        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"\",\"referralId\":123,\"offenderIds\":[456],\"offenderBookIds\":[789]}",
-                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
+        handleMessage(
+                "{\"batchId\":123,\"dueForDeletionWindowStart\":\"2020-01-01\",\"dueForDeletionWindowEnd\":\"2020-02-02\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_REFERRAL-REQUEST"));
+
+        verify(dataComplianceReferralService).referOffendersForDeletion(
+                123L,
+                LocalDate.of(2020, 1, 1),
+                LocalDate.of(2020, 2, 2),
+                Pageable.unpaged());
+    }
+
+    @Test
+    void handleReferralRequestThrowsIfBatchIdNull() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"dueForDeletionWindowStart\":\"2020-01-01\",\"dueForDeletionWindowEnd\":\"2020-02-02\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_REFERRAL-REQUEST")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("No batch ID specified in request");
+
+        verifyNoInteractions(dataComplianceReferralService);
+    }
+
+    @Test
+    void handleReferralRequestThrowsIfWindowStartNull() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"batchId\":123,\"dueForDeletionWindowEnd\":\"2020-02-02\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_REFERRAL-REQUEST")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("No window start date specified in request");
+
+        verifyNoInteractions(dataComplianceReferralService);
+    }
+
+    @Test
+    void handleReferralRequestThrowsIfWindowEndNull() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"batchId\":123,\"dueForDeletionWindowStart\":\"2020-01-01\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_REFERRAL-REQUEST")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("No window end date specified in request");
+
+        verifyNoInteractions(dataComplianceReferralService);
+    }
+
+    @Test
+    void handleAdHocReferralRequest() {
+
+        handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"batchId\":123}",
+                Map.of("eventType", "DATA_COMPLIANCE_AD-HOC-REFERRAL-REQUEST"));
+
+        verify(dataComplianceReferralService).referAdHocOffenderDeletion("A1234AA", 123L);
+    }
+
+    @Test
+    void handleAdHocReferralRequestThrowsIfOffenderIdDisplayEmpty() {
+
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"\",\"batchId\":123}",
+                Map.of("eventType", "DATA_COMPLIANCE_AD-HOC-REFERRAL-REQUEST")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No offender specified in request");
 
-        verifyNoInteractions(offenderDeletionService);
+        verifyNoInteractions(dataComplianceReferralService);
     }
 
     @Test
-    void handleOffenderDeletionEventThrowsIfReferralIdNull() {
+    void handleAdHocReferralRequestThrowsIfBatchIdNull() {
 
-        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\",\"offenderIds\":[456],\"offenderBookIds\":[789]}",
-                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
+        assertThatThrownBy(() -> handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_AD-HOC-REFERRAL-REQUEST")))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("No referral ID specified in request");
+                .hasMessageContaining("No batch ID specified in request");
 
-        verifyNoInteractions(offenderDeletionService);
+        verifyNoInteractions(dataComplianceReferralService);
     }
 
     @Test
@@ -221,37 +284,40 @@ class DataComplianceEventListenerTest {
     }
 
     @Test
-    void handleAdHocReferralRequest() {
+    void handleOffenderDeletionEvent() {
 
         handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\",\"batchId\":123}",
-                Map.of("eventType", "DATA_COMPLIANCE_AD-HOC-REFERRAL"));
+                "{\"offenderIdDisplay\":\"A1234AA\",\"referralId\":123,\"offenderIds\":[456],\"offenderBookIds\":[789]}",
+                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED"));
 
-        verify(dataComplianceReferralService).referAdHocOffenderDeletion("A1234AA", 123L);
+        verify(offenderDeletionService).deleteOffender(OffenderDeletionService.OffenderDeletionGrant.builder()
+                .offenderNo("A1234AA")
+                .referralId(123L)
+                .offenderId(456L)
+                .offenderBookId(789L)
+                .build());
     }
 
     @Test
-    void handleAdHocReferralRequestThrowsIfOffenderIdDisplayEmpty() {
+    void handleOffenderDeletionEventThrowsIfOffenderIdDisplayEmpty() {
 
-        assertThatThrownBy(() -> handleMessage(
-                "{\"offenderIdDisplay\":\"\",\"batchId\":123}",
-                Map.of("eventType", "DATA_COMPLIANCE_AD-HOC-REFERRAL")))
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"\",\"referralId\":123,\"offenderIds\":[456],\"offenderBookIds\":[789]}",
+                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No offender specified in request");
 
-        verifyNoInteractions(dataComplianceReferralService);
+        verifyNoInteractions(offenderDeletionService);
     }
 
     @Test
-    void handleAdHocReferralRequestThrowsIfBatchIdNull() {
+    void handleOffenderDeletionEventThrowsIfReferralIdNull() {
 
-        assertThatThrownBy(() -> handleMessage(
-                "{\"offenderIdDisplay\":\"A1234AA\"}",
-                Map.of("eventType", "DATA_COMPLIANCE_AD-HOC-REFERRAL")))
+        assertThatThrownBy(() -> handleMessage("{\"offenderIdDisplay\":\"A1234AA\",\"offenderIds\":[456],\"offenderBookIds\":[789]}",
+                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("No batch ID specified in request");
+                .hasMessageContaining("No referral ID specified in request");
 
-        verifyNoInteractions(dataComplianceReferralService);
+        verifyNoInteractions(offenderDeletionService);
     }
 
     @Test
@@ -292,7 +358,6 @@ class DataComplianceEventListenerTest {
 
         verifyNoInteractions(offenderDeletionService);
     }
-
 
     private void handleMessage(final String payload, final Map<String, Object> headers) {
         listener.handleEvent(mockMessage(payload, headers));
