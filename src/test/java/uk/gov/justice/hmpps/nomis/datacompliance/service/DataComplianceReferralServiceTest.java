@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderAlias;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAlertPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
@@ -20,7 +21,6 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.Offen
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +37,8 @@ import static org.mockito.Mockito.when;
 public class DataComplianceReferralServiceTest {
 
     private static final long BATCH_ID = 123L;
-    private static final LocalDateTime WINDOW_START = LocalDateTime.now();
-    private static final LocalDateTime WINDOW_END = WINDOW_START.plusDays(1);
+    private static final LocalDate WINDOW_START = LocalDate.now();
+    private static final LocalDate WINDOW_END = WINDOW_START.plusDays(1);
     private static final PageRequest PAGE_REQUEST = PageRequest.of(0, 2);
     private static final long TOTAL_IN_WINDOW = 10;
 
@@ -68,10 +68,10 @@ public class DataComplianceReferralServiceTest {
     }
 
     @Test
-    public void acceptOffendersPendingDeletion() throws Exception {
+    public void acceptOffendersPendingDeletion() {
 
         when(offenderPendingDeletionRepository
-                .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate(), PAGE_REQUEST))
+                .getOffendersDueForDeletionBetween(WINDOW_START, WINDOW_END, PAGE_REQUEST))
                 .thenReturn(new PageImpl<>(List.of(
                         new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_1),
                         new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_2)),
@@ -82,7 +82,7 @@ public class DataComplianceReferralServiceTest {
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_2))
                 .thenReturn(List.of(offenderAliasPendingDeletion(2)));
 
-        service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END, PAGE_REQUEST).get();
+        service.referOffendersForDeletion(BATCH_ID, WINDOW_START, WINDOW_END, PAGE_REQUEST);
 
         verify(eventPusher).send(expectedPendingDeletionEvent(1L, OFFENDER_NUMBER_1));
         verify(eventPusher).send(expectedPendingDeletionEvent(2L, OFFENDER_NUMBER_2));
@@ -94,15 +94,15 @@ public class DataComplianceReferralServiceTest {
     public void acceptOffendersPendingDeletionThrowsIfOffenderAliasesNotFound() {
 
         when(offenderPendingDeletionRepository
-                .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate(), PAGE_REQUEST))
+                .getOffendersDueForDeletionBetween(WINDOW_START, WINDOW_END, PAGE_REQUEST))
                 .thenReturn(new PageImpl<>(List.of(
                         new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_1))));
 
         when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
                 .thenReturn(emptyList());
 
-        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END, PAGE_REQUEST).get())
-                .hasCauseInstanceOf(IllegalStateException.class)
+        assertThatThrownBy(() -> service.referOffendersForDeletion(BATCH_ID, WINDOW_START, WINDOW_END, PAGE_REQUEST))
+                .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Offender not found: 'A1234AA'");
     }
 
@@ -110,7 +110,7 @@ public class DataComplianceReferralServiceTest {
     public void acceptOffendersPendingDeletionThrowsIfNoRootOffenderAliasFound() {
 
         when(offenderPendingDeletionRepository
-                .getOffendersDueForDeletionBetween(WINDOW_START.toLocalDate(), WINDOW_END.toLocalDate(), PAGE_REQUEST))
+                .getOffendersDueForDeletionBetween(WINDOW_START, WINDOW_END, PAGE_REQUEST))
                 .thenReturn(new PageImpl<>(List.of(
                         new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_1))));
 
@@ -120,8 +120,8 @@ public class DataComplianceReferralServiceTest {
                         .rootOffenderId(2L)
                         .build()));
 
-        assertThatThrownBy(() -> service.acceptOffendersPendingDeletionRequest(BATCH_ID, WINDOW_START, WINDOW_END, PAGE_REQUEST).get())
-                .hasCauseInstanceOf(IllegalStateException.class)
+        assertThatThrownBy(() -> service.referOffendersForDeletion(BATCH_ID, WINDOW_START, WINDOW_END, PAGE_REQUEST))
+                .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Cannot find root offender alias for 'A1234AA'");
     }
 
@@ -166,6 +166,7 @@ public class DataComplianceReferralServiceTest {
                         .booking(Booking.builder()
                                 .offenderBookId(offenderId)
                                 .offenceCode("offence" + offenderId)
+                                .alertCode("alert" + offenderId)
                                 .build())
                         .build())
                 .build();
@@ -188,6 +189,7 @@ public class DataComplianceReferralServiceTest {
                 .offenderBooking(OffenderBookingPendingDeletion.builder()
                         .bookingId(offenderId)
                         .offenderCharge(OffenderChargePendingDeletion.builder().offenceCode("offence" + offenderId).build())
+                        .offenderAlert(OffenderAlertPendingDeletion.builder().alertCode("alert" + offenderId).build())
                         .build())
                 .build();
     }

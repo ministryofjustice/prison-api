@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderAlias;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAlertPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
@@ -19,10 +20,8 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import javax.transaction.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -40,23 +39,21 @@ public class DataComplianceReferralService {
     private final DataComplianceEventPusher dataComplianceEventPusher;
     private final Clock clock;
 
-    public CompletableFuture<Void> acceptOffendersPendingDeletionRequest(final Long batchId,
-                                                                         final LocalDateTime from,
-                                                                         final LocalDateTime to,
-                                                                         final Pageable pageable) {
-        return CompletableFuture.supplyAsync(() -> getOffendersPendingDeletion(from, to, pageable))
+    public void referOffendersForDeletion(final Long batchId,
+                                          final LocalDate from,
+                                          final LocalDate to,
+                                          final Pageable pageable) {
 
-                .thenApply(offenders -> {
-                    offenders.forEach(offenderNumber ->
-                            dataComplianceEventPusher.send(
-                                    generateOffenderPendingDeletionEvent(offenderNumber, batchId)));
+        final var offenderNumbers = getOffendersPendingDeletion(from, to, pageable);
 
-                    return offenders;
-                })
+        offenderNumbers.forEach(offenderNo -> dataComplianceEventPusher.send(
+                generateOffenderPendingDeletionEvent(offenderNo, batchId)));
 
-                .thenAccept(offenders -> dataComplianceEventPusher.send(
-                        new OffenderPendingDeletionReferralComplete(
-                                batchId, (long) offenders.getNumberOfElements(), offenders.getTotalElements())));
+        dataComplianceEventPusher.send(OffenderPendingDeletionReferralComplete.builder()
+                .batchId(batchId)
+                .numberReferred((long) offenderNumbers.getNumberOfElements())
+                .totalInWindow(offenderNumbers.getTotalElements())
+                .build());
     }
 
     public void referAdHocOffenderDeletion(final String offenderNumber, final Long batchId) {
@@ -88,11 +85,11 @@ public class DataComplianceReferralService {
         return transform(offenderNumber, rootOffenderAlias, offenderAliases, batchId);
     }
 
-    private Page<OffenderNumber> getOffendersPendingDeletion(final LocalDateTime from,
-                                                             final LocalDateTime to,
+    private Page<OffenderNumber> getOffendersPendingDeletion(final LocalDate from,
+                                                             final LocalDate to,
                                                              final Pageable pageable) {
         return offenderPendingDeletionRepository
-                .getOffendersDueForDeletionBetween(from.toLocalDate(), to.toLocalDate(), pageable)
+                .getOffendersDueForDeletionBetween(from, to, pageable)
                 .map(this::transform);
     }
 
@@ -128,6 +125,9 @@ public class DataComplianceReferralService {
                                 .offenderBookId(booking.getBookingId())
                                 .offenceCodes(booking.getOffenderCharges().stream()
                                         .map(OffenderChargePendingDeletion::getOffenceCode)
+                                        .collect(toSet()))
+                                .alertCodes(booking.getOffenderAlerts().stream()
+                                        .map(OffenderAlertPendingDeletion::getAlertCode)
                                         .collect(toSet()))
                                 .build())
                         .collect(toUnmodifiableList()))

@@ -8,7 +8,6 @@ import lombok.Singular;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -46,7 +45,7 @@ public class OffenderAliasPendingDeletion {
     private LocalDate birthDate;
 
     @Singular
-    @OneToMany(mappedBy = "offenderAlias", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "offenderAlias")
     private List<OffenderBookingPendingDeletion> offenderBookings;
 
     @Singular

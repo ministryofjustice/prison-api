@@ -87,6 +87,10 @@ public class OffenderPendingDeletion {
         @Singular
         @JsonProperty("offenceCodes")
         private Set<String> offenceCodes;
+
+        @Singular
+        @JsonProperty("alertCodes")
+        private Set<String> alertCodes;
     }
 }
 

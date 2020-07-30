@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAlertPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
 
@@ -44,6 +45,9 @@ class OffenderAliasPendingDeletionRepositoryTest {
         assertThat(offender.getOffenderBookings().get(0).getOffenderCharges())
                 .extracting(OffenderChargePendingDeletion::getOffenceCode)
                 .containsExactlyInAnyOrder("RC86356", "RV98011");
+        assertThat(offender.getOffenderBookings().get(0).getOffenderAlerts())
+                .extracting(OffenderAlertPendingDeletion::getAlertCode)
+                .containsExactlyInAnyOrder("XA", "HC", "RSS", "XTACT");
     }
 
     @Test

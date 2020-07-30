@@ -59,6 +59,7 @@ class DataComplianceEventPusherTest {
                         .booking(Booking.builder()
                                 .offenderBookId(321L)
                                 .offenceCode("offence1")
+                                .alertCode("alert1")
                                 .build())
                         .build())
                 .build());
@@ -72,7 +73,10 @@ class DataComplianceEventPusherTest {
                         "\"lastName\":\"Jones\"," +
                         "\"birthDate\":\"1990-01-02\"," +
                         "\"offenderAliases\":[{" +
-                            "\"offenderId\":123,\"bookings\":[{\"offenderBookId\":321,\"offenceCodes\":[\"offence1\"]}]" +
+                            "\"offenderId\":123," +
+                            "\"bookings\":[" +
+                                "{\"offenderBookId\":321,\"offenceCodes\":[\"offence1\"],\"alertCodes\":[\"alert1\"]}" +
+                            "]" +
                         "}]" +
                 "}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())

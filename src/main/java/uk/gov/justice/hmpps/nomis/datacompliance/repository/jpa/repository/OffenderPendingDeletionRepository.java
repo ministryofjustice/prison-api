@@ -88,11 +88,6 @@ public interface OffenderPendingDeletionRepository extends CrudRepository<Offend
             "    WHERE OHP.OFFENDER_BOOK_ID = O.OFFENDER_BOOK_ID" +
             ") " +
             "AND NOT EXISTS (" +
-            "    SELECT 1 FROM OFFENDER_ALERTS OA" +
-            "    WHERE OA.OFFENDER_BOOK_ID = O.OFFENDER_BOOK_ID" +
-            "    AND OA.ALERT_CODE = 'XTACT'" +
-            ") " +
-            "AND NOT EXISTS (" +
             "    SELECT 1 FROM IWP_DOCUMENTS ID" +
             "    WHERE ID.OFFENDER_BOOK_ID = O.OFFENDER_BOOK_ID" +
             ") " +
@@ -120,7 +115,6 @@ public interface OffenderPendingDeletionRepository extends CrudRepository<Offend
      *   * Not deceased in custody
      *   * Only has one booking across all aliases
      *   * No incidents linking offender to another offender
-     *   * No XTACT alert
      */
     @Query(
             value = FROM_OFFENDERS_DUE_FOR_DELETION + SELECT_OFFENDER_NUMBERS + GIVEN_CONDITIONS + IN_ORDER,
