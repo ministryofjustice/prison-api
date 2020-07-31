@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +41,7 @@ public class DataComplianceController {
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @PreAuthorize("hasRole('SYSTEM_USER')")
     public Page<OffenderNumber> getOffendersWithImagesCapturedInRange(
             @ApiParam(value = "fromDateTime", required = true) @DateTimeFormat(iso = DATE_TIME) @RequestParam("fromDateTime") final LocalDateTime fromDate,
             @PageableDefault(direction = ASC, sort = "offender_id_display") final Pageable pageable) {
