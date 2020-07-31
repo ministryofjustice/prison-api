@@ -48,8 +48,6 @@ public class VisitInformationRepositoryTest {
         assertThat(visits).extracting(VisitInformation::getVisitType).containsExactly("SCON", "SCON", "SCON", "OFFI", "SCON", "SCON", "SCON", "SCON", "SCON", "OFFI", "SCON", "OFFI", "SCON", "SCON", "SCON");
         assertThat(visits).extracting(VisitInformation::getVisitTypeDescription).containsExactly("Social Contact", "Social Contact", "Social Contact", "Official Visit", "Social Contact", "Social Contact", "Social Contact", "Social Contact", "Social Contact", "Official Visit", "Social Contact", "Official Visit", "Social Contact", "Social Contact", "Social Contact");
         assertThat(visits).extracting(VisitInformation::getLeadVisitor).containsExactly("JESSY SMITH1", null, null, null, null, null, null, null, null, null, null, null, null, null, "JESSY SMITH1");
-        assertThat(visits).extracting(VisitInformation::getRelationship).containsExactly("UN", null, null, null, null, null, null, null, null, null, null, null, null, null, "UN");
-        assertThat(visits).extracting(VisitInformation::getRelationshipDescription).containsExactly("Uncle", null, null, null, null, null, null, null, null, null, null, null, null, null, "Uncle");
 
     }
 

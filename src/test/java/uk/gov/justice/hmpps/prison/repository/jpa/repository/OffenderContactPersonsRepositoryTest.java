@@ -7,9 +7,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -19,20 +21,20 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
 @WithMockUser
-public class VisitorInformationRepositoryTest {
+public class OffenderContactPersonsRepositoryTest {
 
     @Autowired
-    private VisitorRepository repository;
+    private OffenderContactPersonsRepository repository;
 
     @Test
-    public void findAllByVisitId() {
-        var visits = repository.findAllByVisitId(-15L);
+    public void findAllByPersonIdAndOffenderBooking_BookingId() {
+        var contacts = repository.findAllByPersonIdAndOffenderBooking_BookingId(-1L, -1L);
 
-        assertThat(visits).hasSize(2);
-        assertThat(visits).extracting(VisitorInformation::getPersonId).containsOnly(-1L, -2L);
-        assertThat(visits).extracting(VisitorInformation::getFirstName).containsOnly("JESSY", "John");
-        assertThat(visits).extracting(VisitorInformation::getLastName).containsOnly("SMITH1", "Smith");
+        assertThat(contacts).hasSize(2);
+        assertThat(contacts).extracting(OffenderContactPerson::getRelationshipType).containsExactlyInAnyOrder(new RelationshipType("UN", "Uncle"), new RelationshipType("FRI", "Friend"));
+
     }
+
 }
 
 

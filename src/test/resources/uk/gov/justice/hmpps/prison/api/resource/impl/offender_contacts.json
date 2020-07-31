@@ -41,6 +41,25 @@
       "contactRootOffenderId": 0,
       "bookingId": -1,
       "createDateTime": "2017-09-06T09:44:01"
+    },
+    {
+      "lastName": "SMITH1",
+      "firstName": "JESSY",
+      "contactType": "S",
+      "contactTypeDescription": "Social/Family",
+      "relationship": "FRI",
+      "relationshipDescription": "Friend",
+      "emergencyContact": false,
+      "nextOfKin": false,
+      "relationshipId": -121,
+      "personId": -1,
+      "activeFlag": true,
+      "approvedVisitorFlag": false,
+      "canBeContactedFlag": false,
+      "awareOfChargesFlag": false,
+      "contactRootOffenderId": 0,
+      "bookingId": -1,
+      "createDateTime": "2017-09-07T09:44:01"
     }
   ]
 }

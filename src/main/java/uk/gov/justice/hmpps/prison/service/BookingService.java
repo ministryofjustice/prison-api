@@ -47,11 +47,13 @@ import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.impl.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderKeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
@@ -118,6 +120,7 @@ public class BookingService {
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
     private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
+    private final OffenderContactPersonsRepository offenderContactPersonsRepository;
     private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -136,6 +139,7 @@ public class BookingService {
                           final AgencyInternalLocationRepository agencyInternalLocationRepository,
                           final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository,
                           final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository,
+                          final OffenderContactPersonsRepository offenderContactPersonsRepository,
                           final AuthenticationFacade securityUtils,
                           final AuthenticationFacade authenticationFacade,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
@@ -153,6 +157,7 @@ public class BookingService {
         this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.offenderSentenceAdjustmentRepository = offenderSentenceAdjustmentRepository;
         this.offenderKeyDateAdjustmentRepository = offenderKeyDateAdjustmentRepository;
+        this.offenderContactPersonsRepository = offenderContactPersonsRepository;
         this.securityUtils = securityUtils;
         this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;
@@ -417,17 +422,35 @@ public class BookingService {
 
         final var visitsWithVisitors = visits.getContent().stream()
                 .map(v -> {
-                    var visitorsList = visitorRepository.findAllByVisitIdAndBookingId(v.getVisitId(), bookingId)
+                    var relationshipCode = "";
+                    var relationshipDescription = "";
+                    if (v.getVisitorPersonId() != null) {
+                        var leadContact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(v.getVisitorPersonId(), v.getBookingId())
+                                .stream()
+                                .sorted(Comparator.comparing(OffenderContactPerson::getModifyDateTime).reversed())
+                                .collect(toList())
+                                .get(0);
+                        relationshipCode = leadContact.getRelationshipType() != null ? leadContact.getRelationshipType().getCode() : null;
+                        relationshipDescription = leadContact.getRelationshipType() != null ? leadContact.getRelationshipType().getDescription() : null;
+                    }
+                    var visitorsList = visitorRepository.findAllByVisitId(v.getVisitId())
                             .stream()
-                            .map(visitor ->
-                                    Visitor.builder()
+                            .map(visitor -> {
+                                    var contact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitor.getPersonId(), v.getBookingId())
+                                        .stream()
+                                        .sorted(Comparator.comparing(OffenderContactPerson::getModifyDateTime).reversed())
+                                        .collect(toList())
+                                        .get(0);
+                                    var contactRelationship = contact.getRelationshipType() != null ? contact.getRelationshipType().getDescription() : null;
+                                    return Visitor.builder()
                                             .dateOfBirth(visitor.getBirthdate())
                                             .firstName(visitor.getFirstName())
                                             .lastName(visitor.getLastName())
                                             .leadVisitor(visitor.getLeadVisitor().equals("Y"))
                                             .personId(visitor.getPersonId())
-                                            .relationship(visitor.getRelationship())
-                                            .build())
+                                            .relationship(contactRelationship)
+                                            .build();
+                            })
                             .collect(Collectors.toList());
 
                     return VisitWithVisitors.builder()
@@ -445,8 +468,8 @@ public class BookingService {
                                             .eventStatusDescription(v.getEventStatusDescription())
                                             .leadVisitor(v.getLeadVisitor())
                                             .location(v.getLocation())
-                                            .relationship(v.getRelationship())
-                                            .relationshipDescription(v.getRelationshipDescription())
+                                            .relationship(relationshipCode)
+                                            .relationshipDescription(relationshipDescription)
                                             .build())
                     .visitors(visitorsList)
                     .build();
