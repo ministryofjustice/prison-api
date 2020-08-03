@@ -42,17 +42,20 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderKeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
@@ -106,6 +109,8 @@ public class BookingServiceTest {
     @Mock
     private OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
     @Mock
+    private OffenderContactPersonsRepository offenderContactPersonsRepository;
+    @Mock
     private AuthenticationFacade securityUtils;
     @Mock
     private AuthenticationFacade authenticationFacade;
@@ -130,6 +135,7 @@ public class BookingServiceTest {
                 agencyInternalLocationRepository,
                 offenderSentenceAdjustmentRepository,
                 offenderKeyDateAdjustmentRepository,
+                offenderContactPersonsRepository,
                 securityUtils, authenticationFacade,
                 "1",
                 10);
@@ -446,6 +452,8 @@ public class BookingServiceTest {
         var visits = List.of(VisitInformation
                 .builder()
                 .visitId(-1L)
+                .bookingId(-1L)
+                .visitorPersonId(-1L)
                 .cancellationReason(null)
                 .cancelReasonDescription(null)
                 .eventStatus("ATT")
@@ -458,15 +466,32 @@ public class BookingServiceTest {
                 .visitType("SOC")
                 .visitTypeDescription("Social")
                 .leadVisitor("John Smith")
-                .relationship("UNC")
-                .relationshipDescription("Uncle")
                 .build());
 
         var page = new PageImpl<>(visits);
+        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-1L, -1L)).thenReturn(List.of(
+                OffenderContactPerson.builder()
+                        .relationshipType(new RelationshipType("UN", "Uncle"))
+                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                        .id(-1L)
+                        .build(),
+                OffenderContactPerson.builder()
+                        .relationshipType(new RelationshipType("FRI", "Friend"))
+                        .modifyDateTime(LocalDateTime.parse("2019-10-11T14:00"))
+                        .id(-2L)
+                        .build()
+        ));
+        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-2L, -1L)).thenReturn(List.of(
+                OffenderContactPerson.builder()
+                        .relationshipType(new RelationshipType("NIE", "Niece"))
+                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                        .id(-3L)
+                        .build()
+        ));
         when(visitRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
                 .thenReturn(page);
 
-        when(visitorRepository.findAllByVisitIdAndBookingId(anyLong(), anyLong())).thenReturn(List.of(
+        when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of(
                 VisitorInformation
                         .builder()
                         .birthdate(LocalDate.parse("1980-10-01"))
@@ -474,7 +499,6 @@ public class BookingServiceTest {
                         .lastName("Smith")
                         .leadVisitor("Y")
                         .personId(-1L)
-                        .relationship("Uncle")
                         .visitId(-1L)
                         .build(),
                 VisitorInformation
@@ -484,7 +508,6 @@ public class BookingServiceTest {
                         .lastName("Smith")
                         .leadVisitor("N")
                         .personId(-2L)
-                        .relationship("Niece")
                         .visitId(-1L)
                         .build()
 
@@ -508,8 +531,8 @@ public class BookingServiceTest {
                                         .visitType("SOC")
                                         .visitTypeDescription("Social")
                                         .leadVisitor("John Smith")
-                                        .relationship("UNC")
-                                        .relationshipDescription("Uncle")
+                                        .relationship("FRI")
+                                        .relationshipDescription("Friend")
                                         .build())
                         .visitors(List.of(
                                 Visitor
@@ -519,7 +542,7 @@ public class BookingServiceTest {
                                         .lastName("Smith")
                                         .leadVisitor(true)
                                         .personId(-1L)
-                                        .relationship("Uncle")
+                                        .relationship("Friend")
                                         .build(),
                                 Visitor
                                         .builder()
@@ -539,6 +562,8 @@ public class BookingServiceTest {
         var visits = List.of(VisitInformation
                         .builder()
                         .visitId(-1L)
+                        .bookingId(-1L)
+                        .visitorPersonId(-1L)
                         .cancellationReason(null)
                         .cancelReasonDescription(null)
                         .eventStatus("ATT")
@@ -551,12 +576,12 @@ public class BookingServiceTest {
                         .visitType("SCON")
                         .visitTypeDescription("Social")
                         .leadVisitor("John Smith")
-                        .relationship("UNC")
-                        .relationshipDescription("Uncle")
                         .build(),
                 VisitInformation
                         .builder()
                         .visitId(-1L)
+                        .bookingId(-1L)
+                        .visitorPersonId(-1L)
                         .cancellationReason(null)
                         .cancelReasonDescription(null)
                         .eventStatus("ATT")
@@ -569,11 +594,28 @@ public class BookingServiceTest {
                         .visitType("SCON")
                         .visitTypeDescription("Social")
                         .leadVisitor("John Smith")
-                        .relationship("UNC")
-                        .relationshipDescription("Uncle")
                         .build());
 
         var page = new PageImpl<>(visits);
+        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-1L, -1L)).thenReturn(List.of(
+                OffenderContactPerson.builder()
+                        .relationshipType(new RelationshipType("UN", "Uncle"))
+                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                        .id(-1L)
+                        .build(),
+                OffenderContactPerson.builder()
+                        .relationshipType(new RelationshipType("FRI", "Friend"))
+                        .modifyDateTime(LocalDateTime.parse("2019-10-11T14:00"))
+                        .id(-2L)
+                        .build()
+        ));
+        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-2L, -1L)).thenReturn(List.of(
+                OffenderContactPerson.builder()
+                        .relationshipType(new RelationshipType("NIE", "Niece"))
+                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                        .id(-3L)
+                        .build()
+        ));
         when(visitRepository.findAll(VisitInformationFilter.builder()
                 .bookingId(-1L)
                 .fromDate(LocalDate.of(2019, 10, 10))
@@ -582,7 +624,7 @@ public class BookingServiceTest {
                 .build(), pageable))
                 .thenReturn(page);
 
-        when(visitorRepository.findAllByVisitIdAndBookingId(anyLong(), anyLong())).thenReturn(List.of(
+        when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of(
                 VisitorInformation
                         .builder()
                         .birthdate(LocalDate.parse("1980-10-01"))
@@ -590,7 +632,6 @@ public class BookingServiceTest {
                         .lastName("Smith")
                         .leadVisitor("Y")
                         .personId(-1L)
-                        .relationship("Uncle")
                         .visitId(-1L)
                         .build(),
                 VisitorInformation
@@ -600,7 +641,6 @@ public class BookingServiceTest {
                         .lastName("Smith")
                         .leadVisitor("N")
                         .personId(-2L)
-                        .relationship("Niece")
                         .visitId(-1L)
                         .build()
 
@@ -624,8 +664,8 @@ public class BookingServiceTest {
                                         .visitType("SCON")
                                         .visitTypeDescription("Social")
                                         .leadVisitor("John Smith")
-                                        .relationship("UNC")
-                                        .relationshipDescription("Uncle")
+                                        .relationship("FRI")
+                                        .relationshipDescription("Friend")
                                         .build())
                         .visitors(List.of(
                                 Visitor
@@ -635,7 +675,7 @@ public class BookingServiceTest {
                                         .lastName("Smith")
                                         .leadVisitor(true)
                                         .personId(-1L)
-                                        .relationship("Uncle")
+                                        .relationship("Friend")
                                         .build(),
                                 Visitor
                                         .builder()
@@ -663,8 +703,8 @@ public class BookingServiceTest {
                                         .visitType("SCON")
                                         .visitTypeDescription("Social")
                                         .leadVisitor("John Smith")
-                                        .relationship("UNC")
-                                        .relationshipDescription("Uncle")
+                                        .relationship("FRI")
+                                        .relationshipDescription("Friend")
                                         .build())
                         .visitors(List.of(
                                 Visitor
@@ -674,7 +714,7 @@ public class BookingServiceTest {
                                         .lastName("Smith")
                                         .leadVisitor(true)
                                         .personId(-1L)
-                                        .relationship("Uncle")
+                                        .relationship("Friend")
                                         .build(),
                                 Visitor
                                         .builder()

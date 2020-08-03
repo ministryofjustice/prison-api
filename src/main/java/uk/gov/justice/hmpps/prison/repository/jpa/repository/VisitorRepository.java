@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface VisitorRepository extends PagingAndSortingRepository<VisitorInformation, String> {
-    List<VisitorInformation> findAllByVisitIdAndBookingId(Long visitId, Long bookingId);;
+    List<VisitorInformation> findAllByVisitId(Long visitId);
 }

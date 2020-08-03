@@ -118,7 +118,7 @@ Feature: Booking Visits
     And the visit cancelReasonDescription is "<cancelReasonDescription>"
     Examples:
       | booking id | visitType | visitTypeDescription | startTime        | endTime          | eventStatus | eventStatusDescription | eventOutcome | eventOutcomeDescription | leadVisitor  | relationship | relationshipDescription | location      | cancellationReason | cancelReasonDescription |
-      | -1         | SCON      | Social Contact       | 2017-12-10T14:30 | 2017-12-10T15:30 | CANC        | Cancelled              | ABS          | Absence                 | JESSY SMITH1 | UN           | Uncle                   | Visiting Room | NSHOW              | Visitor Did Not Arrive  |
+      | -1         | SCON      | Social Contact       | 2017-12-10T14:30 | 2017-12-10T15:30 | CANC        | Cancelled              | ABS          | Absence                 | JESSY SMITH1 | FRI          | Friend                  | Visiting Room | NSHOW              | Visitor Did Not Arrive  |
       | -4         | OFFI      | Official Visit       | 2017-10-10T10:00 | 2017-10-10T12:00 | EXP         | Expired                | ATT          | Attended                | MICK MUNCH   |              |                         | Classroom 1   |                    |                         |
 
   Scenario: Retrieve last visit for an offender that does not exist
