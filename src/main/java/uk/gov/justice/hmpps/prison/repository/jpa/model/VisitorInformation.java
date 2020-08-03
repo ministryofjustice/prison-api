@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @Subselect(
         "SELECT * FROM " +
                 "( SELECT P.PERSON_ID," +
+                "VISITOR.OFFENDER_VISIT_VISITOR_ID VISITOR_ID," +
                 "VISITOR.OFFENDER_VISIT_ID VISIT_ID," +
                 "P.FIRST_NAME," +
                 "P.LAST_NAME," +
@@ -30,6 +31,7 @@ import java.time.LocalDate;
 @Getter
 public class VisitorInformation {
     @Id
+    private Long visitorId;
     private Long personId;
     private Long visitId;
     private String lastName;
