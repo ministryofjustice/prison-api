@@ -472,11 +472,13 @@ public class BookingServiceTest {
                 OffenderContactPerson.builder()
                         .relationshipType(new RelationshipType("UN", "Uncle"))
                         .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                        .createDateTime(LocalDateTime.parse("2019-10-10T14:00"))
                         .id(-1L)
                         .build(),
                 OffenderContactPerson.builder()
                         .relationshipType(new RelationshipType("FRI", "Friend"))
-                        .modifyDateTime(LocalDateTime.parse("2019-10-11T14:00"))
+                        .modifyDateTime(null)
+                        .createDateTime(LocalDateTime.parse("2019-10-11T14:00"))
                         .id(-2L)
                         .build()
         ));
