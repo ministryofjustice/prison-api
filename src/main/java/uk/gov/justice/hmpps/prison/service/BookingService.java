@@ -427,7 +427,7 @@ public class BookingService {
                     if (visitInformation.getVisitorPersonId() != null) {
                         var leadContact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitInformation.getVisitorPersonId(), bookingId)
                                 .stream()
-                                .sorted(Comparator.comparing(OffenderContactPerson::getModifyDateTime).reversed())
+                                .sorted(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime).reversed())
                                 .collect(toList())
                                 .get(0);
                         relationshipCode = leadContact.getRelationshipType() != null ? leadContact.getRelationshipType().getCode() : null;
@@ -439,7 +439,7 @@ public class BookingService {
                             .map(visitor -> {
                                      var contact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitor.getPersonId(), bookingId)
                                              .stream()
-                                             .sorted(Comparator.comparing(OffenderContactPerson::getModifyDateTime).reversed())
+                                             .sorted(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime).reversed())
                                              .collect(toList())
                                              .get(0);
                                      var contactRelationship = contact.getRelationshipType() != null ? contact.getRelationshipType().getDescription() : null;

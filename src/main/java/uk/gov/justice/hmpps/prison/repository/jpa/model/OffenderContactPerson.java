@@ -80,7 +80,14 @@ public class OffenderContactPerson extends AuditableEntity {
     @Column(name = "MODIFY_DATETIME", insertable = false, updatable = false)
     private LocalDateTime modifyDateTime;
 
+    @Column(name = "CREATE_DATETIME", insertable = false, updatable = false)
+    private LocalDateTime createDateTime;
+
     public boolean isActive() {
         return ACTIVE.equals(activeFlag);
+    }
+
+    public LocalDateTime lastUpdatedDateTime() {
+        return modifyDateTime != null ? modifyDateTime : createDateTime;
     }
 }
