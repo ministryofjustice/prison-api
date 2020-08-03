@@ -421,11 +421,11 @@ public class BookingService {
                 .build(), pageable);
 
         final var visitsWithVisitors = visits.getContent().stream()
-                .map(v -> {
+                .map(visitInformation -> {
                     var relationshipCode = "";
                     var relationshipDescription = "";
-                    if (v.getVisitorPersonId() != null) {
-                        var leadContact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(v.getVisitorPersonId(), v.getBookingId())
+                    if (visitInformation.getVisitorPersonId() != null) {
+                        var leadContact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitInformation.getVisitorPersonId(), bookingId)
                                 .stream()
                                 .sorted(Comparator.comparing(OffenderContactPerson::getModifyDateTime).reversed())
                                 .collect(toList())
@@ -433,41 +433,42 @@ public class BookingService {
                         relationshipCode = leadContact.getRelationshipType() != null ? leadContact.getRelationshipType().getCode() : null;
                         relationshipDescription = leadContact.getRelationshipType() != null ? leadContact.getRelationshipType().getDescription() : null;
                     }
-                    var visitorsList = visitorRepository.findAllByVisitId(v.getVisitId())
+                    var visitorsList = visitorRepository.findAllByVisitId(visitInformation.getVisitId())
                             .stream()
+                            .filter(visitor -> visitor.getPersonId() != null)
                             .map(visitor -> {
-                                    var contact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitor.getPersonId(), v.getBookingId())
-                                        .stream()
-                                        .sorted(Comparator.comparing(OffenderContactPerson::getModifyDateTime).reversed())
-                                        .collect(toList())
-                                        .get(0);
-                                    var contactRelationship = contact.getRelationshipType() != null ? contact.getRelationshipType().getDescription() : null;
-                                    return Visitor.builder()
-                                            .dateOfBirth(visitor.getBirthdate())
-                                            .firstName(visitor.getFirstName())
-                                            .lastName(visitor.getLastName())
-                                            .leadVisitor(visitor.getLeadVisitor().equals("Y"))
-                                            .personId(visitor.getPersonId())
-                                            .relationship(contactRelationship)
-                                            .build();
+                                     var contact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitor.getPersonId(), bookingId)
+                                             .stream()
+                                             .sorted(Comparator.comparing(OffenderContactPerson::getModifyDateTime).reversed())
+                                             .collect(toList())
+                                             .get(0);
+                                     var contactRelationship = contact.getRelationshipType() != null ? contact.getRelationshipType().getDescription() : null;
+                                     return Visitor.builder()
+                                             .dateOfBirth(visitor.getBirthdate())
+                                             .firstName(visitor.getFirstName())
+                                             .lastName(visitor.getLastName())
+                                             .leadVisitor(visitor.getLeadVisitor().equals("Y"))
+                                             .personId(visitor.getPersonId())
+                                             .relationship(contactRelationship)
+                                             .build();
                             })
                             .collect(Collectors.toList());
 
                     return VisitWithVisitors.builder()
                             .visitDetail(
                                     VisitDetails.builder()
-                                            .visitType(v.getVisitType())
-                                            .visitTypeDescription(v.getVisitTypeDescription())
-                                            .cancellationReason(v.getCancellationReason())
-                                            .cancelReasonDescription(v.getCancelReasonDescription())
-                                            .endTime(v.getEndTime())
-                                            .startTime(v.getStartTime())
-                                            .eventOutcome(v.getEventOutcome())
-                                            .eventOutcomeDescription(v.getEventOutcomeDescription())
-                                            .eventStatus(v.getEventStatus())
-                                            .eventStatusDescription(v.getEventStatusDescription())
-                                            .leadVisitor(v.getLeadVisitor())
-                                            .location(v.getLocation())
+                                            .visitType(visitInformation.getVisitType())
+                                            .visitTypeDescription(visitInformation.getVisitTypeDescription())
+                                            .cancellationReason(visitInformation.getCancellationReason())
+                                            .cancelReasonDescription(visitInformation.getCancelReasonDescription())
+                                            .endTime(visitInformation.getEndTime())
+                                            .startTime(visitInformation.getStartTime())
+                                            .eventOutcome(visitInformation.getEventOutcome())
+                                            .eventOutcomeDescription(visitInformation.getEventOutcomeDescription())
+                                            .eventStatus(visitInformation.getEventStatus())
+                                            .eventStatusDescription(visitInformation.getEventStatusDescription())
+                                            .leadVisitor(visitInformation.getLeadVisitor())
+                                            .location(visitInformation.getLocation())
                                             .relationship(relationshipCode)
                                             .relationshipDescription(relationshipDescription)
                                             .build())

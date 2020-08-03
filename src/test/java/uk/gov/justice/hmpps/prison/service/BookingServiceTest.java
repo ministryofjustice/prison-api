@@ -452,7 +452,6 @@ public class BookingServiceTest {
         var visits = List.of(VisitInformation
                 .builder()
                 .visitId(-1L)
-                .bookingId(-1L)
                 .visitorPersonId(-1L)
                 .cancellationReason(null)
                 .cancelReasonDescription(null)
@@ -562,7 +561,7 @@ public class BookingServiceTest {
         var visits = List.of(VisitInformation
                         .builder()
                         .visitId(-1L)
-                        .bookingId(-1L)
+
                         .visitorPersonId(-1L)
                         .cancellationReason(null)
                         .cancelReasonDescription(null)
@@ -724,6 +723,144 @@ public class BookingServiceTest {
                                         .leadVisitor(false)
                                         .personId(-2L)
                                         .relationship("Niece")
+                                        .build()))
+                        .build());
+    }
+
+    @Test
+    public void getBookingVisitsWithVisitor_noVisitors() {
+        Pageable pageable = PageRequest.of(0, 20);
+        var visits = List.of(VisitInformation
+                .builder()
+                .visitId(-1L)
+                .cancellationReason(null)
+                .cancelReasonDescription(null)
+                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                .location("Visits")
+                .visitType("SOC")
+                .visitTypeDescription("Social")
+                .build());
+
+        var page = new PageImpl<>(visits);
+        when(visitRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
+                .thenReturn(page);
+
+        when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of());
+
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, null, null, null, pageable);
+        assertThat(visitsWithVisitors).containsOnly(
+                VisitWithVisitors.builder()
+                        .visitDetail(
+                                VisitDetails
+                                        .builder()
+                                        .cancellationReason(null)
+                                        .cancelReasonDescription(null)
+                                        .eventStatus(null)
+                                        .eventStatusDescription(null)
+                                        .eventOutcome(null)
+                                        .eventOutcomeDescription(null)
+                                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                                        .location("Visits")
+                                        .visitType("SOC")
+                                        .visitTypeDescription("Social")
+                                        .relationshipDescription("")
+                                        .relationship("")
+                                        .leadVisitor(null)
+                                        .build())
+                        .visitors(List.of())
+                        .build());
+    }
+
+    @Test
+    public void getBookingVisitsWithVisitor_visitorNoPerson() {
+        Pageable pageable = PageRequest.of(0, 20);
+        var visits = List.of(VisitInformation
+                .builder()
+                .visitId(-1L)
+                .visitorPersonId(-1L)
+                .cancellationReason(null)
+                .cancelReasonDescription(null)
+                .eventStatus("ATT")
+                .eventStatusDescription("Attended")
+                .eventOutcome("ATT")
+                .eventOutcomeDescription("Attended")
+                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                .location("Visits")
+                .visitType("SOC")
+                .visitTypeDescription("Social")
+                .leadVisitor("John Smith")
+                .build());
+
+        var page = new PageImpl<>(visits);
+        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-1L, -1L)).thenReturn(List.of(
+                OffenderContactPerson.builder()
+                        .relationshipType(new RelationshipType("UN", "Uncle"))
+                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                        .id(-1L)
+                        .build(),
+                OffenderContactPerson.builder()
+                        .relationshipType(new RelationshipType("FRI", "Friend"))
+                        .modifyDateTime(LocalDateTime.parse("2019-10-11T14:00"))
+                        .id(-2L)
+                        .build()
+        ));
+        when(visitRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
+                .thenReturn(page);
+
+        when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of(
+                VisitorInformation
+                        .builder()
+                        .birthdate(LocalDate.parse("1980-10-01"))
+                        .firstName("John")
+                        .lastName("Smith")
+                        .leadVisitor("Y")
+                        .personId(-1L)
+                        .visitId(-1L)
+                        .build(),
+                VisitorInformation
+                        .builder()
+                        .birthdate(LocalDate.parse("2010-10-01"))
+                        .firstName("Jenny")
+                        .lastName("Smith")
+                        .leadVisitor("N")
+                        .visitId(-1L)
+                        .build()
+
+        ));
+
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, null, null, null, pageable);
+        assertThat(visitsWithVisitors).containsOnly(
+                VisitWithVisitors.builder()
+                        .visitDetail(
+                                VisitDetails
+                                        .builder()
+                                        .cancellationReason(null)
+                                        .cancelReasonDescription(null)
+                                        .eventStatus("ATT")
+                                        .eventStatusDescription("Attended")
+                                        .eventOutcome("ATT")
+                                        .eventOutcomeDescription("Attended")
+                                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                                        .location("Visits")
+                                        .visitType("SOC")
+                                        .visitTypeDescription("Social")
+                                        .leadVisitor("John Smith")
+                                        .relationship("FRI")
+                                        .relationshipDescription("Friend")
+                                        .build())
+                        .visitors(List.of(
+                                Visitor
+                                        .builder()
+                                        .dateOfBirth(LocalDate.parse("1980-10-01"))
+                                        .firstName("John")
+                                        .lastName("Smith")
+                                        .leadVisitor(true)
+                                        .personId(-1L)
+                                        .relationship("Friend")
                                         .build()))
                         .build());
     }
