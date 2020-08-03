@@ -78,8 +78,8 @@ public class BookingRepositoryTest {
         assertThat(visitDetails.getEventOutcome()).isEqualTo("ABS");
         assertThat(visitDetails.getEventOutcomeDescription()).isEqualTo("Absence");
         assertThat(visitDetails.getLeadVisitor()).isEqualTo("JESSY SMITH1");
-        assertThat(visitDetails.getRelationship()).isEqualTo("UN");
-        assertThat(visitDetails.getRelationshipDescription()).isEqualTo("Uncle");
+        assertThat(visitDetails.getRelationship()).isEqualTo("FRI");
+        assertThat(visitDetails.getRelationshipDescription()).isEqualTo("Friend");
         assertThat(visitDetails.getLocation()).isEqualTo("Visiting Room");
         assertThat(visitDetails.getEventStatus()).isEqualTo("CANC");
         assertThat(visitDetails.getEventStatusDescription()).isEqualTo("Cancelled");
