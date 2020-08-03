@@ -28,10 +28,10 @@ public class VisitorInformationRepositoryTest {
     public void findAllByVisitId() {
         var visits = repository.findAllByVisitId(-15L);
 
-        assertThat(visits).hasSize(2);
-        assertThat(visits).extracting(VisitorInformation::getPersonId).containsOnly(-1L, -2L);
-        assertThat(visits).extracting(VisitorInformation::getFirstName).containsOnly("JESSY", "John");
-        assertThat(visits).extracting(VisitorInformation::getLastName).containsOnly("SMITH1", "Smith");
+        assertThat(visits).hasSize(3);
+        assertThat(visits).extracting(VisitorInformation::getPersonId).containsOnly(null, -1L, -2L);
+        assertThat(visits).extracting(VisitorInformation::getFirstName).containsOnly(null, "JESSY", "John");
+        assertThat(visits).extracting(VisitorInformation::getLastName).containsOnly(null, "SMITH1", "Smith");
     }
 }
 
