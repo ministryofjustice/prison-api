@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMap
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReview;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReviewSearchCriteria;
+import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.sql.Types;
@@ -247,6 +248,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
         final var address = addressList.stream().findAny().get();
         return PrisonContactDetail.builder().agencyId(address.getAgencyId())
                 .description(address.getDescription())
+                .formattedDescription(LocationProcessor.formatLocation(address.getDescription()))
                 .addressType(address.getAddressType())
                 .phones(telephones)
                 .locality(address.getLocality())
