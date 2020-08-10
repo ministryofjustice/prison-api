@@ -17,9 +17,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
@@ -231,6 +233,12 @@ public class OffenderBookingRepositoryTest {
                                 .build(),
                         "Y",
                         new PropertyContainer("BULK", "Bulk"));
+    }
+
+    @Test
+    void getNonAssociations() {
+        var nonAssociations = repository.findById(-1L).orElseThrow().getNonAssociationDetails();
+        assertThat(nonAssociations).extracting(OffenderNonAssociationDetail::getNonAssociationReason).containsExactly(new NonAssociationReason("VIC", "Victim"), new NonAssociationReason("RIV", "Rival Gang"));
     }
 }
 
