@@ -133,6 +133,7 @@ public class PersonServiceTest {
                     .primary(true)
                     .comment(null)
                     .flat("Flat 1")
+                    .locality("Nether Edge")
                     .premise("Brook Hamlets")
                     .street("Mayfield Drive")
                     .postalCode("B5")

@@ -49,6 +49,9 @@ public class AddressDto {
     @ApiModelProperty("Comment")
     private String comment;
 
+    @ApiModelProperty("Locality")
+    private String locality;
+
     @ApiModelProperty(required = true, value = "Primary Address")
     private Boolean primary;
 
