@@ -18,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.ArrayList;
@@ -72,8 +73,7 @@ public class OffenderBooking {
     @Column(name = "ACTIVE_FLAG")
     private String activeFlag;
 
-    @OrderColumn(name = "TYPE_SEQ")
-    @ListIndexBase(1)
+    @OrderBy("effectiveDate ASC")
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Builder.Default
     private List<OffenderNonAssociationDetail> nonAssociationDetails = new ArrayList<>();

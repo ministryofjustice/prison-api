@@ -29,7 +29,6 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -239,7 +238,7 @@ public class OffenderBookingRepositoryTest {
     @Test
     void getNonAssociations() {
         var nonAssociations = repository.findById(-1L).orElseThrow().getNonAssociationDetails();
-        assertThat(nonAssociations).extracting(OffenderNonAssociationDetail::getNonAssociationReason).containsExactly(new NonAssociationReason("VIC", "Victim"), new NonAssociationReason("RIV", "Rival gang"));
+        assertThat(nonAssociations).extracting(OffenderNonAssociationDetail::getNonAssociationReason).containsExactly(new NonAssociationReason("VIC", "Victim"), new NonAssociationReason("RIV", "Rival Gang"));
     }
 }
 

@@ -31,7 +31,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@ToString(exclude = {"offender", "nsOffender", "offenderBooking"})
+@ToString(exclude = {"offender", "nsOffender", "offenderBooking", "nonAssociation"})
 @Table(name = "OFFENDER_NA_DETAILS")
 @IdClass(OffenderNonAssociationDetail.Pk.class)
 public class OffenderNonAssociationDetail extends AuditableEntity {

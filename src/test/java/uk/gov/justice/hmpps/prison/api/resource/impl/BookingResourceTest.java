@@ -477,14 +477,14 @@ public class BookingResourceTest extends ResourceTest {
     }
 
     @Test
-    public void getNonAssociationDetails_victim_and_perpetrator() {
+    public void getNonAssociationDetails_victim_rival_gang_and_perpetrator() {
         final var response = testRestTemplate.exchange(
                 "/api/bookings/-1/non-association-details",
                 HttpMethod.GET,
                 createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
                 String.class);
 
-        assertThatJsonFileAndStatus(response, 200, "offender_non_association_details_vic_per.json");
+        assertThatJsonFileAndStatus(response, 200, "offender_non_association_details_vic_rival_gang_and_per.json");
     }
 
     @Test
