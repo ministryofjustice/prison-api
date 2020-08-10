@@ -49,6 +49,7 @@ public class PersonService {
                     .comment(address.getCommentText())
                     .country(country)
                     .county(county)
+                    .locality(address.getLocality())
                     .town(town)
                     .postalCode(address.getPostalCode())
                     .noFixedAddress(address.getNoFixedAddressFlag().equals("Y"))
