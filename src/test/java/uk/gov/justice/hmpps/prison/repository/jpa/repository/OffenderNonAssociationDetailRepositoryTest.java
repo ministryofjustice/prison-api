@@ -51,7 +51,7 @@ public class OffenderNonAssociationDetailRepositoryTest {
     void find_non_association_details_by_offender_booking() {
         final var nonAssociationDetails = nonAssociationDetailRepositoryRepository.findAllByOffenderBooking_BookingId(booking.getBookingId());
 
-        assertThat(nonAssociationDetails).hasSize(1);
+        assertThat(nonAssociationDetails).hasSize(2);
 
         final var expected = nonAssociationDetails.stream().findFirst().orElseThrow();
 
