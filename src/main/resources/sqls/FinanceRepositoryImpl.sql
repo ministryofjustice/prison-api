@@ -7,6 +7,7 @@ GET_ACCOUNT {
             JOIN offender_sub_accounts osa ON osa.offender_id = ob.root_offender_id
             JOIN account_codes ac          ON ac.account_code = osa.trust_account_code
           WHERE ob.offender_book_id = :bookingId
+           AND osa.caseload_id = :agencyId
            AND ac.sub_account_type IN ('REG','SPND','SAV')
          ) ACCOUNT
 }

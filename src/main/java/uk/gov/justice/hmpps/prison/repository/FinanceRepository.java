@@ -4,5 +4,5 @@ import uk.gov.justice.hmpps.prison.api.model.Account;
 
 public interface FinanceRepository {
 
-    Account getBalances(long bookingId);
+    Account getBalances(long bookingId, final String agencyId);
 }
