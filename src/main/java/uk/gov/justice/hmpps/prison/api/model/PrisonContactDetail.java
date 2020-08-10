@@ -32,8 +32,12 @@ public class PrisonContactDetail {
     private String agencyId;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Agency description.", example = "Moorland (HMP & YOI)")
+    @ApiModelProperty(required = true, value = "Agency description.", example = "MOORLAND (HMP & YOI)")
     private String description;
+
+    @NotBlank
+    @ApiModelProperty(required = true, value = "Formatted agency description.", example = "Moorland (HMP & YOI)")
+    private String formattedDescription;
 
     @ApiModelProperty(required = true, position = 2, value = "Type of agency.", example = "INST")
     @NotBlank
