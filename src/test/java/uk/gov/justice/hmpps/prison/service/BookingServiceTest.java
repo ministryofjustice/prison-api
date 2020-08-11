@@ -990,6 +990,23 @@ public class BookingServiceTest {
                 .build());
     }
 
+    @Test
+    void getOffenderPropertyContainers_missingLocation() {
+        final var activePropertyContainer = containerWithDefaults().containerId(-1L).internalLocation(null).activeFlag("Y").build();
+
+        when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
+                .propertyContainers(List.of(activePropertyContainer))
+                .build()));
+
+        final var propertyContainers = bookingService.getOffenderPropertyContainers(-1L);
+
+        assertThat(propertyContainers).containsExactly(uk.gov.justice.hmpps.prison.api.model.PropertyContainer.builder()
+                .sealMark("TEST1")
+                .location(null)
+                .containerType("Bulk")
+                .build());
+    }
+
     private OffenderPropertyContainer.OffenderPropertyContainerBuilder containerWithDefaults() {
         return OffenderPropertyContainer.builder()
                 .sealMark("TEST1")

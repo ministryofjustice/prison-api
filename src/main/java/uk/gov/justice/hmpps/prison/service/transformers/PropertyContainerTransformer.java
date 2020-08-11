@@ -15,8 +15,9 @@ public class PropertyContainerTransformer {
 
     public static PropertyContainer transform(final OffenderPropertyContainer propertyContainer) {
         final var containerType = propertyContainer.getContainerType() != null ? propertyContainer.getContainerType().getDescription() : null;
+        final var location = propertyContainer.getInternalLocation() != null ? LocationTransformer.fromAgencyInternalLocation(propertyContainer.getInternalLocation()) : null;
         return PropertyContainer.builder()
-                .location(LocationTransformer.fromAgencyInternalLocation(propertyContainer.getInternalLocation()))
+                .location(location)
                 .sealMark(propertyContainer.getSealMark())
                 .containerType(containerType)
                 .build();
