@@ -429,7 +429,7 @@ public class InmateService {
         return physicalAttributes;
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, @Nullable final String identifierType) {
         return repository.getOffenderIdentifiers(bookingId)
                 .stream()
