@@ -57,11 +57,26 @@ public class AgencyInternalLocation {
     @Column(name = "INTERNAL_LOCATION_CODE")
     private String locationCode;
 
+    @Column(name = "CAPACITY")
+    private Integer capacity;
+
     public boolean isActive() {
         return activeFlag.isActive();
     }
 
     public boolean isCell() {
         return locationType != null && locationType.equals("CELL");
+    }
+
+    private boolean isActiveCell() {
+        return isActive() && isCell();
+    }
+
+    private boolean hasSpace() {
+        return capacity != null && currentOccupancy != null && currentOccupancy < capacity;
+    }
+
+    public boolean isActiveCellWithSpace() {
+        return isActiveCell() && hasSpace();
     }
 }

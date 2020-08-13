@@ -126,12 +126,5 @@ public class LivingUnit {
         return isActive() && "CELL".equals(livingUnitType);
     }
 
-    public boolean hasSpace() {
-        return operationalCapacity != null && noOfOccupants != null && noOfOccupants < operationalCapacity;
-    }
-
-    public boolean isActiveCellWithSpace() {
-        return isActiveCell() && hasSpace();
-    }
 
 }

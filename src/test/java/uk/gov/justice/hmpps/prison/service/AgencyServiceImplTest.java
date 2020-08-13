@@ -24,6 +24,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.LivingUnitRepositor
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,6 +129,10 @@ public class AgencyServiceImplTest {
     public void shouldReturnAllActiveCellsWithSpaceForAgency() {
         when(livingUnitRepository.findAllByAgencyLocationId(anyString())).thenReturn(buildLivingUnits());
         when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(anyLong(), anyString(), anyString())).thenReturn(buildLivingUnitProfiles());
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-01")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(1L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build()));
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-02")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(2L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build()));
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-03")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(3L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()));
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-04")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(4L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.N).build()));
 
         final var offenderCells = service.getCellsWithCapacityInAgency("LEI", null);
         assertThat(offenderCells).extracting("id").containsExactly(-1L, -2L);
@@ -138,6 +143,11 @@ public class AgencyServiceImplTest {
         when(livingUnitRepository.findAllByAgencyLocationId(anyString())).thenReturn(buildLivingUnits());
         when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-1L, "LEI", "LEI-1-1-01")).thenReturn(buildLivingUnitProfiles());
         when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-2L, "LEI", "LEI-1-1-02")).thenReturn(List.of());
+
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-01")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(1L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build()));
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-02")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(2L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build()));
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-03")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(3L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()));
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-04")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(4L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.N).build()));
 
         final var offenderCells = service.getCellsWithCapacityInAgency("LEI", "DO");
         assertThat(offenderCells).extracting("id").containsExactly(-1L);

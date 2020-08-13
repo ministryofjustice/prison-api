@@ -39,4 +39,36 @@ public class AgencyResourceTest extends ResourceTest {
         assertThatJsonFileAndStatus(response, 200, "inactive_agencies_by_type.json");
     }
 
+    @Test
+    public void testCanFindCellsWithCapacity() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/agencies/LEI/cellsWithCapacity",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+        System.out.println(response);
+        assertThatJsonFileAndStatus(response, 200, "cells_with_capacity.json");
+    }
+
+    @Test
+    public void testCanFindCellsWithCapacity_filtered() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/agencies/LEI/cellsWithCapacity?attribute=DO",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+        System.out.println(response);
+        assertThatJsonFileAndStatus(response, 200, "cells_with_capacity_filtered.json");
+    }
+
 }
