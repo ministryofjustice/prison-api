@@ -1,0 +1,37 @@
+[
+  {
+    "attributes": [
+      {
+        "code": "LC",
+        "description": "Listener Cell"
+      },
+      {
+        "code": "DO",
+        "description": "Double Occupancy"
+      }
+    ],
+    "capacity": 2,
+    "description": "LEI-A-1-1",
+    "id": -3,
+    "noOfOccupants": 1
+  },
+  {
+    "attributes": [
+      {
+        "code": "LC",
+        "description": "Listener Cell"
+      }
+    ],
+    "capacity": 1,
+    "description": "LEI-A-1-5",
+    "id": -7,
+    "noOfOccupants": 0
+  },
+  {
+    "attributes": [],
+    "capacity": 1,
+    "description": "LEI-A-1-6",
+    "id": -8,
+    "noOfOccupants": 0
+  }
+]

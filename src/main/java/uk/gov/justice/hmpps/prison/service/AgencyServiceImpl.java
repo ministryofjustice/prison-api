@@ -259,11 +259,9 @@ public class AgencyServiceImpl implements AgencyService {
         return livingUnits.stream()
                 .filter(livingUnit -> {
                     final var agencyLocation = agencyInternalLocationRepository.findOneByDescription(livingUnit.getDescription());
-                    System.out.println(agencyLocation);
                     if (agencyLocation.isEmpty()) {
                         return false;
                     }
-                    System.out.println(agencyLocation.get().isActiveCellWithSpace());
                     return agencyLocation.get().isActiveCellWithSpace();
                 })
                 .map(livingUnit ->  {

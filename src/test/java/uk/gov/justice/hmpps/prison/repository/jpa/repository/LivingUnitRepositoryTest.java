@@ -78,10 +78,6 @@ public class LivingUnitRepositoryTest {
         final var activeCells = livingUnits.stream().filter(LivingUnit::isActiveCell).collect(Collectors.toList());
 
         assertThat(activeCells).isEqualTo(expected);
-
-        final var activeWithSpace = activeCells.stream().filter(LivingUnit::hasSpace).collect(Collectors.toList());
-
-        assertThat(activeWithSpace).extracting("livingUnitId").isEqualTo(List.of(-1L));
     }
 
 }
