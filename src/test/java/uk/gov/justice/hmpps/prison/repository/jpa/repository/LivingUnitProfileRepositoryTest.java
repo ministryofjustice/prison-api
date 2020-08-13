@@ -28,21 +28,21 @@ public class LivingUnitProfileRepositoryTest {
     public void findAllByLivingUnitAndAgencyIdAndDescription() {
         final var expected = List.of(
                                 LivingUnitProfile.builder()
-                                    .livingUnitId(-1L)
+                                    .livingUnitId(-3L)
                                     .agencyLocationId("LEI")
-                                    .description("LEI-1-1-01")
+                                    .description("LEI-A-1-1")
                                     .profileId(-1L)
                                     .housingAttributeReferenceCode(new HousingAttributeReferenceCode("DO", "Double Occupancy"))
                                     .build(),
                                 LivingUnitProfile.builder()
-                                    .livingUnitId(-1L)
+                                    .livingUnitId(-3L)
                                     .agencyLocationId("LEI")
-                                    .description("LEI-1-1-01")
+                                    .description("LEI-A-1-1")
                                     .profileId(-2L)
                                     .housingAttributeReferenceCode(new HousingAttributeReferenceCode("LC", "Listener Cell"))
                                     .build());
 
-        final var profiles = repository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-1L, "LEI", "LEI-1-1-01");
+        final var profiles = repository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-3L, "LEI", "LEI-A-1-1");
 
         assertThat(profiles).isEqualTo(expected);
     }
