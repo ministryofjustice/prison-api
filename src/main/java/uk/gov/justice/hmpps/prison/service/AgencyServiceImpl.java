@@ -20,6 +20,7 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnit;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnitProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -45,6 +46,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.INACTIVE_ONLY;
 import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCATIONS_BOOKED;
@@ -95,7 +97,7 @@ public class AgencyServiceImpl implements AgencyService {
         return agencyLocationRepository.findAll(filter)
                 .stream()
                 .map(AgencyTransformer::transform)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @Override
@@ -175,7 +177,7 @@ public class AgencyServiceImpl implements AgencyService {
             throw EntityNotFoundException.withMessage(String.format("Locations of type %s in agency %s not found", type, agencyId));
         }
 
-        return agencyInternalLocations.stream().map(LocationTransformer::fromAgencyInternalLocation).collect(Collectors.toList());
+        return agencyInternalLocations.stream().map(LocationTransformer::fromAgencyInternalLocation).collect(toList());
     }
 
     @Override
@@ -187,7 +189,7 @@ public class AgencyServiceImpl implements AgencyService {
         // Note this should be cached. Also assuming small number of values
         final var allEventLocationUsages = referenceDomainService
                 .getReferenceCodesByDomain(ReferenceDomain.INTERNAL_LOCATION_USAGE.getDomain(), false, null, null, 0, 1000)
-                .getItems().stream().map(ReferenceCode::getCode).collect(Collectors.toList());
+                .getItems().stream().map(ReferenceCode::getCode).collect(toList());
 
         final var rawLocations = agencyRepository.getAgencyLocations(agencyId, allEventLocationUsages, orderBy, order);
 
@@ -239,7 +241,7 @@ public class AgencyServiceImpl implements AgencyService {
     //It is possible for invalid/empty address records to be persisted
     @VisibleForTesting
     List<PrisonContactDetail> removeBlankAddresses(final List<PrisonContactDetail> list) {
-        return list.stream().filter(pcd -> !isBlankAddress(pcd)).collect(Collectors.toList());
+        return list.stream().filter(pcd -> !isBlankAddress(pcd)).collect(toList());
     }
 
     private boolean isBlankAddress(final PrisonContactDetail pcd) {
@@ -255,23 +257,34 @@ public class AgencyServiceImpl implements AgencyService {
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, String attribute) {
         final var livingUnits = livingUnitRepository.findAllByAgencyLocationId(agencyId);
         return livingUnits.stream()
-                .filter(LivingUnit::isActiveCellWithSpace)
-                .map(livingUnit -> OffenderCell.builder()
-                    .capacity(livingUnit.getOperationalCapacity())
-                    .noOfOccupants(livingUnit.getNoOfOccupants())
-                    .id(livingUnit.getLivingUnitId())
-                    .description(livingUnit.getUserDescription() != null ?  livingUnit.getUserDescription() : livingUnit.getDescription())
-                    .attributes(livingUnitProfileRepository
-                                .findAllByLivingUnitIdAndAgencyLocationIdAndDescription(livingUnit.getLivingUnitId(), livingUnit.getAgencyLocationId(), livingUnit.getDescription())
-                                .stream()
-                                .filter(LivingUnitProfile::isAttribute)
-                                .map(profile -> OffenderCellAttribute.builder()
-                                     .code(profile.getHousingAttributeReferenceCode().getCode())
-                                     .description(profile.getHousingAttributeReferenceCode().getDescription())
-                                     .build())
-                                .collect(Collectors.toList()))
-                    .build())
-                .filter(cell -> attribute == null || cell.getAttributes().stream().map(OffenderCellAttribute::getCode).collect(Collectors.toList()).contains(attribute))
-                .collect(Collectors.toList());
+                .filter(livingUnit -> {
+                    final var agencyLocation = agencyInternalLocationRepository.findOneByDescription(livingUnit.getDescription());
+                    System.out.println(agencyLocation);
+                    if (agencyLocation.isEmpty()) {
+                        return false;
+                    }
+                    System.out.println(agencyLocation.get().isActiveCellWithSpace());
+                    return agencyLocation.get().isActiveCellWithSpace();
+                })
+                .map(livingUnit ->  {
+                    final var agencyLocation = agencyInternalLocationRepository.findOneByDescription(livingUnit.getDescription());
+                    return OffenderCell.builder()
+                            .capacity(agencyLocation.get().getCapacity())
+                            .noOfOccupants(agencyLocation.get().getCurrentOccupancy())
+                            .id(livingUnit.getLivingUnitId())
+                            .description(livingUnit.getUserDescription() != null ?  livingUnit.getUserDescription() : livingUnit.getDescription())
+                            .attributes(livingUnitProfileRepository
+                                    .findAllByLivingUnitIdAndAgencyLocationIdAndDescription(livingUnit.getLivingUnitId(), livingUnit.getAgencyLocationId(), livingUnit.getDescription())
+                                    .stream()
+                                    .filter(LivingUnitProfile::isAttribute)
+                                    .map(profile -> OffenderCellAttribute.builder()
+                                            .code(profile.getHousingAttributeReferenceCode().getCode())
+                                            .description(profile.getHousingAttributeReferenceCode().getDescription())
+                                            .build())
+                                    .collect(toList()))
+                            .build();
+                })
+                .filter(cell -> attribute == null || cell.getAttributes().stream().map(OffenderCellAttribute::getCode).collect(toList()).contains(attribute))
+                .collect(toList());
     }
 }
