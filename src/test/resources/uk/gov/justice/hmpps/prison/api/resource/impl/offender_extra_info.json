@@ -95,6 +95,7 @@
       "assessmentDescription": "CSR Rating",
       "cellSharingAlertFlag": true,
       "assessmentDate": "2020-02-01",
+      "assessmentComment": "Assess comment text 1",
       "nextReviewDate": "2020-06-01",
       "assessmentStatus": "A",
       "assessmentSeq": 2
