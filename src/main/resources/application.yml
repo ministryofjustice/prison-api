@@ -35,15 +35,19 @@ management:
       base-path: /
       exposure:
         include: 'info, health, ping'
-  health:
-    probes:
-      enabled: true
   endpoint:
     health:
       cache:
         time-to-live: 2000ms
       show-components: always
       show-details: always
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessStateProbeIndicator
+        readiness:
+          include: readinessStateProbeIndicator
     info:
       cache:
         time-to-live: 2000ms
