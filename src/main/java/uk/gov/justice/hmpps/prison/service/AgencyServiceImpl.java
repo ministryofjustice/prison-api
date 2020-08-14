@@ -270,7 +270,8 @@ public class AgencyServiceImpl implements AgencyService {
                     .capacity(agencyLocation.get().getCapacity())
                     .noOfOccupants(agencyLocation.get().getCurrentOccupancy())
                     .id(livingUnit.getLivingUnitId())
-                    .description(livingUnit.getUserDescription() != null ?  livingUnit.getUserDescription() : livingUnit.getDescription())
+                    .description(livingUnit.getDescription())
+                    .userDescription(livingUnit.getUserDescription())
                     .attributes(livingUnitProfileRepository
                             .findAllByLivingUnitIdAndAgencyLocationIdAndDescription(livingUnit.getLivingUnitId(), livingUnit.getAgencyLocationId(), livingUnit.getDescription())
                             .stream()

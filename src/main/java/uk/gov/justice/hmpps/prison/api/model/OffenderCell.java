@@ -23,6 +23,9 @@ public class OffenderCell {
     @ApiModelProperty(value = "Description", example = "LEI-1-1")
     private String description;
 
+    @ApiModelProperty(value = "Description", example = "LEI-1-1")
+    private String userDescription;
+
     @ApiModelProperty(value = "Capacity", example = "2")
     private Integer capacity;
 
