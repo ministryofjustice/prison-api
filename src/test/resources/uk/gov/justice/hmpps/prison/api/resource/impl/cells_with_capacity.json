@@ -12,6 +12,7 @@
     ],
     "capacity": 2,
     "description": "LEI-A-1-1",
+    "userDescription": "LEI-A-1-1",
     "id": -3,
     "noOfOccupants": 1
   },
@@ -24,6 +25,7 @@
     ],
     "capacity": 1,
     "description": "LEI-A-1-5",
+    "userDescription": "LEI-A-1-5",
     "id": -7,
     "noOfOccupants": 0
   },
@@ -31,6 +33,7 @@
     "attributes": [],
     "capacity": 1,
     "description": "LEI-A-1-6",
+    "userDescription": "LEI-A-1-6",
     "id": -8,
     "noOfOccupants": 0
   }
