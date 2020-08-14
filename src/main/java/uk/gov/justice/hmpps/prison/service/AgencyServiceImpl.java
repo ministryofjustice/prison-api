@@ -257,32 +257,32 @@ public class AgencyServiceImpl implements AgencyService {
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, String attribute) {
         final var livingUnits = livingUnitRepository.findAllByAgencyLocationId(agencyId);
         return livingUnits.stream()
-                .filter(livingUnit -> {
-                    final var agencyLocation = agencyInternalLocationRepository.findOneByDescription(livingUnit.getDescription());
-                    if (agencyLocation.isEmpty()) {
-                        return false;
-                    }
-                    return agencyLocation.get().isActiveCellWithSpace();
-                })
-                .map(livingUnit ->  {
-                    final var agencyLocation = agencyInternalLocationRepository.findOneByDescription(livingUnit.getDescription());
-                    return OffenderCell.builder()
-                            .capacity(agencyLocation.get().getCapacity())
-                            .noOfOccupants(agencyLocation.get().getCurrentOccupancy())
-                            .id(livingUnit.getLivingUnitId())
-                            .description(livingUnit.getUserDescription() != null ?  livingUnit.getUserDescription() : livingUnit.getDescription())
-                            .attributes(livingUnitProfileRepository
-                                    .findAllByLivingUnitIdAndAgencyLocationIdAndDescription(livingUnit.getLivingUnitId(), livingUnit.getAgencyLocationId(), livingUnit.getDescription())
-                                    .stream()
-                                    .filter(LivingUnitProfile::isAttribute)
-                                    .map(profile -> OffenderCellAttribute.builder()
-                                            .code(profile.getHousingAttributeReferenceCode().getCode())
-                                            .description(profile.getHousingAttributeReferenceCode().getDescription())
-                                            .build())
-                                    .collect(toList()))
-                            .build();
-                })
+                .map(this::transform)
+                .filter(Objects::nonNull)
                 .filter(cell -> attribute == null || cell.getAttributes().stream().map(OffenderCellAttribute::getCode).collect(toList()).contains(attribute))
                 .collect(toList());
+    }
+
+    private OffenderCell transform(LivingUnit livingUnit) {
+        final var agencyLocation = agencyInternalLocationRepository.findOneByDescription(livingUnit.getDescription());
+        if (agencyLocation.isPresent() && agencyLocation.get().isActiveCellWithSpace()) {
+            return OffenderCell.builder()
+                    .capacity(agencyLocation.get().getCapacity())
+                    .noOfOccupants(agencyLocation.get().getCurrentOccupancy())
+                    .id(livingUnit.getLivingUnitId())
+                    .description(livingUnit.getUserDescription() != null ?  livingUnit.getUserDescription() : livingUnit.getDescription())
+                    .attributes(livingUnitProfileRepository
+                            .findAllByLivingUnitIdAndAgencyLocationIdAndDescription(livingUnit.getLivingUnitId(), livingUnit.getAgencyLocationId(), livingUnit.getDescription())
+                            .stream()
+                            .filter(LivingUnitProfile::isAttribute)
+                            .map(profile -> OffenderCellAttribute.builder()
+                                    .code(profile.getHousingAttributeReferenceCode().getCode())
+                                    .description(profile.getHousingAttributeReferenceCode().getDescription())
+                                    .build())
+                            .collect(toList()))
+                    .build();
+        }
+
+        return null;
     }
 }
