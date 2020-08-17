@@ -124,7 +124,7 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void testGetInmatesAssessmentsByCode() {
+    public void testGetInmatesAssessmentsByCodeMostRecent() {
 
         final var data = Arrays.asList(
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 5)).cellSharingAlertFlag(false).assessmentCreateLocation("MDI").approvalDate(LocalDate.of(2018, Month.MAY, 5)).assessmentSeq(3).build(),
@@ -133,9 +133,9 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).assessmentCreateLocation("EXI").assessmentSeq(2).build(),
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).assessmentSeq(1).build()
         );
-        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", Collections.emptySet(), true, true)).thenReturn(data);
+        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", Collections.emptySet(), false, false)).thenReturn(data);
 
-        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", true, true, false);
+        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", false, false, false, true);
 
         assertThat(assessments).hasSize(2); // 1 per offender
         assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate", "assessmentAgencyId", "approvalDate", "assessmentSeq").containsExactly(
@@ -157,7 +157,7 @@ public class InmateServiceImplTest {
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", Collections.emptySet(), false, true)).thenReturn(data);
 
-        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", false, true, false);
+        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", false, true, false, false);
 
         assertThat(assessments).hasSize(6);
         assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate").containsExactly(
@@ -181,9 +181,9 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE3").assessmentDate(LocalDate.of(2018, Month.APRIL, 3)).cellSharingAlertFlag(true).reviewSupLevelType("MED").reviewSupLevelTypeDesc("Medium").build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE2").assessmentDate(LocalDate.of(2018, Month.APRIL, 1)).cellSharingAlertFlag(false).reviewSupLevelType("HIGH").reviewSupLevelTypeDesc("High").build()
         );
-        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet(), true, true)).thenReturn(data);
+        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet(), false, true)).thenReturn(data);
 
-        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null, true, true, false);
+        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null, false, true, false, true);
 
         assertThat(assessments).hasSize(2); // 1 per offender
         assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate", "classification").contains(

@@ -498,7 +498,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
     @Override
-    public List<AssessmentDto> findAssessmentsByOffenderNo(final List<String> offenderNos, final String assessmentCode, final Set<String> caseLoadId, final boolean latestOnly, boolean activeOnly) {
+    public List<AssessmentDto> findAssessmentsByOffenderNo(final List<String> offenderNos, final String assessmentCode, final Set<String> caseLoadId, final boolean latestOnly, final boolean activeOnly) {
         var initialSql = getQuery("FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO");
         if (!caseLoadId.isEmpty()) {
             initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");

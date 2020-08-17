@@ -205,6 +205,21 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testGetAssessmentsMostRecentTrue() {
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false&mostRecentOnly=true",
+                HttpMethod.GET,
+                httpEntity,
+                String.class);
+
+        assertThatStatus(response, HttpStatus.OK.value());
+        assertThatJson(response.getBody()).isArray().hasSize(1);
+        assertThatJson(response.getBody()).node("[0].assessmentSeq").isEqualTo(value(1));
+    }
+
+    @Test
     public void testGetAssessmentsMissingOffenderNo() {
         final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY, null);
 

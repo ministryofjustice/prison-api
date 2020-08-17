@@ -42,8 +42,9 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<Assessment> getOffenderAssessmentsAssessmentCode(@ApiParam(value = "Assessment Type Code", required = true) @PathVariable("assessmentCode") String assessmentCode,
                                                           @ApiParam(value = "The required offender numbers", required = true) @RequestParam("offenderNo") @NotEmpty @RequestBody List<String> offenderNo,
-                                                          @ApiParam(value = "Returns only the latest assessment for the current sentence if true, otherwise all assessments for all previous sentences are included", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") Boolean latestOnly,
-                                                          @ApiParam(value = "Returns only active assessments if true, otherwise assessments with any status are included", defaultValue = "true") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") Boolean activeOnly);
+                                                          @ApiParam(value = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") Boolean latestOnly,
+                                                          @ApiParam(value = "Returns only active assessments if true, otherwise inactive and pending assessments are included", defaultValue = "true") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") Boolean activeOnly,
+                                                          @ApiParam(value = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") @RequestParam(value = "mostRecentOnly", required = false) Boolean mostRecentOnly);
 
     @PostMapping("/{assessmentCode}")
     @ApiOperation(value = "Retrieves Offender assessment details for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsAssessmentCode")
@@ -51,9 +52,9 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 200, message = "The assessment list is returned.", response = Assessment.class, responseContainer = "List")})
     List<Assessment> postOffenderAssessmentsAssessmentCode(@ApiParam(value = "Assessment Type Code", required = true) @PathVariable("assessmentCode") String assessmentCode,
                                                            @ApiParam(value = "The required offender numbers (mandatory)", required = true) @RequestBody List<String> body,
-                                                           @ApiParam(value = "Returns only the latest assessment for the current sentence if true, otherwise all assessments for all previous sentences are included", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") Boolean latestOnly,
-                                                           @ApiParam(value = "Returns only active assessments if true, otherwise assessments with any status are included", defaultValue = "true") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") Boolean activeOnly);
-
+                                                           @ApiParam(value = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") Boolean latestOnly,
+                                                           @ApiParam(value = "Returns only active assessments if true, otherwise inactive and pending assessments are included", defaultValue = "true") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") Boolean activeOnly,
+                                                           @ApiParam(value = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") @RequestParam(value = "mostRecentOnly", required = false) Boolean mostRecentOnly);
 
     @PostMapping("/csra/list")
     @ApiOperation(value = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsCsraList")
@@ -67,8 +68,9 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 200, message = "OK", response = Assessment.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request - e.g. no offender numbers provided.", response = ErrorResponse.class)})
     List<Assessment> getAssessments(@ApiParam(value = "The required offender numbers Ids (mandatory)", required = true) @RequestParam(value = "offenderNo") final List<String> offenderList,
-                                    @ApiParam(value = "Only get the latest assessment for each offender", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") final Boolean latestOnly,
-                                    @ApiParam(value = "Only get the active assessment for each offender", defaultValue = "true") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") final Boolean activeOnly);
+                                    @ApiParam(value = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included", defaultValue = "true") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") Boolean latestOnly,
+                                    @ApiParam(value = "Returns only active assessments if true, otherwise inactive and pending assessments are included", defaultValue = "true") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") Boolean activeOnly,
+                                    @ApiParam(value = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") @RequestParam(value = "mostRecentOnly", required = false) Boolean mostRecentOnly);
 
     @GetMapping("/category/{agencyId}")
     @ApiOperation(value = "Returns category information on Offenders at a prison.")

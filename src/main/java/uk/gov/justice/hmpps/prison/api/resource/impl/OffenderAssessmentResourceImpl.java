@@ -37,37 +37,39 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
-    public List<Assessment> getOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly) {
+    public List<Assessment> getOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly, final Boolean mostRecentOnly) {
 
-        return applyDefaultsAndGetAssessmentsByCode(assessmentCode, offenderList, latestOnly, activeOnly);
+        return applyDefaultsAndGetAssessmentsByCode(assessmentCode, offenderList, latestOnly, activeOnly, mostRecentOnly);
     }
 
     @Override
-    public List<Assessment> postOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly) {
+    public List<Assessment> postOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly, final Boolean mostRecentOnly) {
         validateOffenderList(offenderList);
 
-        return applyDefaultsAndGetAssessmentsByCode(assessmentCode, offenderList, latestOnly, activeOnly);
+        return applyDefaultsAndGetAssessmentsByCode(assessmentCode, offenderList, latestOnly, activeOnly, mostRecentOnly);
     }
 
-    private List<Assessment> applyDefaultsAndGetAssessmentsByCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly) {
-        final var latest = latestOnly == null ? true : latestOnly;
-        final var active = activeOnly == null ? true : activeOnly;
+    private List<Assessment> applyDefaultsAndGetAssessmentsByCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly, final Boolean mostRecentOnly) {
+        final var latest = latestOnly == null || latestOnly;
+        final var active = activeOnly == null || activeOnly;
+        final var mostRecent = mostRecentOnly == null ? latest : mostRecentOnly; // backwards compatibility
 
-        return inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, latest, active, false);
+        return inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, latest, active, false, mostRecent);
     }
 
     @Override
     public List<Assessment> postOffenderAssessmentsCsraList(final List<String> offenderList) {
         validateOffenderList(offenderList);
-        return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true, true);
+        return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true, true, true);
     }
 
     @Override
-    public List<Assessment> getAssessments(final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly) {
+    public List<Assessment> getAssessments(final List<String> offenderList, final Boolean latestOnly, final Boolean activeOnly, final Boolean mostRecentOnly) {
         final var latest = latestOnly == null || latestOnly;
         final var active = activeOnly == null || activeOnly;
+        final var mostRecent = mostRecentOnly == null ? latest : mostRecentOnly; // backwards compatibility
         validateOffenderList(offenderList);
-        return inmateService.getInmatesAssessmentsByCode(offenderList, null, latest, active, false);
+        return inmateService.getInmatesAssessmentsByCode(offenderList, null, latest, active, false, mostRecent);
     }
 
     @Override
@@ -83,13 +85,13 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final Boolean latestOnly) {
-        final var latest = latestOnly == null ? true : latestOnly;
+        final var latest = latestOnly == null || latestOnly;
         return inmateService.getOffenderCategorisations(agencyId, bookingIds, latest);
     }
 
     @Override
     public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final Boolean latestOnly) {
-        final var latest = latestOnly == null ? true : latestOnly;
+        final var latest = latestOnly == null || latestOnly;
         return inmateService.getOffenderCategorisationsSystem(bookingIds, latest);
     }
 
@@ -118,7 +120,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
     @Override
     @ProxyUser
-    public ResponseEntity<Void> rejectCategorisation(CategoryRejectionDetail detail) {
+    public ResponseEntity<Void> rejectCategorisation(final CategoryRejectionDetail detail) {
         inmateService.rejectCategorisation(detail.getBookingId(), detail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

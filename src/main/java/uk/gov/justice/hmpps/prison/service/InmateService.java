@@ -243,7 +243,7 @@ public class InmateService {
 
             try {
                 inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 // TODO: Hack for now to make sure there wasn't a reason this was removed.
             }
             if (extraInfo) {
@@ -478,7 +478,8 @@ public class InmateService {
         return Optional.ofNullable(assessment);
     }
 
-    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, final boolean activeOnly, final boolean csra) {
+    public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, final boolean activeOnly, final boolean csra,
+                                                        final boolean mostRecentOnly) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
             final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
@@ -489,9 +490,9 @@ public class InmateService {
             batch.forEach(offenderBatch -> {
                 final var assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly, activeOnly);
 
-                InmatesHelper.createMapOfBookings(assessments).values().forEach( assessmentForBooking -> {
+                InmatesHelper.createMapOfBookings(assessments).values().forEach(assessmentForBooking -> {
 
-                    if (latestOnly) {
+                    if (mostRecentOnly) {
                         final var firstAssessment = createAssessment(assessmentForBooking.get(0));
                         // The first is the most recent date / seq for each booking (where cellSharingAlertFlag = Y if a CSRA)
                         if (!csra || validCsra(firstAssessment)) {
@@ -642,7 +643,7 @@ public class InmateService {
         telemetryClient.trackEvent("CategorisationNextReviewDateUpdated", ImmutableMap.of("bookingId", bookingId.toString()), null);
     }
 
-    private void validate(CategorisationDetail detail) {
+    private void validate(final CategorisationDetail detail) {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(uk.gov.justice.hmpps.prison.service.support.ReferenceDomain.CATEGORY.getDomain(),
                     detail.getCategory(), false);
@@ -664,7 +665,7 @@ public class InmateService {
         }
     }
 
-    private void validate(CategorisationUpdateDetail detail) {
+    private void validate(final CategorisationUpdateDetail detail) {
         if (detail.getCategory() != null) {
             try {
                 referenceDomainService.getReferenceCodeByDomainAndCode(uk.gov.justice.hmpps.prison.service.support.ReferenceDomain.CATEGORY.getDomain(),
