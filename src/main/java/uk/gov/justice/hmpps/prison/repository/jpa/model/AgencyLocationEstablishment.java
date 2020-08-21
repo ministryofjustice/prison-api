@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -32,8 +33,10 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @IdClass(AgencyLocationEstablishment.Pk.class)
 @Table(name = "AGY_LOC_ESTABLISHMENTS")
+@ToString
 public class AgencyLocationEstablishment {
 
     @Id

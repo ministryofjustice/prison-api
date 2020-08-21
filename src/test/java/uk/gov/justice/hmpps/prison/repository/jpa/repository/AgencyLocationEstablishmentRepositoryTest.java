@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishment;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.EstablishmentType;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
@@ -31,20 +30,20 @@ public class AgencyLocationEstablishmentRepositoryTest {
 
     @Test
     void agency_establishment_is_persisted() {
-        assertThat(repository.findById(new AgencyLocationEstablishment.Pk("MDI", "IM"))).isNotPresent();
+        assertThat(repository.findById(new AgencyLocationEstablishment.Pk("BXI", "IM"))).isNotPresent();
 
         repository.save(AgencyLocationEstablishment
                         .builder()
-                        .agencyLocId("MDI")
+                        .agencyLocId("BXI")
                         .establishmentType("IM")
                         .build());
 
         entityManager.flush();
 
-        final var agencyEstablishmentType = repository.findById(new AgencyLocationEstablishment.Pk("MDI", "IM"));
+        final var agencyEstablishmentType = repository.findById(new AgencyLocationEstablishment.Pk("BXI", "IM"));
 
         assertThat(agencyEstablishmentType).isPresent();
-        assertThat(agencyEstablishmentType.get().getAgencyLocId()).isEqualTo("MDI");
+        assertThat(agencyEstablishmentType.get().getAgencyLocId()).isEqualTo("BXI");
         assertThat(agencyEstablishmentType.get().getEstablishmentType()).isEqualTo("IM");
     }
 }

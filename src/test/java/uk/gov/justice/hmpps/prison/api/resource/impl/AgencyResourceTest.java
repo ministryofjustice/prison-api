@@ -5,6 +5,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.OK;
+
 public class AgencyResourceTest extends ResourceTest {
 
     @Test
@@ -71,4 +74,20 @@ public class AgencyResourceTest extends ResourceTest {
         assertThatJsonFileAndStatus(response, 200, "cells_with_capacity_filtered.json");
     }
 
+    @Test
+    public void testEstablishmentTypesForMoorlandPrison() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/agencies/MDI",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThat(response.getStatusCode()).isEqualTo(OK);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathArrayValue("establishmentTypes").containsExactlyInAnyOrder("CM", "CNOMIS", "IM", "RPTR");
+    }
 }
