@@ -15,7 +15,6 @@ public class AgencyTransformer {
                 .agencyType(agency.getType())
                 .active(agency.getActiveFlag() != null && agency.getActiveFlag().isActive())
                 .description(LocationProcessor.formatLocation(agency.getDescription()))
-                .establishmentTypes(agency.getEstablishmentTypes().stream().map(AgencyLocationEstablishment::getEstablishmentType).collect(Collectors.toList()))
                 .build();
     }
 }

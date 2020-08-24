@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
+import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
+import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
@@ -160,4 +162,14 @@ public interface AgencyResource {
                                                                @ApiParam(value = "Requested offset of first record in returned offenders.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                                @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "20") @RequestHeader(value = "Page-Limit", defaultValue = "20") Long pageLimit);
 
+    @GetMapping("/{agencyId}/establishment-types")
+    @ApiOperation(
+            value = "Return the establishment types for the given Agency.",
+            notes = "An agency can have one to many establishment types. For example a prison could be both a youth and adult establishment.",
+            nickname = "getAgencyEstablishmentTypes")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    AgencyEstablishmentTypes getAgencyEstablishmentTypes(@ApiParam(value = "", required = true) @PathVariable("agencyId") String agencyId);
 }

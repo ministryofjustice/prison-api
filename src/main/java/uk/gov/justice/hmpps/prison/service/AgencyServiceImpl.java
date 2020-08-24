@@ -9,6 +9,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
+import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
+import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
@@ -20,7 +22,6 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnit;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnitProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -60,6 +61,8 @@ import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCA
 @AllArgsConstructor
 public class AgencyServiceImpl implements AgencyService {
 
+    private static final String ESTABLISHMENT_TYPE_DOMAIN = "ESTAB_TYPE";
+
     private static final Comparator<Location> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
             Location::getDescription,
             new AlphaNumericComparator());
@@ -80,8 +83,8 @@ public class AgencyServiceImpl implements AgencyService {
                 .activeFlag(filter == ACTIVE_ONLY ? ActiveFlag.Y : filter == INACTIVE_ONLY ? ActiveFlag.N : null)
                 .build();
 
-       return agencyLocationRepository.findAll(criteria)
-          .stream()
+        return agencyLocationRepository.findAll(criteria)
+                .stream()
                 .findFirst()
                 .map(AgencyTransformer::transform).orElseThrow(EntityNotFoundException.withId(agencyId));
     }
@@ -261,6 +264,21 @@ public class AgencyServiceImpl implements AgencyService {
                 .filter(Objects::nonNull)
                 .filter(cell -> attribute == null || cell.getAttributes().stream().map(OffenderCellAttribute::getCode).collect(toList()).contains(attribute))
                 .collect(toList());
+    }
+
+    @Override
+    public AgencyEstablishmentTypes getEstablishmentTypes(final String agencyId) {
+        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+
+        return AgencyEstablishmentTypes.builder().agencyId(agencyId).establishmentTypes(agency.getEstablishmentTypes()
+                .stream()
+                .map(et -> {
+                    final var establishment = referenceDomainService.getReferenceCodeByDomainAndCode(ESTABLISHMENT_TYPE_DOMAIN, et.getEstablishmentType(), false).orElseThrow(EntityNotFoundException.withMessage("Establishment type %s for agency %s not found.", et.getEstablishmentType(), agencyId));
+
+                    return AgencyEstablishmentType.builder().code(establishment.getCode()).description(establishment.getDescription()).build();
+                })
+                .collect(toList()))
+                .build();
     }
 
     private OffenderCell transform(LivingUnit livingUnit) {

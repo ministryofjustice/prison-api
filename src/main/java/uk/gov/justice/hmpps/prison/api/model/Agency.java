@@ -34,9 +34,4 @@ public class Agency {
 
     @ApiModelProperty(value = "Agency is active", example = "true")
     private boolean active;
-
-    @ApiModelProperty(value = "Establishment types for the agency", example = "IM")
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @Default
-    private List<String> establishmentTypes = new ArrayList<>();
 }
