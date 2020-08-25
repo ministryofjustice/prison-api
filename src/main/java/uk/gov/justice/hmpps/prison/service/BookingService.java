@@ -827,14 +827,31 @@ public class BookingService {
     public void updateLivingUnit(final Long bookingId, final String livingUnitDescription) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking with booking id %d not found", bookingId)));
+
         final var location = agencyInternalLocationRepository.findOneByDescription(livingUnitDescription)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Living unit %s not found", livingUnitDescription)));
 
+        updateLivingUnit(offenderBooking, location);
+    }
+
+    @Transactional
+    @VerifyBookingAccess
+    @HasWriteScope
+    public void updateLivingUnit(final Long bookingId, final AgencyInternalLocation location) {
+        final var offenderBooking = offenderBookingRepository.findById(bookingId)
+                .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking with booking id %d not found", bookingId)));
+
+        updateLivingUnit(offenderBooking, location);
+    }
+
+
+    private void updateLivingUnit(final OffenderBooking offenderBooking, final AgencyInternalLocation location) {
         validateUpdateLivingUnit(offenderBooking, location);
 
         offenderBooking.setAssignedLivingUnit(location);
         offenderBookingRepository.save(offenderBooking);
-        log.info("Updated offender {} booking id {} to living unit description {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), livingUnitDescription);
+
+        log.info("Updated offender {} booking id {} to living unit description {}", offenderBooking.getOffender().getNomsId(), offenderBooking.getBookingId(), location.getDescription());
     }
 
     private void validateUpdateLivingUnit(final OffenderBooking offenderBooking, final AgencyInternalLocation location) {
@@ -843,11 +860,13 @@ public class BookingService {
                 "Move to living unit in prison %s invalid for offender %s in prison %s",
                 location.getAgencyId(), offenderBooking.getOffender().getNomsId(), offenderBooking.getLocation().getId()
         );
-        checkArgument(
-                location.isCell(),
-                "Living unit %s of type %s is not a cell",
-                location.getDescription(), location.getLocationType()
-        );
+        if (!location.isCellSwap()) {
+            checkArgument(
+                    location.isCell(),
+                    "Living unit %s of type %s is not a cell",
+                    location.getDescription(), location.getLocationType()
+            );
+        }
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {

@@ -222,6 +222,7 @@ public class OffenderBookingRepositoryTest {
                         AgencyInternalLocation.builder()
                                 .locationId(-10L)
                                 .activeFlag(ActiveFlag.Y)
+                                .certifiedFlag(ActiveFlag.Y)
                                 .locationType("CELL")
                                 .agencyId("LEI")
                                 .description("LEI-A-1-8")

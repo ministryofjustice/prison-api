@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -39,6 +40,11 @@ class MovementUpdateServiceTest {
     private static final String NEW_LIVING_UNIT_DESC = "MDI-1-3";
     private static final String SOME_AGENCY_ID = "MDI";
     private static final String SOME_REASON_CODE = "ADM";
+    private static final String CELL_SWAP_LOCATION_CODE = "CSWAP";
+    private static final String CELL_SWAP_LOCATION_DESCRIPTION = "LEI-CSWAP";
+    private static final Long CELL_SWAP_LOCATION_ID = 123L;
+
+
     private static final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     private static final LocalDateTime SOME_TIME = LocalDateTime.now(clock);
 
@@ -196,6 +202,85 @@ class MovementUpdateServiceTest {
             when(agencyInternalLocationRepository.findOneByDescription(OLD_LIVING_UNIT_DESC))
                     .thenReturn(aLocation(OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
         }
+    }
+
+
+    @Nested
+    class MoveToCellSwap {
+
+        @Test
+        void valid_move() {
+            final var cellSwapLocation = cellSwapLocation();
+
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", CELL_SWAP_LOCATION_ID, CELL_SWAP_LOCATION_DESCRIPTION, "Y"));
+
+            when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId(CELL_SWAP_LOCATION_CODE, "LEI")).thenReturn(cellSwapLocation);
+
+            final var offenderBooking = service.moveToCellSwap(SOME_BOOKING_ID,  "ADM", SOME_TIME);
+
+            assertThat(offenderBooking.getAssignedLivingUnitId()).isEqualTo(CELL_SWAP_LOCATION_ID);
+
+            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, cellSwapLocation.get());
+            verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, CELL_SWAP_LOCATION_ID, "ADM", SOME_TIME);
+        }
+
+        @Test
+        void writesToBedAssignmentHistories() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"));
+            when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI")).thenReturn(cellSwapLocation());
+
+             service.moveToCellSwap(SOME_BOOKING_ID, SOME_REASON_CODE, SOME_TIME);
+
+             verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, CELL_SWAP_LOCATION_ID, SOME_REASON_CODE, SOME_TIME);
+        }
+
+
+        @Test
+        void noUpdateNeeded() {
+            final var offenderInCellSwap  = OffenderBooking.builder()
+                    .bookingId(SOME_BOOKING_ID)
+                    .activeFlag("Y")
+                    .location(AgencyLocation.builder().id("LEI").build())
+                    .assignedLivingUnit(cellSwapLocation().get())
+                    .build();
+
+            when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI")).thenReturn(cellSwapLocation());
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(Optional.of(offenderInCellSwap));
+
+            final var offenderBooking = service.moveToCellSwap(SOME_BOOKING_ID, SOME_REASON_CODE, SOME_TIME);
+
+            assertThat(offenderBooking.getAssignedLivingUnitId()).isEqualTo(CELL_SWAP_LOCATION_ID);
+
+            verify(bookingService, never()).updateLivingUnit(SOME_BOOKING_ID, cellSwapLocation().get());
+        }
+
+        @Test
+        void noConfigured_CellSwapLocation() {
+            final var offenderBooking = OffenderBooking.builder()
+                    .bookingId(-1L)
+                    .activeFlag("Y")
+                    .location(AgencyLocation.builder().id("LEI").build())
+                    .assignedLivingUnit(AgencyInternalLocation.builder().locationId(-1L).build())
+                    .build();
+
+
+            when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(offenderBooking));
+
+            assertThatThrownBy(() -> service.moveToCellSwap(-1L, "ADM", SOME_TIME))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessage("CSWAP location not found for LEI");
+        }
+    }
+
+    private Optional<AgencyInternalLocation> cellSwapLocation() {
+        return Optional.of(AgencyInternalLocation.builder()
+                .locationId(CELL_SWAP_LOCATION_ID)
+                .locationCode(CELL_SWAP_LOCATION_CODE)
+                .description(CELL_SWAP_LOCATION_DESCRIPTION)
+                .activeFlag(ActiveFlag.Y)
+                .build());
     }
 
     private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final String agency, final Long livingUnitId, final String livingUnitDesc, final String activeFlag) {

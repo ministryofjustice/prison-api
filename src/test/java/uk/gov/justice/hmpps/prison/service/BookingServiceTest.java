@@ -1187,6 +1187,10 @@ public class BookingServiceTest {
             assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining(valueOf(BAD_BOOKING_ID));
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, aCellSwapLocation()))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining(valueOf(BAD_BOOKING_ID));
         }
 
         @Test
@@ -1239,6 +1243,21 @@ public class BookingServiceTest {
             assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
 
+        @Test
+        void cellSwap() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+
+            final var cellSwapLocation = aCellSwapLocation();
+
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, cellSwapLocation);
+
+            ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
+            verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
+
+            assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(cellSwapLocation.getLocationId());
+        }
+
         private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId, final String agencyId) {
             final var agencyLocation = AgencyLocation.builder().id(agencyId).build();
             final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
@@ -1250,6 +1269,17 @@ public class BookingServiceTest {
                             .location(agencyLocation)
                             .offender(offender)
                             .build());
+        }
+
+        private AgencyInternalLocation aCellSwapLocation() {
+            return AgencyInternalLocation.builder()
+                    .locationId(-99L)
+                    .locationCode("CSWAP")
+                    .certifiedFlag(ActiveFlag.N)
+                    .activeFlag(ActiveFlag.Y)
+                    .agencyId("MDI")
+                    .description("CSWAP-MDI")
+                    .build();
         }
 
         private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId) {
