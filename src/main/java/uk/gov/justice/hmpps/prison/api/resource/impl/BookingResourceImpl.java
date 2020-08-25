@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
