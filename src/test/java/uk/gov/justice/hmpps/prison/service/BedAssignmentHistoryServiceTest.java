@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -42,53 +44,56 @@ class BedAssignmentHistoryServiceTest {
 
     @Test
     void getBedAssignmentsHistory() {
-                when(repository.findAllByBedAssignmentHistoryPKOffenderBookingId(1L)).thenReturn(List.of(
-                                BedAssignmentHistory.builder()
-                                            .assignmentDate(LocalDate.of(2015, 5, 1))
-                                    .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
-                                    .assignmentEndDate(LocalDate.of(2016, 5, 1))
-                                    .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
-                                    .assignmentReason("Needs moving")
-                                    .livingUnitId(1L)
-                                    .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
-                                    .build(),
-                                BedAssignmentHistory.builder()
-                                            .assignmentDate(LocalDate.of(2016, 5, 1))
-                                    .assignmentDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
-                                    .assignmentEndDate(LocalDate.of(2017, 5, 1))
-                                    .assignmentEndDateTime(LocalDateTime.of(2017, 5, 1, 10, 10, 10))
-                                    .assignmentReason("Needs moving again")
-                                    .livingUnitId(2L)
-                                    .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
-                                    .build()
-                        ));
-                when(locationRepository.findOneByLocationId(anyLong())).thenReturn(Optional.of(AgencyInternalLocation.builder().description("MDI-1-2").agencyId("MDI").build()));
-                assertThat(service.getBedAssignmentsHistory(1L)).isEqualTo(List.of(
-                                BedAssignment.builder()
-                                                .bookingId(1L)
-                                        .livingUnitId(1L)
-                                        .assignmentDate(LocalDate.of(2015, 5, 1))
-                                        .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
-                                        .assignmentEndDate(LocalDate.of(2016, 5, 1))
-                                        .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
-                                        .assignmentReason("Needs moving")
-                                        .description("MDI-1-2")
-                                        .agencyId("MDI")
-                                        .build(),
-                                BedAssignment.builder()
-                                                .bookingId(1L)
-                                        .livingUnitId(2L)
-                                        .assignmentDate(LocalDate.of(2016, 5, 1))
-                                        .assignmentDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
-                                        .assignmentEndDate(LocalDate.of(2017, 5, 1))
-                                        .assignmentEndDateTime(LocalDateTime.of(2017, 5, 1, 10, 10, 10))
-                                        .assignmentReason("Needs moving again")
-                                        .description("MDI-1-2")
-                                        .agencyId("MDI")
-                                        .build()
-                        ));
-        
-                
-                            }
+        var assignments = List.of(
+                BedAssignmentHistory.builder()
+                        .assignmentDate(LocalDate.of(2015, 5, 1))
+                        .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
+                        .assignmentEndDate(LocalDate.of(2016, 5, 1))
+                        .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                        .assignmentReason("Needs moving")
+                        .livingUnitId(1L)
+                        .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
+                        .build(),
+                BedAssignmentHistory.builder()
+                        .assignmentDate(LocalDate.of(2016, 5, 1))
+                        .assignmentDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                        .assignmentEndDate(LocalDate.of(2017, 5, 1))
+                        .assignmentEndDateTime(LocalDateTime.of(2017, 5, 1, 10, 10, 10))
+                        .assignmentReason("Needs moving again")
+                        .livingUnitId(2L)
+                        .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
+                        .build()
+        );
+        var page = new PageImpl<>(assignments);
+        when(repository.findAllByBedAssignmentHistoryPKOffenderBookingId(1L, PageRequest.of(0, 20))).thenReturn(page);
+        when(locationRepository.findOneByLocationId(anyLong())).thenReturn(Optional.of(AgencyInternalLocation.builder().description("MDI-1-2").agencyId("MDI").build()));
+        final var response = service.getBedAssignmentsHistory(1L, PageRequest.of(0, 20));
+        assertThat(response).containsOnly(
+            BedAssignment.builder()
+                .bookingId(1L)
+                .livingUnitId(1L)
+                .assignmentDate(LocalDate.of(2015, 5, 1))
+                .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
+                .assignmentEndDate(LocalDate.of(2016, 5, 1))
+                .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                .assignmentReason("Needs moving")
+                .description("MDI-1-2")
+                .agencyId("MDI")
+                .build(),
+            BedAssignment.builder()
+                .bookingId(1L)
+                .livingUnitId(2L)
+                .assignmentDate(LocalDate.of(2016, 5, 1))
+                .assignmentDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                .assignmentEndDate(LocalDate.of(2017, 5, 1))
+                .assignmentEndDateTime(LocalDateTime.of(2017, 5, 1, 10, 10, 10))
+                .assignmentReason("Needs moving again")
+                .description("MDI-1-2")
+                .agencyId("MDI")
+                .build()
+        );
+
+
+    }
 
 }

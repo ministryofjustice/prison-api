@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -792,6 +793,8 @@ public interface BookingResource {
                         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
                         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
                         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    List<BedAssignment> getBedAssignmentsHistory(
-            @ApiParam(value = "The offender booking linked to the court hearings.", required = true) @PathVariable("bookingId") Long bookingId);
+    Page<BedAssignment> getBedAssignmentsHistory(
+            @ApiParam(value = "The offender booking linked to the court hearings.", required = true) @PathVariable("bookingId") Long bookingId,
+            @ApiParam(value = "The page number to return. Index starts at 0", defaultValue = "0") @RequestParam(value = "page", required = false) Integer page,
+            @ApiParam(value = "The number of results per page. Defaults to 20.", defaultValue = "20") @RequestParam(value = "size", required = false) Integer size);
 }

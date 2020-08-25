@@ -1,8 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,7 +67,6 @@ import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.resource.BookingResource;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -137,7 +138,7 @@ public class BookingResourceImpl implements BookingResource {
                         .iepLevel(iepLevel)
                         .offenderNos(offenderNo)
                         .bookingIds(bookingId)
-                        .pageRequest(new PageRequest(sortFields, sortOrder, pageOffset, pageLimit))
+                        .pageRequest(new uk.gov.justice.hmpps.prison.api.support.PageRequest(sortFields, sortOrder, pageOffset, pageLimit))
                         .build());
 
         return ResponseEntity.ok()
@@ -714,8 +715,11 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<BedAssignment> getBedAssignmentsHistory(final Long bookingId) {
-        return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId);
+    public Page<BedAssignment> getBedAssignmentsHistory(final Long bookingId, final Integer page, final Integer size) {
+        final var pageIndex = page != null ? page : 0;
+        final var pageSize = size != null ? size : 20;
+        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
+        return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize));
     }
 
 }
