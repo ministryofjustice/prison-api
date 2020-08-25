@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
 import uk.gov.justice.hmpps.prison.api.model.AlertCreated;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
+import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
@@ -71,6 +72,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
+import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 import uk.gov.justice.hmpps.prison.service.BookingMaintenanceService;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
@@ -113,6 +115,7 @@ public class BookingResourceImpl implements BookingResource {
     private final InmateService inmateService;
     private final CaseNoteService caseNoteService;
     private final InmateAlertService inmateAlertService;
+    private final BedAssignmentHistoryService bedAssignmentHistoryService;
     private final FinanceService financeService;
     private final ContactService contactService;
     private final AdjudicationService adjudicationService;
@@ -709,4 +712,10 @@ public class BookingResourceImpl implements BookingResource {
     public OffenderNonAssociationDetails getNonAssociationDetails(final Long bookingId) {
         return offenderNonAssociationsService.retrieve(bookingId);
     }
+
+    @Override
+    public List<BedAssignment> getBedAssignmentsHistory(final Long bookingId) {
+        return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId);
+    }
+
 }

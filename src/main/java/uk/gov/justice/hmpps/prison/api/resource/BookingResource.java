@@ -24,6 +24,7 @@ import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
 import uk.gov.justice.hmpps.prison.api.model.AlertCreated;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
+import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
@@ -433,7 +434,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     PersonalCareNeeds getPersonalCareNeeds(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
-                                           @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
+                                           @ApiParam(value = "a list of types and optionally subtypes (joined with ) to search.", example = "DISABRM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
 
     @GetMapping("/{bookingId}/military-records")
     @ApiOperation(value = "Military Records", notes = "Military Records", nickname = "getMilitaryRecords")
@@ -450,7 +451,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<PersonalCareNeeds> getPersonalCareNeeds(@ApiParam(value = "The required offender numbers (mandatory)", required = true) @NotEmpty(message = "offenderNo: must not be empty") @RequestBody List<String> offenderNo,
-                                                 @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
+                                                 @ApiParam(value = "a list of types and optionally subtypes (joined with ) to search.", example = "DISABRM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
 
     @GetMapping("/{bookingId}/reasonable-adjustments")
     @ApiOperation(value = "Reasonable Adjustment Information", notes = "Reasonable Adjustment Information", nickname = "getReasonableAdjustment")
@@ -785,4 +786,12 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     OffenderNonAssociationDetails getNonAssociationDetails(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+
+    @GetMapping("{bookingId}/cell-history")
+    @ApiResponses(value = {
+                        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+                        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+                        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<BedAssignment> getBedAssignmentsHistory(
+            @ApiParam(value = "The offender booking linked to the court hearings.", required = true) @PathVariable("bookingId") Long bookingId);
 }
