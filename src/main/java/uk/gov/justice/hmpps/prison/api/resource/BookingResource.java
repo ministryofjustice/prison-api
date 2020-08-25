@@ -435,7 +435,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     PersonalCareNeeds getPersonalCareNeeds(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId,
-                                           @ApiParam(value = "a list of types and optionally subtypes (joined with ) to search.", example = "DISAB+RM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
+                                           @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
 
     @GetMapping("/{bookingId}/military-records")
     @ApiOperation(value = "Military Records", notes = "Military Records", nickname = "getMilitaryRecords")
@@ -452,7 +452,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     List<PersonalCareNeeds> getPersonalCareNeeds(@ApiParam(value = "The required offender numbers (mandatory)", required = true) @NotEmpty(message = "offenderNo: must not be empty") @RequestBody List<String> offenderNo,
-                                                 @ApiParam(value = "a list of types and optionally subtypes (joined with ) to search.", example = "DISAB+RM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
+                                                 @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) @NotEmpty(message = "problemTypes: must not be empty") @RequestParam(value = "type", required = false) List<String> problemTypes);
 
     @GetMapping("/{bookingId}/reasonable-adjustments")
     @ApiOperation(value = "Reasonable Adjustment Information", notes = "Reasonable Adjustment Information", nickname = "getReasonableAdjustment")
