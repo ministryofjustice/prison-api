@@ -61,6 +61,22 @@ public class MovementUpdateService {
         return getActiveOffenderBooking(bookingId);
     }
 
+    @Transactional
+    @VerifyBookingAccess
+    @HasWriteScope
+    public void moveToCellSwap(final Long bookingId, final String agency, final String reasonCode, final LocalDateTime dateTime) {
+        validateMoveToCell(reasonCode, dateTime);
+
+        final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
+        final var offenderBooking = getActiveOffenderBooking(bookingId);
+        final var internalLocation = getCswapLocation(agency);
+
+        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) return;
+
+        bookingService.updateLivingUnit(bookingId, internalLocation);
+        bedAssignmentHistoryService.add(bookingId, internalLocation.getLocationId(), reasonCode, movementDateTime);
+    }
+
     private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
         checkReasonCode(reasonCode);
         checkArgument(!StringUtils.isNullOrEmpty(reasonCode), "Reason code is mandatory");
@@ -90,12 +106,19 @@ public class MovementUpdateService {
                 .build();
     }
 
+    private AgencyInternalLocation getCswapLocation(final String agency) {
+        return agencyInternalLocationRepository
+                .findByLocationCodeAndAgencyId("CSWAP", agency)
+                .stream()
+                .filter(AgencyInternalLocation::isCellSwap)
+                .findFirst()
+                .orElseThrow(EntityNotFoundException.withMessage(format("CSWAP location not found for %s", agency)));
+    }
+
     private AgencyInternalLocation getActiveInternalLocation(final String locationDescription) {
         final var internalLocation = agencyInternalLocationRepository.findOneByDescription(locationDescription)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Location description %s not found", locationDescription)));
         checkArgument(internalLocation.isActive(), "Location %s is not active", locationDescription);
         return internalLocation;
     }
-
-
 }

@@ -117,6 +117,23 @@ class MovementUpdateServiceTest {
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("Fake runtime exception");
         }
+
+        @Test
+        void moveToCellSwap_throws() {
+            final var offenderBooking = OffenderBooking.builder()
+                    .bookingId(-1L)
+                    .activeFlag("Y")
+                    .location(AgencyLocation.builder().id("test").build())
+                    .assignedLivingUnit(AgencyInternalLocation.builder().locationId(-1L).build())
+                    .build();
+
+
+            when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(offenderBooking));
+
+            assertThatThrownBy(() -> service.moveToCellSwap(-1L, "LEI", "ADM", SOME_TIME))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessage("CSWAP location not found for LEI");
+        }
     }
 
     @Nested
@@ -176,6 +193,31 @@ class MovementUpdateServiceTest {
 
             assertThat(offenderSummary.getAssignedLivingUnitId()).isEqualTo(OLD_LIVING_UNIT_ID);
             verify(offenderBookingRepository, times(1)).findById(SOME_BOOKING_ID);
+        }
+
+        @Test
+        void moveToCellSwap() {
+            final var offenderBooking = OffenderBooking.builder()
+                    .bookingId(-1L)
+                    .activeFlag("Y")
+                    .location(AgencyLocation.builder().id("test").build())
+                    .assignedLivingUnit(AgencyInternalLocation.builder().locationId(-1L).build())
+                    .build();
+
+            final var cswapLocation = AgencyInternalLocation.builder()
+                    .locationCode("CSWAP")
+                    .description("LEI-CSWAP")
+                    .locationId(123L)
+                    .build();
+
+            when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(offenderBooking));
+            when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId(anyString(), anyString()))
+                    .thenReturn(Optional.of(cswapLocation));
+
+            service.moveToCellSwap(-1L, "LEI", "ADM", SOME_TIME);
+
+            verify(bookingService).updateLivingUnit(-1L, cswapLocation);
+            verify(bedAssignmentHistoryService).add(-1L, 123L, "ADM", SOME_TIME);
         }
 
         private void mockSuccess() {

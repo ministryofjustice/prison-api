@@ -33,6 +33,10 @@ public class AgencyInternalLocation {
     @Enumerated(EnumType.STRING)
     private ActiveFlag activeFlag;
 
+    @Column(name = "CERTIFIED_FLAG")
+    @Enumerated(EnumType.STRING)
+    private ActiveFlag certifiedFlag;
+
     @Column(name = "INTERNAL_LOCATION_TYPE")
     private String locationType;
 
@@ -60,12 +64,22 @@ public class AgencyInternalLocation {
     @Column(name = "CAPACITY")
     private Integer capacity;
 
-    public boolean isActive() {
-        return activeFlag.isActive();
-    }
+    public boolean isActive() { return activeFlag != null && activeFlag.isActive(); }
+
+    public boolean isCertified() { return certifiedFlag != null && certifiedFlag.isActive(); }
 
     public boolean isCell() {
         return locationType != null && locationType.equals("CELL");
+    }
+
+    public boolean isCellSwap() {
+        return certifiedFlag != null &&
+                !certifiedFlag.isActive() &&
+                activeFlag != null &&
+                activeFlag.isActive() &&
+                parentLocationId == null &&
+                locationCode != null &&
+                locationCode.equals("CSWAP");
     }
 
     private boolean isActiveCell() {
