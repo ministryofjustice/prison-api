@@ -24,10 +24,6 @@ public class AgencyInternalLocationsRepositoryTest {
 
     @Test
     public void findLocationsByAgencyIdAndLocationTypeAndActiveFlag_returnsAllLocations() {
-        final var expected = AgencyInternalLocation.builder().locationId(-202L).locationType("CELL").agencyId("SYI")
-                .currentOccupancy(2).operationalCapacity(2).description("SYI-A-1-1").parentLocationId(-2L).userDescription("Cell A/1-1")
-                .activeFlag(ActiveFlag.Y).build();
-
         final var locations = repository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("SYI", "CELL", ActiveFlag.Y);
 
         assertThat(locations).extracting("locationId").containsExactlyInAnyOrder(-202L, -204L, -207L);

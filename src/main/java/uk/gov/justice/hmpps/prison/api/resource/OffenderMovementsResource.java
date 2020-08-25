@@ -81,6 +81,19 @@ public interface OffenderMovementsResource {
             @ApiParam(value = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(value = "dateTime", required = false) LocalDateTime dateTime
     );
 
+
+    @PutMapping("/{bookingId}/move-to-cell-swap")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    OffenderBooking moveToCellSwap(
+            @ApiParam(value = "The offender booking id", example = "1200866", required = true) @PathVariable("bookingId") Long bookingId,
+            @ApiParam(value = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) @RequestParam("reasonCode") String reasonCode,
+            @ApiParam(value = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(value = "dateTime", required = false) LocalDateTime dateTime
+    );
+
     @PostMapping("/{bookingId}/prison-to-prison")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Schedules a future prison to prison move for an offender.", notes = "Schedules a future prison to prison move for an offender.", nickname = "prisonToPrison")

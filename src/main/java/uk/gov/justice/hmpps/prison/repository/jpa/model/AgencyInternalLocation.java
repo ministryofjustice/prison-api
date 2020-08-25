@@ -64,19 +64,21 @@ public class AgencyInternalLocation {
     @Column(name = "CAPACITY")
     private Integer capacity;
 
-    public boolean isActive() { return activeFlag != null && activeFlag.isActive(); }
+    public boolean isActive() {
+        return activeFlag != null && activeFlag.isActive();
+    }
 
-    public boolean isCertified() { return certifiedFlag != null && certifiedFlag.isActive(); }
+    public boolean isCertified() {
+        return certifiedFlag != null && certifiedFlag.isActive();
+    }
 
     public boolean isCell() {
         return locationType != null && locationType.equals("CELL");
     }
 
     public boolean isCellSwap() {
-        return certifiedFlag != null &&
-                !certifiedFlag.isActive() &&
-                activeFlag != null &&
-                activeFlag.isActive() &&
+        return (certifiedFlag == null || !certifiedFlag.isActive()) &&
+                (activeFlag == null || activeFlag.isActive()) &&
                 parentLocationId == null &&
                 locationCode != null &&
                 locationCode.equals("CSWAP");

@@ -64,17 +64,20 @@ public class MovementUpdateService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public void moveToCellSwap(final Long bookingId, final String agency, final String reasonCode, final LocalDateTime dateTime) {
+    public OffenderBooking moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
         validateMoveToCell(reasonCode, dateTime);
 
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
+        final var agency = offenderBooking.getAgencyId();
         final var internalLocation = getCswapLocation(agency);
 
-        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) return;
+        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) return offenderBooking;
 
         bookingService.updateLivingUnit(bookingId, internalLocation);
         bedAssignmentHistoryService.add(bookingId, internalLocation.getLocationId(), reasonCode, movementDateTime);
+
+        return getActiveOffenderBooking(bookingId);
     }
 
     private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
