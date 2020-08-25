@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import uk.gov.justice.hmpps.prison.api.model.Agency;
+import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
+import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
@@ -51,4 +53,6 @@ public interface AgencyService {
     Page<OffenderIepReview> getPrisonIepReview(OffenderIepReviewSearchCriteria criteria);
 
     List<OffenderCell> getCellsWithCapacityInAgency(String agencyId, String attribute);
+
+    AgencyEstablishmentTypes getEstablishmentTypes(final String agencyId);
 }

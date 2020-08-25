@@ -6,12 +6,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -33,4 +37,7 @@ public class AgencyLocation extends AuditableEntity {
     private ActiveFlag activeFlag;
     @Column(name = "LONG_DESCRIPTION")
     private String longDescription;
+    @OneToMany(mappedBy = "agencyLocId", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<AgencyLocationEstablishment> establishmentTypes = new ArrayList<>();
 }

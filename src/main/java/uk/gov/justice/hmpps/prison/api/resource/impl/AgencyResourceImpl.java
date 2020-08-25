@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
+import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
@@ -120,5 +121,10 @@ public class AgencyResourceImpl implements AgencyResource {
         return ResponseEntity.ok()
                 .headers(prisonIepReview.getPaginationHeaders())
                 .body(prisonIepReview.getItems());
+    }
+
+    @Override
+    public AgencyEstablishmentTypes getAgencyEstablishmentTypes(final String agencyId) {
+        return agencyService.getEstablishmentTypes(agencyId);
     }
 }
