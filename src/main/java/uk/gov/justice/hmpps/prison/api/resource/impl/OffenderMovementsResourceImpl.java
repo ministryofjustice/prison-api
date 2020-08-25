@@ -81,7 +81,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     }
 
     @Override
-    public OffenderBooking moveToCellSwap(Long bookingId, String reasonCode, LocalDateTime dateTime) {
+    public OffenderBooking moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
         log.debug("Received moveToCell request for booking id {}, cell location Cell swap, reasonCode {}, date/time {}",
                 bookingId,
                 reasonCode,

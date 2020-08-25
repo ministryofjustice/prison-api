@@ -85,9 +85,9 @@ public interface OffenderMovementsResource {
     @PutMapping("/{bookingId}/move-to-cell-swap")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     OffenderBooking moveToCellSwap(
             @ApiParam(value = "The offender booking id", example = "1200866", required = true) @PathVariable("bookingId") Long bookingId,
             @ApiParam(value = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) @RequestParam("reasonCode") String reasonCode,
