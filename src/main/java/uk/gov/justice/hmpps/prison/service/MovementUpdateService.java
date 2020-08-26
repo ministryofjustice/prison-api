@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -65,8 +66,10 @@ public class MovementUpdateService {
     @VerifyBookingAccess
     @HasWriteScope
     public OffenderBooking moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
-        validateMoveToCell(reasonCode, dateTime);
+        if(reasonCode != null) checkReasonCode(reasonCode);
+        checkDate(dateTime);
 
+        final var reason = reasonCode == null ? "ADM" : reasonCode;
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
         final var agency = offenderBooking.getAgencyId();
@@ -75,7 +78,7 @@ public class MovementUpdateService {
         if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) return offenderBooking;
 
         bookingService.updateLivingUnit(bookingId, internalLocation);
-        bedAssignmentHistoryService.add(bookingId, internalLocation.getLocationId(), reasonCode, movementDateTime);
+        bedAssignmentHistoryService.add(bookingId, internalLocation.getLocationId(), reason, movementDateTime);
 
         return getActiveOffenderBooking(bookingId);
     }
@@ -83,18 +86,22 @@ public class MovementUpdateService {
     private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
         checkReasonCode(reasonCode);
         checkArgument(!StringUtils.isNullOrEmpty(reasonCode), "Reason code is mandatory");
-        checkArgument(
-                dateTime == null || dateTime.isBefore(LocalDateTime.now(clock)) || dateTime.isEqual(LocalDateTime.now(clock)),
-                "The date cannot be in the future"
-        );
+        checkDate(dateTime);
     }
 
-    private void checkReasonCode(String reasonCode) {
+    private void checkReasonCode(final String reasonCode) {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
         } catch(EntityNotFoundException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
+    }
+
+    private void checkDate(final LocalDateTime dateTime) {
+        checkArgument(
+                dateTime == null || dateTime.isBefore(LocalDateTime.now(clock)) || dateTime.isEqual(LocalDateTime.now(clock)),
+                "The date cannot be in the future"
+        );
     }
 
     private OffenderBooking getActiveOffenderBooking(final Long bookingId) {
@@ -110,10 +117,16 @@ public class MovementUpdateService {
     }
 
     private AgencyInternalLocation getCswapLocation(final String agency) {
-        return agencyInternalLocationRepository
+        final var cellSwapLocations = agencyInternalLocationRepository
                 .findByLocationCodeAndAgencyId("CSWAP", agency)
                 .stream()
                 .filter(AgencyInternalLocation::isCellSwap)
+                .collect(Collectors.toList());
+
+        if(cellSwapLocations.size() > 1) throw new RuntimeException("There are more than 1 CSWAP locations configured");
+
+        return cellSwapLocations
+                .stream()
                 .findFirst()
                 .orElseThrow(EntityNotFoundException.withMessage(format("CSWAP location not found for %s", agency)));
     }

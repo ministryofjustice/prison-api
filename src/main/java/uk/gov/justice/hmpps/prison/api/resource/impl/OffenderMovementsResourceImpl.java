@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.PrisonMoveCancellation;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToPrisonMove;
+import uk.gov.justice.hmpps.prison.api.model.RequestMoveToCellSwap;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.api.resource.OffenderMovementsResource;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
@@ -81,7 +82,10 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     }
 
     @Override
-    public OffenderBooking moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
+    public OffenderBooking moveToCellSwap(final Long bookingId, final RequestMoveToCellSwap requestMoveToCellSwap) {
+        final var dateTime = requestMoveToCellSwap.getDateTime();
+        final var reasonCode = requestMoveToCellSwap.getReasonCode();
+
         log.debug("Received moveToCellSwap request for booking id {}, cell location Cell swap, reasonCode {}, date/time {}",
                 bookingId,
                 reasonCode,

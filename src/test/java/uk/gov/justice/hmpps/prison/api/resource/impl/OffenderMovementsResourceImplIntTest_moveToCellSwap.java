@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.util.JwtParameters;
 import java.time.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -74,6 +75,17 @@ public class OffenderMovementsResourceImplIntTest_moveToCellSwap extends Resourc
         verifySuccessResponse(response, BOOKING_ID, NEW_CELL, NEW_CELL_DESC);
         verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", dateTime);
+    }
+
+    @Test
+    public void validRequest_withoutReasonCode_defaultsToAdm() {
+        final var dateTime = LocalDateTime.now().minusHours(1);
+
+        final var response = requestMoveToCellSwap(validToken(), BOOKING_ID_S, null, dateTime.format(ISO_LOCAL_DATE_TIME));
+
+        verifySuccessResponse(response, BOOKING_ID, NEW_CELL, NEW_CELL_DESC);
+        verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
+        verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "ADM", dateTime);
     }
 
     @Test
@@ -169,13 +181,19 @@ public class OffenderMovementsResourceImplIntTest_moveToCellSwap extends Resourc
 
     @SuppressWarnings("Convert2Diamond") // Type on ParameterizedTypeReference required to work around https://bugs.openjdk.java.net/browse/JDK-8210197
     private ResponseEntity<String> requestMoveToCellSwap(final String bearerToken, final String bookingId, final String reasonCode, final String dateTime) {
-        final var entity = createHttpEntity(bearerToken, null);
+        final var body = reasonCode != null ?
+                Map.of("reasonCode", reasonCode, "dateTime", dateTime) :
+                Map.of( "dateTime", dateTime);
+
+        final var entity = createHttpEntity(bearerToken, body);
+
         return testRestTemplate.exchange(
-                format("/api/bookings/%s/move-to-cell-swap/?reasonCode=%s&dateTime=%s", bookingId, reasonCode, dateTime),
+                "/api/bookings/{bookingId}/move-to-cell-swap",
                 PUT,
                 entity,
-                new ParameterizedTypeReference<String>() {
-                });
+                new ParameterizedTypeReference<String>() {},
+                bookingId
+        );
 
     }
 
