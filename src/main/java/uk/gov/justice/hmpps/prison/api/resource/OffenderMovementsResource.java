@@ -16,15 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
-import uk.gov.justice.hmpps.prison.api.model.CourtHearingDateAmendment;
-import uk.gov.justice.hmpps.prison.api.model.CourtHearings;
-import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.api.model.PrisonMoveCancellation;
-import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
-import uk.gov.justice.hmpps.prison.api.model.PrisonToPrisonMove;
-import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
+import uk.gov.justice.hmpps.prison.api.model.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -90,8 +82,7 @@ public interface OffenderMovementsResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     OffenderBooking moveToCellSwap(
             @ApiParam(value = "The offender booking id", example = "1200866", required = true) @PathVariable("bookingId") Long bookingId,
-            @ApiParam(value = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) @RequestParam("reasonCode") String reasonCode,
-            @ApiParam(value = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(value = "dateTime", required = false) LocalDateTime dateTime
+            @RequestBody RequestMoveToCellSwap requestMoveToCellSwap
     );
 
     @PostMapping("/{bookingId}/prison-to-prison")

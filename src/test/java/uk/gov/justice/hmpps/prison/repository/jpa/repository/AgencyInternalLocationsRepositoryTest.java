@@ -43,9 +43,12 @@ public class AgencyInternalLocationsRepositoryTest {
 
     @Test
     public void findCellSwapLocation() {
-        final var location = repository.findByLocationCodeAndAgencyId("CSWAP", "LEI");
+        final var location = repository.findByLocationCodeAndAgencyId("CSWAP", "LEI")
+                .stream()
+                .findFirst()
+                .get();
 
-        assertThat(location.get().getDescription()).isEqualTo("LEI-CSWAP");
+        assertThat(location.getDescription()).isEqualTo("LEI-CSWAP");
     }
 
 }

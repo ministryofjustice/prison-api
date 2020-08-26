@@ -87,6 +87,7 @@ dependencies {
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.1'
     testImplementation 'io.jsonwebtoken:jjwt:0.9.1'
     testImplementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.21'
+    testImplementation 'org.glassfish:javax.el:3.0.0'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
 }
