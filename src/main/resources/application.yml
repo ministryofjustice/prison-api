@@ -43,11 +43,6 @@ management:
       show-details: always
       probes:
         enabled: true
-      group:
-        liveness:
-          include: livenessStateProbeIndicator
-        readiness:
-          include: readinessStateProbeIndicator
     info:
       cache:
         time-to-live: 2000ms
