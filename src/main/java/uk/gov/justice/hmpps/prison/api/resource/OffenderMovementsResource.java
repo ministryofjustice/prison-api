@@ -16,7 +16,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import uk.gov.justice.hmpps.prison.api.model.*;
+import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
+import uk.gov.justice.hmpps.prison.api.model.CourtHearingDateAmendment;
+import uk.gov.justice.hmpps.prison.api.model.CourtHearings;
+import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.api.model.PrisonMoveCancellation;
+import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
+import uk.gov.justice.hmpps.prison.api.model.PrisonToPrisonMove;
+import uk.gov.justice.hmpps.prison.api.model.RequestMoveToCellSwap;
+import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
