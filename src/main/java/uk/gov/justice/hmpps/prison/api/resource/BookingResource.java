@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
 import uk.gov.justice.hmpps.prison.api.model.AlertCreated;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
+import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
@@ -785,4 +787,14 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     OffenderNonAssociationDetails getNonAssociationDetails(@ApiParam(value = "The offender booking id", required = true) @PathVariable("bookingId") Long bookingId);
+
+    @GetMapping("{bookingId}/cell-history")
+    @ApiResponses(value = {
+                        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+                        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+                        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Page<BedAssignment> getBedAssignmentsHistory(
+            @ApiParam(value = "The offender booking linked to the court hearings.", required = true) @PathVariable("bookingId") Long bookingId,
+            @ApiParam(value = "The page number to return. Index starts at 0", defaultValue = "0") @RequestParam(value = "page", required = false) Integer page,
+            @ApiParam(value = "The number of results per page. Defaults to 20.", defaultValue = "20") @RequestParam(value = "size", required = false) Integer size);
 }

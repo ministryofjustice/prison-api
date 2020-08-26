@@ -497,4 +497,15 @@ public class BookingResourceTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(response, 200, "offender_non_association_details_per_vic.json");
     }
+
+    @Test
+    public void getBedAssignmentHistory() {
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/-1/cell-history",
+                HttpMethod.GET,
+                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
+                String.class);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_cell_history.json");
+    }
 }

@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
 import uk.gov.justice.hmpps.prison.api.model.AlertCreated;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
+import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
@@ -64,13 +66,13 @@ import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.resource.BookingResource;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
+import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 import uk.gov.justice.hmpps.prison.service.BookingMaintenanceService;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
@@ -113,6 +115,7 @@ public class BookingResourceImpl implements BookingResource {
     private final InmateService inmateService;
     private final CaseNoteService caseNoteService;
     private final InmateAlertService inmateAlertService;
+    private final BedAssignmentHistoryService bedAssignmentHistoryService;
     private final FinanceService financeService;
     private final ContactService contactService;
     private final AdjudicationService adjudicationService;
@@ -134,7 +137,7 @@ public class BookingResourceImpl implements BookingResource {
                         .iepLevel(iepLevel)
                         .offenderNos(offenderNo)
                         .bookingIds(bookingId)
-                        .pageRequest(new PageRequest(sortFields, sortOrder, pageOffset, pageLimit))
+                        .pageRequest(new uk.gov.justice.hmpps.prison.api.support.PageRequest(sortFields, sortOrder, pageOffset, pageLimit))
                         .build());
 
         return ResponseEntity.ok()
@@ -709,4 +712,13 @@ public class BookingResourceImpl implements BookingResource {
     public OffenderNonAssociationDetails getNonAssociationDetails(final Long bookingId) {
         return offenderNonAssociationsService.retrieve(bookingId);
     }
+
+    @Override
+    public Page<BedAssignment> getBedAssignmentsHistory(final Long bookingId, final Integer page, final Integer size) {
+        final var pageIndex = page != null ? page : 0;
+        final var pageSize = size != null ? size : 20;
+        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
+        return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize));
+    }
+
 }
