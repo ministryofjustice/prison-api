@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
@@ -259,6 +260,17 @@ class MovementUpdateServiceTest {
             verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, CELL_SWAP_LOCATION_ID, SOME_REASON_CODE, LocalDateTime.now(clock));
         }
 
+        @Test
+        void checkIfDefaultReasonCode_isValid() {
+
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"));
+            when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI")).thenReturn(List.of(cellSwapLocation()));
+
+            service.moveToCellSwap(SOME_BOOKING_ID, null, SOME_TIME);
+
+            verify(referenceDomainService).getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), "ADM", false);
+        }
+
 
         @Test
         void noUpdateNeeded_returnsOriginalOffender() {
@@ -305,6 +317,18 @@ class MovementUpdateServiceTest {
             assertThatThrownBy(() -> service.moveToCellSwap(SOME_BOOKING_ID, "ADM", SOME_TIME))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("There are more than 1 CSWAP locations configured");
+        }
+
+        @Test
+        void reasonCodeNotFound_throwsIllegalArgument() {
+            final var badReasonCode = "not_a_reason_code";
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), badReasonCode, false))
+                    .thenThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", CELL_MOVE_REASON, badReasonCode));
+
+            assertThatThrownBy(() -> service.moveToCellSwap(SOME_BOOKING_ID,  badReasonCode, SOME_TIME))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining(CELL_MOVE_REASON.name())
+                    .hasMessageContaining(badReasonCode);
         }
     }
 

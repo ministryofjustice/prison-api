@@ -66,10 +66,10 @@ public class MovementUpdateService {
     @VerifyBookingAccess
     @HasWriteScope
     public OffenderBooking moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
-        if(reasonCode != null) checkReasonCode(reasonCode);
-        checkDate(dateTime);
-
         final var reason = reasonCode == null ? "ADM" : reasonCode;
+
+        validateMoveToCell(reason, dateTime);
+
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
         final var agency = offenderBooking.getAgencyId();
