@@ -79,6 +79,28 @@ public abstract class ResourceTest {
                 .build());
     }
 
+    protected String validToken() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("ITAG_USER")
+                        .scope(List.of("read", "write"))
+                        .roles(List.of())
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
+    protected String readOnlyToken() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("ITAG_USER")
+                        .scope(List.of("read"))
+                        .roles(List.of())
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
     protected <T> void assertThatStatus(final ResponseEntity<T> response, final int status) {
         assertThat(response.getStatusCodeValue()).withFailMessage("Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s", response.getStatusCodeValue(), status, response.getBody()).isEqualTo(status);
     }

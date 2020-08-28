@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.hmpps.prison.api.model.CellSwapResult;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearingDateAmendment;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearings;
@@ -82,7 +83,7 @@ public class OffenderMovementsResourceImpl implements OffenderMovementsResource 
     }
 
     @Override
-    public OffenderBooking moveToCellSwap(final Long bookingId, final RequestMoveToCellSwap requestMoveToCellSwap) {
+    public CellSwapResult moveToCellSwap(final Long bookingId, final RequestMoveToCellSwap requestMoveToCellSwap) {
         final var dateTime = requestMoveToCellSwap.getDateTime();
         final var reasonCode = requestMoveToCellSwap.getReasonCode();
 

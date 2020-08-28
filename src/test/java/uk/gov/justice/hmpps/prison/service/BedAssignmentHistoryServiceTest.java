@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
@@ -16,12 +15,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class BedAssignmentHistoryServiceTest {
 
@@ -93,7 +95,67 @@ class BedAssignmentHistoryServiceTest {
                 .build()
         );
 
+    }
 
+    @Test
+    void getBedAssignmentHistory_forLocationIdAndDateRange() {
+        final var livingUnitId = 1L;
+        final var bedHistoryAssignment = aBedAssignment(1L, livingUnitId);
+
+        when(locationRepository.existsById(livingUnitId)).thenReturn(true);
+        when(repository.findByLivingUnitIdAndDateRange(anyLong(), any(), any()))
+                .thenReturn(List.of(bedHistoryAssignment));
+
+        when(locationRepository.findOneByLocationId(livingUnitId))
+                .thenReturn(Optional.of(AgencyInternalLocation.builder()
+                        .description("MDI-1-2")
+                        .agencyId("MDI")
+                        .build()));
+
+        final var cellHistory = service.getBedAssignmentsHistory(livingUnitId, LocalDate.now(), LocalDate.now());
+
+        assertThat(cellHistory).containsOnly(
+                BedAssignment.builder()
+                        .bookingId(1L)
+                        .livingUnitId(livingUnitId)
+                        .assignmentDate(LocalDate.of(2015, 5, 1))
+                        .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
+                        .assignmentEndDate(LocalDate.of(2016, 5, 1))
+                        .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                        .assignmentReason("Needs moving")
+                        .description("MDI-1-2")
+                        .agencyId("MDI")
+                        .build()
+        );
+    }
+
+    @Test
+    void getBedAssignmentHistory_cellNotFound() {
+        when(locationRepository.existsById(anyLong())).thenReturn(false);
+
+        assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDate.now(), LocalDate.now()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Cell 1 not found");
+    }
+
+    @Test
+    void getBedAssignmentHistory_checkDateOrder() {
+        assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDate.now().plusDays(1), LocalDate.now()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The fromDate should be less then or equal to the toDate");
+    }
+
+
+    private BedAssignmentHistory aBedAssignment(final long bookingId, final long livingUnitId) {
+        return BedAssignmentHistory.builder()
+                .assignmentDate(LocalDate.of(2015, 5, 1))
+                .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
+                .assignmentEndDate(LocalDate.of(2016, 5, 1))
+                .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                .assignmentReason("Needs moving")
+                .livingUnitId(livingUnitId)
+                .offenderBooking(OffenderBooking.builder().bookingId(bookingId).build())
+                .build();
     }
 
 }
