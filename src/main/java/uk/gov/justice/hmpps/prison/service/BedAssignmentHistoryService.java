@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,22 +52,37 @@ public class BedAssignmentHistoryService {
     @VerifyBookingAccess
     public Page<BedAssignment> getBedAssignmentsHistory(final Long bookingId, final PageRequest pageRequest) {
         final var bedAssignmentsHistory = repository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId, pageRequest);
-        final var results = bedAssignmentsHistory.getContent().stream().map(assignment -> {
-                    final var agencyInternalLocation = locationRepository.findOneByLocationId(assignment.getLivingUnitId());
-                    return BedAssignment.builder()
-                                    .livingUnitId(assignment.getLivingUnitId())
-                                    .description(agencyInternalLocation.map(AgencyInternalLocation::getDescription).orElse(null))
-                                    .assignmentDate(assignment.getAssignmentDate())
-                                    .assignmentEndDate(assignment.getAssignmentEndDate())
-                                    .assignmentDateTime(assignment.getAssignmentDateTime())
-                                    .assignmentEndDateTime(assignment.getAssignmentEndDateTime())
-                                    .assignmentReason(assignment.getAssignmentReason())
-                                    .bookingId(assignment.getOffenderBooking().getBookingId())
-                                    .agencyId(agencyInternalLocation.map(AgencyInternalLocation::getAgencyId).orElse(null))
-                                    .build();
-            })
-                        .collect(Collectors.toList());
+        final var results = bedAssignmentsHistory.getContent()
+                .stream()
+                .map(this::transform)
+                .collect(Collectors.toList());
+
         return new PageImpl<>(results, pageRequest, bedAssignmentsHistory.getTotalElements());
     }
 
+    public List<BedAssignment> getBedAssignmentsHistory(final long livingUnitId, final LocalDate from, final LocalDate to) {
+        if (!locationRepository.existsById(livingUnitId)) throw new EntityNotFoundException(String.format("Cell %s not found", livingUnitId));
+
+        return repository
+                .findByLivingUnitIdAndDateRange(livingUnitId, from, to)
+                .stream()
+                .map(this::transform)
+                .collect(Collectors.toList());
+    }
+
+    private BedAssignment transform(final BedAssignmentHistory assignment) {
+        final var agencyInternalLocation = locationRepository.findOneByLocationId(assignment.getLivingUnitId());
+
+        return BedAssignment.builder()
+                .livingUnitId(assignment.getLivingUnitId())
+                .description(agencyInternalLocation.map(AgencyInternalLocation::getDescription).orElse(null))
+                .assignmentDate(assignment.getAssignmentDate())
+                .assignmentEndDate(assignment.getAssignmentEndDate())
+                .assignmentDateTime(assignment.getAssignmentDateTime())
+                .assignmentEndDateTime(assignment.getAssignmentEndDateTime())
+                .assignmentReason(assignment.getAssignmentReason())
+                .bookingId(assignment.getOffenderBooking().getBookingId())
+                .agencyId(agencyInternalLocation.map(AgencyInternalLocation::getAgencyId).orElse(null))
+                .build();
+    }
 }

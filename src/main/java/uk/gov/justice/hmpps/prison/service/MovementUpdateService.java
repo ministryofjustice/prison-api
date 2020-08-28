@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service;
 import com.amazonaws.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.api.model.CellSwapResult;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -65,7 +66,7 @@ public class MovementUpdateService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public OffenderBooking moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
+    public CellSwapResult moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
         final var reason = reasonCode == null ? "ADM" : reasonCode;
 
         validateMoveToCell(reason, dateTime);
@@ -75,12 +76,14 @@ public class MovementUpdateService {
         final var agency = offenderBooking.getAgencyId();
         final var internalLocation = getCswapLocation(agency);
 
-        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) return offenderBooking;
+        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) return transformToCellSwapResult(offenderBooking);
 
         bookingService.updateLivingUnit(bookingId, internalLocation);
         bedAssignmentHistoryService.add(bookingId, internalLocation.getLocationId(), reason, movementDateTime);
 
-        return getActiveOffenderBooking(bookingId);
+        final var latestOffenderBooking = getActiveOffenderBooking(bookingId);
+
+        return transformToCellSwapResult(latestOffenderBooking);
     }
 
     private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
@@ -102,6 +105,15 @@ public class MovementUpdateService {
                 dateTime == null || dateTime.isBefore(LocalDateTime.now(clock)) || dateTime.isEqual(LocalDateTime.now(clock)),
                 "The date cannot be in the future"
         );
+    }
+
+    private CellSwapResult transformToCellSwapResult(final OffenderBooking offenderBooking) {
+        return CellSwapResult.builder()
+                .bookingId(offenderBooking.getBookingId())
+                .agencyId(offenderBooking.getAgencyId())
+                .assignedLivingUnitId(offenderBooking.getAssignedLivingUnitId())
+                .assignedLivingUnitDesc(offenderBooking.getAssignedLivingUnitDesc())
+                .build();
     }
 
     private OffenderBooking getActiveOffenderBooking(final Long bookingId) {

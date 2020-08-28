@@ -146,28 +146,6 @@ public class OffenderMovementsResourceImplIntTest_moveToCellSwap extends Resourc
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
 
-    private String validToken() {
-        return jwtAuthenticationHelper.createJwt(
-                JwtParameters.builder()
-                        .username("ITAG_USER")
-                        .scope(List.of("read", "write"))
-                        .roles(List.of())
-                        .expiryTime(Duration.ofDays(365 * 10))
-                        .build()
-        );
-    }
-
-    private String readOnlyToken() {
-        return jwtAuthenticationHelper.createJwt(
-                JwtParameters.builder()
-                        .username("ITAG_USER")
-                        .scope(List.of("read"))
-                        .roles(List.of())
-                        .expiryTime(Duration.ofDays(365 * 10))
-                        .build()
-        );
-    }
-
     private String differentAgencyToken() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()

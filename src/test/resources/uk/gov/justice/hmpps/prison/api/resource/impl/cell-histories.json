@@ -1,0 +1,21 @@
+[
+  {
+    "bookingId": -1,
+    "livingUnitId": -16,
+    "assignmentDate": "2019-10-17",
+    "assignmentDateTime": "2019-10-17T11:00:00",
+    "assignmentReason": "ADM",
+    "assignmentEndDate": "2020-01-01",
+    "agencyId": "LEI",
+    "description": "LEI-H-1-2"
+  },
+  {
+    "bookingId": -33,
+    "livingUnitId": -16,
+    "assignmentDate": "2020-04-03",
+    "assignmentDateTime": "2020-04-03T11:00:00",
+    "assignmentReason": "ADM",
+    "agencyId": "LEI",
+    "description": "LEI-H-1-2"
+  }
+]
