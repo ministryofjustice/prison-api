@@ -16,7 +16,7 @@ public class CellResourceHistoryTest extends ResourceTest {
     @Test
     public void returnAllBedHistories() {
 
-        final var fromDate =  LocalDate.of(2000,10,16);
+        final var fromDate =  LocalDate.of(2000,10,1);
         final var toDate =    LocalDate.of(2020,10,10);
 
         final var response = makeRequest(SOME_CELL_LOCATION_ID, fromDate.toString(), toDate.toString());
