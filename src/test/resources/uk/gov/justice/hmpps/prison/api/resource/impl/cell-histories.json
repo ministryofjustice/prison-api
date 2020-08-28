@@ -1,6 +1,6 @@
 [
   {
-    "bookingId": -1,
+    "bookingId": -34,
     "livingUnitId": -16,
     "assignmentDate": "2019-10-17",
     "assignmentDateTime": "2019-10-17T11:00:00",
@@ -10,7 +10,7 @@
     "description": "LEI-H-1-2"
   },
   {
-    "bookingId": -33,
+    "bookingId": -34,
     "livingUnitId": -16,
     "assignmentDate": "2020-04-03",
     "assignmentDateTime": "2020-04-03T11:00:00",

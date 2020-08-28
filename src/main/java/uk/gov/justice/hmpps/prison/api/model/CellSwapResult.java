@@ -16,12 +16,12 @@ public class CellSwapResult {
     @ApiModelProperty(required = true, value = "Unique, numeric booking id.", position = 1, example = "1234134")
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Identifier of agency that offender is associated with.", position = 11, example = "MDI")
+    @ApiModelProperty(required = true, value = "Identifier of agency that offender is associated with.", position = 2, example = "MDI")
     private String agencyId;
 
-    @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that offender is assigned to.", position = 12, example = "123123")
+    @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that offender is assigned to.", position = 3, example = "123123")
     private Long assignedLivingUnitId;
 
-    @ApiModelProperty(value = "Description of living unit (e.g. cell) that offender is assigned to.", position = 13, example = "MDI-1-1-3")
+    @ApiModelProperty(value = "Description of living unit (e.g. cell) that offender is assigned to.", position = 4, example = "MDI-1-1-3")
     private String assignedLivingUnitDesc;
 }
