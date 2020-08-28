@@ -61,7 +61,7 @@ public class BedAssignmentHistoryService {
     }
 
     public List<BedAssignment> getBedAssignmentsHistory(final long livingUnitId, final LocalDate from, final LocalDate to) {
-        if(from.isBefore(to) && !from.isEqual(to)) throw new IllegalArgumentException("The fromDate should be less then or equal to the toDate");
+        if(from.isAfter(to) && !from.isEqual(to)) throw new IllegalArgumentException("The fromDate should be less then or equal to the toDate");
         if (!locationRepository.existsById(livingUnitId)) throw new EntityNotFoundException(String.format("Cell %s not found", livingUnitId));
 
         return repository

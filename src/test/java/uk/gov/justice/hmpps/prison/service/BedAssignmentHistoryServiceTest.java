@@ -140,7 +140,7 @@ class BedAssignmentHistoryServiceTest {
 
     @Test
     void getBedAssignmentHistory_checkDateOrder() {
-        assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDate.now().minusDays(1), LocalDate.now()))
+        assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDate.now().plusDays(1), LocalDate.now()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("The fromDate should be less then or equal to the toDate");
     }
