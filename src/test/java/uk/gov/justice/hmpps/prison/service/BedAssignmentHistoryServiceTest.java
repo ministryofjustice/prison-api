@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -135,6 +136,13 @@ class BedAssignmentHistoryServiceTest {
         assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDate.now(), LocalDate.now()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Cell 1 not found");
+    }
+
+    @Test
+    void getBedAssignmentHistory_checkDateOrder() {
+        assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDate.now().minusDays(1), LocalDate.now()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The fromDate should be less then or equal to the toDate");
     }
 
 
