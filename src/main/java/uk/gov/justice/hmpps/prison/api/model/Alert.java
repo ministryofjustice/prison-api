@@ -31,78 +31,78 @@ public class Alert {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
 
-    @ApiModelProperty(required = true, value = "Alert Id", example = "1")
+    @ApiModelProperty(required = true, value = "Alert Id", example = "1", position = 1)
     @JsonProperty("alertId")
     @NotNull
     private Long alertId;
 
-    @ApiModelProperty(required = true, value = "Offender booking id.", example = "14")
+    @ApiModelProperty(required = true, value = "Offender booking id.", example = "14", position = 2)
     @JsonProperty("bookingId")
     @NotNull
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Offender Unique Reference", example = "G3878UK")
+    @ApiModelProperty(required = true, value = "Offender Unique Reference", example = "G3878UK", position = 3)
     @JsonProperty("offenderNo")
     @NotBlank
     private String offenderNo;
 
-    @ApiModelProperty(required = true, value = "Alert Type", example = "X")
+    @ApiModelProperty(required = true, value = "Alert Type", example = "X", position = 4)
     @JsonProperty("alertType")
     @NotBlank
     private String alertType;
 
-    @ApiModelProperty(required = true, value = "Alert Type Description", example = "Security")
+    @ApiModelProperty(required = true, value = "Alert Type Description", example = "Security", position = 5)
     @JsonProperty("alertTypeDescription")
     @NotBlank
     private String alertTypeDescription;
 
-    @ApiModelProperty(required = true, value = "Alert Code", example = "XC")
+    @ApiModelProperty(required = true, value = "Alert Code", example = "XER", position = 6)
     @JsonProperty("alertCode")
     @NotBlank
     private String alertCode;
 
-    @ApiModelProperty(required = true, value = "Alert Code Description", example = "Risk to females")
+    @ApiModelProperty(required = true, value = "Alert Code Description", example = "Escape Risk", position = 7)
     @JsonProperty("alertCodeDescription")
     @NotBlank
     private String alertCodeDescription;
 
-    @ApiModelProperty(required = true, value = "Alert comments", example = "has a large poster on cell wall")
+    @ApiModelProperty(required = true, value = "Alert comments", example = "Profession lock pick.", position = 8)
     @JsonProperty("comment")
     @NotBlank
     private String comment;
 
-    @ApiModelProperty(required = true, value = "Date the alert was created", example = "2019-08-20")
+    @ApiModelProperty(required = true, value = "Date the alert was created", example = "2019-08-20", position = 9)
     @JsonProperty("dateCreated")
     @NotNull
     private LocalDate dateCreated;
 
-    @ApiModelProperty(value = "Date the alert expires", example = "2019-08-20")
+    @ApiModelProperty(value = "Date the alert expires", example = "2020-08-20", position = 10)
     @JsonProperty("dateExpires")
     private LocalDate dateExpires;
 
-    @ApiModelProperty(required = true, value = "True / False based on presence of expiry date")
+    @ApiModelProperty(required = true, value = "True / False based on presence of expiry date", example = "true", position = 11)
     @JsonProperty("expired")
     @NotNull
     private boolean expired;
 
-    @ApiModelProperty(required = true, value = "True / False based on alert status")
+    @ApiModelProperty(required = true, value = "True / False based on alert status", example = "false", position = 12)
     @JsonProperty("active")
     @NotNull
     private boolean active;
 
-    @ApiModelProperty(value = "First name of the user who added the alert", example = "John")
+    @ApiModelProperty(value = "First name of the user who added the alert", example = "John", position = 13)
     @JsonProperty("addedByFirstName")
     private String addedByFirstName;
 
-    @ApiModelProperty(value = "Last name of the user who added the alert", example = "Smith")
+    @ApiModelProperty(value = "Last name of the user who added the alert", example = "Smith", position = 14)
     @JsonProperty("addedByLastName")
     private String addedByLastName;
 
-    @ApiModelProperty(value = "First name of the user who expired the alert", example = "John")
+    @ApiModelProperty(value = "First name of the user who expired the alert", example = "John", position = 15)
     @JsonProperty("expiredByFirstName")
     private String expiredByFirstName;
 
-    @ApiModelProperty(value = "Last name of the user who expired the alert", example = "Smith")
+    @ApiModelProperty(value = "Last name of the user who expired the alert", example = "Smith", position = 16)
     @JsonProperty("expiredByLastName")
     private String expiredByLastName;
 }
