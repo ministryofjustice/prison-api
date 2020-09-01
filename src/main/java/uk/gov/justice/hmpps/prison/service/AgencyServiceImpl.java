@@ -269,11 +269,11 @@ public class AgencyServiceImpl implements AgencyService {
     @Override
     public OffenderCell getCellAttributes(@NotNull final Long locationId) {
         final var livingUnit = livingUnitRepository.findOneByLivingUnitId(locationId);
-        if (livingUnit.isPresent()) {
-            return transform(livingUnit.get(), false);
-        } else {
+        final var offenderCell = livingUnit.map(unit -> transform(unit, false)).orElse(null);
+        if (offenderCell == null) {
             throw EntityNotFoundException.withMessage(String.format("No cell details found for location id %s", locationId));
         }
+        return offenderCell;
     }
 
     @Override
