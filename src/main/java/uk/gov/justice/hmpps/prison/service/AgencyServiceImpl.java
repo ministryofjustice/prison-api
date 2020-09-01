@@ -291,7 +291,7 @@ public class AgencyServiceImpl implements AgencyService {
                 .build();
     }
 
-    private OffenderCell transform(LivingUnit livingUnit, Boolean checkCapacity) {
+    private OffenderCell transform(final LivingUnit livingUnit, final boolean checkCapacity) {
         final var agencyLocation = agencyInternalLocationRepository.findOneByDescription(livingUnit.getDescription());
         if (agencyLocation.isPresent() && (!checkCapacity || agencyLocation.get().isActiveCellWithSpace())) {
             return OffenderCell.builder()
