@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,7 +27,15 @@ public interface CellResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<BedAssignment> getBedAssignmentsHistory(
-            @ApiParam(value = "The offender booking id.", required = true) @PathVariable("locationId") Long locationId,
+            @ApiParam(value = "The location id.", required = true) @PathVariable("locationId") Long locationId,
             @ApiParam(value = "From date", example = "2020-03-24", required = true) @RequestParam(value = "fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @ApiParam(value = "To date", example = "2020-12-01", required = true) @RequestParam(value = "toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate);
+
+    @GetMapping("/{locationId}/attributes")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    OffenderCell getCellAttributes(
+            @ApiParam(value = "The location id.", required = true) @PathVariable("locationId") Long locationId);
 }
