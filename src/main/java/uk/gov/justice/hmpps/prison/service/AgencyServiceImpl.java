@@ -260,10 +260,20 @@ public class AgencyServiceImpl implements AgencyService {
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, String attribute) {
         final var livingUnits = livingUnitRepository.findAllByAgencyLocationId(agencyId);
         return livingUnits.stream()
-                .map(this::transform)
+                .map(livingUnit -> transform(livingUnit, true))
                 .filter(Objects::nonNull)
                 .filter(cell -> attribute == null || cell.getAttributes().stream().map(OffenderCellAttribute::getCode).collect(toList()).contains(attribute))
                 .collect(toList());
+    }
+
+    @Override
+    public OffenderCell getCellAttributes(@NotNull final Long locationId) {
+        final var livingUnit = livingUnitRepository.findOneByLivingUnitId(locationId);
+        final var offenderCell = livingUnit.map(unit -> transform(unit, false)).orElse(null);
+        if (offenderCell == null) {
+            throw EntityNotFoundException.withMessage(String.format("No cell details found for location id %s", locationId));
+        }
+        return offenderCell;
     }
 
     @Override
@@ -281,9 +291,9 @@ public class AgencyServiceImpl implements AgencyService {
                 .build();
     }
 
-    private OffenderCell transform(LivingUnit livingUnit) {
+    private OffenderCell transform(final LivingUnit livingUnit, final boolean checkCapacity) {
         final var agencyLocation = agencyInternalLocationRepository.findOneByDescription(livingUnit.getDescription());
-        if (agencyLocation.isPresent() && agencyLocation.get().isActiveCellWithSpace()) {
+        if (agencyLocation.isPresent() && (!checkCapacity || agencyLocation.get().isActiveCellWithSpace())) {
             return OffenderCell.builder()
                     .capacity(agencyLocation.get().getCapacity())
                     .noOfOccupants(agencyLocation.get().getCurrentOccupancy())

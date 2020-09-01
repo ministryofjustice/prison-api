@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
+import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
+import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
@@ -155,6 +157,91 @@ public class AgencyServiceImplTest {
 
         final var offenderCells = service.getCellsWithCapacityInAgency("LEI", "DO");
         assertThat(offenderCells).extracting("id").containsExactly(-1L);
+    }
+
+    @Test
+    public void shouldReturnCellWithAttributes() {
+        when(livingUnitRepository.findOneByLivingUnitId(anyLong())).thenReturn(Optional.of(LivingUnit.builder()
+                .livingUnitId(-1L)
+                .agencyLocationId("LEI")
+                .description("LEI-1-1-01")
+                .livingUnitType("CELL")
+                .livingUnitCode("01")
+                .level1Code("1")
+                .level2Code("1")
+                .level3Code("01")
+                .level4Code(null)
+                .userDescription("LEI-1-1-01")
+                .housingUnitTypeReferenceCode(new HousingUnitTypeReferenceCode("NA", "Normal Accommodation"))
+                .activeFlag("Y")
+                .capacity(3)
+                .operationalCapacity(2)
+                .noOfOccupants(1)
+                .certifiedFlag("Y")
+                .deactivateDate(null)
+                .reactivateDate(null)
+                .deactiveReasonReferenceCode(null)
+                .comment("Just a cell")
+                .build()));
+        when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-1L, "LEI", "LEI-1-1-01")).thenReturn(buildLivingUnitProfiles());
+
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-01")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(1L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()));
+
+        final var offenderCell = service.getCellAttributes(-1L);
+        assertThat(offenderCell).isEqualTo(
+                OffenderCell.builder()
+                        .attributes(List.of(
+                                OffenderCellAttribute.builder()
+                                        .code("DO")
+                                        .description("Double Occupancy")
+                                        .build(),
+                                OffenderCellAttribute.builder()
+                                        .code("LC")
+                                        .description("Listener Cell")
+                                        .build()))
+                        .id(-1L)
+                        .capacity(2)
+                        .noOfOccupants(2)
+                        .description("LEI-1-1-01")
+                        .userDescription("LEI-1-1-01")
+                        .build());
+    }
+
+    @Test
+    public void shouldReturnCellWithAttributes_notFoundAgencyInternalLocation() {
+        when(livingUnitRepository.findOneByLivingUnitId(anyLong())).thenReturn(Optional.of(LivingUnit.builder()
+                .livingUnitId(-1L)
+                .agencyLocationId("LEI")
+                .description("LEI-1-1-01")
+                .livingUnitType("CELL")
+                .livingUnitCode("01")
+                .level1Code("1")
+                .level2Code("1")
+                .level3Code("01")
+                .level4Code(null)
+                .userDescription("LEI-1-1-01")
+                .housingUnitTypeReferenceCode(new HousingUnitTypeReferenceCode("NA", "Normal Accommodation"))
+                .activeFlag("Y")
+                .capacity(3)
+                .operationalCapacity(2)
+                .noOfOccupants(1)
+                .certifiedFlag("Y")
+                .deactivateDate(null)
+                .reactivateDate(null)
+                .deactiveReasonReferenceCode(null)
+                .comment("Just a cell")
+                .build()));
+
+        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-01")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.getCellAttributes(-19999999L)).isInstanceOf(EntityNotFoundException.class).hasMessage("No cell details found for location id -19999999");
+    }
+
+    @Test
+    public void shouldReturnCellWithAttributes_notFoundLivingUnit() {
+        when(livingUnitRepository.findOneByLivingUnitId(anyLong())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.getCellAttributes(-19999999L)).isInstanceOf(EntityNotFoundException.class).hasMessage("No cell details found for location id -19999999");
     }
 
     @Test

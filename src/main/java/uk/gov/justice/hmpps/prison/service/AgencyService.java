@@ -54,5 +54,7 @@ public interface AgencyService {
 
     List<OffenderCell> getCellsWithCapacityInAgency(String agencyId, String attribute);
 
+    OffenderCell getCellAttributes(Long locationId);
+
     AgencyEstablishmentTypes getEstablishmentTypes(final String agencyId);
 }
