@@ -4,9 +4,12 @@ import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PrisonersResourceTest extends ResourceTest {
     @Test
@@ -23,6 +26,27 @@ public class PrisonersResourceTest extends ResourceTest {
                 });
 
         assertThatJsonFileAndStatus(response, 200, "prisoners_multiple.json");
+    }
+
+    @Test
+    public void testBadRequestForInvalidFormattedOffenderNoPost() {
+        final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, "{ \"offenderNos\": [ \"08:00\" ] }");
+
+        final var response = testRestTemplate.exchange(
+                "/api/prisoners",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<ErrorResponse>() {
+                });
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isEqualTo(ErrorResponse.builder()
+                .status(400)
+                .userMessage("Field: offenderNos[0] - Value contains invalid characters: must match '^[A-Z]\\d{4}[A-Z]{2}$'")
+                .developerMessage("Field: offenderNos[0] - Value contains invalid characters: must match '^[A-Z]\\d{4}[A-Z]{2}$'")
+                .build());
     }
 
     @Test
