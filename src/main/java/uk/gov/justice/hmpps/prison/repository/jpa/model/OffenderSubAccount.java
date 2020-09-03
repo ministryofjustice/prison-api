@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,6 +43,7 @@ public class OffenderSubAccount {
     @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
+    @ToString
     public static class Pk implements Serializable {
         private String prisonId;
         private Long offenderId;

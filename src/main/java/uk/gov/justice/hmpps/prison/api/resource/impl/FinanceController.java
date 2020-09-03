@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction;
-import uk.gov.justice.hmpps.prison.api.model.v1.Transaction;
+import uk.gov.justice.hmpps.prison.api.model.TransferTransactionDetail;
 import uk.gov.justice.hmpps.prison.service.FinanceService;
+import uk.gov.justice.hmpps.prison.util.ResourceUtils;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -30,6 +32,7 @@ import static uk.gov.justice.hmpps.prison.api.resource.v1.NomisApiV1Resource.NOM
 @Api(tags = {"/finance"})
 @RequestMapping("${api.base.path}/finance")
 @AllArgsConstructor
+@Validated
 public class FinanceController {
 
     private final FinanceService financeService;
@@ -47,15 +50,14 @@ public class FinanceController {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 409, message = "Duplicate post - The unique_client_ref has been used before", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    Transaction transferToSavings(
-            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader(value = "X-Client-Name", required = false) String clientName,
-            @ApiParam(name = "prisonId", value = "Prison ID", example = "BMI", required = true) @PathVariable("prisonId") @NotNull @Size(max = 3) String prisonId,
-            @ApiParam(name = "offenderNo", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("offenderNo") @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) String offenderNo,
-            @ApiParam(value = "Saving Transfer Transaction Details", required = true) @RequestBody @NotNull @Valid TransferTransaction transferTransaction) {
+    TransferTransactionDetail transferToSavings(
+            @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") @RequestHeader(value = "X-Client-Name", required = false) final String clientName,
+            @ApiParam(name = "prisonId", value = "Prison ID", example = "BMI", required = true) @PathVariable("prisonId") @Size(max = 3) final String prisonId,
+            @ApiParam(name = "offenderNo", value = "Offender Noms Id", example = "A1417AE", required = true) @PathVariable("offenderNo") @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String offenderNo,
+            @ApiParam(value = "Saving Transfer Transaction Details", required = true) @RequestBody @NotNull @Valid final TransferTransaction transferTransaction) {
 
-        return financeService.transferToSavings(prisonId, offenderNo, transferTransaction);
+        final var uniqueClientId = ResourceUtils.getUniqueClientId(clientName, transferTransaction.getClientUniqueRef());
 
+        return financeService.transferToSavings(prisonId, offenderNo, transferTransaction, uniqueClientId);
     }
-
-
 }

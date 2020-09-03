@@ -11,6 +11,8 @@ import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Map;
 
 @Repository
@@ -40,20 +42,58 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
         return balances;
     }
 
-    public void insertIntoOffenderTrans(final String txType) {
+    @Override
+    public void insertIntoOffenderTrans(final String prisonId, final long offId, final long offBookId,
+                                        final String subActType, final long transPostType, final long transNumber,
+                                        final long transSeq, final BigDecimal transAmount, final String transDesc,
+                                        final Date transDate) {
         final var params = new MapSqlParameterSource()
-                // add the rest!
-                .addValue("p_trans_type", txType);
+                .addValue("p_trans_number", transNumber)
+                .addValue("p_trans_seq", transSeq)
+                .addValue("p_csld_id", prisonId)
+                .addValue("p_off_id", offId)
+                .addValue("p_off_book_id", offBookId)
+                .addValue("p_trans_post_type", transPostType)
+                .addValue("p_trans_type", "OT")
+                .addValue("p_trans_desc", transDesc)
+                .addValue("p_trans_amount", transAmount)
+                .addValue("p_trans_date", transDate)
+                .addValue("p_sub_act_type", subActType)
+                .addValue("p_deduction_flag", null)
+                .addValue("p_pre_ded_amount", null)
+                .addValue("p_deduction_type", null)
+                .addValue("p_payee_corp_id", null)
+                .addValue("p_payee_person_id", null)
+                .addValue("p_info_number", null)
+                .addValue("p_slip_print_flag", "N")
+                .addValue("p_allow_overdrawn", "N");
 
-        final var result = insertIntoOffenderTrans.execute(params);
+        insertIntoOffenderTrans.execute(params);
     }
 
-    public String processGlTransNew() {
+    @Override
+    public void processGlTransNew(final String prisonId, final long offId, final long offBookId, final Object subActTypeDr,
+                                  final long subActTypeCr, final long transNumber, final long transSeq,
+                                  final BigDecimal transAmount, final String transDesc, final Date transDate) {
         final var params = new MapSqlParameterSource()
-                // add the rest!
-                .addValue("p_module_name", "OTDSUBAT");
-        final var result = processGlTransNew.execute(params);
-
-        return String.valueOf(result.get("p_gl_sqnc"));
+                .addValue("p_csld_id", prisonId)
+                .addValue("p_trans_type", "OT")
+                .addValue("p_operation_type", null)
+                .addValue("p_trans_amount", transAmount)
+                .addValue("p_trans_number", transNumber)
+                .addValue("p_trans_date", transDate)
+                .addValue("p_trans_desc", transDesc)
+                .addValue("p_trans_seq", transSeq)
+                .addValue("p_module_name", "OTDSUBAT")
+                .addValue("p_off_id", offId)
+                .addValue("p_off_book_id", offBookId)
+                .addValue("p_sub_act_type_dr", subActTypeDr)
+                .addValue("p_sub_act_type_cr", subActTypeCr)
+                .addValue("p_payee_pers_id", "")
+                .addValue("p_payee_corp_id", "")
+                .addValue("p_payee_name_text", "")
+                .addValue("p_gl_sqnc", 0)
+                .addValue("p_off_ded_id", "");
+        processGlTransNew.execute(params);
     }
 }

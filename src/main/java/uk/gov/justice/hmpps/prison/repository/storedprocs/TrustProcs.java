@@ -9,8 +9,6 @@ import uk.gov.justice.hmpps.prison.repository.v1.storedprocs.SimpleJdbcCallWithE
 import javax.sql.DataSource;
 import java.sql.Types;
 
-
-
 @Component
 public class TrustProcs {
 
@@ -41,9 +39,7 @@ public class TrustProcs {
                             new SqlParameter("p_payee_person_id", Types.NUMERIC),
                             new SqlParameter("p_info_number", Types.VARCHAR),
                             new SqlParameter("p_slip_print_flag", Types.VARCHAR),
-                            new SqlParameter("p_allow_overdrawn", Types.VARCHAR),
-                            new SqlParameter("p_pay_from_date", Types.DATE),
-                            new SqlParameter("p_pay_to_date", Types.DATE)
+                            new SqlParameter("p_allow_overdrawn", Types.VARCHAR)
                     );
             compile();
         }
@@ -74,7 +70,7 @@ public class TrustProcs {
                             new SqlParameter("p_payee_pers_id", Types.NUMERIC),
                             new SqlParameter("p_payee_corp_id", Types.NUMERIC),
                             new SqlParameter("p_payee_name_text", Types.VARCHAR),
-                            new SqlOutParameter("p_gl_sqnc", Types.NUMERIC),
+                            new SqlParameter("p_gl_sqnc", Types.NUMERIC),
                             new SqlParameter("p_off_ded_id", Types.NUMERIC));
             compile();
         }
