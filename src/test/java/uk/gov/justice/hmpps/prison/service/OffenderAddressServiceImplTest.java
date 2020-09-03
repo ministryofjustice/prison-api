@@ -24,8 +24,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PhoneRepository;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -58,7 +58,7 @@ public class OffenderAddressServiceImplTest {
 
         final var offenderNo = "off-1";
 
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any())).thenReturn(List.of(OffenderBooking.builder().offender(Offender.builder().rootOffenderId(1L).build()).build()));
+        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any())).thenReturn(Optional.of(OffenderBooking.builder().offender(Offender.builder().rootOffenderId(1L).build()).build()));
         when(addressRepository.findAllByOwnerClassAndOwnerId(any(), anyLong())).thenReturn(List.of(
                 Address.builder()
                         .addressId(-15L)
@@ -193,20 +193,9 @@ public class OffenderAddressServiceImplTest {
     }
 
     @Test
-    public void testThatExceptionIsThrown_WhenMoreThanOneBookingIsFound() {
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any()))
-                .thenReturn(List.of(OffenderBooking.builder().bookingId(1L).build(), OffenderBooking.builder().bookingId(2L).build()));
-
-        assertThatThrownBy(() -> {
-            offenderAddressService.getAddressesByOffenderNo("A12345");
-        }).isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("More than one active booking was returned for offender number A12345\n");
-    }
-
-    @Test
     public void testThatExceptionIsThrown_WhenNoActiveOffenderBookingsAreFound() {
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any()))
-                .thenReturn(Collections.emptyList());
+                .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> {
             offenderAddressService.getAddressesByOffenderNo("A12345");

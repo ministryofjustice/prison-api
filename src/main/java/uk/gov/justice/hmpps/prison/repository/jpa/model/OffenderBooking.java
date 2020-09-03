@@ -78,6 +78,9 @@ public class OffenderBooking {
     @Builder.Default
     private List<OffenderNonAssociationDetail> nonAssociationDetails = new ArrayList<>();
 
+    @Column(name = "ROOT_OFFENDER_ID")
+    private Long rootOffenderId;
+
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
         omr.setBookingAndSequence(new BookingAndSequence(this, militaryRecords.size()));

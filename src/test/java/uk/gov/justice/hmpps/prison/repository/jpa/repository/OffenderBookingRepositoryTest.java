@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationReason;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
@@ -239,8 +240,21 @@ public class OffenderBookingRepositoryTest {
 
     @Test
     void getNonAssociations() {
-        var nonAssociations = repository.findById(-1L).orElseThrow().getNonAssociationDetails();
+        final var nonAssociations = repository.findById(-1L).orElseThrow().getNonAssociationDetails();
         assertThat(nonAssociations).extracting(OffenderNonAssociationDetail::getNonAssociationReason).containsExactly(new NonAssociationReason("VIC", "Victim"), new NonAssociationReason("RIV", "Rival Gang"));
+    }
+
+    @Test
+    void findByOffenderNomsIdAndActiveFlag() {
+        final var optionalOffenderBooking = repository.findByOffenderNomsIdAndActiveFlag("A1234AA", "Y");
+        //noinspection unchecked
+        assertThat(optionalOffenderBooking).get().extracting(OffenderBooking::getBookingId, OffenderBooking::getRootOffenderId).containsExactly(-1L, -1001L);
+    }
+
+    @Test
+    void findByOffenderNomsIdAndActiveFlagIsN() {
+        final var optionalOffenderBooking = repository.findByOffenderNomsIdAndActiveFlag("A1234AA", "N");
+        assertThat(optionalOffenderBooking).isEmpty();
     }
 }
 
