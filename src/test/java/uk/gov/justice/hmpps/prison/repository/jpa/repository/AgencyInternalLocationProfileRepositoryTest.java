@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HousingAttributeReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnitProfile;
 
@@ -19,30 +20,28 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = NONE)
-public class LivingUnitProfileRepositoryTest {
+public class AgencyInternalLocationProfileRepositoryTest {
 
     @Autowired
-    private LivingUnitProfileRepository repository;
+    private AgencyInternalLocationProfileRepository repository;
 
     @Test
     public void findAllByLivingUnitAndAgencyIdAndDescription() {
         final var expected = List.of(
-                                LivingUnitProfile.builder()
-                                    .livingUnitId(-3L)
-                                    .agencyLocationId("LEI")
-                                    .description("LEI-A-1-1")
-                                    .profileId(-1L)
+                                AgencyInternalLocationProfile.builder()
+                                    .locationId(-3L)
+                                    .code("DO")
+                                    .profileType("HOU_UNIT_ATT")
                                     .housingAttributeReferenceCode(new HousingAttributeReferenceCode("DO", "Double Occupancy"))
                                     .build(),
-                                LivingUnitProfile.builder()
-                                    .livingUnitId(-3L)
-                                    .agencyLocationId("LEI")
-                                    .description("LEI-A-1-1")
-                                    .profileId(-2L)
+                                AgencyInternalLocationProfile.builder()
+                                    .locationId(-3L)
+                                    .code("LC")
+                                    .profileType("HOU_UNIT_ATT")
                                     .housingAttributeReferenceCode(new HousingAttributeReferenceCode("LC", "Listener Cell"))
                                     .build());
 
-        final var profiles = repository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-3L, "LEI", "LEI-A-1-1");
+        final var profiles = repository.findAllByLocationId(-3L);
 
         assertThat(profiles).isEqualTo(expected);
     }

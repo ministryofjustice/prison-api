@@ -22,13 +22,12 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnit;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnitProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.LivingUnitProfileRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.LivingUnitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.transform.LocationTransformer;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -72,8 +71,7 @@ public class AgencyServiceImpl implements AgencyService {
     private final AgencyLocationRepository agencyLocationRepository;
     private final ReferenceDomainService referenceDomainService;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
-    private final LivingUnitRepository livingUnitRepository;
-    private final LivingUnitProfileRepository livingUnitProfileRepository;
+    private final AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
 
     @Override
     public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
@@ -258,9 +256,9 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, String attribute) {
-        final var livingUnits = livingUnitRepository.findAllByAgencyLocationId(agencyId);
-        return livingUnits.stream()
-                .map(livingUnit -> transform(livingUnit, true))
+        final var cells = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag(agencyId, "CELL", ActiveFlag.Y);
+        return cells.stream()
+                .map(cell -> transform(cell, true))
                 .filter(Objects::nonNull)
                 .filter(cell -> attribute == null || cell.getAttributes().stream().map(OffenderCellAttribute::getCode).collect(toList()).contains(attribute))
                 .collect(toList());
@@ -268,8 +266,8 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public OffenderCell getCellAttributes(@NotNull final Long locationId) {
-        final var livingUnit = livingUnitRepository.findOneByLivingUnitId(locationId);
-        final var offenderCell = livingUnit.map(unit -> transform(unit, false)).orElse(null);
+        final var agencyInternalLocation = agencyInternalLocationRepository.findOneByLocationId(locationId);
+        final var offenderCell = agencyInternalLocation.map(cell -> transform(cell, false)).orElse(null);
         if (offenderCell == null) {
             throw EntityNotFoundException.withMessage(String.format("No cell details found for location id %s", locationId));
         }
@@ -291,19 +289,18 @@ public class AgencyServiceImpl implements AgencyService {
                 .build();
     }
 
-    private OffenderCell transform(final LivingUnit livingUnit, final boolean checkCapacity) {
-        final var agencyLocation = agencyInternalLocationRepository.findOneByDescription(livingUnit.getDescription());
-        if (agencyLocation.isPresent() && (!checkCapacity || agencyLocation.get().isActiveCellWithSpace())) {
+    private OffenderCell transform(final AgencyInternalLocation cell, final boolean checkCapacity) {
+        if (!checkCapacity || cell.isActiveCellWithSpace()) {
             return OffenderCell.builder()
-                    .capacity(agencyLocation.get().getCapacity())
-                    .noOfOccupants(agencyLocation.get().getCurrentOccupancy())
-                    .id(livingUnit.getLivingUnitId())
-                    .description(livingUnit.getDescription())
-                    .userDescription(livingUnit.getUserDescription())
-                    .attributes(livingUnitProfileRepository
-                            .findAllByLivingUnitIdAndAgencyLocationIdAndDescription(livingUnit.getLivingUnitId(), livingUnit.getAgencyLocationId(), livingUnit.getDescription())
+                    .capacity(cell.getCapacity())
+                    .noOfOccupants(cell.getCurrentOccupancy())
+                    .id(cell.getLocationId())
+                    .description(cell.getDescription())
+                    .userDescription(cell.getUserDescription())
+                    .attributes(agencyInternalLocationProfileRepository
+                            .findAllByLocationId(cell.getLocationId())
                             .stream()
-                            .filter(LivingUnitProfile::isAttribute)
+                            .filter(AgencyInternalLocationProfile::isAttribute)
                             .map(profile -> OffenderCellAttribute.builder()
                                     .code(profile.getHousingAttributeReferenceCode().getCode())
                                     .description(profile.getHousingAttributeReferenceCode().getDescription())
