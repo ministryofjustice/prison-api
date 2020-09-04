@@ -1,1 +1,131 @@
-[  {    "id": -3,    "description": "LEI-A-1-1",    "userDescription": "LEI-A-1-1",    "capacity": 2,    "noOfOccupants": 1,    "attributes": [      {        "code": "DO",        "description": "Double Occupancy"      },      {        "code": "LC",        "description": "Listener Cell"      }    ]  },  {    "id": -7,    "description": "LEI-A-1-5",    "capacity": 1,    "noOfOccupants": 0,    "attributes": [      {        "code": "LC",        "description": "Listener Cell"      }    ]  },  {    "id": -8,    "description": "LEI-A-1-6",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -12,    "description": "LEI-A-1-10",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -18,    "description": "LEI-H-1-4",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -1000,    "description": "LEI-AABCW-1",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -1001,    "description": "LEI-A-1-1001",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -1002,    "description": "LEI-A-1-1002",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -1003,    "description": "LEI-A-1-1003",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -1004,    "description": "LEI-A-1-1004",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -1005,    "description": "LEI-A-1-1005",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -1006,    "description": "LEI-A-1-1006",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -1007,    "description": "LEI-A-1-1007",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": -1008,    "description": "LEI-A-1-1008",    "capacity": 1,    "noOfOccupants": 0,    "attributes": []  },  {    "id": 1900,    "description": "LEI-OTHER-PRISONERSCEL",    "userDescription": "Prisoner's cell",    "capacity": 10,    "noOfOccupants": 0,    "attributes": []  },  {    "id": 1901,    "description": "LEI-OTHER-OTHERCELL",    "userDescription": "Other cell",    "capacity": 10,    "noOfOccupants": 0,    "attributes": []  }]
+[
+  {
+    "id": -3,
+    "description": "LEI-A-1-1",
+    "userDescription": "LEI-A-1-1",
+    "capacity": 2,
+    "noOfOccupants": 1,
+    "attributes": [
+      {
+        "code": "DO",
+        "description": "Double Occupancy"
+      },
+      {
+        "code": "LC",
+        "description": "Listener Cell"
+      }
+    ]
+  },
+  {
+    "id": -7,
+    "description": "LEI-A-1-5",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": [
+      {
+        "code": "LC",
+        "description": "Listener Cell"
+      }
+    ]
+  },
+  {
+    "id": -8,
+    "description": "LEI-A-1-6",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -12,
+    "description": "LEI-A-1-10",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -18,
+    "description": "LEI-H-1-4",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -1000,
+    "description": "LEI-AABCW-1",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -1001,
+    "description": "LEI-A-1-1001",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -1002,
+    "description": "LEI-A-1-1002",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -1003,
+    "description": "LEI-A-1-1003",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -1004,
+    "description": "LEI-A-1-1004",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -1005,
+    "description": "LEI-A-1-1005",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -1006,
+    "description": "LEI-A-1-1006",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -1007,
+    "description": "LEI-A-1-1007",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": -1008,
+    "description": "LEI-A-1-1008",
+    "capacity": 1,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": 1900,
+    "description": "LEI-OTHER-PRISONERSCEL",
+    "userDescription": "Prisoner's cell",
+    "capacity": 10,
+    "noOfOccupants": 0,
+    "attributes": []
+  },
+  {
+    "id": 1901,
+    "description": "LEI-OTHER-OTHERCELL",
+    "userDescription": "Other cell",
+    "capacity": 10,
+    "noOfOccupants": 0,
+    "attributes": []
+  }
+]
