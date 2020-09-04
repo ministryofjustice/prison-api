@@ -12,7 +12,6 @@ import lombok.ToString;
 import lombok.experimental.Wither;
 
 import javax.validation.constraints.Max;
-import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -27,8 +26,8 @@ import java.util.List;
 @ToString
 public class PrisonerDetailSearchCriteria {
 
-    @ApiModelProperty(value = "List of offender Numbers (NOMS ID), offender numbers have the format: ANNNNAA", position = 1)
-    private List<@Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$")String> offenderNos;
+    @ApiModelProperty(value = "List of offender Numbers (NOMS ID)", position = 1)
+    private List<String> offenderNos;
     @ApiModelProperty(value = "The first name of the offender.", example = "John", position = 2)
     private String firstName;
     @ApiModelProperty(value = "Offender's gender code (F - Female, M - Male, NK - Not Known or NS - Not Specified).", example = "F", allowableValues = "M,F,NK,NS,ALL", position = 3)
