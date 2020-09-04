@@ -105,8 +105,7 @@ public class UserRepositoryTest {
         final var items = page.getItems();
 
         assertThat(items).hasSize(5);
-        assertThat(items).extracting("username").first().isEqualTo("ARTEMIS_PRISON_USER");
-
+        assertThat(items).extracting("username").contains("JBRIEN");
     }
 
     @Test
