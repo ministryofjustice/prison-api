@@ -18,8 +18,6 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -71,7 +69,7 @@ public interface PrisonerResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<PrisonerDetail>> getPrisoners(@ApiParam(value = "", required = true) @Valid @RequestBody PrisonerDetailSearchCriteria criteria,
+    ResponseEntity<List<PrisonerDetail>> getPrisoners(@ApiParam(value = "", required = true) @RequestBody PrisonerDetailSearchCriteria criteria,
                                                       @ApiParam(value = "Requested offset of first record in returned collection of prisoner records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
                                                       @ApiParam(value = "Requested limit to number of prisoner records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
                                                       @ApiParam(value = "Comma separated list of one or more of the following fields - <b>offenderNo, pncNumber, croNumber, firstName, lastName, dob</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
