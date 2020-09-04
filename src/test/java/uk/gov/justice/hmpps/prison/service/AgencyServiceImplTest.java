@@ -16,17 +16,14 @@ import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HousingAttributeReferenceCode;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.HousingUnitTypeReferenceCode;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnit;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnitProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.LivingUnitProfileRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.LivingUnitRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.util.List;
@@ -57,13 +54,11 @@ public class AgencyServiceImplTest {
     @Mock
     private AgencyLocationRepository agencyLocationRepository;
     @Mock
-    private LivingUnitRepository livingUnitRepository;
-    @Mock
-    private LivingUnitProfileRepository livingUnitProfileRepository;
+    private AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
 
     @BeforeEach
     public void setUp() {
-        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyInternalLocationRepository, livingUnitRepository, livingUnitProfileRepository);
+        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyInternalLocationRepository, agencyInternalLocationProfileRepository);
     }
 
     @Test
@@ -133,12 +128,12 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldReturnAllActiveCellsWithSpaceForAgency() {
-        when(livingUnitRepository.findAllByAgencyLocationId(anyString())).thenReturn(buildLivingUnits());
-        when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(anyLong(), anyString(), anyString())).thenReturn(buildLivingUnitProfiles());
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-01")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(1L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build()));
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-02")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(2L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build()));
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-03")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(3L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()));
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-04")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(4L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.N).build()));
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("LEI", "CELL", ActiveFlag.Y)).thenReturn(List.of(
+                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
+                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
+                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
+        ));
+        when(agencyInternalLocationProfileRepository.findAllByLocationId(anyLong())).thenReturn(buildAgencyInternalLocationProfiles());
 
         final var offenderCells = service.getCellsWithCapacityInAgency("LEI", null);
         assertThat(offenderCells).extracting("id").containsExactly(-1L, -2L);
@@ -146,14 +141,14 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldReturnAllActiveCellsWithSpaceForAgencyWithAttribute() {
-        when(livingUnitRepository.findAllByAgencyLocationId(anyString())).thenReturn(buildLivingUnits());
-        when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-1L, "LEI", "LEI-1-1-01")).thenReturn(buildLivingUnitProfiles());
-        when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-2L, "LEI", "LEI-1-1-02")).thenReturn(List.of());
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("LEI", "CELL", ActiveFlag.Y)).thenReturn(List.of(
+                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
+                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
+                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
+        ));
 
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-01")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(1L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build()));
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-02")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(2L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build()));
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-03")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(3L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()));
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-04")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(4L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.N).build()));
+        when(agencyInternalLocationProfileRepository.findAllByLocationId(-1L)).thenReturn(buildAgencyInternalLocationProfiles());
+        when(agencyInternalLocationProfileRepository.findAllByLocationId(-2L)).thenReturn(List.of());
 
         final var offenderCells = service.getCellsWithCapacityInAgency("LEI", "DO");
         assertThat(offenderCells).extracting("id").containsExactly(-1L);
@@ -161,31 +156,17 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldReturnCellWithAttributes() {
-        when(livingUnitRepository.findOneByLivingUnitId(anyLong())).thenReturn(Optional.of(LivingUnit.builder()
-                .livingUnitId(-1L)
-                .agencyLocationId("LEI")
-                .description("LEI-1-1-01")
-                .livingUnitType("CELL")
-                .livingUnitCode("01")
-                .level1Code("1")
-                .level2Code("1")
-                .level3Code("01")
-                .level4Code(null)
-                .userDescription("LEI-1-1-01")
-                .housingUnitTypeReferenceCode(new HousingUnitTypeReferenceCode("NA", "Normal Accommodation"))
-                .activeFlag("Y")
-                .capacity(3)
-                .operationalCapacity(2)
-                .noOfOccupants(1)
-                .certifiedFlag("Y")
-                .deactivateDate(null)
-                .reactivateDate(null)
-                .deactiveReasonReferenceCode(null)
-                .comment("Just a cell")
-                .build()));
-        when(livingUnitProfileRepository.findAllByLivingUnitIdAndAgencyLocationIdAndDescription(-1L, "LEI", "LEI-1-1-01")).thenReturn(buildLivingUnitProfiles());
-
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-01")).thenReturn(Optional.of(AgencyInternalLocation.builder().locationId(1L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()));
+        when(agencyInternalLocationRepository.findOneByLocationId(anyLong())).thenReturn(Optional.of(
+                AgencyInternalLocation.builder()
+                        .locationId(-1L)
+                        .locationType("CELL")
+                        .description("LEI-1-1-01")
+                        .userDescription("LEI-1-1-01")
+                        .capacity(2)
+                        .currentOccupancy(1)
+                        .activeFlag(ActiveFlag.Y)
+                        .build()));
+        when(agencyInternalLocationProfileRepository.findAllByLocationId(anyLong())).thenReturn(buildAgencyInternalLocationProfiles());
 
         final var offenderCell = service.getCellAttributes(-1L);
         assertThat(offenderCell).isEqualTo(
@@ -201,45 +182,15 @@ public class AgencyServiceImplTest {
                                         .build()))
                         .id(-1L)
                         .capacity(2)
-                        .noOfOccupants(2)
+                        .noOfOccupants(1)
                         .description("LEI-1-1-01")
                         .userDescription("LEI-1-1-01")
                         .build());
     }
 
     @Test
-    public void shouldReturnCellWithAttributes_notFoundAgencyInternalLocation() {
-        when(livingUnitRepository.findOneByLivingUnitId(anyLong())).thenReturn(Optional.of(LivingUnit.builder()
-                .livingUnitId(-1L)
-                .agencyLocationId("LEI")
-                .description("LEI-1-1-01")
-                .livingUnitType("CELL")
-                .livingUnitCode("01")
-                .level1Code("1")
-                .level2Code("1")
-                .level3Code("01")
-                .level4Code(null)
-                .userDescription("LEI-1-1-01")
-                .housingUnitTypeReferenceCode(new HousingUnitTypeReferenceCode("NA", "Normal Accommodation"))
-                .activeFlag("Y")
-                .capacity(3)
-                .operationalCapacity(2)
-                .noOfOccupants(1)
-                .certifiedFlag("Y")
-                .deactivateDate(null)
-                .reactivateDate(null)
-                .deactiveReasonReferenceCode(null)
-                .comment("Just a cell")
-                .build()));
-
-        when(agencyInternalLocationRepository.findOneByDescription("LEI-1-1-01")).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.getCellAttributes(-19999999L)).isInstanceOf(EntityNotFoundException.class).hasMessage("No cell details found for location id -19999999");
-    }
-
-    @Test
     public void shouldReturnCellWithAttributes_notFoundLivingUnit() {
-        when(livingUnitRepository.findOneByLivingUnitId(anyLong())).thenReturn(Optional.empty());
+        when(agencyInternalLocationRepository.findOneByLocationId(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getCellAttributes(-19999999L)).isInstanceOf(EntityNotFoundException.class).hasMessage("No cell details found for location id -19999999");
     }
@@ -327,119 +278,21 @@ public class AgencyServiceImplTest {
         );
     }
 
-    private List<LivingUnit> buildLivingUnits() {
+    private List<AgencyInternalLocationProfile> buildAgencyInternalLocationProfiles() {
         return ImmutableList.of(
-                LivingUnit.builder()
-                        .livingUnitId(-1L)
-                        .agencyLocationId("LEI")
-                        .description("LEI-1-1-01")
-                        .livingUnitType("CELL")
-                        .livingUnitCode("01")
-                        .level1Code("1")
-                        .level2Code("1")
-                        .level3Code("01")
-                        .level4Code(null)
-                        .userDescription("LEI-1-1-01")
-                        .housingUnitTypeReferenceCode(new HousingUnitTypeReferenceCode("NA", "Normal Accommodation"))
-                        .activeFlag("Y")
-                        .capacity(3)
-                        .operationalCapacity(2)
-                        .noOfOccupants(1)
-                        .certifiedFlag("Y")
-                        .deactivateDate(null)
-                        .reactivateDate(null)
-                        .deactiveReasonReferenceCode(null)
-                        .comment("Just a cell")
-                        .build(),
-                LivingUnit.builder()
-                        .livingUnitId(-2L)
-                        .agencyLocationId("LEI")
-                        .description("LEI-1-1-02")
-                        .livingUnitType("CELL")
-                        .livingUnitCode("02")
-                        .level1Code("1")
-                        .level2Code("1")
-                        .level3Code("02")
-                        .level4Code(null)
-                        .userDescription("LEI-1-1-02")
-                        .housingUnitTypeReferenceCode(new HousingUnitTypeReferenceCode("NA", "Normal Accommodation"))
-                        .activeFlag("Y")
-                        .capacity(3)
-                        .operationalCapacity(2)
-                        .noOfOccupants(1)
-                        .certifiedFlag("Y")
-                        .deactivateDate(null)
-                        .reactivateDate(null)
-                        .deactiveReasonReferenceCode(null)
-                        .comment("Just a cell")
-                        .build(),
-                LivingUnit.builder()
-                        .livingUnitId(-3L)
-                        .agencyLocationId("LEI")
-                        .description("LEI-1-1-03")
-                        .livingUnitType("CELL")
-                        .livingUnitCode("03")
-                        .level1Code("1")
-                        .level2Code("1")
-                        .level3Code("03")
-                        .level4Code(null)
-                        .userDescription("LEI-1-1-03")
-                        .housingUnitTypeReferenceCode(new HousingUnitTypeReferenceCode("SPLC", "Specialist Cell"))
-                        .activeFlag("Y")
-                        .capacity(3)
-                        .operationalCapacity(2)
-                        .noOfOccupants(2)
-                        .certifiedFlag("Y")
-                        .deactivateDate(null)
-                        .reactivateDate(null)
-                        .deactiveReasonReferenceCode(null)
-                        .comment("Full cell")
-                        .build(),
-                LivingUnit.builder()
-                        .livingUnitId(-4L)
-                        .agencyLocationId("LEI")
-                        .description("LEI-1-1-04")
-                        .livingUnitType("CELL")
-                        .livingUnitCode("04")
-                        .level1Code("1")
-                        .level2Code("1")
-                        .level3Code("04")
-                        .level4Code(null)
-                        .userDescription("LEI-1-1-04")
-                        .housingUnitTypeReferenceCode(new HousingUnitTypeReferenceCode("SPLC", "Specialist Cell"))
-                        .activeFlag("N")
-                        .capacity(3)
-                        .operationalCapacity(2)
-                        .noOfOccupants(1)
-                        .certifiedFlag("Y")
-                        .deactivateDate(null)
-                        .reactivateDate(null)
-                        .deactiveReasonReferenceCode(null)
-                        .comment("Full cell")
-                        .build());
-    }
-
-    private List<LivingUnitProfile> buildLivingUnitProfiles() {
-        return ImmutableList.of(
-                LivingUnitProfile.builder()
-                        .livingUnitId(-1L)
-                        .agencyLocationId("LEI")
-                        .description("LEI-1-1-01")
-                        .profileId(-1L)
+                AgencyInternalLocationProfile.builder()
+                        .locationId(-1L)
+                        .profileType("HOU_UNIT_ATT")
                         .housingAttributeReferenceCode(new HousingAttributeReferenceCode("DO", "Double Occupancy"))
                         .build(),
-                LivingUnitProfile.builder()
-                        .livingUnitId(-1L)
-                        .agencyLocationId("LEI")
-                        .description("LEI-1-1-01")
-                        .profileId(-2L)
+                AgencyInternalLocationProfile.builder()
+                        .locationId(-1L)
+                        .profileType("HOU_UNIT_ATT")
                         .housingAttributeReferenceCode(new HousingAttributeReferenceCode("LC", "Listener Cell"))
                         .build(),
-                LivingUnitProfile.builder()
-                        .livingUnitId(-1L)
-                        .agencyLocationId("LEI")
-                        .description("LEI-1-1-01")
-                        .profileId(-3L)
+                AgencyInternalLocationProfile.builder()
+                        .locationId(-1L)
+                        .profileType("HOU_UNIT_ATT")
                         .housingAttributeReferenceCode(null)
                         .build());
     }
