@@ -10,14 +10,14 @@ import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTr
 
 import java.util.List;
 
-class FinanceControllerTest extends ResourceTest {
+public class FinanceControllerTest extends ResourceTest {
     @MockBean
     private InsertIntoOffenderTrans insertIntoOffenderTrans;
     @MockBean
     private ProcessGlTransNew processGlTransNew;
 
     @Test
-    void transferToSavings() {
+    public void transferToSavings() {
         final var transaction = createTransferTransaction(124L);
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), transaction);
@@ -28,7 +28,7 @@ class FinanceControllerTest extends ResourceTest {
     }
 
     @Test
-    void transferToSavings_validatePrisonId() {
+    public void transferToSavings_validatePrisonId() {
         final var transaction = createTransferTransaction(12345678L);
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), transaction);
@@ -40,7 +40,7 @@ class FinanceControllerTest extends ResourceTest {
     }
 
     @Test
-    void transferToSavings_validateOffenderNo() {
+    public void transferToSavings_validateOffenderNo() {
         final var transaction = createTransferTransaction(12345678L);
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), transaction);
@@ -52,7 +52,7 @@ class FinanceControllerTest extends ResourceTest {
     }
 
     @Test
-    void transferToSavings_validateTransferTransaction() {
+    public void transferToSavings_validateTransferTransaction() {
         final var transaction = createTransferTransaction(0L);
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), transaction);
@@ -64,7 +64,7 @@ class FinanceControllerTest extends ResourceTest {
     }
 
     @Test
-    void transferToSavings_wrongRole() {
+    public void transferToSavings_wrongRole() {
         final var transaction = createTransferTransaction(1L);
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_BOB"), transaction);
