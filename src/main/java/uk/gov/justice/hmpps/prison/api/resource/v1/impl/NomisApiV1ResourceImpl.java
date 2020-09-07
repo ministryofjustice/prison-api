@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.v1.impl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.v1.AccountBalance;
@@ -38,6 +37,7 @@ import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.util.DateTimeConverter.optionalStrToLocalDateTime;
+import static uk.gov.justice.hmpps.prison.util.ResourceUtils.getUniqueClientId;
 
 @RestController
 @RequestMapping("${api.base.path}/v1")
@@ -125,13 +125,6 @@ public class NomisApiV1ResourceImpl implements NomisApiV1Resource {
     @Override
     public LiveRoll getLiveRoll(final String prisonId) {
         return new LiveRoll(service.getLiveRoll(prisonId));
-    }
-
-    private String getUniqueClientId(final String clientName, final String clientUniqueRef) {
-        if (StringUtils.isBlank(clientUniqueRef)) {
-            return null;
-        }
-        return StringUtils.isNotBlank(clientName) ? clientName + "-" + clientUniqueRef : clientUniqueRef;
     }
 
     @Override

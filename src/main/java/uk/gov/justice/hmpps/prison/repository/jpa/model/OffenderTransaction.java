@@ -33,6 +33,12 @@ public class OffenderTransaction {
     @Column(name = "CASELOAD_ID", nullable = false)
     private String prisonId;
 
+    @Column(name = "TXN_REFERENCE_NUMBER")
+    private String transactionReferenceNumber;
+
+    @Column(name = "CLIENT_UNIQUE_REF")
+    private String clientUniqueRef;
+
     @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor

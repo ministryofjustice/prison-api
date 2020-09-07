@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.core.ResolvableType.forType;
@@ -109,6 +110,12 @@ public abstract class ResourceTest {
         assertThatStatus(response, status);
 
         assertThat(getBodyAsJsonContent(response)).isEqualToJson(jsonFile);
+    }
+
+    protected void assertThatJsonAndStatus(final ResponseEntity<String> response, final int status, final String json) {
+        assertThatStatus(response, status);
+
+        assertThatJson(response.getBody()).isEqualTo(json);
     }
 
     protected <T> JsonContent<T> getBodyAsJsonContent(final ResponseEntity<String> response) {
