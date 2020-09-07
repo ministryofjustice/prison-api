@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository.storedprocs;
 
-import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.repository.v1.NomisV1SQLErrorCodeTranslator;
@@ -19,6 +18,7 @@ public class TrustProcs {
             withSchemaName("OMS_OWNER")
                     .withCatalogName("TRUST")
                     .withProcedureName("insert_into_offender_trans")
+                    .withoutProcedureColumnMetaDataAccess()
                     .withNamedBinding()
                     .declareParameters(
                             new SqlParameter("p_trans_number", Types.NUMERIC),
@@ -52,6 +52,7 @@ public class TrustProcs {
             withSchemaName("OMS_OWNER")
                     .withCatalogName("TRUST")
                     .withProcedureName("process_gl_trans_new")
+                    .withoutProcedureColumnMetaDataAccess()
                     .withNamedBinding()
                     .declareParameters(
                             new SqlParameter("p_csld_id", Types.VARCHAR),
