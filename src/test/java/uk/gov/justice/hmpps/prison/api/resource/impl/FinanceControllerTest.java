@@ -60,7 +60,7 @@ public class FinanceControllerTest extends ResourceTest {
                 HttpMethod.POST, requestEntity, String.class, "LEI", "A1234AA");
 
         assertThatJsonAndStatus(responseEntity, 400,
-                "{\"status\":400,\"userMessage\":\"Field: amount - The amount must be greater than 0\",\"developerMessage\":\"Field: amount - must be greater than or equal to 1\"}");
+                "{\"status\":400,\"userMessage\":\"Field: amount - The amount must be greater than 0\",\"developerMessage\":\"Field: amount - The amount must be greater than 0\"}");
     }
 
     @Test
