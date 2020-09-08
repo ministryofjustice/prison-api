@@ -1,10 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import org.springframework.http.HttpStatus;
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

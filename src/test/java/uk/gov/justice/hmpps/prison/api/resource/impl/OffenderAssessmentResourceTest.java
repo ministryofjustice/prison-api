@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.groups.Tuple;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;

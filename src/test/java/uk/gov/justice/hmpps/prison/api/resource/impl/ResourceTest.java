@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JsonContent;
@@ -9,7 +8,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
@@ -27,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.core.ResolvableType.forType;
 
-@RunWith(SpringRunner.class)
 @ActiveProfiles(value = "test")
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = PrisonApiServer.class)
 public abstract class ResourceTest {

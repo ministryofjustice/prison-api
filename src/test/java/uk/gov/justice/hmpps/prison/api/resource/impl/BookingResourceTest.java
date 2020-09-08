@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
