@@ -17,5 +17,14 @@
     "assignmentReason": "ADM",
     "agencyId": "LEI",
     "description": "LEI-H-1-2"
+  },
+  {
+    "bookingId": -34,
+    "livingUnitId": -16,
+    "assignmentDate": "1985-04-03",
+    "assignmentDateTime": "1985-04-03T11:00:00",
+    "assignmentReason": "ADM",
+    "agencyId": "LEI",
+    "description": "LEI-H-1-2"
   }
 ]
