@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.keyworker;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -10,7 +9,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.KeyWorkerAllocationRepository;
@@ -20,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
+
 @JdbcTest()
 @Transactional
 @AutoConfigureTestDatabase(replace = NONE)
@@ -31,7 +29,7 @@ public class KeyWorkerAllocationRepositoryTest {
     @Autowired
     private KeyWorkerAllocationRepository repo;
 
-    @Before
+    @BeforeEach
     public void init() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }

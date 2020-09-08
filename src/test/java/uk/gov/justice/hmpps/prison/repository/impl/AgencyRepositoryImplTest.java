@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.impl;
 
 import com.google.common.collect.ImmutableList;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
