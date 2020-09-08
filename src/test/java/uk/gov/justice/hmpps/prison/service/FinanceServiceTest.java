@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AccountCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccount;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -72,10 +73,8 @@ class FinanceServiceTest {
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
                 Optional.of(offenderBooking));
 
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("REG"))).thenReturn(
+        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
                 Optional.of(AccountCode.builder().accountCode(2101L).build()));
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SAV"))).thenReturn(
-                Optional.of(AccountCode.builder().accountCode(2102L).build()));
 
         assertThatThrownBy(() -> financeService.transferToSavings("LEI", "AA2134", transaction, "1234"))
                 .hasMessage("Offender AA2134 found at prison WRONG_PRISON instead of LEI");
@@ -88,10 +87,8 @@ class FinanceServiceTest {
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("REG"))).thenReturn(
+        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
                 Optional.of(AccountCode.builder().accountCode(2101L).build()));
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SAV"))).thenReturn(
-                Optional.of(AccountCode.builder().accountCode(2102L).build()));
 
         assertThatThrownBy(() -> financeService.transferToSavings("LEI", "AA2134", transaction, "1234"))
                 .hasMessage("Offender trust account not found");
@@ -104,10 +101,8 @@ class FinanceServiceTest {
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("REG"))).thenReturn(
+        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
                 Optional.of(AccountCode.builder().accountCode(2101L).build()));
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SAV"))).thenReturn(
-                Optional.of(AccountCode.builder().accountCode(2102L).build()));
 
         when(offenderTrustAccountRepository.findById(any())).thenReturn(
                 Optional.of(OffenderTrustAccount.builder().accountClosedFlag("Y").build()));
@@ -123,10 +118,8 @@ class FinanceServiceTest {
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("REG"))).thenReturn(
+        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
                 Optional.of(AccountCode.builder().accountCode(2101L).build()));
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SAV"))).thenReturn(
-                Optional.of(AccountCode.builder().accountCode(2102L).build()));
 
         when(offenderTrustAccountRepository.findById(any())).thenReturn(
                 Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()));
@@ -142,18 +135,16 @@ class FinanceServiceTest {
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("REG"))).thenReturn(
+        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
                 Optional.of(AccountCode.builder().accountCode(2101L).build()));
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SAV"))).thenReturn(
-                Optional.of(AccountCode.builder().accountCode(2102L).build()));
 
         when(offenderTrustAccountRepository.findById(any())).thenReturn(
                 Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()));
         when(offenderSubAccountRepository.findById(any())).thenReturn(
-                Optional.of(OffenderSubAccount.builder().balance(new BigDecimal("12.33")).build()));
+                Optional.of(OffenderSubAccount.builder().balance(new BigDecimal("12")).build()));
 
         assertThatThrownBy(() -> financeService.transferToSavings("LEI", "AA2134", transaction, "1234"))
-                .hasMessage("Not enough money in offender sub account balance - 12.33");
+                .hasMessage("Not enough money in offender sub account balance - 12.00");
     }
 
     @Test
@@ -163,20 +154,51 @@ class FinanceServiceTest {
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("REG"))).thenReturn(
+        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
                 Optional.of(AccountCode.builder().accountCode(2101L).build()));
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SAV"))).thenReturn(
-                Optional.of(AccountCode.builder().accountCode(2102L).build()));
 
         when(offenderTrustAccountRepository.findById(any())).thenReturn(
                 Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()));
         when(offenderSubAccountRepository.findById(any())).thenReturn(
                 Optional.of(OffenderSubAccount.builder().balance(new BigDecimal("12.34")).build()));
 
+        when(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L);
+        when(offenderTransactionRepository.findById(any())).thenReturn(Optional.of(
+                OffenderTransaction.builder().build()));
+
         final var transfer = financeService.transferToSavings("LEI", "AA2134", transaction, "1234");
-        assertThat(transfer.getTransactionId()).isEqualTo("12345");
+        assertThat(transfer.getTransactionId()).isEqualTo(12345);
         assertThat(transfer.getDebitTransaction().getId()).isEqualTo("12345-1");
         assertThat(transfer.getCreditTransaction().getId()).isEqualTo("12345-2");
+    }
+
+    @Test
+    void testTransfer_setClientUniqueRef() {
+        final var transaction = createTransferTransaction();
+
+        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
+                Optional.of(createOffenderBooking()));
+
+        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
+                Optional.of(AccountCode.builder().accountCode(2101L).build()));
+
+        when(offenderTrustAccountRepository.findById(any())).thenReturn(
+                Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()));
+        when(offenderSubAccountRepository.findById(any())).thenReturn(
+                Optional.of(OffenderSubAccount.builder().balance(new BigDecimal("12.34")).build()));
+
+        when(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L);
+        final var transaction1 = OffenderTransaction.builder().build();
+        final var transaction2 = OffenderTransaction.builder().build();
+        when(offenderTransactionRepository.findById(any()))
+                .thenReturn(Optional.of(transaction1))
+                .thenReturn(Optional.of(transaction2));
+
+        financeService.transferToSavings("LEI", "AA2134", transaction, "clientUniqueId");
+        assertThat(transaction1.getClientUniqueRef()).isEqualTo("clientUniqueId");
+        assertThat(transaction1.getTransactionReferenceNumber()).isEqualTo("transId");
+        assertThat(transaction2.getClientUniqueRef()).isNull();
+        assertThat(transaction2.getTransactionReferenceNumber()).isEqualTo("transId");
     }
 
     @Test
@@ -186,28 +208,35 @@ class FinanceServiceTest {
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("REG"))).thenReturn(
+        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
                 Optional.of(AccountCode.builder().accountCode(2101L).build()));
-        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SAV"))).thenReturn(
-                Optional.of(AccountCode.builder().accountCode(2102L).build()));
 
         when(offenderTrustAccountRepository.findById(any())).thenReturn(
                 Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()));
         when(offenderSubAccountRepository.findById(any())).thenReturn(
                 Optional.of(OffenderSubAccount.builder().balance(new BigDecimal("12.34")).build()));
 
+        when(offenderTransactionRepository.findById(any())).thenReturn(Optional.of(
+                OffenderTransaction.builder().build()));
+        when(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L);
+
         financeService.transferToSavings("LEI", "AA2134", transaction, "1234");
 
         verify(offenderBookingRepository).findByOffenderNomsIdAndActiveFlag("AA2134", "Y");
-        verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "REG");
-        verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "SAV");
+        verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "SPND");
 
         verify(offenderTrustAccountRepository).findById(new OffenderTrustAccount.Pk("LEI", 12L));
         verify(offenderSubAccountRepository).findById(new OffenderSubAccount.Pk("LEI", 12L, 2101L));
+
+        verify(financeRepository).insertIntoOffenderTrans(eq("LEI"), eq(12L), eq(1L), eq("DR"), eq("SPND"), eq(12345L), eq(1L), eq(new BigDecimal("12.34")), eq("desc"), any());
+        verify(financeRepository).insertIntoOffenderTrans(eq("LEI"), eq(12L), eq(1L), eq("CR"), eq("SAV"), eq(12345L), eq(2L), eq(new BigDecimal("12.34")), eq("desc"), any());
+        verify(financeRepository).processGlTransNew(eq("LEI"), eq(12L), eq(1L), eq("SPND"), eq("SAV"), eq(12345L), eq(1L), eq(new BigDecimal("12.34")), eq("desc"), any());
     }
 
+    @NotNull
     private OffenderBooking createOffenderBooking() {
         return OffenderBooking.builder()
+                .bookingId(1L)
                 .rootOffenderId(12L)
                 .location(AgencyLocation.builder().id("LEI").build())
                 .build();
