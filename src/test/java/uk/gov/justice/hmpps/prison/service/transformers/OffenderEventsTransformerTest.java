@@ -2,8 +2,7 @@ package uk.gov.justice.hmpps.prison.service.transformers;
 
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEvent;
 import uk.gov.justice.hmpps.prison.service.xtag.Xtag;
 import uk.gov.justice.hmpps.prison.service.xtag.XtagContent;
@@ -30,12 +29,7 @@ public class OffenderEventsTransformerTest {
             ",\"userid\":\"QWU90D\"\n" +
             "},\"text\":\"[redacted]stice.gov.uk \\n\\u260F 01811 8055 (Direct \\u2013 22222) \\u#### N/A [redacted]\"\n" +
             ",\"amended\":false}}";
-    private OffenderEventsTransformer offenderEventsTransformer;
-
-    @Before
-    public void setup() {
-        offenderEventsTransformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
-    }
+    private OffenderEventsTransformer offenderEventsTransformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
 
     @Test
     public void canDeserializeIntoXtagContent() {

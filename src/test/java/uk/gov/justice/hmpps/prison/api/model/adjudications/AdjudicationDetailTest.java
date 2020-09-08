@@ -1,19 +1,16 @@
 package uk.gov.justice.hmpps.prison.api.model.adjudications;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.hmpps.prison.web.config.ObjectMapperConfiguration;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
 @JsonTest
 @ContextConfiguration(classes = ObjectMapperConfiguration.class)
 public class AdjudicationDetailTest {

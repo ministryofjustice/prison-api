@@ -1,13 +1,11 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
@@ -21,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
+
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
@@ -55,28 +53,28 @@ public class StaffRepositoryTest {
         assertThat(staffDetail).isNotPresent();
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void testFindStaffByPersonnelIdentifierWrongIdType() {
         final var testIdType = "SYS2";
         final var testId = "sysuser@system1.com";
 
-        repository.findStaffByPersonnelIdentifier(testIdType, testId).orElseThrow(EntityNotFoundException.withId(testId));
+        assertThat(repository.findStaffByPersonnelIdentifier(testIdType, testId)).isEmpty();
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void testFindStaffByPersonnelIdentifierWrongId() {
         final var testIdType = "SYS1";
         final var testId = "sysuser@system2.com";
 
-        repository.findStaffByPersonnelIdentifier(testIdType, testId).orElseThrow(EntityNotFoundException.withId(testId));
+        assertThat(repository.findStaffByPersonnelIdentifier(testIdType, testId)).isEmpty();
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void testFindStaffByPersonnelIdentifierDuplicateIdentifier() {
         final var testIdType = "SYS9";
         final var testId = "sysuser@system9.com";
 
-        repository.findStaffByPersonnelIdentifier(testIdType, testId).orElseThrow(EntityNotFoundException.withId(testId));
+        assertThat(repository.findStaffByPersonnelIdentifier(testIdType, testId)).isEmpty();
     }
 
     @Test

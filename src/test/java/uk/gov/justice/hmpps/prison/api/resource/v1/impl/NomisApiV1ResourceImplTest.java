@@ -1,11 +1,11 @@
 package uk.gov.justice.hmpps.prison.api.resource.v1.impl;
 
 import com.google.common.collect.ImmutableSortedMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.v1.AccountBalance;
 import uk.gov.justice.hmpps.prison.api.model.v1.AccountTransaction;
 import uk.gov.justice.hmpps.prison.api.model.v1.ActiveOffender;
@@ -45,14 +45,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NomisApiV1ResourceImplTest {
     @Mock
     private NomisApiV1Service service;
 
     private NomisApiV1ResourceImpl nomisApiV1Resource;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         nomisApiV1Resource = new NomisApiV1ResourceImpl(service);
     }

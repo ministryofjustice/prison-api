@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.v1.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.boot.test.mock.mockito.MockBean;

@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.web.config;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
@@ -18,12 +17,7 @@ import static uk.gov.justice.hmpps.prison.security.AuthSource.NONE;
 public class AuthAwareAuthenticationConverterTest {
 
     private AuthAwareAuthenticationConverter authenticationConverter = new AuthAwareAuthenticationConverter();
-    private Jwt jwt;
-
-    @Before
-    public void setUp() {
-        jwt = mock(Jwt.class);
-    }
+    private Jwt jwt = mock(Jwt.class);
 
     @Test
     public void convert_basicAttributes_attributesCopied() {

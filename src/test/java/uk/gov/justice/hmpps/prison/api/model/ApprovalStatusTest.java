@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -13,7 +13,7 @@ import static uk.gov.justice.hmpps.prison.api.model.ApprovalStatus.builder;
 public class ApprovalStatusTest {
     private static Validator validator;
 
-    @BeforeClass
+    @BeforeAll
     public static void createValidator() {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
