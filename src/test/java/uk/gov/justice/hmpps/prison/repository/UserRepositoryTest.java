@@ -1,14 +1,12 @@
 package uk.gov.justice.hmpps.prison.repository;
 
 import org.assertj.core.groups.Tuple;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
@@ -25,7 +23,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 import static uk.gov.justice.hmpps.prison.service.UserService.STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
+
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
@@ -74,24 +72,24 @@ public class UserRepositoryTest {
         assertThat(roles).extracting("roleCode").doesNotContain("ACCESS_ROLE_ADMIN");
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void testFindUserByStaffIdAndStaffUserTypeUnknownStaffId() {
         final var staffId = -99L;
 
-        userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
+       assertThat(userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION)).isEmpty();
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void testFindUserByStaffIdAndStaffUserTypeInvalidUserType() {
         final var staffId = -1L;
         final var staffUserType = "INVALID";
 
-        userRepository.findByStaffIdAndStaffUserType(staffId, staffUserType).orElseThrow(EntityNotFoundException.withId(staffId));
+        assertThat(userRepository.findByStaffIdAndStaffUserType(staffId, staffUserType)).isEmpty();
     }
 
     @Test
     public void testFindUserByStaffIdAndStaffUserType() {
-        final Long staffId = -1L;
+        final var staffId = -1L;
 
         final var user = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
 

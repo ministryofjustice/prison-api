@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.security;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

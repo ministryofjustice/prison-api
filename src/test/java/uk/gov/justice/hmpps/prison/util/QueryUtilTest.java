@@ -1,8 +1,10 @@
 package uk.gov.justice.hmpps.prison.util;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 public class QueryUtilTest {
@@ -55,9 +57,10 @@ public class QueryUtilTest {
         assertThat(criteriaResult).isEqualTo("FROM TMP1 t1 INNER JOIN TMP2 t2 ON t1.ID = t2.ID LEFT JOIN TMP3 t3 ON t3.ID = t2.ID");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testConvertToDateNullDateValue() {
-        QueryUtil.convertToDate(null);
+        assertThatThrownBy(() -> QueryUtil.convertToDate(null))
+        .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

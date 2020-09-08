@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -10,7 +9,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
@@ -22,10 +20,11 @@ import uk.gov.justice.hmpps.prison.service.GlobalSearchService;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
+
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
@@ -36,7 +35,7 @@ public class OffenderRepositoryTest {
 
     private final PageRequest defaultPageRequest = new PageRequest(GlobalSearchService.DEFAULT_GLOBAL_SEARCH_OFFENDER_SORT);
 
-    @Before
+    @BeforeEach
     public void init() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
@@ -53,13 +52,13 @@ public class OffenderRepositoryTest {
         assertThat(offender.getLastName()).isEqualTo("ANDREWS");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testfindOffendersWithInvalidPNCNumberOnly() {
         final var TEST_PNC_NUMBER = "PNC0193032";
 
         final var criteria = criteriaForPNCNumber(TEST_PNC_NUMBER);
 
-        findOffender(criteria);
+        assertThatThrownBy(() -> findOffender(criteria)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

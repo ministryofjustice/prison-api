@@ -1,12 +1,12 @@
 package uk.gov.justice.hmpps.prison.service;
 
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
@@ -26,7 +26,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class XtagEventsServiceTest {
 
     private final Timestamp MOVEMENT_TIME = Timestamp.valueOf("2019-07-12 21:00:00.000");
@@ -48,7 +48,7 @@ public class XtagEventsServiceTest {
 
     private XtagEventsService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = new XtagEventsService(repository, transformer, movementsService, offenderRepository, offenderBookingRepository);
     }

@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository;
 
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -12,7 +11,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -46,6 +44,7 @@ import java.util.Set;
 
 import static java.time.LocalDate.parse;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -55,7 +54,7 @@ import static uk.gov.justice.hmpps.prison.util.Extractors.extractInteger;
 import static uk.gov.justice.hmpps.prison.util.Extractors.extractString;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
+
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
@@ -68,7 +67,7 @@ public class InmateRepositoryTest {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    @Before
+    @BeforeEach
     public void init() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
@@ -310,11 +309,11 @@ public class InmateRepositoryTest {
         assertThat(offender.getLastName()).isEqualTo("ANDREWS");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testFindOffendersWithInvalidPNCNumberOnly() {
         final var TEST_PNC_NUMBER = "PNC0193032";
 
-        buildQuery(criteriaForPNCNumber(TEST_PNC_NUMBER));
+        assertThatThrownBy(() -> buildQuery(criteriaForPNCNumber(TEST_PNC_NUMBER))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -512,11 +511,11 @@ public class InmateRepositoryTest {
         assertThat(offender.getLastName()).isEqualTo("ANDREWS");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testfindOffenderAliasesWithInvalidPNCNumberOnly() {
         final var TEST_PNC_NUMBER = "PNC0193032";
 
-        buildQuery(criteriaForPNCNumber(TEST_PNC_NUMBER));
+        assertThatThrownBy(() -> buildQuery(criteriaForPNCNumber(TEST_PNC_NUMBER))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -894,7 +893,7 @@ public class InmateRepositoryTest {
                 Tuple.tuple("A1234AE", -5L, "DONALD", "MATTHEWS", AWAITING_APPROVAL));
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -5 AND ASSESSMENT_SEQ = 3");
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"),
                         extractString("CALC_SUP_LEVEL_TYPE"),
                         extractInteger("ASSESSMENT_TYPE_ID"),
@@ -929,7 +928,7 @@ public class InmateRepositoryTest {
         repository.updateCategory(catDetail);
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 AND ASSESSMENT_SEQ = 4");
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"),
                         extractString("CALC_SUP_LEVEL_TYPE"),
                         extractString("ASSESS_STATUS"),
@@ -952,7 +951,7 @@ public class InmateRepositoryTest {
         repository.updateCategory(catDetail);
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -37 AND ASSESSMENT_SEQ = 3");
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"),
                         extractString("CALC_SUP_LEVEL_TYPE"))
                 .containsExactly(Tuple.tuple(3, "B"));
@@ -978,11 +977,11 @@ public class InmateRepositoryTest {
         repository.approveCategory(catDetail);
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
                 .contains(Tuple.tuple(6, "I")
                 );
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"),
                         extractString("REVIEW_SUP_LEVEL_TYPE"),
                         extractString("REVIEW_COMMITTE_CODE"),
@@ -1021,7 +1020,7 @@ public class InmateRepositoryTest {
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 order by ASSESSMENT_SEQ asc");
 
         // after making the pending cat active should make any earlier categorisation inactive (regardless of order)
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
                 .contains(Tuple.tuple(1, "I"), Tuple.tuple(2, "I"), Tuple.tuple(3, "I"), Tuple.tuple(4, "A")
                 );
@@ -1048,7 +1047,7 @@ public class InmateRepositoryTest {
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -36 order by ASSESSMENT_SEQ asc");
 
         // confirm single categorisation is active
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
                 .contains(Tuple.tuple(1, "A"));
     }
@@ -1066,7 +1065,7 @@ public class InmateRepositoryTest {
         repository.approveCategory(catDetail);
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"),
                         extractString("REVIEW_SUP_LEVEL_TYPE"),
                         extractString("REVIEW_COMMITTE_CODE"),
@@ -1098,11 +1097,11 @@ public class InmateRepositoryTest {
         repository.approveCategory(catDetail);
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"), extractString("ASSESS_STATUS"))
                 .contains(Tuple.tuple(6, "I")
                 );
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"),
                         extractString("REVIEW_SUP_LEVEL_TYPE"),
                         extractString("REVIEW_COMMITTE_CODE"),
@@ -1131,7 +1130,7 @@ public class InmateRepositoryTest {
         repository.rejectCategory(catDetail);
 
         final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 AND ASSESSMENT_SEQ = 4");
-        assertThat(results).asList()
+        assertThat(results)
                 .extracting(extractInteger("ASSESSMENT_SEQ"),
                         extractString("EVALUATION_RESULT_CODE"),
                         extractString("REVIEW_COMMITTE_CODE"),
@@ -1141,7 +1140,7 @@ public class InmateRepositoryTest {
         assertThat((Date) results.get(0).get("EVALUATION_DATE")).isCloseTo("2019-02-27", 1000);
     }
 
-    @Test(expected = HttpClientErrorException.class)
+    @Test
     @Transactional
     public void testRejectCategoryNotFound() {
         final var catDetail = CategoryRejectionDetail.builder()
@@ -1149,7 +1148,7 @@ public class InmateRepositoryTest {
                 .assessmentSeq(99)
                 .build();
 
-        repository.rejectCategory(catDetail);
+        assertThatThrownBy(() -> repository.rejectCategory(catDetail)).isInstanceOf(HttpClientErrorException.class);
     }
 
     @Test
