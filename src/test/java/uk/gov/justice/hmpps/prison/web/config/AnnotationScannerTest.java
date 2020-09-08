@@ -1,37 +1,42 @@
 package uk.gov.justice.hmpps.prison.web.config;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AnnotationScannerTest {
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testFindAnnotatedClassesSinglePackageParameterValidation1() {
-        AnnotationScanner.findAnnotatedClasses(null, "");
+        assertThatThrownBy(() -> AnnotationScanner.findAnnotatedClasses(null, ""))
+                .isInstanceOf(NullPointerException.class);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testFindAnnotatedClassesSinglePackageParameterValidation2() {
         final String nowt = null;
 
-        AnnotationScanner.findAnnotatedClasses(AnnotationScanner.class, nowt);
+        assertThatThrownBy(() -> AnnotationScanner.findAnnotatedClasses(AnnotationScanner.class, nowt))
+                .isInstanceOf(NullPointerException.class);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testFindAnnotatedClassesMultiplePackagesParameterValidation1() {
         final var packages = new String[]{"wibble", "wobble"};
 
-        AnnotationScanner.findAnnotatedClasses(null, packages);
+        assertThatThrownBy(() -> AnnotationScanner.findAnnotatedClasses(null, packages))
+                .isInstanceOf(NullPointerException.class);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testFindAnnotatedClassesMultiplePackagesParameterValidation2() {
         final String[] nowts = null;
 
-        AnnotationScanner.findAnnotatedClasses(AnnotationScanner.class, nowts);
+        assertThatThrownBy(() -> AnnotationScanner.findAnnotatedClasses(AnnotationScanner.class, nowts))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test

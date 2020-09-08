@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.security;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.hmpps.prison.security.AuthSource.AUTH;

@@ -1,8 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model.bulkappointments;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -26,7 +26,7 @@ public class AppointmentsToCreateTest {
 
     private static Validator validator;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpValidator() {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
