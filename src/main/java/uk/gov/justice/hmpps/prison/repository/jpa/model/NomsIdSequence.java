@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,10 +9,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Builder
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 @ToString
 public class NomsIdSequence {
 
@@ -137,7 +135,7 @@ public class NomsIdSequence {
         final var lvReturnValue = lvPrefixValue + StringUtils.leftPad(String.valueOf(nomsId + 1), 4, "0") + lvSuffixValue;
 
         if (lvReturnValue.equals(currentPrefix + "9999" + currentSuffix)) {
-            if (suffixAlphaSeq == 702) {
+            if (suffixAlphaSeq == 702) {  // 702 is (26 x 26) + 26 i.e. ZZ
                 lvSuffixValue = "AA";
                 var lvPrefixSeqValue = prefixAlphaSeq + 1;
                 lvPrefixValue = alphabetic(lvPrefixSeqValue);
@@ -153,38 +151,35 @@ public class NomsIdSequence {
                     .prefixAlphaSeq(lvPrefixSeqValue)
                     .nomsId(0)
                     .build();
-
-            } else {
-
-                var lvSuffixSeqValue = suffixAlphaSeq + 1;
-                lvSuffixValue = alphabetic(lvSuffixSeqValue);
-
-
-                if (EXCLUDED_SUFFIX.contains(lvSuffixValue)) {
-                    lvSuffixSeqValue = lvSuffixSeqValue + 1;
-                    lvSuffixValue = alphabetic(lvSuffixSeqValue);
-                } else if (List.of("BA", "IA", "OA", "SA", "UA").contains(lvSuffixValue)) {
-                    lvSuffixSeqValue = lvSuffixSeqValue + 26;
-                    lvSuffixValue = alphabetic(lvSuffixSeqValue);
-                }
-
-                return NomsIdSequence.builder()
-                        .suffixAlphaSeq(lvSuffixSeqValue)
-                        .currentSuffix(lvSuffixValue)
-                        .currentPrefix(currentPrefix)
-                        .prefixAlphaSeq(prefixAlphaSeq)
-                        .nomsId(0)
-                        .build();
             }
-        } else {
+
+            var lvSuffixSeqValue = suffixAlphaSeq + 1;
+            lvSuffixValue = alphabetic(lvSuffixSeqValue);
+
+            if (EXCLUDED_SUFFIX.contains(lvSuffixValue)) {
+                lvSuffixSeqValue = lvSuffixSeqValue + 1;
+                lvSuffixValue = alphabetic(lvSuffixSeqValue);
+            } else if (List.of("BA", "IA", "OA", "SA", "UA").contains(lvSuffixValue)) {
+                lvSuffixSeqValue = lvSuffixSeqValue + 26;
+                lvSuffixValue = alphabetic(lvSuffixSeqValue);
+            }
+
             return NomsIdSequence.builder()
-                    .suffixAlphaSeq(suffixAlphaSeq)
-                    .currentSuffix(currentSuffix)
+                    .suffixAlphaSeq(lvSuffixSeqValue)
+                    .currentSuffix(lvSuffixValue)
                     .currentPrefix(currentPrefix)
                     .prefixAlphaSeq(prefixAlphaSeq)
-                    .nomsId(nomsId + 1)
+                    .nomsId(0)
                     .build();
         }
+
+        return NomsIdSequence.builder()
+                .suffixAlphaSeq(suffixAlphaSeq)
+                .currentSuffix(currentSuffix)
+                .currentPrefix(currentPrefix)
+                .prefixAlphaSeq(prefixAlphaSeq)
+                .nomsId(nomsId + 1)
+                .build();
     }
 
     @NotNull
