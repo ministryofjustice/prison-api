@@ -1,31 +1,33 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.resource.OffenderAssessmentResource;
 import uk.gov.justice.hmpps.prison.api.support.CategoryInformationType;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OffenderResourceImplTest {
     @Mock
     private InmateService inmateService;
     private OffenderAssessmentResource offenderAssessmentResource;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         offenderAssessmentResource = new OffenderAssessmentResourceImpl(inmateService);
     }
 
-    @Test(expected = HttpClientErrorException.class)
+    @Test
     public void getOffenderCategorisationsInvalidType() {
-        offenderAssessmentResource.getOffenderCategorisations("LEI", "INVALID_CAT_TYPE", null);
+        assertThatThrownBy(() -> offenderAssessmentResource.getOffenderCategorisations("LEI", "INVALID_CAT_TYPE", null))
+                .isInstanceOf(HttpClientErrorException.class);
     }
 
     @Test()

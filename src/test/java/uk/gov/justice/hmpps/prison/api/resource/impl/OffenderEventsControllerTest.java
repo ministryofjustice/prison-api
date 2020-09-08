@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.boot.test.json.JsonContent;
