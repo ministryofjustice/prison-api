@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccount;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction.Pk;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -22,6 +23,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccoun
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import javax.validation.ValidationException;
+import java.math.RoundingMode;
+import java.util.Date;
 
 @Service
 @Transactional(readOnly = true)
@@ -43,40 +46,38 @@ public class FinanceService {
                 .orElse(null);
     }
 
-    // @Transactional
+    @Transactional
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'NOMIS_API_V1')")
     public TransferTransactionDetail transferToSavings(final String prisonId, final String offenderNo, final TransferTransaction transferTransaction,
                                                        final String clientUniqueId) {
         final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
         final var booking = optionalOffenderBooking.orElseThrow(EntityNotFoundException.withMessage("No active offender bookings found for offender number %s", offenderNo));
 
-        final var subActTypeDr = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", "REG").orElseThrow().getAccountCode();
-        final var subActTypeCr = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", "SAV").orElseThrow().getAccountCode();
+        final var subActTypeDr = "SPND";
+        final var subActTypeDrId = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subActTypeDr).orElseThrow().getAccountCode();
+        final var subActTypeCr = "SAV";
 
-        validateTransferToSavings(prisonId, offenderNo, transferTransaction, booking, subActTypeDr);
+        validateTransferToSavings(prisonId, offenderNo, transferTransaction, booking, subActTypeDrId);
 
-        final var transactionNumber = "12345";
+        final var transactionNumber = offenderTransactionRepository.getNextTransactionId();
 
-//        // Get the next transaction number from the sequence
-//        final var transactionNumber = offenderTransactionRepository.getNextTransactionId();
-//
-//        final var transferDate = new Date();
-//
-//        financeRepository.insertIntoOffenderTrans(prisonId, booking.getRootOffenderId(), booking.getBookingId(), "DR", subActTypeDr,
-//                transactionNumber, 1, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
-//        financeRepository.insertIntoOffenderTrans(prisonId, booking.getRootOffenderId(), booking.getBookingId(), "CR", subActTypeCr,
-//                transactionNumber, 2, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
-//
-//        // need to work out if we just mark the first transaction with the unique reference?
-//        //       UPDATE offender_transactions
-//        //         SET TXN_REFERENCE_NUMBER = transferTransaction.,
-//        //             CLIENT_UNIQUE_REF =  clientUniqueId,
-//        //             txn_adjusted_flag = 'N',
-//        //             hold_clear_flag = 'N'
-//        //       WHERE txn_id = p_txn_num
-//
-//        financeRepository.processGlTransNew(prisonId, booking.getRootOffenderId(), booking.getBookingId(), subActTypeDr, subActTypeCr,
-//                transactionNumber, 1, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
+        final var transferDate = new Date();
+
+        financeRepository.insertIntoOffenderTrans(prisonId, booking.getRootOffenderId(), booking.getBookingId(), "DR", subActTypeDr,
+                transactionNumber, 1, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
+        financeRepository.insertIntoOffenderTrans(prisonId, booking.getRootOffenderId(), booking.getBookingId(), "CR", subActTypeCr,
+                transactionNumber, 2, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
+
+        final var offenderTransaction = offenderTransactionRepository.findById(new Pk(transactionNumber, 1L)).orElseThrow();
+        offenderTransaction.setClientUniqueRef(clientUniqueId);
+        offenderTransaction.setTransactionReferenceNumber(transferTransaction.getClientTransactionId());
+
+        final var offenderTransaction2 = offenderTransactionRepository.findById(new Pk(transactionNumber, 2L)).orElseThrow();
+        // client unique ref is unique on the table, so can only mark one of the transactions with the unique ref.
+        offenderTransaction2.setTransactionReferenceNumber(transferTransaction.getClientTransactionId());
+
+        financeRepository.processGlTransNew(prisonId, booking.getRootOffenderId(), booking.getBookingId(), subActTypeDr, subActTypeCr,
+                transactionNumber, 1, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
 
         return TransferTransactionDetail.builder()
                 .debitTransaction(Transaction.builder().id(transactionNumber + "-1").build())
@@ -104,7 +105,7 @@ public class FinanceService {
         }
         final var balance = optionalOffenderSubAccount.get().getBalance();
         if (balance.compareTo(transferTransaction.getAmountInPounds()) < 0) {
-            throw new ValidationException(String.format("Not enough money in offender sub account balance - %s", balance));
+            throw new ValidationException(String.format("Not enough money in offender sub account balance - %s", balance.setScale(2, RoundingMode.HALF_UP)));
         }
     }
 }

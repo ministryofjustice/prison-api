@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.storedprocs;
 
+import org.springframework.jdbc.core.SqlInOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.repository.v1.NomisV1SQLErrorCodeTranslator;
@@ -71,7 +72,7 @@ public class TrustProcs {
                             new SqlParameter("p_payee_pers_id", Types.NUMERIC),
                             new SqlParameter("p_payee_corp_id", Types.NUMERIC),
                             new SqlParameter("p_payee_name_text", Types.VARCHAR),
-                            new SqlParameter("p_gl_sqnc", Types.NUMERIC),
+                            new SqlInOutParameter("p_gl_sqnc", Types.NUMERIC),
                             new SqlParameter("p_off_ded_id", Types.NUMERIC));
             compile();
         }

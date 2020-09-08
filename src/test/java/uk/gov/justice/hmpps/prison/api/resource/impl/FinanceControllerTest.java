@@ -5,26 +5,59 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class FinanceControllerTest extends ResourceTest {
     @MockBean
     private InsertIntoOffenderTrans insertIntoOffenderTrans;
     @MockBean
     private ProcessGlTransNew processGlTransNew;
+    @MockBean
+    private OffenderTransactionRepository offenderTransactionRepository;
 
     @Test
     public void transferToSavings() {
+        when(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L);
+        when(offenderTransactionRepository.findById(any()))
+                .thenReturn(Optional.of(OffenderTransaction.builder().build()))
+                .thenReturn(Optional.of(OffenderTransaction.builder().build()));
         final var transaction = createTransferTransaction(124L);
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), transaction);
         final var responseEntity = testRestTemplate.exchange("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
                 HttpMethod.POST, requestEntity, String.class, "LEI", "A1234AA");
 
-        assertThatJsonAndStatus(responseEntity, 200, "{\"debitTransaction\":{\"id\":\"12345-1\"},\"creditTransaction\":{\"id\":\"12345-2\"},\"transactionId\":\"12345\"}");
+        assertThatJsonAndStatus(responseEntity, 200, "{\"debitTransaction\":{\"id\":\"12345-1\"},\"creditTransaction\":{\"id\":\"12345-2\"},\"transactionId\":12345}");
+    }
+
+    @Test
+    public void transferToSavings_setXClientNameHeader() {
+        when(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L);
+        final var transaction1 = OffenderTransaction.builder().build();
+        when(offenderTransactionRepository.findById(any()))
+                .thenReturn(Optional.of(transaction1))
+                .thenReturn(Optional.of(OffenderTransaction.builder().build()));
+        final var transaction = createTransferTransaction(124L);
+
+        final var jwt = createJwt("ITAG_USER", List.of("ROLE_NOMIS_API_V1"));
+        final var requestEntity = createHttpEntity(jwt, transaction, Map.of("X-Client-Name", "clientName"));
+        final var responseEntity = testRestTemplate.exchange("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
+                HttpMethod.POST, requestEntity, String.class, "LEI", "A1234AA");
+
+        assertThatJsonAndStatus(responseEntity, 200, "{\"debitTransaction\":{\"id\":\"12345-1\"},\"creditTransaction\":{\"id\":\"12345-2\"},\"transactionId\":12345}");
+
+        assertThat(transaction1.getClientUniqueRef()).isEqualTo("clientName-clientRef");
     }
 
     @Test

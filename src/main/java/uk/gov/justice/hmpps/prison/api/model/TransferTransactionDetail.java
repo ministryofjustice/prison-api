@@ -19,5 +19,5 @@ public class TransferTransactionDetail {
     @ApiModelProperty(value = "Credit Transaction")
     private Transaction creditTransaction;
     @ApiModelProperty(value = "Transaction Id")
-    private String transactionId;
+    private Long transactionId;
 }

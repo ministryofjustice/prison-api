@@ -22,7 +22,7 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
     private final InsertIntoOffenderTrans insertIntoOffenderTrans;
     private final ProcessGlTransNew processGlTransNew;
 
-    public FinanceRepositoryImpl( @Value("${api.currency:GBP}") final String currency, final InsertIntoOffenderTrans insertIntoOffenderTrans, final ProcessGlTransNew processGlTransNew) {
+    public FinanceRepositoryImpl(@Value("${api.currency:GBP}") final String currency, final InsertIntoOffenderTrans insertIntoOffenderTrans, final ProcessGlTransNew processGlTransNew) {
         this.currency = currency;
         this.insertIntoOffenderTrans = insertIntoOffenderTrans;
         this.processGlTransNew = processGlTransNew;
@@ -44,7 +44,7 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
 
     @Override
     public void insertIntoOffenderTrans(final String prisonId, final long offId, final long offBookId,
-                                        final String subActType, final long transPostType, final long transNumber,
+                                        final String transPostType, final String subActType, final long transNumber,
                                         final long transSeq, final BigDecimal transAmount, final String transDesc,
                                         final Date transDate) {
         final var params = new MapSqlParameterSource()
@@ -72,8 +72,8 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
     }
 
     @Override
-    public void processGlTransNew(final String prisonId, final long offId, final long offBookId, final Object subActTypeDr,
-                                  final long subActTypeCr, final long transNumber, final long transSeq,
+    public void processGlTransNew(final String prisonId, final long offId, final long offBookId, final String subActTypeDr,
+                                  final String subActTypeCr, final long transNumber, final long transSeq,
                                   final BigDecimal transAmount, final String transDesc, final Date transDate) {
         final var params = new MapSqlParameterSource()
                 .addValue("p_csld_id", prisonId)
@@ -89,11 +89,11 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
                 .addValue("p_off_book_id", offBookId)
                 .addValue("p_sub_act_type_dr", subActTypeDr)
                 .addValue("p_sub_act_type_cr", subActTypeCr)
-                .addValue("p_payee_pers_id", "")
-                .addValue("p_payee_corp_id", "")
-                .addValue("p_payee_name_text", "")
+                .addValue("p_payee_pers_id", null)
+                .addValue("p_payee_corp_id", null)
+                .addValue("p_payee_name_text", null)
                 .addValue("p_gl_sqnc", 0)
-                .addValue("p_off_ded_id", "");
+                .addValue("p_off_ded_id", null);
         processGlTransNew.execute(params);
     }
 }

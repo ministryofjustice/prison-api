@@ -68,7 +68,7 @@ public abstract class ResourceTest {
         return createHttpEntity(jwt, null, additionalHeaders == null ? Map.of() : additionalHeaders);
     }
 
-    private String createJwt(final String user, final List<String> roles) {
+    protected String createJwt(final String user, final List<String> roles) {
         return jwtAuthenticationHelper.createJwt(JwtParameters.builder()
                 .username(user)
                 .roles(roles)
