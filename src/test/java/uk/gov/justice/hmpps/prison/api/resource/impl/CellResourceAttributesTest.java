@@ -1,11 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

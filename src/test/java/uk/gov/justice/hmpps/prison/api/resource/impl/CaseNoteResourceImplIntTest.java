@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
