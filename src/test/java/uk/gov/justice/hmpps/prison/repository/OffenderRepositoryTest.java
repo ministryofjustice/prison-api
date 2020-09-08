@@ -104,6 +104,47 @@ public class OffenderRepositoryTest {
         assertThat(ids).isEmpty();
     }
 
+    @Test
+    public void testNomsIdSequenceCanBeRetrieved() {
+        final var nomsIdSequence = repository.getNomsIdSequence();
+
+        assertThat(nomsIdSequence).isNotNull();
+    }
+
+    @Test
+    public void testNomsIdSequenceCanBeUpdated() {
+        final var nomsIdSequence = repository.getNomsIdSequence();
+
+        final var rowUpdated = repository.updateNomsIdSequence(nomsIdSequence.next(), nomsIdSequence);
+
+        assertThat(rowUpdated).isGreaterThan(0);
+    }
+
+    @Test
+    public void testNomsIdSequenceCanBeUpdatedAndStored() {
+        final var initalValue = repository.getNomsIdSequence();
+
+        final var next = initalValue.next();
+        repository.updateNomsIdSequence(next, initalValue);
+
+        final var newValue = repository.getNomsIdSequence();
+
+        assertThat(newValue).isEqualTo(next);
+    }
+
+    @Test
+    public void testNomsIdSequenceHandlesUPdateByOtherClient() {
+        final var client1InitialValue = repository.getNomsIdSequence();
+        final var client2InitialValue = repository.getNomsIdSequence();
+
+        final var client1Next = client1InitialValue.next();
+        final var client2Next = client2InitialValue.next();
+
+        assertThat(repository.updateNomsIdSequence(client2Next, client2InitialValue)).isGreaterThan(0);
+
+        assertThat(repository.updateNomsIdSequence(client1Next, client1InitialValue)).isEqualTo(0);
+    }
+
     private PrisonerDetailSearchCriteria criteriaForPNCNumber(final String pncNumber) {
         return PrisonerDetailSearchCriteria.builder()
                 .pncNumber(pncNumber)

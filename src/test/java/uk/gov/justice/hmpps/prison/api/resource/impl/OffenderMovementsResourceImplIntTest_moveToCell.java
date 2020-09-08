@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -68,7 +68,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     private static final Long CELL_DIFF_PRISON = -41L;
     private static final String CELL_DIFF_PRISON_S = "MDI-1-1-001";
 
-    @After
+    @AfterEach
     public void tearDown() {
         // Return the offender back to his original cell as configured in the test data in R__3_6_1__OFFENDER_BOOKINGS.sql
         requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_DESC, INITIAL_REASON, INITIAL_DATE_TIME.format(ISO_LOCAL_DATE_TIME));

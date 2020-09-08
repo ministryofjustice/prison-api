@@ -5,6 +5,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
 import uk.gov.justice.hmpps.prison.util.DatabaseDialect;
 
 import java.util.Collections;
@@ -29,6 +30,10 @@ public interface OffenderRepository {
     Page<OffenderNumber> listAllOffenders(PageRequest pageRequest);
 
     Set<Long> getOffenderIdsFor(final String offenderNo);
+
+    NomsIdSequence getNomsIdSequence();
+
+    int updateNomsIdSequence(final NomsIdSequence newSequence, final NomsIdSequence currentSequence);
 
     enum ColumnMapper {
         ORACLE_11(DatabaseDialect.ORACLE_11, ColumnMappings.getOracleColumnMappings()),

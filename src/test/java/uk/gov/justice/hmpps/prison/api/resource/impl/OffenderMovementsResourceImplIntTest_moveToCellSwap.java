@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -16,7 +16,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 import uk.gov.justice.hmpps.prison.util.JwtParameters;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +30,10 @@ import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
 
 @ContextConfiguration(classes = OffenderMovementsResourceImplIntTest_moveToCell.TestClock.class)
 public class OffenderMovementsResourceImplIntTest_moveToCellSwap extends ResourceTest   {
@@ -59,8 +66,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCellSwap extends Resourc
     private static final Long NEW_CELL = 14538L;
     private static final String NEW_CELL_DESC = "LEI-CSWAP";
 
-
-    @After
+    @AfterEach
     public void tearDown() {
         // Return the offender back to his original cell as configured in the test data in R__3_6_1__OFFENDER_BOOKINGS.sql
         requestMoveToCell(validToken(), BOOKING_ID_S, INITIAL_CELL_DESC, INITIAL_REASON, INITIAL_DATE_TIME.format(ISO_LOCAL_DATE_TIME));

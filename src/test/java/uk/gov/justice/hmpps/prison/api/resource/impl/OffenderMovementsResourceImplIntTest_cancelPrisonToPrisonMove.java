@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -16,7 +16,7 @@ public class OffenderMovementsResourceImplIntTest_cancelPrisonToPrisonMove exten
 
     private String token;
 
-    @Before
+    @BeforeEach
     public void setup() {
         token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.PRISON_MOVE_MAINTAINER);
     }

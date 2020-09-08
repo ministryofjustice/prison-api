@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;

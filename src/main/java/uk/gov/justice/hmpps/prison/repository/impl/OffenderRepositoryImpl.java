@@ -8,11 +8,13 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.OffenderRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.support.OffenderRepositorySearchHelper;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Repository
@@ -76,4 +78,36 @@ public class OffenderRepositoryImpl extends RepositoryBase implements OffenderRe
                 createParams("offenderNo", offenderNo),
                 Long.class));
     }
+
+    @Override
+    public NomsIdSequence getNomsIdSequence() {
+        final var query = jdbcTemplate.query("SELECT CURRENT_PREFIX, PREFIX_ALPHA_SEQ, SUFFIX_ALPHA_SEQ, CURRENT_SUFFIX, NOMS_ID FROM NOMS_ID_SEQUENCE", Map.of(), (rs, rowNum) -> NomsIdSequence.builder()
+                .currentPrefix(rs.getString("CURRENT_PREFIX"))
+                .prefixAlphaSeq(rs.getInt("PREFIX_ALPHA_SEQ"))
+                .suffixAlphaSeq(rs.getInt("SUFFIX_ALPHA_SEQ"))
+                .currentSuffix(rs.getString("CURRENT_SUFFIX"))
+                .nomsId(rs.getInt("NOMS_ID"))
+                .build());
+        // get the first row
+        return query.get(0);
+    }
+
+    @Override
+    public int updateNomsIdSequence(final NomsIdSequence newSequence, final NomsIdSequence currentSequence) {
+        return jdbcTemplate.update("UPDATE NOMS_ID_SEQUENCE " +
+                        "SET CURRENT_PREFIX = :newCurrentPrefix, PREFIX_ALPHA_SEQ = :newPrefixAlphaSeq, SUFFIX_ALPHA_SEQ = :newSuffixAlphaSeq, CURRENT_SUFFIX = :newCurrentSuffix, NOMS_ID = :newNomsId " +
+                        "WHERE CURRENT_PREFIX = :currentPrefix AND PREFIX_ALPHA_SEQ = :prefixAlphaSeq AND SUFFIX_ALPHA_SEQ = :suffixAlphaSeq AND CURRENT_SUFFIX = :currentSuffix AND NOMS_ID = :nomsId ",
+                Map.of( "newCurrentPrefix", newSequence.getCurrentPrefix(),
+                        "newPrefixAlphaSeq", newSequence.getPrefixAlphaSeq(),
+                        "newSuffixAlphaSeq", newSequence.getSuffixAlphaSeq(),
+                        "newCurrentSuffix", newSequence.getCurrentSuffix(),
+                        "newNomsId", newSequence.getNomsId(),
+                        "currentPrefix", currentSequence.getCurrentPrefix(),
+                        "prefixAlphaSeq", currentSequence.getPrefixAlphaSeq(),
+                        "suffixAlphaSeq", currentSequence.getSuffixAlphaSeq(),
+                        "currentSuffix", currentSequence.getCurrentSuffix(),
+                        "nomsId", currentSequence.getNomsId())
+        );
+    }
+
 }
