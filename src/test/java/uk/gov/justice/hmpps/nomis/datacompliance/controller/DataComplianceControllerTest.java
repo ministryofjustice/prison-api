@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.nomis.datacompliance.controller;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest;
 
 import java.time.LocalDateTime;
