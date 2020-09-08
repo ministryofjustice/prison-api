@@ -1,8 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -10,12 +10,7 @@ import javax.validation.Validator;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IepLevelAndCommentTest {
-    private static Validator validator;
-
-    @BeforeClass
-    public static void setUpValidator() {
-        validator = Validation.buildDefaultValidatorFactory().getValidator();
-    }
+    private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test
     public void missingComment() {

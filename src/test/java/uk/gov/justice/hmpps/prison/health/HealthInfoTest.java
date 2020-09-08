@@ -1,21 +1,14 @@
 package uk.gov.justice.hmpps.prison.health;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HealthInfoTest {
-
-
-    private HealthInfo healthInfo;
-
-    @Before
-    public void setUp() throws Exception {
-        healthInfo = new HealthInfo();
-    }
+    private HealthInfo healthInfo = new HealthInfo();
 
     @Test
-    public void shouldIncludeVersionInfo() throws Exception {
-        Assertions.assertThat(healthInfo.health().getDetails()).containsKey("version");
+    public void shouldIncludeVersionInfo() {
+        assertThat(healthInfo.health().getDetails()).containsKey("version");
     }
 }
