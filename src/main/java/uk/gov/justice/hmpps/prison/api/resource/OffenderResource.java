@@ -15,7 +15,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.gov.justice.hmpps.prison.api.model.*;
+import uk.gov.justice.hmpps.prison.api.model.AddressDto;
+import uk.gov.justice.hmpps.prison.api.model.Alert;
+import uk.gov.justice.hmpps.prison.api.model.CaseNote;
+import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
+import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
+import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
+import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -24,7 +35,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 @Api(tags = {"/offenders"})
@@ -38,6 +48,12 @@ public interface OffenderResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     InmateDetail getOffender(@ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) @PathVariable("offenderNo") @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") final String offenderNo);
+
+    @GetMapping("/next-sequence")
+    @ApiOperation(value = "Returns the next prisoner number (NOMS ID or Offender No) that can be used to create an offender")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    PrisonerIdentifier getNextPrisonerIdentifier();
 
     @GetMapping("/{offenderNo}/incidents")
     @ApiOperation(value = "Return a set Incidents for a given offender No.",
