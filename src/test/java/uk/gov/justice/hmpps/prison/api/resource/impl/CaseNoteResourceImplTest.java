@@ -1,10 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.resource.CaseNoteResource;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
@@ -20,13 +20,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CaseNoteResourceImplTest {
     @Mock
     private CaseNoteService caseNoteService;
     private CaseNoteResource caseNoteResource;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         caseNoteResource = new CaseNoteResourceImpl(caseNoteService);
     }

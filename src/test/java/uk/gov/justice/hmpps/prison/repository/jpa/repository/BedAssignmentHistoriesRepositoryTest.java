@@ -71,6 +71,12 @@ public class BedAssignmentHistoriesRepositoryTest {
                         .assignmentDate(LocalDate.of(2020,4,3))
                         .assignmentDateTime(LocalDateTime.of(LocalDate.of(2020,4,3), LocalTime.of(11,0)))
                         .assignmentReason("ADM")
+                        .build(),
+                BedAssignmentHistory.builder()
+                        .livingUnitId(-16L)
+                        .assignmentDate(LocalDate.of(1985,4,3))
+                        .assignmentDateTime(LocalDateTime.of(LocalDate.of(1985,4,3), LocalTime.of(11,0)))
+                        .assignmentReason("ADM")
                         .build());
     }
 

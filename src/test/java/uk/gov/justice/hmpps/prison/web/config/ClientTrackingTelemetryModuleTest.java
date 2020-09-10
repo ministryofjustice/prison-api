@@ -2,10 +2,10 @@ package uk.gov.justice.hmpps.prison.web.config;
 
 import com.microsoft.applicationinsights.web.internal.RequestTelemetryContext;
 import com.microsoft.applicationinsights.web.internal.ThreadContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.context.annotation.Import;
@@ -14,7 +14,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper;
 import uk.gov.justice.hmpps.prison.util.JwtParameters;
 
@@ -24,7 +24,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Import({JwtAuthenticationHelper.class, ClientTrackingTelemetryModule.class})
 @ContextConfiguration(initializers = {ConfigFileApplicationContextInitializer.class})
 @ActiveProfiles("test")
@@ -38,12 +38,12 @@ public class ClientTrackingTelemetryModuleTest {
     @Autowired
     private JwtAuthenticationHelper jwtAuthenticationHelper;
 
-    @Before
+    @BeforeEach
     public void setup() {
         ThreadContext.setRequestTelemetryContext(new RequestTelemetryContext(1L));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         ThreadContext.remove();
     }

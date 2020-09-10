@@ -19,6 +19,6 @@ public interface BedAssignmentHistoriesRepository extends PagingAndSortingReposi
 
     Page<BedAssignmentHistory> findAllByBedAssignmentHistoryPKOffenderBookingId(Long offenderBookingId, Pageable pageable);
 
-    @Query("select ba from BedAssignmentHistory ba where ba.livingUnitId = :livingUnitId and ba.assignmentDate between coalesce(:fromDate, ba.assignmentDate) and coalesce(:toDate, ba.assignmentEndDate)")
+    @Query("select ba from BedAssignmentHistory ba where ba.livingUnitId = :livingUnitId and (ba.assignmentEndDate is null or :fromDate <= trunc(ba.assignmentEndDate)) and :toDate >= trunc(ba.assignmentDate)")
     List<BedAssignmentHistory> findByLivingUnitIdAndDateRange(@Param("livingUnitId") long livingUnitId, @Param("fromDate") LocalDate from, @Param("toDate") LocalDate to);
 }

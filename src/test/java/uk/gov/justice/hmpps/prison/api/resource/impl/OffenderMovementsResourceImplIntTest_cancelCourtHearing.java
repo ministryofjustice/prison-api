@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +40,7 @@ public class OffenderMovementsResourceImplIntTest_cancelCourtHearing extends Res
 
     private String token;
 
-    @Before
+    @BeforeEach
     public void setup() {
         token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.COURT_HEARING_MAINTAINER);
     }
