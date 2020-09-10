@@ -42,6 +42,7 @@ public class AuthTokenHelper {
         UPDATE_ALERT,
         COURT_HEARING_MAINTAINER,
         PRISON_MOVE_MAINTAINER,
+        CREATE_BOOKING_USER,
     }
 
 
@@ -69,6 +70,8 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.UPDATE_ALERT), updateAlert());
         tokens.put(String.valueOf(AuthToken.COURT_HEARING_MAINTAINER), courtHearingMaintainer());
         tokens.put(String.valueOf(AuthToken.PRISON_MOVE_MAINTAINER), prisonMoveMaintiner());
+        tokens.put(String.valueOf(AuthToken.CREATE_BOOKING_USER), createBookingApiUser());
+
     }
 
     public String getToken() {
@@ -315,6 +318,17 @@ public class AuthTokenHelper {
                         .username("DOES_NOT_EXIST")
                         .scope(List.of("read", "write"))
                         .roles(List.of("ROLE_PRISON_MOVE_MAINTAINER"))
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
+    private String createBookingApiUser() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("ITAG_USER")
+                        .scope(List.of("read", "write"))
+                        .roles(List.of("ROLE_BOOKING_CREATE"))
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );

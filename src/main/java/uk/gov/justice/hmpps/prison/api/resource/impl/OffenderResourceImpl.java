@@ -4,9 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.*;
+import uk.gov.justice.hmpps.prison.api.model.AddressDto;
+import uk.gov.justice.hmpps.prison.api.model.Alert;
+import uk.gov.justice.hmpps.prison.api.model.CaseNote;
+import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
+import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
+import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
+import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.resource.OffenderResource;
@@ -26,6 +37,7 @@ import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
+import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -49,11 +61,20 @@ public class OffenderResourceImpl implements OffenderResource {
     private final BookingService bookingService;
     private final GlobalSearchService globalSearchService;
     private final AuthenticationFacade authenticationFacade;
+    private final PrisonerCreationService prisonerCreationService;
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public InmateDetail getOffender(final String offenderNo) {
         return inmateService.findOffender(offenderNo, true);
+    }
+
+    @Override
+    @HasWriteScope
+    @PreAuthorize("hasRole('BOOKING_CREATE')")
+    @ProxyUser
+    public PrisonerIdentifier getNextPrisonerIdentifier() {
+        return prisonerCreationService.getNextPrisonerIdentifier();
     }
 
     @Override
