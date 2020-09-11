@@ -89,6 +89,9 @@ public class AgencyInternalLocation {
     }
 
     private boolean hasSpace() {
+        if (operationalCapacity != null && currentOccupancy != null ) {
+            return currentOccupancy < operationalCapacity;
+        }
         return capacity != null && currentOccupancy != null && currentOccupancy < capacity;
     }
 

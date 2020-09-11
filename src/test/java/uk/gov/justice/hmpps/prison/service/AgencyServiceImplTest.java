@@ -129,9 +129,9 @@ public class AgencyServiceImplTest {
     @Test
     public void shouldReturnAllActiveCellsWithSpaceForAgency() {
         when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("LEI", "CELL", ActiveFlag.Y)).thenReturn(List.of(
-                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
-                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
-                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
+                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
+                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
+                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").operationalCapacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
         ));
         when(agencyInternalLocationProfileRepository.findAllByLocationId(anyLong())).thenReturn(buildAgencyInternalLocationProfiles());
 
@@ -142,9 +142,9 @@ public class AgencyServiceImplTest {
     @Test
     public void shouldReturnAllActiveCellsWithSpaceForAgencyWithAttribute() {
         when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("LEI", "CELL", ActiveFlag.Y)).thenReturn(List.of(
-                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
+                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
                 AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
-                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
+                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").operationalCapacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
         ));
 
         when(agencyInternalLocationProfileRepository.findAllByLocationId(-1L)).thenReturn(buildAgencyInternalLocationProfiles());
@@ -162,7 +162,7 @@ public class AgencyServiceImplTest {
                         .locationType("CELL")
                         .description("LEI-1-1-01")
                         .userDescription("LEI-1-1-01")
-                        .capacity(2)
+                        .operationalCapacity(2)
                         .currentOccupancy(1)
                         .activeFlag(ActiveFlag.Y)
                         .build()));
