@@ -14,7 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -28,8 +28,8 @@ public interface CellResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<BedAssignment> getBedAssignmentsHistory(
             @ApiParam(value = "The location id.", required = true) @PathVariable("locationId") Long locationId,
-            @ApiParam(value = "From date", example = "2020-03-24", required = true) @RequestParam(value = "fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @ApiParam(value = "To date", example = "2020-12-01", required = true) @RequestParam(value = "toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate);
+            @ApiParam(value = "From date", example = "2020-03-24T10:10:10", required = true) @RequestParam(value = "fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDateTime,
+            @ApiParam(value = "To date", example = "2020-12-01T11:11:11", required = true) @RequestParam(value = "toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toDateTime);
 
     @GetMapping("/{locationId}/attributes")
     @ApiResponses(value = {
