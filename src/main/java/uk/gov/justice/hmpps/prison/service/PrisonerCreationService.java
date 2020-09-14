@@ -22,8 +22,9 @@ public class PrisonerCreationService {
         var retries = 0;
         var updated = false;
         NomsIdSequence nextSequence;
+        NomsIdSequence currentSequence;
         do {
-            final var currentSequence = offenderRepository.getNomsIdSequence();
+            currentSequence = offenderRepository.getNomsIdSequence();
             nextSequence = currentSequence.next();
             updated = offenderRepository.updateNomsIdSequence(nextSequence, currentSequence) > 0;
         } while (!updated && retries++ < 10);
@@ -31,6 +32,6 @@ public class PrisonerCreationService {
         if (!updated) {
             throw new RuntimeException("Prisoner Identifier cannot be generated, please try again");
         }
-        return PrisonerIdentifier.builder().id(nextSequence.getPrisonerIdentifier()).build();
+        return PrisonerIdentifier.builder().id(currentSequence.getPrisonerIdentifier()).build();
     }
 }
