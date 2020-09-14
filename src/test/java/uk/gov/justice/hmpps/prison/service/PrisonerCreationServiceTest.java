@@ -40,7 +40,7 @@ class PrisonerCreationServiceTest {
 
         final var nextPrisonerIdentifier = service.getNextPrisonerIdentifier();
 
-        assertThat(nextPrisonerIdentifier.getId()).isEqualTo(nextSeq.getPrisonerIdentifier());
+        assertThat(nextPrisonerIdentifier.getId()).isEqualTo(START_SEQUENCE.getPrisonerIdentifier());
     }
 
     @Test
@@ -63,6 +63,6 @@ class PrisonerCreationServiceTest {
 
         final var nextPrisonerIdentifier = service.getNextPrisonerIdentifier();
 
-        assertThat(nextPrisonerIdentifier.getId()).isEqualTo(nextNextSeq.getPrisonerIdentifier());
+        assertThat(nextPrisonerIdentifier.getId()).isEqualTo(nextSeq.getPrisonerIdentifier());
     }
 }
