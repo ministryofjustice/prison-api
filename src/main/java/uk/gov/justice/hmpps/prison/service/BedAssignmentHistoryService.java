@@ -60,12 +60,12 @@ public class BedAssignmentHistoryService {
         return new PageImpl<>(results, pageRequest, bedAssignmentsHistory.getTotalElements());
     }
 
-    public List<BedAssignment> getBedAssignmentsHistory(final long livingUnitId, final LocalDate from, final LocalDate to) {
+    public List<BedAssignment> getBedAssignmentsHistory(final long livingUnitId, final LocalDateTime from, final LocalDateTime to) {
         if(from.isAfter(to)) throw new IllegalArgumentException("The fromDate should be less then or equal to the toDate");
         if (!locationRepository.existsById(livingUnitId)) throw new EntityNotFoundException(String.format("Cell %s not found", livingUnitId));
 
         return repository
-                .findByLivingUnitIdAndDateRange(livingUnitId, from, to)
+                .findByLivingUnitIdAndDateTimeRange(livingUnitId, from, to)
                 .stream()
                 .map(this::transform)
                 .collect(Collectors.toList());

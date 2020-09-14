@@ -5,7 +5,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,31 +16,31 @@ public class CellResourceHistoryTest extends ResourceTest {
     @Test
     public void returnAllBedHistories() {
 
-        final var fromDate =  LocalDate.of(2000,10,16);
-        final var toDate =    LocalDate.of(2020,10,10);
+        final var fromDateTime =  LocalDateTime.of(2000,10,16, 10, 10, 10);
+        final var toDateTime =    LocalDateTime.of(2020,10,10, 11, 11, 11);
 
-        final var response = makeRequest(SOME_CELL_LOCATION_ID, fromDate.toString(), toDate.toString());
+        final var response = makeRequest(SOME_CELL_LOCATION_ID, fromDateTime.toString(), toDateTime.toString());
 
         assertThatJsonFileAndStatus(response, 200, "cell-histories.json");
     }
 
     @Test
     public void handleInvalidFromDate() {
-        final var response = makeRequest(SOME_CELL_LOCATION_ID, "hello", LocalDate.now().toString());
+        final var response = makeRequest(SOME_CELL_LOCATION_ID, "hello", LocalDateTime.now().toString());
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
     }
 
     @Test
     public void handleInvalidToDate() {
-        final var response = makeRequest(SOME_CELL_LOCATION_ID, LocalDate.now().toString(), "hello");
+        final var response = makeRequest(SOME_CELL_LOCATION_ID, LocalDateTime.now().toString(), "hello");
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
     }
 
     @Test
     public void handleCellNotFound() {
-        final var response = makeRequest("-991873", LocalDate.now().toString(), LocalDate.now().toString());
+        final var response = makeRequest("-991873", LocalDateTime.now().toString(), LocalDateTime.now().toString());
 
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }

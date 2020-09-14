@@ -50,12 +50,12 @@ public class BedAssignmentHistoriesRepositoryTest {
     }
 
     @Test
-    public void findBadAssignmentHistory_forLocationAndDatePeriod() {
+    public void findBedAssignmentHistory_forLocationAndDatePeriod() {
         final var cellHistory =
-                repository.findByLivingUnitIdAndDateRange(
+                repository.findByLivingUnitIdAndDateTimeRange(
                         -16,
-                        LocalDate.of(2000,10,16),
-                        LocalDate.of(2020,10,10)
+                        LocalDateTime.of(2000,10,16, 0, 0, 0),
+                        LocalDateTime.of(2020,10,10, 0, 0, 0)
                 );
 
         assertThat(cellHistory).containsExactlyInAnyOrder(
@@ -64,6 +64,7 @@ public class BedAssignmentHistoriesRepositoryTest {
                         .assignmentDate(LocalDate.of(2019,10,17))
                         .assignmentDateTime(LocalDateTime.of(LocalDate.of(2019,10,17), LocalTime.of(11,0)))
                         .assignmentEndDate(LocalDate.of(2020,1,1))
+                        .assignmentEndDateTime(LocalDateTime.of(LocalDate.of(2020,1,1), LocalTime.of(11,0)))
                         .assignmentReason("ADM")
                         .build(),
                 BedAssignmentHistory.builder()
@@ -75,7 +76,27 @@ public class BedAssignmentHistoriesRepositoryTest {
                 BedAssignmentHistory.builder()
                         .livingUnitId(-16L)
                         .assignmentDate(LocalDate.of(1985,4,3))
+                        .assignmentEndDate(LocalDate.of(2018,4,3))
                         .assignmentDateTime(LocalDateTime.of(LocalDate.of(1985,4,3), LocalTime.of(11,0)))
+                        .assignmentEndDateTime(LocalDateTime.of(LocalDate.of(2018,4,3), LocalTime.of(11,0)))
+                        .assignmentReason("ADM")
+                        .build());
+    }
+
+    @Test
+    public void findBedAssignmentHistory_checksTime() {
+        final var cellHistory =
+                repository.findByLivingUnitIdAndDateTimeRange(
+                        -16,
+                        LocalDateTime.of(2020,1,1, 12, 0, 0),
+                        LocalDateTime.of(2020,10,10, 12, 12, 12)
+                );
+
+        assertThat(cellHistory).containsExactlyInAnyOrder(
+                BedAssignmentHistory.builder()
+                        .livingUnitId(-16L)
+                        .assignmentDate(LocalDate.of(2020,4,3))
+                        .assignmentDateTime(LocalDateTime.of(LocalDate.of(2020,4,3), LocalTime.of(11,0)))
                         .assignmentReason("ADM")
                         .build());
     }

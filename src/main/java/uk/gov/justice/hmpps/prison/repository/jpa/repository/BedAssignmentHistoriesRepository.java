@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BedAssignmentHistoriesRepository extends PagingAndSortingRepository<BedAssignmentHistory, BedAssignmentHistory.BedAssignmentHistoryPK> {
@@ -19,6 +20,6 @@ public interface BedAssignmentHistoriesRepository extends PagingAndSortingReposi
 
     Page<BedAssignmentHistory> findAllByBedAssignmentHistoryPKOffenderBookingId(Long offenderBookingId, Pageable pageable);
 
-    @Query("select ba from BedAssignmentHistory ba where ba.livingUnitId = :livingUnitId and (ba.assignmentEndDate is null or :fromDate <= trunc(ba.assignmentEndDate)) and :toDate >= trunc(ba.assignmentDate)")
-    List<BedAssignmentHistory> findByLivingUnitIdAndDateRange(@Param("livingUnitId") long livingUnitId, @Param("fromDate") LocalDate from, @Param("toDate") LocalDate to);
+    @Query("select ba from BedAssignmentHistory ba where ba.livingUnitId = :livingUnitId and (ba.assignmentEndDateTime is null or :fromDate <= ba.assignmentEndDateTime) and :toDate >= ba.assignmentDateTime")
+    List<BedAssignmentHistory> findByLivingUnitIdAndDateTimeRange(@Param("livingUnitId") long livingUnitId, @Param("fromDate") LocalDateTime from, @Param("toDate") LocalDateTime to);
 }
