@@ -26,12 +26,10 @@ public class LoggingAspect {
 
     @AfterThrowing(pointcut = "loggingPointcut()", throwing = "e")
     public void logAfterThrowing(final JoinPoint joinPoint, final Throwable e) {
-        log.error(
-                String.format(
-                        "Exception in pointcut %s.%s()",
-                        joinPoint.getSignature().getDeclaringTypeName(),
-                        joinPoint.getSignature().getName()),
-                e);
+        log.info("Exception in pointcut {}.{}() with message {}",
+                joinPoint.getSignature().getDeclaringTypeName(),
+                joinPoint.getSignature().getName(),
+                e.getMessage());
     }
 
     @Around("loggingPointcut()")
