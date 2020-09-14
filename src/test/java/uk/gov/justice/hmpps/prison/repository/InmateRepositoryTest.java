@@ -1309,6 +1309,13 @@ public class InmateRepositoryTest {
         assertThat(info).isEqualTo(expectedInfo);
     }
 
+    @Test
+    public void getOffenderDetailsContainsReceptionDate(){
+        final var offender = repository.findOffender("A1234AA");
+        assertThat(offender.get().getReceptionDate()).isEqualTo(LocalDate.now());
+
+    }
+
     /*****************************************************************************************/
 
     private PrisonerDetailSearchCriteria criteriaForOffenderNo(final List<String> offenderNos) {
