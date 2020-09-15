@@ -174,6 +174,9 @@ public class InmateDetail {
     @ApiModelProperty(value = "The prisoner's IEP Status", notes = "Only returned when requesting extra details")
     private PrivilegeSummary privilegeSummary;
 
+    @ApiModelProperty(value = "Date prisoner was received into the prison.", example="1980-01-01")
+    private LocalDate receptionDate;
+
     public void setProfileInformation(final List<ProfileInformation> profileInformation) {
         this.profileInformation = profileInformation;
         updateReligion();

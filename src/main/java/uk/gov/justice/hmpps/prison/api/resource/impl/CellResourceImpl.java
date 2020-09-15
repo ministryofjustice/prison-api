@@ -7,7 +7,7 @@ import uk.gov.justice.hmpps.prison.api.resource.CellResource;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -22,8 +22,8 @@ public class CellResourceImpl implements CellResource {
     }
 
     @Override
-    public List<BedAssignment> getBedAssignmentsHistory(final Long locationId, final LocalDate fromDate, final LocalDate toDate) {
-        return bedAssignmentHistoryService.getBedAssignmentsHistory(locationId, fromDate, toDate);
+    public List<BedAssignment> getBedAssignmentsHistory(final Long locationId, final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {
+        return bedAssignmentHistoryService.getBedAssignmentsHistory(locationId, fromDateTime, toDateTime);
     }
 
     @Override

@@ -15,9 +15,9 @@ public class NomsIdSequenceTest {
                 .prefixAlphaSeq(1)
                 .nomsId(0)
                 .build();
-        assertThat(nomsIdSequence.getPrisonerNumber()).isEqualTo("A0001AA");
+        assertThat(nomsIdSequence.getPrisonerIdentifier()).isEqualTo("A0001AA");
 
-        assertThat(nomsIdSequence.next().getPrisonerNumber()).isEqualTo("A0002AA");
+        assertThat(nomsIdSequence.next().getPrisonerIdentifier()).isEqualTo("A0002AA");
 
     }
 
@@ -30,9 +30,9 @@ public class NomsIdSequenceTest {
                 .prefixAlphaSeq(1)
                 .nomsId(9998)
                 .build();
-        assertThat(nomsIdSequence.getPrisonerNumber()).isEqualTo("A9999AA");
+        assertThat(nomsIdSequence.getPrisonerIdentifier()).isEqualTo("A9999AA");
 
-        assertThat(nomsIdSequence.next().getPrisonerNumber()).isEqualTo("A0001AC");
+        assertThat(nomsIdSequence.next().getPrisonerIdentifier()).isEqualTo("A0001AC");
 
     }
 
@@ -45,9 +45,9 @@ public class NomsIdSequenceTest {
                 .prefixAlphaSeq(1)
                 .nomsId(9998)
                 .build();
-        assertThat(nomsIdSequence.getPrisonerNumber()).isEqualTo("A9999ZZ");
+        assertThat(nomsIdSequence.getPrisonerIdentifier()).isEqualTo("A9999ZZ");
 
-        assertThat(nomsIdSequence.next().getPrisonerNumber()).isEqualTo("C0001AA");
+        assertThat(nomsIdSequence.next().getPrisonerIdentifier()).isEqualTo("C0001AA");
 
     }
 
@@ -60,9 +60,9 @@ public class NomsIdSequenceTest {
                 .prefixAlphaSeq(1)
                 .nomsId(9998)
                 .build();
-        assertThat(nomsIdSequence.getPrisonerNumber()).isEqualTo("A9999HZ");
+        assertThat(nomsIdSequence.getPrisonerIdentifier()).isEqualTo("A9999HZ");
 
-        assertThat(nomsIdSequence.next().getPrisonerNumber()).isEqualTo("A0001JA");
+        assertThat(nomsIdSequence.next().getPrisonerIdentifier()).isEqualTo("A0001JA");
 
     }
 

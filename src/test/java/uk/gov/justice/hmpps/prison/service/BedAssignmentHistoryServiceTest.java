@@ -103,7 +103,7 @@ class BedAssignmentHistoryServiceTest {
         final var bedHistoryAssignment = aBedAssignment(1L, livingUnitId);
 
         when(locationRepository.existsById(livingUnitId)).thenReturn(true);
-        when(repository.findByLivingUnitIdAndDateRange(anyLong(), any(), any()))
+        when(repository.findByLivingUnitIdAndDateTimeRange(anyLong(), any(), any()))
                 .thenReturn(List.of(bedHistoryAssignment));
 
         when(locationRepository.findOneByLocationId(livingUnitId))
@@ -112,7 +112,7 @@ class BedAssignmentHistoryServiceTest {
                         .agencyId("MDI")
                         .build()));
 
-        final var cellHistory = service.getBedAssignmentsHistory(livingUnitId, LocalDate.now(), LocalDate.now());
+        final var cellHistory = service.getBedAssignmentsHistory(livingUnitId, LocalDateTime.now(), LocalDateTime.now());
 
         assertThat(cellHistory).containsOnly(
                 BedAssignment.builder()
@@ -133,14 +133,14 @@ class BedAssignmentHistoryServiceTest {
     void getBedAssignmentHistory_cellNotFound() {
         when(locationRepository.existsById(anyLong())).thenReturn(false);
 
-        assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDate.now(), LocalDate.now()))
+        assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDateTime.now(), LocalDateTime.now()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Cell 1 not found");
     }
 
     @Test
     void getBedAssignmentHistory_checkDateOrder() {
-        assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDate.now().plusDays(1), LocalDate.now()))
+        assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDateTime.now().plusDays(1), LocalDateTime.now()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("The fromDate should be less then or equal to the toDate");
     }

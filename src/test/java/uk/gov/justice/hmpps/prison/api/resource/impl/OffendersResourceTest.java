@@ -348,6 +348,21 @@ public class OffendersResourceTest extends ResourceTest {
         assertThatJsonFileAndStatus(response, 200, "offender-address.json");
     }
 
+    @Test
+    public void testCanGenerateNextNomisIdSequence() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.CREATE_BOOKING_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/next-sequence",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThatStatus(response, 200);
+    }
 
     private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, headers);

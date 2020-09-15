@@ -183,7 +183,7 @@ public class NomsIdSequence {
     }
 
     @NotNull
-    public String getPrisonerNumber() {
+    public String getPrisonerIdentifier() {
         return alphabetic(prefixAlphaSeq) + StringUtils.leftPad(String.valueOf(nomsId+1), 4, "0") + alphabetic(suffixAlphaSeq);
     }
 

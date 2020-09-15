@@ -290,9 +290,10 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     private OffenderCell transform(final AgencyInternalLocation cell, final boolean checkCapacity) {
+        final var capacity = cell.getOperationalCapacity() != null ? cell.getOperationalCapacity() : cell.getCapacity();
         if (!checkCapacity || cell.isActiveCellWithSpace()) {
             return OffenderCell.builder()
-                    .capacity(cell.getCapacity())
+                    .capacity(capacity)
                     .noOfOccupants(cell.getCurrentOccupancy())
                     .id(cell.getLocationId())
                     .description(cell.getDescription())

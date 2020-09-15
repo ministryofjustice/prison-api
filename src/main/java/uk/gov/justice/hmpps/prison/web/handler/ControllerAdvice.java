@@ -59,7 +59,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(final AccessDeniedException e) {
-        log.debug("Forbidden (403) returned", e);
+        log.debug("Forbidden (403) returned with message {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse
@@ -71,7 +71,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(final ValidationException e) {
-        log.debug("Bad Request (400) returned", e);
+        log.debug("Bad Request (400) returned with message {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
@@ -84,7 +84,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(final MissingServletRequestParameterException e) {
-        log.debug("Bad Request (400) returned", e);
+        log.debug("Bad Request (400) returned with message {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
@@ -97,6 +97,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final EntityNotFoundException e) {
+        log.debug("Not found (404) returned with message {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ErrorResponse
@@ -220,6 +221,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(NoContentException.class)
     public ResponseEntity<ErrorResponse> handleNoContentException(final NoContentException e) {
+        log.debug("No content (204) returned with message {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body(ErrorResponse
@@ -262,7 +264,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleServiceException(final BadRequestException e) {
-        log.debug("Bad Request (400) returned", e);
+        log.debug("Bad Request (400) returned with message {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
@@ -275,7 +277,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ErrorResponse> handleServiceException(final DuplicateKeyException e) {
-        log.debug("Conflict (409) returned", e);
+        log.debug("Conflict (409) returned with message {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ErrorResponse
