@@ -20,7 +20,8 @@
         "reasonCode": "PER",
         "reasonDescription": "Perpetrator",
         "agencyDescription": "LEEDS",
-        "assignedLivingUnitDescription": "LEI-H-1-5"
+        "assignedLivingUnitDescription": "LEI-H-1-5",
+        "assignedLivingUnitId": -19
       }
     },
     {
@@ -38,8 +39,10 @@
         "reasonCode": "RIV",
         "reasonDescription": "Rival Gang",
         "agencyDescription": "LEEDS",
-        "assignedLivingUnitDescription": "LEI-A-1-1"
+        "assignedLivingUnitDescription": "LEI-A-1-1",
+        "assignedLivingUnitId": -3
       }
     }
-  ]
+  ],
+  "assignedLivingUnitId": -3
 }

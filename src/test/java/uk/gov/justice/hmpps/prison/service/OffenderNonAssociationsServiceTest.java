@@ -40,6 +40,7 @@ public class OffenderNonAssociationsServiceTest {
                     .description("Pentonville")
                     .build())
             .assignedLivingUnit(AgencyInternalLocation.builder()
+                    .locationId(200L)
                     .description("cell 1")
                     .build());
 
@@ -73,6 +74,7 @@ public class OffenderNonAssociationsServiceTest {
                 .lastName("Bloggs")
                 .agencyDescription("Pentonville")
                 .assignedLivingUnitDescription("cell 1")
+                .assignedLivingUnitId(200L)
                 .nonAssociations(List.of())
                 .build());
     }
@@ -102,6 +104,7 @@ public class OffenderNonAssociationsServiceTest {
                                                         .build())
                                                 .assignedLivingUnit(AgencyInternalLocation.builder()
                                                         .description("cell 2")
+                                                        .locationId(123L)
                                                         .build())
                                                 .build())
                                         .build())
@@ -117,6 +120,7 @@ public class OffenderNonAssociationsServiceTest {
                         .lastName("Bloggs")
                         .agencyDescription("Pentonville")
                         .assignedLivingUnitDescription("cell 1")
+                        .assignedLivingUnitId(200L)
                         .nonAssociations(List.of(
                                 OffenderNonAssociationDetail.builder()
                                         .effectiveDate(LocalDateTime.of(2020, 7, 3, 12, 0, 0))
@@ -135,6 +139,7 @@ public class OffenderNonAssociationsServiceTest {
                                                 .reasonDescription("recip - Perpetrator")
                                                 .agencyDescription("Moorland")
                                                 .assignedLivingUnitDescription("cell 2")
+                                                .assignedLivingUnitId(123L)
                                                 .build())
                                         .build()))
                         .build()
