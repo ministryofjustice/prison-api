@@ -97,6 +97,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final EntityNotFoundException e) {
+        log.debug("Not found (404) returned with message {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ErrorResponse
@@ -220,6 +221,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(NoContentException.class)
     public ResponseEntity<ErrorResponse> handleNoContentException(final NoContentException e) {
+        log.debug("No content (204) returned with message {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body(ErrorResponse

@@ -8,6 +8,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
+import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.util.MdcUtility;
 
 import java.time.Duration;
@@ -26,10 +28,12 @@ public class LoggingAspect {
 
     @AfterThrowing(pointcut = "loggingPointcut()", throwing = "e")
     public void logAfterThrowing(final JoinPoint joinPoint, final Throwable e) {
-        log.info("Exception in pointcut {}.{}() with message {}",
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(),
-                e.getMessage());
+        if (!(e instanceof EntityNotFoundException || e instanceof NoContentException)) {
+            log.error("Exception in pointcut {} {}()",
+                    joinPoint.getSignature().getDeclaringTypeName(),
+                    joinPoint.getSignature().getName(),
+                    e);
+        }
     }
 
     @Around("loggingPointcut()")
