@@ -38,4 +38,7 @@ public class OffenderNonAssociation {
 
     @ApiModelProperty(required = true, value = "Description of living unit (e.g. cell) the offender is assigned to.", position = 7, example = "PVI-1-2-4")
     private String assignedLivingUnitDescription;
+
+    @ApiModelProperty(required = true, value = "Id of living unit (e.g. cell) the offender is assigned to.", position = 8, example = "123")
+    private Long assignedLivingUnitId;
 }

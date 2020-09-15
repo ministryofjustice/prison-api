@@ -33,10 +33,14 @@ public class OffenderNonAssociationDetails {
     @ApiModelProperty(required = true, value = "Description of the agency (e.g. prison) the offender is assigned to.", position = 4, example = "Moorland (HMP & YOI)")
     private String agencyDescription;
 
+
     @ApiModelProperty(required = true, value = "Description of living unit (e.g. cell) the offender is assigned to.", position = 5, example = "MDI-1-1-3")
     private String assignedLivingUnitDescription;
 
     @ApiModelProperty(value = "Offender non-association details", position = 6)
     @Builder.Default
     private Collection<OffenderNonAssociationDetail> nonAssociations = new ArrayList<>();
+
+    @ApiModelProperty(required = true, value = "Id of living unit (e.g. cell) the offender is assigned to.", position = 7, example = "123")
+    private Long assignedLivingUnitId;
 }

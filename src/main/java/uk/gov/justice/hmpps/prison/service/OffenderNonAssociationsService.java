@@ -40,6 +40,7 @@ public class OffenderNonAssociationsService {
                 .firstName(booking.getOffender().getFirstName())
                 .lastName(booking.getOffender().getLastName())
                 .agencyDescription(booking.getLocation().getDescription())
+                .assignedLivingUnitId(booking.getAssignedLivingUnit().getLocationId())
                 .assignedLivingUnitDescription(booking.getAssignedLivingUnit().getDescription())
                 .nonAssociations(nonAssociations)
                 .build();
@@ -63,6 +64,7 @@ public class OffenderNonAssociationsService {
                         .reasonDescription(detail.getNonAssociation().getRecipNonAssociationReason().getDescription())
                         .agencyDescription(detail.getNonAssociation().getNsAgencyDescription().orElse(null))
                         .assignedLivingUnitDescription(detail.getNonAssociation().getNsAssignedLivingUnitDescription().orElse(null))
+                        .assignedLivingUnitId(detail.getNonAssociation().getNsAssignedLivingUnitId().orElse(null))
                         .build())
                 .build();
     }

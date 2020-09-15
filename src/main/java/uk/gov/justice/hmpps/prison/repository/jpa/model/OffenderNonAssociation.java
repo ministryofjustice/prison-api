@@ -83,4 +83,8 @@ public class OffenderNonAssociation extends AuditableEntity {
     public Optional<String> getNsAssignedLivingUnitDescription() {
         return Optional.ofNullable(nsOffenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription);
     }
+
+    public Optional<Long> getNsAssignedLivingUnitId() {
+        return Optional.ofNullable(nsOffenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId);
+    }
 }
