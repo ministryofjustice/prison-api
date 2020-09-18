@@ -50,7 +50,8 @@ public class AgencyInternalLocation {
     private Long parentLocationId;
 
     @Column(name = "NO_OF_OCCUPANT")
-    private Integer currentOccupancy;
+    @Builder.Default
+    private Integer currentOccupancy = 0;
 
     @Column(name = "OPERATION_CAPACITY")
     private Integer operationalCapacity;
