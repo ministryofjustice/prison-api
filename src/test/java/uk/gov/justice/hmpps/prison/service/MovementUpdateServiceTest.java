@@ -145,7 +145,7 @@ class MovementUpdateServiceTest {
                             .build()));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
-                    .isInstanceOf(RuntimeException.class)
+                    .isInstanceOf(IllegalStateException.class)
                     .hasMessage("Location MDI-1-3 is either not a cell, active or at is at maximum capacity");
         }
     }
