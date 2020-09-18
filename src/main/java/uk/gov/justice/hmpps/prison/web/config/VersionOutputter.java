@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 
 
-/*
 @Slf4j
 @Configuration
 @AllArgsConstructor
@@ -29,4 +28,3 @@ public class VersionOutputter {
         return telemetryContext -> telemetryContext.getComponent().setVersion(buildProperties.getVersion());
     }
 }
-*/
