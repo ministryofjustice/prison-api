@@ -50,13 +50,15 @@ public class MovementUpdateService {
     @HasWriteScope
     public OffenderBooking moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         validateMoveToCell(reasonCode, dateTime);
+
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
         final var internalLocation = getActiveInternalLocation(internalLocationDescription);
 
-        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) {
-            return offenderBooking;
-        }
+        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) return offenderBooking;
+
+        if (!internalLocation.isActiveCellWithSpace())
+            throw new RuntimeException(String.format("Location %s is either not a cell, active or at is at maximum capacity", internalLocation.getLocationCode()));
 
         bookingService.updateLivingUnit(bookingId, internalLocationDescription);
         bedAssignmentHistoryService.add(bookingId, internalLocation.getLocationId(), reasonCode, movementDateTime);
