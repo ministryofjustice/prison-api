@@ -43,6 +43,13 @@
     "attributes": []
   },
   {
+    "id": -15,
+    "description": "LEI-H-1-1",
+    "capacity": 100,
+    "noOfOccupants": 1,
+    "attributes": []
+  },
+  {
     "id": -18,
     "description": "LEI-H-1-4",
     "capacity": 1,

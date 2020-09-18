@@ -58,17 +58,15 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     private static final Long BOOKING_ID = -33L;
     private static final String BOOKING_ID_S = "-33";
 
-    private static final Long INITIAL_CELL = -15L;
-    private static final String INITIAL_CELL_DESC = "LEI-H-1-1";
+    private static final Long INITIAL_CELL = -12L;
+    private static final String INITIAL_CELL_DESC = "LEI-A-1-10";
     private static final String INITIAL_REASON = "ADM";
     private static final LocalDateTime INITIAL_DATE_TIME = LocalDateTime.of(2020, 4, 3, 11, 0, 0);
 
-    private static final Long NEW_CELL = -4L;
-    private static final String NEW_CELL_DESC = "LEI-A-1-2";
+    private static final Long NEW_CELL = -18L;
+    private static final String NEW_CELL_DESC = "LEI-H-1-4";
     private static final Long CELL_DIFF_PRISON = -41L;
     private static final String CELL_DIFF_PRISON_S = "MDI-1-1-001";
-
-    private static final Long FULL_CELL = -31L;
 
     @AfterEach
     public void tearDown() {
