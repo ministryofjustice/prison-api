@@ -127,7 +127,7 @@ class MovementUpdateServiceTest {
         }
 
         @Test
-        void noCapacity_throwsRuntimeException() {
+        void noCapacity_throwsException() {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(offenderBookingRepository.findById(anyLong()))
