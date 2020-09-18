@@ -378,6 +378,9 @@ class MovementUpdateServiceTest {
         return Optional.of(
                 AgencyInternalLocation.builder()
                 .locationId(locationId)
+                .operationalCapacity(10)
+                .currentOccupancy(1)
+                .locationType("CELL")
                 .locationCode(locationCode)
                 .activeFlag(ActiveFlag.Y)
                 .build()
