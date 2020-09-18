@@ -138,6 +138,7 @@ class MovementUpdateServiceTest {
                     AgencyInternalLocation.builder()
                             .locationId(NEW_LIVING_UNIT_ID)
                             .locationCode(NEW_LIVING_UNIT_DESC)
+                            .description("MDI-1-3")
                             .operationalCapacity(10)
                             .capacity(10)
                             .locationType("CELL")
@@ -145,7 +146,7 @@ class MovementUpdateServiceTest {
                             .build()));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
-                    .isInstanceOf(IllegalStateException.class)
+                    .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Location MDI-1-3 is either not a cell, active or at is at maximum capacity");
         }
     }

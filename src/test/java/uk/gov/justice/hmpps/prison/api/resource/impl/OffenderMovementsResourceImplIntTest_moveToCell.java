@@ -68,6 +68,8 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
     private static final Long CELL_DIFF_PRISON = -41L;
     private static final String CELL_DIFF_PRISON_S = "MDI-1-1-001";
 
+    private static final Long FULL_CELL = -31L;
+
     @AfterEach
     public void tearDown() {
         // Return the offender back to his original cell as configured in the test data in R__3_6_1__OFFENDER_BOOKINGS.sql
@@ -145,6 +147,19 @@ public class OffenderMovementsResourceImplIntTest_moveToCell extends ResourceTes
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
+
+    @Test
+    public void locationFull_badRequest() {
+        final var dateTime = LocalDateTime.now().minusHours(1);
+        final var wing = "LEI-A-1-3";
+
+        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, wing, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
+
+        verifyErrorResponse(response, BAD_REQUEST, "Location LEI-A-1-3 is either not a cell, active or at is at maximum capacity");
+        verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
+        verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
+    }
+
 
     @Test
     public void noBookingAccess_notFound() {
