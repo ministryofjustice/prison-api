@@ -52,7 +52,7 @@ INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_C
         (-33, '21',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-A-2-1', -32, null, 1),
         (-13,  'H',   'WING',  'LEI',   'NA', 'Y', 20, 20, 'LEI-H', null, null, null),
         (-14,  '1',   'LAND',  'LEI',   'NA', 'Y', 20, 20, 'LEI-H-1', -13, 'Landing H/1', null),
-        (-15,  '1',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-H-1-1', -14, null, 1),
+        (-15,  '1',   'CELL',  'LEI',   'NA', 'Y',  1,  100, 'LEI-H-1-1', -14, null, 1),
         (-16,  '2',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-H-1-2', -14, null, 1),
         (-17,  '3',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-H-1-3', -14, null, 1),
         (-18,  '4',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-H-1-4', -14, null, 0),

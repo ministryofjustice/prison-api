@@ -98,7 +98,7 @@ public class OffenderMovementsResourceImplIntTest_moveToCellSwap extends Resourc
     public void missingDate_defaultsToNow() {
         final var expectedDateTime = clock.instant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        final var response = requestMoveToCell(validToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", "");
+        final var response = requestMoveToCellSwap(validToken(), BOOKING_ID_S, "BEH", "");
 
         verifySuccessResponse(response, BOOKING_ID, NEW_CELL, NEW_CELL_DESC);
         verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);

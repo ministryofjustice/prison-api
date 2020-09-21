@@ -125,6 +125,30 @@ class MovementUpdateServiceTest {
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("Fake runtime exception");
         }
+
+        @Test
+        void noCapacity_throwsException() {
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
+                    .thenReturn(Optional.of(mock(ReferenceCode.class)));
+            when(offenderBookingRepository.findById(anyLong()))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, "Y"))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, "Y"));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                    .thenReturn(Optional.of(
+                    AgencyInternalLocation.builder()
+                            .locationId(NEW_LIVING_UNIT_ID)
+                            .locationCode(NEW_LIVING_UNIT_DESC)
+                            .description("MDI-1-3")
+                            .operationalCapacity(10)
+                            .capacity(10)
+                            .locationType("CELL")
+                            .activeFlag(ActiveFlag.Y)
+                            .build()));
+
+            assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Location MDI-1-3 is either not a cell, active or is at maximum capacity");
+        }
     }
 
     @Nested
@@ -355,10 +379,12 @@ class MovementUpdateServiceTest {
         return Optional.of(
                 AgencyInternalLocation.builder()
                 .locationId(locationId)
+                .operationalCapacity(10)
+                .currentOccupancy(1)
+                .locationType("CELL")
                 .locationCode(locationCode)
                 .activeFlag(ActiveFlag.Y)
                 .build()
         );
     }
-
 }
