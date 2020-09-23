@@ -1,0 +1,199 @@
+{
+  "offenderNo": "A1234AC",
+  "bookingId": -3,
+  "bookingNo": "A00113",
+  "offenderId": -1003,
+  "rootOffenderId": -1003,
+  "firstName": "NORMAN",
+  "middleName": "JOHN",
+  "lastName": "BATES",
+  "dateOfBirth": "1999-10-27",
+  "age": 20,
+  "activeFlag": true,
+  "facialImageId": -3,
+  "agencyId": "LEI",
+  "assignedLivingUnitId": -3,
+  "religion": "Anglican",
+  "language": "Turkish",
+  "interpreterRequired": false,
+  "writtenLanguage": "Turkish",
+  "alertsCodes": [
+    "S",
+    "X"
+  ],
+  "activeAlertCount": 2,
+  "inactiveAlertCount": 0,
+  "alerts": [
+    {
+      "alertId": 1,
+      "alertType": "S",
+      "alertTypeDescription": "Sexual Offence",
+      "alertCode": "SR",
+      "alertCodeDescription": "On Sex Offender Register",
+      "comment": "Alert Text 3",
+      "expired": false,
+      "active": true
+    },
+    {
+      "alertId": 2,
+      "alertType": "X",
+      "alertTypeDescription": "Security",
+      "alertCode": "XTACT",
+      "alertCodeDescription": "XTACT",
+      "comment": "Alert XTACT 3",
+      "expired": false,
+      "active": true
+    }
+  ],
+  "assignedLivingUnit": {
+    "agencyId": "LEI",
+    "locationId": -3,
+    "description": "A-1-1",
+    "agencyName": "Leeds"
+  },
+  "physicalAttributes": {
+    "gender": "Male",
+    "raceCode": "W1",
+    "ethnicity": "White: British",
+    "heightFeet": 5,
+    "heightInches": 10,
+    "heightMetres": 1.78,
+    "heightCentimetres": 178,
+    "sexCode": "M"
+  },
+  "physicalCharacteristics": [
+    {
+      "type": "SHOESIZE",
+      "characteristic": "Shoe Size",
+      "detail": "8"
+    }
+  ],
+  "profileInformation": [
+    {
+      "type": "RELF",
+      "question": "Religion",
+      "resultValue": "Anglican"
+    },
+    {
+      "type": "DOMVIC",
+      "question": "Domestic Violence Victim?",
+      "resultValue": "No"
+    },
+    {
+      "type": "SMOKE",
+      "question": "Is the Offender a smoker?",
+      "resultValue": "Yes"
+    },
+    {
+      "type": "NAT",
+      "question": "Nationality?",
+      "resultValue": "British"
+    }
+  ],
+  "physicalMarks": [],
+  "assessments": [
+    {
+      "bookingId": -3,
+      "classificationCode": "LOW",
+      "classification": "Low",
+      "assessmentCode": "CSR",
+      "assessmentDescription": "CSR Rating",
+      "cellSharingAlertFlag": true,
+      "assessmentDate": "2017-04-01",
+      "nextReviewDate": "2018-06-03",
+      "assessmentStatus": "A",
+      "assessmentSeq": 1
+    },
+    {
+      "bookingId": -3,
+      "classificationCode": "X",
+      "classification": "Uncategorised Sentenced Male",
+      "assessmentCode": "CATEGORY",
+      "assessmentDescription": "Categorisation",
+      "cellSharingAlertFlag": false,
+      "assessmentDate": "2016-04-04",
+      "nextReviewDate": "2016-06-08",
+      "assessmentStatus": "A",
+      "assessmentSeq": 2
+    }
+  ],
+  "csra": "Low",
+  "category": "Uncategorised Sentenced Male",
+  "categoryCode": "X",
+  "birthCountryCode": "UK",
+  "inOutStatus": "IN",
+  "identifiers": [
+    {
+      "type": "CRO",
+      "value": "CRO112233",
+      "offenderNo": "A1234AC",
+      "bookingId": -3,
+      "issuedDate": "2017-07-13",
+      "caseloadType": "INST"
+    }
+  ],
+  "personalCareNeeds": [
+    {
+      "problemType": "DISAB",
+      "problemCode": "ND",
+      "problemStatus": "ON",
+      "problemDescription": "No Disability",
+      "commentText": null,
+      "startDate": "2010-06-22",
+      "endDate": null
+    }
+  ],
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2020-03-15",
+    "earlyTermDate": "2017-09-15",
+    "midTermDate": "2018-03-15",
+    "lateTermDate": "2018-09-15",
+    "bookingId": -3,
+    "sentenceStartDate": "2015-03-16",
+    "releaseDate": "2018-03-15"
+  },
+  "offenceHistory": [
+    {
+      "bookingId": -3,
+      "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+      "offenceCode": "RC86355",
+      "statuteCode": "RC86",
+      "mostSerious": false,
+      "primaryResultCode": "1501",
+      "primaryResultDescription": "Recall",
+      "primaryResultConviction": true,
+      "secondaryResultConviction": false,
+      "caseId": -300
+    }
+  ],
+  "sentenceTerms": [
+    {
+      "bookingId": -3,
+      "sentenceSequence": 2,
+      "termSequence": 1,
+      "sentenceType": "R",
+      "sentenceTypeDescription": "Prohibited Activity",
+      "startDate": "2015-03-16",
+      "years": 5,
+      "lifeSentence": false,
+      "caseId": "-3",
+      "fineAmount": 120.0,
+      "sentenceTermCode": "IMP",
+      "lineSeq": 1,
+      "sentenceStartDate": "2017-07-05"
+    }
+  ],
+  "aliases": [],
+  "status": "ACTIVE IN",
+  "legalStatus": "SENTENCED",
+  "recall": true,
+  "imprisonmentStatus": "SENT",
+  "privilegeSummary": {
+    "bookingId": -3,
+    "iepLevel": "Enhanced",
+    "iepDate": "2017-10-12",
+    "iepTime": "2017-10-12T07:53:45",
+    "daysSinceReview": 1077,
+    "iepDetails": []
+  }
+}

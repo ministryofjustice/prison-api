@@ -1,0 +1,199 @@
+{
+  "offenderNo": "A1234AD",
+  "bookingId": -4,
+  "bookingNo": "A00114",
+  "offenderId": -1004,
+  "rootOffenderId": -1004,
+  "firstName": "CHARLES",
+  "middleName": "JAMES",
+  "lastName": "CHAPLIN",
+  "dateOfBirth": "1970-01-01",
+  "age": 50,
+  "activeFlag": true,
+  "facialImageId": -4,
+  "agencyId": "LEI",
+  "assignedLivingUnitId": -2,
+  "religion": "Christian Scientist",
+  "alertsCodes": [
+    "R",
+    "X"
+  ],
+  "activeAlertCount": 2,
+  "inactiveAlertCount": 0,
+  "alerts": [
+    {
+      "alertId": 1,
+      "alertType": "R",
+      "alertTypeDescription": "Risk",
+      "alertCode": "ROM",
+      "alertCodeDescription": "OASys Serious Harm-Medium",
+      "comment": "Alert Text 4",
+      "expired": false,
+      "active": true
+    },
+    {
+      "alertId": 2,
+      "alertType": "X",
+      "alertTypeDescription": "Security",
+      "alertCode": "XTACT",
+      "alertCodeDescription": "XTACT",
+      "comment": "Alert XTACT 4",
+      "expired": false,
+      "active": true
+    }
+  ],
+  "assignedLivingUnit": {
+    "agencyId": "LEI",
+    "locationId": -2,
+    "description": "A-1",
+    "agencyName": "Leeds"
+  },
+  "physicalAttributes": {
+    "gender": "Male",
+    "raceCode": "W1",
+    "ethnicity": "White: British",
+    "heightFeet": 6,
+    "heightInches": 1,
+    "heightMetres": 1.85,
+    "heightCentimetres": 185,
+    "weightPounds": 218,
+    "weightKilograms": 99,
+    "sexCode": "M"
+  },
+  "physicalCharacteristics": [
+    {
+      "type": "SHOESIZE",
+      "characteristic": "Shoe Size",
+      "detail": "10"
+    }
+  ],
+  "profileInformation": [
+    {
+      "type": "RELF",
+      "question": "Religion",
+      "resultValue": "Christian Scientist"
+    },
+    {
+      "type": "DOMESTIC",
+      "question": "Domestic Abuse Perpetrator?",
+      "resultValue": "No"
+    },
+    {
+      "type": "SMOKE",
+      "question": "Is the Offender a smoker?",
+      "resultValue": "No"
+    },
+    {
+      "type": "NAT",
+      "question": "Nationality?",
+      "resultValue": "British"
+    }
+  ],
+  "physicalMarks": [],
+  "assessments": [
+    {
+      "bookingId": -4,
+      "classificationCode": "MED",
+      "classification": "Medium",
+      "assessmentCode": "CSR",
+      "assessmentDescription": "CSR Rating",
+      "cellSharingAlertFlag": true,
+      "assessmentDate": "2017-04-02",
+      "nextReviewDate": "2018-06-04",
+      "assessmentStatus": "A",
+      "assessmentSeq": 1,
+      "assessmentComment": "Assess comment text 1"
+    },
+    {
+      "bookingId": -4,
+      "classificationCode": "U",
+      "classification": "Unsentenced",
+      "assessmentCode": "CATEGORY",
+      "assessmentDescription": "Categorisation",
+      "cellSharingAlertFlag": false,
+      "assessmentDate": "2016-04-04",
+      "nextReviewDate": "2016-06-08",
+      "assessmentStatus": "A",
+      "assessmentSeq": 3,
+      "assessmentComment": "Assess comment text 3"
+    }
+  ],
+  "csra": "Medium",
+  "category": "Unsentenced",
+  "categoryCode": "U",
+  "birthCountryCode": "UK",
+  "inOutStatus": "IN",
+  "identifiers": [
+    {
+      "type": "PNC",
+      "value": "1998/1234567L",
+      "offenderNo": "A1234AD",
+      "bookingId": -4,
+      "issuedDate": "2017-08-28",
+      "caseloadType": "INST"
+    },
+    {
+      "type": "CRO",
+      "value": "CRO144322",
+      "offenderNo": "A1234AD",
+      "bookingId": -4,
+      "issuedDate": "2019-09-25",
+      "caseloadType": "INST"
+    }
+  ],
+  "personalCareNeeds": [
+    {
+      "problemType": "DISAB",
+      "problemCode": "ND",
+      "problemStatus": "ON",
+      "problemDescription": "No Disability",
+      "commentText": "Some Description Text 2",
+      "startDate": "2010-06-24",
+      "endDate": null
+    }
+  ],
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2022-10-20",
+    "automaticReleaseDate": "2021-05-06",
+    "postRecallReleaseDate": "2021-08-29",
+    "earlyRemovalSchemeEligibilityDate": "2019-09-01",
+    "bookingId": -4,
+    "sentenceStartDate": "2007-10-16",
+    "additionalDaysAwarded": 5,
+    "postRecallReleaseOverrideDate": "2021-08-31",
+    "nonDtoReleaseDate": "2021-08-31",
+    "nonDtoReleaseDateType": "PRRD",
+    "releaseDate": "2021-08-31"
+  },
+  "offenceHistory": [],
+  "sentenceTerms": [
+    {
+      "bookingId": -4,
+      "sentenceSequence": 1,
+      "termSequence": 1,
+      "sentenceType": "R",
+      "sentenceTypeDescription": "Prohibited Activity",
+      "startDate": "2007-10-16",
+      "years": 15,
+      "lifeSentence": false,
+      "caseId": "-4",
+      "fineAmount": 120.0,
+      "sentenceTermCode": "IMP",
+      "lineSeq": 1,
+      "sentenceStartDate": "2017-07-05"
+    }
+  ],
+  "aliases": [],
+  "status": "ACTIVE IN",
+  "legalStatus": "SENTENCED",
+  "recall": false,
+  "imprisonmentStatus": "SENT",
+  "privilegeSummary": {
+    "bookingId": -4,
+    "iepLevel": "Standard",
+    "iepDate": "2017-09-06",
+    "iepTime": "2017-09-06T09:44:01",
+    "daysSinceReview": 1113,
+    "iepDetails": []
+  }
+}
