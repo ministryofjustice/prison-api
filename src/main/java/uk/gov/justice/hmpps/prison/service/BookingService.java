@@ -692,8 +692,8 @@ public class BookingService {
         return sentenceRepository.getOffenceHistory(offenderNo, convictionsOnly);
     }
 
-    public List<OffenceHistoryDetail> getOffencesForBooking(final Long bookingId, final boolean convictionsOnly) {
-        return sentenceRepository.getOffencesForBooking(bookingId, convictionsOnly);
+    public List<OffenceHistoryDetail> getActiveOffencesForBooking(final Long bookingId, final boolean convictionsOnly) {
+        return sentenceRepository.getActiveOffencesForBooking(bookingId, convictionsOnly);
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})

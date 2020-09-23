@@ -56,7 +56,7 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
     }
 
     @Override
-    public List<OffenceHistoryDetail> getOffencesForBooking(final Long bookingId, final boolean convictionsOnly) {
+    public List<OffenceHistoryDetail> getActiveOffencesForBooking(final Long bookingId, final boolean convictionsOnly) {
         Objects.requireNonNull(bookingId, "offenderNo is a required parameter");
         final var sql = getQuery("GET_OFFENCES_FOR_BOOKING");
 
