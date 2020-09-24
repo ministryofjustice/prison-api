@@ -5,14 +5,16 @@
       "commentText": "abcd",
       "startDate": "2010-06-21",
       "endDate": null,
-      "agencyId": "LEI"
+      "agencyId": "LEI",
+      "treatmentDescription": "Wheelchair accessibility"
     },
     {
       "treatmentCode": "PEEP",
       "commentText": "efgh",
       "startDate": "2010-06-21",
       "endDate": null,
-      "agencyId": "LEI"
+      "agencyId": "LEI",
+      "treatmentDescription": "Some other description"
     }
   ]
 }
