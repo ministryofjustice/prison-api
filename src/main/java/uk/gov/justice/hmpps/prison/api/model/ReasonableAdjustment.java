@@ -32,4 +32,7 @@ public class ReasonableAdjustment {
 
     @ApiModelProperty(value = "The agency id where the adjustment was created", position = 5, example = "LEI")
     private String agencyId;
+
+    @ApiModelProperty(value = "Treatment Description", position = 6, example = "Wheelchair accessibility")
+    private String treatmentDescription;
 }

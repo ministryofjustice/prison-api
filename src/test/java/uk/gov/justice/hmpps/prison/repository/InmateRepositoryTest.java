@@ -1295,16 +1295,18 @@ public class InmateRepositoryTest {
     public void getReasonableAdjustment() {
         final var expectedInfo = List.of(
                 ReasonableAdjustment.builder()
-                        .treatmentCode("WHEELCHR_ACC")
-                        .commentText("Some Comment Text")
+                        .treatmentCode("COMP SOFT")
+                        .treatmentDescription("Computer software")
+                        .commentText("EFGH")
                         .startDate(LocalDate.of(2010, 6, 21))
                         .build(),
                 ReasonableAdjustment.builder()
-                        .treatmentCode("PEEP")
-                        .commentText("EFGH")
+                        .treatmentCode("WHEELCHR_ACC")
+                        .treatmentDescription("Wheelchair accessibility")
+                        .commentText("Some Comment Text")
                         .startDate(LocalDate.of(2010, 6, 21))
                         .build());
-        final var treatmentCodes = List.of("WHEELCHR_ACC", "PEEP");
+        final var treatmentCodes = List.of("WHEELCHR_ACC", "COMP SOFT");
         final var info = repository.findReasonableAdjustments(-1, treatmentCodes);
         assertThat(info).isEqualTo(expectedInfo);
     }
