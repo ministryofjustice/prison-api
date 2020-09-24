@@ -122,6 +122,40 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testOffenderWithActiveRecallOffence() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "A1234AC");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_detail_recall.json");
+    }
+
+    @Test
+    public void testOffenderWithInActiveRecallOffence() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{nomsId}",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                },
+                "A1234AD");
+
+        assertThatJsonFileAndStatus(response, 200, "offender_detail_no_recall.json");
+    }
+
+    @Test
     public void getOffenderInformationWithoutBooking() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
 

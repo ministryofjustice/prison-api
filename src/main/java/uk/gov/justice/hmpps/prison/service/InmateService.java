@@ -258,7 +258,7 @@ public class InmateService {
                     inmate.setImprisonmentStatus(status.getImprisonmentStatus());
                 });
 
-                final var offenceHistory = bookingService.getOffencesForBooking(bookingId, true);
+                final var offenceHistory = bookingService.getActiveOffencesForBooking(bookingId, true);
                 final var sentenceTerms = bookingService.getOffenderSentenceTerms(bookingId, null);
                 inmate.setOffenceHistory(offenceHistory);
                 inmate.setSentenceTerms(sentenceTerms);
