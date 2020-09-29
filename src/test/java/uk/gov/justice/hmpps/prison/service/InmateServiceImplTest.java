@@ -69,6 +69,8 @@ public class InmateServiceImplTest {
     @Mock
     private UserService userService;
     @Mock
+    private MovementsService movementsService;
+    @Mock
     private ReferenceDomainService referenceDomainService;
     @Mock
     private AuthenticationFacade authenticationFacade;
@@ -90,7 +92,7 @@ public class InmateServiceImplTest {
     @BeforeEach
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
-                referenceDomainService, bookingService, agencyService, userService, authenticationFacade, telemetryClient, "WING", 100, offenderLanguageRepository);
+                referenceDomainService, bookingService, agencyService, userService, movementsService, authenticationFacade, telemetryClient, "WING", 100, offenderLanguageRepository);
     }
 
     @Test

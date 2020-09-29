@@ -90,6 +90,7 @@ public class InmateService {
     private final UserService userService;
     private final InmateAlertService inmateAlertService;
     private final ReferenceDomainService referenceDomainService;
+    private final MovementsService movementsService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
     private final OffenderLanguageRepository offenderLanguageRepository;
@@ -104,7 +105,7 @@ public class InmateService {
                          final BookingService bookingService,
                          final AgencyService agencyService,
                          final UserService userService,
-                         final AuthenticationFacade authenticationFacade,
+                         final MovementsService movementsService, final AuthenticationFacade authenticationFacade,
                          final TelemetryClient telemetryClient,
                          @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
                          @Value("${batch.max.size:1000}") final int maxBatchSize,
@@ -113,6 +114,7 @@ public class InmateService {
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
         this.referenceDomainService = referenceDomainService;
+        this.movementsService = movementsService;
         this.telemetryClient = telemetryClient;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
@@ -179,17 +181,17 @@ public class InmateService {
 
         final var results = new ArrayList<InmateBasicDetails>();
         Lists.partition(Lists.newArrayList(offenders), maxBatchSize).forEach(offenderList ->
-            results.addAll(
-                    repository.getBasicInmateDetailsForOffenders(new HashSet<>(offenderList), canViewAllOffenders, caseloads, active)
-                            .stream()
-                            .map(offender ->
-                                    offender.toBuilder()
-                                            .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
-                                            .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
-                                            .lastName(WordUtils.capitalizeFully(offender.getLastName()))
-                                            .build()
-                            ).collect(Collectors.toList())
-            ));
+                results.addAll(
+                        repository.getBasicInmateDetailsForOffenders(new HashSet<>(offenderList), canViewAllOffenders, caseloads, active)
+                                .stream()
+                                .map(offender ->
+                                        offender.toBuilder()
+                                                .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                                                .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
+                                                .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                                                .build()
+                                ).collect(Collectors.toList())
+                ));
 
         log.info("getBasicInmateDetailsForOffenders, {} records returned", results.size());
         return results;
@@ -263,11 +265,17 @@ public class InmateService {
                 inmate.setOffenceHistory(offenceHistory);
                 inmate.setSentenceTerms(sentenceTerms);
                 inmate.setRecall(LegalStatusCalc.calcRecall(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
+
+                if ("OUT".equals(inmate.getInOutStatus())) {
+                    final var lastPrisonList = movementsService.getMovementsByOffenders(List.of(inmate.getOffenderNo()), List.of(), true);
+                    if (!lastPrisonList.isEmpty()) {
+                        inmate.setLastPrison(lastPrisonList.get(0).getFromAgencyDescription());
+                    }
+                }
             }
         }
         return inmate;
     }
-
 
 
     private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final Long bookingId) {
@@ -433,8 +441,8 @@ public class InmateService {
     public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, @Nullable final String identifierType) {
         return repository.getOffenderIdentifiers(bookingId)
                 .stream()
-                    .filter( i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))
-                    .collect(Collectors.toList());
+                .filter(i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))
+                .collect(Collectors.toList());
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
