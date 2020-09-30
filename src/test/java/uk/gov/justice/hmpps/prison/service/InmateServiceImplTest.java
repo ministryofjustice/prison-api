@@ -14,15 +14,20 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.prison.api.model.AssignedLivingUnit;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
+import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
+import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
+import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.KeyWorkerAllocationRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
@@ -33,11 +38,13 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,9 +52,11 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -416,59 +425,163 @@ public class InmateServiceImplTest {
 
     @Test
     public void testGetSecondaryLanguages() {
-       when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of(
-               OffenderLanguage.builder()
-                       .offenderBookId(-1l)
-                       .speakSkill("Y")
-                       .readSkill("n")
-                       .writeSkill("Y")
-                       .code("ENG")
-                       .type("SEC")
-                       .referenceCode(new LanguageReferenceCode("ENG", "English"))
-                       .build(),
-               OffenderLanguage.builder()
-                       .offenderBookId(-1l)
-                       .speakSkill("Y")
-                       .readSkill("n")
-                       .writeSkill("Y")
-                       .code("ENG")
-                       .referenceCode(new LanguageReferenceCode("ENG", "English"))
-                       .build(),
-               OffenderLanguage.builder()
-                       .offenderBookId(-1l)
-                       .code("LAT")
-                       .type("SEC")
-                       .referenceCode(new LanguageReferenceCode("LAT", "Latvian"))
-                       .build(),
-               OffenderLanguage.builder()
-                       .offenderBookId(-1l)
-                       .code("TUR")
-                       .type("PREF_SPEAK")
-                       .referenceCode(new LanguageReferenceCode("TUR", "Turkish"))
-                       .build()
-               )
-       );
+        when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of(
+                OffenderLanguage.builder()
+                        .offenderBookId(-1l)
+                        .speakSkill("Y")
+                        .readSkill("n")
+                        .writeSkill("Y")
+                        .code("ENG")
+                        .type("SEC")
+                        .referenceCode(new LanguageReferenceCode("ENG", "English"))
+                        .build(),
+                OffenderLanguage.builder()
+                        .offenderBookId(-1l)
+                        .speakSkill("Y")
+                        .readSkill("n")
+                        .writeSkill("Y")
+                        .code("ENG")
+                        .referenceCode(new LanguageReferenceCode("ENG", "English"))
+                        .build(),
+                OffenderLanguage.builder()
+                        .offenderBookId(-1l)
+                        .code("LAT")
+                        .type("SEC")
+                        .referenceCode(new LanguageReferenceCode("LAT", "Latvian"))
+                        .build(),
+                OffenderLanguage.builder()
+                        .offenderBookId(-1l)
+                        .code("TUR")
+                        .type("PREF_SPEAK")
+                        .referenceCode(new LanguageReferenceCode("TUR", "Turkish"))
+                        .build()
+                )
+        );
 
-       final var secondaryLanguages = serviceToTest.getSecondaryLanguages(-1L);
+        final var secondaryLanguages = serviceToTest.getSecondaryLanguages(-1L);
 
-       assertThat(secondaryLanguages).containsExactlyInAnyOrder(
-               SecondaryLanguage.builder()
-                       .bookingId(-1L)
-                       .code("ENG")
-                       .description("English")
-                       .canSpeak(true)
-                       .canRead(false)
-                       .canWrite(true)
-                       .build(),
-               SecondaryLanguage.builder()
-                       .bookingId(-1L)
-                       .code("LAT")
-                       .description("Latvian")
-                       .canSpeak(false)
-                       .canRead(false)
-                       .canWrite(false)
-                       .build()
-       );
+        assertThat(secondaryLanguages).containsExactlyInAnyOrder(
+                SecondaryLanguage.builder()
+                        .bookingId(-1L)
+                        .code("ENG")
+                        .description("English")
+                        .canSpeak(true)
+                        .canRead(false)
+                        .canWrite(true)
+                        .build(),
+                SecondaryLanguage.builder()
+                        .bookingId(-1L)
+                        .code("LAT")
+                        .description("Latvian")
+                        .canSpeak(false)
+                        .canRead(false)
+                        .canWrite(false)
+                        .build()
+        );
     }
 
+    @Test
+    public void getOffenderDetails_LocationDescriptionPrisonerReleased() {
+
+        when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
+        when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
+        when(repository.findPhysicalAttributes(anyLong())).thenReturn(Optional.of(buildPhysicalAttributes()));
+        when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
+        when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
+        when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.getOffenderIdentifiers(anyLong())).thenReturn(List.of());
+        when(movementsService.getMovementsByOffenders(anyList(), anyList(), anyBoolean())).thenReturn(List.of(buildMovementReleased("REL","")));
+
+        final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
+
+        assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - released from Leeds");
+    }
+
+    @Test
+    public void getOffenderDetails_LocationDescriptionPrisonerTemporaryAbsence() {
+
+        when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
+        when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
+        when(repository.findPhysicalAttributes(anyLong())).thenReturn(Optional.of(buildPhysicalAttributes()));
+        when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
+        when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
+        when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.getOffenderIdentifiers(anyLong())).thenReturn(List.of());
+        when(movementsService.getMovementsByOffenders(anyList(), anyList(), anyBoolean())).thenReturn(List.of(buildMovementReleased("TAP","Temporary Absence")));
+
+        final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
+
+        assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - Temporary Absence");
+    }
+
+    @Test
+    public void getOffenderDetails_LocationDescriptionPrisonerNoMovementDetailsFound() {
+
+        when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
+        when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
+        when(repository.findPhysicalAttributes(anyLong())).thenReturn(Optional.of(buildPhysicalAttributes()));
+        when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
+        when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
+        when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.getOffenderIdentifiers(anyLong())).thenReturn(List.of());
+
+        final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
+
+        assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside");
+    }
+
+    private InmateDetail buildInmateDetail() {
+        return InmateDetail.builder()
+                .offenderNo("S1234AA")
+                .bookingId(-1L)
+                .bookingNo("Z00001")
+                .offenderId(-999L)
+                .rootOffenderId(-999L)
+                .firstName("FRED")
+                .lastName("JAMES")
+                .dateOfBirth(LocalDate.of(1955, 12, 1))
+                .age(65)
+                .agencyId("outside")
+                .assignedLivingUnitId(-13L)
+                .birthCountryCode("UK")
+                .inOutStatus("OUT")
+                .build();
+    }
+
+    private PhysicalAttributes buildPhysicalAttributes() {
+        return PhysicalAttributes.builder()
+                .gender("Male")
+                .raceCode("W2")
+                .ethnicity("White: Irish")
+                .build();
+    }
+
+    private AssignedLivingUnit buildAssignedLivingUnit() {
+        return AssignedLivingUnit.builder()
+                .agencyId("MDI")
+                .locationId(-41L)
+                .description("1-1-001")
+                .agencyName("MOORLAND")
+                .build();
+    }
+
+    private Movement buildMovementReleased(String movementType,String movementTypeDescription) {
+        return Movement.builder()
+                .offenderNo("S1234AA")
+                .createDateTime(LocalDateTime.now())
+                .fromAgency("LEI")
+                .fromAgencyDescription("Leeds")
+                .toAgency("OUT")
+                .toAgencyDescription("Outside")
+                .directionCode("OUT")
+                .movementType(movementType)
+                .movementTypeDescription(movementTypeDescription)
+                .build();
+    }
 }

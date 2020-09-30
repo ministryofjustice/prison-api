@@ -266,19 +266,27 @@ public class InmateService {
                 inmate.setSentenceTerms(sentenceTerms);
                 inmate.setRecall(LegalStatusCalc.calcRecall(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
 
-                if ("OUT".equals(inmate.getInOutStatus())) {
-                    final var lastPrisonList = movementsService.getMovementsByOffenders(List.of(inmate.getOffenderNo()), List.of(), true);
-                    if (!lastPrisonList.isEmpty()) {
-                        inmate.setLastPrison(lastPrisonList.get(0).getFromAgencyDescription());
-                    }
-                }
+                inmate.setLocationDescription(calculateLocationDescription(inmate));
             }
         }
         return inmate;
     }
 
+    private String calculateLocationDescription(final InmateDetail inmate) {
+        if ("OUT".equals(inmate.getInOutStatus())) {
+            final var movementList = movementsService.getMovementsByOffenders(List.of(inmate.getOffenderNo()), List.of(), true);
+            return movementList.stream().findFirst().map(lastMovement ->
+                    "REL".equals(lastMovement.getMovementType())
+                    ? "Outside - released from " + lastMovement.getFromAgencyDescription()
+                    : "Outside - " + lastMovement.getMovementTypeDescription()).orElse("Outside");
+        }
+        return inmate.getAssignedLivingUnit().getAgencyName();
+    }
+
 
     private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final Long bookingId) {
+        final var a = offenderLanguageRepository
+                .findByOffenderBookId(bookingId);
         return offenderLanguageRepository
                 .findByOffenderBookId(bookingId)
                 .stream()
