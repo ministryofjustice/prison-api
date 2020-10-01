@@ -98,21 +98,9 @@ env:
       secretKeyRef:
         key: DATA_COMPLIANCE_RESPONSE_SQS_REGION
         name: {{ template "app.name" . }}
-  - name: JWT_PUBLIC_KEY
-    valueFrom:
-      secretKeyRef:
-        key: JWT_PUBLIC_KEY
-        name: {{ template "app.name" . }}
-  - name: OAUTH_ENDPOINT_URL
-    valueFrom:
-      secretKeyRef:
-        key: OAUTH_ENDPOINT_URL
-        name: {{ template "app.name" . }}
   - name: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
-    valueFrom:
-      secretKeyRef:
-        key: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
-        name: {{ template "app.name" . }}
+    value: "{{ .Values.env.SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE }}"
+
   - name: SPRING_DATASOURCE_PASSWORD
     valueFrom:
       secretKeyRef:
@@ -123,16 +111,13 @@ env:
       secretKeyRef:
         key: SPRING_DATASOURCE_URL
         name: {{ template "app.name" . }}
+
   - name: SPRING_PROFILES_ACTIVE
-    valueFrom:
-      secretKeyRef:
-        key: SPRING_PROFILES_ACTIVE
-        name: {{ template "app.name" . }}
+    value: nomis
+
   - name: SPRING_REPLICA_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
-    valueFrom:
-      secretKeyRef:
-        key: SPRING_REPLICA_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
-        name: {{ template "app.name" . }}
+    value: "{{ .Values.env.SPRING_REPLICA_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE }}"
+
   - name: SPRING_REPLICA_DATASOURCE_PASSWORD
     valueFrom:
       secretKeyRef:
@@ -148,4 +133,8 @@ env:
       secretKeyRef:
         key: SPRING_REPLICA_DATASOURCE_USERNAME
         name: {{ template "app.name" . }}
+
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
+    value: "{{ .Values.env.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI }}"
+
 {{- end }}

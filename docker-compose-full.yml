@@ -77,7 +77,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
     environment:
       - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=nomis-hsqldb
+      - SPRING_PROFILES_ACTIVE=dev,nomis-hsqldb
 
   keyworker-api:
     image: quay.io/hmpps/keyworker-api:latest
