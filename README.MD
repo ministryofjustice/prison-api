@@ -2,7 +2,7 @@
 
 
 [![CircleCI](https://circleci.com/gh/ministryofjustice/prison-api/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/prison-api)
-[![Known Vulnerabilities](https://snyk.io/test/github/ministryofjustice/prison-api/badge.svg)](https://snyk.io/test/github/ministryofjustice/prison-api)
+[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://api-dev.prison.service.justice.gov.uk/swagger-ui.html)
 
 ### How do I get set up? ###
 
