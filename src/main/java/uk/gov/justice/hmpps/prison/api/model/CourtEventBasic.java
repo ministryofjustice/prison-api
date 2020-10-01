@@ -30,12 +30,12 @@ public class CourtEventBasic {
     @ApiModelProperty(required = true, value = "The planned date and time of the start of the event in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2020-12-01T14:00:00", position = 4)
     private LocalDateTime startTime;
 
-    @ApiModelProperty(required = true, value = "The event sub-type", example = "DP", position = 5)
+    @ApiModelProperty(required = true, value = "The court event subtype (from MOVE_RSN reference data)", example = "CRT", position = 5)
     private String eventSubType;
 
     @ApiModelProperty(value = "The event description", example = "Court Appearance", position = 6)
     private String eventDescription;
 
-    @ApiModelProperty(value = "Whether hold ordered by court at this hearing", position = 7)
+    @ApiModelProperty(value = "Whether hold ordered by the court at this hearing", position = 7)
     private boolean hold;
 }

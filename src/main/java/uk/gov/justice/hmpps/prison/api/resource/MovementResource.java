@@ -13,7 +13,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.gov.justice.hmpps.prison.api.model.*;
+import uk.gov.justice.hmpps.prison.api.model.CourtEventBasic;
+import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.Movement;
+import uk.gov.justice.hmpps.prison.api.model.MovementCount;
+import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
+import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
+import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
+import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
+import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
+import uk.gov.justice.hmpps.prison.api.model.RollCount;
+import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
 
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
