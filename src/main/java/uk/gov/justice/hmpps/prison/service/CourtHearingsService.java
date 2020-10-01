@@ -12,7 +12,7 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.EventType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus.SCHEDULED_APPROVED;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventType.COURT;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.COURT;
 
 @Service
 @Transactional(readOnly = true)
@@ -44,7 +44,7 @@ public class CourtHearingsService {
 
     private final AgencyLocationRepository agencyLocationRepository;
 
-    private final ReferenceCodeRepository<EventType> eventTypeRepository;
+    private final ReferenceCodeRepository<MovementReason> eventTypeRepository;
 
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
 
@@ -53,7 +53,7 @@ public class CourtHearingsService {
     public CourtHearingsService(final OffenderBookingRepository offenderBookingRepository,
                                 final CourtEventRepository courtEventRepository,
                                 final AgencyLocationRepository agencyLocationRepository,
-                                final ReferenceCodeRepository<EventType> eventTypeRepository,
+                                final ReferenceCodeRepository<MovementReason> eventTypeRepository,
                                 final ReferenceCodeRepository<EventStatus> eventStatusRepository,
                                 final Clock clock) {
         this.offenderBookingRepository = offenderBookingRepository;

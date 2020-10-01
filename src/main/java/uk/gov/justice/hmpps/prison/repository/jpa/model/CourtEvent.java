@@ -39,7 +39,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus.EVENT_STS;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventType.EVENT_TYPE;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.REASON;
 
 @Getter
 @Entity
@@ -79,10 +79,10 @@ public class CourtEvent extends AuditableEntity {
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
-            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EVENT_TYPE + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + REASON + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "COURT_EVENT_TYPE", referencedColumnName = "code"))
     })
-    private EventType courtEventType;
+    private MovementReason courtEventType;
 
     @ManyToOne
     @NotFound(action = IGNORE)
@@ -109,6 +109,9 @@ public class CourtEvent extends AuditableEntity {
 
     @Column(name = "DIRECTION_CODE", length = 12)
     private String directionCode;
+
+    @Column(name = "HOLD_FLAG", length = 1)
+    private String holdFlag;
 
     @OneToMany(mappedBy = "eventAndCharge.courtEvent", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private final List<CourtEventCharge> charges = new ArrayList<>();

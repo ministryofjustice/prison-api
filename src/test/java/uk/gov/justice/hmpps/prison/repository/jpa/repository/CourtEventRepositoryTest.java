@@ -16,7 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent.CourtEventBuilder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.EventType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -25,6 +25,7 @@ import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +73,7 @@ public class CourtEventRepositoryTest {
     private ReferenceCodeRepository<EventStatus> eventStatusRepository;
 
     @Autowired
-    private ReferenceCodeRepository<EventType> eventTypeRepository;
+    private ReferenceCodeRepository<MovementReason> eventTypeRepository;
 
     @Autowired
     private TestEntityManager entityManager;
@@ -87,7 +88,7 @@ public class CourtEventRepositoryTest {
 
         builder
                 .commentText("Comment text for court event")
-                .courtEventType(eventTypeRepository.findById(EventType.COURT).orElseThrow())
+                .courtEventType(eventTypeRepository.findById(MovementReason.COURT).orElseThrow())
                 .courtLocation(agencyRepository.findById("COURT1").orElseThrow())
                 .directionCode("OUT")
                 .eventDate(eventDate)
@@ -231,5 +232,21 @@ public class CourtEventRepositoryTest {
         assertThatThrownBy(() -> courtEventRepository.deleteById(id))
                 .hasRootCauseInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Court hearing '%s' must be in a scheduled state to delete.", id);
+    }
+
+    @Test
+    void court_event_upcoming() {
+        final var events = courtEventRepository.getCourtEventsUpcoming(LocalDateTime.of(2016, 1, 1, 0, 0));
+
+        assertThat(events).hasSize(17);
+        assertThat(events.get(0))
+                .hasFieldOrPropertyWithValue("offenderNo","A1234AB")
+                .hasFieldOrPropertyWithValue("startTime",LocalDateTime.of(2017, 2, 20, 10, 11))
+                .hasFieldOrPropertyWithValue("court","ABDRCT")
+                .hasFieldOrPropertyWithValue("courtDescription","Court 2")
+                .hasFieldOrPropertyWithValue("eventSubType","CA")
+                .hasFieldOrPropertyWithValue("eventDescription","Court Appearance")
+                .hasFieldOrPropertyWithValue("hold",false)
+        ;
     }
 }

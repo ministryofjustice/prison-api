@@ -14,25 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
-import uk.gov.justice.hmpps.prison.api.model.Movement;
-import uk.gov.justice.hmpps.prison.api.model.MovementCount;
-import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
-import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
-import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
-import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
-import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
-import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
-import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
-import uk.gov.justice.hmpps.prison.api.model.RollCount;
-import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
-import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
+import uk.gov.justice.hmpps.prison.api.model.*;
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -44,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
@@ -57,12 +47,17 @@ public class MovementsService {
 
     private final MovementsRepository movementsRepository;
     private final ExternalMovementRepository externalMovementRepository;
+    private final CourtEventRepository courtEventRepository;
     private final int maxBatchSize;
 
 
-    public MovementsService(final MovementsRepository movementsRepository, ExternalMovementRepository externalMovementRepository, @Value("${batch.max.size:1000}") final int maxBatchSize) {
+    public MovementsService(final MovementsRepository movementsRepository,
+                            ExternalMovementRepository externalMovementRepository,
+                            CourtEventRepository courtEventRepository,
+                            @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
+        this.courtEventRepository = courtEventRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -245,6 +240,22 @@ public class MovementsService {
                 .transferEvents(listOfTransferEvents)
                 .movements(listOfMovements)
                 .build();
+    }
+
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public List<CourtEventBasic> getUpcomingCourtAppearances() {
+        return courtEventRepository.getCourtEventsUpcoming(LocalDate.now().atStartOfDay())
+                .stream()
+                .map(e -> CourtEventBasic.builder()
+                        .offenderNo((String) e.get("offenderNo"))
+                        .startTime((LocalDateTime) e.get("startTime"))
+                        .court((String) e.get("court"))
+                        .courtDescription((String) e.get("courtDescription"))
+                        .eventSubType((String) e.get("eventSubType"))
+                        .eventDescription((String) e.get("eventDescription"))
+                        .hold((boolean) e.get("hold"))
+                        .build()
+                ).collect(Collectors.toList());
     }
 
     private final String checkTransferParameters(final List<String> agencyIds, final LocalDateTime fromDateTime, final LocalDateTime toDateTime,

@@ -4,15 +4,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.Movement;
-import uk.gov.justice.hmpps.prison.api.model.MovementCount;
-import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
-import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
-import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
-import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
-import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
-import uk.gov.justice.hmpps.prison.api.model.RollCount;
-import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
+import uk.gov.justice.hmpps.prison.api.model.*;
 import uk.gov.justice.hmpps.prison.api.resource.MovementResource;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
@@ -106,5 +98,10 @@ public class MovementResourceImpl implements MovementResource {
                                         final boolean courtEvents, final boolean releaseEvents,
                                         final boolean transferEvents, final boolean movements) {
         return movementsService.getTransferMovementsForAgencies(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
+    }
+
+    @Override
+    public List<CourtEventBasic> getUpcomingCourtAppearances() {
+        return movementsService.getUpcomingCourtAppearances();
     }
 }

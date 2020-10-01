@@ -13,16 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.Movement;
-import uk.gov.justice.hmpps.prison.api.model.MovementCount;
-import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
-import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
-import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
-import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
-import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
-import uk.gov.justice.hmpps.prison.api.model.RollCount;
-import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
+import uk.gov.justice.hmpps.prison.api.model.*;
 
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
@@ -113,7 +104,7 @@ public interface MovementResource {
             @ApiParam(value = "Requested offset of first record in returned collection of prisoner records.", defaultValue = "0")
             @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
             @ApiParam(value = "Requested limit to number of records returned.", defaultValue = "10")
-            @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false)  Long pageLimit);
+            @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit);
 
     @GetMapping("/livingUnit/{livingUnitId}/currently-out")
     @ApiOperation(value = "Information on offenders currently out.", notes = "Information on offenders currently out.", nickname = "getOffendersCurrentlyOut")
@@ -169,4 +160,7 @@ public interface MovementResource {
             @ApiParam(value = "Set to true to include planned transfer/appointment events", required = false, defaultValue = "false") @RequestParam(value = "transferEvents", required = false, defaultValue = "false") boolean transferEvents,
             @ApiParam(value = "Set to true to include confirmed movements", required = false, defaultValue = "false") @RequestParam(value = "movements", required = false, defaultValue = "false") boolean movements);
 
+    @GetMapping("/upcomingCourtAppearances")
+    @ApiOperation(value = "Get future court hearings for all offenders", nickname = "getUpcomingCourtAppearances")
+    List<CourtEventBasic> getUpcomingCourtAppearances();
 }
