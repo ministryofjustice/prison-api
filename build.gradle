@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "1.0.5"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "1.0.6"
     id 'groovy'
 }
 
@@ -38,7 +38,7 @@ dependencies {
 
     implementation 'org.springframework:spring-jms:5.2.9.RELEASE'
 
-    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.865')
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.872')
     implementation 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
 
     implementation 'javax.annotation:javax.annotation-api:1.3.2'

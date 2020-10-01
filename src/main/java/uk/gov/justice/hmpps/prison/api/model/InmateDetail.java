@@ -177,6 +177,9 @@ public class InmateDetail {
     @ApiModelProperty(value = "Date prisoner was received into the prison.", example="1980-01-01")
     private LocalDate receptionDate;
 
+    @ApiModelProperty(value = "current prison or outside with last movement information.", example="Outside - released from Leeds")
+    private String locationDescription;
+
     public void setProfileInformation(final List<ProfileInformation> profileInformation) {
         this.profileInformation = profileInformation;
         updateReligion();
