@@ -4,6 +4,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.hmpps.prison.api.model.CourtEventBasic;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementCount;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
@@ -106,5 +107,10 @@ public class MovementResourceImpl implements MovementResource {
                                         final boolean courtEvents, final boolean releaseEvents,
                                         final boolean transferEvents, final boolean movements) {
         return movementsService.getTransferMovementsForAgencies(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
+    }
+
+    @Override
+    public List<CourtEventBasic> getUpcomingCourtAppearances() {
+        return movementsService.getUpcomingCourtAppearances();
     }
 }

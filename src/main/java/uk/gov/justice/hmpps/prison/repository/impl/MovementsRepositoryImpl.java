@@ -61,10 +61,10 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     public Optional<Movement> getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(getQuery("GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE"),
-                createParams(
-                        "bookingId", bookingId,
-                        "sequenceNumber", sequenceNumber),
-                MOVEMENT_MAPPER));
+                    createParams(
+                            "bookingId", bookingId,
+                            "sequenceNumber", sequenceNumber),
+                    MOVEMENT_MAPPER));
         } catch (final EmptyResultDataAccessException ex) {
             return Optional.empty();
         }
@@ -191,6 +191,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 OFFENDER_OUT_MAPPER);
     }
 
+    @Override
     public List<MovementSummary> getCompletedMovementsForAgencies(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
         return jdbcTemplate.query(
@@ -202,6 +203,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 MOVEMENT_SUMMARY_MAPPER);
     }
 
+    @Override
     public List<CourtEvent> getCourtEvents(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
         return jdbcTemplate.query(
@@ -213,6 +215,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 COURT_EVENT_MAPPER);
     }
 
+    @Override
     public List<TransferEvent> getOffenderTransfers(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
         return jdbcTemplate.query(
@@ -224,6 +227,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 OFFENDER_TRANSFER_MAPPER);
     }
 
+    @Override
     public List<ReleaseEvent> getOffenderReleases(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
         return jdbcTemplate.query(

@@ -1,0 +1,11 @@
+[
+  {
+    "court": "COURT1",
+    "courtDescription": "Court 1",
+    "startTime": "2040-01-01T12:00:00",
+    "offenderNo": "A1234AH",
+    "eventSubType": "CRT",
+    "eventDescription": "Court Appearance",
+    "hold": false
+  }
+]

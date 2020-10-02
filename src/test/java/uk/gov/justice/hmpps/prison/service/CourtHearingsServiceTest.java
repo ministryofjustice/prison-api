@@ -12,10 +12,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.EventType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
+
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
@@ -77,7 +78,7 @@ public class CourtHearingsServiceTest {
             .caseStatus(ACTIVE_CASE_STATUS)
             .build();
 
-    private static final EventType EVENT_TYPE = new EventType("EVENT_TYPE_CODE", "EVENT_TYPE_DESCRIPTION");
+    private static final MovementReason EVENT_TYPE = new MovementReason("EVENT_TYPE_CODE", "EVENT_TYPE_DESCRIPTION");
 
     private static final EventStatus EVENT_STATUS = new EventStatus("EVENT_STATUS_CODE", "EVENT_STATUS_DESCRIPTION");
 
@@ -91,7 +92,7 @@ public class CourtHearingsServiceTest {
     private AgencyLocationRepository agencyLocationRepository;
 
     @Mock
-    private ReferenceCodeRepository<EventType> eventTypeRepository;
+    private ReferenceCodeRepository<MovementReason> eventTypeRepository;
 
     @Mock
     private ReferenceCodeRepository<EventStatus> eventStatusRepository;
@@ -179,7 +180,7 @@ public class CourtHearingsServiceTest {
         when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
         when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(COURT_LOCATION));
         when(courtEventRepository.save(any())).thenReturn(PERSISTED_COURT_EVENT);
-        when(eventTypeRepository.findById(EventType.COURT)).thenReturn(Optional.of(EVENT_TYPE));
+        when(eventTypeRepository.findById(MovementReason.COURT)).thenReturn(Optional.of(EVENT_TYPE));
         when(eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED)).thenReturn(Optional.of(EVENT_STATUS));
     }
 

@@ -12,6 +12,8 @@ public class MovementReason extends ReferenceCode {
 
     static final String REASON = "MOVE_RSN";
 
+    public static final ReferenceCode.Pk COURT = new ReferenceCode.Pk(REASON, "CRT");
+
     public MovementReason(final String code, final String description) {
         super(REASON, code, description);
     }

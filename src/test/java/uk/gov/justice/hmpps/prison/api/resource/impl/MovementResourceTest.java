@@ -154,4 +154,19 @@ public class MovementResourceTest extends ResourceTest {
         assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_between.json");
     }
 
+    @Test
+    public void testGetUpcomingCourtAppearances() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+
+        final var response = testRestTemplate.exchange(
+                "/api/movements/upcomingCourtAppearances",
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                new ParameterizedTypeReference<String>() {
+                }
+        );
+
+        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_upcoming_court.json");
+    }
 }
