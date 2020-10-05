@@ -1,0 +1,45 @@
+{
+  "results": [
+    {
+      "adjudicationNumber": -2,
+      "reportTime": "2017-02-23T00:01:00",
+      "agencyIncidentId": -1,
+      "agencyId": "LEI",
+      "partySeq": 2,
+      "adjudicationCharges": [
+        {
+          "oicChargeId": "5139/3",
+          "offenceCode": "51:2C",
+          "offenceDescription": "Detains any person against his will - detention against will of prison officer grade",
+          "findingCode": "NOT_PROVED"
+        }
+      ]
+    }
+  ],
+  "offences": [
+    {
+      "id": "84",
+      "code": "51:2C",
+      "description": "Detains any person against his will - detention against will of prison officer grade"
+    },
+    {
+      "id": "85",
+      "code": "51:2D",
+      "description": "Detains any person against his will - detention against will of staff (not prison offr)"
+    }
+  ],
+  "agencies": [
+    {
+      "agencyId": "LEI",
+      "description": "Leeds",
+      "agencyType": "INST",
+      "active": false
+    },
+    {
+      "agencyId": "MDI",
+      "description": "Moorland",
+      "agencyType": "INST",
+      "active": false
+    }
+  ]
+}

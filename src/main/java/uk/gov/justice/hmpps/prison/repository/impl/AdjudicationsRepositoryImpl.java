@@ -132,6 +132,7 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
                 "offenderNo", criteria.getOffenderNumber(),
                 "offenceId", criteria.getOffenceId(),
                 "agencyLocationId", criteria.getAgencyId(),
+                "findingCode", criteria.getFindingCode(),
                 "startDate", asDate(criteria.getStartDate()),
                 "endDate", asDate(criteria.getEndDate()));
 

@@ -16,5 +16,6 @@ public class AdjudicationSearchCriteria {
     private final String agencyId;
     private final LocalDate startDate;
     private final LocalDate endDate;
+    private final String findingCode;
     private final PageRequest pageRequest;
 }

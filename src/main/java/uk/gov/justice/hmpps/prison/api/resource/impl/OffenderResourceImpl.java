@@ -100,6 +100,7 @@ public class OffenderResourceImpl implements OffenderResource {
     public ResponseEntity<AdjudicationSearchResponse> getAdjudicationsByOffenderNo(@NotNull final String offenderNo,
                                                  final String offenceId,
                                                  final String agencyId,
+                                                 final String finding,
                                                  final LocalDate fromDate, LocalDate toDate,
                                                  final Long pageOffset,
                                                  final Long pageLimit) {
@@ -108,6 +109,7 @@ public class OffenderResourceImpl implements OffenderResource {
                 .offenderNumber(offenderNo)
                 .offenceId(offenceId)
                 .agencyId(agencyId)
+                .findingCode(finding)
                 .startDate(fromDate)
                 .endDate(toDate)
                 .pageRequest(new PageRequest(pageOffset, pageLimit))
