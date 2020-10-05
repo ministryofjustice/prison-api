@@ -75,6 +75,7 @@ FIND_ADJUDICATIONS_FOR_OFFENDER {
       SELECT OFFENDER_BOOK_ID FROM OFFENDER_BOOKINGS OB
         JOIN OFFENDERS OFF ON OFF.OFFENDER_ID = OB.OFFENDER_ID
         WHERE OFF.OFFENDER_ID_DISPLAY = :offenderNo)
+     AND (:findingCode IS NULL OR OHR.FINDING_CODE = :findingCode)
      AND (:agencyLocationId is NULL OR AL.AGY_LOC_ID = :agencyLocationId)
      AND (:offenceId IS NULL OR CHARGED_OIC_OFFENCE_ID = :offenceId)
      AND (:startDate IS NULL OR trunc(REPORT_TIME) >= :startDate)

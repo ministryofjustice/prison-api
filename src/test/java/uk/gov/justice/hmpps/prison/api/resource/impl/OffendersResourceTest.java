@@ -398,6 +398,20 @@ public class OffendersResourceTest extends ResourceTest {
         assertThatStatus(response, 200);
     }
 
+    @Test
+    public void testFilterAdjudicationsByFindingCode() {
+        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, Map.of());
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/{offenderNumber}/adjudications?finding={findingCode}",
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<String>() {},
+                "A1181HH", "NOT_PROVED");
+
+        assertThatJsonFileAndStatus(response, 200,"adjudications_by_finding_code.json");
+    }
+
     private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, headers);
         return testRestTemplate.exchange("/api/offenders/ids", HttpMethod.GET, requestEntity, String.class);
