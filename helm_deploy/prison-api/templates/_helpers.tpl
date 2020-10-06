@@ -38,3 +38,24 @@ Create a string from a list of values joined by a comma
 {{- $local := dict "first" true -}}
 {{- range $k, $v := . -}}{{- if not $local.first -}},{{- end -}}{{- $v -}}{{- $_ := set $local "first" false -}}{{- end -}}
 {{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "app.labels" -}}
+helm.sh/chart: {{ include "app.chart" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "app.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "app.selectorLabels" -}}
+app: {{ include "app.name" . }}
+release: {{ .Release.Name }}
+{{- end }}
