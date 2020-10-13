@@ -246,7 +246,6 @@ public class CourtEventRepositoryTest {
                 .hasFieldOrPropertyWithValue("courtDescription","Court 2")
                 .hasFieldOrPropertyWithValue("eventSubType","CA")
                 .hasFieldOrPropertyWithValue("eventDescription","Court Appearance")
-                .hasFieldOrPropertyWithValue("hold",false)
-        ;
+                .hasFieldOrPropertyWithValue("hold","N");
     }
 }

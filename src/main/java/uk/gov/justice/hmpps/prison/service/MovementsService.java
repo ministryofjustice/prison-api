@@ -266,7 +266,7 @@ public class MovementsService {
                         .courtDescription((String) e.get("courtDescription"))
                         .eventSubType((String) e.get("eventSubType"))
                         .eventDescription((String) e.get("eventDescription"))
-                        .hold((boolean) e.get("hold"))
+                        .hold("Y".equals(e.get("holdFlag")))
                         .build()
                 ).collect(Collectors.toList());
     }
