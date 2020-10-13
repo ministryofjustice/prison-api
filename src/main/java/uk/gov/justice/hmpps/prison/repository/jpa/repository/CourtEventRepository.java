@@ -22,7 +22,7 @@ public interface CourtEventRepository extends CrudRepository<CourtEvent, Long>, 
             "ce.startTime as startTime, " +
             "ce.courtEventType.code as eventSubType, " +
             "ce.courtEventType.description as eventDescription, " +
-            "ce.holdFlag = 'Y' as hold " +
+            "ce.holdFlag as holdFlag " +
             "from CourtEvent ce " +
             "join ce.offenderBooking ob " +
             "join ob.offender o " +
