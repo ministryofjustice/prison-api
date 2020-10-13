@@ -600,8 +600,11 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, Pageable pageable) {
-        return bookingService.getBookingVisitsWithVisitor(bookingId, fromDate, toDate, visitType, pageable);
+    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Integer page, final Integer size) {
+        final var pageIndex = page != null ? page : 0;
+        final var pageSize = size != null ? size : 20;
+        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
+        return bookingService.getBookingVisitsWithVisitor(bookingId, fromDate, toDate, visitType, pageRequest);
     }
 
     @Override
