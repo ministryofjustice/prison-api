@@ -30,8 +30,13 @@ import java.util.Optional;
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
 
+    enum PassAs {
+        header, cookie
+    }
+
     public static final String DEFAULT_INCLUDE_PATTERN = "/api/.*";
     public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String SECURITY_SCHEME_REF = "JWT";
 
     private final BuildProperties buildProperties;
 
@@ -40,7 +45,13 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public Docket nomisApi() {
+    public JacksonModuleRegistrar swaggerJacksonModuleRegistrar() {
+        return ReferenceSerializationConfigurer::serializeAsComputedRef;
+    }
+
+    @Bean
+    public Docket prisonApiDocket() {
+        var apiKey = new ApiKey(SECURITY_SCHEME_REF, AUTHORIZATION_HEADER, PassAs.header.name());
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
@@ -52,39 +63,17 @@ public class SwaggerConfig {
                 .directModelSubstitute(LocalDateTime.class, Date.class)
                 .directModelSubstitute(LocalDate.class, java.sql.Date.class)
                 .securityContexts(Lists.newArrayList(securityContext()))
-                .securitySchemes(Lists.newArrayList(apiKey()));
+                .securitySchemes(Lists.newArrayList(apiKey));
     }
 
     private SecurityContext securityContext() {
+        var securityReferences = Lists.newArrayList(
+                new SecurityReference(SECURITY_SCHEME_REF, new AuthorizationScope[0])
+        );
         return SecurityContext.builder()
-                .securityReferences(defaultAuth())
+                .securityReferences(securityReferences)
                 .forPaths(PathSelectors.regex(DEFAULT_INCLUDE_PATTERN))
                 .build();
-    }
-
-    private List<SecurityReference> defaultAuth() {
-        AuthorizationScope authorizationScope
-                = new AuthorizationScope("global", "accessEverything");
-        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-        authorizationScopes[0] = authorizationScope;
-        return Lists.newArrayList(
-                new SecurityReference("JWT", authorizationScopes)
-        );
-    }
-
-    private ApiKey apiKey() {
-        return new ApiKey("JWT", AUTHORIZATION_HEADER, "header");
-    }
-
-    private String getVersion() {
-        return buildProperties == null ? "version not available" : buildProperties.getVersion();
-    }
-
-    private Contact contactInfo() {
-        return new Contact(
-                "HMPPS Digital Studio",
-                "",
-                "feedback@digital.justice.gov.uk");
     }
 
     private ApiInfo apiInfo() {
@@ -98,8 +87,11 @@ public class SwaggerConfig {
                 "Open Government Licence v3.0", "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/", List.of());
     }
 
-    @Bean
-    public JacksonModuleRegistrar swaggerJacksonModuleRegistrar() {
-        return ReferenceSerializationConfigurer::serializeAsComputedRef;
+    private String getVersion() {
+        return buildProperties == null ? "version not available" : buildProperties.getVersion();
+    }
+
+    private Contact contactInfo() {
+        return new Contact("HMPPS Digital Studio", "", "feedback@digital.justice.gov.uk");
     }
 }
