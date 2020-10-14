@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -96,8 +95,10 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Optional.ofNullable;
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
@@ -600,10 +601,10 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Integer page, final Integer size) {
-        final var pageIndex = page != null ? page : 0;
-        final var pageSize = size != null ? size : 20;
-        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
+    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Integer pageIndex, final Integer pageSize) {
+        final var pageIndexValue = ofNullable(pageIndex).orElse(0);
+        final var pageSizeValue = ofNullable(pageSize).orElse(20);
+        final PageRequest pageRequest = PageRequest.of(pageIndexValue, pageSizeValue);
         return bookingService.getBookingVisitsWithVisitor(bookingId, fromDate, toDate, visitType, pageRequest);
     }
 
