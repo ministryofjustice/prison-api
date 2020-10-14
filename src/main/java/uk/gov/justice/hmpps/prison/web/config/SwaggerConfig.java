@@ -50,7 +50,7 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public Docket prisonApiDocket() {
+    public Docket docket() {
         var apiKey = new ApiKey(SECURITY_SCHEME_REF, AUTHORIZATION_HEADER, PassAs.header.name());
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
