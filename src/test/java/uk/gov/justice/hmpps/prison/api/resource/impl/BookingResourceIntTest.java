@@ -450,7 +450,7 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
-    public void getVisitsWithVisitors() {
+    public void getVisitsWithVisitorsWithMissingPageAndSize() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors", GET,
                 createHttpEntity(AuthToken.NORMAL_USER, null),
                 String.class, -6L);
@@ -459,12 +459,91 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
-    public void getVisitsWithVisitorsPagination() {
+    public void getVisitsWithVisitorsWithPageAndSize() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=5&page=1", GET,
                 createHttpEntity(AuthToken.NORMAL_USER, null),
                 String.class, -6L);
 
         assertThatJsonFileAndStatus(response, 200, "visits_with_visitors_paged.json");
+    }
+
+    @Test
+    public void getVisitsWithVisitorsWithPageAndSizeAsMax() {
+        var page = Integer.MAX_VALUE;
+        var size = Integer.MAX_VALUE;
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -6L);
+
+        assertThatStatus(response, 200);
+    }
+
+    @Test
+    public void getVisitsWithVisitorsWithPageAsMin() {
+        var page = Integer.MIN_VALUE;
+        var size = 20;
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -6L);
+
+        assertThatStatus(response, 400);
+        assertThat(response.getBody()).contains("Page index must not be less than zero!");
+    }
+
+    @Test
+    public void getVisitsWithVisitorsWithSizeAsMin() {
+        var page = 0;
+        var size = Integer.MIN_VALUE;
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -6L);
+
+        assertThatStatus(response, 400);
+        assertThat(response.getBody()).contains("Page size must not be less than one!");
+    }
+
+    @Test
+    public void getVisitsWithVisitorsWithOutOfRangePage() {
+        var page = Long.MAX_VALUE;
+        var size = 20;
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -6L);
+
+        assertThatStatus(response, 400);
+        assertThat(response.getBody()).contains("For input string: \\\"9223372036854775807\\\"");
+    }
+
+    @Test
+    public void getVisitsWithVisitorsWithOutOfRangeSize() {
+        var page = 0;
+        var size = Long.MAX_VALUE;
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -6L);
+
+        assertThatStatus(response, 400);
+        assertThat(response.getBody()).contains("For input string: \\\"9223372036854775807\\\"");
+    }
+
+    @Test
+    public void getVisitsWithVisitorsWithNonNumberPage() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=1&page=123x", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -6L);
+
+        assertThatStatus(response, 400);
+        assertThat(response.getBody()).contains("For input string: \\\"123x\\\"");
+    }
+
+    @Test
+    public void getVisitsWithVisitorsWithNonNumberSize() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=1x&page=0", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -6L);
+
+        assertThatStatus(response, 400);
+        assertThat(response.getBody()).contains("For input string: \\\"1x\\\"");
     }
 
     @Test
