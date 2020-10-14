@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.web.config;
 
+import com.google.common.collect.Lists;
 import io.swagger.util.ReferenceSerializationConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
@@ -10,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Contact;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.json.JacksonModuleRegistrar;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -28,6 +29,9 @@ import java.util.Optional;
 @EnableSwagger2
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
+
+    public static final String DEFAULT_INCLUDE_PATTERN = "/api/.*";
+    public static final String AUTHORIZATION_HEADER = "Authorization";
 
     private final BuildProperties buildProperties;
 
@@ -46,13 +50,35 @@ public class SwaggerConfig {
                 .genericModelSubstitutes(Optional.class)
                 .directModelSubstitute(ZonedDateTime.class, Date.class)
                 .directModelSubstitute(LocalDateTime.class, Date.class)
-                .directModelSubstitute(LocalDate.class, java.sql.Date.class);
+                .directModelSubstitute(LocalDate.class, java.sql.Date.class)
+                .securityContexts(Lists.newArrayList(securityContext()))
+                .securitySchemes(Lists.newArrayList(apiKey()));
+    }
+
+    private SecurityContext securityContext() {
+        return SecurityContext.builder()
+                .securityReferences(defaultAuth())
+                .forPaths(PathSelectors.regex(DEFAULT_INCLUDE_PATTERN))
+                .build();
+    }
+
+    private List<SecurityReference> defaultAuth() {
+        AuthorizationScope authorizationScope
+                = new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        return Lists.newArrayList(
+                new SecurityReference("JWT", authorizationScopes)
+        );
+    }
+
+    private ApiKey apiKey() {
+        return new ApiKey("JWT", AUTHORIZATION_HEADER, "header");
     }
 
     private String getVersion() {
         return buildProperties == null ? "version not available" : buildProperties.getVersion();
     }
-
 
     private Contact contactInfo() {
         return new Contact(
