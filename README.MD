@@ -189,3 +189,17 @@ aws --endpoint-url=http://localhost:4576 sqs receive-message \
     --queue-url http://localhost:4576/queue/data_compliance_response_queue
 ```
 
+### Authorize with Swagger UI ###
+* Without correct authorisation calling endpoints will return http 401 - Unauthorized
+* Obtain a correct JWT Token from 'Auth' service
+* Go to http://<`host:port`>/swagger-ui.html
+* Click on top right button 'Authorize'
+* In the 'Authorize' dialog enter 
+    * `Bearer <Your Token>`
+    * Like so `Bearer eyJhbGciOiJ...OsgGjHBuA`
+ * Then click 'Authorize' and close dialog
+ * The endpoint calls should pass security and allowed through now.
+ * When the token expires logout of the 'Authorize' and enter a fresh token.
+
+
+

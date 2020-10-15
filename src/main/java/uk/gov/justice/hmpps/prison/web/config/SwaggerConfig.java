@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.web.config;
 
+import com.google.common.collect.Lists;
 import io.swagger.util.ReferenceSerializationConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
@@ -10,9 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.SecurityReference;
+import springfox.documentation.service.AuthorizationScope;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.json.JacksonModuleRegistrar;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -29,6 +34,14 @@ import java.util.Optional;
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
 
+    enum PassAs {
+        header, cookie
+    }
+
+    public static final String DEFAULT_INCLUDE_PATTERN = "/api/.*";
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String SECURITY_SCHEME_REF = "JWT";
+
     private final BuildProperties buildProperties;
 
     public SwaggerConfig(@Autowired(required = false) final BuildProperties buildProperties) {
@@ -36,7 +49,13 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public Docket nomisApi() {
+    public JacksonModuleRegistrar swaggerJacksonModuleRegistrar() {
+        return ReferenceSerializationConfigurer::serializeAsComputedRef;
+    }
+
+    @Bean
+    public Docket docket() {
+        var apiKey = new ApiKey(SECURITY_SCHEME_REF, AUTHORIZATION_HEADER, PassAs.header.name());
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
@@ -46,19 +65,19 @@ public class SwaggerConfig {
                 .genericModelSubstitutes(Optional.class)
                 .directModelSubstitute(ZonedDateTime.class, Date.class)
                 .directModelSubstitute(LocalDateTime.class, Date.class)
-                .directModelSubstitute(LocalDate.class, java.sql.Date.class);
+                .directModelSubstitute(LocalDate.class, java.sql.Date.class)
+                .securityContexts(Lists.newArrayList(securityContext()))
+                .securitySchemes(Lists.newArrayList(apiKey));
     }
 
-    private String getVersion() {
-        return buildProperties == null ? "version not available" : buildProperties.getVersion();
-    }
-
-
-    private Contact contactInfo() {
-        return new Contact(
-                "HMPPS Digital Studio",
-                "",
-                "feedback@digital.justice.gov.uk");
+    private SecurityContext securityContext() {
+        var securityReferences = Lists.newArrayList(
+                new SecurityReference(SECURITY_SCHEME_REF, new AuthorizationScope[0])
+        );
+        return SecurityContext.builder()
+                .securityReferences(securityReferences)
+                .forPaths(PathSelectors.regex(DEFAULT_INCLUDE_PATTERN))
+                .build();
     }
 
     private ApiInfo apiInfo() {
@@ -72,8 +91,11 @@ public class SwaggerConfig {
                 "Open Government Licence v3.0", "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/", List.of());
     }
 
-    @Bean
-    public JacksonModuleRegistrar swaggerJacksonModuleRegistrar() {
-        return ReferenceSerializationConfigurer::serializeAsComputedRef;
+    private String getVersion() {
+        return buildProperties == null ? "version not available" : buildProperties.getVersion();
+    }
+
+    private Contact contactInfo() {
+        return new Contact("HMPPS Digital Studio", "", "feedback@digital.justice.gov.uk");
     }
 }
