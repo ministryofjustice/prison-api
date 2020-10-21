@@ -26,7 +26,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 @Sql(value = "drop_mv_offender_match_details.sql", executionPhase = AFTER_TEST_METHOD)
 @Sql(value = "drop_regexp_substr.sql", executionPhase = AFTER_TEST_METHOD)
 @Sql(value = "drop_jaro_winkler_similarity.sql", executionPhase = AFTER_TEST_METHOD)
-class DuplicateOffenderRepositoryTest {
+class DuplicatePrisonerRepositoryTest {
 
     @Autowired
     private DuplicateOffenderRepository repository;

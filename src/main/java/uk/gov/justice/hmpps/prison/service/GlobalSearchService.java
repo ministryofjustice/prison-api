@@ -13,7 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
-import uk.gov.justice.hmpps.prison.repository.OffenderRepository;
+import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import javax.validation.Valid;
@@ -32,11 +32,11 @@ public class GlobalSearchService {
     private static final ImmutableList<String> VALID_LOCATION_FILTER_VALUES = ImmutableList.of("ALL", "IN", "OUT");
     private static final ImmutableList<String> VALID_GENDER_FILTER_VALUES = ImmutableList.of("M", "F", "NK", "NS", "ALL");
     private final InmateRepository inmateRepository;
-    private final OffenderRepository offenderRepository;
+    private final PrisonerRepository prisonerRepository;
 
-    public GlobalSearchService(final InmateRepository inmateRepository, final OffenderRepository offenderRepository) {
+    public GlobalSearchService(final InmateRepository inmateRepository, final PrisonerRepository prisonerRepository) {
         this.inmateRepository = inmateRepository;
-        this.offenderRepository = offenderRepository;
+        this.prisonerRepository = prisonerRepository;
     }
 
     public Page<PrisonerDetail> findOffenders(@NotNull @Valid final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
@@ -59,7 +59,7 @@ public class GlobalSearchService {
     }
 
     public Page<OffenderNumber> getOffenderNumbers(long offset, long limit) {
-        return offenderRepository.listAllOffenders(new PageRequest(offset, limit));
+        return prisonerRepository.listAllOffenders(new PageRequest(offset, limit));
     }
 
     private Page<PrisonerDetail> executeQuery(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
@@ -106,7 +106,7 @@ public class GlobalSearchService {
             final var criteria = PrisonerDetailSearchCriteria.builder()
                     .pncNumber(pncNumberCriteria).build();
 
-            response = offenderRepository.findOffenders(criteria, pageRequest);
+            response = prisonerRepository.findOffenders(criteria, pageRequest);
 
             if (response.getItems().isEmpty()) {
                 response = executeCroNumberQuery(originalCriteria, pageRequest);
@@ -127,7 +127,7 @@ public class GlobalSearchService {
             final var criteria = PrisonerDetailSearchCriteria.builder()
                     .croNumber(croNumberCriteria).build();
 
-            response = offenderRepository.findOffenders(criteria, pageRequest);
+            response = prisonerRepository.findOffenders(criteria, pageRequest);
 
             if (response.getItems().isEmpty()) {
                 response = executePersonalAttrsQuery(originalCriteria, pageRequest);

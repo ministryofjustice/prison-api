@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
-public class ReferenceCodeRepository extends RepositoryBase {
+public class ReferenceDataRepository extends RepositoryBase {
     private static final StandardBeanPropertyRowMapper<ReferenceDomain> REF_DOMAIN_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(ReferenceDomain.class);
 

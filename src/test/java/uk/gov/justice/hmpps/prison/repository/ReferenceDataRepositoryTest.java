@@ -25,10 +25,10 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = {PersistenceConfigs.class, CacheConfig.class})
-public class ReferenceCodeRepositoryTest {
+public class ReferenceDataRepositoryTest {
 
     @Autowired
-    private ReferenceCodeRepository repository;
+    private ReferenceDataRepository repository;
 
     @Test
     public void testGetReferenceDomainExists() {

@@ -21,7 +21,7 @@ import java.util.Set;
 
 @Repository
 @Slf4j
-public class OffenderRepository extends RepositoryBase {
+public class PrisonerRepository extends RepositoryBase {
     private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
 

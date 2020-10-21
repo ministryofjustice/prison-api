@@ -23,7 +23,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.MALE;
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
 @WithMockUser
-public class OffenderRepositoryTest {
+public class PrisonerRepositoryTest {
 
     @Autowired
     private OffenderRepository repository;
