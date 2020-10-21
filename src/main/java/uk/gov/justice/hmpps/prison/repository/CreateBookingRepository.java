@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.repository.impl;
+package uk.gov.justice.hmpps.prison.repository;
 
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,14 +14,14 @@ import java.sql.Types;
 import java.time.LocalDateTime;
 
 @Repository
-public class CreateBookingImpl {
+public class CreateBookingRepository {
     public static final String DEFAULT_IMPRISONMENT_STATUS = "UNKNOWN";
     public static final String DEFAULT_FROM_LOCATION = "OUT";
 
     @Qualifier("dataSource")
     private final DataSource dataSource;
 
-    public CreateBookingImpl(final DataSource dataSource) {
+    public CreateBookingRepository(final DataSource dataSource) {
         this.dataSource = dataSource;
     }
 

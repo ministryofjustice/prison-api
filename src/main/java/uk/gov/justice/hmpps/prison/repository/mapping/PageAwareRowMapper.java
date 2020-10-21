@@ -16,7 +16,7 @@ public class PageAwareRowMapper<T> implements RowMapper<T> {
         this.wrappedRowMapper = wrappedRowMapper;
     }
 
-    @Override
+
     public T mapRow(final ResultSet rs, final int rowNum) throws SQLException {
         if (!recordCountSet) {
             final var val = rs.getObject(Constants.RECORD_COUNT_COLUMN);

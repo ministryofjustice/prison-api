@@ -11,7 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.repository.impl.IncidentCaseRepository;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
 import java.time.LocalDateTime;
