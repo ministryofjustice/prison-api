@@ -128,4 +128,46 @@ public class OffenderTransactionHistoryServiceTest {
 
         assertEquals("toDate can't be null", exception.getMessage());
     }
+
+    @Test()
+    public void When_getTransactionHistory_And_ToDateIsBeforeFromDate_Then_ThrowException() {
+
+        Throwable exception = assertThrows(IllegalStateException.class, () -> {
+            final Long  offenderId = Long.parseLong("123");;
+            final Optional<String> accountCode = Optional.of("spends");
+            final LocalDate fromDate = LocalDate.now().minusDays(7);
+            final LocalDate toDate = LocalDate.now().minusDays(8);
+            service.getTransactionHistory(offenderId, accountCode, fromDate, toDate);
+        });
+
+        assertEquals("toDate can't be before fromDate", exception.getMessage());
+    }
+
+    @Test()
+    public void When_getTransactionHistory_And_FromDateIsTomorrow_Then_ThrowException() {
+
+        Throwable exception = assertThrows(IllegalStateException.class, () -> {
+            final Long  offenderId = Long.parseLong("123");;
+            final Optional<String> accountCode = Optional.of("spends");
+            final LocalDate fromDate = LocalDate.now().plusDays(1);
+            final LocalDate toDate = LocalDate.now().plusDays(2);
+            service.getTransactionHistory(offenderId, accountCode, fromDate, toDate);
+        });
+
+        assertEquals("fromDate can't be in the future", exception.getMessage());
+    }
+
+    @Test()
+    public void When_getTransactionHistory_And_ToDateIs2DaysInFuture_Then_ThrowException() {
+
+        Throwable exception = assertThrows(IllegalStateException.class, () -> {
+            final Long  offenderId = Long.parseLong("123");;
+            final Optional<String> accountCode = Optional.of("spends");
+            final LocalDate fromDate = LocalDate.now();
+            final LocalDate toDate = LocalDate.now().plusDays(2);
+            service.getTransactionHistory(offenderId, accountCode, fromDate, toDate);
+        });
+
+        assertEquals("fromDate can't be in the future", exception.getMessage());
+    }
 }
