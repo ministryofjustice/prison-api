@@ -7,9 +7,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
-@NamedQuery(name = "OffenderTransactionHistory.findByAccountType", query = "select h from OffenderTransactionHistory h where h.offenderId = ?1 and h.accountType = ?2 and (h.entryDate between ?3 and ?4)")
-@NamedQuery(name = "OffenderTransactionHistory.findByAllAccountTypes", query = "select h from OffenderTransactionHistory h where h.offenderId = ?1 and (h.entryDate between ?2 and ?3)")
 @Data
 @Builder
 @NoArgsConstructor
