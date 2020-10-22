@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.repository.impl;
+package uk.gov.justice.hmpps.prison.repository;
 
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Repository;

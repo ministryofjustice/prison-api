@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.repository.impl;
+package uk.gov.justice.hmpps.prison.repository;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -10,7 +10,6 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeInfo;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
-import uk.gov.justice.hmpps.prison.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
@@ -23,7 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
-public class ReferenceCodeRepositoryImpl extends RepositoryBase implements ReferenceCodeRepository {
+public class ReferenceDataRepository extends RepositoryBase {
     private static final StandardBeanPropertyRowMapper<ReferenceDomain> REF_DOMAIN_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(ReferenceDomain.class);
 
@@ -34,7 +33,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
             new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
 
-    @Override
+
     @Cacheable("referenceDomain")
     public Optional<ReferenceDomain> getReferenceDomain(final String domain) {
         final var sql = getQuery("FIND_REFERENCE_DOMAIN");
@@ -54,7 +53,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
     }
 
 
-    @Override
+
     @Cacheable(value = "referenceCodeByDomainAndCode", key = "#domain.concat('-').concat(#code).concat('-').concat(#withSubCodes)")
     public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(final String domain, final String code, final boolean withSubCodes) {
         final Optional<ReferenceCode> referenceCode;
@@ -98,7 +97,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
         return Optional.ofNullable(referenceCode);
     }
 
-    @Override
+
     @CacheEvict(value = "referenceCodeByDomainAndCode", allEntries = true)
     public void insertReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceCode) {
         final var sql = getQuery("CREATE_REFERENCE_CODE");
@@ -115,7 +114,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
         );
     }
 
-    @Override
+
     @CacheEvict(value = "referenceCodeByDomainAndCode", allEntries = true)
     public void updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceCode) {
         final var sql = getQuery("UPDATE_REFERENCE_CODE");
@@ -132,7 +131,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
         );
     }
 
-    @Override
+
     @Cacheable(value = "referenceCodesByDomain")
     public Page<ReferenceCode> getReferenceCodesByDomain(final String domain, final boolean withSubCodes, final String orderBy, final Order order, final long offset, final long limit) {
         final Page<ReferenceCode> page;
@@ -271,7 +270,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
         }
     }
 
-    @Override
+
     public List<ReferenceCode> getScheduleReasons(final String eventType) {
         final var sql = getQuery("GET_AVAILABLE_EVENT_SUBTYPES");
         return jdbcTemplate.query(sql, createParams("eventType", eventType), REF_CODE_ROW_MAPPER);

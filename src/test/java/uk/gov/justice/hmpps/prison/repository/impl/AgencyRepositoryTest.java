@@ -3,12 +3,14 @@ package uk.gov.justice.hmpps.prison.repository.impl;
 import com.google.common.collect.ImmutableList;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.hmpps.prison.repository.Address;
+import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 
 import java.util.List;
 
-public class AgencyRepositoryImplTest {
+public class AgencyRepositoryTest {
 
-    private AgencyRepositoryImpl repo = new AgencyRepositoryImpl();
+    private AgencyRepository repo = new AgencyRepository();
 
     @Test
     public void shouldMapTupleResultsToPrisonContactDetailsList() throws Exception {

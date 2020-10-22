@@ -35,7 +35,7 @@ public class StandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
      *
      * @param mappedClass the mapped class
      */
-    @Override
+
     protected void initialize(final Class<T> mappedClass) {
         super.initialize(mappedClass);
 
@@ -53,12 +53,12 @@ public class StandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
         this.fieldMap = fieldMapBuilder.build();
     }
 
-    @Override
+
     public T mapRow(final ResultSet rs, final int rowNumber) throws SQLException {
         return super.mapRow(rs, rowNumber);
     }
 
-    @Override
+
     protected Object getColumnValue(final ResultSet rs, final int index, final PropertyDescriptor pd) throws SQLException {
         final Object colValue;
         final var clazz = pd.getPropertyType();

@@ -29,9 +29,9 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class OffenderRepositoryTest {
+public class PrisonerRepositoryTest {
     @Autowired
-    private OffenderRepository repository;
+    private PrisonerRepository repository;
 
     private final PageRequest defaultPageRequest = new PageRequest(GlobalSearchService.DEFAULT_GLOBAL_SEARCH_OFFENDER_SORT);
 

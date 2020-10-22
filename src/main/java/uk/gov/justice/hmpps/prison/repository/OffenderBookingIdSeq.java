@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.repository.impl;
+package uk.gov.justice.hmpps.prison.repository;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

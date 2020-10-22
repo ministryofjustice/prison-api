@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.repository.impl;
+package uk.gov.justice.hmpps.prison.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
@@ -16,14 +16,14 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Repository
-public class RecallBookingImpl {
+public class RecallBookingRepository {
     public static final String DEFAULT_IMPRISONMENT_STATUS = "UNKNOWN";
     public static final String DEFAULT_FROM_LOCATION = "OUT";
 
     @Qualifier("dataSource")
     private final DataSource dataSource;
 
-    public RecallBookingImpl(final DataSource dataSource) {
+    public RecallBookingRepository(final DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
