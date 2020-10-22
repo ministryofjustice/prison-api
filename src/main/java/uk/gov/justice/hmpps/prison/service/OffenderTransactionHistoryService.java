@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 @Service
 @Transactional(readOnly = true)
 @AllArgsConstructor
@@ -28,6 +32,15 @@ public class OffenderTransactionHistoryService {
                                                                      final Optional<String> accountCode,
                                                                      final LocalDate fromDate,
                                                                      final LocalDate toDate) {
+
+        checkNotNull(offenderId, "offender-id can't be null");
+        checkNotNull(accountCode, "accountCode optional can't be null");
+        checkNotNull(fromDate, "fromDate can't be null");
+        checkNotNull(toDate, "toDate can't be null");
+
+        checkState(toDate.isAfter(fromDate), "toDate can't be before fromDate");
+        checkState(fromDate.isBefore(LocalDate.now()), "fromDate can't be in the future");
+        checkState(fromDate.isBefore(LocalDate.now()), "toDate can't be in the future");
 
         var histories = (List<OffenderTransactionHistory>) accountCode
                 .map(code -> repository.findForGivenAccountType(offenderId, code, fromDate, toDate))
