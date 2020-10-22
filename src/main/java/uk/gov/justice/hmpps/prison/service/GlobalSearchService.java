@@ -63,7 +63,7 @@ public class GlobalSearchService {
     }
 
     private Page<PrisonerDetail> executeQuery(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
-        final var query = InmateRepository.generateFindOffendersQuery(criteria);
+        final var query = inmateRepository.generateFindOffendersQuery(criteria);
 
         if (StringUtils.isNotBlank(query)) {
             return criteria.isIncludeAliases() ? inmateRepository.findOffendersWithAliases(query, pageRequest) : inmateRepository.findOffenders(query, pageRequest);

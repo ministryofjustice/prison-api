@@ -959,7 +959,7 @@ public class InmateRepository extends RepositoryBase {
         return rawData.stream().filter(cat -> cat.getCategory() != null && validCategoryCodes.contains(cat.getCategory())).collect(Collectors.toList());
     }
 
-    public static String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria) {
+    public String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria) {
         final var likeTemplate = "%s:like:'%s%%'";
         final var eqTemplate = "%s:eq:'%s'";
         final var inTemplate = "%s:in:%s";
