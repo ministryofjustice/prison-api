@@ -5,11 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionHistory;
+import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
+import uk.gov.justice.hmpps.prison.repository.OffenderTransactionRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -18,13 +22,17 @@ import java.util.List;
 @Slf4j
 public class OffenderTransactionHistoryService {
 
-    OffenderTransactionHistoryRepository offenderTransactionHistoryRepository;
+    private OffenderTransactionRepository repository;
 
-    public List<TransactionHistory> getTransactionHistory(final String prisonId,
-                                                          final String nomisId,
-                                                          final String accountCode,
-                                                          final LocalDate fromDate,
-                                                          final LocalDate toDate) {
-        return offenderTransactionHistoryRepository.getTransactionsHistory(prisonId, nomisId, accountCode, fromDate, toDate);
+    public List<OffenderTransactionHistoryDto> getTransactionHistory(final Long offenderId,
+                                                                     final Optional<String> accountCode,
+                                                                     final LocalDate fromDate,
+                                                                     final LocalDate toDate) {
+
+        var histories = (List<OffenderTransactionHistory>) accountCode
+                .map(code -> repository.findForGivenAccountType(offenderId, code, fromDate, toDate))
+                .orElse(repository.findForAllAccountTypes(offenderId, fromDate, toDate));
+
+        return histories.stream().map(OffenderTransactionHistoryTransformer::transform).collect(Collectors.toList());
     }
 }

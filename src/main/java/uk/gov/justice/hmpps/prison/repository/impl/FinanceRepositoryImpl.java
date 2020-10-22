@@ -5,24 +5,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Account;
-import uk.gov.justice.hmpps.prison.api.model.TransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew;
-import uk.gov.justice.hmpps.prison.repository.v1.storedprocs.FinanceProcs;
-import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-
-import static java.util.Optional.ofNullable;
-import static uk.gov.justice.hmpps.prison.repository.v1.storedprocs.StoreProcMetadata.*;
-import static uk.gov.justice.hmpps.prison.repository.v1.storedprocs.StoreProcMetadata.P_TRANS_CSR;
 
 @Repository
 public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepository {
@@ -30,16 +21,11 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
     private final String currency;
     private final InsertIntoOffenderTrans insertIntoOffenderTrans;
     private final ProcessGlTransNew processGlTransNew;
-    private final FinanceProcs.GetAccountTransactions getAccountTransactionsProc;
 
-    public FinanceRepositoryImpl(@Value("${api.currency:GBP}") final String currency,
-                                 final InsertIntoOffenderTrans insertIntoOffenderTrans,
-                                 final ProcessGlTransNew processGlTransNew,
-                                 final FinanceProcs.GetAccountTransactions getAccountTransactionsProc) {
+    public FinanceRepositoryImpl(@Value("${api.currency:GBP}") final String currency, final InsertIntoOffenderTrans insertIntoOffenderTrans, final ProcessGlTransNew processGlTransNew) {
         this.currency = currency;
         this.insertIntoOffenderTrans = insertIntoOffenderTrans;
         this.processGlTransNew = processGlTransNew;
-        this.getAccountTransactionsProc = getAccountTransactionsProc;
     }
 
     private final Map<String, FieldMapper> accountMapping = new ImmutableMap.Builder<String, FieldMapper>()

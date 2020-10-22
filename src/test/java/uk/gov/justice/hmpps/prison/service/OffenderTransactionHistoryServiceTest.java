@@ -6,22 +6,23 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.prison.api.model.TransactionHistoryDto;
-import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
-import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionHistory;
+import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
+import uk.gov.justice.hmpps.prison.repository.OffenderTransactionRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class OffenderTransactionHistoryServiceTest {
+
     @Mock
-    private OffenderTransactionHistoryRepository repository;
+    private OffenderTransactionRepository repository;
 
     private OffenderTransactionHistoryService service;
 
@@ -33,42 +34,38 @@ public class OffenderTransactionHistoryServiceTest {
     @Test
     public void when_TransactionHistoryIsRequested_Then_CallRepository() {
 
-        final String  prisonId = "123";
-        final String nomisId  = "456";
-        final String accountCode  = "SPENDS";
+        final Long  offenderId = Long.parseLong("123");
+        final Optional<String> accountCode  = Optional.of("SPENDS");
         final LocalDate fromDate = LocalDate.now().minusDays(7);
         final LocalDate toDate = LocalDate.now();
 
-        final List<TransactionHistory> txnItem = Collections.emptyList();
+        final List<OffenderTransactionHistory> txnItem = Collections.emptyList();
+        when(repository.findForGivenAccountType(offenderId, accountCode.get(), fromDate, toDate)).thenReturn(txnItem);
 
-        when(repository.getTransactionsHistory(prisonId, nomisId, accountCode, fromDate, toDate)).thenReturn(txnItem);
+        List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(offenderId, accountCode, fromDate, toDate);
 
-        List<TransactionHistory> histeries = service.getTransactionHistory(prisonId, nomisId, accountCode, fromDate, toDate);
+        verify(repository, times(1)).findForGivenAccountType(offenderId, accountCode.get(), fromDate, toDate);
 
-        verify(repository, times(1)).getTransactionsHistory(prisonId, nomisId, accountCode, fromDate, toDate);
-
-        assertThat(histeries).isNotNull();
-        assertThat(histeries.size()).isEqualTo(0);
+        assertThat(histories).isNotNull();
+        assertThat(histories.size()).isEqualTo(0);
     }
 
     @Test
     public void when_TransactionHistoryIsRequested_And_OneHistoryItem_Then_ReturnHistoryWithOneItem() {
 
-        final String prisonId = "123";
-        final String nomisId  = "456";
-        final String accountCode  = "SPENDS";
+        final Long  offenderId = Long.parseLong("123");
+        final Optional<String> accountCode  = Optional.of("SPENDS");
         final LocalDate fromDate = LocalDate.now().minusDays(7);
         final LocalDate toDate = LocalDate.now();
 
-        final List<TransactionHistory> txnItem = Lists.newArrayList(TransactionHistory.builder().build());
+        final List<OffenderTransactionHistory> txnItem = Lists.newArrayList(OffenderTransactionHistory.builder().build());
+        when(repository.findForGivenAccountType(offenderId, "SPENDS", fromDate, toDate)).thenReturn(txnItem);
 
-        when(repository.getTransactionsHistory(prisonId, nomisId, accountCode, fromDate, toDate)).thenReturn(txnItem);
+        List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(offenderId, accountCode, fromDate, toDate);
 
-        List<TransactionHistory> histeries = service.getTransactionHistory(prisonId, nomisId, accountCode, fromDate, toDate);
+        verify(repository, times(1)).findForGivenAccountType(offenderId, accountCode.get(), fromDate, toDate);
 
-        verify(repository, times(1)).getTransactionsHistory(prisonId, nomisId, accountCode, fromDate, toDate);
-
-        assertThat(histeries).isNotNull();
-        assertThat(histeries.size()).isEqualTo(1);
+        assertThat(histories).isNotNull();
+        assertThat(histories.size()).isEqualTo(1);
     }
 }

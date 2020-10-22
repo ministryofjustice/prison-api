@@ -20,13 +20,10 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.*;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
@@ -217,13 +214,16 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    public ResponseEntity<List<TransactionHistoryDto>> getTransactionsHistory(final String prisonId, final String nomsId,
-                                                        final String accountCode,
-                                                        final LocalDate fromDate, final LocalDate toDate) {
-        var dtos = offenderTransactionHistoryService.getTransactionHistory(prisonId, nomsId, accountCode, fromDate, toDate)
-                .stream().map(txn -> TransactionHistoryDto.toDto(txn))
-                .collect(Collectors.toList());
+    public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(final Long offenderId,
+                                                                                      final String accountCode,
+                                                                                      final LocalDate fromDate,
+                                                                                      final LocalDate toDate) {
+        val accountCodeArg = Optional.ofNullable(accountCode);
+        val fromDateArg = Optional.ofNullable(fromDate).orElse(LocalDate.now());
+        val toDateArg = Optional.ofNullable(toDate).orElse(LocalDate.now());
+        var histories =
+                offenderTransactionHistoryService.getTransactionHistory(offenderId, accountCodeArg, fromDateArg, toDateArg);
 
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(histories);
     }
 }
