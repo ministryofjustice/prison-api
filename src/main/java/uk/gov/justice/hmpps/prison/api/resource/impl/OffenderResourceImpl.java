@@ -7,17 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.AddressDto;
-import uk.gov.justice.hmpps.prison.api.model.Alert;
-import uk.gov.justice.hmpps.prison.api.model.CaseNote;
-import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
-import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
-import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
-import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.*;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.resource.OffenderResource;
@@ -27,23 +17,16 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
-import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
-import uk.gov.justice.hmpps.prison.service.AdjudicationService;
-import uk.gov.justice.hmpps.prison.service.BookingService;
-import uk.gov.justice.hmpps.prison.service.CaseNoteService;
-import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
-import uk.gov.justice.hmpps.prison.service.GlobalSearchService;
-import uk.gov.justice.hmpps.prison.service.IncidentService;
-import uk.gov.justice.hmpps.prison.service.InmateAlertService;
-import uk.gov.justice.hmpps.prison.service.InmateService;
-import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
-import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
+import uk.gov.justice.hmpps.prison.service.*;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
@@ -62,6 +45,7 @@ public class OffenderResourceImpl implements OffenderResource {
     private final GlobalSearchService globalSearchService;
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
+    private final OffenderTransactionHistoryService offenderTransactionHistoryService;
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
@@ -230,5 +214,16 @@ public class OffenderResourceImpl implements OffenderResource {
         var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         Optional.ofNullable(booking).orElseThrow(EntityNotFoundException.withId(offenderNo));
         return bookingService.getBookingIEPSummary(booking.getBookingId(), withDetails);
+    }
+
+    @Override
+    public ResponseEntity<List<TransactionHistoryDto>> getTransactionsHistory(final String prisonId, final String nomsId,
+                                                        final String accountCode,
+                                                        final LocalDate fromDate, final LocalDate toDate) {
+        var dtos = offenderTransactionHistoryService.getTransactionHistory(prisonId, nomsId, accountCode, fromDate, toDate)
+                .stream().map(txn -> TransactionHistoryDto.toDto(txn))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
     }
 }

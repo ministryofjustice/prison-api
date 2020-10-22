@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Account;
-import uk.gov.justice.hmpps.prison.api.model.TransactionHistoryItem;
+import uk.gov.justice.hmpps.prison.api.model.TransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
@@ -109,22 +109,5 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
                 .addValue("p_gl_sqnc", 0)
                 .addValue("p_off_ded_id", null);
         processGlTransNew.execute(params);
-    }
-
-    public List<TransactionHistoryItem> getTransactionsHistory(final String prisonId, final String nomisId, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
-
-        final var params = new MapSqlParameterSource()
-                .addValue(P_AGY_LOC_ID, prisonId)
-                .addValue(P_NOMS_ID, nomisId)
-                .addValue(P_FROM_DATE, DateTimeConverter.toDate(fromDate))
-                .addValue(P_TO_DATE, DateTimeConverter.toDate(toDate));
-
-        final var paramsToUse = ofNullable(accountCode)
-                .map(code -> params.addValue(P_ACCOUNT_TYPE, code))
-                .orElse(params);
-
-        final var result = getAccountTransactionsProc.execute(paramsToUse);
-
-        return (List<TransactionHistoryItem>) result.get(P_TRANS_CSR);
     }
 }
