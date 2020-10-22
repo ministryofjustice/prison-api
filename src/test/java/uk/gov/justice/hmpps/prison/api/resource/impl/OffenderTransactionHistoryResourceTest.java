@@ -69,21 +69,4 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getBody()).isEqualTo("[]");
     }
-
-    //@Test
-    public void When_GetOffenderTransactionHistory_WithMissingOffenderId() {
-
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-        final var httpEntity = createHttpEntity(token, null);
-        final var url = "/api/offenders/{offenderNo}/transaction-history?from_date=2019-04-01&to_date=2019-05-01";
-
-        final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {});
-
-        assertThat(response.getStatusCode().value()).isEqualTo(400);
-        //assertThat(response.getBody()).isEqualTo("[]");
-    }
 }
