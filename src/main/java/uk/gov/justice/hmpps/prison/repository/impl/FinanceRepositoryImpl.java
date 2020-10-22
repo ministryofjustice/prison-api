@@ -5,15 +5,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Account;
+import uk.gov.justice.hmpps.prison.api.model.TransactionHistoryItem;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew;
+import uk.gov.justice.hmpps.prison.repository.v1.storedprocs.FinanceProcs;
+import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+
+import static java.util.Optional.ofNullable;
+import static uk.gov.justice.hmpps.prison.repository.v1.storedprocs.StoreProcMetadata.*;
+import static uk.gov.justice.hmpps.prison.repository.v1.storedprocs.StoreProcMetadata.P_TRANS_CSR;
 
 @Repository
 public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepository {
@@ -21,11 +30,16 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
     private final String currency;
     private final InsertIntoOffenderTrans insertIntoOffenderTrans;
     private final ProcessGlTransNew processGlTransNew;
+    private final FinanceProcs.GetAccountTransactions getAccountTransactionsProc;
 
-    public FinanceRepositoryImpl(@Value("${api.currency:GBP}") final String currency, final InsertIntoOffenderTrans insertIntoOffenderTrans, final ProcessGlTransNew processGlTransNew) {
+    public FinanceRepositoryImpl(@Value("${api.currency:GBP}") final String currency,
+                                 final InsertIntoOffenderTrans insertIntoOffenderTrans,
+                                 final ProcessGlTransNew processGlTransNew,
+                                 final FinanceProcs.GetAccountTransactions getAccountTransactionsProc) {
         this.currency = currency;
         this.insertIntoOffenderTrans = insertIntoOffenderTrans;
         this.processGlTransNew = processGlTransNew;
+        this.getAccountTransactionsProc = getAccountTransactionsProc;
     }
 
     private final Map<String, FieldMapper> accountMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -95,5 +109,22 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
                 .addValue("p_gl_sqnc", 0)
                 .addValue("p_off_ded_id", null);
         processGlTransNew.execute(params);
+    }
+
+    public List<TransactionHistoryItem> getTransactionsHistory(final String prisonId, final String nomisId, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
+
+        final var params = new MapSqlParameterSource()
+                .addValue(P_AGY_LOC_ID, prisonId)
+                .addValue(P_NOMS_ID, nomisId)
+                .addValue(P_FROM_DATE, DateTimeConverter.toDate(fromDate))
+                .addValue(P_TO_DATE, DateTimeConverter.toDate(toDate));
+
+        final var paramsToUse = ofNullable(accountCode)
+                .map(code -> params.addValue(P_ACCOUNT_TYPE, code))
+                .orElse(params);
+
+        final var result = getAccountTransactionsProc.execute(paramsToUse);
+
+        return (List<TransactionHistoryItem>) result.get(P_TRANS_CSR);
     }
 }
