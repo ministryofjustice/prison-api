@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
-import uk.gov.justice.hmpps.prison.repository.OffenderTransactionRepository;
+import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 
 import java.time.LocalDate;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class OffenderTransactionHistoryServiceTest {
 
     @Mock
-    private OffenderTransactionRepository repository;
+    private OffenderTransactionHistoryRepository repository;
 
     private OffenderTransactionHistoryService service;
 
@@ -168,6 +168,25 @@ public class OffenderTransactionHistoryServiceTest {
             service.getTransactionHistory(offenderId, accountCode, fromDate, toDate);
         });
 
-        assertEquals("fromDate can't be in the future", exception.getMessage());
+        assertEquals("toDate can't be in the future", exception.getMessage());
+    }
+
+    @Test
+    public void When_getTransactionHistory_And_DatesDefaultToNow_Then_CallRepositoryWithoutAccountCode() {
+
+        final Long  offenderId = Long.parseLong("123");
+        final Optional<String> accountCode  = Optional.of("spends");
+        final LocalDate fromDate = LocalDate.now();
+        final LocalDate toDate = LocalDate.now();
+
+        final List<OffenderTransactionHistory> txnItem = Collections.emptyList();
+        when(repository.findForAllAccountTypes(offenderId, fromDate, toDate)).thenReturn(txnItem);
+
+        List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(offenderId, accountCode, fromDate, toDate);
+
+        verify(repository, times(1)).findForAllAccountTypes(offenderId, fromDate, toDate);
+
+        assertThat(histories).isNotNull();
+        assertThat(histories.size()).isEqualTo(0);
     }
 }

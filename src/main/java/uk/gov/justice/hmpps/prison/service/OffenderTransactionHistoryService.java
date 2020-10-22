@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
-import uk.gov.justice.hmpps.prison.repository.OffenderTransactionRepository;
+import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
 
@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkState;
 @Slf4j
 public class OffenderTransactionHistoryService {
 
-    private OffenderTransactionRepository repository;
+    private OffenderTransactionHistoryRepository repository;
 
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final Long offenderId,
                                                                      final Optional<String> accountCode,
@@ -38,9 +38,10 @@ public class OffenderTransactionHistoryService {
         checkNotNull(fromDate, "fromDate can't be null");
         checkNotNull(toDate, "toDate can't be null");
 
-        checkState(toDate.isAfter(fromDate), "toDate can't be before fromDate");
-        checkState(fromDate.isBefore(LocalDate.now()), "fromDate can't be in the future");
-        checkState(fromDate.isBefore(LocalDate.now()), "toDate can't be in the future");
+        var now = LocalDate.now();
+        checkState(fromDate.isBefore(toDate) || fromDate.isEqual(toDate), "toDate can't be before fromDate");
+        checkState(fromDate.isBefore(now) || fromDate.isEqual(now), "fromDate can't be in the future");
+        checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
 
         var histories = (List<OffenderTransactionHistory>) accountCode
                 .map(code -> repository.findForGivenAccountType(offenderId, code, fromDate, toDate))
