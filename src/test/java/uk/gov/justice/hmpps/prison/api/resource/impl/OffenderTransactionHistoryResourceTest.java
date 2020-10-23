@@ -52,7 +52,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {},
                 OFFENDER_NUMBER);
 
-        assertThatBodyStringAndStatus(response, "[]", HTTP_OK);
+        assertThatJsonAndStatus(response, HTTP_OK, "[]");
     }
 
     @Test

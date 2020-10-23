@@ -116,11 +116,6 @@ public abstract class ResourceTest {
         assertThatJson(response.getBody()).isEqualTo(json);
     }
 
-    protected void assertThatBodyStringAndStatus(final ResponseEntity<String> response, final String expectedBodyString, final int status) {
-        assertThat(response.getStatusCodeValue()).isEqualTo(status);
-        assertThat(response.getBody()).isEqualTo(expectedBodyString);
-    }
-
     protected <T> JsonContent<T> getBodyAsJsonContent(final ResponseEntity<String> response) {
         return new JsonContent<>(getClass(), forType(String.class), Objects.requireNonNull(response.getBody()));
     }
