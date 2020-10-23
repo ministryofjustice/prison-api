@@ -22,7 +22,7 @@ public class OffenderDamageObligationModel {
     @ApiModelProperty(value = "Offender number", example = "G4346UT", position = 2)
     private String offenderNo;
 
-    @ApiModelProperty(value = "Reference number", example = "012388", position = 3)
+    @ApiModelProperty(value = "Reference number", example = "841177/1, A841821/1, 842371", position = 3)
     private String referenceNumber;
 
     @ApiModelProperty(value = "The start date time when the damage obligation started", example = "2020-12-10T21:00:00", position = 4)

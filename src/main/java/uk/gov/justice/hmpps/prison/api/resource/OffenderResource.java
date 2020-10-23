@@ -213,6 +213,6 @@ public interface OffenderResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     OffenderDamageObligationResponse getOffenderDamageObligations(
             @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo,
-            @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE") @RequestParam(value = "status", required = false, defaultValue = "") String status);
+            @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE", allowableValues = "INACT,PAID,ONH,ACTIVE,APPEAL") @RequestParam(value = "status", required = false, defaultValue = "") String status);
 
 }
