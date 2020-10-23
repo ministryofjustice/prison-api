@@ -31,6 +31,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 OFFENDER_NUMBER);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getBody()).isInstanceOf(List.class);
         assertThat(response.getBody().size()).isEqualTo(0);
     }
 
@@ -48,8 +49,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {},
                 OFFENDER_NUMBER);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getBody()).isEqualTo("[]");
+        assertThatBodyStringAndStatus(response, "[]", HttpStatus.OK.value());
     }
 
     @Test
@@ -66,7 +66,146 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<String>() {},
                 OFFENDER_NUMBER);
 
+        assertThatBodyStringAndStatus(response, "[]", HttpStatus.OK.value());
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsCASH_Then_ReturnOneItem() {
+
+        var offenderNumber = "-1001";
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=cash&from_date=2019-10-17&to_date=2019-10-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                offenderNumber);
+
         assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getBody()).isEqualTo("[]");
+        assertThat(response.getBody()).isInstanceOf(List.class);
+        assertThat(response.getBody().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeMissing_Then_ReturnOneItem() {
+
+        var offenderNumber = "-1001";
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?from_date=2019-10-17&to_date=2019-10-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                offenderNumber);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getBody()).isInstanceOf(List.class);
+        assertThat(response.getBody().size()).isEqualTo(3);
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsSAV_Then_ReturnOneItem() {
+
+        var offenderNumber = "-1001";
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=savings&from_date=2019-10-17&to_date=2019-10-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                offenderNumber);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getBody()).isInstanceOf(List.class);
+        assertThat(response.getBody().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsSPND_Then_ReturnOneItem() {
+
+        var offenderNumber = "-1001";
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-10-17&to_date=2019-10-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                offenderNumber);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getBody()).isInstanceOf(List.class);
+        assertThat(response.getBody().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsREG_And_DifferentDate_Then_ReturnOneItem() {
+
+        var offenderNumber = "-1001";
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=cash&from_date=2019-11-17&to_date=2019-11-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                offenderNumber);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getBody()).isInstanceOf(List.class);
+        assertThat(response.getBody().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsUnknown_Then_ReturnAllAccountCodes() {
+
+        var offenderNumber = "-1001";
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spendss&from_date=2019-10-17&to_date=2019-10-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                offenderNumber);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getBody()).isInstanceOf(List.class);
+        assertThat(response.getBody().size()).isEqualTo(3);
+    }
+
+    //@Test
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_BadFromDateFormat_Then_ReturnAllAccountCodes() {
+
+        var offenderNumber = "-1001";
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-30-17&to_date=2019-10-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                offenderNumber);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getBody()).isInstanceOf(List.class);
+        assertThat(response.getBody().size()).isEqualTo(3);
     }
 }

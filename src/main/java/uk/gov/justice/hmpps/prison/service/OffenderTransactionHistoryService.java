@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
+import uk.gov.justice.hmpps.prison.values.AccountCode;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -44,6 +45,9 @@ public class OffenderTransactionHistoryService {
         checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
 
         var histories = (List<OffenderTransactionHistory>) accountCode
+                .map(AccountCode::byCodeName)
+                .filter(Optional::isPresent)
+                .map(optionalCode -> optionalCode.get().code)
                 .map(code -> repository.findForGivenAccountType(offenderId, code, fromDate, toDate))
                 .orElse(repository.findForAllAccountTypes(offenderId, fromDate, toDate));
 

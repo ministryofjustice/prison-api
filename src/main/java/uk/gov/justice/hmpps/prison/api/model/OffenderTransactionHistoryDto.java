@@ -2,10 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 
 import javax.persistence.Column;
@@ -18,6 +15,8 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @ToString
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class OffenderTransactionHistoryDto {
 
     @ApiModelProperty(value = "Transaction Id")
