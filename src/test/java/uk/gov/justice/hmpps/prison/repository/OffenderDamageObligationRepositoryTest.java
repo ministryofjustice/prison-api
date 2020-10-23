@@ -42,7 +42,7 @@ public class OffenderDamageObligationRepositoryTest {
             .birthDate(LocalDate.parse("1998-08-28"))
             .rootOffenderId(-1002L)
             .gender(new Gender("F", "Female"))
-            .createDate(LocalDate.parse("2020-10-22"))
+            .createDate(LocalDate.now())
             .lastNameKey("ANDERSON")
             .nomsId("A1234AB")
             .build();
