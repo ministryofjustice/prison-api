@@ -156,6 +156,25 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
     }
 
     @Test
+    public void When_GetOffenderTransactionHistory_And_BadOffenderId_Then_ErrorResponse() {
+
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spendss&from_date=2019-10-17&to_date=2019-10-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<ErrorResponse>() {},
+                "xxx");
+
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("For input string: \"xxx\"");
+        assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
+        assertThat(response.getBody().getUserMessage()).isEqualTo("For input string: \"xxx\"");
+    }
+
+    @Test
     public void When_GetOffenderTransactionHistory_And_AccountCodeIsUnknown_Then_ErrorResponse() {
 
         var offenderNumber = "-1001";
