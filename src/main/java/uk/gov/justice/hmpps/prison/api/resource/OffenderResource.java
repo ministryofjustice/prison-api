@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
@@ -30,6 +31,7 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.support.Order;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -201,4 +203,17 @@ public interface OffenderResource {
     PrivilegeSummary getLatestBookingIEPSummaryForOffender(
             @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo,
             @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) @RequestParam(value = "withDetails", required = false, defaultValue = "false") boolean withDetails);
+
+
+    @GetMapping("/{offenderNo}/damage-obligations")
+    @ApiOperation(value = "Return a list of damage obligations")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderDamageObligationModel.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Offender does not exists", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    OffenderDamageObligationResponse getOffenderDamageObligations(
+            @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo,
+            @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE") @RequestParam(value = "status", required = false, defaultValue = "") String status);
+
 }

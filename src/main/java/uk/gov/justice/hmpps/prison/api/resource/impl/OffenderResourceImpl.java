@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
@@ -37,6 +38,7 @@ import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
+import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
 
 import javax.validation.constraints.NotNull;
@@ -62,6 +64,7 @@ public class OffenderResourceImpl implements OffenderResource {
     private final GlobalSearchService globalSearchService;
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
+    private final OffenderDamageObligationService offenderDamageObligationService;
 
     @Override
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
@@ -230,5 +233,14 @@ public class OffenderResourceImpl implements OffenderResource {
         var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         Optional.ofNullable(booking).orElseThrow(EntityNotFoundException.withId(offenderNo));
         return bookingService.getBookingIEPSummary(booking.getBookingId(), withDetails);
+    }
+
+    @Override
+    public OffenderDamageObligationResponse getOffenderDamageObligations(final String offenderNo, final String status) {
+        final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, status);
+
+        return OffenderDamageObligationResponse.builder()
+                .damageObligations(damageObligations)
+                .build();
     }
 }
