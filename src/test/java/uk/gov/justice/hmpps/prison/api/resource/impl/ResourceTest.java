@@ -6,7 +6,6 @@ import org.springframework.boot.test.json.JsonContent;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
