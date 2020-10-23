@@ -39,11 +39,9 @@ public class OffenderDamageObligationService {
     }
 
     public OffenderDamageObligationModel damageObligationTransformer(final OffenderDamageObligation damageObligation) {
-        final var offender = damageObligation.getOffender();
-
         return OffenderDamageObligationModel.builder()
                 .id(damageObligation.getId())
-                .offenderNo(offender != null ? offender.getNomsId() : "")
+                .offenderNo(damageObligation.getOffender().getNomsId())
                 .currency(currency)
                 .amountPaid(damageObligation.getAmountPaid())
                 .amountToPay(damageObligation.getAmountToPay())

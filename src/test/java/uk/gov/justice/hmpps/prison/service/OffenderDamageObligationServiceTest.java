@@ -82,17 +82,7 @@ public class OffenderDamageObligationServiceTest {
         assertThat(outstandingDamageBalance.getAmountToPay()).isEqualTo("500");
         assertThat(outstandingDamageBalance.getStatus()).isEqualTo("ACTIVE");
     }
-
-    @Test
-    public void handleNullValuesOnTransformWithoutCrashing() {
-        when(repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(any(), any())).thenReturn(List.of(
-                OffenderDamageObligation.builder().build()
-        ));
-        service.getDamageObligations("A1234", "ACTIVE")
-                .stream().findFirst().orElseThrow();
-
-    }
-
+    
     @Test
     public void handleOffenderNoFound() {
         when(repository.findOffenderDamageObligationByOffender_NomsId(any())).thenThrow(new EntityNotFoundException(""));
