@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.*;
+import uk.gov.justice.hmpps.prison.values.Money;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -44,6 +45,11 @@ public class OffenderTransactionHistory {
 
     @Column(name = "SUB_ACCOUNT_TYPE", nullable = false)
     private String accountType;
+
+
+    public Long transactionAmountInPence() {
+        return Money.build(entryAmount).asPence();
+    }
 
     @EqualsAndHashCode
     @NoArgsConstructor

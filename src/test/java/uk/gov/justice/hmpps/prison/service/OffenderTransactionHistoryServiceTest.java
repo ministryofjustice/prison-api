@@ -43,11 +43,11 @@ public class OffenderTransactionHistoryServiceTest {
         final LocalDate toDate = LocalDate.now();
 
         final List<OffenderTransactionHistory> txnItem = Collections.emptyList();
-        when(repository.findForGivenAccountType(offenderId, accountCode.get(), fromDate, toDate)).thenReturn(txnItem);
+        when(repository.findForGivenAccountType(offenderId, "SPND", fromDate, toDate)).thenReturn(txnItem);
 
         List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(offenderId, accountCode, fromDate, toDate);
 
-        verify(repository, times(1)).findForGivenAccountType(offenderId, accountCode.get(), fromDate, toDate);
+        verify(repository, times(1)).findForGivenAccountType(offenderId, "SPND", fromDate, toDate);
 
         assertThat(histories).isNotNull();
         assertThat(histories.size()).isEqualTo(0);

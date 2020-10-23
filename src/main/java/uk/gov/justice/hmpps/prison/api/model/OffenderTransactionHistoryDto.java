@@ -19,22 +19,30 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class OffenderTransactionHistoryDto {
 
-    @ApiModelProperty(value = "Transaction Id")
-    private Long transactionId;
-    @ApiModelProperty(value = "Transaction Sequence")
-    private Long transactionEntrySequence;
-    @ApiModelProperty(value = "Offender Id")
+    @ApiModelProperty(value = "Offender Id", example = "1", position = 1)
     private Long offenderId;
-    @ApiModelProperty(value = "Transaction Date")
+
+    @ApiModelProperty(value = "Transaction Id", example = "1", position = 2)
+    private Long transactionId;
+
+    @ApiModelProperty(value = "Transaction Sequence", example = "1", position = 3)
+    private Long transactionEntrySequence;
+
+    @ApiModelProperty(value = "Transaction Date", example = "2020-12-11", position = 4)
     private LocalDate entryDate;
-    @ApiModelProperty(value = "Transaction Type")
+
+    @ApiModelProperty(value = "Transaction Type", example = "???", position = 5) //todo
     private String transactionType;
-    @ApiModelProperty(value = "Transaction Description")
+
+    @ApiModelProperty(value = "Transaction Description", example = "some textual description here", position = 6)
     private String entryDescription;
-    @ApiModelProperty(value = "Transaction Reference Number")
+
+    @ApiModelProperty(value = "Transaction Reference Number", example = "???", position = 7) //todo
     private String referenceNumber;
-    @ApiModelProperty(value = "Transaction Amount")
-    private BigDecimal entryAmount;
-    @ApiModelProperty(value = "Transaction Type")
+
+    @ApiModelProperty(value = "Transaction Amount", example = "60", position = 8)
+    private Long penceAmount;
+
+    @ApiModelProperty(value = "Transaction Type", example = "SPND,SAV,REG", position = 9)
     private String accountType;
 }

@@ -9,7 +9,7 @@ public class OffenderTransactionHistoryTransformer {
         return OffenderTransactionHistoryDto
                 .builder()
                 .accountType(entity.getAccountType())
-                .entryAmount(entity.getEntryAmount())
+                .penceAmount(entity.transactionAmountInPence())
                 .entryDate(entity.getEntryDate())
                 .entryDescription(entity.getEntryDescription())
                 .offenderId(entity.getOffenderId())
