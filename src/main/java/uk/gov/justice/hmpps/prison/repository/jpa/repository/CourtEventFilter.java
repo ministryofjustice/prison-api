@@ -28,7 +28,7 @@ public class CourtEventFilter implements Specification<CourtEvent> {
 
     private LocalDate toDate;
 
-    @Override
+
     public Predicate toPredicate(final Root<CourtEvent> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
 

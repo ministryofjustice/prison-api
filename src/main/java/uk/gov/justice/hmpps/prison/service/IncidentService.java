@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.Questionnaire;
 import uk.gov.justice.hmpps.prison.api.support.Page;
-import uk.gov.justice.hmpps.prison.repository.impl.IncidentCaseRepository;
+import uk.gov.justice.hmpps.prison.repository.IncidentCaseRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import javax.validation.constraints.NotNull;

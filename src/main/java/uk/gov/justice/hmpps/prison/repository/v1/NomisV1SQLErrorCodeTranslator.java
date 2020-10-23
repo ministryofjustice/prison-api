@@ -98,7 +98,7 @@ public class NomisV1SQLErrorCodeTranslator extends SQLErrorCodeSQLExceptionTrans
             .put(20042, RECEIPT_ONLY).build();
 
 
-    @Override
+
     protected DataAccessException customTranslate(final String task, final String sql, final SQLException sqlEx) {
         final var errorCode = sqlEx.getErrorCode();
 

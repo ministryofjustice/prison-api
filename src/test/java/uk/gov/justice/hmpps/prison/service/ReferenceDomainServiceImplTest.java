@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 
 import java.util.Arrays;
@@ -21,7 +21,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class ReferenceDomainServiceImplTest {
 
     @Mock
-    private ReferenceCodeRepository repository;
+    private ReferenceDataRepository repository;
 
     private ReferenceDomainService service;
 
