@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.repository.support.OffenderRepositorySearchHe
 import uk.gov.justice.hmpps.prison.util.DatabaseDialect;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -162,19 +161,10 @@ class ColumnMappings {
     private static final Map<String, String> ANSI_COLUMN_MAPPINGS;
 
     static {
-        final Map<String, String> oracleColumnMappings = new HashMap<>();
 
-        oracleColumnMappings.put("pncNumber", "OI1.IDENTIFIER");
-        oracleColumnMappings.put("croNumber", "OI2.IDENTIFIER");
+        ORACLE_COLUMN_MAPPINGS = Map.of("pncNumber", "OI1.IDENTIFIER", "croNumber", "OI2.IDENTIFIER");
 
-        ORACLE_COLUMN_MAPPINGS = Collections.unmodifiableMap(oracleColumnMappings);
-
-        final Map<String, String> ansiColumnMappings = new HashMap<>();
-
-        ansiColumnMappings.put("pncNumber", "PNC_NUMBER");
-        ansiColumnMappings.put("croNumber", "CRO_NUMBER");
-
-        ANSI_COLUMN_MAPPINGS = Collections.unmodifiableMap(ansiColumnMappings);
+        ANSI_COLUMN_MAPPINGS = Map.of("pncNumber", "PNC_NUMBER", "croNumber", "CRO_NUMBER");
     }
 
     public static Map<String, String> getOracleColumnMappings() {
