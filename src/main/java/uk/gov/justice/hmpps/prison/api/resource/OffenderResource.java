@@ -209,7 +209,7 @@ public interface OffenderResource {
     @GetMapping("/{offenderNo}/damage-obligations")
     @ApiOperation(value = "Return a list of damage obligations")
     @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "Offender does not exists", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Offender does not exists or is in a different caseload to the user", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     OffenderDamageObligationResponse getOffenderDamageObligations(
             @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo,
