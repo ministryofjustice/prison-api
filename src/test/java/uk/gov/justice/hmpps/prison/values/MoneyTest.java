@@ -11,10 +11,11 @@ public class MoneyTest {
 
     @Test
     public void testOnePoundIsCorrect() {
-        assertThat(new Money(new BigDecimal(1L)).asText()).isEqualTo("£1.00");
-        assertThat(new Money(new BigDecimal(1L)).getAmount()).isEqualTo(new BigDecimal("1.00").setScale(2, RoundingMode.HALF_UP));
-        assertThat(new Money(new BigDecimal(1L)).getCurrency().symbol).isEqualTo("£");
-        assertThat(new Money(new BigDecimal(1L)).getCurrency().name).isEqualTo("British Pound");
+        var  amount = new BigDecimal(1L);
+        assertThat(new Money(amount).asText()).isEqualTo("£1.00");
+        assertThat(new Money(amount).getAmount()).isEqualTo(new BigDecimal("1.00").setScale(2, RoundingMode.HALF_UP));
+        assertThat(new Money(amount).getCurrency().symbol).isEqualTo("£");
+        assertThat(new Money(amount).getCurrency().name).isEqualTo("British Pound");
     }
 
     @Test
@@ -35,5 +36,14 @@ public class MoneyTest {
     @Test
     public void testTwoPoundsTwentyInPenceIsCorrectMoney() {
         assertThat(Money.asMoney(220L).asText()).isEqualTo("£2.20");
+    }
+
+    @Test
+    public void test50PenceCorrect() {
+        var amount = new BigDecimal(0.5);
+        assertThat(new Money(amount).asText()).isEqualTo("£0.50");
+        assertThat(new Money(amount).getAmount()).isEqualTo(new BigDecimal("0.50").setScale(2, RoundingMode.HALF_UP));
+        assertThat(new Money(amount).getCurrency().symbol).isEqualTo("£");
+        assertThat(new Money(amount).getCurrency().name).isEqualTo("British Pound");
     }
 }
