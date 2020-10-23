@@ -32,6 +32,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -208,7 +209,6 @@ public interface OffenderResource {
     @GetMapping("/{offenderNo}/damage-obligations")
     @ApiOperation(value = "Return a list of damage obligations")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderDamageObligationModel.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Offender does not exists", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     OffenderDamageObligationResponse getOffenderDamageObligations(
