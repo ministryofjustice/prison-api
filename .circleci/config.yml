@@ -12,7 +12,7 @@ executors:
       - image: circleci/openjdk:11-jdk-browsers
     working_directory: ~/app
     environment:
-      JAVA_TOOL_OPTIONS: -Xmx4096m -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
+      JAVA_TOOL_OPTIONS: -Xmx16000m -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
 
 jobs:
   build:
