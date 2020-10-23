@@ -24,7 +24,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
 
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
-        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends";
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-04-01&to_date=2019-05-01";
 
         final var response = testRestTemplate.exchange(
                 url,
@@ -40,23 +40,6 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
 
     @Test
     public void When_GetOffenderTransactionHistory_WithMissingAccountCode() {
-
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-        final var httpEntity = createHttpEntity(token, null);
-        final var url = "/api/offenders/{offenderNo}/transaction-history";
-
-        final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {},
-                OFFENDER_NUMBER);
-
-        assertThatBodyStringAndStatus(response, "[]", HTTP_OK);
-    }
-
-    @Test
-    public void When_GetOffenderTransactionHistory_WithFromAndToDates() {
 
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
@@ -93,7 +76,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
     }
 
     @Test
-    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeMissing_Then_ReturnOneItem() {
+    public void When_GetOffenderTransactionHistory_And_ThreeRecordsExist_And_AccountCodeMissing_Then_ReturnThreeItems() {
 
         var offenderNumber = "-1001";
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
@@ -173,7 +156,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
     }
 
     @Test
-    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsUnknown_Then_ErrorResponse() {
+    public void When_GetOffenderTransactionHistory_And_AccountCodeIsUnknown_Then_ErrorResponse() {
 
         var offenderNumber = "-1001";
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
@@ -193,7 +176,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
     }
 
     @Test
-    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_BadFromDateFormat_Then_ErrorResponse() {
+    public void When_GetOffenderTransactionHistory_And_BadFromDateFormat_Then_ErrorResponse() {
 
         var offenderNumber = "-1001";
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
