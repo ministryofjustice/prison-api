@@ -36,7 +36,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
             this.type = type;
         }
 
-        @Override
+
         public boolean equals(final Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -45,7 +45,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
                     Objects.equals(type, that.type);
         }
 
-        @Override
+
         public int hashCode() {
             return Objects.hash(sql, type);
         }
@@ -92,7 +92,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
         return result;
     }
 
-    @Override
+
     public T mapRow(final ResultSet rs, final int rowNum) throws SQLException {
         try {
             final var bean = type.getDeclaredConstructor().newInstance();

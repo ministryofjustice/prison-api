@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.v1;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
-import uk.gov.justice.hmpps.prison.repository.impl.RepositoryBase;
+import uk.gov.justice.hmpps.prison.repository.RepositoryBase;
 import uk.gov.justice.hmpps.prison.repository.v1.model.BookingSP;
 import uk.gov.justice.hmpps.prison.repository.v1.storedprocs.BookingProcs;
 

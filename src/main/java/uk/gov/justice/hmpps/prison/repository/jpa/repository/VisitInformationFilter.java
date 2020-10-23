@@ -31,7 +31,7 @@ public class VisitInformationFilter implements Specification<VisitInformation> {
 
     private String visitType;
 
-    @Override
+
     public Predicate toPredicate(final Root<VisitInformation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
 

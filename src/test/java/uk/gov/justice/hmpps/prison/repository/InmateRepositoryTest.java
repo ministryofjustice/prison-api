@@ -1391,7 +1391,7 @@ public class InmateRepositoryTest {
     }
 
     private String buildQuery(final PrisonerDetailSearchCriteria criteria) {
-        return InmateRepository.generateFindOffendersQuery(criteria);
+        return repository.generateFindOffendersQuery(criteria);
     }
 
     private PrisonerDetail findOffender(final String query) {

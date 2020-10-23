@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.repository.ImageRepository;
-import uk.gov.justice.hmpps.prison.repository.OffenderRepository;
+import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 
@@ -27,11 +27,11 @@ public class ImageService {
     private OffenderImageRepository offenderImageRepository;
 
     @Autowired
-    private OffenderRepository offenderRepository;
+    private PrisonerRepository prisonerRepository;
 
     public List<ImageDetail> findOffenderImagesFor(final String offenderNumber) {
 
-        if (offenderRepository.getOffenderIdsFor(offenderNumber).isEmpty()) throw EntityNotFoundException.withId(offenderNumber);
+        if (prisonerRepository.getOffenderIdsFor(offenderNumber).isEmpty()) throw EntityNotFoundException.withId(offenderNumber);
 
         return offenderImageRepository.getImagesByOffenderNumber(offenderNumber).stream()
                 .map(this::convertFrom)

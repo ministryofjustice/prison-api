@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
-import uk.gov.justice.hmpps.prison.repository.impl.RepositoryBase;
+import uk.gov.justice.hmpps.prison.repository.RepositoryBase;
 import uk.gov.justice.hmpps.prison.repository.v1.model.EventSP;
 import uk.gov.justice.hmpps.prison.repository.v1.model.OffenderSP;
 

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
-import uk.gov.justice.hmpps.prison.repository.OffenderRepository;
+import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
 
 @Service
@@ -16,7 +16,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
 @AllArgsConstructor
 public class PrisonerCreationService {
 
-    private final OffenderRepository offenderRepository;
+    private final PrisonerRepository prisonerRepository;
 
     public PrisonerIdentifier getNextPrisonerIdentifier() {
         var retries = 0;
@@ -24,9 +24,9 @@ public class PrisonerCreationService {
         NomsIdSequence nextSequence;
         NomsIdSequence currentSequence;
         do {
-            currentSequence = offenderRepository.getNomsIdSequence();
+            currentSequence = prisonerRepository.getNomsIdSequence();
             nextSequence = currentSequence.next();
-            updated = offenderRepository.updateNomsIdSequence(nextSequence, currentSequence) > 0;
+            updated = prisonerRepository.updateNomsIdSequence(nextSequence, currentSequence) > 0;
         } while (!updated && retries++ < 10);
 
         if (!updated) {

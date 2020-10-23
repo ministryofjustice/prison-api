@@ -7,7 +7,7 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeInfo;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
-import uk.gov.justice.hmpps.prison.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.support.StringWithAbbreviationsProcessor;
 
@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 public class ReferenceDomainService {
-    private final ReferenceCodeRepository referenceCodeRepository;
+    private final ReferenceDataRepository referenceDataRepository;
 
-    public ReferenceDomainService(final ReferenceCodeRepository referenceCodeRepository) {
-        this.referenceCodeRepository = referenceCodeRepository;
+    public ReferenceDomainService(final ReferenceDataRepository referenceDataRepository) {
+        this.referenceDataRepository = referenceDataRepository;
     }
 
     private static String getDefaultOrderBy(final String orderBy) {
@@ -36,14 +36,14 @@ public class ReferenceDomainService {
     }
 
     public Page<ReferenceCode> getAlertTypes(final String orderBy, final Order order, final long offset, final long limit) {
-        return referenceCodeRepository.getReferenceCodesByDomain(
+        return referenceDataRepository.getReferenceCodesByDomain(
                 ReferenceDomain.ALERT.getDomain(), true,
                 getDefaultOrderBy(orderBy), getDefaultOrder(order),
                 offset, limit);
     }
 
     public Page<ReferenceCode> getCaseNoteSources(final String orderBy, final Order order, final long offset, final long limit) {
-        return referenceCodeRepository.getReferenceCodesByDomain(
+        return referenceDataRepository.getReferenceCodesByDomain(
                 ReferenceDomain.CASE_NOTE_SOURCE.getDomain(), false,
                 getDefaultOrderBy(orderBy), getDefaultOrder(order),
                 offset, limit);
@@ -51,7 +51,7 @@ public class ReferenceDomainService {
 
     @Transactional
     public ReferenceCode createReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
-        referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false).ifPresent(p -> {
+        referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false).ifPresent(p -> {
             throw new EntityAlreadyExistsException(domain + "/" + code);
         });
 
@@ -69,19 +69,19 @@ public class ReferenceDomainService {
         }
 
         if (data.getParentCode() != null || data.getParentDomain() != null) {
-            referenceCodeRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(), false).orElseThrow(new EntityNotFoundException(data.getParentDomain() + "/" + data.getParentCode()));
+            referenceDataRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(), false).orElseThrow(new EntityNotFoundException(data.getParentDomain() + "/" + data.getParentCode()));
         }
 
-        referenceCodeRepository.insertReferenceCode(domain, code, data);
+        referenceDataRepository.insertReferenceCode(domain, code, data);
 
-        return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false)
+        return referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false)
                 .orElseThrow(new EntityNotFoundException(domain + "/" + code));
     }
 
     @Transactional
     public ReferenceCode updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
 
-        final var previousRef = referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false).orElseThrow(new EntityNotFoundException(domain + "/" + code));
+        final var previousRef = referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false).orElseThrow(new EntityNotFoundException(domain + "/" + code));
 
         final var data = referenceData.toBuilder()
                 .activeFlag(referenceData.getActiveFlag() == null ? previousRef.getActiveFlag() : referenceData.getActiveFlag())
@@ -99,19 +99,19 @@ public class ReferenceDomainService {
         }
 
         if (data.getParentCode() != null || data.getParentDomain() != null) {
-            referenceCodeRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(), false).orElseThrow(new EntityNotFoundException(data.getParentDomain() + "/" + data.getParentCode()));
+            referenceDataRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(), false).orElseThrow(new EntityNotFoundException(data.getParentDomain() + "/" + data.getParentCode()));
         }
 
-        referenceCodeRepository.updateReferenceCode(domain, code, data);
+        referenceDataRepository.updateReferenceCode(domain, code, data);
 
-        return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false)
+        return referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false)
                 .orElseThrow(new EntityNotFoundException(domain + "/" + code));
     }
 
     public Page<ReferenceCode> getReferenceCodesByDomain(final String domain, final boolean withSubCodes, final String orderBy, final Order order, final long offset, final long limit) {
         verifyReferenceDomain(domain);
 
-        return referenceCodeRepository.getReferenceCodesByDomain(
+        return referenceDataRepository.getReferenceCodesByDomain(
                 domain, withSubCodes, getDefaultOrderBy(orderBy), getDefaultOrder(order), offset, limit);
     }
 
@@ -119,29 +119,29 @@ public class ReferenceDomainService {
         verifyReferenceDomain(domain);
         verifyReferenceCode(domain, code);
 
-        return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
+        return referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
     }
 
     private void verifyReferenceDomain(final String domain) {
-        referenceCodeRepository.getReferenceDomain(domain)
+        referenceDataRepository.getReferenceDomain(domain)
                 .orElseThrow(EntityNotFoundException.withMessage("Reference domain [%s] not found.", domain));
     }
 
     private void verifyReferenceCode(final String domain, final String code) {
-        referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false)
+        referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false)
                 .orElseThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", domain, code));
     }
 
     public List<ReferenceCode> getScheduleReasons(final String eventType) {
         verifyReferenceCode(ReferenceDomain.INTERNAL_SCHEDULE_TYPE.getDomain(), eventType);
 
-        final var scheduleReasons = referenceCodeRepository.getScheduleReasons(eventType);
+        final var scheduleReasons = referenceDataRepository.getScheduleReasons(eventType);
         return tidyDescriptionAndSort(scheduleReasons);
     }
 
     public boolean isReferenceCodeActive(final String domain, final String code) {
         // Call the advised version of the repository so that cacheing is applied.
-        return referenceCodeRepository
+        return referenceDataRepository
                 .getReferenceCodeByDomainAndCode(domain, code, false)
                 .map(rc -> "Y".equals(rc.getActiveFlag()))
                 .orElse(false);
