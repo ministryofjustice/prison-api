@@ -46,7 +46,7 @@ public class OffenderDamageObligationModel {
     @ApiModelProperty(value = "Comment", example = "Damages to canteen furniture", position = 10)
     private String comment;
 
-    @ApiModelProperty(required = true, value = "Currency of these amounts.")
+    @ApiModelProperty(required = true, value = "Currency of these amounts.", example = "GBP", position = 11)
     @NotBlank
     private String currency;
 }
