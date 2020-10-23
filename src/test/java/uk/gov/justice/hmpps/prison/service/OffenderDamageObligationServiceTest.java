@@ -76,7 +76,6 @@ public class OffenderDamageObligationServiceTest {
         assertThat(outstandingDamageBalance.getReferenceNumber()).isEqualTo("123");
         assertThat(outstandingDamageBalance.getStartDateTime()).isEqualTo("2020-10-10T10:00");
         assertThat(outstandingDamageBalance.getEndDateTime()).isEqualTo("2020-10-22T10:00");
-        assertThat(outstandingDamageBalance.getCurrency()).isEqualTo("GBP");
         assertThat(outstandingDamageBalance.getComment()).isEqualTo("test");
         assertThat(outstandingDamageBalance.getAmountPaid()).isEqualTo("0");
         assertThat(outstandingDamageBalance.getAmountToPay()).isEqualTo("500");
@@ -86,7 +85,7 @@ public class OffenderDamageObligationServiceTest {
     @Test
     public void handleNullValuesOnTransformWithoutCrashing() {
         when(repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(any(), any())).thenReturn(List.of(
-                OffenderDamageObligation.builder().build()
+                OffenderDamageObligation.builder().offender(Offender.builder().build()).build()
         ));
         service.getDamageObligations("A1234", "ACTIVE")
                 .stream().findFirst().orElseThrow();
