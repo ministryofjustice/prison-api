@@ -40,8 +40,8 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 
 @ExtendWith(MockitoExtension.class)
-public class AgencyServiceImplTest {
-    private AgencyServiceImpl service;
+public class AgencyServiceTest {
+    private AgencyService service;
 
     @Mock
     private AuthenticationFacade authenticationFacade;
@@ -58,7 +58,7 @@ public class AgencyServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyInternalLocationRepository, agencyInternalLocationProfileRepository);
+        service = new AgencyService(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyInternalLocationRepository, agencyInternalLocationProfileRepository);
     }
 
     @Test
