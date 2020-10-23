@@ -217,6 +217,6 @@ public interface OffenderResource {
     ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(
             @ApiParam(name = "offenderNo", value = "Offender ID", example = "123", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull Long offenderId,
             @ApiParam(name = "account_code", value = "Account code", example = "spends", required = false, allowableValues = "spends,cash,savings") @RequestParam(value = "account_code", required = false) String accountCode,
-            @ApiParam(name = "from_date", value = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) LocalDate fromDate,
-            @ApiParam(name = "to_date", value = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to_date", required = false) LocalDate toDate);
+            @ApiParam(name = "from_date", value = "Start date for transactions, format yyyy-MM-dd, defaults to today if not supplied", example = "2019-04-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) LocalDate fromDate,
+            @ApiParam(name = "to_date", value = "To date for transactions, format yyyy-MM-dd, defaults to today if not supplied", example = "2019-05-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to_date", required = false) LocalDate toDate);
 }

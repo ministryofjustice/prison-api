@@ -189,4 +189,18 @@ public class OffenderTransactionHistoryServiceTest {
         assertThat(histories).isNotNull();
         assertThat(histories.size()).isEqualTo(0);
     }
+
+    @Test
+    public void When_getTransactionHistory_And_TypoInAccountCode_Then_ThrowException() {
+
+        Throwable exception = assertThrows(IllegalStateException.class, () -> {
+            final Long  offenderId = Long.parseLong("123");;
+            final Optional<String> accountCode = Optional.of("spendss");
+            final LocalDate fromDate = LocalDate.now();
+            final LocalDate toDate = LocalDate.now();
+            service.getTransactionHistory(offenderId, accountCode, fromDate, toDate);
+        });
+
+        assertEquals("Unknown account-code spendss", exception.getMessage());
+    }
 }

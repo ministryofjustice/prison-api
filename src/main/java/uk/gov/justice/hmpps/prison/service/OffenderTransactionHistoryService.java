@@ -44,6 +44,11 @@ public class OffenderTransactionHistoryService {
         checkState(fromDate.isBefore(now) || fromDate.isEqual(now), "fromDate can't be in the future");
         checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
 
+        if(accountCode.isPresent()) {
+            boolean isAccountCodeExists = accountCode.map(AccountCode::byCodeName).filter(opl -> opl.isPresent()).isPresent();
+            checkState(isAccountCodeExists, "Unknown account-code " + accountCode.get());
+        }
+
         var histories = (List<OffenderTransactionHistory>) accountCode
                 .map(AccountCode::byCodeName)
                 .filter(Optional::isPresent)

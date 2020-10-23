@@ -13,7 +13,7 @@ public class Money {
         GBP("British Pound", "£");
         public final String name;
         public final String symbol;
-        Currency(String name, String symbol) {
+        Currency(final String name, final String symbol) {
             this.name = name;
             this.symbol = symbol;
         }
@@ -22,13 +22,13 @@ public class Money {
     private final Currency currency = Currency.GBP;
     private final BigDecimal amount;
 
-    public Money(BigDecimal amount, Currency currency) {
+    public Money(final  BigDecimal amount, final Currency currency) {
         checkNotNull(amount, "amount can't be null");
         checkNotNull(currency, "currency can't be null");
         this.amount = amount;
     }
 
-    public Money(BigDecimal amount) {
+    public Money(final BigDecimal amount) {
        this(amount, Currency.GBP);
     }
 
@@ -50,12 +50,12 @@ public class Money {
         return currency.symbol + getAmount().toString();
     }
 
-    public static Money asMoney(Long penceValue) {
+    public static Money asMoney(final Long penceValue) {
         BigDecimal amount =  BigDecimal.valueOf(penceValue).divide(BigDecimal.valueOf(PENCE_IN_POUND)).setScale(2);
         return build(amount);
     }
 
-    public static Money build(BigDecimal amount) {
+    public static Money build(final BigDecimal amount) {
         return new Money(amount);
     }
 }
