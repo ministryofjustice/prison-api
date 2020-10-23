@@ -4,6 +4,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 
@@ -15,6 +16,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
 
     private final String OFFENDER_NUMBER = "123";
     private static final int HTTP_OK = 200;
+    private static final int HTTP_BAD_REQ = 400;
 
 
     @Test
@@ -171,7 +173,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
     }
 
     @Test
-    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsUnknown_Then_ReturnAllAccountCodes() {
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsUnknown_Then_ErrorResponse() {
 
         var offenderNumber = "-1001";
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
@@ -182,12 +184,32 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 url,
                 HttpMethod.GET,
                 httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                new ParameterizedTypeReference<ErrorResponse>() {},
                 offenderNumber);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
-        assertThat(response.getBody()).isInstanceOf(List.class);
-        assertThat(response.getBody().size()).isEqualTo(3);
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Unknown account-code spendss");
+        assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
+        assertThat(response.getBody().getUserMessage()).isEqualTo("Unknown account-code spendss");
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_BadFromDateFormat_Then_ErrorResponse() {
+
+        var offenderNumber = "-1001";
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-30-17&to_date=2019-10-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<ErrorResponse>() {},
+                offenderNumber);
+
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Invalid value for MonthOfYear (valid values 1 - 12): 30");
+        assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
+        assertThat(response.getBody().getUserMessage()).isEqualTo("Invalid value for MonthOfYear (valid values 1 - 12): 30");
     }
 
     @Test
