@@ -1,0 +1,58 @@
+package uk.gov.justice.hmpps.prison.service;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class OffenderDamageObligationService {
+    private final OffenderDamageObligationRepository repository;
+
+    @Value("${api.currency:GBP}")
+    private String currency;
+
+    public OffenderDamageObligationService(final OffenderDamageObligationRepository repository) {
+        this.repository = repository;
+    }
+
+    @VerifyOffenderAccess
+    public List<OffenderDamageObligationModel> getDamageObligations(final String offenderNo, final String status) {
+
+        try {
+            final var damages = StringUtils.isNotEmpty(status) ?
+                    repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(offenderNo, status) :
+                    repository.findOffenderDamageObligationByOffender_NomsId(offenderNo);
+
+            return damages
+                    .stream()
+                    .map(this::damageObligationTransformer)
+                    .collect(Collectors.toList());
+
+        } catch(EntityNotFoundException e) {
+            throw EntityNotFoundException.withMessage(String.format("Offender not found: %s", offenderNo));
+        }
+    }
+
+    public OffenderDamageObligationModel damageObligationTransformer(final OffenderDamageObligation damageObligation) {
+        return OffenderDamageObligationModel.builder()
+                .id(damageObligation.getId())
+                .offenderNo(damageObligation.getOffender().getNomsId())
+                .currency(currency)
+                .amountPaid(damageObligation.getAmountPaid())
+                .amountToPay(damageObligation.getAmountToPay())
+                .comment(damageObligation.getComment())
+                .prisonId(damageObligation.getPrison() != null ? damageObligation.getPrison().getId(): null)
+                .referenceNumber(damageObligation.getReferenceNumber())
+                .startDateTime(damageObligation.getStartDateTime())
+                .endDateTime(damageObligation.getEndDateTime())
+                .status(damageObligation.getStatus())
+                .build();
+    }
+}
