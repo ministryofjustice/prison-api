@@ -30,7 +30,7 @@ public class OffenderDamageObligationServiceTest {
 
     @BeforeEach
     public void beforeEach() {
-        service = new OffenderDamageObligationService("GBP", repository);
+        service = new OffenderDamageObligationService( repository);
     }
 
 

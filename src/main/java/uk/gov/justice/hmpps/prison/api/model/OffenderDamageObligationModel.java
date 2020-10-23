@@ -19,7 +19,7 @@ public class OffenderDamageObligationModel {
     @ApiModelProperty(value = "Identifier of damage obligation", example = "1", position = 1)
     private Long id;
 
-    @ApiModelProperty(value = "Offender number", example = "A12345", position = 2)
+    @ApiModelProperty(value = "Offender number", example = "G4346UT", position = 2)
     private String offenderNo;
 
     @ApiModelProperty(value = "Reference number", example = "012388", position = 3)
@@ -46,7 +46,7 @@ public class OffenderDamageObligationModel {
     @ApiModelProperty(value = "Comment", example = "Damages to canteen furniture", position = 10)
     private String comment;
 
-    @ApiModelProperty(required = true, value = "Currency of these amounts.", example = "GBP", position = 11)
+    @ApiModelProperty(value = "Currency of these amounts.", example = "GBP", position = 11)
     @NotBlank
     private String currency;
 }

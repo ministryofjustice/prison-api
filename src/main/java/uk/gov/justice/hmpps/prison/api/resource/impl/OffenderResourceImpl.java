@@ -239,8 +239,6 @@ public class OffenderResourceImpl implements OffenderResource {
     public OffenderDamageObligationResponse getOffenderDamageObligations(final String offenderNo, final String status) {
         final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, status);
 
-        return OffenderDamageObligationResponse.builder()
-                .damageObligations(damageObligations)
-                .build();
+        return new OffenderDamageObligationResponse(damageObligations);
     }
 }

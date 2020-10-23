@@ -14,11 +14,12 @@ import java.util.stream.Collectors;
 @Service
 public class OffenderDamageObligationService {
     private final OffenderDamageObligationRepository repository;
-    private final String currency;
 
-    public OffenderDamageObligationService(@Value("${api.currency:GBP}") final String currency, final OffenderDamageObligationRepository repository) {
+    @Value("${api.currency:GBP}")
+    private String currency;
+
+    public OffenderDamageObligationService(final OffenderDamageObligationRepository repository) {
         this.repository = repository;
-        this.currency = currency;
     }
 
     @VerifyOffenderAccess
@@ -26,10 +27,11 @@ public class OffenderDamageObligationService {
 
         try {
             final var damages = StringUtils.isNotEmpty(status) ?
-                    repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(offenderNo, status).stream() :
-                    repository.findOffenderDamageObligationByOffender_NomsId(offenderNo).stream();
+                    repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(offenderNo, status) :
+                    repository.findOffenderDamageObligationByOffender_NomsId(offenderNo);
 
             return damages
+                    .stream()
                     .map(this::damageObligationTransformer)
                     .collect(Collectors.toList());
 
