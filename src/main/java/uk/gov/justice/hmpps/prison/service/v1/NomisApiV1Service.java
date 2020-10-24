@@ -70,6 +70,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static uk.gov.justice.hmpps.prison.values.AccountCode.codeForNameOrEmpty;
 
 @Slf4j
 @Service
@@ -308,7 +309,7 @@ public class NomisApiV1Service {
 
     public List<AccountTransaction> getAccountTransactions(final String prisonId, final String nomsId, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
 
-        final var accountType = convertAccountCodeToType(accountCode);
+        final var accountType = codeForNameOrEmpty(accountCode);
         if (StringUtils.isEmpty(accountType)) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid account_code supplied. Should be one of cash, spends or savings");
         }
@@ -448,11 +449,6 @@ public class NomisApiV1Service {
         response.forEach(r -> dateMap.computeIfPresent(r.getEventDateAsString(), (s, unavailableDate) -> unavailableDate.update(r)));
 
         return dateMap;
-    }
-
-    private String convertAccountCodeToType(final String accountCode) {
-        final var codeTranslation = Map.of("spends", "SPND", "savings", "SAV", "cash", "REG");
-        return codeTranslation.get(accountCode);
     }
 
     private Long convertToPence(final BigDecimal value) {

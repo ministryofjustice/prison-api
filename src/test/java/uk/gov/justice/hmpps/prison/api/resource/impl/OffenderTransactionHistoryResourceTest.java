@@ -11,6 +11,8 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class OffenderTransactionHistoryResourceTest extends ResourceTest {
@@ -170,7 +172,62 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
     }
 
     @Test
-    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsMissing_And_DateIsToday_Then_ReturnOneItem() {
+    public void When_GetOffenderTransactionHistory_And_FromDateIsMissing_And_ToDateIsNotToday_Then_ReturnError() {
+
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?to_date=2019-11-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<ErrorResponse>() {},
+                OFFENDER_NUMBER);
+
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("toDate can't be before fromDate");
+        assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
+        assertThat(response.getBody().getUserMessage()).isEqualTo("toDate can't be before fromDate");
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_FromDateIsMissing_And_ToDateIsToday_Then_NoErrorIsThrown() {
+
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?to_date=" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {},
+                OFFENDER_NUMBER);
+        
+        assertThatJsonAndStatus(response, HTTP_OK, "[]");
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_ToDateIsMissing_Then_ToDateIsAssumedToBeToday_And_OneRecordIsReturned() {
+
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?from_date=2019-11-17";
+
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                OFFENDER_NUMBER);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
+        assertThat(response.getBody()).isInstanceOf(List.class);
+        assertThat(response.getBody().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsMissing_And_DatesAreMissing_Then_ReturnOneItem() {
 
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);

@@ -24,4 +24,8 @@ public enum AccountCode {
     public static Optional<AccountCode> byCodeName(final String codeName) {
         return Arrays.stream(AccountCode.values()).filter(v -> v.codeName.equals(codeName.toLowerCase())).findFirst();
     }
+
+    public static String codeForNameOrEmpty(final String codeName) {
+        return byCodeName(codeName).map(code -> code.code).orElse("");
+    }
 }
