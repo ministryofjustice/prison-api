@@ -1,7 +1,10 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.*;
-import uk.gov.justice.hmpps.prison.values.Money;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -28,28 +31,23 @@ public class OffenderTransactionHistory {
     @Column(name = "OFFENDER_ID", nullable = false)
     private Long offenderId;
 
-    @Column(name = "TXN_ENTRY_DATE")
+    @Column(name = "TXN_ENTRY_DATE", nullable = false)
     private LocalDate entryDate;
 
-    @Column(name = "TXN_TYPE", nullable = false)
+    @Column(name = "TXN_TYPE", nullable = false, length = 6)
     private String transactionType;
 
-    @Column(name = "TXN_ENTRY_DESC", nullable = false)
+    @Column(name = "TXN_ENTRY_DESC", length = 240)
     private String entryDescription;
 
-    @Column(name = "TXN_REFERENCE_NUMBER", nullable = false)
+    @Column(name = "TXN_REFERENCE_NUMBER", length = 12)
     private String referenceNumber;
 
     @Column(name = "TXN_ENTRY_AMOUNT", nullable = false)
     private BigDecimal entryAmount;
 
-    @Column(name = "SUB_ACCOUNT_TYPE", nullable = false)
+    @Column(name = "SUB_ACCOUNT_TYPE", nullable = false, length = 12)
     private String accountType;
-
-
-    public Long transactionAmountInPence() {
-        return Money.build(entryAmount).asPence();
-    }
 
     @EqualsAndHashCode
     @NoArgsConstructor

@@ -43,6 +43,6 @@ public class OffenderTransactionHistoryDto {
     @ApiModelProperty(value = "Transaction Amount", example = "60", position = 8)
     private Long penceAmount;
 
-    @ApiModelProperty(value = "Transaction Type", example = "SPND,SAV,REG", position = 9)
+    @ApiModelProperty(value = "Offender Sub Account", example = "???", position = 9)
     private String accountType;
 }

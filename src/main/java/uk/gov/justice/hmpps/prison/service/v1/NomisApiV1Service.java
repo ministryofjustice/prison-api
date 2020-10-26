@@ -58,7 +58,6 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -71,6 +70,7 @@ import java.util.stream.Collectors;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static uk.gov.justice.hmpps.prison.values.AccountCode.codeForNameOrEmpty;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.poundsToPence;
 
 @Slf4j
 @Service
@@ -279,7 +279,7 @@ public class NomisApiV1Service {
                         .clientUniqueRef(stripClientName(h.getClientUniqueRef(), clientName))
                         .holdNumber(h.getHoldNumber())
                         .holdUntilDate(h.getHoldUntilDate())
-                        .amount(convertToPence(h.getTxnEntryAmount()))
+                        .amount(poundsToPence(h.getTxnEntryAmount()))
                         .entryDate(h.getTxnEntryDate())
                         .description(h.getTxnEntryDesc())
                         .referenceNo(h.getTxnReferenceNumber())
@@ -301,9 +301,9 @@ public class NomisApiV1Service {
     public AccountBalance getAccountBalances(final String prisonId, final String nomsId) {
         final var response = financeV1Repository.getAccountBalances(prisonId, nomsId);
         return AccountBalance.builder()
-                .cash(convertToPence(response.get("cash")))
-                .spends(convertToPence(response.get("spends")))
-                .savings(convertToPence(response.get("savings")))
+                .cash(poundsToPence(response.get("cash")))
+                .spends(poundsToPence(response.get("spends")))
+                .savings(poundsToPence(response.get("savings")))
                 .build();
     }
 
@@ -320,7 +320,7 @@ public class NomisApiV1Service {
                         .id("" + t.getTxnId() + "-" + t.getTxnEntrySeq())
                         .type(CodeDescription.safeNullBuild(t.getTxnType(), t.getTxnTypeDesc()))
                         .description(t.getTxnEntryDesc())
-                        .amount(convertToPence(t.getTxnEntryAmount()))
+                        .amount(poundsToPence(t.getTxnEntryAmount()))
                         .date(t.getTxnEntryDate())
                         .build())
                 .collect(Collectors.toList());
@@ -334,7 +334,7 @@ public class NomisApiV1Service {
                         .id("" + t.getTxnId() + "-" + t.getTxnEntrySeq())
                         .type(CodeDescription.safeNullBuild(t.getTxnType(), t.getTxnTypeDesc()))
                         .description(t.getTxnEntryDesc())
-                        .amount(convertToPence(t.getTxnEntryAmount()))
+                        .amount(poundsToPence(t.getTxnEntryAmount()))
                         .date(t.getTxnEntryDate())
                         .build())
                 .collect(Collectors.toList());
@@ -449,10 +449,6 @@ public class NomisApiV1Service {
         response.forEach(r -> dateMap.computeIfPresent(r.getEventDateAsString(), (s, unavailableDate) -> unavailableDate.update(r)));
 
         return dateMap;
-    }
-
-    private Long convertToPence(final BigDecimal value) {
-        return value.setScale(2, RoundingMode.HALF_UP).movePointRight(2).longValue();
     }
 
     private String stripClientName(final String clientUniqueRef, final String clientName) {

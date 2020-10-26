@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
 import uk.gov.justice.hmpps.prison.values.AccountCode;
 
@@ -31,6 +32,7 @@ public class OffenderTransactionHistoryService {
 
     private OffenderTransactionHistoryRepository repository;
 
+    @VerifyOffenderAccess
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final Long offenderId,
                                                                      final Optional<String> accountCodeOpl,
                                                                      final Optional<LocalDate> fromDateOpl,

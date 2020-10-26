@@ -208,8 +208,8 @@ public interface OffenderResource {
     @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/{offenderNo}/transaction-history")
     @ApiOperation(value = "Retrieve an offender's financial transaction history for cash, spends or savings.",
-            notes = "Transactions are returned in NOMIS order (Descending date followed by id).<br/>" +
-            "All transaction amounts are represented as pence values.") //todo order?, should use int for money?
+            notes = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
+            "All transaction amounts are represented as pence values.")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Not a digital offender. Offender not found. Offender has no account at this prison.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
