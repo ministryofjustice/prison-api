@@ -7,6 +7,7 @@
     "transactionType": "AD",
     "entryDescription": "DESC",
     "referenceNumber": "REF",
+    "currency": "GBP",
     "penceAmount": 100,
     "accountType": "SPND"
   }

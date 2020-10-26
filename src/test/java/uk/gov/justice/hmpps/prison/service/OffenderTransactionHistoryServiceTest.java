@@ -9,13 +9,14 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
+import uk.gov.justice.hmpps.prison.values.Currency;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
+import java.util.Collections;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -34,7 +35,7 @@ public class OffenderTransactionHistoryServiceTest {
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderTransactionHistoryService(repository);
+        service = new OffenderTransactionHistoryService(Currency.GBP.code, repository);
     }
 
     @Test

@@ -1,8 +1,8 @@
 package uk.gov.justice.hmpps.prison.service;
 
-
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHisto
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
 import uk.gov.justice.hmpps.prison.values.AccountCode;
+import uk.gov.justice.hmpps.prison.values.Currency;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -25,12 +26,18 @@ import static com.google.common.base.Preconditions.checkState;
 
 @Service
 @Transactional(readOnly = true)
-@AllArgsConstructor
 @Validated
 @Slf4j
 public class OffenderTransactionHistoryService {
 
+    private String apiCurrency;
     private OffenderTransactionHistoryRepository repository;
+
+    public OffenderTransactionHistoryService(@Value("${api.currency:GBP}") final String currency,
+                                             final OffenderTransactionHistoryRepository repository) {
+        this.apiCurrency = currency;
+        this.repository = repository;
+    }
 
     @VerifyOffenderAccess
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final Long offenderId,
@@ -70,6 +77,11 @@ public class OffenderTransactionHistoryService {
 
         Collections.sort(histories, sortPolicy);
 
-        return histories.stream().map(OffenderTransactionHistoryTransformer::transform).collect(Collectors.toList());
+        Currency currency = Currency.byCode(apiCurrency).orElse(Currency.GBP);
+
+        return histories.stream()
+                .map(h -> Pair.of(h, currency))
+                .map(OffenderTransactionHistoryTransformer::transform)
+                .collect(Collectors.toList());
     }
 }

@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.ToString;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @ApiModel(description = "Offender transaction details")
@@ -40,9 +42,13 @@ public class OffenderTransactionHistoryDto {
     @ApiModelProperty(value = "Transaction Reference Number", example = "???", position = 7)
     private String referenceNumber;
 
-    @ApiModelProperty(value = "Transaction Amount", example = "60", position = 8)
+    @ApiModelProperty(value = "Currency of these amounts.", example = "GBP", position = 8)
+    @NotBlank
+    private String currency;
+
+    @ApiModelProperty(value = "Transaction Amount", example = "60", position = 9)
     private Long penceAmount;
 
-    @ApiModelProperty(value = "Offender Sub Account", example = "???", position = 9)
+    @ApiModelProperty(value = "Offender Sub Account", example = "???", position = 10)
     private String accountType;
 }

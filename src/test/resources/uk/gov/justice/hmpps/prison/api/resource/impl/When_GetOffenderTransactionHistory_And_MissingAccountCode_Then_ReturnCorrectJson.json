@@ -7,6 +7,7 @@
     "transactionType": "AD",
     "entryDescription": "DESC",
     "referenceNumber": "REF",
+    "currency": "GBP",
     "penceAmount": 100,
     "accountType": "REG"
   },
@@ -18,6 +19,7 @@
     "transactionType": "AD",
     "entryDescription": "DESC",
     "referenceNumber": "REF",
+    "currency": "GBP",
     "penceAmount": 100,
     "accountType": "SAV"
   },
@@ -29,6 +31,7 @@
     "transactionType": "AD",
     "entryDescription": "DESC",
     "referenceNumber": "REF",
+    "currency": "GBP",
     "penceAmount": 100,
     "accountType": "SPND"
   }
