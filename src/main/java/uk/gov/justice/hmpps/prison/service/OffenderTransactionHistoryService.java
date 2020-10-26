@@ -32,26 +32,29 @@ public class OffenderTransactionHistoryService {
     private OffenderTransactionHistoryRepository repository;
 
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final Long offenderId,
-                                                                     final Optional<String> accountCode,
-                                                                     final LocalDate fromDate,
-                                                                     final LocalDate toDate) {
+                                                                     final Optional<String> accountCodeOpl,
+                                                                     final Optional<LocalDate> fromDateOpl,
+                                                                     final Optional<LocalDate> toDateOpl) {
 
         checkNotNull(offenderId, "offender-id can't be null");
-        checkNotNull(accountCode, "accountCode optional can't be null");
-        checkNotNull(fromDate, "fromDate can't be null");
-        checkNotNull(toDate, "toDate can't be null");
+        checkNotNull(accountCodeOpl, "accountCode optional can't be null");
+        checkNotNull(fromDateOpl, "fromDate optional can't be null");
+        checkNotNull(toDateOpl, "toDate optional can't be null");
+
+        var fromDate = fromDateOpl.orElse(LocalDate.now());
+        var toDate = toDateOpl.orElse(LocalDate.now());
 
         var now = LocalDate.now();
         checkState(fromDate.isBefore(toDate) || fromDate.isEqual(toDate), "toDate can't be before fromDate");
         checkState(fromDate.isBefore(now) || fromDate.isEqual(now), "fromDate can't be in the future");
         checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
 
-        if(accountCode.isPresent()) {
-            boolean isAccountCodeExists = accountCode.map(AccountCode::byCodeName).filter(opl -> opl.isPresent()).isPresent();
-            checkState(isAccountCodeExists, "Unknown account-code " + accountCode.get());
+        if(accountCodeOpl.isPresent()) {
+            boolean isAccountCodeExists = accountCodeOpl.map(AccountCode::byCodeName).filter(opl -> opl.isPresent()).isPresent();
+            checkState(isAccountCodeExists, "Unknown account-code " + accountCodeOpl.get());
         }
 
-        var histories = (List<OffenderTransactionHistory>) accountCode
+        var histories = (List<OffenderTransactionHistory>) accountCodeOpl
                 .map(AccountCode::byCodeName)
                 .filter(Optional::isPresent)
                 .map(optionalCode -> optionalCode.get().code)

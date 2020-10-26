@@ -240,11 +240,11 @@ public class OffenderResourceImpl implements OffenderResource {
                                                                                       final String accountCode,
                                                                                       final LocalDate fromDate,
                                                                                       final LocalDate toDate) {
-        val accountCodeArg = Optional.ofNullable(accountCode);
-        val fromDateArg = Optional.ofNullable(fromDate).orElse(LocalDate.now());
-        val toDateArg = Optional.ofNullable(toDate).orElse(LocalDate.now());
+        val accountCodeOpl = Optional.ofNullable(accountCode);
+        val fromDateOpl = Optional.ofNullable(fromDate);
+        val toDateOpl = Optional.ofNullable(toDate);
         var histories =
-                offenderTransactionHistoryService.getTransactionHistory(offenderId, accountCodeArg, fromDateArg, toDateArg);
+                offenderTransactionHistoryService.getTransactionHistory(offenderId, accountCodeOpl, fromDateOpl, toDateOpl);
 
         return ResponseEntity.ok(histories);
     }
