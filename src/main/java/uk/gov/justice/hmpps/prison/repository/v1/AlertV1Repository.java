@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.v1;
 
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
-import uk.gov.justice.hmpps.prison.repository.impl.RepositoryBase;
+import uk.gov.justice.hmpps.prison.repository.RepositoryBase;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.v1.model.AlertSP;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;

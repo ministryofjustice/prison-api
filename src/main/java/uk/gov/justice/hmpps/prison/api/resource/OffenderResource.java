@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
@@ -31,6 +32,8 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.support.Order;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -203,13 +206,24 @@ public interface OffenderResource {
             @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo,
             @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) @RequestParam(value = "withDetails", required = false, defaultValue = "false") boolean withDetails);
 
+
+    @GetMapping("/{offenderNo}/damage-obligations")
+    @ApiOperation(value = "Return a list of damage obligations")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Offender does not exists or is in a different caseload to the user", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    OffenderDamageObligationResponse getOffenderDamageObligations(
+            @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo,
+            @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE", allowableValues = "INACT,PAID,ONH,ACTIVE,APPEAL") @RequestParam(value = "status", required = false, defaultValue = "") String status);
+
+
     String NOMS_ID_REGEX_PATTERN = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}";
 
     @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/{offenderNo}/transaction-history")
     @ApiOperation(value = "Retrieve an offender's financial transaction history for cash, spends or savings.",
             notes = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
-            "All transaction amounts are represented as pence values.")
+                    "All transaction amounts are represented as pence values.")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Not a digital offender. Offender not found. Offender has no account at this prison.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),

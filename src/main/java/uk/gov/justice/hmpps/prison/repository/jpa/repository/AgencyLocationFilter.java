@@ -31,7 +31,7 @@ public class AgencyLocationFilter implements Specification<AgencyLocation>  {
     @Builder.Default
     private List<String> excludedAgencies = List.of("OUT", "TRN");
 
-    @Override
+
     public Predicate toPredicate(final Root<AgencyLocation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
 

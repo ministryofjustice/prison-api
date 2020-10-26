@@ -1,0 +1,17 @@
+{
+  "damageObligations": [
+    {
+      "id": 1,
+      "offenderNo": "A12345",
+      "referenceNumber": "123",
+      "startDateTime": "2020-10-10T10:00:00",
+      "endDateTime": "2020-10-22T10:00:00",
+      "prisonId": "MDI",
+      "amountToPay": 0,
+      "amountPaid": 500,
+      "status": "ACTIVE",
+      "comment": "Damages made to canteen furniture",
+      "currency": "GBP"
+    }
+  ]
+}

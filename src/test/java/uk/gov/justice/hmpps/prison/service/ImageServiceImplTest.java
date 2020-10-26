@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.repository.ImageRepository;
-import uk.gov.justice.hmpps.prison.repository.OffenderRepository;
+import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 
@@ -35,19 +35,19 @@ public class ImageServiceImplTest {
     private OffenderImageRepository offenderImageRepository;
 
     @Mock
-    private OffenderRepository offenderRepository;
+    private PrisonerRepository prisonerRepository;
 
     private ImageService service;
 
     @BeforeEach
     public void setUp() {
-        service = new ImageService(imageRepository, offenderImageRepository, offenderRepository);
+        service = new ImageService(imageRepository, offenderImageRepository, prisonerRepository);
     }
 
     @Test
     public void findOffenderImages() {
 
-        when(offenderRepository.getOffenderIdsFor(OFFENDER_NUMBER)).thenReturn(Set.of(1L));
+        when(prisonerRepository.getOffenderIdsFor(OFFENDER_NUMBER)).thenReturn(Set.of(1L));
 
         when(offenderImageRepository.getImagesByOffenderNumber(OFFENDER_NUMBER)).thenReturn(List.of(
                 OffenderImage.builder()
@@ -73,7 +73,7 @@ public class ImageServiceImplTest {
     @Test
     public void findOffenderImagesThrowsEntityNotFoundException() {
 
-        when(offenderRepository.getOffenderIdsFor(OFFENDER_NUMBER)).thenReturn(emptySet());
+        when(prisonerRepository.getOffenderIdsFor(OFFENDER_NUMBER)).thenReturn(emptySet());
 
         assertThatThrownBy(() -> service.findOffenderImagesFor(OFFENDER_NUMBER))
                 .isInstanceOf(EntityNotFoundException.class);

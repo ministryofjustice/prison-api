@@ -2,12 +2,12 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
-
-import javax.persistence.Column;
-import javax.persistence.Id;
-import java.math.BigDecimal;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @ApiModel(description = "Offender transaction details")
@@ -31,13 +31,13 @@ public class OffenderTransactionHistoryDto {
     @ApiModelProperty(value = "Transaction Date", example = "2020-12-11", position = 4)
     private LocalDate entryDate;
 
-    @ApiModelProperty(value = "Transaction Type", example = "???", position = 5) //todo
+    @ApiModelProperty(value = "Transaction Type", example = "???", position = 5)
     private String transactionType;
 
     @ApiModelProperty(value = "Transaction Description", example = "some textual description here", position = 6)
     private String entryDescription;
 
-    @ApiModelProperty(value = "Transaction Reference Number", example = "???", position = 7) //todo
+    @ApiModelProperty(value = "Transaction Reference Number", example = "???", position = 7)
     private String referenceNumber;
 
     @ApiModelProperty(value = "Transaction Amount", example = "60", position = 8)

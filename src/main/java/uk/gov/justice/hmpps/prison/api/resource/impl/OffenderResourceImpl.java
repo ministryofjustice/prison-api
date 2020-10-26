@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
@@ -28,17 +29,7 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
-import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
-import uk.gov.justice.hmpps.prison.service.AdjudicationService;
-import uk.gov.justice.hmpps.prison.service.BookingService;
-import uk.gov.justice.hmpps.prison.service.CaseNoteService;
-import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
-import uk.gov.justice.hmpps.prison.service.GlobalSearchService;
-import uk.gov.justice.hmpps.prison.service.IncidentService;
-import uk.gov.justice.hmpps.prison.service.InmateAlertService;
-import uk.gov.justice.hmpps.prison.service.InmateService;
-import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
-import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
+import uk.gov.justice.hmpps.prison.service.*;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 
 import javax.validation.constraints.NotNull;
@@ -64,6 +55,7 @@ public class OffenderResourceImpl implements OffenderResource {
     private final GlobalSearchService globalSearchService;
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
+    private final OffenderDamageObligationService offenderDamageObligationService;
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
 
     @Override
@@ -233,6 +225,13 @@ public class OffenderResourceImpl implements OffenderResource {
         var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         Optional.ofNullable(booking).orElseThrow(EntityNotFoundException.withId(offenderNo));
         return bookingService.getBookingIEPSummary(booking.getBookingId(), withDetails);
+    }
+
+    @Override
+    public OffenderDamageObligationResponse getOffenderDamageObligations(final String offenderNo, final String status) {
+        final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, status);
+
+        return new OffenderDamageObligationResponse(damageObligations);
     }
 
     @Override
