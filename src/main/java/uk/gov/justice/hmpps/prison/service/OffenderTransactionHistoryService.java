@@ -13,6 +13,8 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHisto
 import uk.gov.justice.hmpps.prison.values.AccountCode;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,6 +57,13 @@ public class OffenderTransactionHistoryService {
                 .map(optionalCode -> optionalCode.get().code)
                 .map(code -> repository.findForGivenAccountType(offenderId, code, fromDate, toDate))
                 .orElse(repository.findForAllAccountTypes(offenderId, fromDate, toDate));
+
+        var sortPolicy = Comparator
+                .comparing(OffenderTransactionHistory::getEntryDate)
+                .thenComparing(Comparator.comparing(OffenderTransactionHistory::getTransactionEntrySequence).reversed())
+                .reversed();
+
+        Collections.sort(histories, sortPolicy);
 
         return histories.stream().map(OffenderTransactionHistoryTransformer::transform).collect(Collectors.toList());
     }
