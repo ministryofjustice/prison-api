@@ -32,8 +32,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -225,7 +223,7 @@ public interface OffenderResource {
             notes = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
                     "All transaction amounts are represented as pence values.")
     @ApiResponses(value = {
-            @ApiResponse(code = 400, message = "Not a digital offender. Offender not found. Offender has no account at this prison.", response = ErrorResponse.class),
+            @ApiResponse(code = 400, message = "Not a digital offender. Offender has no account at this prison.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(

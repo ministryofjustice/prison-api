@@ -10,7 +10,7 @@ import java.util.List;
 public interface OffenderTransactionHistoryRepository extends CrudRepository<OffenderTransactionHistory, String> {
 
     @Query("select h from OffenderTransactionHistory h where h.offenderId = ?1 and h.accountType = ?2 and (h.entryDate between ?3 and ?4)")
-    List<OffenderTransactionHistory> findForGivenAccountType(Long offenderId, String accountType, LocalDate fromDat, LocalDate toDate);
+    List<OffenderTransactionHistory> findForGivenAccountType(Long offenderId, String accountType, LocalDate fromDate, LocalDate toDate);
 
     @Query("select h from OffenderTransactionHistory h where h.offenderId = ?1 and (h.entryDate between ?2 and ?3)")
     List<OffenderTransactionHistory> findForAllAccountTypes(Long offenderId, LocalDate fromDat, LocalDate toDate);

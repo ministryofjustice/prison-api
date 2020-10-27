@@ -38,47 +38,63 @@ public class OffenderTransactionHistoryService {
         this.repository = repository;
     }
 
+    public static final Comparator<OffenderTransactionHistory> TRANSACTION_HISTORY_SORTING_POLICY = Comparator
+            .comparing(OffenderTransactionHistory::getEntryDate)
+            .thenComparing(Comparator.comparing(OffenderTransactionHistory::getTransactionEntrySequence).reversed())
+            .reversed();
+
     @VerifyOffenderAccess
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final Long offenderId,
                                                                      final Optional<String> accountCodeOpl,
                                                                      final Optional<LocalDate> fromDateOpl,
                                                                      final Optional<LocalDate> toDateOpl) {
-
-        checkNotNull(offenderId, "offender-id can't be null");
-        checkNotNull(accountCodeOpl, "accountCode optional can't be null");
-        checkNotNull(fromDateOpl, "fromDate optional can't be null");
-        checkNotNull(toDateOpl, "toDate optional can't be null");
+       validate(offenderId, accountCodeOpl, fromDateOpl,toDateOpl);
 
         var fromDate = fromDateOpl.orElse(LocalDate.now());
         var toDate = toDateOpl.orElse(LocalDate.now());
+        checkDateRange(fromDate, toDate);
 
+        if(accountCodeOpl.isPresent()) {
+            boolean isAccountCodeExists = AccountCode.exists(accountCodeOpl.get());
+            checkState(isAccountCodeExists, "Unknown account-code " + accountCodeOpl.get());
+        }
+
+        return getSortedHistories(offenderId, accountCodeOpl, fromDate, toDate).stream()
+                .map(h -> Pair.of(h, apiCurrency))
+                .map(OffenderTransactionHistoryTransformer::transform)
+                .collect(Collectors.toList());
+    }
+
+    private void checkDateRange(LocalDate fromDate, LocalDate toDate) {
         var now = LocalDate.now();
         checkState(fromDate.isBefore(toDate) || fromDate.isEqual(toDate), "toDate can't be before fromDate");
         checkState(fromDate.isBefore(now) || fromDate.isEqual(now), "fromDate can't be in the future");
         checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
+    }
 
-        if(accountCodeOpl.isPresent()) {
-            boolean isAccountCodeExists = accountCodeOpl.map(AccountCode::byCodeName).filter(opl -> opl.isPresent()).isPresent();
-            checkState(isAccountCodeExists, "Unknown account-code " + accountCodeOpl.get());
-        }
+    private void validate(final Long offenderId,
+                          final Optional<String> accountCodeOpl,
+                          final Optional<LocalDate> fromDateOpl,
+                          final Optional<LocalDate> toDateOpl) {
+        checkNotNull(offenderId, "offender-id can't be null");
+        checkNotNull(accountCodeOpl, "accountCode optional can't be null");
+        checkNotNull(fromDateOpl, "fromDate optional can't be null");
+        checkNotNull(toDateOpl, "toDate optional can't be null");
+    }
 
-        var histories = (List<OffenderTransactionHistory>) accountCodeOpl
+    private List<OffenderTransactionHistory> getSortedHistories(final Long offenderId,
+                                                                final Optional<String> accountCodeOpl,
+                                                                final LocalDate fromDate,
+                                                                final LocalDate toDate) {
+        var histories = accountCodeOpl
                 .map(AccountCode::byCodeName)
                 .filter(Optional::isPresent)
                 .map(optionalCode -> optionalCode.get().code)
                 .map(code -> repository.findForGivenAccountType(offenderId, code, fromDate, toDate))
                 .orElse(repository.findForAllAccountTypes(offenderId, fromDate, toDate));
 
-        var sortPolicy = Comparator
-                .comparing(OffenderTransactionHistory::getEntryDate)
-                .thenComparing(Comparator.comparing(OffenderTransactionHistory::getTransactionEntrySequence).reversed())
-                .reversed();
+        Collections.sort(histories, TRANSACTION_HISTORY_SORTING_POLICY);
 
-        Collections.sort(histories, sortPolicy);
-
-        return histories.stream()
-                .map(h -> Pair.of(h, apiCurrency))
-                .map(OffenderTransactionHistoryTransformer::transform)
-                .collect(Collectors.toList());
+        return histories;
     }
 }

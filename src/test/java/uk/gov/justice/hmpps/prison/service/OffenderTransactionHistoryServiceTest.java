@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
 
 import java.math.BigDecimal;
@@ -45,7 +44,7 @@ public class OffenderTransactionHistoryServiceTest {
         final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
         final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
 
-        final List<OffenderTransactionHistory> txnItem = Collections.emptyList();
+        final List<uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory> txnItem = Collections.emptyList();
         when(repository.findForGivenAccountType(offenderId, "SPND", fromDateOpl.get(), toDateOpl.get())).thenReturn(txnItem);
 
         List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(offenderId, accountCode, fromDateOpl, toDateOpl);
@@ -64,7 +63,7 @@ public class OffenderTransactionHistoryServiceTest {
         final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
         final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
 
-        final List<OffenderTransactionHistory> txnItem = Collections.emptyList();
+        final List<uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory> txnItem = Collections.emptyList();
         when(repository.findForAllAccountTypes(offenderId, fromDateOpl.get(), toDateOpl.get())).thenReturn(txnItem);
 
         List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(offenderId, accountCode, fromDateOpl, toDateOpl);
@@ -182,7 +181,7 @@ public class OffenderTransactionHistoryServiceTest {
         final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
         final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
 
-        final List<OffenderTransactionHistory> txnItem = Collections.emptyList();
+        final List<uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory> txnItem = Collections.emptyList();
         when(repository.findForAllAccountTypes(offenderId, fromDateOpl.get(), toDateOpl.get())).thenReturn(txnItem);
 
         List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(offenderId, accountCode, fromDateOpl, toDateOpl);
@@ -215,49 +214,49 @@ public class OffenderTransactionHistoryServiceTest {
         final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
         final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
 
-        var firstSeq3 = OffenderTransactionHistory.builder()
+        var firstSeq3 = uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now().minusDays(2))
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(3L)
                 .build();
-        var firstSeq2 = OffenderTransactionHistory.builder()
+        var firstSeq2 = uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now().minusDays(2))
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(2L)
                 .build();
-        var firstSeq1 = OffenderTransactionHistory.builder()
+        var firstSeq1 = uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now().minusDays(2))
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(1L)
                 .build();
 
-        var secondSeq2 = OffenderTransactionHistory.builder()
+        var secondSeq2 = uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now().minusDays(1))
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(2L)
                 .build();
-        var secondSeq3 = OffenderTransactionHistory.builder()
+        var secondSeq3 = uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now().minusDays(1))
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(3L)
                 .build();
-        var secondSeq1 = OffenderTransactionHistory.builder()
+        var secondSeq1 = uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now().minusDays(1))
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(1L)
                 .build();
 
-        var thirdSeq1 = OffenderTransactionHistory.builder()
+        var thirdSeq1 = uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now())
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(1L)
                 .build();
-        var thirdSeq3 = OffenderTransactionHistory.builder()
+        var thirdSeq3 = uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now())
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(3L)
                 .build();
-        var thirdSeq2 = OffenderTransactionHistory.builder()
+        var thirdSeq2 = uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now())
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(2L)
@@ -275,7 +274,7 @@ public class OffenderTransactionHistoryServiceTest {
         var thirdDtoSeq3 = OffenderTransactionHistoryTransformer.transform(thirdSeq3);
         var thirdDtoSeq2 = OffenderTransactionHistoryTransformer.transform(thirdSeq2);
 
-        final List<OffenderTransactionHistory> txnItem = Arrays.asList(secondSeq2, firstSeq3, secondSeq3, secondSeq1, firstSeq2, thirdSeq1, thirdSeq3, firstSeq1, thirdSeq2);
+        final List<uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory> txnItem = Arrays.asList(secondSeq2, firstSeq3, secondSeq3, secondSeq1, firstSeq2, thirdSeq1, thirdSeq3, firstSeq1, thirdSeq2);
 
         when(repository.findForAllAccountTypes(offenderId, fromDateOpl.get(), toDateOpl.get())).thenReturn(txnItem);
 

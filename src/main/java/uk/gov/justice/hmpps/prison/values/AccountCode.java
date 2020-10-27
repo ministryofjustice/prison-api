@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.values;
 
+import org.springframework.util.StringUtils;
+
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -27,5 +29,9 @@ public enum AccountCode {
 
     public static String codeForNameOrEmpty(final String codeName) {
         return byCodeName(codeName).map(code -> code.code).orElse("");
+    }
+
+    public static boolean exists(String codeName) {
+       return !StringUtils.isEmpty(codeForNameOrEmpty(codeName));
     }
 }
