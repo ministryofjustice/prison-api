@@ -246,7 +246,7 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(final Long offenderId,
+    public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(final String nomisId,
                                                                                       final String accountCode,
                                                                                       final LocalDate fromDate,
                                                                                       final LocalDate toDate) {
@@ -254,7 +254,7 @@ public class OffenderResourceImpl implements OffenderResource {
         val fromDateOpl = Optional.ofNullable(fromDate);
         val toDateOpl = Optional.ofNullable(toDate);
         var histories =
-                offenderTransactionHistoryService.getTransactionHistory(offenderId, accountCodeOpl, fromDateOpl, toDateOpl);
+                offenderTransactionHistoryService.getTransactionHistory(nomisId, accountCodeOpl, fromDateOpl, toDateOpl);
 
         return ResponseEntity.ok(histories);
     }

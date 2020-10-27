@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -15,6 +16,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHisto
 import uk.gov.justice.hmpps.prison.values.AccountCode;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -48,11 +50,18 @@ public class OffenderTransactionHistoryService {
             .reversed();
 
     @VerifyOffenderAccess
-    public List<OffenderTransactionHistoryDto> getTransactionHistory(final Long offenderId,
+    public List<OffenderTransactionHistoryDto> getTransactionHistory(final String nomisId,
                                                                      final Optional<String> accountCodeOpl,
                                                                      final Optional<LocalDate> fromDateOpl,
                                                                      final Optional<LocalDate> toDateOpl) {
-       validate(offenderId, accountCodeOpl, fromDateOpl,toDateOpl);
+       validate(nomisId, accountCodeOpl, fromDateOpl,toDateOpl);
+
+        Offender offender = Optional.of(offenderRepository.findByNomsId(nomisId))
+               .stream()
+               .filter(list -> list.size() > 0)
+               .flatMap(Collection::stream)
+               .findFirst()
+               .orElseThrow(EntityNotFoundException.withMessage("NomisId not found %s", nomisId));
 
         var fromDate = fromDateOpl.orElse(LocalDate.now());
         var toDate = toDateOpl.orElse(LocalDate.now());
@@ -63,7 +72,7 @@ public class OffenderTransactionHistoryService {
             checkState(isAccountCodeExists, "Unknown account-code " + accountCodeOpl.get());
         }
 
-        return getSortedHistories(offenderId, accountCodeOpl, fromDate, toDate).stream()
+        return getSortedHistories(offender.getId(), accountCodeOpl, fromDate, toDate).stream()
                 .map(h -> Pair.of(h, apiCurrency))
                 .map(OffenderTransactionHistoryTransformer::transform)
                 .collect(Collectors.toList());
@@ -76,17 +85,12 @@ public class OffenderTransactionHistoryService {
         checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
     }
 
-    private void validate(final Long offenderId,
+    private void validate(final String nomisId,
                           final Optional<String> accountCodeOpl,
                           final Optional<LocalDate> fromDateOpl,
                           final Optional<LocalDate> toDateOpl) {
 
-        checkNotNull(offenderId, "offender-id can't be null");
-
-        Optional.of(offenderRepository.existsById(offenderId))
-                .filter(Boolean.TRUE::equals)
-                .orElseThrow(EntityNotFoundException.withMessage("OffenderId not found %s", offenderId));
-
+        checkNotNull(nomisId, "nomisId can't be null");
         checkNotNull(accountCodeOpl, "accountCode optional can't be null");
         checkNotNull(fromDateOpl, "fromDate optional can't be null");
         checkNotNull(toDateOpl, "toDate optional can't be null");
