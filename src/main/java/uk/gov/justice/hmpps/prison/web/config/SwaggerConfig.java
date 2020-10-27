@@ -20,7 +20,6 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.json.JacksonModuleRegistrar;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Configuration
-@EnableSwagger2
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
 
@@ -56,7 +54,7 @@ public class SwaggerConfig {
     @Bean
     public Docket docket() {
         var apiKey = new ApiKey(SECURITY_SCHEME_REF, AUTHORIZATION_HEADER, PassAs.header.name());
-        return new Docket(DocumentationType.SWAGGER_2)
+        return new Docket(DocumentationType.OAS_30)
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
@@ -67,7 +65,8 @@ public class SwaggerConfig {
                 .directModelSubstitute(LocalDateTime.class, Date.class)
                 .directModelSubstitute(LocalDate.class, java.sql.Date.class)
                 .securityContexts(Lists.newArrayList(securityContext()))
-                .securitySchemes(Lists.newArrayList(apiKey));
+                .securitySchemes(Lists.newArrayList(apiKey))
+                .forCodeGeneration(true);
     }
 
     private SecurityContext securityContext() {
