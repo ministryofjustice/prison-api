@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHisto
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
 import uk.gov.justice.hmpps.prison.values.AccountCode;
-import uk.gov.justice.hmpps.prison.values.Currency;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -77,10 +76,8 @@ public class OffenderTransactionHistoryService {
 
         Collections.sort(histories, sortPolicy);
 
-        Currency currency = Currency.byCode(apiCurrency).orElse(Currency.GBP);
-
         return histories.stream()
-                .map(h -> Pair.of(h, currency))
+                .map(h -> Pair.of(h, apiCurrency))
                 .map(OffenderTransactionHistoryTransformer::transform)
                 .collect(Collectors.toList());
     }

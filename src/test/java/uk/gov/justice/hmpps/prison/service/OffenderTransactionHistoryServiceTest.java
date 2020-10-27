@@ -9,7 +9,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
-import uk.gov.justice.hmpps.prison.values.Currency;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,7 +34,7 @@ public class OffenderTransactionHistoryServiceTest {
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderTransactionHistoryService(Currency.GBP.code, repository);
+        service = new OffenderTransactionHistoryService("GBP", repository);
     }
 
     @Test
