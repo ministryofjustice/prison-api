@@ -17,7 +17,7 @@ import java.util.List;
 
 public class OffenderTransactionHistoryResourceTest extends ResourceTest {
 
-    private static final String NOMIS_ID = "A1114AA";
+    private static final String NOMIS_ID = "A1111AA";
 
     private static final int HTTP_OK = HttpStatus.OK.value();
     private static final int HTTP_BAD_REQ = HttpStatus.BAD_REQUEST.value();

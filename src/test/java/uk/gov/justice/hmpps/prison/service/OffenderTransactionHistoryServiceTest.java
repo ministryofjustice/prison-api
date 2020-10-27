@@ -32,7 +32,7 @@ import static org.mockito.Mockito.reset;
 @ExtendWith(MockitoExtension.class)
 public class OffenderTransactionHistoryServiceTest {
 
-    public static final String NOMIS_ID = "A1234AA";
+    public static final String NOMIS_ID = "A1111AA";
     public static final Long OFFENDER_ID = -1002L;
 
     @Mock
@@ -320,6 +320,6 @@ public class OffenderTransactionHistoryServiceTest {
             service.getTransactionHistory(NOMIS_ID, accountCode, fromDateOpl, toDateOpl);
         });
 
-        assertEquals("NomisId not found A1234AA", exception.getMessage());
+        assertEquals("NomisId not found A1111AA", exception.getMessage());
     }
 }
