@@ -78,8 +78,8 @@ public class PrisonerRepositoryTest {
 
         Page<OffenderNumber> offenderIds = repository.listAllOffenders(new PageRequest(0L, 100L));
 
-        assertThat(offenderIds.getTotalRecords()).isEqualTo(52);
-        assertThat(offenderIds.getItems()).hasSize(52);
+        assertThat(offenderIds.getTotalRecords()).isEqualTo(53);
+        assertThat(offenderIds.getItems()).hasSize(53);
         assertThat(offenderIds.getItems()).extracting(OffenderNumber::getOffenderNumber)
                 .containsExactly(
                         "A1176RS", "A1178RS", "A1179MT", "A1180HI", "A1180HJ", "A1180HK", "A1180HL", "A1180MA",

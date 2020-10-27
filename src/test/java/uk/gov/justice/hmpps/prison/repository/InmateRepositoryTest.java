@@ -245,7 +245,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(48);
+        assertThat(offenders).hasSize(49);
     }
 
     @Test
@@ -265,7 +265,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(53);
+        assertThat(offenders).hasSize(54);
     }
 
     @Test
@@ -275,7 +275,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(49);
+        assertThat(offenders).hasSize(50);
     }
 
     @Test
@@ -285,7 +285,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(53);
+        assertThat(offenders).hasSize(54);
     }
 
     @Test
@@ -398,7 +398,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders).hasSize(9);
+        assertThat(offenders).hasSize(10);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo)
                 .contains("A1234AA", "A1234AF", "A1234AL", "Z0019ZZ", "Z0020ZZ", "Z0021ZZ", "Z0022ZZ", "Z0023ZZ", "A1180MA");
     }
@@ -600,7 +600,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders).hasSize(9);
+        assertThat(offenders).hasSize(10);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo)
                 .contains("A1234AA", "A1234AF", "A1234AL", "Z0019ZZ", "Z0020ZZ", "Z0021ZZ", "Z0022ZZ", "Z0023ZZ", "A1180MA");
     }
