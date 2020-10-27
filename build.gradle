@@ -53,9 +53,7 @@ dependencies {
     implementation 'net.sf.ehcache:ehcache:2.10.6'
     implementation 'com.zaxxer:HikariCP:3.4.5'
 
-    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
-    implementation 'io.springfox:springfox-swagger2:2.9.2'
-    implementation 'io.springfox:springfox-bean-validators:2.9.2'
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation 'io.swagger:swagger-core:1.6.2'
 
     implementation 'org.apache.commons:commons-lang3:3.11'
