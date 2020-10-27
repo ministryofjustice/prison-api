@@ -4,9 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
+import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
 
 import java.math.BigDecimal;
@@ -17,6 +20,7 @@ import java.util.Collections;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -29,11 +33,15 @@ public class OffenderTransactionHistoryServiceTest {
     @Mock
     private OffenderTransactionHistoryRepository repository;
 
+    @Mock
+    private OffenderRepository offenderRepository;
+
     private OffenderTransactionHistoryService service;
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderTransactionHistoryService("GBP", repository);
+        service = new OffenderTransactionHistoryService("GBP", repository, offenderRepository);
+        when(offenderRepository.existsById(anyLong())).thenReturn(true);
     }
 
     @Test
@@ -77,6 +85,8 @@ public class OffenderTransactionHistoryServiceTest {
 
     @Test()
     public void When_getTransactionHistory_And_OffenderIdIsNull_Then_ThrowException() {
+
+        Mockito.reset(offenderRepository);
 
         Throwable exception = assertThrows(NullPointerException.class, () -> {
             final Long  offenderId = null;
@@ -299,5 +309,21 @@ public class OffenderTransactionHistoryServiceTest {
         assertThat(histories.get(6)).isEqualTo(firstDtoSeq1);
         assertThat(histories.get(7)).isEqualTo(firstDtoSeq2);
         assertThat(histories.get(8)).isEqualTo(firstDtoSeq3);
+    }
+
+    @Test
+    public void When_getTransactionHistory_And_OffenderIdNotFound_Then_ThrowException() {
+
+        when(offenderRepository.existsById(anyLong())).thenReturn(false);
+
+        Throwable exception = assertThrows(EntityNotFoundException.class, () -> {
+            final Long  offenderId = Long.parseLong("123");;
+            final Optional<String> accountCode = Optional.of("spendss");
+            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
+            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
+            service.getTransactionHistory(offenderId, accountCode, fromDateOpl, toDateOpl);
+        });
+
+        assertEquals("OffenderId not found 123", exception.getMessage());
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
 import uk.gov.justice.hmpps.prison.values.AccountCode;
@@ -30,12 +31,15 @@ import static com.google.common.base.Preconditions.checkState;
 public class OffenderTransactionHistoryService {
 
     private String apiCurrency;
-    private OffenderTransactionHistoryRepository repository;
+    private OffenderTransactionHistoryRepository historyRepository;
+    private OffenderRepository offenderRepository;
 
     public OffenderTransactionHistoryService(@Value("${api.currency:GBP}") final String currency,
-                                             final OffenderTransactionHistoryRepository repository) {
+                                             final OffenderTransactionHistoryRepository historyRepository,
+                                             final OffenderRepository offenderRepository) {
         this.apiCurrency = currency;
-        this.repository = repository;
+        this.historyRepository = historyRepository;
+        this.offenderRepository = offenderRepository;
     }
 
     public static final Comparator<OffenderTransactionHistory> TRANSACTION_HISTORY_SORTING_POLICY = Comparator
@@ -76,7 +80,13 @@ public class OffenderTransactionHistoryService {
                           final Optional<String> accountCodeOpl,
                           final Optional<LocalDate> fromDateOpl,
                           final Optional<LocalDate> toDateOpl) {
+
         checkNotNull(offenderId, "offender-id can't be null");
+
+        Optional.of(offenderRepository.existsById(offenderId))
+                .filter(Boolean.TRUE::equals)
+                .orElseThrow(EntityNotFoundException.withMessage("OffenderId not found %s", offenderId));
+
         checkNotNull(accountCodeOpl, "accountCode optional can't be null");
         checkNotNull(fromDateOpl, "fromDate optional can't be null");
         checkNotNull(toDateOpl, "toDate optional can't be null");
@@ -90,8 +100,8 @@ public class OffenderTransactionHistoryService {
                 .map(AccountCode::byCodeName)
                 .filter(Optional::isPresent)
                 .map(optionalCode -> optionalCode.get().code)
-                .map(code -> repository.findForGivenAccountType(offenderId, code, fromDate, toDate))
-                .orElse(repository.findForAllAccountTypes(offenderId, fromDate, toDate));
+                .map(code -> historyRepository.findForGivenAccountType(offenderId, code, fromDate, toDate))
+                .orElse(historyRepository.findForAllAccountTypes(offenderId, fromDate, toDate));
 
         Collections.sort(histories, TRANSACTION_HISTORY_SORTING_POLICY);
 

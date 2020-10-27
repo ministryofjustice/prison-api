@@ -20,6 +20,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
     private static final String OFFENDER_NUMBER = "-1002";
     private static final int HTTP_OK = HttpStatus.OK.value();
     private static final int HTTP_BAD_REQ = HttpStatus.BAD_REQUEST.value();
+    private static final int HTTP_NOT_FOUND = HttpStatus.NOT_FOUND.value();
 
     @Test
     public void When_GetOffenderTransactionHistory_HappyPath() {
@@ -185,8 +186,8 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<ErrorResponse>() {},
                 OFFENDER_NUMBER);
 
-        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("toDate can't be before fromDate");
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("toDate can't be before fromDate");
         assertThat(response.getBody().getUserMessage()).isEqualTo("toDate can't be before fromDate");
     }
 
@@ -259,8 +260,8 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<ErrorResponse>() {},
                 "xxx");
 
-        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("For input string: \"xxx\"");
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("For input string: \"xxx\"");
         assertThat(response.getBody().getUserMessage()).isEqualTo("For input string: \"xxx\"");
     }
 
@@ -278,8 +279,8 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<ErrorResponse>() {},
                 OFFENDER_NUMBER);
 
-        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Unknown account-code spendss");
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Unknown account-code spendss");
         assertThat(response.getBody().getUserMessage()).isEqualTo("Unknown account-code spendss");
     }
 
@@ -297,8 +298,8 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 new ParameterizedTypeReference<ErrorResponse>() {},
                 OFFENDER_NUMBER);
 
-        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Invalid value for MonthOfYear (valid values 1 - 12): 30");
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Invalid value for MonthOfYear (valid values 1 - 12): 30");
         assertThat(response.getBody().getUserMessage()).isEqualTo("Invalid value for MonthOfYear (valid values 1 - 12): 30");
     }
 
@@ -334,5 +335,25 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, HTTP_OK,"When_GetOffenderTransactionHistory_And_MissingAccountCode_Then_ReturnCorrectJson.json");
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_And_OffenderIdNotFound_Then_ErrorResponse() {
+
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-10-17&to_date=2019-10-17";
+
+        var nonExistingId = "0";
+        final var response = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<ErrorResponse>() {},
+                nonExistingId);
+
+        assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_NOT_FOUND);
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("OffenderId not found 0");
+        assertThat(response.getBody().getUserMessage()).isEqualTo("OffenderId not found 0");
     }
 }
