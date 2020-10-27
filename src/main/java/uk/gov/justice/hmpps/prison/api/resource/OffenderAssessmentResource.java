@@ -105,7 +105,7 @@ public interface OffenderAssessmentResource {
     @PostMapping("/category/categorise")
     @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record. The booking id and new sequence number is returned.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 201, message = "Created"),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class)})
     ResponseEntity<Map<String, Long>> createCategorisation(@ApiParam(value = "Categorisation details", required = true) @RequestBody @Valid CategorisationDetail detail);
 
@@ -114,28 +114,28 @@ public interface OffenderAssessmentResource {
             notes = "This is intended for use by the categoriser to correct any problems with a pending (in-progress) categorisation." +
                     " Fields left as null will be left unchanged")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = ""),
+            @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class)})
     ResponseEntity<Void> updateCategorisation(@ApiParam(value = "Categorisation details", required = true) @RequestBody @Valid CategorisationUpdateDetail detail);
 
     @PutMapping("/category/approve")
     @ApiOperation(value = "Approve a pending offender categorisation.", notes = "Update categorisation record with approval.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 201, message = "Created"),
             @ApiResponse(code = 400, message = "Validation error - e.g. category does not exist.", response = ErrorResponse.class)})
     ResponseEntity<Void> approveCategorisation(@ApiParam(value = "Approval details", required = true) @RequestBody @Valid CategoryApprovalDetail detail);
 
     @PutMapping("/category/reject")
     @ApiOperation(value = "Reject a pending offender categorisation.", notes = "Update categorisation record with rejection.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 201, message = "Created"),
             @ApiResponse(code = 400, message = "Validation error - e.g. comment too long or committee code does not exist.", response = ErrorResponse.class)})
     ResponseEntity<Void> rejectCategorisation(@ApiParam(value = "Rejection details", required = true) @RequestBody @Valid CategoryRejectionDetail detail);
 
     @PutMapping("/category/{bookingId}/inactive")
     @ApiOperation(value = "Set all active or pending (status A or P) categorisations inactive", notes = "This endpoint should only be used with edge case categorisations.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = ""),
+            @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "Invalid request - e.g. invalid status.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to update categorisations.", response = ErrorResponse.class)})
     ResponseEntity<Void> setCategorisationInactive(
@@ -147,7 +147,7 @@ public interface OffenderAssessmentResource {
     @PutMapping("/category/{bookingId}/nextReviewDate/{nextReviewDate}")
     @ApiOperation(value = "Update the next review date on the latest active categorisation", notes = "Update categorisation record with new next review date.", nickname = "updateCategorisationNextReviewDate")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = ""),
+            @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Active categorisation not found.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to update the categorisation.", response = ErrorResponse.class)})
     ResponseEntity<Void> updateCategorisationNextReviewDate(@ApiParam(value = "The booking id of offender", required = true) @PathVariable("bookingId") Long bookingId,

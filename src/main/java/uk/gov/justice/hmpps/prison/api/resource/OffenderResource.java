@@ -141,7 +141,7 @@ public interface OffenderResource {
     @GetMapping("/{offenderNo}/case-notes")
     @ApiOperation(value = "Offender case notes", notes = "Retrieve an offenders case notes for latest booking", nickname = "getOffenderCaseNotes")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = CaseNote.class, responseContainer = "List")})
+            @ApiResponse(code = 200, message = "OK", response = CaseNote.class, responseContainer = "List")})
     ResponseEntity<List<CaseNote>>  getOffenderCaseNotes(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") @PathVariable("offenderNo") String offenderNo,
                                   @ApiParam(value = "start contact date to search from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from", required = false) LocalDate from,
                                   @ApiParam(value = "end contact date to search up to (including this date)") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to", required = false) LocalDate to,
@@ -154,14 +154,14 @@ public interface OffenderResource {
     @GetMapping("/{offenderNo}/case-notes/{caseNoteId}")
     @ApiOperation(value = "Offender case note detail.", notes = "Retrieve an single offender case note", nickname = "getOffenderCaseNote")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = CaseNote.class)})
+            @ApiResponse(code = 200, message = "OK", response = CaseNote.class)})
     CaseNote getOffenderCaseNote(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) @PathVariable("offenderNo") String offenderNo,
                                  @ApiParam(value = "The case note id", required = true) @PathVariable("caseNoteId") Long caseNoteId);
 
     @GetMapping("/{offenderNo}/sentences")
     @ApiOperation(value = "Offender Sentence Details", notes = "Retrieve an single offender sentence details", nickname = "getOffenderSentenceDetails")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = OffenderSentenceDetail.class)})
+            @ApiResponse(code = 200, message = "OK", response = OffenderSentenceDetail.class)})
     OffenderSentenceDetail getOffenderSentenceDetail(@ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) @PathVariable("offenderNo") String offenderNo);
 
     @PostMapping("/{offenderNo}/case-notes")

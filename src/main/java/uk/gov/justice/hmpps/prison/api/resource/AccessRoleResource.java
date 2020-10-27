@@ -34,7 +34,7 @@ public interface AccessRoleResource {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Create new access role.", notes = "Create new access role.", nickname = "createAccessRole")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 201, message = "Created"),
             @ApiResponse(code = 400, message = "Invalid request - e.g. role code not provided.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to create an access role.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Parent access role not found.", response = ErrorResponse.class),
@@ -44,7 +44,7 @@ public interface AccessRoleResource {
     @PutMapping
     @ApiOperation(value = "Update the access role.", notes = "Update the access role.", nickname = "updateAccessRole")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = ""),
+            @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "Invalid request - e.g. role code not provided.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to update an access role.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Access role not found.", response = ErrorResponse.class)})

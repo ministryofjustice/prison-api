@@ -2,7 +2,7 @@
 
 
 [![CircleCI](https://circleci.com/gh/ministryofjustice/prison-api/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/prison-api)
-[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://api-dev.prison.service.justice.gov.uk/swagger-ui.html)
+[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://api-dev.prison.service.justice.gov.uk/swagger-ui/)
 
 ### How do I get set up? ###
 
@@ -192,7 +192,7 @@ aws --endpoint-url=http://localhost:4576 sqs receive-message \
 ### Authorize with Swagger UI ###
 * Without correct authorisation calling endpoints will return http 401 - Unauthorized
 * Obtain a correct JWT Token from 'Auth' service
-* Go to http://<`host:port`>/swagger-ui.html
+* Go to http://<`host:port`>/swagger-ui/
 * Click on top right button 'Authorize'
 * In the 'Authorize' dialog enter 
     * `Bearer <Your Token>`

@@ -53,9 +53,7 @@ dependencies {
     implementation 'net.sf.ehcache:ehcache:2.10.6'
     implementation 'com.zaxxer:HikariCP:3.4.5'
 
-    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
-    implementation 'io.springfox:springfox-swagger2:2.9.2'
-    implementation 'io.springfox:springfox-bean-validators:2.9.2'
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation 'io.swagger:swagger-core:1.6.2'
 
     implementation 'org.apache.commons:commons-lang3:3.11'
@@ -86,8 +84,8 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-api:1.7.30'
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.2'
     testImplementation 'io.jsonwebtoken:jjwt:0.9.1'
-    testImplementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.22'
     testImplementation 'org.glassfish:javax.el:3.0.0'
+    testImplementation 'io.swagger.parser.v3:swagger-parser:2.0.20'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.16'
 }
