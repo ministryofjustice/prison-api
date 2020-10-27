@@ -83,7 +83,7 @@ public class OffenderTransactionHistoryServiceTest {
     }
 
 
-    @Test()
+    @Test
     public void When_getTransactionHistory_And_OffenderIdIsNull_Then_ThrowException() {
 
         Mockito.reset(offenderRepository);
@@ -99,7 +99,7 @@ public class OffenderTransactionHistoryServiceTest {
         assertEquals("offender-id can't be null", exception.getMessage());
     }
 
-    @Test()
+    @Test
     public void When_getTransactionHistory_And_AccountCodeIsNull_Then_ThrowException() {
 
         Throwable exception = assertThrows(NullPointerException.class, () -> {
@@ -113,7 +113,7 @@ public class OffenderTransactionHistoryServiceTest {
         assertEquals("accountCode optional can't be null", exception.getMessage());
     }
 
-    @Test()
+    @Test
     public void When_getTransactionHistory_And_FromDateIsNull_Then_ThrowException() {
 
         Throwable exception = assertThrows(NullPointerException.class, () -> {
@@ -127,7 +127,7 @@ public class OffenderTransactionHistoryServiceTest {
         assertEquals("fromDate optional can't be null", exception.getMessage());
     }
 
-    @Test()
+    @Test
     public void When_getTransactionHistory_And_ToDateIsNull_Then_ThrowException() {
 
         Throwable exception = assertThrows(NullPointerException.class, () -> {
@@ -141,7 +141,7 @@ public class OffenderTransactionHistoryServiceTest {
         assertEquals("toDate optional can't be null", exception.getMessage());
     }
 
-    @Test()
+    @Test
     public void When_getTransactionHistory_And_ToDateIsBeforeFromDate_Then_ThrowException() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
@@ -155,7 +155,7 @@ public class OffenderTransactionHistoryServiceTest {
         assertEquals("toDate can't be before fromDate", exception.getMessage());
     }
 
-    @Test()
+    @Test
     public void When_getTransactionHistory_And_FromDateIsTomorrow_Then_ThrowException() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
@@ -169,7 +169,7 @@ public class OffenderTransactionHistoryServiceTest {
         assertEquals("fromDate can't be in the future", exception.getMessage());
     }
 
-    @Test()
+    @Test
     public void When_getTransactionHistory_And_ToDateIs2DaysInFuture_Then_ThrowException() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
