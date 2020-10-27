@@ -84,8 +84,8 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-api:1.7.30'
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.2'
     testImplementation 'io.jsonwebtoken:jjwt:0.9.1'
-    testImplementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.22'
     testImplementation 'org.glassfish:javax.el:3.0.0'
+    testImplementation 'io.swagger.parser.v3:swagger-parser:2.0.20'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.16'
 }

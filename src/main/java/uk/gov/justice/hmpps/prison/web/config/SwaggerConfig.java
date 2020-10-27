@@ -65,7 +65,8 @@ public class SwaggerConfig {
                 .directModelSubstitute(LocalDateTime.class, Date.class)
                 .directModelSubstitute(LocalDate.class, java.sql.Date.class)
                 .securityContexts(Lists.newArrayList(securityContext()))
-                .securitySchemes(Lists.newArrayList(apiKey));
+                .securitySchemes(Lists.newArrayList(apiKey))
+                .forCodeGeneration(true);
     }
 
     private SecurityContext securityContext() {
