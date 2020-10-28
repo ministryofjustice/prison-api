@@ -30,6 +30,7 @@ import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
@@ -52,6 +53,7 @@ import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
+import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
 
 import javax.validation.constraints.NotNull;
@@ -80,6 +82,7 @@ public class OffenderResource {
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
     private final OffenderDamageObligationService offenderDamageObligationService;
+    private final OffenderTransactionHistoryService offenderTransactionHistoryService;
 
     @ApiResponses({
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -333,5 +336,26 @@ public class OffenderResource {
         final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, status);
 
         return new OffenderDamageObligationResponse(damageObligations);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Not a digital offender. Offender has no account at this prison.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Retrieve an offender's financial transaction history for cash, spends or savings.",
+            notes = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
+                    "All transaction amounts are represented as pence values.")
+    @GetMapping("/{offenderNo}/transaction-history")
+    public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(@ApiParam(name = "offenderNo", value = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull final String offenderNo,
+                                                                                      @ApiParam(name = "account_code", value = "Account code", example = "spends", required = false, allowableValues = "spends,cash,savings") @RequestParam(value = "account_code", required = false) final String accountCode,
+                                                                                      @ApiParam(name = "from_date", value = "Start date for transactions, format yyyy-MM-dd, defaults to today if not supplied", example = "2019-04-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) final LocalDate fromDate,
+                                                                                      @ApiParam(name = "to_date", value = "To date for transactions, format yyyy-MM-dd, defaults to today if not supplied", example = "2019-05-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to_date", required = false) final LocalDate toDate) {
+        val accountCodeOpl = Optional.ofNullable(accountCode);
+        val fromDateOpl = Optional.ofNullable(fromDate);
+        val toDateOpl = Optional.ofNullable(toDate);
+        var histories =
+                offenderTransactionHistoryService.getTransactionHistory(offenderNo, accountCodeOpl, fromDateOpl, toDateOpl);
+
+        return ResponseEntity.ok(histories);
     }
 }

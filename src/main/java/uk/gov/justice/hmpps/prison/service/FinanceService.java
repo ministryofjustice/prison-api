@@ -26,6 +26,9 @@ import javax.validation.ValidationException;
 import java.math.RoundingMode;
 import java.util.Date;
 
+import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
+import static uk.gov.justice.hmpps.prison.values.AccountCode.SAVINGS;
+
 @Service
 @Transactional(readOnly = true)
 @AllArgsConstructor
@@ -53,9 +56,9 @@ public class FinanceService {
         final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
         final var booking = optionalOffenderBooking.orElseThrow(EntityNotFoundException.withMessage("No active offender bookings found for offender number %s", offenderNo));
 
-        final var subActTypeDr = "SPND";
+        final var subActTypeDr = SPENDS.code;
         final var subActTypeDrId = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subActTypeDr).orElseThrow().getAccountCode();
-        final var subActTypeCr = "SAV";
+        final var subActTypeCr = SAVINGS.code;;
 
         validateTransferToSavings(prisonId, offenderNo, transferTransaction, booking, subActTypeDrId);
 
