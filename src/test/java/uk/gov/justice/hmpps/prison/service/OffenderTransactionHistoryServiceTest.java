@@ -99,7 +99,7 @@ public class OffenderTransactionHistoryServiceTest {
             service.getTransactionHistory(nomisId, accountCode, fromDateOpl, toDateOpl);
         });
 
-        assertEquals("nomisId can't be null", exception.getMessage());
+        assertEquals("offenderNo can't be null", exception.getMessage());
     }
 
     @Test
@@ -320,6 +320,6 @@ public class OffenderTransactionHistoryServiceTest {
             service.getTransactionHistory(NOMIS_ID, accountCode, fromDateOpl, toDateOpl);
         });
 
-        assertEquals("NomisId not found A1111AA", exception.getMessage());
+        assertEquals("OffenderNo A1111AA not found", exception.getMessage());
     }
 }

@@ -50,18 +50,18 @@ public class OffenderTransactionHistoryService {
             .reversed();
 
     @VerifyOffenderAccess
-    public List<OffenderTransactionHistoryDto> getTransactionHistory(final String nomisId,
+    public List<OffenderTransactionHistoryDto> getTransactionHistory(final String offenderNo,
                                                                      final Optional<String> accountCodeOpl,
                                                                      final Optional<LocalDate> fromDateOpl,
                                                                      final Optional<LocalDate> toDateOpl) {
-       validate(nomisId, accountCodeOpl, fromDateOpl,toDateOpl);
+       validate(offenderNo, accountCodeOpl, fromDateOpl,toDateOpl);
 
-        Offender offender = Optional.of(offenderRepository.findByNomsId(nomisId))
+        Offender offender = Optional.of(offenderRepository.findByNomsId(offenderNo))
                .stream()
                .filter(list -> list.size() > 0)
                .flatMap(Collection::stream)
                .findFirst()
-               .orElseThrow(EntityNotFoundException.withMessage("NomisId not found %s", nomisId));
+               .orElseThrow(EntityNotFoundException.withMessage("OffenderNo %s not found", offenderNo));
 
         var fromDate = fromDateOpl.orElse(LocalDate.now());
         var toDate = toDateOpl.orElse(LocalDate.now());
@@ -85,18 +85,18 @@ public class OffenderTransactionHistoryService {
         checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
     }
 
-    private void validate(final String nomisId,
+    private void validate(final String offenderNo,
                           final Optional<String> accountCodeOpl,
                           final Optional<LocalDate> fromDateOpl,
                           final Optional<LocalDate> toDateOpl) {
 
-        checkNotNull(nomisId, "nomisId can't be null");
+        checkNotNull(offenderNo, "offenderNo can't be null");
         checkNotNull(accountCodeOpl, "accountCode optional can't be null");
         checkNotNull(fromDateOpl, "fromDate optional can't be null");
         checkNotNull(toDateOpl, "toDate optional can't be null");
     }
 
-    private List<OffenderTransactionHistory> getSortedHistories(final Long offenderId,
+    private List<OffenderTransactionHistory> getSortedHistories(final Long offenderNo,
                                                                 final Optional<String> accountCodeOpl,
                                                                 final LocalDate fromDate,
                                                                 final LocalDate toDate) {
@@ -104,8 +104,8 @@ public class OffenderTransactionHistoryService {
                 .map(AccountCode::byCodeName)
                 .filter(Optional::isPresent)
                 .map(optionalCode -> optionalCode.get().code)
-                .map(code -> historyRepository.findForGivenAccountType(offenderId, code, fromDate, toDate))
-                .orElse(historyRepository.findForAllAccountTypes(offenderId, fromDate, toDate));
+                .map(code -> historyRepository.findForGivenAccountType(offenderNo, code, fromDate, toDate))
+                .orElse(historyRepository.findForAllAccountTypes(offenderNo, fromDate, toDate));
 
         Collections.sort(histories, TRANSACTION_HISTORY_SORTING_POLICY);
 
