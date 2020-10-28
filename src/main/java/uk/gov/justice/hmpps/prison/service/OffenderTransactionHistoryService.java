@@ -56,7 +56,7 @@ public class OffenderTransactionHistoryService {
                                                                      final Optional<LocalDate> toDateOpl) {
        validate(offenderNo, accountCodeOpl, fromDateOpl,toDateOpl);
 
-        Offender offender = Optional.of(offenderRepository.findByNomsId(offenderNo))
+       Offender offender = Optional.of(offenderRepository.findByNomsId(offenderNo))
                .stream()
                .filter(list -> list.size() > 0)
                .flatMap(Collection::stream)

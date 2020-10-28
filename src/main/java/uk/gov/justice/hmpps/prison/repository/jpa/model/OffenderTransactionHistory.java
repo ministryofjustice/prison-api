@@ -22,7 +22,7 @@ import java.time.LocalDate;
 @Entity
 @IdClass(OffenderTransaction.Pk.class)
 @Table(name = "OFFENDER_TRANSACTIONS")
-public class OffenderTransactionHistory {
+public class OffenderTransactionHistory extends AuditableEntity {
 
     @Id
     @Column(name = "TXN_ID", nullable = false, insertable = false, updatable = false)
