@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
-import uk.gov.justice.hmpps.prison.repository.OffenderTransactionHistoryRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
@@ -56,13 +56,6 @@ public class OffenderTransactionHistoryService {
                                                                      final Optional<LocalDate> toDateOpl) {
        validate(offenderNo, accountCodeOpl, fromDateOpl,toDateOpl);
 
-       Offender offender = Optional.of(offenderRepository.findByNomsId(offenderNo))
-               .stream()
-               .filter(list -> list.size() > 0)
-               .flatMap(Collection::stream)
-               .findFirst()
-               .orElseThrow(EntityNotFoundException.withMessage("OffenderNo %s not found", offenderNo));
-
         var fromDate = fromDateOpl.orElse(LocalDate.now());
         var toDate = toDateOpl.orElse(LocalDate.now());
         checkDateRange(fromDate, toDate);
@@ -72,7 +65,7 @@ public class OffenderTransactionHistoryService {
             checkState(isAccountCodeExists, "Unknown account-code " + accountCodeOpl.get());
         }
 
-        return getSortedHistories(offender.getId(), accountCodeOpl, fromDate, toDate).stream()
+        return getSortedHistories(offenderNo, accountCodeOpl, fromDate, toDate).stream()
                 .map(h -> Pair.of(h, apiCurrency))
                 .map(OffenderTransactionHistoryTransformer::transform)
                 .collect(Collectors.toList());
@@ -96,7 +89,7 @@ public class OffenderTransactionHistoryService {
         checkNotNull(toDateOpl, "toDate optional can't be null");
     }
 
-    private List<OffenderTransactionHistory> getSortedHistories(final Long offenderNo,
+    private List<OffenderTransactionHistory> getSortedHistories(final String offenderNo,
                                                                 final Optional<String> accountCodeOpl,
                                                                 final LocalDate fromDate,
                                                                 final LocalDate toDate) {

@@ -20,7 +20,7 @@ public class OffenderTransactionHistoryTransformer {
                 .penceAmount(poundsToPence(pair.getFirst().getEntryAmount()))
                 .entryDate(pair.getFirst().getEntryDate())
                 .entryDescription(pair.getFirst().getEntryDescription())
-                .offenderId(pair.getFirst().getOffenderId())
+                .offenderId(pair.getFirst().getOffender().getId())
                 .referenceNumber(pair.getFirst().getReferenceNumber())
                 .transactionEntrySequence(pair.getFirst().getTransactionEntrySequence())
                 .transactionId(pair.getFirst().getTransactionId())

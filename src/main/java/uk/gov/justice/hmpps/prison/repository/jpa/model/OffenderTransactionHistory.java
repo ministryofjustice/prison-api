@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
 import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Id;
 import javax.persistence.Column;
@@ -32,8 +34,9 @@ public class OffenderTransactionHistory extends AuditableEntity {
     @Column(name = "TXN_ENTRY_SEQ", nullable = false, insertable = false, updatable = false)
     private Long transactionEntrySequence;
 
-    @Column(name = "OFFENDER_ID", nullable = false)
-    private Long offenderId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "OFFENDER_ID", nullable = false)
+    private Offender offender;
 
     @Column(name = "TXN_ENTRY_DATE", nullable = false)
     private LocalDate entryDate;

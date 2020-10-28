@@ -345,7 +345,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-10-17&to_date=2019-10-17";
 
-        var nonExistingId = "0";
+        var nonExistingId = "nonExistingId";
         final var response = testRestTemplate.exchange(
                 url,
                 HttpMethod.GET,
@@ -354,8 +354,8 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 nonExistingId);
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_NOT_FOUND);
-        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Resource with id [0] not found.");
-        assertThat(response.getBody().getUserMessage()).isEqualTo("Resource with id [0] not found.");
+        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Resource with id [nonExistingId] not found.");
+        assertThat(response.getBody().getUserMessage()).isEqualTo("Resource with id [nonExistingId] not found.");
     }
 
     @Test
