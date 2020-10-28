@@ -1,20 +1,23 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
@@ -22,140 +25,176 @@ import uk.gov.justice.hmpps.prison.api.model.StaffLocationRole;
 import uk.gov.justice.hmpps.prison.api.model.StaffRole;
 import uk.gov.justice.hmpps.prison.api.model.StaffUserRole;
 import uk.gov.justice.hmpps.prison.api.support.Order;
+import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.service.StaffService;
+import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
 import java.util.List;
 
-@Api(tags = {"/staff"})
-@SuppressWarnings("unused")
-public interface StaffResource {
+@RestController
+@Validated
+@RequestMapping("${api.base.path}/staff")
+public class StaffResource {
+    private final String apiCaseloadId;
+    private final StaffService staffService;
 
-    @DeleteMapping("/{staffId}/access-roles/caseload/{caseload}/access-role/{roleCode}")
-    @ApiOperation(value = "remove access roles from user and specific caseload", notes = "remove access roles from user and specific caseload", nickname = "removeStaffAccessRole")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The access role has been removed", response = String.class)})
-    ResponseEntity<Void> removeStaffAccessRole(@ApiParam(value = "The staff id of the staff member.", required = true) @PathVariable("staffId") Long staffId,
-                                                        @ApiParam(value = "Caseload Id", required = true) @PathVariable("caseload") String caseload,
-                                                        @ApiParam(value = "access role code", required = true) @PathVariable("roleCode") String roleCode);
+    public StaffResource(final StaffService staffService,
+                         @Value("${application.caseload.id}") final String apiCaseloadId) {
+        this.staffService = staffService;
+        this.apiCaseloadId = apiCaseloadId;
+    }
 
-    @GetMapping("/access-roles/caseload/{caseload}/access-role/{roleCode}")
-    @ApiOperation(value = "List access roles for staff by type and caseload", notes = "List access roles for staff by type and caseload", nickname = "getAllStaffAccessRolesForCaseload")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<StaffUserRole> getAllStaffAccessRolesForCaseload(@ApiParam(value = "Caseload Id", required = true) @PathVariable("caseload") String caseload,
-                                                                                @ApiParam(value = "access role code", required = true) @PathVariable("roleCode") String roleCode);
-
-    @GetMapping("/roles/{agencyId}/position/{position}/role/{role}")
-    @ApiOperation(value = "Get staff members within agency who are currently assigned the specified position and/or role.", notes = "Get staff members within agency who are currently assigned the specified position and/or role.", nickname = "getStaffByAgencyPositionRole")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = StaffLocationRole.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<StaffLocationRole>> getStaffByAgencyPositionRole(@ApiParam(value = "The agency (prison) id.", required = true) @PathVariable("agencyId") String agencyId,
-                                                                         @ApiParam(value = "The staff position.", required = true) @PathVariable("position") String position,
-                                                                         @ApiParam(value = "The staff role.", required = true) @PathVariable("role") String role,
-                                                                         @ApiParam(value = "Filter results by first name and/or last name of staff member.") @RequestParam(value = "nameFilter", required = false) String nameFilter,
-                                                                         @ApiParam(value = "The staff id of a staff member.") @RequestParam(value = "staffId", required = false) Long staffId,
-                                                                         @ApiParam(value = "Filters results by activeOnly staff members.", defaultValue = "true") @RequestParam(value = "activeOnly", defaultValue = "true", required = false) Boolean activeOnly,
-                                                                         @ApiParam(value = "Requested offset of first record in returned collection of role records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
-                                                                         @ApiParam(value = "Requested limit to number of role records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
-                                                                         @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
-                                                                         @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
-
-    @GetMapping("/roles/{agencyId}/role/{role}")
-    @ApiOperation(value = "Get staff members within agency who are currently assigned the specified role.", notes = "Get staff members within agency who are currently assigned the specified role.", nickname = "getStaffByAgencyRole")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = StaffLocationRole.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    ResponseEntity<List<StaffLocationRole>> getStaffByAgencyRole(@ApiParam(value = "The agency (prison) id.", required = true) @PathVariable("agencyId") String agencyId,
-                                                      @ApiParam(value = "The staff role.", required = true) @PathVariable("role") String role,
-                                                      @ApiParam(value = "Filter results by first name and/or last name of staff member. Supplied filter term is matched to start of staff member's first and last name.") @RequestParam(value = "nameFilter", required = false) String nameFilter,
-                                                      @ApiParam(value = "The staff id of a staff member.") @RequestParam(value = "staffId", required = false) Long staffId,
-                                                      @ApiParam(value = "Filters results by activeOnly staff members.", defaultValue = "true") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") Boolean activeOnly,
-                                                      @ApiParam(value = "Requested offset of first record in returned collection of role records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
-                                                      @ApiParam(value = "Requested limit to number of role records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
-                                                      @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @RequestHeader(value = "Sort-Fields", required = false) String sortFields,
-                                                      @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder);
-
-    @GetMapping("/{staffId}")
-
-
-    @ApiOperation(value = "Staff detail.", notes = "Staff detail.", nickname = "getStaffDetail")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = StaffDetail.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    StaffDetail getStaffDetail(@ApiParam(value = "The staff id of the staff member.", required = true) @PathVariable("staffId") Long staffId);
+    @ApiOperation(value = "Staff detail.", notes = "Staff detail.", nickname = "getStaffDetail")
+    @GetMapping("/{staffId}")
+    public StaffDetail getStaffDetail(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff member.", required = true) final Long staffId) {
+        return staffService.getStaffDetail(staffId);
+    }
 
-    @GetMapping("/{staffId}/emails")
-    @ApiOperation(value = "Returns a list of email addresses associated with this staff user", notes = "List of email addresses for a specified staff user", nickname = "getStaffEmailAddresses")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "The staffId supplied was not valid.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 204, message = "No email addresses were found for this staff member."),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<String> getStaffEmailAddresses(@ApiParam(value = "The staff id of the staff user.", required = true) @PathVariable("staffId") Long staffId);
+    @ApiOperation(value = "Returns a list of email addresses associated with this staff user", notes = "List of email addresses for a specified staff user", nickname = "getStaffEmailAddresses")
+    @GetMapping("/{staffId}/emails")
+    public List<String> getStaffEmailAddresses(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff user.", required = true) final Long staffId) {
+        return staffService.getStaffEmailAddresses(staffId);
+    }
 
-    @GetMapping("/{staffId}/caseloads")
-    @ApiOperation(value = "Returns a list of caseloads associated with this staff user", notes = "List of caseloads for a specified staff user", nickname = "getStaffCaseloads")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = CaseLoad.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "The staffId supplied was not valid or not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 204, message = "No caseloads were found for this staff member."),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<CaseLoad> getStaffCaseloads(@ApiParam(value = "The staff id of the staff user.", required = true, example = "123123") @PathVariable("staffId") Long staffId);
+    @ApiOperation(value = "Returns a list of caseloads associated with this staff user", notes = "List of caseloads for a specified staff user", nickname = "getStaffCaseloads")
+    @GetMapping("/{staffId}/caseloads")
+    public List<CaseLoad> getStaffCaseloads(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff user.", required = true, example = "123123") final Long staffId) {
+        return staffService.getStaffCaseloads(staffId);
+    }
 
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = StaffLocationRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Get staff members within agency who are currently assigned the specified position and/or role.", notes = "Get staff members within agency who are currently assigned the specified position and/or role.", nickname = "getStaffByAgencyPositionRole")
+    @GetMapping("/roles/{agencyId}/position/{position}/role/{role}")
+    public ResponseEntity<List<StaffLocationRole>> getStaffByAgencyPositionRole(
+            @PathVariable("agencyId") @ApiParam(value = "The agency (prison) id.", required = true) final String agencyId, @PathVariable("position") @ApiParam(value = "The staff position.", required = true) final String position, @PathVariable("role") @ApiParam(value = "The staff role.", required = true) final String role, @RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or last name of staff member.") final String nameFilter, @RequestParam(value = "staffId", required = false) @ApiParam("The staff id of a staff member.") final Long staffId, @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @ApiParam(value = "Filters results by activeOnly staff members.", defaultValue = "true") final Boolean activeOnly,
+            @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of role records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of role records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
 
-    @GetMapping("/{staffId}/access-roles")
+        final var defaultedActiveOnly = activeOnly != null ? activeOnly : Boolean.TRUE;
+
+        final var staffRoleRequest = new GetStaffRoleRequest(agencyId, position, role, nameFilter, defaultedActiveOnly, staffId);
+        final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
+
+        final var staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
+
+        return ResponseEntity.ok()
+                .headers(staffDetails.getPaginationHeaders())
+                .body(staffDetails.getItems());
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = StaffLocationRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Get staff members within agency who are currently assigned the specified role.", notes = "Get staff members within agency who are currently assigned the specified role.", nickname = "getStaffByAgencyRole")
+    @GetMapping("/roles/{agencyId}/role/{role}")
+    public ResponseEntity<List<StaffLocationRole>> getStaffByAgencyRole(
+            @PathVariable("agencyId") @ApiParam(value = "The agency (prison) id.", required = true) final String agencyId, @PathVariable("role") @ApiParam(value = "The staff role.", required = true) final String role, @RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or last name of staff member. Supplied filter term is matched to start of staff member's first and last name.") final String nameFilter, @RequestParam(value = "staffId", required = false) @ApiParam("The staff id of a staff member.") final Long staffId, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @ApiParam(value = "Filters results by activeOnly staff members.", defaultValue = "true") final Boolean activeOnly,
+            @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of role records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of role records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
+
+        final var defaultedActiveOnly = activeOnly != null ? activeOnly : Boolean.TRUE;
+
+        final var staffRoleRequest = new GetStaffRoleRequest(agencyId, null, role, nameFilter, defaultedActiveOnly, staffId);
+        final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
+
+        final var staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
+
+        return ResponseEntity.ok()
+                .headers(staffDetails.getPaginationHeaders())
+                .body(staffDetails.getItems());
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "List of access roles for specified staff user and caseload", notes = "List of access roles for specified staff user and caseload", nickname = "getStaffAccessRoles")
-    @ApiResponses(value = {
+    @GetMapping("/{staffId}/access-roles")
+    public List<StaffUserRole> getStaffAccessRoles(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff user.", required = true) final Long staffId) {
+        return staffService.getStaffRoles(staffId);
+    }
+
+    @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<StaffUserRole> getStaffAccessRoles(@ApiParam(value = "The staff id of the staff user.", required = true) @PathVariable("staffId") Long staffId);
-
-    @GetMapping("/{staffId}/access-roles/caseload/{caseload}")
     @ApiOperation(value = "List of access roles for specified staff user and caseload", notes = "List of access roles for specified staff user and caseload", nickname = "getAccessRolesByCaseload")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<StaffUserRole> getAccessRolesByCaseload(@ApiParam(value = "The staff id of the staff member.", required = true) @PathVariable("staffId") Long staffId,
-                                                              @ApiParam(value = "Caseload Id", required = true) @PathVariable("caseload") String caseload);
+    @GetMapping("/{staffId}/access-roles/caseload/{caseload}")
+    public List<StaffUserRole> getAccessRolesByCaseload(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff member.", required = true) final Long staffId, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload) {
+        return staffService.getRolesByCaseload(staffId, caseload);
+    }
 
-    @GetMapping("/{staffId}/{agencyId}/roles")
-    @ApiOperation(value = "List of job roles for specified staff and agency Id", notes = "List of job roles for specified staff and agency Id", nickname = "getAllRolesForAgency")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = StaffRole.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    List<StaffRole> getAllRolesForAgency(@ApiParam(value = "The staff id of the staff member.", required = true) @PathVariable("staffId") Long staffId,
-                                                      @ApiParam(value = "Agency Id.", required = true) @PathVariable("agencyId") String agencyId);
+    @ApiOperation(value = "List of job roles for specified staff and agency Id", notes = "List of job roles for specified staff and agency Id", nickname = "getAllRolesForAgency")
+    @GetMapping("/{staffId}/{agencyId}/roles")
+    public List<StaffRole>  getAllRolesForAgency(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff member.", required = true) final Long staffId, @PathVariable("agencyId") @ApiParam(value = "Agency Id.", required = true) final String agencyId) {
+        return staffService.getAllRolesForAgency(staffId, agencyId);
+    }
 
-    @PostMapping("/{staffId}/access-roles")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "The access role has been created.", response = StaffUserRole.class)})
+    @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "add access role to staff user for API caseload", notes = "add access role to staff user for API caseload", nickname = "addStaffAccessRoleForApiCaseload")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "The access role has been created.", response = StaffUserRole.class)})
-    StaffUserRole addStaffAccessRoleForApiCaseload(@ApiParam(value = "The staff id of the staff user.", required = true) @PathVariable("staffId") Long staffId,
-                                                                              @ApiParam(value = "new access role code required", required = true) @RequestBody String body);
+    @PostMapping("/{staffId}/access-roles")
+    @ProxyUser
+    public StaffUserRole addStaffAccessRoleForApiCaseload(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff user.", required = true) final Long staffId, @RequestBody @ApiParam(value = "new access role code required", required = true) final String body) {
+        return staffService.addStaffRole(staffId, apiCaseloadId, body);
+    }
 
-    @PostMapping("/{staffId}/access-roles/caseload/{caseload}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "The access role has been created.", response = StaffUserRole.class)})
     @ApiOperation(value = "add access role to staff user", notes = "add access role to staff user", nickname = "addStaffAccessRole")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "The access role has been created.", response = StaffUserRole.class)})
-    StaffUserRole addStaffAccessRole(@ApiParam(value = "The staff id of the staff member.", required = true) @PathVariable("staffId") Long staffId,
-                                                  @ApiParam(value = "Caseload Id", required = true) @PathVariable("caseload") String caseload,
-                                                  @ApiParam(value = "new access role code required", required = true) @RequestBody String body);
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{staffId}/access-roles/caseload/{caseload}")
+    @ProxyUser
+    public StaffUserRole addStaffAccessRole(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff member.", required = true) final Long staffId, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @RequestBody @ApiParam(value = "new access role code required", required = true) final String body) {
+        return staffService.addStaffRole(staffId, caseload, body);
+    }
 
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "The access role has been removed", response = String.class)})
+    @ApiOperation(value = "remove access roles from user and specific caseload", notes = "remove access roles from user and specific caseload", nickname = "removeStaffAccessRole")
+    @DeleteMapping("/{staffId}/access-roles/caseload/{caseload}/access-role/{roleCode}")
+    @ProxyUser
+    public ResponseEntity<Void> removeStaffAccessRole(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff member.", required = true) final Long staffId, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
+        staffService.removeStaffRole(staffId, caseload, roleCode);
+        return ResponseEntity.ok().build();
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = StaffUserRole.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "List access roles for staff by type and caseload", notes = "List access roles for staff by type and caseload", nickname = "getAllStaffAccessRolesForCaseload")
+    @GetMapping("/access-roles/caseload/{caseload}/access-role/{roleCode}")
+    public List<StaffUserRole> getAllStaffAccessRolesForCaseload(@PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
+        return staffService.getAllStaffRolesForCaseload(caseload, roleCode);
+    }
 }

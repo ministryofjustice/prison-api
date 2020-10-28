@@ -7,7 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.OffenderEvent;
-import uk.gov.justice.hmpps.prison.api.resource.impl.OffenderEventsController;
+import uk.gov.justice.hmpps.prison.api.resource.OffenderEventsController;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderEventsRepository;
 import uk.gov.justice.hmpps.prison.service.filters.OffenderEventsFilter;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderEventsTransformer;
