@@ -17,7 +17,7 @@ import java.util.List;
 
 public class OffenderTransactionHistoryResourceTest extends ResourceTest {
 
-    private static final String NOMIS_ID = "A1111AA";
+    private static final String OFFENDER_NO = "A1234AI";
 
     private static final int HTTP_OK = HttpStatus.OK.value();
     private static final int HTTP_BAD_REQ = HttpStatus.BAD_REQUEST.value();
@@ -35,7 +35,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -54,7 +54,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThatJsonAndStatus(response, HTTP_OK, "[]");
     }
@@ -71,7 +71,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -90,7 +90,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -109,7 +109,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -128,7 +128,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -147,7 +147,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -166,7 +166,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -185,7 +185,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<ErrorResponse>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
         assertThat(response.getBody().getDeveloperMessage()).isEqualTo("toDate can't be before fromDate");
@@ -204,7 +204,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
         
         assertThatJsonAndStatus(response, HTTP_OK, "[]");
     }
@@ -221,7 +221,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -240,7 +240,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -278,7 +278,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<ErrorResponse>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
         assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Unknown account-code spendss");
@@ -297,7 +297,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<ErrorResponse>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
         assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Invalid value for MonthOfYear (valid values 1 - 12): 30");
@@ -316,7 +316,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThatJsonFileAndStatus(response, HTTP_OK,"When_GetOffenderTransactionHistory_Then_ReturnCorrectJson.json");
     }
@@ -333,7 +333,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {},
-                NOMIS_ID);
+                OFFENDER_NO);
 
         assertThatJsonFileAndStatus(response, HTTP_OK,"When_GetOffenderTransactionHistory_And_MissingAccountCode_Then_ReturnCorrectJson.json");
     }

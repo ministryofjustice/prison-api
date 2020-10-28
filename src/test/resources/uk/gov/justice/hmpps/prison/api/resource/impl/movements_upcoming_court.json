@@ -1,36 +1,18 @@
 [
   {
-    "offenderNo": "A1234AH",
     "court": "COURT1",
     "courtDescription": "Court 1",
     "startTime": "2040-01-01T12:00:00",
-    "eventSubType": "CRT",
-    "eventDescription": "Court Appearance",
-    "hold": false
-  },
-  {
-    "offenderNo": "A1234AA",
-    "court": "COURT1",
-    "courtDescription": "Court 1",
-    "startTime": "2030-03-11T14:00:00",
-    "eventSubType": "CRT",
-    "eventDescription": "Court Appearance",
-    "hold": false
-  },
-  {
-    "offenderNo": "A1234AB",
-    "court": "COURT1",
-    "courtDescription": "Court 1",
-    "startTime": "2030-03-11T14:00:00",
-    "eventSubType": "CRT",
-    "eventDescription": "Court Appearance",
-    "hold": false
-  },
-  {
     "offenderNo": "A1234AH",
+    "eventSubType": "CRT",
+    "eventDescription": "Court Appearance",
+    "hold": false
+  },
+  {
     "court": "ABDRCT",
     "courtDescription": "Court 2",
     "startTime": "2050-01-01T11:00:00",
+    "offenderNo": "A1234AH",
     "eventSubType": "DC",
     "eventDescription": "Discharged to Court",
     "hold": true
