@@ -82,7 +82,7 @@ public class PrisonerRepositoryTest {
         assertThat(offenderIds.getItems()).hasSize(53);
         assertThat(offenderIds.getItems()).extracting(OffenderNumber::getOffenderNumber)
                 .containsExactly(
-                        "A1176RS", "A1178RS", "A1179MT", "A1180HI", "A1180HJ", "A1180HK", "A1180HL", "A1180MA",
+                        "A1111AA", "A1176RS", "A1178RS", "A1179MT", "A1180HI", "A1180HJ", "A1180HK", "A1180HL", "A1180MA",
                         "A1181DD", "A1181FF", "A1181GG", "A1181HH", "A1181MV", "A1182BS", "A1183AD", "A1183CW",
                         "A1183JE", "A1183SH", "A1184JR", "A1184MA", "A1234AA", "A1234AB", "A1234AC", "A1234AD",
                         "A1234AE", "A1234AF", "A1234AG", "A1234AH", "A1234AI", "A1234AJ", "A1234AK", "A1234AL",
