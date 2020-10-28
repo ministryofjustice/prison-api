@@ -214,9 +214,6 @@ public interface OffenderResource {
             @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @PathVariable("offenderNo") @NotNull String offenderNo,
             @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE", allowableValues = "INACT,PAID,ONH,ACTIVE,APPEAL") @RequestParam(value = "status", required = false, defaultValue = "") String status);
 
-
-    String NOMS_ID_REGEX_PATTERN = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}";
-
     @SuppressWarnings("RestParamTypeInspection")
     @GetMapping("/{offenderNo}/transaction-history")
     @ApiOperation(value = "Retrieve an offender's financial transaction history for cash, spends or savings.",
