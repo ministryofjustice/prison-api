@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +35,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/offender-sentences")
 public class OffenderSentenceResource {
     private final AuthenticationFacade authenticationFacade;

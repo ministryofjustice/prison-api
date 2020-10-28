@@ -42,6 +42,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+
 @RestController
 @RequestMapping("${api.base.path}/bookings")
 @Validated

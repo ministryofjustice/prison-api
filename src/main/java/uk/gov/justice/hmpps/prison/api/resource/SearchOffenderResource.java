@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,6 +25,7 @@ import java.util.List;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/search-offenders")
 public class SearchOffenderResource {
     private final AuthenticationFacade authenticationFacade;

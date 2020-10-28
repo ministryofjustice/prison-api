@@ -4,8 +4,10 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
@@ -16,11 +18,14 @@ import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @RestController
+@Validated
+@RequestMapping("${api.base.path}/cell")
 public class CellResource {
 
-    private BedAssignmentHistoryService bedAssignmentHistoryService;
-    private AgencyService agencyService;
+    private final BedAssignmentHistoryService bedAssignmentHistoryService;
+    private final AgencyService agencyService;
 
     public CellResource(final BedAssignmentHistoryService bedAssignmentHistoryService, final AgencyService agencyService) {
        this.bedAssignmentHistoryService = bedAssignmentHistoryService;

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
 
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/appointments")
 @AllArgsConstructor
 public class AppointmentsResource {

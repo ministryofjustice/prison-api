@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,6 +55,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,6 +64,7 @@ import java.util.Optional;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/offenders")
 @RequiredArgsConstructor
 public class OffenderResource {
@@ -85,7 +88,7 @@ public class OffenderResource {
     @ApiOperation("Full details about the current state of an offender")
     @GetMapping("/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public InmateDetail getOffender(@javax.validation.constraints.Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
+    public InmateDetail getOffender(@Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return inmateService.findOffender(offenderNo, true);
     }
 

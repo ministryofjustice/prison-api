@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +27,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/events")
 @AllArgsConstructor
 @Api(tags = "/events")

@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,12 +24,14 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageRequest;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/case-notes")
 @AllArgsConstructor
 public class CaseNoteResource {
@@ -86,7 +89,7 @@ public class CaseNoteResource {
             "note_type can be presented multiples times in the URL to filter by multiple note types.", nickname = "getCaseNotesEvents")
     @springfox.documentation.annotations.ApiIgnore
     @GetMapping("/events_no_limit")
-    public List<CaseNoteEvent> getCaseNotesEventsNoLimit(@RequestParam("type") @javax.validation.constraints.NotEmpty @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) final List<String> noteTypes, @RequestParam("createdDate") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam("Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") final LocalDateTime createdDate) {
+    public List<CaseNoteEvent> getCaseNotesEventsNoLimit(@RequestParam("type") @NotEmpty @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) final List<String> noteTypes, @RequestParam("createdDate") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam("Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") final LocalDateTime createdDate) {
         return caseNoteService.getCaseNotesEvents(noteTypes, createdDate);
     }
 
@@ -101,7 +104,7 @@ public class CaseNoteResource {
             "The note type only filters at the top note type level not the sub type.<br/>" +
             "note_type can be presented multiples times in the URL to filter by multiple note types.", nickname = "getCaseNotesEvents")
     @GetMapping("/events")
-    public List<CaseNoteEvent> getCaseNotesEvents(@RequestParam("type") @javax.validation.constraints.NotEmpty @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) final List<String> noteTypes, @RequestParam("createdDate") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam("Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") final LocalDateTime createdDate, @RequestParam("limit") @ApiParam(name = "limit", value = "Number of events to return", example = "100") final Long limit) {
+    public List<CaseNoteEvent> getCaseNotesEvents(@RequestParam("type") @NotEmpty @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) final List<String> noteTypes, @RequestParam("createdDate") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam("Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") final LocalDateTime createdDate, @RequestParam("limit") @ApiParam(name = "limit", value = "Number of events to return", example = "100") final Long limit) {
         return caseNoteService.getCaseNotesEvents(noteTypes, createdDate, limit);
     }
 
@@ -113,7 +116,7 @@ public class CaseNoteResource {
     @ApiOperation(value = "Count of case notes by booking id", notes = "Count of case notes by booking id", nickname = "getCaseNoteSummaryByBookingId")
     @springfox.documentation.annotations.ApiIgnore
     @GetMapping("/summary")
-    public List<CaseNoteUsageByBookingId> getCaseNoteSummaryByBookingId(@RequestParam("bookingId") @javax.validation.constraints.NotEmpty @ApiParam(value = "a list of booking ids to search.", required = true) final List<Integer> bookingIds, @RequestParam(value = "numMonths", required = false, defaultValue = "1") @ApiParam(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", defaultValue = "1") final Integer numMonths, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") final LocalDate toDate, @RequestParam(value = "type", required = false) @ApiParam("Case note type.") final String type, @RequestParam(value = "subType", required = false) @ApiParam("Case note sub-type.") final String subType) {
+    public List<CaseNoteUsageByBookingId> getCaseNoteSummaryByBookingId(@RequestParam("bookingId") @NotEmpty @ApiParam(value = "a list of booking ids to search.", required = true) final List<Integer> bookingIds, @RequestParam(value = "numMonths", required = false, defaultValue = "1") @ApiParam(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", defaultValue = "1") final Integer numMonths, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") final LocalDate toDate, @RequestParam(value = "type", required = false) @ApiParam("Case note type.") final String type, @RequestParam(value = "subType", required = false) @ApiParam("Case note sub-type.") final String subType) {
         return caseNoteService.getCaseNoteUsageByBookingId(type, subType, bookingIds, fromDate, toDate, ObjectUtils.defaultIfNull(numMonths, 1));
     }
 }

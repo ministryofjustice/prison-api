@@ -103,6 +103,7 @@ import uk.gov.justice.hmpps.prison.service.support.WrappedErrorResponseException
 import uk.gov.justice.hmpps.prison.web.handler.ResourceExceptionHandler;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -279,7 +280,7 @@ public class BookingResource {
     @ApiOperation(value = "Offender detail.", notes = "Offender detail for offenders", nickname = "getBasicInmateDetailsForOffenders")
     @PostMapping("/offenders")
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(@RequestBody @ApiParam(value = "The offenderNo of offender", required = true) final Set<String> offenders, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @ApiParam(value = "Returns only Offender details with an active booking if true, otherwise Offenders without an active booking are included", defaultValue = "true") final Boolean activeOnly) {
-        final var active = activeOnly == null ? true : activeOnly;
+        final var active = activeOnly == null || activeOnly;
         return inmateService.getBasicInmateDetailsForOffenders(offenders, active);
     }
 
@@ -451,7 +452,7 @@ public class BookingResource {
 
     @ApiOperation("Get alerts for a list of offenders. Requires SYSTEM_READ_ONLY role")
     @PostMapping("/offenderNo/alerts")
-    public List<Alert> getAlertsByOffenderNos(@RequestBody @javax.validation.constraints.NotEmpty(message = "A minimum of one offender number is required") @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
+    public List<Alert> getAlertsByOffenderNos(@RequestBody @NotEmpty(message = "A minimum of one offender number is required") @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         return inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, null, "bookingId,alertId", Order.ASC);
     }
 
@@ -723,7 +724,7 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Personal Care Needs", notes = "Personal Care Need", nickname = "getPersonalCareNeeds")
     @GetMapping("/{bookingId}/personal-care-needs")
-    public PersonalCareNeeds getPersonalCareNeeds(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @javax.validation.constraints.NotEmpty(message = "problemTypes: must not be empty") @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
+    public PersonalCareNeeds getPersonalCareNeeds(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @NotEmpty(message = "problemTypes: must not be empty") @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
         return inmateService.getPersonalCareNeeds(bookingId, problemTypes);
     }
 
@@ -743,7 +744,7 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Personal Care Needs  - POST version to allow for large numbers of offenders", notes = "Personal Care Needs", nickname = "getPersonalCareNeeds")
     @PostMapping("/offenderNo/personal-care-needs")
-    public List<PersonalCareNeeds> getPersonalCareNeeds(@RequestBody @javax.validation.constraints.NotEmpty(message = "offenderNo: must not be empty") @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos, @RequestParam(value = "type", required = false) @javax.validation.constraints.NotEmpty(message = "problemTypes: must not be empty") @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
+    public List<PersonalCareNeeds> getPersonalCareNeeds(@RequestBody @NotEmpty(message = "offenderNo: must not be empty") @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos, @RequestParam(value = "type", required = false) @NotEmpty(message = "problemTypes: must not be empty") @ApiParam(value = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
         return inmateService.getPersonalCareNeeds(offenderNos, problemTypes);
     }
 
@@ -753,7 +754,7 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Reasonable Adjustment Information", notes = "Reasonable Adjustment Information", nickname = "getReasonableAdjustment")
     @GetMapping("/{bookingId}/reasonable-adjustments")
-    public ReasonableAdjustments getReasonableAdjustments(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @javax.validation.constraints.NotEmpty(message = "treatmentCodes: must not be empty") @ApiParam(value = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes) {
+    public ReasonableAdjustments getReasonableAdjustments(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @NotEmpty(message = "treatmentCodes: must not be empty") @ApiParam(value = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes) {
         return inmateService.getReasonableAdjustments(bookingId, treatmentCodes);
     }
 
@@ -1098,11 +1099,10 @@ public class BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @GetMapping("{bookingId}/cell-history")
+    @GetMapping("/{bookingId}/cell-history")
     public Page<BedAssignment> getBedAssignmentsHistory(@PathVariable("bookingId") @ApiParam(value = "The offender booking linked to the court hearings.", required = true) final Long bookingId, @RequestParam(value = "page", required = false) @ApiParam(value = "The page number to return. Index starts at 0", defaultValue = "0") final Integer page, @RequestParam(value = "size", required = false) @ApiParam(value = "The number of results per page. Defaults to 20.", defaultValue = "20") final Integer size) {
         final var pageIndex = page != null ? page : 0;
         final var pageSize = size != null ? size : 20;
-        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
         return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize));
     }
 

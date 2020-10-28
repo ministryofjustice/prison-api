@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,10 +30,13 @@ import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/movements")
 public class MovementResource {
 
@@ -173,7 +177,7 @@ public class MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Information on scheduled court, transfer and release events, and confirmed movements between two dates/times for a specified number of agencies.", notes = "Planned movements are recorded as events of type court, release or transfers/appointments. When these events are started they are actualised as external movements.", nickname = "getTransfers")
     @GetMapping("/transfers")
-    public TransferSummary getTransfers(@RequestParam("agencyId") @javax.validation.constraints.NotEmpty @ApiParam(value = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) final List<String> agencyIds,
+    public TransferSummary getTransfers(@RequestParam("agencyId") @NotEmpty @ApiParam(value = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) final List<String> agencyIds,
                                         @RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam(value = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) final LocalDateTime fromDateTime, @RequestParam("toDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam(value = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) final LocalDateTime toDateTime,
                                         @RequestParam(value = "courtEvents", required = false, defaultValue = "false") @ApiParam(value = "Set to true to include planned court events", required = false, defaultValue = "false") final boolean courtEvents, @RequestParam(value = "releaseEvents", required = false, defaultValue = "false") @ApiParam(value = "Set to true to include planned release events", required = false, defaultValue = "false") final boolean releaseEvents,
                                         @RequestParam(value = "transferEvents", required = false, defaultValue = "false") @ApiParam(value = "Set to true to include planned transfer/appointment events", required = false, defaultValue = "false") final boolean transferEvents, @RequestParam(value = "movements", required = false, defaultValue = "false") @ApiParam(value = "Set to true to include confirmed movements", required = false, defaultValue = "false") final boolean movements) {

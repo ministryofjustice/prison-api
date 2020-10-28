@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +44,7 @@ import uk.gov.justice.hmpps.prison.service.v1.NomisApiV1Service;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.SortedMap;
@@ -50,7 +52,9 @@ import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.util.DateTimeConverter.optionalStrToLocalDateTime;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.getUniqueClientId;
+
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/v1")
 public class NomisApiV1Resource {
 
@@ -139,7 +143,7 @@ public class NomisApiV1Resource {
             "<li>SENTENCE_INFORMATION_CHANGED</li>" +
             "<li>BALANCE_UPDATE</li></ul>")
     @GetMapping("/offenders/events")
-    public Events getOffenderEvents(@javax.validation.constraints.Size(max = 3) @RequestParam("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") final String prisonId, @RequestParam(value = "offender_id", required = false) @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1417AE") final String offenderIdentifier, @RequestParam(value = "event_type", required = false) @ApiParam(name = "event_type", value = "Event Type", example = "ALERT") final String eventType, @RequestParam("from_datetime") @ApiParam(name = "from_datetime", value = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") final String fromDateTime, @RequestParam(value = "limit", required = false) @ApiParam(name = "limit", value = "Number of events to return", example = "100") final Long limit) {
+    public Events getOffenderEvents(@Size(max = 3) @RequestParam("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI") final String prisonId, @RequestParam(value = "offender_id", required = false) @ApiParam(name = "offender_id", value = "Offender Noms Id", example = "A1417AE") final String offenderIdentifier, @RequestParam(value = "event_type", required = false) @ApiParam(name = "event_type", value = "Event Type", example = "ALERT") final String eventType, @RequestParam("from_datetime") @ApiParam(name = "from_datetime", value = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") final String fromDateTime, @RequestParam(value = "limit", required = false) @ApiParam(name = "limit", value = "Number of events to return", example = "100") final Long limit) {
         final var events = service.getEvents(prisonId, new OffenderIdentifier(offenderIdentifier), eventType, optionalStrToLocalDateTime(fromDateTime), limit);
         return new Events(events);
     }
@@ -165,7 +169,7 @@ public class NomisApiV1Resource {
     @PostMapping("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
     @HasWriteScope
     @ProxyUser
-    public Transfer transferTransaction(@RequestHeader(value = "X-Client-Name", required = false) @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @javax.validation.constraints.Size(max = 3) @NotNull @PathVariable("previous_prison_id") @ApiParam(name = "previous_prison_id", value = "Prison ID", example = "BMI", required = true) final String previousPrisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId,
+    public Transfer transferTransaction(@RequestHeader(value = "X-Client-Name", required = false) @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("previous_prison_id") @ApiParam(name = "previous_prison_id", value = "Prison ID", example = "BMI", required = true) final String previousPrisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId,
                                         @javax.validation.Valid @NotNull @RequestBody @ApiParam(value = "Transaction Details", required = true) final CreateTransaction createTransaction) {
 
         final var uniqueClientId = getUniqueClientId(clientName, createTransaction.getClientUniqueRef());
@@ -207,7 +211,7 @@ public class NomisApiV1Resource {
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/transactions")
     @HasWriteScope
     @ProxyUser
-    public Transaction createTransaction(@RequestHeader(value = "X-Client-Name", required = false) @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @javax.validation.constraints.Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId,
+    public Transaction createTransaction(@RequestHeader(value = "X-Client-Name", required = false) @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId,
                                          @javax.validation.Valid @NotNull @RequestBody @ApiParam(value = "Transaction Details", required = true) final CreateTransaction createTransaction) {
 
         final var uniqueClientId = getUniqueClientId(clientName, createTransaction.getClientUniqueRef());
@@ -226,7 +230,7 @@ public class NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Get holds.", notes = "Gets every hold on an offender’s account or just the hold identified by the client_unique_ref")
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/holds")
-    public List<Hold> getHolds(@RequestHeader(value = "X-Client-Name", required = false) @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @javax.validation.constraints.Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) @javax.validation.constraints.Size(max = 64) @RequestParam(value = "client_unique_ref", required = false) @ApiParam(name = "client_unique_ref", value = "Client unique reference") final String clientUniqueRef) {
+    public List<Hold> getHolds(@RequestHeader(value = "X-Client-Name", required = false) @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) @Size(max = 64) @RequestParam(value = "client_unique_ref", required = false) @ApiParam(name = "client_unique_ref", value = "Client unique reference") final String clientUniqueRef) {
         final var uniqueClientId = getUniqueClientId(clientName, clientUniqueRef);
         return service.getHolds(prisonId, nomsId, uniqueClientId, clientName);
     }
@@ -236,7 +240,7 @@ public class NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Fetching live roll.")
     @GetMapping("/prison/{prison_id}/live_roll")
-    public LiveRoll getLiveRoll(@javax.validation.constraints.Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId) {
+    public LiveRoll getLiveRoll(@Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId) {
         return new LiveRoll(service.getLiveRoll(prisonId));
     }
 
@@ -279,7 +283,7 @@ public class NomisApiV1Resource {
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/payment")
     @HasWriteScope
     @ProxyUser
-    public PaymentResponse storePayment(@javax.validation.constraints.Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @javax.validation.Valid @NotNull @RequestBody @ApiParam(value = "Transaction Details", required = true) final StorePaymentRequest payment) {
+    public PaymentResponse storePayment(@Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @javax.validation.Valid @NotNull @RequestBody @ApiParam(value = "Transaction Details", required = true) final StorePaymentRequest payment) {
         return service.storePayment(prisonId, nomsId, payment.getType(), payment.getDescription(), payment.getAmountInPounds(), LocalDate.now(), payment.getClientTransactionId());
     }
 
@@ -290,7 +294,7 @@ public class NomisApiV1Resource {
     @ApiOperation(value = "Retrieve an offender's financial account balances.", notes = "Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>" +
             "All balance values are represented as pence values.")
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts")
-    public AccountBalance getAccountBalance(@javax.validation.constraints.Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId) {
+    public AccountBalance getAccountBalance(@Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId) {
         return service.getAccountBalances(prisonId, nomsId);
     }
 
@@ -302,7 +306,7 @@ public class NomisApiV1Resource {
             "All transaction amounts are represented as pence values.")
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/transactions")
     @SuppressWarnings("RestParamTypeInspection")
-    public AccountTransactions getAccountTransactions(@javax.validation.constraints.Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @NotNull @PathVariable("account_code") @ApiParam(name = "account_code", value = "Account code", example = "spends", required = true, allowableValues = "spends,cash,savings") final String accountCode, @RequestParam(value = "from_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(name = "from_date", value = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") final LocalDate fromDate, @RequestParam(value = "to_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(name = "to_date", value = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") final LocalDate toDate) {
+    public AccountTransactions getAccountTransactions(@Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @NotNull @PathVariable("account_code") @ApiParam(name = "account_code", value = "Account code", example = "spends", required = true, allowableValues = "spends,cash,savings") final String accountCode, @RequestParam(value = "from_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(name = "from_date", value = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") final LocalDate fromDate, @RequestParam(value = "to_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(name = "to_date", value = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") final LocalDate toDate) {
         final var transactions = service.getAccountTransactions(prisonId, nomsId, accountCode, fromDate, toDate);
         return new AccountTransactions(transactions);
     }
@@ -313,7 +317,7 @@ public class NomisApiV1Resource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Retrieve a single financial transaction using client unique ref.", notes = "All transaction amounts are represented as pence values.")
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/transactions/{client_unique_ref}")
-    public AccountTransaction getTransactionByClientUniqueRef(@RequestHeader(value = "X-Client-Name", required = false) @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @javax.validation.constraints.Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) @javax.validation.constraints.Size(max = 64) @PathVariable("client_unique_ref") @ApiParam(name = "client_unique_ref", value = "Client unique reference", required = true) final String clientUniqueRef) {
+    public AccountTransaction getTransactionByClientUniqueRef(@RequestHeader(value = "X-Client-Name", required = false) @ApiParam(name = "X-Client-Name", value = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) @Size(max = 64) @PathVariable("client_unique_ref") @ApiParam(name = "client_unique_ref", value = "Client unique reference", required = true) final String clientUniqueRef) {
         final var uniqueClientId = getUniqueClientId(clientName, clientUniqueRef);
 
         return service.getTransactionByClientUniqueRef(prisonId, nomsId, uniqueClientId);
@@ -368,7 +372,7 @@ public class NomisApiV1Resource {
     @ApiOperation(value = "Fetch visit slots with capacity", notes = "returns list slots with capacity details")
     @GetMapping("prison/{prison_id}/slots")
     @SuppressWarnings("RestParamTypeInspection")
-    public VisitSlots getVisitSlotsWithCapacity(@javax.validation.constraints.Size(max = 3) @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId, @RequestParam("start_date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) final LocalDate fromDate, @RequestParam("end_date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull @ApiParam(name = "end_date", value = "End date", example = "2019-05-01", required = true) final LocalDate toDate) {
+    public VisitSlots getVisitSlotsWithCapacity(@Size(max = 3) @PathVariable("prison_id") @ApiParam(name = "prison_id", value = "Prison ID", example = "BMI", required = true) final String prisonId, @RequestParam("start_date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull @ApiParam(name = "start_date", value = "Start date", example = "2019-04-01", required = true) final LocalDate fromDate, @RequestParam("end_date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull @ApiParam(name = "end_date", value = "End date", example = "2019-05-01", required = true) final LocalDate toDate) {
         return service.getVisitSlotsWithCapacity(prisonId, fromDate, toDate);
     }
 }

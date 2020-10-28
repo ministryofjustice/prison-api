@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,8 @@ import uk.gov.justice.hmpps.prison.api.support.CategoryInformationType;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +41,7 @@ import java.util.Set;
  * Implementation of Offender Assessments (/offender-assessments) endpoint.
  */
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/offender-assessments")
 public class OffenderAssessmentResource {
     private final InmateService inmateService;
@@ -53,7 +57,7 @@ public class OffenderAssessmentResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Offender assessment detail for multiple offenders.", nickname = "getOffenderAssessmentsAssessmentCode")
     @GetMapping("/{assessmentCode}")
-    public List<Assessment> getOffenderAssessmentsAssessmentCode(@PathVariable("assessmentCode") @ApiParam(value = "Assessment Type Code", required = true) final String assessmentCode, @RequestBody @javax.validation.constraints.NotEmpty @RequestParam("offenderNo") @ApiParam(value = "The required offender numbers", required = true) final List<String> offenderList, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @ApiParam(value = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included", defaultValue = "true") final Boolean latestOnly, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @ApiParam(value = "Returns only active assessments if true, otherwise inactive and pending assessments are included", defaultValue = "true") final Boolean activeOnly, @RequestParam(value = "mostRecentOnly", required = false) @ApiParam("Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly) {
+    public List<Assessment> getOffenderAssessmentsAssessmentCode(@PathVariable("assessmentCode") @ApiParam(value = "Assessment Type Code", required = true) final String assessmentCode, @RequestBody @NotEmpty @RequestParam("offenderNo") @ApiParam(value = "The required offender numbers", required = true) final List<String> offenderList, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @ApiParam(value = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included", defaultValue = "true") final Boolean latestOnly, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @ApiParam(value = "Returns only active assessments if true, otherwise inactive and pending assessments are included", defaultValue = "true") final Boolean activeOnly, @RequestParam(value = "mostRecentOnly", required = false) @ApiParam("Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly) {
 
         return applyDefaultsAndGetAssessmentsByCode(assessmentCode, offenderList, latestOnly, activeOnly, mostRecentOnly);
     }
@@ -80,7 +84,7 @@ public class OffenderAssessmentResource {
             @ApiResponse(code = 200, message = "The CSRA assessment list is returned, 1 per offender.", response = Assessment.class, responseContainer = "List")})
     @ApiOperation(value = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsCsraList")
     @PostMapping("/csra/list")
-    public List<Assessment> postOffenderAssessmentsCsraList(@RequestBody @javax.validation.constraints.NotEmpty @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
+    public List<Assessment> postOffenderAssessmentsCsraList(@RequestBody @NotEmpty @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
         validateOffenderList(offenderList);
         return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true, true, true);
     }
@@ -102,7 +106,7 @@ public class OffenderAssessmentResource {
             @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List")})
     @ApiOperation("Returns category information on Offenders at a prison.")
     @GetMapping("/category/{agencyId}")
-    public List<OffenderCategorise> getOffenderCategorisations(@PathVariable("agencyId") @ApiParam(value = "Prison id", required = true) final String agencyId, @javax.validation.constraints.NotNull(message = "Categorisation type must not be null") @RequestParam("type") @ApiParam(value = "Indicates which type of category information is required." +
+    public List<OffenderCategorise> getOffenderCategorisations(@PathVariable("agencyId") @ApiParam(value = "Prison id", required = true) final String agencyId, @NotNull(message = "Categorisation type must not be null") @RequestParam("type") @ApiParam(value = "Indicates which type of category information is required." +
             "<li>UNCATEGORISED: Offenders who need to be categorised,</li>" +
             "<li>CATEGORISED: Offenders who have an approved categorisation,</li>" +
             "<li>RECATEGORISATIONS: Offenders who will soon require recategorisation</li>", required = true) final String type, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("For type CATEGORISED: The past date from which categorisations are returned.<br />" +

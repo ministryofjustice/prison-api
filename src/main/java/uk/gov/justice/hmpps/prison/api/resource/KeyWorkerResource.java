@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,9 @@ import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import java.util.Collections;
 import java.util.List;
+
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/key-worker")
 public class KeyWorkerResource {
     private final KeyWorkerAllocationService keyWorkerService;

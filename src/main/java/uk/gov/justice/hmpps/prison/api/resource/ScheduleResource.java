@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
 import uk.gov.justice.hmpps.prison.service.SchedulesService;
 
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,6 +31,7 @@ import java.util.List;
  * Implementation of /schedules endpoint.
  */
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/schedules")
 public class ScheduleResource {
     private final SchedulesService schedulesService;
@@ -45,7 +48,7 @@ public class ScheduleResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", notes = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", nickname = "getGroupEvents")
     @PostMapping("/{agencyId}/events-by-location-ids")
-    public List<PrisonerSchedule> getEventsByLocationId(@PathVariable("agencyId") @ApiParam(value = "The prison.", required = true) final String agencyId, @javax.validation.constraints.NotEmpty @RequestBody @ApiParam(value = "The required location ids", required = true) final List<Long> locationIds,
+    public List<PrisonerSchedule> getEventsByLocationId(@PathVariable("agencyId") @ApiParam(value = "The prison.", required = true) final String agencyId, @NotEmpty @RequestBody @ApiParam(value = "The required location ids", required = true) final List<Long> locationIds,
                                                         @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") final TimeSlot timeSlot, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
 
         return schedulesService.getLocationGroupEventsByLocationId(agencyId, locationIds,
@@ -122,7 +125,7 @@ public class ScheduleResource {
 
     @ApiOperation(value = "", nickname = "getActivitiesByEventIds")
     @PostMapping("/{agencyId}/activities-by-event-ids")
-    public List<PrisonerSchedule> getActivitiesByEventIds(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId, @javax.validation.constraints.NotEmpty @RequestBody @ApiParam(value = "Event ids(mandatory)", required = true) final List<Long> eventIds) {
+    public List<PrisonerSchedule> getActivitiesByEventIds(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId, @NotEmpty @RequestBody @ApiParam(value = "Event ids(mandatory)", required = true) final List<Long> eventIds) {
         return schedulesService.getActivitiesByEventIds(agencyId, eventIds);
     }
 

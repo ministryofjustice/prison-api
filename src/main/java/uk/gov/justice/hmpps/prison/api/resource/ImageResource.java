@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RestController
+@Validated
 @RequestMapping("${api.base.path}/images")
 @AllArgsConstructor
 public class ImageResource {
