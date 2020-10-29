@@ -21,7 +21,7 @@ public class MovementResourceImplTest {
 
     @BeforeEach
     public void setUp() {
-        movementResource = new MovementResourceImpl(movementsService);
+        movementResource = new MovementResource(movementsService);
     }
 
     @Test
