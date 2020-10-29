@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.InmateRepositorySql;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
 import uk.gov.justice.hmpps.prison.service.support.InmateDto;
@@ -177,7 +178,7 @@ public class InmateRepository extends RepositoryBase {
                                                        final long offset,
                                                        final long limit) {
 
-        final var initialSql = getQuery("FIND_INMATES_BY_LOCATION");
+        final var initialSql = InmateRepositorySql.FIND_INMATES_BY_LOCATION.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 
         final var sql = builder
@@ -213,15 +214,15 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<InmateDto> findInmatesByLocation(final String agencyId, final List<Long> locations, final Set<String> caseLoadIds) {
-        return jdbcTemplate.query(getQuery("FIND_INMATES_OF_LOCATION_LIST"),
+        return jdbcTemplate.query(InmateRepositorySql.FIND_INMATES_OF_LOCATION_LIST.getSql(),
                 createParams("agencyId", agencyId, "locations", locations, "caseLoadIds", caseLoadIds), INMATE_MAPPER);
     }
 
 
     public Page<OffenderBooking> findAllInmates(final Set<String> caseloads, final String locationTypeRoot, final String query, final PageRequest pageRequest) {
-        var initialSql = getQuery("FIND_ALL_INMATES");
+        var initialSql = InmateRepositorySql.FIND_ALL_INMATES.getSql();
         if (!caseloads.isEmpty()) {
-            initialSql += " AND " + getQuery("CASELOAD_FILTER");
+            initialSql += " AND " + InmateRepositorySql.CASELOAD_FILTER.getSql();
         }
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 
@@ -252,11 +253,11 @@ public class InmateRepository extends RepositoryBase {
 
 
     public Page<OffenderBooking> searchForOffenderBookings(final OffenderBookingSearchRequest request) {
-        var initialSql = getQuery("FIND_ALL_INMATES");
-        initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
+        var initialSql = InmateRepositorySql.FIND_ALL_INMATES.getSql();
+        initialSql += " AND " + InmateRepositorySql.LOCATION_FILTER_SQL.getSql();
 
         if (!request.getCaseloads().isEmpty()) {
-            initialSql += " AND " + getQuery("CASELOAD_FILTER");
+            initialSql += " AND " + InmateRepositorySql.CASELOAD_FILTER.getSql();
         }
 
         if (StringUtils.isNotBlank(request.getOffenderNo())) {
@@ -275,7 +276,7 @@ public class InmateRepository extends RepositoryBase {
         }
 
         if (request.getAlerts() != null && !request.getAlerts().isEmpty()) {
-            initialSql += " AND " + getQuery("ALERT_FILTER");
+            initialSql += " AND " + InmateRepositorySql.ALERT_FILTER.getSql();
         }
 
         // Search by specific convictedStatus (Convicted is any sentence with a bandCode <=8, Remand is any with a bandCode > 8)
@@ -338,14 +339,14 @@ public class InmateRepository extends RepositoryBase {
 
 
     public Page<PrisonerDetail> findOffenders(final String query, final PageRequest pageRequest) {
-        final var initialSql = getQuery("FIND_OFFENDERS");
+        final var initialSql = InmateRepositorySql.FIND_OFFENDERS.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
         return getPrisonerDetailPage(query, pageRequest, builder);
     }
 
 
     public Page<PrisonerDetail> findOffendersWithAliases(final String query, final PageRequest pageRequest) {
-        final var initialSql = getQuery("FIND_OFFENDERS_WITH_ALIASES");
+        final var initialSql = InmateRepositorySql.FIND_OFFENDERS_WITH_ALIASES.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP);
 
         return getPrisonerDetailPage(
@@ -378,7 +379,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<PhysicalMark> findPhysicalMarks(final long bookingId) {
-        final var sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
+        final var sql = InmateRepositorySql.FIND_PHYSICAL_MARKS_BY_BOOKING.getSql();
 
         final var physicalMarkRowMapper =
                 Row2BeanRowMapper.makeMapping(sql, PhysicalMark.class, physicalMarkMapping);
@@ -391,7 +392,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<PersonalCareNeed> findPersonalCareNeeds(final long bookingId, final Set<String> problemCodes) {
-        final var sql = getQuery("FIND_PERSONAL_CARE_NEEDS_BY_BOOKING");
+        final var sql = InmateRepositorySql.FIND_PERSONAL_CARE_NEEDS_BY_BOOKING.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -401,7 +402,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<PersonalCareNeed> findPersonalCareNeeds(final List<String> offenderNos, final Set<String> problemCodes) {
-        final var sql = getQuery("FIND_PERSONAL_CARE_NEEDS_BY_OFFENDER");
+        final var sql = InmateRepositorySql.FIND_PERSONAL_CARE_NEEDS_BY_OFFENDER.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -411,7 +412,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<ReasonableAdjustment> findReasonableAdjustments(final long bookingId, final List<String> treatmentCodes) {
-        final var sql = getQuery("FIND_REASONABLE_ADJUSTMENTS_BY_BOOKING");
+        final var sql = InmateRepositorySql.FIND_REASONABLE_ADJUSTMENTS_BY_BOOKING.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -421,7 +422,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<PhysicalCharacteristic> findPhysicalCharacteristics(final long bookingId) {
-        final var sql = getQuery("FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING");
+        final var sql = InmateRepositorySql.FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -431,7 +432,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<ProfileInformation> getProfileInformation(final long bookingId) {
-        final var sql = getQuery("FIND_PROFILE_INFORMATION_BY_BOOKING");
+        final var sql = InmateRepositorySql.FIND_PROFILE_INFORMATION_BY_BOOKING.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -441,7 +442,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public Optional<ImageDetail> getMainBookingImage(final long bookingId) {
-        final var sql = getQuery("GET_IMAGE_DATA_FOR_BOOKING");
+        final var sql = InmateRepositorySql.GET_IMAGE_DATA_FOR_BOOKING.getSql();
         ImageDetail imageDetail;
         try {
             imageDetail = jdbcTemplate.queryForObject(sql,
@@ -455,7 +456,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<OffenderIdentifier> getOffenderIdentifiers(final long bookingId) {
-        final var sql = getQuery("GET_OFFENDER_IDENTIFIERS_BY_BOOKING");
+        final var sql = InmateRepositorySql.GET_OFFENDER_IDENTIFIERS_BY_BOOKING.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -465,7 +466,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue) {
-        final var sql = getQuery("FIND_IDENTIFIER_RECORDS_BY_TYPE_AND_VALUE");
+        final var sql = InmateRepositorySql.FIND_IDENTIFIER_RECORDS_BY_TYPE_AND_VALUE.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -475,7 +476,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public Optional<PhysicalAttributes> findPhysicalAttributes(final long bookingId) {
-        final var sql = getQuery("FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING");
+        final var sql = InmateRepositorySql.FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING.getSql();
 
         final var physicalAttributesRowMapper =
                 Row2BeanRowMapper.makeMapping(sql, PhysicalAttributes.class, physicalAttributesMapping);
@@ -494,18 +495,18 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<AssessmentDto> findAssessments(final List<Long> bookingIds, final String assessmentCode, final Set<String> caseLoadId) {
-        var initialSql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+        var initialSql = InmateRepositorySql.FIND_ACTIVE_APPROVED_ASSESSMENT.getSql();
         if (!caseLoadId.isEmpty()) {
-            initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
+            initialSql += " AND " + InmateRepositorySql.ASSESSMENT_CASELOAD_FILTER.getSql();
         }
         return doFindAssessments(bookingIds, assessmentCode, caseLoadId, initialSql, "bookingIds");
     }
 
 
     public List<AssessmentDto> findAssessmentsByOffenderNo(final List<String> offenderNos, final String assessmentCode, final Set<String> caseLoadId, final boolean latestOnly, final boolean activeOnly) {
-        var initialSql = getQuery("FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO");
+        var initialSql = InmateRepositorySql.FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO.getSql();
         if (!caseLoadId.isEmpty()) {
-            initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
+            initialSql += " AND " + InmateRepositorySql.ASSESSMENT_CASELOAD_FILTER.getSql();
         }
         if (latestOnly) {
             initialSql += " AND OB.BOOKING_SEQ = 1";
@@ -537,7 +538,7 @@ public class InmateRepository extends RepositoryBase {
 
     public List<OffenderCategorise> getUncategorised(final String agencyId) {
         final var rawData = jdbcTemplate.query(
-                getQuery("GET_UNCATEGORISED"),
+                InmateRepositorySql.GET_UNCATEGORISED.getSql(),
                 createParams("agencyId", agencyId, "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
@@ -547,7 +548,7 @@ public class InmateRepository extends RepositoryBase {
 
     public List<OffenderCategorise> getApprovedCategorised(final String agencyId, final LocalDate cutoffDate) {
         final var rawData = jdbcTemplate.query(
-                getQuery("GET_APPROVED_CATEGORISED"),
+                InmateRepositorySql.GET_APPROVED_CATEGORISED.getSql(),
                 createParams("agencyId", agencyId,
                         "cutOffDate", DateTimeConverter.toDate(cutoffDate),
                         "assessStatus", "A",
@@ -560,7 +561,7 @@ public class InmateRepository extends RepositoryBase {
 
     public List<OffenderCategorise> getRecategorise(final String agencyId, final LocalDate cutoffDate) {
         final var rawData = jdbcTemplate.query(
-                getQuery("GET_RECATEGORISE"),
+                InmateRepositorySql.GET_RECATEGORISE.getSql(),
                 createParams("agencyId", agencyId,
                         "assessStatus", Set.of("A", "P"),
                         "assessmentId", getCategoryAssessmentTypeId()),
@@ -574,7 +575,7 @@ public class InmateRepository extends RepositoryBase {
 
     public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, final String agencyId, final boolean latestOnly) {
         final var rawData = jdbcTemplate.query(
-                getQuery("GET_OFFENDER_CATEGORISATIONS"),
+                InmateRepositorySql.GET_OFFENDER_CATEGORISATIONS.getSql(),
                 createParams("bookingIds", bookingIds,
                         "agencyId", agencyId,
                         "assessmentId", getCategoryAssessmentTypeId()),
@@ -584,7 +585,7 @@ public class InmateRepository extends RepositoryBase {
     }
 
     private Long getCategoryAssessmentTypeId() {
-        return jdbcTemplate.queryForObject(getQuery("GET_CATEGORY_ASSESSMENT_ID"), Map.of(), Long.class);
+        return jdbcTemplate.queryForObject(InmateRepositorySql.GET_CATEGORY_ASSESSMENT_ID.getSql(), Map.of(), Long.class);
     }
 
     private List<OffenderCategorise> applyCategorisationRestrictions(final List<OffenderCategorise> catListRaw) {
@@ -629,7 +630,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public Optional<AssignedLivingUnit> findAssignedLivingUnit(final long bookingId, final String locationTypeRoot) {
-        final var sql = getQuery("FIND_ASSIGNED_LIVING_UNIT");
+        final var sql = InmateRepositorySql.FIND_ASSIGNED_LIVING_UNIT.getSql();
 
         final var assignedLivingUnitRowMapper =
                 Row2BeanRowMapper.makeMapping(sql, AssignedLivingUnit.class, assignedLivingUnitMapping);
@@ -649,7 +650,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public Optional<InmateDetail> findInmate(final Long bookingId) {
-        final var builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATE_DETAIL"), inmateDetailsMapping);
+        final var builder = queryBuilderFactory.getQueryBuilder(InmateRepositorySql.FIND_INMATE_DETAIL.getSql(), inmateDetailsMapping);
         final var sql = builder.build();
 
         final var inmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
@@ -672,7 +673,7 @@ public class InmateRepository extends RepositoryBase {
 
     public Optional<InmateDetail> findOffender(final String offenderNo) {
         final var offender = jdbcTemplate.query(
-                getQuery("FIND_OFFENDER"),
+                InmateRepositorySql.FIND_OFFENDER.getSql(),
                 createParams("offenderNo", offenderNo),
                 new StandardBeanPropertyRowMapper<>(InmateDetail.class))
                 .stream()
@@ -683,7 +684,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public Optional<InmateDetail> getBasicInmateDetail(final Long bookingId) {
-        final var builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_BASIC_INMATE_DETAIL"), inmateDetailsMapping);
+        final var builder = queryBuilderFactory.getQueryBuilder(InmateRepositorySql.FIND_BASIC_INMATE_DETAIL.getSql(), inmateDetailsMapping);
         final var sql = builder.build();
 
         final var inmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
@@ -702,7 +703,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public Page<Alias> findInmateAliases(final Long bookingId, final String orderByFields, final Order order, final long offset, final long limit) {
-        final var initialSql = getQuery("FIND_INMATE_ALIASES");
+        final var initialSql = InmateRepositorySql.FIND_INMATE_ALIASES.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, ALIAS_MAPPING);
 
         final var sql = builder
@@ -727,7 +728,7 @@ public class InmateRepository extends RepositoryBase {
 
         final var newSeq = getOffenderAssessmentSeq(detail.getBookingId()) + 1;
         jdbcTemplate.update(
-                getQuery("INSERT_CATEGORY"),
+                InmateRepositorySql.INSERT_CATEGORY.getSql(),
                 createParams("bookingId", detail.getBookingId(),
                         "assessmentTypeId", getCategoryAssessmentTypeId(),
                         "seq", newSeq,
@@ -750,7 +751,7 @@ public class InmateRepository extends RepositoryBase {
     public void updateCategory(final CategorisationUpdateDetail detail) {
 
         final int result = jdbcTemplate.update(
-                getQuery("UPDATE_CATEGORY"),
+                InmateRepositorySql.UPDATE_CATEGORY.getSql(),
                 createParams("bookingId", detail.getBookingId(),
                         "seq", detail.getAssessmentSeq(),
                         "assessmentTypeId", getCategoryAssessmentTypeId(),
@@ -773,7 +774,7 @@ public class InmateRepository extends RepositoryBase {
 
         // get all active or pending categorisation sequences ordered desc
         final var sequences = jdbcTemplate.query(
-                getQuery("GET_OFFENDER_CATEGORY_SEQUENCES"),
+                InmateRepositorySql.GET_OFFENDER_CATEGORY_SEQUENCES.getSql(),
                 createParams("bookingId", detail.getBookingId(),
                         "assessmentTypeId", assessmentId,
                         "statuses", Arrays.asList("A", "P")),
@@ -793,7 +794,7 @@ public class InmateRepository extends RepositoryBase {
         }
 
         final var approvalResult = jdbcTemplate.update(
-                getQuery("APPROVE_CATEGORY"),
+                InmateRepositorySql.APPROVE_CATEGORY.getSql(),
                 createParams("bookingId", detail.getBookingId(),
                         "seq", maxSequence,
                         "assessmentTypeId", assessmentId,
@@ -819,7 +820,7 @@ public class InmateRepository extends RepositoryBase {
             final var previousSequences = sequences.stream().skip(1)
                     .collect(Collectors.toList());
             final var updatePreviousResult = jdbcTemplate.update(
-                    getQuery("CATEGORY_SET_STATUS"),
+                    InmateRepositorySql.CATEGORY_SET_STATUS.getSql(),
                     createParams("bookingId", detail.getBookingId(),
                             "seq", previousSequences,
                             "assessStatus", "I"
@@ -837,7 +838,7 @@ public class InmateRepository extends RepositoryBase {
     public void rejectCategory(final CategoryRejectionDetail detail) {
         final var assessmentId = getCategoryAssessmentTypeId();
         final var result = jdbcTemplate.update(
-                getQuery("REJECT_CATEGORY"),
+                InmateRepositorySql.REJECT_CATEGORY.getSql(),
                 createParams("bookingId", detail.getBookingId(),
                         "seq", detail.getAssessmentSeq(),
                         "assessmentTypeId", assessmentId,
@@ -860,7 +861,7 @@ public class InmateRepository extends RepositoryBase {
         final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
         // get all active categorisation sequences
         final var sequences = jdbcTemplate.query(
-                getQuery("GET_OFFENDER_CATEGORY_SEQUENCES"),
+                InmateRepositorySql.GET_OFFENDER_CATEGORY_SEQUENCES.getSql(),
                 createParams("bookingId", bookingId,
                         "assessmentTypeId", assessmentId,
                         "statuses", List.of(status == AssessmentStatusType.PENDING ? "P" : "A")),
@@ -870,7 +871,7 @@ public class InmateRepository extends RepositoryBase {
             return 0;
         }
         final var updateResult = jdbcTemplate.update(
-                getQuery("CATEGORY_SET_STATUS"),
+                InmateRepositorySql.CATEGORY_SET_STATUS.getSql(),
                 createParams("bookingId", bookingId,
                         "seq", sequences,
                         "assessStatus", "I"
@@ -888,7 +889,7 @@ public class InmateRepository extends RepositoryBase {
         final var assessmentId = getCategoryAssessmentTypeId();
 
         final var result = jdbcTemplate.update(
-                getQuery("UPDATE_CATEORY_NEXT_REVIEW_DATE"),
+                InmateRepositorySql.UPDATE_CATEORY_NEXT_REVIEW_DATE.getSql(),
                 createParams("bookingId", bookingId,
                         "assessmentTypeId", assessmentId,
                         "nextReviewDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))
@@ -904,9 +905,9 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final boolean accessToAllData, final Set<String> caseloads, boolean active) {
-        final var baseSql = getQuery("FIND_BASIC_INMATE_DETAIL_BY_OFFENDER_NO");
-        final var withCaseloadSql = accessToAllData ? baseSql : String.format("%s AND %s", baseSql, getQuery("CASELOAD_FILTER"));
-        final var sql = active ? String.format("%s AND %s", withCaseloadSql, getQuery("ACTIVE_BOOKING_FILTER")) : withCaseloadSql;
+        final var baseSql = InmateRepositorySql.FIND_BASIC_INMATE_DETAIL_BY_OFFENDER_NO.getSql();
+        final var withCaseloadSql = accessToAllData ? baseSql : String.format("%s AND %s", baseSql, InmateRepositorySql.CASELOAD_FILTER.getSql());
+        final var sql = active ? String.format("%s AND %s", withCaseloadSql, InmateRepositorySql.ACTIVE_BOOKING_FILTER.getSql()) : withCaseloadSql;
 
         return jdbcTemplate.query(
                 sql,
@@ -919,7 +920,7 @@ public class InmateRepository extends RepositoryBase {
         Optional<ImprisonmentStatus> imprisonmentStatus;
         try {
             imprisonmentStatus = jdbcTemplate.query(
-                    getQuery("GET_IMPRISONMENT_STATUS"),
+                    InmateRepositorySql.GET_IMPRISONMENT_STATUS.getSql(),
                     createParams("bookingId", bookingId),
                     IMPRISONMENT_STATUS_MAPPER)
                     .stream().max(Comparator.comparingInt(ImprisonmentStatus::getImprisonStatusSeq));
@@ -932,7 +933,7 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final List<Long> bookingIds) {
-        final var sql = getQuery("FIND_BASIC_INMATE_DETAIL_BY_BOOKING_IDS");
+        final var sql = InmateRepositorySql.FIND_BASIC_INMATE_DETAIL_BY_BOOKING_IDS.getSql();
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingIds", bookingIds, "caseloadId", caseload),
@@ -945,7 +946,7 @@ public class InmateRepository extends RepositoryBase {
 
         try {
             maxSeq = jdbcTemplate.queryForObject(
-                    getQuery("OFFENDER_ASSESSMENTS_SEQ_MAX"),
+                    InmateRepositorySql.OFFENDER_ASSESSMENTS_SEQ_MAX.getSql(),
                     createParams("bookingId", bookingId), Integer.class);
         } catch (final EmptyResultDataAccessException ex) {
             // no row - null response

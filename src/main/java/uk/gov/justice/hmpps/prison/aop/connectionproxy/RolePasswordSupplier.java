@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import uk.gov.justice.hmpps.prison.util.SQLProvider;
+import uk.gov.justice.hmpps.prison.repository.sql.UserRepositorySql;
 
 import java.util.Collections;
 
@@ -12,7 +12,6 @@ import static java.lang.String.format;
 
 @Slf4j
 public class RolePasswordSupplier {
-    private final SQLProvider sqlProvider;
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final String defaultSchema;
 
@@ -28,11 +27,9 @@ public class RolePasswordSupplier {
     private volatile String rolePassword;
 
     public RolePasswordSupplier(
-            final SQLProvider sqlProvider,
             final NamedParameterJdbcTemplate jdbcTemplate,
             final String defaultSchema
     ) {
-        this.sqlProvider = sqlProvider;
         this.jdbcTemplate = jdbcTemplate;
         this.defaultSchema = defaultSchema;
     }
@@ -52,7 +49,7 @@ public class RolePasswordSupplier {
     }
 
     private String getEncryptedPassword() {
-        final var sql = format(sqlProvider.get("FIND_ROLE_PASSWORD"), replaceSchema());
+        final var sql = format(UserRepositorySql.FIND_ROLE_PASSWORD.getSql(), replaceSchema());
         return jdbcTemplate.queryForObject(sql, Collections.emptyMap(), String.class);
     }
 

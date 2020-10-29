@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
 import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.MovementsRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDate;
@@ -45,7 +46,7 @@ public class MovementsRepository extends RepositoryBase {
 
 
     public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
-        final var sql = getQuery("GET_RECENT_MOVEMENTS_BY_DATE_FOR_BATCH");
+        final var sql = MovementsRepositorySql.GET_RECENT_MOVEMENTS_BY_DATE_FOR_BATCH.getSql();
         final var types = (movementTypes == null || movementTypes.isEmpty()) ? Set.of("TRN", "REL", "ADM") : movementTypes;
 
 
@@ -59,7 +60,7 @@ public class MovementsRepository extends RepositoryBase {
 
     public Optional<Movement> getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(getQuery("GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE"),
+            return Optional.ofNullable(jdbcTemplate.queryForObject(MovementsRepositorySql.GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE.getSql(),
                     createParams(
                             "bookingId", bookingId,
                             "sequenceNumber", sequenceNumber),
@@ -72,11 +73,11 @@ public class MovementsRepository extends RepositoryBase {
 
     public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
         if (movementTypes == null || movementTypes.isEmpty()) {
-            return jdbcTemplate.query(getQuery("GET_MOVEMENTS_BY_OFFENDERS"), createParams(
+            return jdbcTemplate.query(MovementsRepositorySql.GET_MOVEMENTS_BY_OFFENDERS.getSql(), createParams(
                     "offenderNumbers", offenderNumbers, "latestOnly", latestOnly),
                     MOVEMENT_MAPPER);
         }
-        return jdbcTemplate.query(getQuery("GET_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES"), createParams(
+        return jdbcTemplate.query(MovementsRepositorySql.GET_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES.getSql(), createParams(
                 "offenderNumbers", offenderNumbers,
                 "movementTypes", movementTypes,
                 "latestOnly", latestOnly),
@@ -85,7 +86,7 @@ public class MovementsRepository extends RepositoryBase {
 
 
     public List<OffenderMovement> getOffendersOut(final String agencyId, final LocalDate movementDate) {
-        final var sql = getQuery("GET_OFFENDERS_OUT_TODAY");
+        final var sql = MovementsRepositorySql.GET_OFFENDERS_OUT_TODAY.getSql();
         return jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId,
                 "movementDate", DateTimeConverter.toDate(movementDate)),
@@ -94,7 +95,7 @@ public class MovementsRepository extends RepositoryBase {
 
 
     public List<RollCount> getRollCount(final String agencyId, final String certifiedFlag) {
-        final var sql = getQuery("GET_ROLL_COUNT");
+        final var sql = MovementsRepositorySql.GET_ROLL_COUNT.getSql();
         return jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId,
                 "certifiedFlag", certifiedFlag,
@@ -108,7 +109,7 @@ public class MovementsRepository extends RepositoryBase {
     public MovementCount getMovementCount(final String agencyId, final LocalDate date) {
 
         final var movements = jdbcTemplate.query(
-                getQuery("GET_ROLLCOUNT_MOVEMENTS"),
+                MovementsRepositorySql.GET_ROLLCOUNT_MOVEMENTS.getSql(),
                 createParams("agencyId", agencyId, "movementDate", DateTimeConverter.toDate(date)), MOVEMENT_MAPPER);
 
         final var movementsGroupedByDirection = movements.stream().filter(movement ->
@@ -128,7 +129,7 @@ public class MovementsRepository extends RepositoryBase {
 
     public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(final String agencyId, final LocalDate date) {
 
-        final var initialSql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+        final var initialSql = MovementsRepositorySql.GET_ENROUTE_OFFENDER_MOVEMENTS.getSql();
         final var sql = date == null ? initialSql : initialSql + MOVEMENT_DATE_CLAUSE;
 
         return jdbcTemplate.query(sql,
@@ -142,7 +143,7 @@ public class MovementsRepository extends RepositoryBase {
     public int getEnrouteMovementsOffenderCount(final String agencyId, final LocalDate date) {
 
         return jdbcTemplate.queryForObject(
-                getQuery("GET_ENROUTE_OFFENDER_COUNT"),
+                MovementsRepositorySql.GET_ENROUTE_OFFENDER_COUNT.getSql(),
                 createParams(
                         "agencyId", agencyId,
                         "movementDate", DateTimeConverter.toDate(date)),
@@ -151,7 +152,7 @@ public class MovementsRepository extends RepositoryBase {
 
 
     public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate movementDate) {
-        return jdbcTemplate.query(getQuery("GET_OFFENDER_MOVEMENTS_IN"),
+        return jdbcTemplate.query(MovementsRepositorySql.GET_OFFENDER_MOVEMENTS_IN.getSql(),
                 createParams(
                         "agencyId", agencyId,
                         "movementDate", DateTimeConverter.toDate(movementDate)),
@@ -160,7 +161,7 @@ public class MovementsRepository extends RepositoryBase {
 
 
     public List<OffenderInReception> getOffendersInReception(final String agencyId) {
-        return jdbcTemplate.query(getQuery("GET_OFFENDERS_IN_RECEPTION"),
+        return jdbcTemplate.query(MovementsRepositorySql.GET_OFFENDERS_IN_RECEPTION.getSql(),
                 createParams("agencyId", agencyId),
                 OFFENDER_IN_RECEPTION_MAPPER);
     }
@@ -168,7 +169,7 @@ public class MovementsRepository extends RepositoryBase {
 
     public List<OffenderOut> getOffendersCurrentlyOut(final long livingUnitId) {
         return jdbcTemplate.query(
-                getQuery("GET_OFFENDERS_CURRENTLY_OUT_OF_LIVING_UNIT"),
+                MovementsRepositorySql.GET_OFFENDERS_CURRENTLY_OUT_OF_LIVING_UNIT.getSql(),
                 createParams(
                         "livingUnitId", livingUnitId,
                         "bookingSeq", 1,
@@ -179,7 +180,7 @@ public class MovementsRepository extends RepositoryBase {
 
     public List<OffenderOut> getOffendersCurrentlyOut(final String agencyId) {
         return jdbcTemplate.query(
-                getQuery("GET_OFFENDERS_CURRENTLY_OUT_OF_AGENCY"),
+                MovementsRepositorySql.GET_OFFENDERS_CURRENTLY_OUT_OF_AGENCY.getSql(),
                 createParams(
                         "agencyId", agencyId,
                         "bookingSeq", 1,
@@ -194,7 +195,7 @@ public class MovementsRepository extends RepositoryBase {
     public List<MovementSummary> getCompletedMovementsForAgencies(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
         return jdbcTemplate.query(
-                getQuery("GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD"),
+                MovementsRepositorySql.GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD.getSql(),
                 createParams("agencyListFrom", agencies,
                         "agencyListTo", agencies,
                         "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
@@ -206,7 +207,7 @@ public class MovementsRepository extends RepositoryBase {
     public List<CourtEvent> getCourtEvents(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
         return jdbcTemplate.query(
-                getQuery("GET_COURT_EVENTS_BY_AGENCY_AND_TIME_PERIOD"),
+                MovementsRepositorySql.GET_COURT_EVENTS_BY_AGENCY_AND_TIME_PERIOD.getSql(),
                 createParams("agencyListFrom", agencies,
                         "agencyListTo", agencies,
                         "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
@@ -218,7 +219,7 @@ public class MovementsRepository extends RepositoryBase {
     public List<TransferEvent> getOffenderTransfers(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
         return jdbcTemplate.query(
-                getQuery("GET_OFFENDER_TRANSFERS_BY_AGENCY_AND_TIME_PERIOD"),
+                MovementsRepositorySql.GET_OFFENDER_TRANSFERS_BY_AGENCY_AND_TIME_PERIOD.getSql(),
                 createParams("agencyListFrom", agencies,
                         "agencyListTo", agencies,
                         "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
@@ -230,7 +231,7 @@ public class MovementsRepository extends RepositoryBase {
     public List<ReleaseEvent> getOffenderReleases(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
 
         return jdbcTemplate.query(
-                getQuery("GET_OFFENDER_RELEASES_BY_AGENCY_AND_DATE"),
+                MovementsRepositorySql.GET_OFFENDER_RELEASES_BY_AGENCY_AND_DATE.getSql(),
                 createParams("agencyListFrom", agencies,
                         "fromDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(from)),
                         "toDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(to))),

@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.util.QueryBuilderFactory;
-import uk.gov.justice.hmpps.prison.util.SQLProvider;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -21,9 +20,6 @@ public abstract class RepositoryBase {
     protected NamedParameterJdbcOperations jdbcTemplate;
 
     @Autowired
-    protected SQLProvider sqlProvider;
-
-    @Autowired
     protected QueryBuilderFactory queryBuilderFactory;
 
     @Value("${datasource.jdbc.fetch_size:100}")
@@ -31,7 +27,6 @@ public abstract class RepositoryBase {
 
     @PostConstruct
     public void initSql() {
-        sqlProvider.loadSql(getClass().getSimpleName().replace('.', '/'));
         getJdbcTemplateBase().setFetchSize(fetchSize);
     }
 
@@ -70,9 +65,5 @@ public abstract class RepositoryBase {
         }
 
         return theMap;
-    }
-
-    public String getQuery(final String name) {
-        return sqlProvider.get(name);
     }
 }

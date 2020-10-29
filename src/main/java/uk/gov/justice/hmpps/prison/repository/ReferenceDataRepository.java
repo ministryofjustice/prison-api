@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.ReferenceDataRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class ReferenceDataRepository extends RepositoryBase {
 
     @Cacheable("referenceDomain")
     public Optional<ReferenceDomain> getReferenceDomain(final String domain) {
-        final var sql = getQuery("FIND_REFERENCE_DOMAIN");
+        final var sql = ReferenceDataRepositorySql.FIND_REFERENCE_DOMAIN.getSql();
 
         ReferenceDomain referenceDomain;
 
@@ -68,7 +69,7 @@ public class ReferenceDataRepository extends RepositoryBase {
     }
 
     private Optional<ReferenceCode> getReferenceCodeWithSubCodesByDomainAndCode(final String domain, final String code) {
-        final var sql = getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_AND_CODE_WITH_CHILDREN");
+        final var sql = ReferenceDataRepositorySql.FIND_REFERENCE_CODES_BY_DOMAIN_AND_CODE_WITH_CHILDREN.getSql();
 
         final var rcdResults = jdbcTemplate.query(
                 sql,
@@ -81,7 +82,7 @@ public class ReferenceDataRepository extends RepositoryBase {
     }
 
     private Optional<ReferenceCode> getReferenceCodeByDomainAndCode(final String domain, final String code) {
-        final var sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_AND_CODE");
+        final var sql = ReferenceDataRepositorySql.FIND_REFERENCE_CODE_BY_DOMAIN_AND_CODE.getSql();
 
         ReferenceCode referenceCode;
 
@@ -100,7 +101,7 @@ public class ReferenceDataRepository extends RepositoryBase {
 
     @CacheEvict(value = "referenceCodeByDomainAndCode", allEntries = true)
     public void insertReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceCode) {
-        final var sql = getQuery("CREATE_REFERENCE_CODE");
+        final var sql = ReferenceDataRepositorySql.CREATE_REFERENCE_CODE.getSql();
         jdbcTemplate.update(sql, createParams(
                 "domain", domain,
                 "code", code,
@@ -117,7 +118,7 @@ public class ReferenceDataRepository extends RepositoryBase {
 
     @CacheEvict(value = "referenceCodeByDomainAndCode", allEntries = true)
     public void updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceCode) {
-        final var sql = getQuery("UPDATE_REFERENCE_CODE");
+        final var sql = ReferenceDataRepositorySql.UPDATE_REFERENCE_CODE.getSql();
         jdbcTemplate.update(sql, createParams(
                 "domain", domain,
                 "code", code,
@@ -146,7 +147,8 @@ public class ReferenceDataRepository extends RepositoryBase {
     }
 
     private Page<ReferenceCode> getReferenceCodes(final String domain, final boolean havingSubCodes, final String orderBy, final Order order, final long offset, final long limit) {
-        final var initialSql = getQuery(havingSubCodes ? "FIND_REFERENCE_CODES_BY_DOMAIN_HAVING_SUB_CODES" : "FIND_REFERENCE_CODES_BY_DOMAIN");
+        final var initialSql = havingSubCodes ? ReferenceDataRepositorySql.FIND_REFERENCE_CODES_BY_DOMAIN_HAVING_SUB_CODES.getSql() :
+                                                       ReferenceDataRepositorySql.FIND_REFERENCE_CODES_BY_DOMAIN.getSql();
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, REF_CODE_ROW_MAPPER.getFieldMap());
 
@@ -176,7 +178,7 @@ public class ReferenceDataRepository extends RepositoryBase {
         // Build query to obtain sub-codes for domain (as parent domain) and codes (as parent codes) - this query is
         // not paginated as it must get every sub-code for the specified parent domain and codes. It is, however,
         // subject to sorting.
-        final var initialSql = getQuery("FIND_REFERENCE_CODES_BY_PARENT_DOMAIN_AND_CODE");
+        final var initialSql = ReferenceDataRepositorySql.FIND_REFERENCE_CODES_BY_PARENT_DOMAIN_AND_CODE.getSql();
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, REF_CODE_ROW_MAPPER.getFieldMap());
 
@@ -272,7 +274,7 @@ public class ReferenceDataRepository extends RepositoryBase {
 
 
     public List<ReferenceCode> getScheduleReasons(final String eventType) {
-        final var sql = getQuery("GET_AVAILABLE_EVENT_SUBTYPES");
+        final var sql = ReferenceDataRepositorySql.GET_AVAILABLE_EVENT_SUBTYPES.getSql();
         return jdbcTemplate.query(sql, createParams("eventType", eventType), REF_CODE_ROW_MAPPER);
     }
 }

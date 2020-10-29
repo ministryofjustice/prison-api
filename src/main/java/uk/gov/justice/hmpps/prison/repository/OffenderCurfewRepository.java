@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
+import uk.gov.justice.hmpps.prison.repository.sql.OffenderCurfewRepositorySql;
 import uk.gov.justice.hmpps.prison.service.support.OffenderCurfew;
 
 import java.beans.PropertyDescriptor;
@@ -55,7 +56,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
         final var sql = queryBuilderFactory
                 .getQueryBuilder(
-                        getQuery("OFFENDER_CURFEWS"),
+                        OffenderCurfewRepositorySql.OFFENDER_CURFEWS.getSql(),
                         Collections.emptyMap())
                 .build();
 
@@ -68,7 +69,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public void setHDCChecksPassed(final long curfewId, final HdcChecks hdcChecks) {
         jdbcTemplate.update(
-                getQuery("UPDATE_CURFEW_CHECKS_PASSED"),
+                OffenderCurfewRepositorySql.UPDATE_CURFEW_CHECKS_PASSED.getSql(),
                 createParams(
                         "curfewId", curfewId,
                         "date", hdcChecks.getDate(),
@@ -80,7 +81,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public void setHdcChecksPassedDate(long curfewId, LocalDate date) {
         jdbcTemplate.update(
-                getQuery("UPDATE_CURFEW_CHECKS_PASSED_DATE"),
+                OffenderCurfewRepositorySql.UPDATE_CURFEW_CHECKS_PASSED_DATE.getSql(),
                 createParams(
                         "curfewId", curfewId,
                         "date", date
@@ -91,7 +92,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public void setApprovalStatus(final long curfewId, final ApprovalStatus approvalStatus) {
         jdbcTemplate.update(
-                getQuery("UPDATE_APPROVAL_STATUS"),
+                OffenderCurfewRepositorySql.UPDATE_APPROVAL_STATUS.getSql(),
                 createParams(
                         "curfewId", curfewId,
                         "date", approvalStatus.getDate(),
@@ -103,7 +104,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public void setApprovalStatusDate(long curfewId, LocalDate date) {
         jdbcTemplate.update(
-                getQuery("UPDATE_APPROVAL_STATUS_DATE"),
+                OffenderCurfewRepositorySql.UPDATE_APPROVAL_STATUS_DATE.getSql(),
                 createParams(
                         "curfewId", curfewId,
                         "date", date
@@ -114,7 +115,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public OptionalLong findHdcStatusTracking(long curfewId, String statusTrackingCode) {
         val hdsStatusTrackingIds = jdbcTemplate.queryForList(
-                getQuery("FIND_HDC_STATUS_TRACKING"),
+                OffenderCurfewRepositorySql.FIND_HDC_STATUS_TRACKING.getSql(),
                 createParams(
                         "curfewId", curfewId,
                         "statusCode", statusTrackingCode),
@@ -126,7 +127,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public void deleteStatusReasons(long curfewId, Set<String> statusTrackingCodesToMatch) {
         jdbcTemplate.update(
-                getQuery("DELETE_HDC_STATUS_REASONS"),
+                OffenderCurfewRepositorySql.DELETE_HDC_STATUS_REASONS.getSql(),
                 createParams(
                         "curfewId", curfewId,
                         "codes", statusTrackingCodesToMatch
@@ -137,7 +138,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public void deleteStatusTrackings(long curfewId, Set<String> statusTrackingCodesToMatch) {
         jdbcTemplate.update(
-                getQuery("DELETE_HDC_STATUS_TRACKINGS"),
+                OffenderCurfewRepositorySql.DELETE_HDC_STATUS_TRACKINGS.getSql(),
                 createParams(
                         "curfewId", curfewId,
                         "codes", statusTrackingCodesToMatch
@@ -150,7 +151,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
         final var generatedKeyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
-                getQuery("CREATE_HDC_STATUS_TRACKING"),
+                OffenderCurfewRepositorySql.CREATE_HDC_STATUS_TRACKING.getSql(),
                 createParams(
                         "offenderCurfewId", curfewId,
                         "statusCode", statusCode),
@@ -164,7 +165,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public void createHdcStatusReason(long hdcStatusTrackingId, String statusReasonCode) {
         jdbcTemplate.update(
-                getQuery("CREATE_HDC_STATUS_REASON"),
+                OffenderCurfewRepositorySql.CREATE_HDC_STATUS_REASON.getSql(),
                 createParams(
                         "hdcStatusTrackingId", hdcStatusTrackingId,
                         "statusReasonCode", statusReasonCode)
@@ -174,7 +175,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(long bookingId, Set<String> statusTrackingCodesToMatch) {
         val results = jdbcTemplate.query(
-                getQuery("LATEST_HOME_DETENTION_CURFEW"),
+                OffenderCurfewRepositorySql.LATEST_HOME_DETENTION_CURFEW.getSql(),
                 createParams(
                         "bookingId", bookingId,
                         "statusTrackingCodes", statusTrackingCodesToMatch),
@@ -185,7 +186,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     public void resetCurfew(long curfewId) {
         jdbcTemplate.update(
-                getQuery("RESET_OFFENDER_CURFEW"),
+                OffenderCurfewRepositorySql.RESET_OFFENDER_CURFEW.getSql(),
                 createParams("curfewId", curfewId));
     }
 }

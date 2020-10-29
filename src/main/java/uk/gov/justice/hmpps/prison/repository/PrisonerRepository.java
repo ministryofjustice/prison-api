@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.PrisonerRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.support.OffenderRepositorySearchHelper;
 import uk.gov.justice.hmpps.prison.util.DatabaseDialect;
 
@@ -72,7 +73,7 @@ public class PrisonerRepository extends RepositoryBase {
 
 
     public Page<PrisonerDetail> findOffenders(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
-        final var initialSql = getQuery("SEARCH_OFFENDERS");
+        final var initialSql = PrisonerRepositorySql.SEARCH_OFFENDERS.getSql();
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER);
         final var dialect = builder.getDialect();
@@ -101,7 +102,7 @@ public class PrisonerRepository extends RepositoryBase {
 
     public Page<OffenderNumber> listAllOffenders(final PageRequest pageRequest) {
 
-        final var sql = queryBuilderFactory.getQueryBuilder(getQuery("LIST_ALL_OFFENDERS"), OFFENDER_NUMBER_MAPPER)
+        final var sql = queryBuilderFactory.getQueryBuilder(PrisonerRepositorySql.LIST_ALL_OFFENDERS.getSql(), OFFENDER_NUMBER_MAPPER)
                 .addRowCount()
                 .addPagination()
                 .build();
@@ -118,7 +119,7 @@ public class PrisonerRepository extends RepositoryBase {
 
     public Set<Long> getOffenderIdsFor(final String offenderNo) {
         return new HashSet<>(jdbcTemplate.queryForList(
-                getQuery("GET_OFFENDER_IDS"),
+                PrisonerRepositorySql.GET_OFFENDER_IDS.getSql(),
                 createParams("offenderNo", offenderNo),
                 Long.class));
     }

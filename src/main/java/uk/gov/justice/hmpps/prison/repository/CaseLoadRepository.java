@@ -4,6 +4,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.CaseLoadRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDate;
@@ -17,7 +18,7 @@ public class CaseLoadRepository extends RepositoryBase {
             new StandardBeanPropertyRowMapper<>(CaseLoad.class);
 
     public Optional<CaseLoad> getCaseLoad(final String caseLoadId) {
-        final var sql = getQuery("FIND_CASE_LOAD_BY_ID");
+        final var sql = CaseLoadRepositorySql.FIND_CASE_LOAD_BY_ID.getSql();
 
         CaseLoad caseload;
 
@@ -34,7 +35,7 @@ public class CaseLoadRepository extends RepositoryBase {
     }
 
     public List<CaseLoad> getCaseLoadsByUsername(final String username) {
-        final var initialSql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
+        final var initialSql = CaseLoadRepositorySql.FIND_CASE_LOADS_BY_USERNAME.getSql();
         final var sql = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER).
                 addWhereClause("type = :type").
                 build();
@@ -42,7 +43,7 @@ public class CaseLoadRepository extends RepositoryBase {
     }
 
     public List<CaseLoad> getCaseLoadsByStaffId(final Long staffId) {
-        return jdbcTemplate.query(getQuery("FIND_CASE_LOADS_BY_STAFF_ID"),
+        return jdbcTemplate.query(CaseLoadRepositorySql.FIND_CASE_LOADS_BY_STAFF_ID.getSql(),
                 createParams("staffId", staffId,
                         "staffUserType", "GENERAL",
                         "currentDate", DateTimeConverter.toDate(LocalDate.now())),
@@ -50,13 +51,13 @@ public class CaseLoadRepository extends RepositoryBase {
     }
 
     public List<CaseLoad> getAllCaseLoadsByUsername(final String username) {
-        final var initialSql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
+        final var initialSql = CaseLoadRepositorySql.FIND_CASE_LOADS_BY_USERNAME.getSql();
         final var sql = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER).build();
         return jdbcTemplate.query(sql, createParams("username", username), CASELOAD_ROW_MAPPER);
     }
 
     public Optional<CaseLoad> getWorkingCaseLoadByUsername(final String username) {
-        final var sql = getQuery("FIND_ACTIVE_CASE_LOAD_BY_USERNAME");
+        final var sql = CaseLoadRepositorySql.FIND_ACTIVE_CASE_LOAD_BY_USERNAME.getSql();
 
         CaseLoad caseload;
 

@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.CaseNoteRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import javax.validation.constraints.NotNull;
@@ -81,7 +82,7 @@ public class CaseNoteRepository extends RepositoryBase {
     public Page<CaseNote> getCaseNotes(final long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderByField,
                                        final Order order, final long offset, final long limit) {
 
-        var initialSql = getQuery("FIND_CASENOTES");
+        var initialSql = CaseNoteRepositorySql.FIND_CASENOTES.getSql();
         final var params = createParams("bookingId", bookingId, "offset", offset, "limit", limit);
         if (from != null) {
             initialSql += " AND CN.CONTACT_DATE >= :fromDate";
@@ -146,7 +147,7 @@ public class CaseNoteRepository extends RepositoryBase {
             addSql.append(" AND OCS.STAFF_ID = :staffId ");
         }
 
-        final var sql = String.format(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"), addSql.length() > 0 ? addSql.toString() : "");
+        final var sql = String.format(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS.getSql(), addSql.length() > 0 ? addSql.toString() : "");
 
         return jdbcTemplate.query(sql,
                 createParams(
@@ -163,7 +164,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
     public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(final String type, final String subType, final List<Integer> bookingIds, final LocalDate fromDate, final LocalDate toDate) {
 
-        final var sql = getQuery("GROUP_BY_TYPES_AND_OFFENDERS_FOR_BOOKING");
+        final var sql = CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS_FOR_BOOKING.getSql();
 
         return jdbcTemplate.query(sql,
                 createParams("bookingIds", bookingIds,
@@ -176,7 +177,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
 
     public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate, final Set<String> events, final long limit) {
-        return jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(getQuery("RECENT_CASE_NOTE_EVENTS"), Map.of()).addPagination().build(),
+        return jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.RECENT_CASE_NOTE_EVENTS.getSql(), Map.of()).addPagination().build(),
                 createParamSource(new PageRequest(0L, limit),
                         "fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate),
                         "types", events),
@@ -186,7 +187,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate) {
 
-        return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_STAFF"),
+        return jdbcTemplate.query(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_STAFF.getSql(),
                 createParams("staffIds", staffIds,
                         "type", type,
                         "subType", subType,
@@ -197,7 +198,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
 
     public Optional<CaseNote> getCaseNote(final long bookingId, final long caseNoteId) {
-        final var sql = getQuery("FIND_CASENOTE");
+        final var sql = CaseNoteRepositorySql.FIND_CASENOTE.getSql();
         final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
 
         CaseNote caseNote;
@@ -211,7 +212,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
 
     public Long createCaseNote(final long bookingId, final NewCaseNote newCaseNote, final String sourceCode, final String username, final Long staffId) {
-        final var initialSql = getQuery("INSERT_CASE_NOTE");
+        final var initialSql = CaseNoteRepositorySql.INSERT_CASE_NOTE.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
         final var sql = builder.build();
 
@@ -254,7 +255,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
 
     public void updateCaseNote(final long bookingId, final long caseNoteId, @Size(max = 4000, message = "{caseNoteTextTooLong}") final String updatedText, final String userId) {
-        final var sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), CASE_NOTE_MAPPING).build();
+        final var sql = queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.UPDATE_CASE_NOTE.getSql(), CASE_NOTE_MAPPING).build();
 
         jdbcTemplate.update(sql, createParams("modifyBy", userId,
                 "caseNoteId", caseNoteId,
@@ -263,7 +264,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
 
     public Long getCaseNoteCount(final long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
-        final var sql = getQuery("GET_CASE_NOTE_COUNT");
+        final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_COUNT.getSql();
 
         return jdbcTemplate.queryForObject(
                 sql,
@@ -278,7 +279,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
     @Cacheable("caseNoteTypesByCaseLoadType")
     public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
-        final var sql = getQuery("GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE");
+        final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE.getSql();
 
         return jdbcTemplate.query(sql,
                 createParams("caseLoadType", caseLoadType),
@@ -288,7 +289,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
     @Cacheable("caseNoteTypesWithSubTypesByCaseLoadType")
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
-        final var sql = getQuery("GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE");
+        final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE.getSql();
 
         final var referenceCodeDetails = jdbcTemplate.query(sql,
                 createParams("caseLoadType", caseLoadType),
@@ -300,7 +301,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
     @Cacheable("usedCaseNoteTypesWithSubTypes")
     public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
-        final var sql = getQuery("GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES");
+        final var sql = CaseNoteRepositorySql.GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES.getSql();
 
         final var referenceCodeDetails = jdbcTemplate.query(sql,
                 REF_CODE_DETAIL_ROW_MAPPER);

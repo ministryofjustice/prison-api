@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.repository.RepositoryBase;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.v1.model.AlertSP;
+import uk.gov.justice.hmpps.prison.repository.v1.sql.AlertV1RepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.sql.Types;
@@ -20,7 +21,8 @@ public class AlertV1Repository extends RepositoryBase {
     private static final StandardBeanPropertyRowMapper<AlertSP> ALERT_V1_MAPPER = new StandardBeanPropertyRowMapper<>(AlertSP.class);
 
     public List<AlertSP> getAlerts(final String nomsId, final boolean includeInactive, final LocalDateTime modifiedSince) {
-        final var sql = includeInactive ? getQuery("ALERTS_BY_OFFENDER_WTIH_INACTIVE") : getQuery("ALERTS_BY_OFFENDER");
+        final var sql = includeInactive ? AlertV1RepositorySql.ALERTS_BY_OFFENDER_WTIH_INACTIVE.getSql() :
+                                                 AlertV1RepositorySql.ALERTS_BY_OFFENDER.getSql();
         return jdbcTemplate.query(
                 sql,
                 createParams(

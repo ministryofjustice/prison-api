@@ -6,6 +6,7 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.IdempotentRequestRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.support.IdempotentRequestControl;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -53,7 +54,7 @@ public class IdempotentRequestRepository extends RepositoryBase {
         final var optIrc = getIdempotentRequestControl(correlationId);
 
         if (optIrc.isPresent() && StringUtils.isBlank(optIrc.get().getResponse())) {
-            final var sql = getQuery("UPDATE_IDEMPOTENT_REQUEST_CONTROL_RESPONSE");
+            final var sql = IdempotentRequestRepositorySql.UPDATE_IDEMPOTENT_REQUEST_CONTROL_RESPONSE.getSql();
 
             final var rows = jdbcTemplate.update(
                     sql,
@@ -70,7 +71,7 @@ public class IdempotentRequestRepository extends RepositoryBase {
     }
 
     private Optional<IdempotentRequestControl> getIdempotentRequestControl(final String correlationId) {
-        final var initialSql = getQuery("GET_IDEMPOTENT_REQUEST_CONTROL");
+        final var initialSql = IdempotentRequestRepositorySql.GET_IDEMPOTENT_REQUEST_CONTROL.getSql();
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, IRC_ROW_MAPPER);
 
@@ -88,7 +89,7 @@ public class IdempotentRequestRepository extends RepositoryBase {
     }
 
     private IdempotentRequestControl setIdempotentRequestControl(final String correlationId) {
-        final var initialSql = getQuery("SET_IDEMPOTENT_REQUEST_CONTROL");
+        final var initialSql = IdempotentRequestRepositorySql.SET_IDEMPOTENT_REQUEST_CONTROL.getSql();
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, IRC_ROW_MAPPER);
 

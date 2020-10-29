@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.AgencyRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReview;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReviewSearchCriteria;
@@ -61,7 +62,7 @@ public class AgencyRepository extends RepositoryBase {
 
 
     public Page<Agency> getAgencies(final String orderByField, final Order order, final long offset, final long limit) {
-        final var initialSql = getQuery("GET_AGENCIES");
+        final var initialSql = AgencyRepositorySql.GET_AGENCIES.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
 
         final var sql = builder
@@ -83,7 +84,7 @@ public class AgencyRepository extends RepositoryBase {
 
     public List<Agency> getAgenciesByType(final String agencyType) {
         return jdbcTemplate.query(
-                getQuery("GET_AGENCIES_BY_TYPE"),
+                AgencyRepositorySql.GET_AGENCIES_BY_TYPE.getSql(),
                 createParams("agencyType", agencyType, "activeFlag", "Y", "excludeIds", List.of("OUT", "TRN")),
                 AGENCY_ROW_MAPPER);
     }
@@ -91,7 +92,7 @@ public class AgencyRepository extends RepositoryBase {
 
     @Cacheable("findAgenciesByUsername")
     public List<Agency> findAgenciesByUsername(final String username) {
-        final var initialSql = getQuery("FIND_AGENCIES_BY_USERNAME");
+        final var initialSql = AgencyRepositorySql.FIND_AGENCIES_BY_USERNAME.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
 
         final var sql = builder.addOrderBy(true, "agencyId").build();
@@ -104,7 +105,7 @@ public class AgencyRepository extends RepositoryBase {
 
 
     public List<Agency> findAgenciesForCurrentCaseloadByUsername(final String username) {
-        final var initialSql = getQuery("FIND_AGENCIES_BY_CURRENT_CASELOAD");
+        final var initialSql = AgencyRepositorySql.FIND_AGENCIES_BY_CURRENT_CASELOAD.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
 
         final var sql = builder.build();
@@ -116,7 +117,7 @@ public class AgencyRepository extends RepositoryBase {
 
 
     public List<Agency> findAgenciesByCaseload(final String caseload) {
-        final var initialSql = getQuery("FIND_AGENCIES_BY_CASELOAD");
+        final var initialSql = AgencyRepositorySql.FIND_AGENCIES_BY_CASELOAD.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
 
         final var sql = builder.build();
@@ -129,7 +130,7 @@ public class AgencyRepository extends RepositoryBase {
 
 
     public Optional<Agency> findAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
-        final var initialSql = getQuery("GET_AGENCY");
+        final var initialSql = AgencyRepositorySql.GET_AGENCY.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
 
         final var sql = builder.build();
@@ -154,9 +155,9 @@ public class AgencyRepository extends RepositoryBase {
         final String initialSql;
 
         if (eventTypes.isEmpty()) {
-            initialSql = getQuery("GET_AGENCY_LOCATIONS");
+            initialSql = AgencyRepositorySql.GET_AGENCY_LOCATIONS.getSql();
         } else {
-            initialSql = getQuery("GET_AGENCY_LOCATIONS_FOR_EVENT_TYPE");
+            initialSql = AgencyRepositorySql.GET_AGENCY_LOCATIONS_FOR_EVENT_TYPE.getSql();
         }
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
@@ -171,7 +172,7 @@ public class AgencyRepository extends RepositoryBase {
 
 
     public List<IepLevel> getAgencyIepLevels(final String agencyId) {
-        final var initialSql = getQuery("GET_AGENCY_IEP_LEVELS");
+        final var initialSql = AgencyRepositorySql.GET_AGENCY_IEP_LEVELS.getSql();
 
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, IEP_LEVEL_ROW_MAPPER);
@@ -188,7 +189,7 @@ public class AgencyRepository extends RepositoryBase {
     public List<Location> getAgencyLocationsBooked(final String agencyId, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         final var params = createParams("agencyId", agencyId);
 
-        final var initialSql = getQuery("GET_AGENCY_LOCATIONS_FOR_EVENTS_BOOKED");
+        final var initialSql = AgencyRepositorySql.GET_AGENCY_LOCATIONS_FOR_EVENTS_BOOKED.getSql();
         setupDates(params, bookedOnDay, bookedOnPeriod);
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
@@ -225,7 +226,7 @@ public class AgencyRepository extends RepositoryBase {
 
 
     public List<PrisonContactDetail> getPrisonContactDetails(final String agencyId) {
-        final var sql = getQuery("FIND_PRISON_ADDRESSES_PHONE_NUMBERS");
+        final var sql = AgencyRepositorySql.FIND_PRISON_ADDRESSES_PHONE_NUMBERS.getSql();
 
         final var outerJoinResults = jdbcTemplate.query(sql, createParams("agencyId", agencyId), ADDRESS_ROW_MAPPER);
 
@@ -273,7 +274,7 @@ public class AgencyRepository extends RepositoryBase {
                 "iepLevel", new SqlParameterValue(Types.VARCHAR, criteria.getIepLevel()),
                 "location", new SqlParameterValue(Types.VARCHAR, criteria.getLocation()));
 
-        val results = jdbcTemplate.query(getQuery("GET_AGENCY_IEP_REVIEW_INFORMATION"), params, OFFENDER_IEP_REVIEW_ROW_MAPPER);
+        val results = jdbcTemplate.query(AgencyRepositorySql.GET_AGENCY_IEP_REVIEW_INFORMATION.getSql(), params, OFFENDER_IEP_REVIEW_ROW_MAPPER);
 
         val page = results.stream()
                 .sorted(comparing(OffenderIepReview::getNegativeIeps).reversed())

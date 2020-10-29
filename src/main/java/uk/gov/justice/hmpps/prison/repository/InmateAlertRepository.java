@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.InmateAlertRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDateTime;
@@ -49,7 +50,7 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public List<Alert> getActiveAlerts(final long bookingId) {
-        final var sql = getQuery("FIND_INMATE_ALERTS");
+        final var sql = InmateAlertRepositorySql.FIND_INMATE_ALERTS.getSql();
 
         final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
 
@@ -64,7 +65,7 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public Page<Alert> getAlerts(final long bookingId, final String query, final String orderByField, final Order order, final long offset, final long limit) {
-        final var initialSql = getQuery("FIND_INMATE_ALERTS");
+        final var initialSql = InmateAlertRepositorySql.FIND_INMATE_ALERTS.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
 
         final var sql = builder
@@ -87,7 +88,7 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public Optional<Alert> getAlert(final long bookingId, final long alertSeqId) {
-        final var initialSql = getQuery("FIND_INMATE_ALERT");
+        final var initialSql = InmateAlertRepositorySql.FIND_INMATE_ALERT.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
         final var sql = builder.build();
         final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
@@ -108,7 +109,7 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public List<Alert> getAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
-        final var basicSql = getQuery("FIND_INMATE_OFFENDERS_ALERTS");
+        final var basicSql = InmateAlertRepositorySql.FIND_INMATE_OFFENDERS_ALERTS.getSql();
         final var initialSql = latestOnly ? basicSql + " AND B.BOOKING_SEQ=1" : basicSql;
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
         final var sql = builder
@@ -127,7 +128,7 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public Page<String> getAlertCandidates(final LocalDateTime cutoffTimestamp, final long offset, final long limit) {
-        final var builder = queryBuilderFactory.getQueryBuilder(getQuery("GET_ALERT_CANDIDATES"), CANDIDATE_MAPPER);
+        final var builder = queryBuilderFactory.getQueryBuilder(InmateAlertRepositorySql.GET_ALERT_CANDIDATES.getSql(), CANDIDATE_MAPPER);
 
         final var sql = builder
                 .addRowCount()
@@ -148,9 +149,9 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final AlertChanges alert) {
-        final var expireAlertSql = getQuery("EXPIRE_ALERT");
-        final var updateAlertCommentSql = getQuery("UPDATE_ALERT_COMMENT");
-        final var insertNextWorkFlowLogEntry = getQuery("INSERT_NEXT_WORK_FLOW_LOG");
+        final var expireAlertSql = InmateAlertRepositorySql.EXPIRE_ALERT.getSql();
+        final var updateAlertCommentSql = InmateAlertRepositorySql.UPDATE_ALERT_COMMENT.getSql();
+        final var insertNextWorkFlowLogEntry = InmateAlertRepositorySql.INSERT_NEXT_WORK_FLOW_LOG.getSql();
 
         if (alert.getExpiryDate() != null) {
             jdbcTemplate.update(
@@ -187,9 +188,9 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public long createNewAlert(final long bookingId, final CreateAlert alert) {
-        final var createAlert = getQuery("CREATE_ALERT");
-        final var insertWorkFlow = getQuery("INSERT_WORK_FLOW");
-        final var insertWorkFlowLog = getQuery("INSERT_WORK_FLOW_LOG");
+        final var createAlert = InmateAlertRepositorySql.CREATE_ALERT.getSql();
+        final var insertWorkFlow = InmateAlertRepositorySql.INSERT_WORK_FLOW.getSql();
+        final var insertWorkFlowLog = InmateAlertRepositorySql.INSERT_WORK_FLOW_LOG.getSql();
         final var newAlertsSeqHolder = new GeneratedKeyHolder();
         final var generatedKeyHolder = new GeneratedKeyHolder();
 
