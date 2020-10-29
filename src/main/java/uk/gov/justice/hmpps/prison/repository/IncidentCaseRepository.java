@@ -42,7 +42,7 @@ public class IncidentCaseRepository extends RepositoryBase {
             new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
     public List<IncidentCase> getIncidentCasesByOffenderNo(final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
-        final var sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_OFFENDER_NO");
+        final var sql = generateSql(incidentTypes, participationRoles, IncidentCaseRepositorySql.GET_INCIDENT_CASES_BY_OFFENDER_NO);
         final var incidentCaseIds = jdbcTemplate.queryForList(sql,
                 createParams("offenderNo", offenderNo, "incidentTypes", incidentTypes, "participationRoles", participationRoles),
                 Long.class);
@@ -54,7 +54,7 @@ public class IncidentCaseRepository extends RepositoryBase {
     }
 
     public List<IncidentCase> getIncidentCasesByBookingId(final Long bookingId, final List<String> incidentTypes, final List<String> participationRoles) {
-        final var sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_BOOKING_ID");
+        final var sql = generateSql(incidentTypes, participationRoles, IncidentCaseRepositorySql.GET_INCIDENT_CASES_BY_BOOKING_ID);
 
         final var incidentCaseIds = jdbcTemplate.queryForList(sql,
                 createParams("bookingId", bookingId, "incidentTypes", incidentTypes, "participationRoles", participationRoles),
@@ -67,8 +67,8 @@ public class IncidentCaseRepository extends RepositoryBase {
         return Collections.emptyList();
     }
 
-    private String generateSql(final List<String> incidentTypes, final List<String> participationRoles, final String sqlName) {
-        var sql = getQuery(sqlName);
+    private String generateSql(final List<String> incidentTypes, final List<String> participationRoles, final IncidentCaseRepositorySql query) {
+        var sql = query.getSql();
         if (incidentTypes != null && !incidentTypes.isEmpty()) {
             sql += " AND " + IncidentCaseRepositorySql.FILTER_BY_TYPE.getSql();
         }

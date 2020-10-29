@@ -36,7 +36,7 @@ public class ImageRepository extends RepositoryBase {
         byte[] content = null;
         try {
 
-            final var sql = getImageContextWithSize(fullSizeImage, "FIND_IMAGE_CONTENT");
+            final var sql = getImageContextWithSize(fullSizeImage, ImageRepositorySql.FIND_IMAGE_CONTENT);
             final var blob = jdbcTemplate.queryForObject(sql, createParams("imageId", imageId), Blob.class);
             if (blob != null) {
                 final var length = (int) blob.length();
@@ -53,7 +53,7 @@ public class ImageRepository extends RepositoryBase {
     public byte[] getImageContent(final String offenderNo, final boolean fullSizeImage) {
         byte[] content = null;
         try {
-            final var sql = getImageContextWithSize(fullSizeImage, "FIND_IMAGE_CONTENT_BY_OFFENDER_NO");
+            final var sql = getImageContextWithSize(fullSizeImage, ImageRepositorySql.FIND_IMAGE_CONTENT_BY_OFFENDER_NO);
             final var blob = jdbcTemplate.queryForObject(sql, createParams("offenderNo", offenderNo), Blob.class);
             if (blob != null) {
                 final var length = (int) blob.length();
@@ -66,8 +66,8 @@ public class ImageRepository extends RepositoryBase {
         return content;
     }
 
-    private String getImageContextWithSize(final boolean fullSizeImage, String imageContentSql) {
-        return format(getQuery(imageContentSql), fullSizeImage ? "FULL_SIZE_IMAGE" : "THUMBNAIL_IMAGE");
+    private String getImageContextWithSize(final boolean fullSizeImage, ImageRepositorySql imageContentQuery) {
+        return format(imageContentQuery.getSql(), fullSizeImage ? "FULL_SIZE_IMAGE" : "THUMBNAIL_IMAGE");
     }
 
 }

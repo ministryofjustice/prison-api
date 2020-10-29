@@ -17,7 +17,6 @@ import java.util.Set;
 @Repository
 public class ScheduleRepository extends RepositoryBase {
 
-    private static final String AND_OFFENDER_NUMBERS = " AND O.OFFENDER_ID_DISPLAY in (:offenderNos)";
     private static final StandardBeanPropertyRowMapper<PrisonerSchedule> EVENT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerSchedule.class);
 
 
@@ -91,7 +90,7 @@ public class ScheduleRepository extends RepositoryBase {
 
     public List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNo, final LocalDate date) {
         return jdbcTemplate.query(
-                ScheduleRepositorySql.GET_VISITS.getSql() + AND_OFFENDER_NUMBERS,
+                ScheduleRepositorySql.GET_VISITS.getSql() + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.getSql(),
                 createParams(
                         "offenderNos", offenderNo,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
@@ -101,7 +100,7 @@ public class ScheduleRepository extends RepositoryBase {
 
     public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNo, final LocalDate date) {
         return jdbcTemplate.query(
-                ScheduleRepositorySql.GET_APPOINTMENTS.getSql() + AND_OFFENDER_NUMBERS,
+                ScheduleRepositorySql.GET_APPOINTMENTS.getSql() + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.getSql(),
                 createParams(
                         "offenderNos", offenderNo,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
@@ -111,7 +110,7 @@ public class ScheduleRepository extends RepositoryBase {
 
     public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
         return jdbcTemplate.query(
-                ScheduleRepositorySql.GET_ACTIVITIES.getSql() + AND_OFFENDER_NUMBERS,
+                ScheduleRepositorySql.GET_ACTIVITIES.getSql() + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.getSql(),
                 createParams(
                         "offenderNos", offenderNumbers,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
@@ -131,7 +130,7 @@ public class ScheduleRepository extends RepositoryBase {
 
     public List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
         return jdbcTemplate.query(
-                ScheduleRepositorySql.GET_EXTERNAL_TRANSFERS.getSql() + AND_OFFENDER_NUMBERS,
+                ScheduleRepositorySql.GET_EXTERNAL_TRANSFERS.getSql() + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.getSql(),
                 createParams(
                         "offenderNos", offenderNumbers,
                         "agencyId", agencyId,

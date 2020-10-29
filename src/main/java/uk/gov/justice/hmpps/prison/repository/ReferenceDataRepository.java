@@ -147,7 +147,8 @@ public class ReferenceDataRepository extends RepositoryBase {
     }
 
     private Page<ReferenceCode> getReferenceCodes(final String domain, final boolean havingSubCodes, final String orderBy, final Order order, final long offset, final long limit) {
-        final var initialSql = getQuery(havingSubCodes ? "FIND_REFERENCE_CODES_BY_DOMAIN_HAVING_SUB_CODES" : "FIND_REFERENCE_CODES_BY_DOMAIN");
+        final var initialSql = havingSubCodes ? ReferenceDataRepositorySql.FIND_REFERENCE_CODES_BY_DOMAIN_HAVING_SUB_CODES.getSql() :
+                                                       ReferenceDataRepositorySql.FIND_REFERENCE_CODES_BY_DOMAIN.getSql();
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, REF_CODE_ROW_MAPPER.getFieldMap());
 

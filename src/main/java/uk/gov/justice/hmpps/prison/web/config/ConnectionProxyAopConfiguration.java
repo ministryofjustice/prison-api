@@ -11,7 +11,6 @@ import uk.gov.justice.hmpps.prison.aop.connectionproxy.OracleConnectionAspect;
 import uk.gov.justice.hmpps.prison.aop.connectionproxy.RoleConfigurer;
 import uk.gov.justice.hmpps.prison.aop.connectionproxy.RolePasswordSupplier;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.util.SQLProvider;
 
 
 @Profile("connection-proxy")
@@ -49,9 +48,8 @@ public class ConnectionProxyAopConfiguration {
     }
 
     @Bean
-    public RolePasswordSupplier rolePasswordSupplier(final SQLProvider sqlProvider) {
+    public RolePasswordSupplier rolePasswordSupplier() {
         return new RolePasswordSupplier(
-                sqlProvider,
                 new NamedParameterJdbcTemplate(
                         new DriverManagerDataSource(jdbcUrl, username, password)
                 ),

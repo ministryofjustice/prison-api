@@ -25,9 +25,6 @@ import java.util.Optional;
 @Repository
 @Slf4j
 public class StaffRepository extends RepositoryBase {
-    private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE '%s%%' OR UPPER(LAST_NAME) LIKE '%s%%')";
-    private static final String STAFF_ID_FILTER_QUERY_TEMPLATE = " AND STAFF_ID = %d";
-    private static final String ACTIVE_FILTER_CLAUSE = " AND SM.STATUS = 'ACTIVE'";
 
     private static final StandardBeanPropertyRowMapper<StaffDetail> STAFF_DETAIL_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(StaffDetail.class);
@@ -163,7 +160,7 @@ public class StaffRepository extends RepositoryBase {
         if (StringUtils.isNotBlank(nameFilter)) {
             final var upperNameFilter = StringUtils.replace(nameFilter.toUpperCase(), "'", "''");
 
-            nameFilterQuery += String.format(NAME_FILTER_QUERY_TEMPLATE, upperNameFilter, upperNameFilter);
+            nameFilterQuery += String.format(StaffRepositorySql.NAME_FILTER_QUERY_TEMPLATE.getSql(), upperNameFilter, upperNameFilter);
         }
         return nameFilterQuery;
     }
@@ -172,7 +169,7 @@ public class StaffRepository extends RepositoryBase {
         var nameFilterQuery = baseSql;
 
         if (staffIdFilter != null) {
-            nameFilterQuery += String.format(STAFF_ID_FILTER_QUERY_TEMPLATE, staffIdFilter);
+            nameFilterQuery += String.format(StaffRepositorySql.STAFF_ID_FILTER_QUERY_TEMPLATE.getSql(), staffIdFilter);
         }
         return nameFilterQuery;
     }
@@ -181,7 +178,7 @@ public class StaffRepository extends RepositoryBase {
         var query = baseSql;
 
         if (activeOnly != null && activeOnly) {
-            query += ACTIVE_FILTER_CLAUSE;
+            query += StaffRepositorySql.ACTIVE_FILTER_CLAUSE.getSql();
         }
         return query;
     }

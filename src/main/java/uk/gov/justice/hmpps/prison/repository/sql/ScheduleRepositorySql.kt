@@ -280,5 +280,7 @@ enum class ScheduleRepositorySql(val sql: String) {
                 OIS.EVENT_CLASS = 'EXT_MOV' AND
                 OIS.AGY_LOC_ID = :agencyId AND
         OIS.EVENT_DATE = TRUNC(COALESCE(:date, OIS.EVENT_DATE))
-    """)
+    """),
+
+    AND_OFFENDER_NUMBERS(" AND O.OFFENDER_ID_DISPLAY in (:offenderNos)")
 }

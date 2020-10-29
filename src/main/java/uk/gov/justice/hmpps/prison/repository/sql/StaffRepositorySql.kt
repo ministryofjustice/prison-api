@@ -141,5 +141,9 @@ enum class StaffRepositorySql(val sql: String) {
                 AND SLR2.CAL_AGY_LOC_ID = SLR.CAL_AGY_LOC_ID
                 AND SLR2.POSITION = SLR.POSITION
                 AND SLR2.ROLE = SLR.ROLE)
-    """)
+    """),
+
+    NAME_FILTER_QUERY_TEMPLATE(" AND (UPPER(FIRST_NAME) LIKE '%s%%' OR UPPER(LAST_NAME) LIKE '%s%%')"),
+    STAFF_ID_FILTER_QUERY_TEMPLATE(" AND STAFF_ID = %d"),
+    ACTIVE_FILTER_CLAUSE(" AND SM.STATUS = 'ACTIVE'")
 }

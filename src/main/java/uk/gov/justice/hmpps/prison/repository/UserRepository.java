@@ -35,20 +35,6 @@ public class UserRepository extends RepositoryBase {
 
     private static final String ADMIN_ROLE_FUNCTION = "ADMIN";
 
-    private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :searchTerm OR UPPER(LAST_NAME) LIKE :searchTerm OR UPPER(SUA.USERNAME) LIKE :searchTerm)";
-
-    private static final String FULL_NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :firstName AND UPPER(LAST_NAME) LIKE :surname)";
-
-    private static final String EXCLUDE_BY_ROLE_FUNCTION_CLAUSE = " AND RL.ROLE_FUNCTION <> :roleFunction ";
-
-    private static final String APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE = " AND SUA.username in  (select SUA_INNER.USERNAME FROM STAFF_USER_ACCOUNTS SUA_INNER\n" +
-            "                INNER JOIN USER_ACCESSIBLE_CASELOADS UAC ON SUA_INNER.USERNAME = UAC.USERNAME\n" +
-            "                INNER JOIN User_caseload_roles UCR ON UCR.USERNAME = SUA_INNER.username\n" +
-            "                INNER JOIN OMS_ROLES RL ON RL.ROLE_ID = UCR.ROLE_ID\n" +
-            "  WHERE UAC.CASELOAD_ID = :apiCaseloadId\n" +
-            "  AND RL.ROLE_TYPE =  :applicationType\n" +
-            "  AND RL.ROLE_CODE = :roleCode )";
-
     private final StandardBeanPropertyRowMapper<UserRole> USER_ROLE_MAPPER =
             new StandardBeanPropertyRowMapper<>(UserRole.class);
 
@@ -95,7 +81,7 @@ public class UserRepository extends RepositoryBase {
     public List<AccessRole> findAccessRolesByUsernameAndCaseload(final String username, final String caseload, final boolean includeAdmin) {
         var query = UserRepositorySql.FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD.getSql();
 
-        if (!includeAdmin) query += EXCLUDE_BY_ROLE_FUNCTION_CLAUSE;
+        if (!includeAdmin) query += UserRepositorySql.EXCLUDE_BY_ROLE_FUNCTION_CLAUSE.getSql();
 
         final var builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_MAPPER);
 
@@ -272,14 +258,14 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(caseload, "An caseload id is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload("FIND_USERS_BY_CASELOAD", nameFilter, accessRole, pageRequest, caseload, null);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS_BY_CASELOAD, nameFilter, accessRole, pageRequest, caseload, null);
     }
 
 
     public Page<UserDetail> findUsers(final String accessRole, final NameFilter nameFilter, final PageRequest pageRequest) {
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload("FIND_USERS", nameFilter, accessRole, pageRequest, null, null);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS, nameFilter, accessRole, pageRequest, null, null);
     }
 
 
@@ -287,11 +273,11 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(laaUsername, "A username is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload("FIND_USERS_AVAILABLE_TO_LAA_USER", nameFilter, accessRole, pageRequest, null, laaUsername);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS_AVAILABLE_TO_LAA_USER, nameFilter, accessRole, pageRequest, null, laaUsername);
     }
 
-    private Page<UserDetail> getUsersByCaseload(final String namedSql, final NameFilter nameFilter, final String accessRole, final PageRequest pageRequest, final String caseload, final String laaUsername) {
-        final var baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery(namedSql), nameFilter), accessRole);
+    private Page<UserDetail> getUsersByCaseload(final UserRepositorySql query, final NameFilter nameFilter, final String accessRole, final PageRequest pageRequest, final String caseload, final String laaUsername) {
+        final var baseSql = applyAccessRoleQuery(applyNameFilterQuery(query.getSql(), nameFilter), accessRole);
 
 
         final var builder = queryBuilderFactory.getQueryBuilder(baseSql, USER_DETAIL_ROW_MAPPER.getFieldMap());
@@ -325,9 +311,9 @@ public class UserRepository extends RepositoryBase {
 
         if (nameFilter.isProvided()) {
             if (nameFilter.isFullNameSearch()) {
-                nameFilterQuery += FULL_NAME_FILTER_QUERY_TEMPLATE;
+                nameFilterQuery += UserRepositorySql.FULL_NAME_FILTER_QUERY_TEMPLATE.getSql();
             } else {
-                nameFilterQuery += NAME_FILTER_QUERY_TEMPLATE;
+                nameFilterQuery += UserRepositorySql.NAME_FILTER_QUERY_TEMPLATE.getSql();
             }
         }
         return nameFilterQuery;
@@ -338,7 +324,7 @@ public class UserRepository extends RepositoryBase {
 
         if (StringUtils.isNotBlank(accessRole)) {
 
-            resultSql += APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE;
+            resultSql += UserRepositorySql.APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE.getSql();
         }
 
         return resultSql;
