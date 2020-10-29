@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
 import uk.gov.justice.hmpps.prison.api.model.Person;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.ContactRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.sql.Types;
@@ -47,7 +48,7 @@ public class ContactRepository extends RepositoryBase {
 
     public Long createPerson(final String firstName, final String lastName) {
 
-        final var sql = getQuery("CREATE_PERSON");
+        final var sql = ContactRepositorySql.CREATE_PERSON.getSql();
         final var generatedKeyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
@@ -62,7 +63,7 @@ public class ContactRepository extends RepositoryBase {
 
     public void updatePerson(final Long personId, final String firstName, final String lastName) {
 
-        final var sql = getQuery("UPDATE_PERSON");
+        final var sql = ContactRepositorySql.UPDATE_PERSON.getSql();
         jdbcTemplate.update(
                 sql,
                 createParams("personId", personId, "firstName", firstName, "lastName", lastName));
@@ -71,7 +72,7 @@ public class ContactRepository extends RepositoryBase {
 
 
     public Optional<Person> getPersonById(final Long personId) {
-        final var sql = getQuery("GET_PERSON_BY_ID");
+        final var sql = ContactRepositorySql.GET_PERSON_BY_ID.getSql();
 
         Person person;
         try {
@@ -84,7 +85,7 @@ public class ContactRepository extends RepositoryBase {
 
 
     public Optional<Person> getPersonByRef(final String externalRef, final String identifierType) {
-        final var sql = getQuery("GET_PERSON_BY_REF");
+        final var sql = ContactRepositorySql.GET_PERSON_BY_REF.getSql();
         final var persons = jdbcTemplate.query(sql,
                 createParams("identifierType", identifierType,
                         "identifier", externalRef), PERSON_ROW_MAPPER);
@@ -94,7 +95,7 @@ public class ContactRepository extends RepositoryBase {
 
 
     public void createExternalReference(final Long personId, final String externalRef, final String identifierType) {
-        final var sql = getQuery("CREATE_PERSON_IDENTIFIER");
+        final var sql = ContactRepositorySql.CREATE_PERSON_IDENTIFIER.getSql();
         jdbcTemplate.update(
                 sql,
                 createParams("personId", personId,
@@ -104,7 +105,7 @@ public class ContactRepository extends RepositoryBase {
 
 
     public List<Contact> getOffenderRelationships(final Long bookingId, final String relationshipType) {
-        final var sql = getQuery("RELATIONSHIP_TO_OFFENDER");
+        final var sql = ContactRepositorySql.RELATIONSHIP_TO_OFFENDER.getSql();
 
         return jdbcTemplate.query(sql,
                 createParams("bookingId", bookingId,
@@ -114,7 +115,7 @@ public class ContactRepository extends RepositoryBase {
 
 
     public Optional<Contact> getOffenderRelationship(final Long relationshipId) {
-        final var sql = getQuery("RELATIONSHIP_TO_OFFENDER_BY_ID");
+        final var sql = ContactRepositorySql.RELATIONSHIP_TO_OFFENDER_BY_ID.getSql();
 
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql,
                 createParams("relationshipId", relationshipId),
@@ -123,7 +124,7 @@ public class ContactRepository extends RepositoryBase {
 
 
     public Long createRelationship(final Long personId, final Long bookingId, final String relationshipType, final String contactType) {
-        final var sql = getQuery("CREATE_OFFENDER_CONTACT_PERSONS");
+        final var sql = ContactRepositorySql.CREATE_OFFENDER_CONTACT_PERSONS.getSql();
         final var generatedKeyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
@@ -143,7 +144,7 @@ public class ContactRepository extends RepositoryBase {
 
 
     public void updateRelationship(final Long id, final Long personId, boolean active) {
-        final var sql = getQuery("UPDATE_OFFENDER_CONTACT_PERSONS_SAME_REL_TYPE");
+        final var sql = ContactRepositorySql.UPDATE_OFFENDER_CONTACT_PERSONS_SAME_REL_TYPE.getSql();
 
         jdbcTemplate.update(
                 sql,

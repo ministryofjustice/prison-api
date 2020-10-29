@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.SentenceRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDate;
@@ -23,7 +24,7 @@ public class SentenceRepository extends RepositoryBase {
 
     public List<OffenceDetail> getMainOffenceDetails(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-        final var sql = getQuery("GET_BOOKING_MAIN_OFFENCES");
+        final var sql = SentenceRepositorySql.GET_BOOKING_MAIN_OFFENCES.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -35,7 +36,7 @@ public class SentenceRepository extends RepositoryBase {
     public List<OffenceDetail> getMainOffenceDetails(final List<Long> bookingIds) {
         if (bookingIds.isEmpty()) return Collections.emptyList();
 
-        final var sql = getQuery("GET_BOOKING_MAIN_OFFENCES_MULTIPLE");
+        final var sql = SentenceRepositorySql.GET_BOOKING_MAIN_OFFENCES_MULTIPLE.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -46,7 +47,7 @@ public class SentenceRepository extends RepositoryBase {
 
     public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo, final boolean convictionsOnly) {
         Objects.requireNonNull(offenderNo, "offenderNo is a required parameter");
-        final var sql = getQuery("GET_OFFENCES");
+        final var sql = SentenceRepositorySql.GET_OFFENCES.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -57,7 +58,7 @@ public class SentenceRepository extends RepositoryBase {
 
     public List<OffenceHistoryDetail> getActiveOffencesForBooking(final Long bookingId, final boolean convictionsOnly) {
         Objects.requireNonNull(bookingId, "offenderNo is a required parameter");
-        final var sql = getQuery("GET_OFFENCES_FOR_BOOKING");
+        final var sql = SentenceRepositorySql.GET_OFFENCES_FOR_BOOKING.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -68,7 +69,7 @@ public class SentenceRepository extends RepositoryBase {
 
     public Optional<LocalDate> getConfirmedReleaseDate(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-        final var sql = getQuery("GET_BOOKING_CONFIRMED_RELEASE_DATE");
+        final var sql = SentenceRepositorySql.GET_BOOKING_CONFIRMED_RELEASE_DATE.getSql();
 
         Date releaseDate;
 

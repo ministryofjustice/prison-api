@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.IncidentCaseRepositorySql;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -69,10 +70,10 @@ public class IncidentCaseRepository extends RepositoryBase {
     private String generateSql(final List<String> incidentTypes, final List<String> participationRoles, final String sqlName) {
         var sql = getQuery(sqlName);
         if (incidentTypes != null && !incidentTypes.isEmpty()) {
-            sql += " AND " + getQuery("FILTER_BY_TYPE");
+            sql += " AND " + IncidentCaseRepositorySql.FILTER_BY_TYPE.getSql();
         }
         if (participationRoles != null && !participationRoles.isEmpty()) {
-            sql += " AND " + getQuery("FILTER_BY_PARTICIPATION");
+            sql += " AND " + IncidentCaseRepositorySql.FILTER_BY_PARTICIPATION.getSql();
         }
         return sql;
     }
@@ -80,13 +81,13 @@ public class IncidentCaseRepository extends RepositoryBase {
     public List<IncidentCase> getIncidentCases(final List<Long> incidentCaseIds) {
         Validate.notEmpty(incidentCaseIds, "incidentCaseIds are required.");
 
-        final var flatIncidentCases = jdbcTemplate.query(getQuery("GET_INCIDENT_CASE"),
+        final var flatIncidentCases = jdbcTemplate.query(IncidentCaseRepositorySql.GET_INCIDENT_CASE.getSql(),
                 createParams("incidentCaseIds", incidentCaseIds),
                 INCIDENT_CASE_MAPPER);
         final var incidentCases = new ArrayList<IncidentCase>();
 
         if (flatIncidentCases.size() > 0) {
-            final var incidentParties = jdbcTemplate.query(getQuery("GET_PARTIES_INVOLVED"),
+            final var incidentParties = jdbcTemplate.query(IncidentCaseRepositorySql.GET_PARTIES_INVOLVED.getSql(),
                     createParams("incidentCaseIds", incidentCaseIds),
                     INCIDENT_PARTY_MAPPER);
 
@@ -150,7 +151,7 @@ public class IncidentCaseRepository extends RepositoryBase {
 
     public Optional<Questionnaire> getQuestionnaire(final String category, final String code) {
 
-        final var questionnaireData = jdbcTemplate.query(getQuery("QUESTIONNAIRE"),
+        final var questionnaireData = jdbcTemplate.query(IncidentCaseRepositorySql.QUESTIONNAIRE.getSql(),
                 createParams(
                         "category", category,
                         "code", code),
@@ -212,7 +213,7 @@ public class IncidentCaseRepository extends RepositoryBase {
     }
 
     public Page<String> getIncidentCandidates(LocalDateTime cutoffTimestamp, final long offset, final long limit) {
-        final var builder = queryBuilderFactory.getQueryBuilder(getQuery("GET_INCIDENT_CANDIDATES"), CANDIDATE_MAPPER);
+        final var builder = queryBuilderFactory.getQueryBuilder(IncidentCaseRepositorySql.GET_INCIDENT_CANDIDATES.getSql(), CANDIDATE_MAPPER);
 
         final var sql = builder
                 .addRowCount()

@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.repository;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.PersonIdentifier;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.PersonRepositorySql;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class PersonRepository extends RepositoryBase {
     public List<PersonIdentifier> getPersonIdentifiers(final long personId) {
 
         return jdbcTemplate.query(
-                getQuery("GET_PERSON_IDENTIFIERS"),
+                PersonRepositorySql.GET_PERSON_IDENTIFIERS.getSql(),
                 createParams("personId", personId),
                 PERSON_IDENTIFIER_MAPPER);
     }

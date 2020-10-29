@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Account;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.FinanceRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew;
 
@@ -34,7 +35,7 @@ public class FinanceRepository extends RepositoryBase {
 
 
     public Account getBalances(final long bookingId, final String agencyId) {
-        final var sql = getQuery("GET_ACCOUNT");
+        final var sql = FinanceRepositorySql.GET_ACCOUNT.getSql();
         final var rowMapper = Row2BeanRowMapper.makeMapping(sql, Account.class, accountMapping);
         final var balances = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "agencyId", agencyId), rowMapper);
         balances.setCurrency(currency);

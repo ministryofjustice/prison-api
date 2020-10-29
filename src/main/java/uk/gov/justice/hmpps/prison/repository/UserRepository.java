@@ -16,6 +16,7 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.UserRepositorySql;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -62,7 +63,7 @@ public class UserRepository extends RepositoryBase {
 
 
     public Optional<UserDetail> findByUsername(final String username) {
-        final var sql = getQuery("FIND_USER_BY_USERNAME");
+        final var sql = UserRepositorySql.FIND_USER_BY_USERNAME.getSql();
         UserDetail userDetails;
         try {
             userDetails = jdbcTemplate.queryForObject(
@@ -78,7 +79,7 @@ public class UserRepository extends RepositoryBase {
 
     @Cacheable("findRolesByUsername")
     public List<UserRole> findRolesByUsername(final String username, final String query) {
-        var builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_ROLES_BY_USERNAME"), USER_ROLE_MAPPER);
+        var builder = queryBuilderFactory.getQueryBuilder(UserRepositorySql.FIND_ROLES_BY_USERNAME.getSql(), USER_ROLE_MAPPER);
 
         if (StringUtils.isNotBlank(query)) {
             builder = builder.addQuery(query);
@@ -92,7 +93,7 @@ public class UserRepository extends RepositoryBase {
 
 
     public List<AccessRole> findAccessRolesByUsernameAndCaseload(final String username, final String caseload, final boolean includeAdmin) {
-        var query = getQuery("FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD");
+        var query = UserRepositorySql.FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD.getSql();
 
         if (!includeAdmin) query += EXCLUDE_BY_ROLE_FUNCTION_CLAUSE;
 
@@ -107,7 +108,7 @@ public class UserRepository extends RepositoryBase {
 
 
     public void updateWorkingCaseLoad(final String username, final String caseLoadId) {
-        final var sql = getQuery("UPDATE_STAFF_ACTIVE_CASE_LOAD");
+        final var sql = UserRepositorySql.UPDATE_STAFF_ACTIVE_CASE_LOAD.getSql();
         jdbcTemplate.update(sql, createParams("caseLoadId", caseLoadId, "username", username));
     }
 
@@ -117,7 +118,7 @@ public class UserRepository extends RepositoryBase {
         Validate.notNull(staffId, "Staff id is required.");
         Validate.notBlank(staffUserType, "Staff user type is required.");
 
-        final var sql = getQuery("FIND_USER_BY_STAFF_ID_STAFF_USER_TYPE");
+        final var sql = UserRepositorySql.FIND_USER_BY_STAFF_ID_STAFF_USER_TYPE.getSql();
 
         UserDetail userDetail;
 
@@ -139,7 +140,7 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(username, "username is required.");
 
         final var count = jdbcTemplate.queryForObject(
-                getQuery("ROLE_ASSIGNED_COUNT"),
+                UserRepositorySql.ROLE_ASSIGNED_COUNT.getSql(),
                 createParams(
                         "caseloadId", caseload,
                         "username", username,
@@ -155,7 +156,7 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(username, "username is required.");
 
         final var count = jdbcTemplate.queryForObject(
-                getQuery("USER_ACCESSIBLE_CASELOAD_COUNT"),
+                UserRepositorySql.USER_ACCESSIBLE_CASELOAD_COUNT.getSql(),
                 createParams("caseloadId", caseload, "username", username),
                 Long.class);
 
@@ -169,7 +170,7 @@ public class UserRepository extends RepositoryBase {
         Long roleId;
         try {
             roleId = jdbcTemplate.queryForObject(
-                    getQuery("GET_ROLE_ID_FOR_ROLE_CODE"),
+                    UserRepositorySql.GET_ROLE_ID_FOR_ROLE_CODE.getSql(),
                     createParams("roleCode", roleCode),
                     Long.class);
 
@@ -186,7 +187,7 @@ public class UserRepository extends RepositoryBase {
         AccessRole role;
         try {
             role = jdbcTemplate.queryForObject(
-                    getQuery("GET_ROLE_BY_ROLE_CODE"),
+                    UserRepositorySql.GET_ROLE_BY_ROLE_CODE.getSql(),
                     createParams("roleCode", roleCode),
                     ACCESS_ROLE_MAPPER);
 
@@ -203,7 +204,7 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(username, "username is required.");
 
         jdbcTemplate.update(
-                getQuery("USER_ACCESSIBLE_CASELOAD_INSERT"),
+                UserRepositorySql.USER_ACCESSIBLE_CASELOAD_INSERT.getSql(),
                 createParams("caseloadId", caseload, "username", username, "startDate", DateTimeConverter.toDate(LocalDate.now())));
     }
 
@@ -212,7 +213,7 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(caseload, "caseload is required.");
         Validate.notBlank(roleCode, "roleCode is required.");
 
-        return jdbcTemplate.query(getQuery("FIND_ROLES_BY_CASELOAD_AND_ROLE"),
+        return jdbcTemplate.query(UserRepositorySql.FIND_ROLES_BY_CASELOAD_AND_ROLE.getSql(),
                 createParams("caseloadId", caseload, "roleCode", roleCode),
                 STAFF_USER_ROLE_MAPPER);
 
@@ -226,7 +227,7 @@ public class UserRepository extends RepositoryBase {
         Validate.notNull(roleId, "roleId is required.");
 
         jdbcTemplate.update(
-                getQuery("INSERT_USER_ROLE"),
+                UserRepositorySql.INSERT_USER_ROLE.getSql(),
                 createParams("caseloadId", caseload, "username", username, "roleId", roleId));
     }
 
@@ -238,7 +239,7 @@ public class UserRepository extends RepositoryBase {
         Validate.notNull(roleId, "roleId is required.");
 
         jdbcTemplate.update(
-                getQuery("DELETE_USER_ROLE"),
+                UserRepositorySql.DELETE_USER_ROLE.getSql(),
                 createParams("caseloadId", caseload, "username", username, "roleId", roleId));
     }
 
@@ -246,7 +247,7 @@ public class UserRepository extends RepositoryBase {
     public List<UserDetail> findAllUsersWithCaseload(final String caseloadId, final String missingCaseloadId) {
         Validate.notBlank(caseloadId, "An caseload id is required.");
 
-        final var sql = getQuery("FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD");
+        final var sql = UserRepositorySql.FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -257,7 +258,7 @@ public class UserRepository extends RepositoryBase {
 
     public List<UserDetail> getUserListByUsernames(final List<String> usernames) {
 
-        final var sql = getQuery("FIND_USERS_BY_USERNAMES");
+        final var sql = UserRepositorySql.FIND_USERS_BY_USERNAMES.getSql();
 
         return jdbcTemplate.query(
                 sql,

@@ -5,6 +5,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.ImageRepositorySql;
 
 import java.sql.Blob;
 import java.sql.SQLException;
@@ -18,7 +19,7 @@ public class ImageRepository extends RepositoryBase {
     public final static StandardBeanPropertyRowMapper<ImageDetail> IMAGE_DETAIL_MAPPER = new StandardBeanPropertyRowMapper<>(ImageDetail.class);
 
     public Optional<ImageDetail> findImageDetail(final Long imageId) {
-        final var sql = getQuery("FIND_IMAGE_DETAIL");
+        final var sql = ImageRepositorySql.FIND_IMAGE_DETAIL.getSql();
         ImageDetail imageDetail;
         try {
             imageDetail = jdbcTemplate.queryForObject(sql,

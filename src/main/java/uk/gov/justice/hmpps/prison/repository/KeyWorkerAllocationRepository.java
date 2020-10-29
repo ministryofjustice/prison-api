@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.KeyWorkerAllocationRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDate;
@@ -32,7 +33,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
 
 
     public List<Keyworker> getAvailableKeyworkers(final String agencyId) {
-        final var sql = getQuery("GET_AVAILABLE_KEY_WORKERS");
+        final var sql = KeyWorkerAllocationRepositorySql.GET_AVAILABLE_KEY_WORKERS.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -46,7 +47,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
 
         try {
             keyworker = jdbcTemplate.queryForObject(
-                    getQuery("GET_KEY_WORKER_DETAILS_FOR_OFFENDER"),
+                    KeyWorkerAllocationRepositorySql.GET_KEY_WORKER_DETAILS_FOR_OFFENDER.getSql(),
                     createParams("bookingId", bookingId, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
                     KEY_WORKER_ROW_MAPPER);
         } catch (final EmptyResultDataAccessException e) {
@@ -63,7 +64,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
 
 
     public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworkers(final List<Long> staffIds, final List<String> agencyIds) {
-        final var sql = getQuery("GET_ALLOCATION_DETAIL_FOR_KEY_WORKERS");
+        final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_DETAIL_FOR_KEY_WORKERS.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -73,7 +74,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
 
 
     public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final List<String> agencyIds) {
-        final var sql = getQuery("GET_ALLOCATION_DETAIL_FOR_OFFENDERS");
+        final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_DETAIL_FOR_OFFENDERS.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -84,7 +85,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
 
     public boolean checkKeyworkerExists(final Long staffId) {
         try {
-            jdbcTemplate.queryForObject(getQuery("CHECK_KEY_WORKER_EXISTS"), createParams("staffId", staffId),
+            jdbcTemplate.queryForObject(KeyWorkerAllocationRepositorySql.CHECK_KEY_WORKER_EXISTS.getSql(), createParams("staffId", staffId),
                     KEY_WORKER_ROW_MAPPER);
             return true;
         } catch (final EmptyResultDataAccessException e) {
@@ -97,7 +98,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
         Validate.notBlank(agencyId, "Agency id is required.");
         Validate.notNull(pageRequest, "Page request details are requreid.");
 
-        final var initialSql = getQuery("GET_ALLOCATION_HISTORY_BY_AGENCY");
+        final var initialSql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_HISTORY_BY_AGENCY.getSql();
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_KEY_WORKER_ROW_MAPPER.getFieldMap());
 
@@ -120,7 +121,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
     public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(final List<String> offenderNos) {
         Validate.notEmpty(offenderNos, "At least 1 offender No is required.");
 
-        final var sql = getQuery("GET_ALLOCATION_HISTORY_BY_OFFENDER");
+        final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_HISTORY_BY_OFFENDER.getSql();
 
         return jdbcTemplate.query(
                 sql,
@@ -132,7 +133,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
     public List<OffenderKeyWorker> getAllocationHistoryByStaffIds(final List<Long> staffIds) {
         Validate.notEmpty(staffIds, "At least 1 staff Id is required.");
 
-        final var sql = getQuery("GET_ALLOCATION_HISTORY_BY_STAFF");
+        final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_HISTORY_BY_STAFF.getSql();
 
         return jdbcTemplate.query(
                 sql,

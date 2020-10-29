@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.ScheduleRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.sql.Types;
@@ -21,7 +22,7 @@ public class ScheduleRepository extends RepositoryBase {
 
 
     public List<PrisonerSchedule> getAllActivitiesAtAgency(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order, boolean includeSuspended) {
-        final var initialSql = getQuery("GET_ALL_ACTIVITIES_AT_AGENCY");
+        final var initialSql = ScheduleRepositorySql.GET_ALL_ACTIVITIES_AT_AGENCY.getSql();
 
         final var sql = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap())
                 .addOrderBy(order, orderByFields)
@@ -38,7 +39,7 @@ public class ScheduleRepository extends RepositoryBase {
 
 
     public List<PrisonerSchedule> getActivitiesAtLocation(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order, boolean includeSuspended) {
-        final var initialSql = getQuery("GET_ACTIVITIES_AT_ONE_LOCATION");
+        final var initialSql = ScheduleRepositorySql.GET_ACTIVITIES_AT_ONE_LOCATION.getSql();
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
@@ -59,7 +60,7 @@ public class ScheduleRepository extends RepositoryBase {
     public List<PrisonerSchedule> getLocationAppointments(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         Objects.requireNonNull(locationId, "locationId is a required parameter");
 
-        final var initialSql = getQuery("GET_APPOINTMENTS_AT_LOCATION");
+        final var initialSql = ScheduleRepositorySql.GET_APPOINTMENTS_AT_LOCATION.getSql();
 
         return getScheduledEvents(initialSql, locationId, fromDate, toDate, orderByFields, order);
     }
@@ -68,7 +69,7 @@ public class ScheduleRepository extends RepositoryBase {
     public List<PrisonerSchedule> getLocationVisits(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         Objects.requireNonNull(locationId, "locationId is a required parameter");
 
-        final var initialSql = getQuery("GET_VISITS_AT_LOCATION");
+        final var initialSql = ScheduleRepositorySql.GET_VISITS_AT_LOCATION.getSql();
 
         return getScheduledEvents(initialSql, locationId, fromDate, toDate, orderByFields, order);
     }
@@ -90,7 +91,7 @@ public class ScheduleRepository extends RepositoryBase {
 
     public List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNo, final LocalDate date) {
         return jdbcTemplate.query(
-                getQuery("GET_VISITS") + AND_OFFENDER_NUMBERS,
+                ScheduleRepositorySql.GET_VISITS.getSql() + AND_OFFENDER_NUMBERS,
                 createParams(
                         "offenderNos", offenderNo,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
@@ -100,7 +101,7 @@ public class ScheduleRepository extends RepositoryBase {
 
     public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNo, final LocalDate date) {
         return jdbcTemplate.query(
-                getQuery("GET_APPOINTMENTS") + AND_OFFENDER_NUMBERS,
+                ScheduleRepositorySql.GET_APPOINTMENTS.getSql() + AND_OFFENDER_NUMBERS,
                 createParams(
                         "offenderNos", offenderNo,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
@@ -110,7 +111,7 @@ public class ScheduleRepository extends RepositoryBase {
 
     public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
         return jdbcTemplate.query(
-                getQuery("GET_ACTIVITIES") + AND_OFFENDER_NUMBERS,
+                ScheduleRepositorySql.GET_ACTIVITIES.getSql() + AND_OFFENDER_NUMBERS,
                 createParams(
                         "offenderNos", offenderNumbers,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
@@ -120,7 +121,7 @@ public class ScheduleRepository extends RepositoryBase {
 
     public List<PrisonerSchedule> getCourtEvents(final List<String> offenderNumbers, final LocalDate date) {
         return jdbcTemplate.query(
-                getQuery("GET_COURT_EVENTS"),
+                ScheduleRepositorySql.GET_COURT_EVENTS.getSql(),
                 createParams(
                         "offenderNos", offenderNumbers,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
@@ -130,7 +131,7 @@ public class ScheduleRepository extends RepositoryBase {
 
     public List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
         return jdbcTemplate.query(
-                getQuery("GET_EXTERNAL_TRANSFERS") + AND_OFFENDER_NUMBERS,
+                ScheduleRepositorySql.GET_EXTERNAL_TRANSFERS.getSql() + AND_OFFENDER_NUMBERS,
                 createParams(
                         "offenderNos", offenderNumbers,
                         "agencyId", agencyId,

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.LocationRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
@@ -28,7 +29,7 @@ public class LocationRepository extends RepositoryBase {
 
 
     public Optional<Location> findLocation(final long locationId, final StatusFilter filter) {
-        final var sql = getQuery("GET_LOCATION");
+        final var sql = LocationRepositorySql.GET_LOCATION.getSql();
 
         try {
             final var rawLocation = jdbcTemplate.queryForObject(
@@ -44,7 +45,7 @@ public class LocationRepository extends RepositoryBase {
 
 
     public Optional<Location> findLocation(final long locationId, final String username) {
-        final var sql = getQuery("FIND_LOCATION");
+        final var sql = LocationRepositorySql.FIND_LOCATION.getSql();
 
         try {
             final var rawLocation = jdbcTemplate.queryForObject(
@@ -71,7 +72,7 @@ public class LocationRepository extends RepositoryBase {
 
     @Cacheable("findLocationsByAgencyAndType")
     public List<Location> findLocationsByAgencyAndType(final String agencyId, final String locationType, final boolean noParentLocation) {
-        final var initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
+        final var initialSql = LocationRepositorySql.FIND_LOCATIONS_BY_AGENCY_AND_TYPE.getSql();
         var builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
 
         if (noParentLocation) {
@@ -94,7 +95,7 @@ public class LocationRepository extends RepositoryBase {
 
     public List<Location> getLocationGroupData(final String agencyId) {
         return jdbcTemplate.query(
-                getQuery("GET_LOCATION_GROUP_DATA"),
+                LocationRepositorySql.GET_LOCATION_GROUP_DATA.getSql(),
                 Map.of("agencyId", agencyId),
                 LOCATION_ROW_MAPPER);
     }
@@ -103,7 +104,7 @@ public class LocationRepository extends RepositoryBase {
     public List<Location> getSubLocationGroupData(Set<Long> parentLocationIds) {
 
         return jdbcTemplate.query(
-                getQuery("GET_SUB_LOCATION_GROUP_DATA"),
+                LocationRepositorySql.GET_SUB_LOCATION_GROUP_DATA.getSql(),
                 Map.of("parentLocationIds", parentLocationIds),
                 LOCATION_ROW_MAPPER);
     }

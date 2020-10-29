@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import uk.gov.justice.hmpps.prison.repository.sql.OffenderDeletionRepositorySql;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 
 import java.util.HashSet;
@@ -425,20 +426,20 @@ public class OffenderDeletionRepository extends RepositoryBase {
     }
 
     private void executeNamedSqlWithBookingIds(final String sql, final Set<Long> ids) {
-        jdbcTemplate.update(getQuery(sql), createParams("bookIds", ids));
+        jdbcTemplate.update(OffenderDeletionRepositorySql.valueOf(sql).getSql(), createParams("bookIds", ids));
     }
 
-    private void executeNamedSqlWithOffenderIdsAndBookingIds(final String sql,
+    private void executeNamedSqlWithOffenderIdsAndBookingIds(final String query,
                                                              final Set<Long> offenderIds,
                                                              final Set<Long> bookIds) {
-        jdbcTemplate.update(getQuery(sql), createParams("offenderIds", offenderIds, "bookIds", bookIds.isEmpty() ? null : bookIds));
+        jdbcTemplate.update(OffenderDeletionRepositorySql.valueOf(query).getSql(), createParams("offenderIds", offenderIds, "bookIds", bookIds.isEmpty() ? null : bookIds));
     }
 
-    private void executeNamedSqlWithIncidentCaseIds(final String sql, final Set<Long> ids) {
-        jdbcTemplate.update(getQuery(sql), createParams("incidentCaseIds", ids));
+    private void executeNamedSqlWithIncidentCaseIds(final String query, final Set<Long> ids) {
+        jdbcTemplate.update(OffenderDeletionRepositorySql.valueOf(query).getSql(), createParams("incidentCaseIds", ids));
     }
 
-    private void executeNamedSqlWithAgencyIncidentIds(final String sql, final Set<Long> ids) {
-        jdbcTemplate.update(getQuery(sql), createParams("agencyIncidentIds", ids));
+    private void executeNamedSqlWithAgencyIncidentIds(final String query, final Set<Long> ids) {
+        jdbcTemplate.update(OffenderDeletionRepositorySql.valueOf(query).getSql(), createParams("agencyIncidentIds", ids));
     }
 }

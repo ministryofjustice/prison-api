@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.sql.StaffRepositorySql;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -43,7 +44,7 @@ public class StaffRepository extends RepositoryBase {
     public Optional<StaffDetail> findByStaffId(final Long staffId) {
         Validate.notNull(staffId, "A staff id is required in order to retrieve staff details.");
 
-        final var sql = getQuery("FIND_STAFF_BY_STAFF_ID");
+        final var sql = StaffRepositorySql.FIND_STAFF_BY_STAFF_ID.getSql();
 
         StaffDetail staffDetail;
 
@@ -64,7 +65,7 @@ public class StaffRepository extends RepositoryBase {
         Validate.notBlank(idType, "An id type is required.");
         Validate.notBlank(id, "An id is required.");
 
-        final var sql = getQuery("FIND_STAFF_BY_PERSONNEL_IDENTIFIER");
+        final var sql = StaffRepositorySql.FIND_STAFF_BY_PERSONNEL_IDENTIFIER.getSql();
 
         StaffDetail staffDetail;
 
@@ -85,7 +86,7 @@ public class StaffRepository extends RepositoryBase {
 
     public List<String> findEmailAddressesForStaffId(final Long staffId) {
 
-        return jdbcTemplate.query(getQuery("GET_STAFF_EMAIL_ADDRESSES"), createParams("staffId", staffId, "ownerClass", "STF", "addressClass", "EMAIL"), (rs, rowNum) -> rs.getString(1));
+        return jdbcTemplate.query(StaffRepositorySql.GET_STAFF_EMAIL_ADDRESSES.getSql(), createParams("staffId", staffId, "ownerClass", "STF", "addressClass", "EMAIL"), (rs, rowNum) -> rs.getString(1));
     }
 
 
@@ -95,7 +96,7 @@ public class StaffRepository extends RepositoryBase {
         Validate.notBlank(role, "A role code is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        var baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_POSITION_ROLE"), nameFilter), staffId);
+        var baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(StaffRepositorySql.FIND_STAFF_BY_AGENCY_POSITION_ROLE.getSql(), nameFilter), staffId);
         baseSql = applyActiveClause(baseSql, activeOnly);
 
         final var builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
@@ -122,7 +123,7 @@ public class StaffRepository extends RepositoryBase {
         Validate.notBlank(role, "A role code is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        var baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_AND_ROLE"), nameFilter), staffId);
+        var baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(StaffRepositorySql.FIND_STAFF_BY_AGENCY_AND_ROLE.getSql(), nameFilter), staffId);
         baseSql = applyActiveClause(baseSql, activeOnly);
 
         final var builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
@@ -148,7 +149,7 @@ public class StaffRepository extends RepositoryBase {
         Validate.notNaN(staffId, "A staffId code is required.");
         Validate.notBlank(agencyId, "An agency id is required.");
 
-        final var sql = getQuery("GET_STAFF_ROLES_FOR_AGENCY");
+        final var sql = StaffRepositorySql.GET_STAFF_ROLES_FOR_AGENCY.getSql();
 
         return jdbcTemplate.query(
                 sql,
