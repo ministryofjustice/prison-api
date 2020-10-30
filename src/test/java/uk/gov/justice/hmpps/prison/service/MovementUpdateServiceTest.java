@@ -1,13 +1,13 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestTemplate;
-import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -23,6 +23,7 @@ import java.util.Optional;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -56,6 +57,11 @@ class MovementUpdateServiceTest {
     private final OffenderBookingRepository offenderBookingRepository = mock(OffenderBookingRepository.class);
     private final AgencyInternalLocationRepository agencyInternalLocationRepository = mock(AgencyInternalLocationRepository.class);
     private final MovementUpdateService service = new MovementUpdateService(referenceDomainService, bedAssignmentHistoryService, bookingService, offenderBookingRepository, agencyInternalLocationRepository, clock);
+
+    @BeforeEach
+    public void before() {
+        when(bedAssignmentHistoryService.add(anyLong(), anyLong(), anyString(), any())).thenReturn(new BedAssignmentHistory.BedAssignmentHistoryPK(1L, 2));
+    }
 
     @Nested
     class MoveToCellError {
@@ -135,15 +141,15 @@ class MovementUpdateServiceTest {
                     .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, "Y"));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
                     .thenReturn(Optional.of(
-                    AgencyInternalLocation.builder()
-                            .locationId(NEW_LIVING_UNIT_ID)
-                            .locationCode(NEW_LIVING_UNIT_DESC)
-                            .description("MDI-1-3")
-                            .operationalCapacity(10)
-                            .capacity(10)
-                            .locationType("CELL")
-                            .activeFlag(ActiveFlag.Y)
-                            .build()));
+                            AgencyInternalLocation.builder()
+                                    .locationId(NEW_LIVING_UNIT_ID)
+                                    .locationCode(NEW_LIVING_UNIT_DESC)
+                                    .description("MDI-1-3")
+                                    .operationalCapacity(10)
+                                    .capacity(10)
+                                    .locationType("CELL")
+                                    .activeFlag(ActiveFlag.Y)
+                                    .build()));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -160,7 +166,7 @@ class MovementUpdateServiceTest {
 
             service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME);
 
-            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
+            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC).get());
         }
 
         @Test
@@ -244,7 +250,7 @@ class MovementUpdateServiceTest {
 
             when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId(CELL_SWAP_LOCATION_CODE, "LEI")).thenReturn(List.of(cellSwapLocation));
 
-            final var offenderBooking = service.moveToCellSwap(SOME_BOOKING_ID,  "ADM", SOME_TIME);
+            final var offenderBooking = service.moveToCellSwap(SOME_BOOKING_ID, "ADM", SOME_TIME);
 
             assertThat(offenderBooking.getAssignedLivingUnitId()).isEqualTo(CELL_SWAP_LOCATION_ID);
 
@@ -257,11 +263,10 @@ class MovementUpdateServiceTest {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"));
             when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI")).thenReturn(List.of(cellSwapLocation()));
 
-             service.moveToCellSwap(SOME_BOOKING_ID, SOME_REASON_CODE, SOME_TIME);
+            service.moveToCellSwap(SOME_BOOKING_ID, SOME_REASON_CODE, SOME_TIME);
 
-             verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, CELL_SWAP_LOCATION_ID, SOME_REASON_CODE, SOME_TIME);
+            verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, CELL_SWAP_LOCATION_ID, SOME_REASON_CODE, SOME_TIME);
         }
-
 
 
         @Test
@@ -298,7 +303,7 @@ class MovementUpdateServiceTest {
 
         @Test
         void noUpdateNeeded_returnsOriginalOffender() {
-            final var offenderInCellSwap  = OffenderBooking.builder()
+            final var offenderInCellSwap = OffenderBooking.builder()
                     .bookingId(SOME_BOOKING_ID)
                     .activeFlag("Y")
                     .location(AgencyLocation.builder().id("LEI").build())
@@ -336,7 +341,7 @@ class MovementUpdateServiceTest {
         void moreThanOne_cellSwapConfigured() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"));
             when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI"))
-                    .thenReturn(List.of(cellSwapLocation(),cellSwapLocation()));
+                    .thenReturn(List.of(cellSwapLocation(), cellSwapLocation()));
 
             assertThatThrownBy(() -> service.moveToCellSwap(SOME_BOOKING_ID, "ADM", SOME_TIME))
                     .isInstanceOf(RuntimeException.class)
@@ -349,7 +354,7 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), badReasonCode, false))
                     .thenThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", CELL_MOVE_REASON, badReasonCode));
 
-            assertThatThrownBy(() -> service.moveToCellSwap(SOME_BOOKING_ID,  badReasonCode, SOME_TIME))
+            assertThatThrownBy(() -> service.moveToCellSwap(SOME_BOOKING_ID, badReasonCode, SOME_TIME))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(CELL_MOVE_REASON.name())
                     .hasMessageContaining(badReasonCode);
@@ -378,13 +383,13 @@ class MovementUpdateServiceTest {
     private Optional<AgencyInternalLocation> aLocation(final Long locationId, final String locationCode) {
         return Optional.of(
                 AgencyInternalLocation.builder()
-                .locationId(locationId)
-                .operationalCapacity(10)
-                .currentOccupancy(1)
-                .locationType("CELL")
-                .locationCode(locationCode)
-                .activeFlag(ActiveFlag.Y)
-                .build()
+                        .locationId(locationId)
+                        .operationalCapacity(10)
+                        .currentOccupancy(1)
+                        .locationType("CELL")
+                        .locationCode(locationCode)
+                        .activeFlag(ActiveFlag.Y)
+                        .build()
         );
     }
 }

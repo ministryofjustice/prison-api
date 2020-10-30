@@ -7,12 +7,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel(description = "Cell swap result")
+@ApiModel(description = "Cell move result")
 @Builder(toBuilder = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CellSwapResult {
+public class CellMoveResult {
     @ApiModelProperty(required = true, value = "Unique, numeric booking id.", position = 1, example = "1234134")
     private Long bookingId;
 
@@ -24,4 +24,7 @@ public class CellSwapResult {
 
     @ApiModelProperty(value = "Description of living unit (e.g. cell) that offender is assigned to.", position = 4, example = "MDI-1-1-3")
     private String assignedLivingUnitDesc;
+
+    @ApiModelProperty(value = "Bed assignment sequence associated with the entry created for this cell move ", position = 5, example = "2")
+    private Integer badAssignmentHistorySequence;
 }

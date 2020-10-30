@@ -69,7 +69,7 @@ public class OffenderDamageObligationRepositoryTest {
                         .referenceNumber("124")
                         .startDateTime(LocalDateTime.parse("2002-01-01T00:00"))
                         .endDateTime(LocalDateTime.parse("2002-01-02T00:00"))
-                        .amountToPay(BigDecimal.valueOf(50000,2))
+                        .amountToPay(BigDecimal.valueOf(50000, 2))
                         .comment("Some Comment Text")
                         .status("PAID")
                         .build(),
@@ -81,7 +81,7 @@ public class OffenderDamageObligationRepositoryTest {
                         .referenceNumber("125")
                         .startDateTime(LocalDateTime.parse("2002-01-01T00:00"))
                         .endDateTime(LocalDateTime.parse("2002-01-02T00:00"))
-                        .amountToPay(BigDecimal.valueOf(10000,2))
+                        .amountToPay(BigDecimal.valueOf(10000, 2))
                         .comment("Some Comment Text")
                         .status("ACTIVE")
                         .build());
@@ -101,9 +101,15 @@ public class OffenderDamageObligationRepositoryTest {
                         .referenceNumber("125")
                         .startDateTime(LocalDateTime.parse("2002-01-01T00:00"))
                         .endDateTime(LocalDateTime.parse("2002-01-02T00:00"))
-                        .amountToPay(BigDecimal.valueOf(10000,2))
+                        .amountToPay(BigDecimal.valueOf(10000, 2))
                         .comment("Some Comment Text")
                         .status("ACTIVE")
                         .build());
+    }
+
+    @Test
+    public void testThatAnEmptyListIsReturnedForNoData() {
+        final var aa = repository.findOffenderDamageObligationByOffender_NomsIdAndStatus("ZZZZZZ", "ACTIVE");
+        assertThat(aa).isEmpty();
     }
 }

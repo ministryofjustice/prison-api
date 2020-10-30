@@ -25,19 +25,15 @@ public class OffenderDamageObligationService {
     @VerifyOffenderAccess
     public List<OffenderDamageObligationModel> getDamageObligations(final String offenderNo, final String status) {
 
-        try {
-            final var damages = StringUtils.isNotEmpty(status) ?
-                    repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(offenderNo, status) :
-                    repository.findOffenderDamageObligationByOffender_NomsId(offenderNo);
+        final var damages = StringUtils.isNotEmpty(status) ?
+                repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(offenderNo, status) :
+                repository.findOffenderDamageObligationByOffender_NomsId(offenderNo);
 
-            return damages
-                    .stream()
-                    .map(this::damageObligationTransformer)
-                    .collect(Collectors.toList());
+        return damages
+                .stream()
+                .map(this::damageObligationTransformer)
+                .collect(Collectors.toList());
 
-        } catch(EntityNotFoundException e) {
-            throw EntityNotFoundException.withMessage(String.format("Offender not found: %s", offenderNo));
-        }
     }
 
     public OffenderDamageObligationModel damageObligationTransformer(final OffenderDamageObligation damageObligation) {
@@ -48,7 +44,7 @@ public class OffenderDamageObligationService {
                 .amountPaid(damageObligation.getAmountPaid())
                 .amountToPay(damageObligation.getAmountToPay())
                 .comment(damageObligation.getComment())
-                .prisonId(damageObligation.getPrison() != null ? damageObligation.getPrison().getId(): null)
+                .prisonId(damageObligation.getPrison() != null ? damageObligation.getPrison().getId() : null)
                 .referenceNumber(damageObligation.getReferenceNumber())
                 .startDateTime(damageObligation.getStartDateTime())
                 .endDateTime(damageObligation.getEndDateTime())
