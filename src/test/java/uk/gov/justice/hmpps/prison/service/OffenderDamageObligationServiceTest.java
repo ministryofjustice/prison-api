@@ -91,13 +91,4 @@ public class OffenderDamageObligationServiceTest {
                 .stream().findFirst().orElseThrow();
 
     }
-
-    @Test
-    public void handleOffenderNoFound() {
-        when(repository.findOffenderDamageObligationByOffender_NomsId(any())).thenThrow(new EntityNotFoundException(""));
-
-        assertThatThrownBy(() -> service.getDamageObligations("A2343", null))
-                .hasMessage("Offender not found: A2343")
-                .isInstanceOf(EntityNotFoundException.class);
-    }
 }

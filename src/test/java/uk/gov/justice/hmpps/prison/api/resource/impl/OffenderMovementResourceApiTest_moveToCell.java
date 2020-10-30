@@ -8,7 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.orm.jpa.JpaSystemException;
-import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.api.model.CellMoveResult;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.MovementUpdateService;
 
@@ -42,7 +42,7 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
     @Test
     public void validRequest() {
         when(movementUpdateService.moveToCell(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
-                .thenReturn(anOffenderBooking(1L, 2L, "LEI-A-1-1"));
+                .thenReturn(aCellMoveResult(1L, 2L, "LEI-A-1-1", 2));
 
         final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
@@ -50,12 +50,14 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(1);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(2);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.assignedLivingUnitDesc").isEqualTo("LEI-A-1-1");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.badAssignmentHistorySequence")
+                .satisfies((number) -> assertThat(number.intValue()).isNotZero());
     }
 
     @Test
     public void validRequest_passesParametersToService() {
         when(movementUpdateService.moveToCell(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
-                .thenReturn(anOffenderBooking(1L, 2L, "LEI-A-1-1"));
+                .thenReturn(aCellMoveResult(1L, 2L, "LEI-A-1-1", 1));
 
         final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
@@ -230,11 +232,12 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
         return createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
     }
 
-    private OffenderBooking anOffenderBooking(final Long bookingId, final Long livingUnitId, final String livingUnitDesc) {
-        return OffenderBooking.builder()
+    private CellMoveResult aCellMoveResult(final Long bookingId, final Long livingUnitId, final String livingUnitDesc, final Integer badAssignmentHistorySequence) {
+        return CellMoveResult.builder()
                 .bookingId(bookingId)
                 .assignedLivingUnitId(livingUnitId)
                 .assignedLivingUnitDesc(livingUnitDesc)
+                .badAssignmentHistorySequence(badAssignmentHistorySequence)
                 .build();
     }
 

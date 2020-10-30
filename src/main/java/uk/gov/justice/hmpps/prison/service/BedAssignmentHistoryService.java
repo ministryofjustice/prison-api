@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +33,7 @@ public class BedAssignmentHistoryService {
 
     @VerifyBookingAccess
     @HasWriteScope
-    public void add(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime time) {
+    public BedAssignmentHistory.BedAssignmentHistoryPK add(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime time) {
         final var maxSequence = repository.getMaxSeqForBookingId(bookingId);
         final var bookingAndSequence = new BedAssignmentHistory.BedAssignmentHistoryPK(bookingId, maxSequence + 1);
         final var bedAssignmentHistory =
@@ -47,6 +46,8 @@ public class BedAssignmentHistoryService {
                         .build();
         repository.save(bedAssignmentHistory);
         log.info("Added bed assignment history for offender booking id {} to living unit id {}", bookingId, livingUnitId);
+
+        return bookingAndSequence;
     }
 
     @VerifyBookingAccess

@@ -3,7 +3,7 @@ package uk.gov.justice.hmpps.prison.service;
 import com.amazonaws.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.CellSwapResult;
+import uk.gov.justice.hmpps.prison.api.model.CellMoveResult;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -48,27 +48,26 @@ public class MovementUpdateService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public OffenderBooking moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
+    public CellMoveResult moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         validateMoveToCell(reasonCode, dateTime);
 
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
         final var internalLocation = getActiveInternalLocation(internalLocationDescription);
 
-        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) return offenderBooking;
+        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId()))
+            return transformToCellSwapResult(offenderBooking);
 
         if (!internalLocation.isActiveCellWithSpace())
             throw new IllegalArgumentException(String.format("Location %s is either not a cell, active or is at maximum capacity", internalLocation.getDescription()));
 
-        bookingService.updateLivingUnit(bookingId, internalLocationDescription);
-        bedAssignmentHistoryService.add(bookingId, internalLocation.getLocationId(), reasonCode, movementDateTime);
-        return getActiveOffenderBooking(bookingId);
+        return saveAndReturnCellMoveResult(bookingId, reasonCode, movementDateTime, internalLocation);
     }
 
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public CellSwapResult moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
+    public CellMoveResult moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
         final var reason = reasonCode == null ? "ADM" : reasonCode;
 
         validateMoveToCell(reason, dateTime);
@@ -78,14 +77,24 @@ public class MovementUpdateService {
         final var agency = offenderBooking.getAgencyId();
         final var internalLocation = getCswapLocation(agency);
 
-        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) return transformToCellSwapResult(offenderBooking);
+        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId()))
+            return transformToCellSwapResult(offenderBooking);
 
-        bookingService.updateLivingUnit(bookingId, internalLocation);
-        bedAssignmentHistoryService.add(bookingId, internalLocation.getLocationId(), reason, movementDateTime);
+        return saveAndReturnCellMoveResult(bookingId, reason, movementDateTime, internalLocation);
+    }
+
+    private CellMoveResult saveAndReturnCellMoveResult(final long bookingId, final String reasonCode,
+                                                       final LocalDateTime movementDateTime,
+                                                       final AgencyInternalLocation location) {
+
+        bookingService.updateLivingUnit(bookingId, location);
+
+        final var bookingAndSequence =
+                bedAssignmentHistoryService.add(bookingId, location.getLocationId(), reasonCode, movementDateTime);
 
         final var latestOffenderBooking = getActiveOffenderBooking(bookingId);
 
-        return transformToCellSwapResult(latestOffenderBooking);
+        return transformToCellSwapResult(latestOffenderBooking, bookingAndSequence.getSequence());
     }
 
     private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
@@ -97,7 +106,7 @@ public class MovementUpdateService {
     private void checkReasonCode(final String reasonCode) {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), reasonCode, false);
-        } catch(EntityNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
@@ -109,14 +118,20 @@ public class MovementUpdateService {
         );
     }
 
-    private CellSwapResult transformToCellSwapResult(final OffenderBooking offenderBooking) {
-        return CellSwapResult.builder()
+    private CellMoveResult transformToCellSwapResult(final OffenderBooking offenderBooking) {
+        return transformToCellSwapResult(offenderBooking, null);
+    }
+
+    private CellMoveResult transformToCellSwapResult(final OffenderBooking offenderBooking, final Integer badAssignmentHistorySequence) {
+        return CellMoveResult.builder()
                 .bookingId(offenderBooking.getBookingId())
                 .agencyId(offenderBooking.getAgencyId())
                 .assignedLivingUnitId(offenderBooking.getAssignedLivingUnitId())
                 .assignedLivingUnitDesc(offenderBooking.getAssignedLivingUnitDesc())
+                .badAssignmentHistorySequence(badAssignmentHistorySequence)
                 .build();
     }
+
 
     private OffenderBooking getActiveOffenderBooking(final Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)
@@ -137,7 +152,8 @@ public class MovementUpdateService {
                 .filter(AgencyInternalLocation::isCellSwap)
                 .collect(Collectors.toList());
 
-        if(cellSwapLocations.size() > 1) throw new RuntimeException("There are more than 1 CSWAP locations configured");
+        if (cellSwapLocations.size() > 1)
+            throw new RuntimeException("There are more than 1 CSWAP locations configured");
 
         return cellSwapLocations
                 .stream()

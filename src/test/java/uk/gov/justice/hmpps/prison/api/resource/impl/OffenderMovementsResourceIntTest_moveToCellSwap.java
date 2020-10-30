@@ -36,7 +36,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @ContextConfiguration(classes = OffenderMovementsResourceIntTest_moveToCell.TestClock.class)
-public class OffenderMovementsResourceIntTest_moveToCellSwap extends ResourceTest   {
+public class OffenderMovementsResourceIntTest_moveToCellSwap extends ResourceTest {
 
     @TestConfiguration
     static class TestClock {
@@ -110,7 +110,7 @@ public class OffenderMovementsResourceIntTest_moveToCellSwap extends ResourceTes
         final var dateTime = LocalDateTime.now().minusHours(1);
         final var invalidBookingId = "-69854";
 
-        final var response = requestMoveToCellSwap(validToken(), invalidBookingId,  "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
+        final var response = requestMoveToCellSwap(validToken(), invalidBookingId, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
         verifyErrorResponse(response, NOT_FOUND, invalidBookingId);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
@@ -140,7 +140,8 @@ public class OffenderMovementsResourceIntTest_moveToCellSwap extends ResourceTes
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", authorities = "SCOPE_write") // Required because stubbing the BedAssignmentHistoryService means we don't pick up the usual Authentication from Spring AOP.
+    @WithMockUser(username = "ITAG_USER", authorities = "SCOPE_write")
+    // Required because stubbing the BedAssignmentHistoryService means we don't pick up the usual Authentication from Spring AOP.
     public void transactionRolledBack() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
@@ -163,11 +164,12 @@ public class OffenderMovementsResourceIntTest_moveToCellSwap extends ResourceTes
         );
     }
 
-    @SuppressWarnings("Convert2Diamond") // Type on ParameterizedTypeReference required to work around https://bugs.openjdk.java.net/browse/JDK-8210197
+    @SuppressWarnings("Convert2Diamond")
+    // Type on ParameterizedTypeReference required to work around https://bugs.openjdk.java.net/browse/JDK-8210197
     private ResponseEntity<String> requestMoveToCellSwap(final String bearerToken, final String bookingId, final String reasonCode, final String dateTime) {
         final var body = reasonCode != null ?
                 Map.of("reasonCode", reasonCode, "dateTime", dateTime) :
-                Map.of( "dateTime", dateTime);
+                Map.of("dateTime", dateTime);
 
         final var entity = createHttpEntity(bearerToken, body);
 
@@ -175,13 +177,15 @@ public class OffenderMovementsResourceIntTest_moveToCellSwap extends ResourceTes
                 "/api/bookings/{bookingId}/move-to-cell-swap",
                 PUT,
                 entity,
-                new ParameterizedTypeReference<String>() {},
+                new ParameterizedTypeReference<String>() {
+                },
                 bookingId
         );
 
     }
 
-    @SuppressWarnings("Convert2Diamond") // Type on ParameterizedTypeReference required to work around https://bugs.openjdk.java.net/browse/JDK-8210197
+    @SuppressWarnings("Convert2Diamond")
+    // Type on ParameterizedTypeReference required to work around https://bugs.openjdk.java.net/browse/JDK-8210197
     private ResponseEntity<String> requestMoveToCell(final String bearerToken, final String bookingId, final String livingUnitId, final String reasonCode, final String dateTime) {
         final var entity = createHttpEntity(bearerToken, null);
         return testRestTemplate.exchange(
@@ -198,6 +202,8 @@ public class OffenderMovementsResourceIntTest_moveToCellSwap extends ResourceTes
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(bookingId.intValue());
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(internalLocationId.intValue());
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.assignedLivingUnitDesc").isEqualTo(internalLocationDesc);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.badAssignmentHistorySequence")
+                .satisfies((number) -> assertThat(number.intValue()).isNotZero());
     }
 
     private void verifyErrorResponse(final ResponseEntity<String> response, final HttpStatus status, final String... partialMessages) {

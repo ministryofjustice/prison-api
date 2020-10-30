@@ -34,7 +34,7 @@ class BedAssignmentHistoryServiceTest {
     @Test
     void add() {
         final var now = LocalDateTime.now();
-        service.add(1L, 2L, "RSN", now);
+        final var pk = service.add(1L, 2L, "RSN", now);
 
         verify(repository).save(argThat(bedAssignment ->
                 bedAssignment.getBedAssignmentHistoryPK().getOffenderBookingId() == 1L
@@ -42,6 +42,8 @@ class BedAssignmentHistoryServiceTest {
                         && bedAssignment.getAssignmentReason().equals("RSN")
                         && bedAssignment.getAssignmentDate().isEqual(now.toLocalDate())
                         && bedAssignment.getAssignmentDateTime().isEqual(now)));
+
+        assertThat(pk).isEqualTo(new BedAssignmentHistory.BedAssignmentHistoryPK(1L, 1));
     }
 
     @Test
