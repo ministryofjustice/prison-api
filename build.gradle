@@ -93,6 +93,8 @@ dependencies {
 task testIntegration(type: Test) {
     include '**/*IntTest*'
     useJUnitPlatform()
+    minHeapSize = "1024m"
+    maxHeapSize = "2048m"
 }
 
 task testWithSchemaNomis(type: Test) {
