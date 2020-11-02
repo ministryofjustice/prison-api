@@ -87,7 +87,7 @@ public class BedAssignmentHistoryService {
                 .assignmentReason(assignment.getAssignmentReason())
                 .bookingId(assignment.getOffenderBooking().getBookingId())
                 .agencyId(agencyInternalLocation.map(AgencyInternalLocation::getAgencyId).orElse(null))
-                .badAssignmentHistorySequence(assignment.getBedAssignmentHistoryPK().getSequence())
+                .bedAssignmentHistorySequence(assignment.getBedAssignmentHistoryPK().getSequence())
                 .build();
     }
 }

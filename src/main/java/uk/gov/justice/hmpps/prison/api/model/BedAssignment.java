@@ -51,5 +51,5 @@ public class BedAssignment {
     private String description;
 
     @ApiModelProperty(value = "Bed assignment sequence. Used as a primary key when combined with the booking id", position = 10, example = "2")
-    private Integer badAssignmentHistorySequence;
+    private Integer bedAssignmentHistorySequence;
 }

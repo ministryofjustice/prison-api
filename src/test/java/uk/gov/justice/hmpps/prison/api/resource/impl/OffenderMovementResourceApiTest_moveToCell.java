@@ -50,7 +50,7 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(1);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(2);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.assignedLivingUnitDesc").isEqualTo("LEI-A-1-1");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.badAssignmentHistorySequence")
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bedAssignmentHistorySequence")
                 .satisfies((number) -> assertThat(number.intValue()).isNotZero());
     }
 
@@ -232,12 +232,12 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
         return createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
     }
 
-    private CellMoveResult aCellMoveResult(final Long bookingId, final Long livingUnitId, final String livingUnitDesc, final Integer badAssignmentHistorySequence) {
+    private CellMoveResult aCellMoveResult(final Long bookingId, final Long livingUnitId, final String livingUnitDesc, final Integer bedAssignmentHistorySequence) {
         return CellMoveResult.builder()
                 .bookingId(bookingId)
                 .assignedLivingUnitId(livingUnitId)
                 .assignedLivingUnitDesc(livingUnitDesc)
-                .badAssignmentHistorySequence(badAssignmentHistorySequence)
+                .bedAssignmentHistorySequence(bedAssignmentHistorySequence)
                 .build();
     }
 

@@ -26,5 +26,5 @@ public class CellMoveResult {
     private String assignedLivingUnitDesc;
 
     @ApiModelProperty(value = "Bed assignment sequence associated with the entry created for this cell move ", position = 5, example = "2")
-    private Integer badAssignmentHistorySequence;
+    private Integer bedAssignmentHistorySequence;
 }

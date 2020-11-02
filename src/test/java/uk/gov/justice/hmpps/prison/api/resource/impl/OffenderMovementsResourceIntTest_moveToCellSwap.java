@@ -202,7 +202,7 @@ public class OffenderMovementsResourceIntTest_moveToCellSwap extends ResourceTes
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(bookingId.intValue());
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(internalLocationId.intValue());
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.assignedLivingUnitDesc").isEqualTo(internalLocationDesc);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.badAssignmentHistorySequence")
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bedAssignmentHistorySequence")
                 .satisfies((number) -> assertThat(number.intValue()).isNotZero());
     }
 

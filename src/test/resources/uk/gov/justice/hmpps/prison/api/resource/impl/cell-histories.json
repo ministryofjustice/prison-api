@@ -9,7 +9,7 @@
     "assignmentEndDateTime": "2020-01-01T11:00:00",
     "agencyId": "LEI",
     "description": "LEI-H-1-2",
-    "badAssignmentHistorySequence": 2
+    "bedAssignmentHistorySequence": 2
   },
   {
     "bookingId": -34,
@@ -19,7 +19,7 @@
     "assignmentReason": "ADM",
     "agencyId": "LEI",
     "description": "LEI-H-1-2",
-    "badAssignmentHistorySequence": 3
+    "bedAssignmentHistorySequence": 3
   },
   {
     "bookingId": -34,
@@ -31,6 +31,6 @@
     "assignmentEndDateTime": "2018-04-03T11:00:00",
     "agencyId": "LEI",
     "description": "LEI-H-1-2",
-    "badAssignmentHistorySequence": 4
+    "bedAssignmentHistorySequence": 4
   }
 ]
