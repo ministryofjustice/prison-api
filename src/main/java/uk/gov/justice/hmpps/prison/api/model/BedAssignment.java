@@ -50,6 +50,6 @@ public class BedAssignment {
     @ApiModelProperty(value = "Description of living unit (e.g. cell) ", position = 9, example = "MDI-1-1-2")
     private String description;
 
-    @ApiModelProperty(value = "Bed assignment sequence associated with the entry created for this cell move ", position = 10, example = "2")
+    @ApiModelProperty(value = "Bed assignment sequence", position = 10, example = "2")
     private Integer badAssignmentHistorySequence;
 }
