@@ -28,7 +28,7 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME
 
 @Slf4j
 @RestController
-@Api(tags = {"/data-compliance"})
+@Api(tags = {"data-compliance"})
 @RequestMapping("${api.base.path}/data-compliance")
 @AllArgsConstructor
 public class DataComplianceController {

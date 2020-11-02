@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -16,6 +17,7 @@ import uk.gov.justice.hmpps.prison.service.BookingService;
 import java.util.List;
 
 @RestController
+@Api(tags = {"offender-relationships"})
 @Validated
 @RequestMapping("${api.base.path}/offender-relationships")
 public class OffenderRelationshipResource {

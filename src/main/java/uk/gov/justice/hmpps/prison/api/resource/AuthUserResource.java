@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -14,6 +15,7 @@ import uk.gov.justice.hmpps.prison.service.AuthService;
 
 @Slf4j
 @RestController
+@Api(tags = {"auth"})
 @Validated
 @RequestMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor

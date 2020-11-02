@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -35,6 +36,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@Api(tags = {"offender-sentences"})
 @Validated
 @RequestMapping("${api.base.path}/offender-sentences")
 public class OffenderSentenceResource {

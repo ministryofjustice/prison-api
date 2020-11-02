@@ -30,7 +30,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Validated
 @RequestMapping("${api.base.path}/events")
 @AllArgsConstructor
-@Api(tags = "/events")
+@Api(tags = "events")
 public class OffenderEventsController {
 
     private final OffenderEventsService offenderEventsService;

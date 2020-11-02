@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -37,6 +38,7 @@ import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 
 @RestController
 @Validated
+@Api(tags = {"agencies"})
 @RequestMapping("${api.base.path}/agencies")
 public class AgencyResource {
     private final AgencyService agencyService;

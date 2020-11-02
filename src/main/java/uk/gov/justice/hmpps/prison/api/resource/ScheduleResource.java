@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -31,6 +32,7 @@ import java.util.List;
  * Implementation of /schedules endpoint.
  */
 @RestController
+@Api(tags = {"schedules"})
 @Validated
 @RequestMapping("${api.base.path}/schedules")
 public class ScheduleResource {
