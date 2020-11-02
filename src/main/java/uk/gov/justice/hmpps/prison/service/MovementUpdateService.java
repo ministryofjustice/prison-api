@@ -122,13 +122,13 @@ public class MovementUpdateService {
         return transformToCellSwapResult(offenderBooking, null);
     }
 
-    private CellMoveResult transformToCellSwapResult(final OffenderBooking offenderBooking, final Integer badAssignmentHistorySequence) {
+    private CellMoveResult transformToCellSwapResult(final OffenderBooking offenderBooking, final Integer bedAssignmentHistorySequence) {
         return CellMoveResult.builder()
                 .bookingId(offenderBooking.getBookingId())
                 .agencyId(offenderBooking.getAgencyId())
                 .assignedLivingUnitId(offenderBooking.getAssignedLivingUnitId())
                 .assignedLivingUnitDesc(offenderBooking.getAssignedLivingUnitDesc())
-                .badAssignmentHistorySequence(badAssignmentHistorySequence)
+                .bedAssignmentHistorySequence(bedAssignmentHistorySequence)
                 .build();
     }
 

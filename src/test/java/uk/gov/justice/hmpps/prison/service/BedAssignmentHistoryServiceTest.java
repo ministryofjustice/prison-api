@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -85,7 +84,7 @@ class BedAssignmentHistoryServiceTest {
                 .assignmentReason("Needs moving")
                 .description("MDI-1-2")
                 .agencyId("MDI")
-                .badAssignmentHistorySequence(2)
+                .bedAssignmentHistorySequence(2)
                 .build(),
             BedAssignment.builder()
                 .bookingId(1L)
@@ -97,7 +96,7 @@ class BedAssignmentHistoryServiceTest {
                 .assignmentReason("Needs moving again")
                 .description("MDI-1-2")
                 .agencyId("MDI")
-                .badAssignmentHistorySequence(3)
+                .bedAssignmentHistorySequence(3)
                 .build()
         );
 
@@ -131,7 +130,7 @@ class BedAssignmentHistoryServiceTest {
                         .assignmentReason("Needs moving")
                         .description("MDI-1-2")
                         .agencyId("MDI")
-                        .badAssignmentHistorySequence(2)
+                        .bedAssignmentHistorySequence(2)
                         .build()
         );
     }
