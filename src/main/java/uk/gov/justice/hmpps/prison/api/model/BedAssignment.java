@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @ToString
 @Data
 public class BedAssignment {
-    @ApiModelProperty(value = "Unique, numeric booking id.", position = 1, example = "1234134")
+    @ApiModelProperty(value = "Unique, numeric booking id. Used as a primary key when combined with the bed assignment sequence", position = 1, example = "1234134")
     private Long bookingId;
 
     @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that offender is assigned to.", position = 2, example = "123123")
@@ -50,6 +50,6 @@ public class BedAssignment {
     @ApiModelProperty(value = "Description of living unit (e.g. cell) ", position = 9, example = "MDI-1-1-2")
     private String description;
 
-    @ApiModelProperty(value = "Bed assignment sequence, used as a primary key when combined with the booking id", position = 10, example = "2")
+    @ApiModelProperty(value = "Bed assignment sequence. Used as a primary key when combined with the booking id", position = 10, example = "2")
     private Integer badAssignmentHistorySequence;
 }
