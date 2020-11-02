@@ -50,6 +50,6 @@ public class BedAssignment {
     @ApiModelProperty(value = "Description of living unit (e.g. cell) ", position = 9, example = "MDI-1-1-2")
     private String description;
 
-    @ApiModelProperty(value = "Bed assignment sequence", position = 10, example = "2")
+    @ApiModelProperty(value = "Bed assignment sequence, used as a primary key when combined with the booking id", position = 10, example = "2")
     private Integer badAssignmentHistorySequence;
 }
