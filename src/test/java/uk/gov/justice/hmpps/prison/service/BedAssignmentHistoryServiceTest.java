@@ -50,6 +50,7 @@ class BedAssignmentHistoryServiceTest {
     void getBedAssignmentsHistory() {
         var assignments = List.of(
                 BedAssignmentHistory.builder()
+                        .bedAssignmentHistoryPK(new BedAssignmentHistory.BedAssignmentHistoryPK(1L, 2))
                         .assignmentDate(LocalDate.of(2015, 5, 1))
                         .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
                         .assignmentEndDate(LocalDate.of(2016, 5, 1))
@@ -59,6 +60,7 @@ class BedAssignmentHistoryServiceTest {
                         .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
                         .build(),
                 BedAssignmentHistory.builder()
+                        .bedAssignmentHistoryPK(new BedAssignmentHistory.BedAssignmentHistoryPK(1L, 3))
                         .assignmentDate(LocalDate.of(2016, 5, 1))
                         .assignmentDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
                         .assignmentEndDate(LocalDate.of(2017, 5, 1))
@@ -83,6 +85,7 @@ class BedAssignmentHistoryServiceTest {
                 .assignmentReason("Needs moving")
                 .description("MDI-1-2")
                 .agencyId("MDI")
+                .badAssignmentHistorySequence(2)
                 .build(),
             BedAssignment.builder()
                 .bookingId(1L)
@@ -94,6 +97,7 @@ class BedAssignmentHistoryServiceTest {
                 .assignmentReason("Needs moving again")
                 .description("MDI-1-2")
                 .agencyId("MDI")
+                .badAssignmentHistorySequence(3)
                 .build()
         );
 
@@ -127,6 +131,7 @@ class BedAssignmentHistoryServiceTest {
                         .assignmentReason("Needs moving")
                         .description("MDI-1-2")
                         .agencyId("MDI")
+                        .badAssignmentHistorySequence(2)
                         .build()
         );
     }
@@ -150,6 +155,7 @@ class BedAssignmentHistoryServiceTest {
 
     private BedAssignmentHistory aBedAssignment(final long bookingId, final long livingUnitId) {
         return BedAssignmentHistory.builder()
+                .bedAssignmentHistoryPK(new BedAssignmentHistory.BedAssignmentHistoryPK(bookingId, 2))
                 .assignmentDate(LocalDate.of(2015, 5, 1))
                 .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
                 .assignmentEndDate(LocalDate.of(2016, 5, 1))
