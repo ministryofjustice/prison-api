@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -16,6 +17,7 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
 
 @RestController
+@Api(tags = {"appointments"})
 @Validated
 @RequestMapping("${api.base.path}/appointments")
 @AllArgsConstructor

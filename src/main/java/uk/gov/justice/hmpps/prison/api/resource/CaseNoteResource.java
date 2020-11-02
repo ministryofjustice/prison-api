@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @Validated
+@Api(tags = {"case-notes"})
 @RequestMapping("${api.base.path}/case-notes")
 @AllArgsConstructor
 public class CaseNoteResource {

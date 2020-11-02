@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
+@Api(tags = {"key-worker"})
 @Validated
 @RequestMapping("${api.base.path}/key-worker")
 public class KeyWorkerResource {

@@ -29,7 +29,7 @@ import static uk.gov.justice.hmpps.prison.api.resource.NomisApiV1Resource.NOMS_I
 
 @Slf4j
 @RestController
-@Api(tags = {"/finance"})
+@Api(tags = {"finance"})
 @RequestMapping("${api.base.path}/finance")
 @AllArgsConstructor
 @Validated

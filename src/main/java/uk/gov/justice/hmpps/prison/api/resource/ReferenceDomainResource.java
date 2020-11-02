@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -36,6 +37,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 
 @RestController
+@Api(tags = {"reference-domains"})
 @RequestMapping("${api.base.path}/reference-domains")
 @Validated
 public class ReferenceDomainResource {

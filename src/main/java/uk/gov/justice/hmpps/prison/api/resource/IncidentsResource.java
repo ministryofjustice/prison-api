@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -17,6 +18,7 @@ import uk.gov.justice.hmpps.prison.service.IncidentService;
 import javax.validation.constraints.NotNull;
 
 @RestController
+@Api(tags = {"incidents"})
 @Validated
 @RequestMapping("${api.base.path}/incidents")
 @AllArgsConstructor

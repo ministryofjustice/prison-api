@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -36,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@Api(tags = {"movements"})
 @Validated
 @RequestMapping("${api.base.path}/movements")
 public class MovementResource {

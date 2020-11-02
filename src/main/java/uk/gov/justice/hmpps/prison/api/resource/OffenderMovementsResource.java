@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -44,6 +45,7 @@ import java.time.LocalDateTime;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 @RestController
+@Api(tags = {"bookings"})
 @RequestMapping("${api.base.path}/bookings")
 @Validated
 @Slf4j

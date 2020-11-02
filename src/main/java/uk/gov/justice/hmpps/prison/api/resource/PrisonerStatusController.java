@@ -30,7 +30,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @Validated
-@Api(tags = {"/prisoners"})
+@Api(tags = {"prisoners"})
 @RequestMapping("${api.base.path}/prisoners")
 @AllArgsConstructor
 public class PrisonerStatusController {
