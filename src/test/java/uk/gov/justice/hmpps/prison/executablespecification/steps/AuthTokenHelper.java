@@ -339,6 +339,7 @@ public class AuthTokenHelper {
     private String createSmokeTestUser() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()
+                        .username("NEEDED_FOR_H2_ONLY")
                         .scope(List.of("read", "write"))
                         .roles(List.of("ROLE_SMOKE_TEST"))
                         .expiryTime(Duration.ofDays(365 * 10))

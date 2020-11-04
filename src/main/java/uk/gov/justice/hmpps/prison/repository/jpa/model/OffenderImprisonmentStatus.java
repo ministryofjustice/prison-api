@@ -19,38 +19,33 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "OFFENDER_IMPRISON_STATUSES")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(OffenderImprisonmentStatus.PK.class)
 @EqualsAndHashCode(callSuper = false)
-// TODO get annotations correct (nullability)
 public class OffenderImprisonmentStatus extends AuditableEntity {
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PK implements Serializable {
-        @Id
-        @Column(name = "OFFENDER_BOOK_ID", updatable = false, insertable = false)
+        @Column(name = "OFFENDER_BOOK_ID", updatable = false, insertable = false, nullable = false)
         private Long offenderBookId;
-        @Id
-        @Column(name = "IMPRISON_STATUS_SEQ", updatable = false, insertable = false)
+        @Column(name = "IMPRISON_STATUS_SEQ", updatable = false, insertable = false, nullable = false)
         private Long imprisonStatusSeq;
     }
 
-
     @Id
-    @Column(name = "OFFENDER_BOOK_ID")
     private Long offenderBookId;
 
     @Id
-    @Column(name = "IMPRISON_STATUS_SEQ")
     private Long imprisonStatusSeq;
 
-    @Column(name = "IMPRISONMENT_STATUS")
+    @Column(name = "IMPRISONMENT_STATUS", nullable = false)
     private String imprisonmentStatus;
 
-    @Column(name = "EFFECTIVE_DATE")
+    @Column(name = "EFFECTIVE_DATE", nullable = false)
     private LocalDate effectiveDate;
 
     @Column(name = "EFFECTIVE_TIME")

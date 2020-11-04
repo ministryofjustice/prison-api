@@ -44,7 +44,6 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
 
     @Test
     @DisplayName("will add new imprisonment status to active booking")
-    @Disabled
     public void willAddImprisonmentStatus() {
         // GIVEN the offender booking as a single imprisonment status
         final var bookingId = -1;
@@ -60,7 +59,7 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
         assertThat(response.getStatusCode()).isEqualTo(OK);
 
 
-        // THEN I have twp imprisonment status
+        // THEN I have twp imprisonment statuses
         final List<OffenderImprisonmentStatus> statuses = repository.findByOffenderBookId(bookingId);
         assertThat(statuses)
                 .hasSize(2)
