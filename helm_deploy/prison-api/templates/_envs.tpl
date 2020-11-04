@@ -137,7 +137,7 @@ env:
   - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
     value: "{{ .Values.env.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI }}"
 
-  - name: SSMOKE_TEST_AWARE
+  - name: SMOKE_TEST_AWARE
     value: "{{ .Values.env.SMOKE_TEST_AWARE }}"
 
 {{- end }}
