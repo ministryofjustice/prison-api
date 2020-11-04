@@ -48,3 +48,7 @@ management:
 api:
   base:
     path: /api
+
+smoke:
+  test:
+    aware: false

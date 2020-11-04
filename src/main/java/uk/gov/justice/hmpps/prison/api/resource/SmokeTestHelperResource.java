@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ import javax.validation.constraints.NotNull;
 @RequestMapping("${api.base.path}/smoketest")
 @Validated
 @Slf4j
-// TODO feature switch
+@ConditionalOnProperty(name = "smoke.test.aware", havingValue = "true")
 public class SmokeTestHelperResource {
     private final SmokeTestHelperService service;
 
