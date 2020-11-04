@@ -43,6 +43,7 @@ public class AuthTokenHelper {
         COURT_HEARING_MAINTAINER,
         PRISON_MOVE_MAINTAINER,
         CREATE_BOOKING_USER,
+        SMOKE_TEST,
     }
 
 
@@ -71,6 +72,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.COURT_HEARING_MAINTAINER), courtHearingMaintainer());
         tokens.put(String.valueOf(AuthToken.PRISON_MOVE_MAINTAINER), prisonMoveMaintiner());
         tokens.put(String.valueOf(AuthToken.CREATE_BOOKING_USER), createBookingApiUser());
+        tokens.put(String.valueOf(AuthToken.SMOKE_TEST), createSmokeTestUser());
 
     }
 
@@ -329,6 +331,17 @@ public class AuthTokenHelper {
                         .username("ITAG_USER")
                         .scope(List.of("read", "write"))
                         .roles(List.of("ROLE_BOOKING_CREATE"))
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
+    private String createSmokeTestUser() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("NEEDED_FOR_H2_ONLY")
+                        .scope(List.of("read", "write"))
+                        .roles(List.of("ROLE_SMOKE_TEST"))
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );
