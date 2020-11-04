@@ -30,9 +30,8 @@ public class SmokeTestHelperResource {
         this.service = service;
     }
 
-    // TODO get swagger right
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
     @ApiOperation(value = "Sets imprisonment status smoke test data for this offender")
     @PostMapping("/offenders/{offenderNo}/imprisonment-status")

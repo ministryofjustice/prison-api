@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 
@@ -40,6 +41,20 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
         );
 
         assertThat(response.getStatusCode()).isEqualTo(FORBIDDEN);
+    }
+
+    @Test
+    @DisplayName("not found")
+    public void notFound() {
+
+        final var response = testRestTemplate.exchange(
+                "/api/smoketest/offenders/NOT_AN_OFFENDER/imprisonment-status",
+                HttpMethod.POST,
+                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
+                Void.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
     }
 
     @Test
