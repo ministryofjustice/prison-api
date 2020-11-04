@@ -58,53 +58,53 @@ public class SmokeTestHelperServiceTest {
                     .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO))
                     .withMessage(format("No booking found for offender %s", SOME_OFFENDER_NO));
         }
+    }
 
-        @Nested
-        class NoImprisonmentStatus {
+    @Nested
+    class NoImprisonmentStatus {
 
-            @Test
-            public void notFound() {
-                mockOffenderBooking();
-                when(offenderImprisonmentStatusRepository.findByOffenderBookId(SOME_BOOKING_ID))
-                        .thenReturn(emptyList());
+        @Test
+        public void badRequest() {
+            mockOffenderBooking();
+            when(offenderImprisonmentStatusRepository.findByOffenderBookId(SOME_BOOKING_ID))
+                    .thenReturn(emptyList());
 
-                assertThatExceptionOfType(BadRequestException.class)
-                        .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO))
-                        .withMessage(format("Unable to find active imprisonment status for offender number %s", SOME_OFFENDER_NO));
-            }
+            assertThatExceptionOfType(BadRequestException.class)
+                    .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO))
+                    .withMessage(format("Unable to find active imprisonment status for offender number %s", SOME_OFFENDER_NO));
+        }
 
-            @Test
-            public void ignoresInactiveStatuses() {
-                mockOffenderBooking();
-                mockImprisonmentStatus("N");
+        @Test
+        public void ignoresInactiveStatuses() {
+            mockOffenderBooking();
+            mockImprisonmentStatus("N");
 
-                assertThatExceptionOfType(BadRequestException.class)
-                        .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO))
-                        .withMessage(format("Unable to find active imprisonment status for offender number %s", SOME_OFFENDER_NO));
-            }
+            assertThatExceptionOfType(BadRequestException.class)
+                    .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO))
+                    .withMessage(format("Unable to find active imprisonment status for offender number %s", SOME_OFFENDER_NO));
+        }
 
-            @Test
-            public void oldStatusNotUpdated() {
-                mockOffenderBooking();
-                final var oldImprisonmentStatus = mockImprisonmentStatus("N");
+        @Test
+        public void oldStatusNotUpdated() {
+            mockOffenderBooking();
+            final var oldImprisonmentStatus = mockImprisonmentStatus("N");
 
-                assertThatExceptionOfType(BadRequestException.class)
-                        .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO));
+            assertThatExceptionOfType(BadRequestException.class)
+                    .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO));
 
-                assertThat(oldImprisonmentStatus.getLatestStatus()).isEqualTo("N");
-                assertThat(oldImprisonmentStatus.getExpiryDate().toLocalDate()).isEqualTo(LocalDate.now().minusDays(1L));
-            }
+            assertThat(oldImprisonmentStatus.getLatestStatus()).isEqualTo("N");
+            assertThat(oldImprisonmentStatus.getExpiryDate().toLocalDate()).isEqualTo(LocalDate.now().minusDays(1L));
+        }
 
-            @Test
-            public void newStatusNotSaved() {
-                mockOffenderBooking();
-                mockImprisonmentStatus("N");
+        @Test
+        public void newStatusNotSaved() {
+            mockOffenderBooking();
+            mockImprisonmentStatus("N");
 
-                assertThatExceptionOfType(BadRequestException.class)
-                        .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO));
+            assertThatExceptionOfType(BadRequestException.class)
+                    .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO));
 
-                verify(offenderImprisonmentStatusRepository, never()).save(any(OffenderImprisonmentStatus.class));
-            }
+            verify(offenderImprisonmentStatusRepository, never()).save(any(OffenderImprisonmentStatus.class));
         }
     }
 
