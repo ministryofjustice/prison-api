@@ -22,7 +22,7 @@ public class ProxyUserAspect {
         this.authenticationFacade = authenticationFacade;
     }
 
-    @Pointcut("within(uk.gov.justice.hmpps.prison.api.resource.impl.*) && @annotation(uk.gov.justice.hmpps.prison.core.ProxyUser)")
+    @Pointcut("within(uk.gov.justice.hmpps.prison.api.resource.*) && @annotation(uk.gov.justice.hmpps.prison.core.ProxyUser)")
     public void proxyUserPointcut() {
         // No code needed
     }

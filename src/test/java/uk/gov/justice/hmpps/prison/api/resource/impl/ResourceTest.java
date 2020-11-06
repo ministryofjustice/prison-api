@@ -88,6 +88,17 @@ public abstract class ResourceTest {
         );
     }
 
+    protected String validToken(final List<String> roles) {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("ITAG_USER")
+                        .scope(List.of("read", "write"))
+                        .roles(roles)
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
     protected String readOnlyToken() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()
