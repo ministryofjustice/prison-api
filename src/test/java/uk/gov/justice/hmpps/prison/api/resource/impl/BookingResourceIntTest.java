@@ -5,6 +5,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
@@ -94,6 +95,25 @@ public class BookingResourceIntTest extends ResourceTest {
                 -2, -11);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
+    }
+    @Test
+    public void testUpdateAttendance_WithInvalidBookingId(){
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
+        final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
+        final var request = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/activities/{activityId}/attendance",
+                HttpMethod.PUT,
+                request,
+                ErrorResponse.class,0,-11);
+
+        assertThat(response.getBody()).isEqualTo(
+                ErrorResponse.builder()
+                        .status(404)
+                        .userMessage("Resource with id [0] not found.")
+                        .developerMessage("Resource with id [0] not found.")
+                        .build());
     }
 
     @Test

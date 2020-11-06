@@ -556,12 +556,12 @@ public class BookingService {
 
     // FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER
     public OffenderSummary getLatestBookingByBookingId(final Long bookingId) {
-        return bookingRepository.getLatestBookingByBookingId(bookingId).orElse(null);
+        return bookingRepository.getLatestBookingByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
     // FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER
     public OffenderSummary getLatestBookingByOffenderNo(final String offenderNo) {
-        return bookingRepository.getLatestBookingByOffenderNo(offenderNo).orElse(null);
+        return bookingRepository.getLatestBookingByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
 
 
