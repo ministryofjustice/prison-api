@@ -325,7 +325,6 @@ public class OffenderResource {
     @GetMapping("/{offenderNo}/iepSummary")
     public PrivilegeSummary getLatestBookingIEPSummaryForOffender(@NotNull @PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
         var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        Optional.ofNullable(booking).orElseThrow(EntityNotFoundException.withId(offenderNo));
         return bookingService.getBookingIEPSummary(booking.getBookingId(), withDetails);
     }
 
