@@ -17,7 +17,6 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCrea
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
-import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledAppointmentRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
