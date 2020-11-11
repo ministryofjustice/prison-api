@@ -36,7 +36,7 @@ jobs:
       - store_test_results:
           path: build/serenity
       - store_artifacts:
-          path: build
+          path: build/libs
 
 workflows:
   version: 2
