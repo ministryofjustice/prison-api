@@ -488,7 +488,7 @@ public class BookingRepositoryTest {
         final var startTime = LocalDateTime.now().plusDays(2).truncatedTo(ChronoUnit.SECONDS);  // Drop nanos.
         final var endTime = startTime.plusMinutes(30);
         final var bookingId = -31L;
-        final var locationId = -25L;// LEI-CHAP. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
+        final var locationId = -28L;// LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
 
         final var newAppointment = NewAppointment.builder()
                 .appointmentType("VLB")
@@ -513,7 +513,7 @@ public class BookingRepositoryTest {
         final var startTime = LocalDateTime.now().plusDays(2);
         final var endTime = startTime.plusMinutes(30);
         final var bookingId = -31L;
-        final var locationId = -25L;// LEI-CHAP. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
+        final var locationId = -28L;// LEI-LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
 
         final var newAppointment = NewAppointment.builder()
                 .appointmentType("VLB")
