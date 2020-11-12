@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -56,6 +58,38 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCode.isPresent()).isTrue();
         assertThat(refCode.get().getSubCodes()).isNotNull();
         assertThat(refCode.get().getSubCodes()).isNotEmpty();
+    }
+
+    @ParameterizedTest(name = "{index} => domain={0}, code={1}, withSubCodes={2}")
+    @CsvSource({
+        "TASK_TYPE, MOVED_CELL, true",
+        "TASK_SUBTYPE, ADM, false",
+        "TASK_SUBTYPE, BEH, false",
+        "TASK_SUBTYPE, CLA, false",
+        "TASK_SUBTYPE, CON, false",
+        "TASK_SUBTYPE, LN, false",
+        "TASK_SUBTYPE, VP, false"
+    })
+    public void testGetReferenceCodeByDomainAndCode(String domain, String code, boolean withSubCodes) {
+
+        if(withSubCodes){
+
+            final var refCode =
+                repository.getReferenceCodeByDomainAndCode(domain, code, true);
+
+            assertThat(refCode.isPresent()).isTrue();
+            assertThat(refCode.get().getSubCodes()).isNotNull();
+            assertThat(refCode.get().getSubCodes()).isNotEmpty();
+
+        } else {
+
+            final var refCode =
+                repository.getReferenceCodeByDomainAndCode(domain, code, false);
+
+            assertThat(refCode.isPresent()).isTrue();
+            assertThat(refCode.get().getSubCodes()).isNotNull();
+            assertThat(refCode.get().getSubCodes()).isEmpty();
+        }
     }
 
     @Test
