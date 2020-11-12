@@ -15,67 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.Account;
-import uk.gov.justice.hmpps.prison.api.model.Alert;
-import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
-import uk.gov.justice.hmpps.prison.api.model.AlertCreated;
-import uk.gov.justice.hmpps.prison.api.model.Alias;
-import uk.gov.justice.hmpps.prison.api.model.Assessment;
-import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
-import uk.gov.justice.hmpps.prison.api.model.CaseNote;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
-import uk.gov.justice.hmpps.prison.api.model.Contact;
-import uk.gov.justice.hmpps.prison.api.model.ContactDetail;
-import uk.gov.justice.hmpps.prison.api.model.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
-import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
-import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
-import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
-import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
-import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.Keyworker;
-import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
-import uk.gov.justice.hmpps.prison.api.model.Movement;
-import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
-import uk.gov.justice.hmpps.prison.api.model.NewBooking;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
-import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
-import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
-import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
-import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
-import uk.gov.justice.hmpps.prison.api.model.PhysicalMark;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
-import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
-import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
-import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
-import uk.gov.justice.hmpps.prison.api.model.RecallBooking;
-import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
-import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
-import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
-import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
-import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch;
-import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
-import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
-import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
+import org.springframework.web.bind.annotation.*;
+import uk.gov.justice.hmpps.prison.api.model.*;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
@@ -588,7 +529,8 @@ public class BookingResource {
     @ApiOperation(value = "Offender sentence detail (key dates and additional days awarded).", nickname = "getBookingSentenceDetail", notes = "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>")
     @GetMapping("/{bookingId}/sentenceDetail")
     public SentenceDetail getBookingSentenceDetail(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId) {
-        return bookingService.getBookingSentenceDetail(bookingId);    }
+        return bookingService.getBookingSentenceDetail(bookingId);
+    }
 
     @ApiResponses({
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -597,7 +539,8 @@ public class BookingResource {
     @ApiOperation(value = "Offender sentence adjustments.", nickname = "getBookingSentenceAdjustments")
     @GetMapping("/{bookingId}/sentenceAdjustments")
     public SentenceAdjustmentDetail getBookingSentenceAdjustments(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId) {
-        return bookingService.getBookingSentenceAdjustments(bookingId);    }
+        return bookingService.getBookingSentenceAdjustments(bookingId);
+    }
 
     @ApiResponses({
             @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
@@ -1062,9 +1005,10 @@ public class BookingResource {
     @PostMapping("/{bookingId}/appointments")
     @HasWriteScope
     @ProxyUser
-    public ScheduledEvent postBookingsBookingIdAppointments(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId, @RequestBody @ApiParam(required = true) final NewAppointment newAppointment) {
-        return appointmentsService.createBookingAppointment(
-                bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
+    public ScheduledEvent postBookingsBookingIdAppointments(
+            @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId,
+            @RequestBody @ApiParam(required = true) final NewAppointment newAppointment) {
+        return appointmentsService.createBookingAppointment(bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
     }
 
     @ApiResponses({

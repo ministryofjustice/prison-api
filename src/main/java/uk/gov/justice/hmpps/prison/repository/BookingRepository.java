@@ -9,26 +9,14 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
-import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
-import uk.gov.justice.hmpps.prison.api.model.NewBooking;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
-import uk.gov.justice.hmpps.prison.api.model.RecallBooking;
-import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
-import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
-import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
-import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
+import uk.gov.justice.hmpps.prison.api.model.*;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -605,6 +593,19 @@ public class BookingRepository extends RepositoryBase {
                 EVENT_ROW_MAPPER);
     }
 
+    public Optional<ScheduledEvent> getBookingAppointmentByEventId(final long eventId) {
+        final var results = jdbcTemplate.queryForList(BookingRepositorySql.GET_BOOKING_APPOINTMENT_BY_EVENT_ID.getSql(), createParams("eventId", eventId));
+        try {
+            return Optional.ofNullable(
+                    jdbcTemplate.queryForObject(
+                    BookingRepositorySql.GET_BOOKING_APPOINTMENT_BY_EVENT_ID.getSql(),
+                    createParams("eventId", eventId),
+                    EVENT_ROW_MAPPER));
+        } catch (IncorrectResultSizeDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
     public Long createBookingAppointment(final Long bookingId, final NewAppointment newAppointment, final String agencyId) {
         final var sql = BookingRepositorySql.INSERT_APPOINTMENT.getSql();
         final var generatedKeyHolder = new GeneratedKeyHolder();
@@ -622,6 +623,14 @@ public class BookingRepository extends RepositoryBase {
                 generatedKeyHolder,
                 new String[]{"EVENT_ID"});
         return generatedKeyHolder.getKey().longValue();
+    }
+
+    public void deleteBookingAppointment(final long eventId) {
+        // Not deleting a row because it doesn't exist isn't an error.
+        jdbcTemplate.update(
+                BookingRepositorySql.DELETE_APPOINTMENT.getSql(),
+                createParams("eventId", eventId)
+        );
     }
 
     public List<OffenderSentenceDetailDto> getOffenderSentenceSummary(final String query, final Set<String> allowedCaseloadsOnly, final boolean filterByCaseload, final boolean viewInactiveBookings) {

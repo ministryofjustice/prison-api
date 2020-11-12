@@ -1,23 +1,24 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import uk.gov.justice.hmpps.prison.aop.ProxyUserAspect;
+import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
+import uk.gov.justice.hmpps.prison.util.JwtParameters;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +53,49 @@ public class AppointmentsResourceTest extends ResourceTest {
         makeCreateAppointmentsRequest();
 
         verify(proxyUserAspect).controllerCall(any());
+    }
+
+    @Test
+    public void deleteAnAppointment() {
+        final var scheduledEvent = ScheduledEvent
+                .builder()
+                .eventId(1L)
+                .eventType("APP")
+                .eventSubType("VLB")
+                .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
+                .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
+                .eventLocation("Somewhere nice")
+                .build();
+
+        when(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.of(scheduledEvent));
+
+
+        final var response = testRestTemplate.exchange(
+                "/api/appointments/1",
+                HttpMethod.DELETE,
+                createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), null),
+                Void.class
+                );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        verify(bookingRepository).getBookingAppointmentByEventId(1L);
+    }
+
+    @Test
+    public void deleteAnAppointment_notFound() {
+        when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.empty());
+
+
+        final var response = testRestTemplate.exchange(
+                "/api/appointments/1",
+                HttpMethod.DELETE,
+                createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), null),
+                Void.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        verify(bookingRepository).getBookingAppointmentByEventId(1L);
     }
 
     private ResponseEntity<String> makeCreateAppointmentsRequest() {

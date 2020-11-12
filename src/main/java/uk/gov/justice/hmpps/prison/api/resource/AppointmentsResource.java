@@ -6,15 +6,16 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
+import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
+
+import javax.validation.constraints.NotNull;
 
 @RestController
 @Api(tags = {"appointments"})
@@ -33,4 +34,16 @@ public class AppointmentsResource {
         appointmentsService.createAppointments(createAppointmentsRequest);
         return ResponseEntity.ok().build();
     }
+
+    @ApiResponses({
+            @ApiResponse(code = 204, message = "The appointment has been deleted")})
+    @ApiOperation(value = "Delete an appointment .", notes = "Delete appointment.", nickname = "deleteBookingAppointment")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{eventId}")
+    @HasWriteScope
+    public void deleteAppointment(@PathVariable("eventId") @ApiParam(value = "The unique identifier for the appointment", required = true) @NotNull final Long eventId) {
+        appointmentsService.deleteBookingAppointment(eventId);
+    }
+
+
 }

@@ -13,15 +13,10 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
-import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
-import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
-import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
-import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
+import uk.gov.justice.hmpps.prison.api.model.*;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -35,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -419,9 +415,9 @@ public class BookingRepositoryTest {
                 .asList()
                 .containsExactlyInAnyOrder(
                         // Terms with start date = 2016-11-22 is ignored as sentence is inactive
-                        new OffenderSentenceTerms(-2L, 2, 1, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 5, 22), 2, null, null, null, false,"-2",120.0, "IMP", 1L, LocalDate.parse("2017-07-05")),
-                        new OffenderSentenceTerms(-2L, 2, 2, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 6, 22), null, null, 2, 3, false,"-2",120.0, "IMP", 1L, LocalDate.parse("2017-07-05")),
-                        new OffenderSentenceTerms(-2L, 2, 3, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 7, 22), 25, null, null, null, true,"-2",120.0, "IMP", 1L, LocalDate.parse("2017-07-05"))
+                        new OffenderSentenceTerms(-2L, 2, 1, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 5, 22), 2, null, null, null, false, "-2", 120.0, "IMP", 1L, LocalDate.parse("2017-07-05")),
+                        new OffenderSentenceTerms(-2L, 2, 2, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 6, 22), null, null, 2, 3, false, "-2", 120.0, "IMP", 1L, LocalDate.parse("2017-07-05")),
+                        new OffenderSentenceTerms(-2L, 2, 3, null, "FTR_ORA", "ORA 28 Day Fixed Term Recall", LocalDate.of(2017, 7, 22), 25, null, null, null, true, "-2", 120.0, "IMP", 1L, LocalDate.parse("2017-07-05"))
                 );
     }
 
@@ -481,6 +477,60 @@ public class BookingRepositoryTest {
                         Tuple.tuple(-31L, "APP", "ACTI", today, now, in1Hour, "Chapel"),
                         Tuple.tuple(-32L, "APP", "ACTI", today, now, in1Hour, "Chapel"));
     }
+
+    @Test
+    public void getBookingAppointmentByEventId_noAppointment() {
+        assertThat(repository.getBookingAppointmentByEventId(-999)).isEmpty();
+    }
+
+    @Test
+    public void getBookingAppointmentByEventId() {
+        final var startTime = LocalDateTime.now().plusDays(2).truncatedTo(ChronoUnit.SECONDS);  // Drop nanos.
+        final var endTime = startTime.plusMinutes(30);
+        final var bookingId = -31L;
+        final var locationId = -25L;// LEI-CHAP. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
+
+        final var newAppointment = NewAppointment.builder()
+                .appointmentType("VLB")
+                .startTime(startTime)
+                .endTime(endTime)
+                .locationId(locationId)
+                .build();
+
+        final var id = repository.createBookingAppointment(bookingId, newAppointment, "LEI");
+
+        // Could commit and start a new transaction here, but I don't think it is necessary.
+
+        assertThat(repository.getBookingAppointmentByEventId(id))
+                .hasValueSatisfying(se -> assertThat(se)
+                        .extracting("bookingId", "eventId", "startTime", "endTime", "eventLocationId")
+                        .containsExactly(bookingId, id, startTime, endTime, locationId));
+    }
+
+    @Test
+    public void deleteBookingAppointment() {
+        // Do this test in a single transaction. Good enough for JDBC.
+        final var startTime = LocalDateTime.now().plusDays(2);
+        final var endTime = startTime.plusMinutes(30);
+        final var bookingId = -31L;
+        final var locationId = -25L;// LEI-CHAP. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
+
+        final var newAppointment = NewAppointment.builder()
+                .appointmentType("VLB")
+                .startTime(startTime)
+                .endTime(endTime)
+                .locationId(locationId)
+                .build();
+
+        final var id = repository.createBookingAppointment(bookingId, newAppointment, "LEI");
+
+        assertThat(repository.getBookingAppointmentByEventId(id)).isNotEmpty();
+
+        repository.deleteBookingAppointment(id);
+
+        assertThat(repository.getBookingAppointmentByEventId(id)).isEmpty();
+    }
+
 
     @Test
     public void testGetBookingIEPDetailsByBookingIds() {
