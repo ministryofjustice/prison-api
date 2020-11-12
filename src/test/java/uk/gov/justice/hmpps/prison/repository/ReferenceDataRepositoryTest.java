@@ -72,20 +72,14 @@ public class ReferenceDataRepositoryTest {
     })
     public void testGetReferenceCodeByDomainAndCode(String domain, String code, boolean withSubCodes) {
 
+        final var refCode =
+            repository.getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
+
         if(withSubCodes){
-
-            final var refCode =
-                repository.getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
-
             assertThat(refCode.isPresent()).isTrue();
             assertThat(refCode.get().getSubCodes()).isNotNull();
             assertThat(refCode.get().getSubCodes()).isNotEmpty();
-
         } else {
-
-            final var refCode =
-                repository.getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
-
             assertThat(refCode.isPresent()).isTrue();
             assertThat(refCode.get().getSubCodes()).isNotNull();
             assertThat(refCode.get().getSubCodes()).isEmpty();
