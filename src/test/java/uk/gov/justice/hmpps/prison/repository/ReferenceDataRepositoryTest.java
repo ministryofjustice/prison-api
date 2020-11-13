@@ -77,7 +77,7 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
         assertThat(refCodes.getItems()).hasSize(10);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(58);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(59);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(10);
 
@@ -101,14 +101,14 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
         assertThat(refCodes.getItems()).hasSize(15);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(58);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(59);
         assertThat(refCodes.getPageOffset()).isEqualTo(15);
         assertThat(refCodes.getPageLimit()).isEqualTo(15);
 
         // Verify sorting
         assertThat(refCodes.getItems().get(0).getCode()).isEqualTo("REQUIREMENT");
         assertThat(refCodes.getItems().get(9).getCode()).isEqualTo("PA");
-        assertThat(refCodes.getItems().get(14).getCode()).isEqualTo("MIGRATION");
+        assertThat(refCodes.getItems().get(14).getCode()).isEqualTo("MISC");
 
         // Verify no sub-codes returned
         refCodes.getItems().forEach(rc -> {
@@ -126,7 +126,7 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
         assertThat(refCodes.getItems()).hasSize(10);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(47);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(48);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(10);
 
@@ -155,6 +155,7 @@ public class ReferenceDataRepositoryTest {
     // Tests (with retrieval of sub-codes) ordering by code (descending) and 15-30 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes2() {
+
         final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", true, "code", Order.DESC, 15, 16);
 
@@ -162,29 +163,28 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
         assertThat(refCodes.getItems()).hasSize(16);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(47);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(48);
         assertThat(refCodes.getPageOffset()).isEqualTo(15);
         assertThat(refCodes.getPageLimit()).isEqualTo(16);
 
         // Verify sorting of codes
         assertThat(refCodes.getItems().get(0).getCode()).isEqualTo("REC");
-        assertThat(refCodes.getItems().get(9).getCode()).isEqualTo("MIGRATION");
-        assertThat(refCodes.getItems().get(15).getCode()).isEqualTo("FILEINSP");
+        assertThat(refCodes.getItems().get(10).getCode()).isEqualTo("MIGRATION");
+        assertThat(refCodes.getItems().get(15).getCode()).isEqualTo("GEN");
 
         // Verify sub-codes returned or not
         verifySubCodesPresent(refCodes.getItems());
 
         // Verify quantity of sub-codes returned
         assertThat(refCodes.getItems().get(0).getSubCodes()).hasSize(9);
-        assertThat(refCodes.getItems().get(9).getSubCodes()).hasSize(1);
-        assertThat(refCodes.getItems().get(15).getSubCodes()).hasSize(3);
+        assertThat(refCodes.getItems().get(10).getSubCodes()).hasSize(1);
+        assertThat(refCodes.getItems().get(15).getSubCodes()).hasSize(1);
 
         // Verify sorting of sub-codes
         assertThat(refCodes.getItems().get(0).getSubCodes().get(0).getCode()).isEqualTo("RI");
         assertThat(refCodes.getItems().get(0).getSubCodes().get(8).getCode()).isEqualTo("APPRECALL");
-        assertThat(refCodes.getItems().get(9).getSubCodes().get(0).getCode()).isEqualTo("MISC");
-        assertThat(refCodes.getItems().get(15).getSubCodes().get(0).getCode()).isEqualTo("BYSPO");
-        assertThat(refCodes.getItems().get(15).getSubCodes().get(2).getCode()).isEqualTo("BYACO");
+        assertThat(refCodes.getItems().get(10).getSubCodes().get(0).getCode()).isEqualTo("MISC");
+        assertThat(refCodes.getItems().get(15).getSubCodes().get(0).getCode()).isEqualTo("HIST");
 
         // Verify correct sub-code relationship to parent code
         verifySubCodeParentCodeRelationship(refCodes.getItems());
@@ -199,15 +199,15 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems()).hasSize(58);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(58);
+        assertThat(refCodes.getItems()).hasSize(59);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(59);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(1000);
 
         // Verify sorting
         assertThat(refCodes.getItems().get(0).getCode()).isEqualTo("ACP");
         assertThat(refCodes.getItems().get(9).getCode()).isEqualTo("COMMS");
-        assertThat(refCodes.getItems().get(57).getCode()).isEqualTo("VLU");
+        assertThat(refCodes.getItems().get(58).getCode()).isEqualTo("VLU");
 
         // Verify no sub-codes returned
         refCodes.getItems().forEach(rc -> {
@@ -224,15 +224,15 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes).isNotNull();
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
-        assertThat(refCodes.getItems()).hasSize(47);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(47);
+        assertThat(refCodes.getItems()).hasSize(48);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(48);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(1000);
 
         // Verify sorting of codes
         assertThat(refCodes.getItems().get(0).getCode()).isEqualTo("ACP");
         assertThat(refCodes.getItems().get(9).getCode()).isEqualTo("CRT");
-        assertThat(refCodes.getItems().get(46).getCode()).isEqualTo("VICTIM");
+        assertThat(refCodes.getItems().get(47).getCode()).isEqualTo("VICTIM");
 
         // Verify sub-codes returned or not
         verifySubCodesPresent(refCodes.getItems());
@@ -240,15 +240,15 @@ public class ReferenceDataRepositoryTest {
         // Verify quantity of sub-codes returned
         assertThat(refCodes.getItems().get(0).getSubCodes()).hasSize(22);
         assertThat(refCodes.getItems().get(9).getSubCodes()).hasSize(15);
-        assertThat(refCodes.getItems().get(45).getSubCodes()).hasSize(2);
+        assertThat(refCodes.getItems().get(46).getSubCodes()).hasSize(2);
 
         // Verify sorting of sub-codes
         assertThat(refCodes.getItems().get(0).getSubCodes().get(0).getCode()).isEqualTo("CPS");
         assertThat(refCodes.getItems().get(0).getSubCodes().get(21).getCode()).isEqualTo("SOU");
         assertThat(refCodes.getItems().get(9).getSubCodes().get(0).getCode()).isEqualTo("APP");
         assertThat(refCodes.getItems().get(9).getSubCodes().get(14).getCode()).isEqualTo("TRA");
-        assertThat(refCodes.getItems().get(46).getSubCodes().get(0).getCode()).isEqualTo("INFO_COMPLET");
-        assertThat(refCodes.getItems().get(46).getSubCodes().get(1).getCode()).isEqualTo("INFO_UPDATE");
+        assertThat(refCodes.getItems().get(47).getSubCodes().get(0).getCode()).isEqualTo("INFO_COMPLET");
+        assertThat(refCodes.getItems().get(47).getSubCodes().get(1).getCode()).isEqualTo("INFO_UPDATE");
 
         // Verify correct sub-code relationship to parent code
         verifySubCodeParentCodeRelationship(refCodes.getItems());
@@ -264,7 +264,7 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
         assertThat(refCodes.getItems()).hasSize(10);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(58);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(59);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(10);
 
@@ -290,7 +290,7 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
         assertThat(refCodes.getItems()).hasSize(15);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(58);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(59);
         assertThat(refCodes.getPageOffset()).isEqualTo(15);
         assertThat(refCodes.getPageLimit()).isEqualTo(15);
 
@@ -299,8 +299,8 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes.getItems().get(0).getDescription()).isEqualTo("Release Report");
         assertThat(refCodes.getItems().get(9).getCode()).isEqualTo("OM");
         assertThat(refCodes.getItems().get(9).getDescription()).isEqualTo("Offender Management");
-        assertThat(refCodes.getItems().get(14).getCode()).isEqualTo("MHT");
-        assertThat(refCodes.getItems().get(14).getDescription()).isEqualTo("Mental Health Treatment Requirement");
+        assertThat(refCodes.getItems().get(14).getCode()).isEqualTo("MIGRATION");
+        assertThat(refCodes.getItems().get(14).getDescription()).isEqualTo("Migration");
 
         // Verify no sub-codes returned
         refCodes.getItems().forEach(rc -> {
@@ -318,7 +318,7 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
         assertThat(refCodes.getItems()).hasSize(10);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(47);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(48);
         assertThat(refCodes.getPageOffset()).isEqualTo(0);
         assertThat(refCodes.getPageLimit()).isEqualTo(10);
 
@@ -359,37 +359,37 @@ public class ReferenceDataRepositoryTest {
         assertThat(refCodes.getItems()).isNotNull();
         assertThat(refCodes.getItems()).isNotEmpty();
         assertThat(refCodes.getItems()).hasSize(16);
-        assertThat(refCodes.getTotalRecords()).isEqualTo(47);
+        assertThat(refCodes.getTotalRecords()).isEqualTo(48);
         assertThat(refCodes.getPageOffset()).isEqualTo(15);
         assertThat(refCodes.getPageLimit()).isEqualTo(16);
 
         // Verify sorting of codes
         assertThat(refCodes.getItems().get(0).getCode()).isEqualTo("PRISON");
         assertThat(refCodes.getItems().get(0).getDescription()).isEqualTo("Prison");
-        assertThat(refCodes.getItems().get(9).getCode()).isEqualTo("MHT");
-        assertThat(refCodes.getItems().get(9).getDescription()).isEqualTo("Mental Health Treatment Requirement");
-        assertThat(refCodes.getItems().get(15).getCode()).isEqualTo("FARES");
-        assertThat(refCodes.getItems().get(15).getDescription()).isEqualTo("Fares");
+        assertThat(refCodes.getItems().get(10).getCode()).isEqualTo("MHT");
+        assertThat(refCodes.getItems().get(10).getDescription()).isEqualTo("Mental Health Treatment Requirement");
+        assertThat(refCodes.getItems().get(15).getCode()).isEqualTo("FILEINSP");
+        assertThat(refCodes.getItems().get(15).getDescription()).isEqualTo("File Review Inspection");
 
         // Verify sub-codes returned or not
         verifySubCodesPresent(refCodes.getItems());
 
         // Verify quantity of sub-codes returned
         assertThat(refCodes.getItems().get(0).getSubCodes()).hasSize(1);
-        assertThat(refCodes.getItems().get(9).getSubCodes()).hasSize(3);
-        assertThat(refCodes.getItems().get(15).getSubCodes()).hasSize(2);
+        assertThat(refCodes.getItems().get(10).getSubCodes()).hasSize(3);
+        assertThat(refCodes.getItems().get(15).getSubCodes()).hasSize(3);
 
         // Verify sorting of sub-codes
         assertThat(refCodes.getItems().get(0).getSubCodes().get(0).getCode()).isEqualTo("RELEASE");
         assertThat(refCodes.getItems().get(0).getSubCodes().get(0).getDescription()).isEqualTo("Release");
-        assertThat(refCodes.getItems().get(9).getSubCodes().get(0).getCode()).isEqualTo("MHTRTO");
-        assertThat(refCodes.getItems().get(9).getSubCodes().get(0).getDescription()).isEqualTo("Report to Office");
-        assertThat(refCodes.getItems().get(9).getSubCodes().get(2).getCode()).isEqualTo("MHTIATP");
-        assertThat(refCodes.getItems().get(9).getSubCodes().get(2).getDescription()).isEqualTo("Initial Appointment w.Treatment Provider");
-        assertThat(refCodes.getItems().get(15).getSubCodes().get(0).getCode()).isEqualTo("TOBEPAID");
-        assertThat(refCodes.getItems().get(15).getSubCodes().get(0).getDescription()).isEqualTo("To Be Paid");
-        assertThat(refCodes.getItems().get(15).getSubCodes().get(1).getCode()).isEqualTo("NOTPAID");
-        assertThat(refCodes.getItems().get(15).getSubCodes().get(1).getDescription()).isEqualTo("Not To Be Paid");
+        assertThat(refCodes.getItems().get(10).getSubCodes().get(0).getCode()).isEqualTo("MHTRTO");
+        assertThat(refCodes.getItems().get(10).getSubCodes().get(0).getDescription()).isEqualTo("Report to Office");
+        assertThat(refCodes.getItems().get(10).getSubCodes().get(2).getCode()).isEqualTo("MHTIATP");
+        assertThat(refCodes.getItems().get(10).getSubCodes().get(2).getDescription()).isEqualTo("Initial Appointment w.Treatment Provider");
+        assertThat(refCodes.getItems().get(15).getSubCodes().get(0).getCode()).isEqualTo("BYSPO");
+        assertThat(refCodes.getItems().get(15).getSubCodes().get(0).getDescription()).isEqualTo("By SPO");
+        assertThat(refCodes.getItems().get(15).getSubCodes().get(1).getCode()).isEqualTo("BYINSP");
+        assertThat(refCodes.getItems().get(15).getSubCodes().get(1).getDescription()).isEqualTo("By Inspector");
 
         // Verify correct sub-code relationship to parent code
         verifySubCodeParentCodeRelationship(refCodes.getItems());
