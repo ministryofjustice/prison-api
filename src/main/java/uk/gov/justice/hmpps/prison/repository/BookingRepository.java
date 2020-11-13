@@ -9,6 +9,7 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -605,6 +606,18 @@ public class BookingRepository extends RepositoryBase {
                 EVENT_ROW_MAPPER);
     }
 
+    public Optional<ScheduledEvent> getBookingAppointmentByEventId(final long eventId) {
+        try {
+            return Optional.ofNullable(
+                    jdbcTemplate.queryForObject(
+                    BookingRepositorySql.GET_BOOKING_APPOINTMENT_BY_EVENT_ID.getSql(),
+                    createParams("eventId", eventId),
+                    EVENT_ROW_MAPPER));
+        } catch (IncorrectResultSizeDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
     public Long createBookingAppointment(final Long bookingId, final NewAppointment newAppointment, final String agencyId) {
         final var sql = BookingRepositorySql.INSERT_APPOINTMENT.getSql();
         final var generatedKeyHolder = new GeneratedKeyHolder();
@@ -622,6 +635,14 @@ public class BookingRepository extends RepositoryBase {
                 generatedKeyHolder,
                 new String[]{"EVENT_ID"});
         return generatedKeyHolder.getKey().longValue();
+    }
+
+    public void deleteBookingAppointment(final long eventId) {
+        // Not deleting a row because it doesn't exist isn't an error.
+        jdbcTemplate.update(
+                BookingRepositorySql.DELETE_APPOINTMENT.getSql(),
+                createParams("eventId", eventId)
+        );
     }
 
     public List<OffenderSentenceDetailDto> getOffenderSentenceSummary(final String query, final Set<String> allowedCaseloadsOnly, final boolean filterByCaseload, final boolean viewInactiveBookings) {
