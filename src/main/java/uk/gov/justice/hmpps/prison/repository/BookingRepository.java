@@ -607,7 +607,6 @@ public class BookingRepository extends RepositoryBase {
     }
 
     public Optional<ScheduledEvent> getBookingAppointmentByEventId(final long eventId) {
-        final var results = jdbcTemplate.queryForList(BookingRepositorySql.GET_BOOKING_APPOINTMENT_BY_EVENT_ID.getSql(), createParams("eventId", eventId));
         try {
             return Optional.ofNullable(
                     jdbcTemplate.queryForObject(
