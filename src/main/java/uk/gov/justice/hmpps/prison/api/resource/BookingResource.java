@@ -588,7 +588,8 @@ public class BookingResource {
     @ApiOperation(value = "Offender sentence detail (key dates and additional days awarded).", nickname = "getBookingSentenceDetail", notes = "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>")
     @GetMapping("/{bookingId}/sentenceDetail")
     public SentenceDetail getBookingSentenceDetail(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId) {
-        return bookingService.getBookingSentenceDetail(bookingId);    }
+        return bookingService.getBookingSentenceDetail(bookingId);
+    }
 
     @ApiResponses({
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -597,7 +598,8 @@ public class BookingResource {
     @ApiOperation(value = "Offender sentence adjustments.", nickname = "getBookingSentenceAdjustments")
     @GetMapping("/{bookingId}/sentenceAdjustments")
     public SentenceAdjustmentDetail getBookingSentenceAdjustments(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId) {
-        return bookingService.getBookingSentenceAdjustments(bookingId);    }
+        return bookingService.getBookingSentenceAdjustments(bookingId);
+    }
 
     @ApiResponses({
             @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
@@ -1062,9 +1064,10 @@ public class BookingResource {
     @PostMapping("/{bookingId}/appointments")
     @HasWriteScope
     @ProxyUser
-    public ScheduledEvent postBookingsBookingIdAppointments(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId, @RequestBody @ApiParam(required = true) final NewAppointment newAppointment) {
-        return appointmentsService.createBookingAppointment(
-                bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
+    public ScheduledEvent postBookingsBookingIdAppointments(
+            @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId,
+            @RequestBody @ApiParam(required = true) final NewAppointment newAppointment) {
+        return appointmentsService.createBookingAppointment(bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
     }
 
     @ApiResponses({

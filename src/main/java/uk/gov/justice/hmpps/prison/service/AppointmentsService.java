@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -118,6 +119,17 @@ public class AppointmentsService {
         return bookingRepository.getBookingAppointment(bookingId, eventId);
     }
 
+    @Transactional
+    @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
+    public void deleteBookingAppointment(final long eventId) {
+        final ScheduledEvent eventForDeletion = bookingRepository
+                .getBookingAppointmentByEventId(eventId)
+                .orElseThrow(() -> EntityNotFoundException.withMessage("Booking Appointment for eventId %d not found.", eventId));
+
+        bookingRepository.deleteBookingAppointment(eventId);
+
+        trackAppointmentDeletion(eventForDeletion);
+    }
 
     private void validateStartTime(final NewAppointment newAppointment) {
         if (newAppointment.getStartTime().isBefore(LocalDateTime.now())) {
@@ -249,7 +261,7 @@ public class AppointmentsService {
                 scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(agencyId, date, locationId).stream() :
                 scheduledAppointmentRepository.findByAgencyIdAndEventDate(agencyId, date).stream();
 
-        final var appointmentDtos =  appointmentStream
+        final var appointmentDtos = appointmentStream
                 .map(scheduledAppointment ->
                         ScheduledAppointmentDto
                                 .builder()
@@ -306,6 +318,23 @@ public class AppointmentsService {
             logMap.put("end", newAppointment.getEndTime().toString());
         }
         telemetryClient.trackEvent("AppointmentCreated", logMap, null);
+    }
+
+    private void trackAppointmentDeletion(ScheduledEvent appointment) {
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("eventId", appointment.getEventId().toString());
+        logMap.put("type", appointment.getEventType());
+        logMap.put("subType", appointment.getEventSubType());
+
+        if (appointment.getStartTime() != null) {
+            logMap.put("start", appointment.getStartTime().toString());
+        }
+
+        if (appointment.getEndTime() != null) {
+            logMap.put("end", appointment.getEndTime().toString());
+        }
+        logMap.put("location", appointment.getEventLocation());
+        telemetryClient.trackEvent("AppointmentDeleted", logMap, null);
     }
 
     public static List<AppointmentDetails> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {

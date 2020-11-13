@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -761,6 +762,44 @@ public class AppointmentsServiceImplTest {
                         ScheduledAppointmentDto::getId,
                         ScheduledAppointmentDto::getLocationDescription
                 ).containsExactly(Tuple.tuple(4L, "A"), Tuple.tuple(3L, "Z"), Tuple.tuple(2L, "Room 2"), Tuple.tuple(1L, "Gym"));
+    }
+
+    @Test
+    public void deleteBookingAppointment_notFound() {
+        when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> appointmentsService.deleteBookingAppointment(1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Booking Appointment for eventId 1 not found.");
+    }
+
+    @Test
+    public void deleteBookingAppointment() {
+        final var scheduledEvent = ScheduledEvent
+                .builder()
+                .eventId(1L)
+                .eventType("APP")
+                .eventSubType("VLB")
+                .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
+                .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
+                .eventLocation("Somewhere nice")
+                .build();
+        when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.of(scheduledEvent));
+
+        appointmentsService.deleteBookingAppointment(1L);
+
+        verify(bookingRepository).deleteBookingAppointment(1L);
+        verify(telemetryClient).trackEvent(
+                "AppointmentDeleted",
+                Map.of(
+                        "eventId", "1",
+                        "type", "APP",
+                        "subType", "VLB",
+                        "start", "2020-01-01T01:01",
+                        "end", "2020-01-01T01:31",
+                        "location", "Somewhere nice"
+                        ),
+                null);
     }
 
     private void stubValidBookingIds(final String agencyId, final long... bookingIds) {
