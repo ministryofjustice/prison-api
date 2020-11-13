@@ -45,10 +45,10 @@ public class AppointmentsResource {
             @ApiResponse(code = 204, message = "The appointment has been deleted")})
     @ApiOperation(value = "Delete an appointment .", notes = "Delete appointment.", nickname = "deleteBookingAppointment")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/{eventId}")
+    @DeleteMapping("/{appointmentId}")
     @HasWriteScope
-    public void deleteAppointment(@PathVariable("eventId") @ApiParam(value = "The unique identifier for the appointment", required = true) @NotNull final Long eventId) {
-        appointmentsService.deleteBookingAppointment(eventId);
+    public void deleteAppointment(@PathVariable("appointmentId") @ApiParam(value = "The unique identifier for the appointment", required = true) @NotNull final Long appointmentId) {
+        appointmentsService.deleteBookingAppointment(appointmentId);
     }
 
 
