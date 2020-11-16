@@ -54,5 +54,5 @@ public class BedAssignment {
     private Integer bedAssignmentHistorySequence;
 
     @ApiModelProperty(value = "the staff member responsible for the movement of a prisoner", position = 11, example = "KQJ74F")
-    private String createUserId;
+    private String movementMadeBy;
 }

@@ -8,7 +8,7 @@
       "assignmentReason": "ADM",
       "description": "LEI-RECP",
       "agencyId": "LEI",
-      "createUserId": "SA"
+      "movementMadeBy": "SA"
     }
   ],
   "pageable": {
