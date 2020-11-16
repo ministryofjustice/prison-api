@@ -65,6 +65,7 @@ public class BedAssignmentHistory extends AuditableEntity {
     @Column(name = "ASSIGNMENT_END_TIME")
     private LocalDateTime assignmentEndDateTime;
 
-    @Column(name = "CREATE_USER_ID")
-    private String createUserId;
+    public String getCreatedUserId() {
+        return super.getCreateUserId();
+    }
 }

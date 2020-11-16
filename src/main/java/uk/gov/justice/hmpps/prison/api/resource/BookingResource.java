@@ -1105,7 +1105,9 @@ public class BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @GetMapping("/{bookingId}/cell-history")
-    public Page<BedAssignment> getBedAssignmentsHistory(@PathVariable("bookingId") @ApiParam(value = "The offender booking linked to the court hearings.", required = true) final Long bookingId, @RequestParam(value = "page", required = false) @ApiParam(value = "The page number to return. Index starts at 0", defaultValue = "0") final Integer page, @RequestParam(value = "size", required = false) @ApiParam(value = "The number of results per page. Defaults to 20.", defaultValue = "20") final Integer size) {
+    public Page<BedAssignment> getBedAssignmentsHistory(@PathVariable("bookingId") @ApiParam(value = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
+                                                        @RequestParam(value = "page", required = false) @ApiParam(value = "The page number to return. Index starts at 0", defaultValue = "0") final Integer page,
+                                                        @RequestParam(value = "size", required = false) @ApiParam(value = "The number of results per page. Defaults to 20.", defaultValue = "20") final Integer size) {
         final var pageIndex = page != null ? page : 0;
         final var pageSize = size != null ? size : 20;
         return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize));
