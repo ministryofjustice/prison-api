@@ -1,7 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -23,7 +21,6 @@ public class ReferenceDataResourceTest extends ResourceTest {
         try {
 
             final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
-
             final var httpEntity = createHttpEntity(token,
                 "{" +
                     "    \"description\": \"TASK_TEST1\"," +
@@ -43,11 +40,10 @@ public class ReferenceDataResourceTest extends ResourceTest {
                 "TASK_SUBTYPE", "TEST1");
 
             assertThatStatus(response, 200);
-
             assertThatJson(response.getBody()).isEqualTo("{domain:\"TASK_SUBTYPE\",code:\"TEST1\",description:\"TASK_TEST1\",parentDomain:\"TASK_TYPE\",parentCode:\"GEN\",activeFlag:\"N\",listSeq:88,systemDataFlag:\"Y\",expiredDate:\"2018-07-19\",\"subCodes\":[]}");
 
         } finally {
-            val deleteSql = "DELETE FROM REFERENCE_CODES WHERE domain = ? and code = ?";
+            var deleteSql = "DELETE FROM REFERENCE_CODES WHERE domain = ? and code = ?";
             assertThat(jdbcTemplate.update(deleteSql, "TASK_SUBTYPE", "TEST1")).isEqualTo(1);
         }
     }
