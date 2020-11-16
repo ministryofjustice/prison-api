@@ -5,7 +5,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
@@ -606,5 +605,16 @@ public class BookingResourceIntTest extends ResourceTest {
                 String.class);
 
         assertThatJsonFileAndStatus(response, 200, "offender_cell_history.json");
+    }
+
+    @Test
+    public void getBedAssignmentHistory_with_staffId() {
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/-1/cell-history",
+            HttpMethod.GET,
+            createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
+            String.class);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_cell_history_with_staffid.json");
     }
 }

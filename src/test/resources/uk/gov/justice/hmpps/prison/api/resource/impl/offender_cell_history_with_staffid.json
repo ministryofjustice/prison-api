@@ -1,0 +1,39 @@
+{
+"content" : [
+    {
+      "bookingId": -1,
+      "livingUnitId": 4005,
+      "assignmentDate": "2019-10-17",
+      "assignmentDateTime": "2019-10-17T11:00:00",
+      "assignmentReason": "ADM",
+      "description": "LEI-RECP",
+      "agencyId": "LEI",
+      "createUserId": "SA"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": true,
+      "sorted": false,
+      "empty": true
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 20,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 1,
+  "last": true,
+  "totalElements": 1,
+  "size": 20,
+  "number": 0,
+  "sort": {
+    "unsorted": true,
+    "sorted": false,
+    "empty": true
+  },
+  "first": true,
+  "numberOfElements": 1,
+  "empty": false
+}
