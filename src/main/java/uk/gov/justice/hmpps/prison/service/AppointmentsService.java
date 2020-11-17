@@ -106,29 +106,29 @@ public class AppointmentsService {
 
     @Transactional
     @VerifyBookingAccess(overrideRoles = "GLOBAL_APPOINTMENT")
-    public ScheduledEvent createBookingAppointment(final Long bookingId, final String username, @Valid final NewAppointment newAppointment) {
-        validateStartTime(newAppointment);
-        validateEndTime(newAppointment);
-        validateEventType(newAppointment);
+    public ScheduledEvent createBookingAppointment(final Long bookingId, final String username, @Valid final NewAppointment appointmentSpecification) {
+        validateStartTime(appointmentSpecification);
+        validateEndTime(appointmentSpecification);
+        validateEventType(appointmentSpecification);
 
-        final var agencyId = validateLocationAndGetAgency(username, newAppointment);
-        final var eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
+        final var agencyId = validateLocationAndGetAgency(username, appointmentSpecification);
+        final var eventId = bookingRepository.createBookingAppointment(bookingId, appointmentSpecification, agencyId);
 
-        trackSingleAppointmentCreation(username, newAppointment);
-
-        return bookingRepository.getBookingAppointment(bookingId, eventId);
+        final var createdAppointment = bookingRepository.getBookingAppointment(bookingId, eventId);
+        trackSingleAppointmentCreation(createdAppointment);
+        return createdAppointment;
     }
 
     @Transactional
     @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
     public void deleteBookingAppointment(final long eventId) {
-        final ScheduledEvent eventForDeletion = bookingRepository
+        final ScheduledEvent appointmentForDeletion = bookingRepository
                 .getBookingAppointmentByEventId(eventId)
                 .orElseThrow(() -> EntityNotFoundException.withMessage("Booking Appointment for eventId %d not found.", eventId));
 
         bookingRepository.deleteBookingAppointment(eventId);
 
-        trackAppointmentDeletion(eventForDeletion);
+        trackAppointmentDeletion(appointmentForDeletion);
     }
 
     private void validateStartTime(final NewAppointment newAppointment) {
@@ -308,23 +308,20 @@ public class AppointmentsService {
         telemetryClient.trackEvent("AppointmentsCreated", logMap, null);
     }
 
-    private void trackSingleAppointmentCreation(String username, @Valid NewAppointment newAppointment) {
-        final Map<String, String> logMap = new HashMap<>();
-        logMap.put("type", newAppointment.getAppointmentType());
-        logMap.put("start", newAppointment.getStartTime().toString());
-        logMap.put("location", newAppointment.getLocationId().toString());
-        logMap.put("user", username);
-        if (newAppointment.getEndTime() != null) {
-            logMap.put("end", newAppointment.getEndTime().toString());
-        }
-        telemetryClient.trackEvent("AppointmentCreated", logMap, null);
+
+    private void trackSingleAppointmentCreation(final ScheduledEvent appointment) {
+        telemetryClient.trackEvent("AppointmentCreated", appointmentEvent(appointment), null);
     }
 
-    private void trackAppointmentDeletion(ScheduledEvent appointment) {
+    private void trackAppointmentDeletion(final ScheduledEvent appointment) {
+        telemetryClient.trackEvent("AppointmentDeleted", appointmentEvent(appointment), null);
+    }
+
+    private Map<String, String> appointmentEvent(final ScheduledEvent appointment) {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("eventId", appointment.getEventId().toString());
-        logMap.put("type", appointment.getEventType());
-        logMap.put("subType", appointment.getEventSubType());
+        logMap.put("user", authenticationFacade.getCurrentUsername());
+        logMap.put("type", appointment.getEventSubType());
 
         if (appointment.getStartTime() != null) {
             logMap.put("start", appointment.getStartTime().toString());
@@ -333,8 +330,10 @@ public class AppointmentsService {
         if (appointment.getEndTime() != null) {
             logMap.put("end", appointment.getEndTime().toString());
         }
-        logMap.put("location", appointment.getEventLocation());
-        telemetryClient.trackEvent("AppointmentDeleted", logMap, null);
+        if (appointment.getEventLocationId() != null) {
+            logMap.put("location", appointment.getEventLocationId().toString());
+        }
+        return logMap;
     }
 
     public static List<AppointmentDetails> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
