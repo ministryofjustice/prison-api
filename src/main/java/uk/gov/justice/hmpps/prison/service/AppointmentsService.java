@@ -330,7 +330,9 @@ public class AppointmentsService {
         if (appointment.getEndTime() != null) {
             logMap.put("end", appointment.getEndTime().toString());
         }
-        logMap.put("location", appointment.getEventLocationId().toString());
+        if (appointment.getEventLocationId() != null) {
+            logMap.put("location", appointment.getEventLocationId().toString());
+        }
         return logMap;
     }
 
