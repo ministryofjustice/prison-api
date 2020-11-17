@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReferenceDataResourceTest extends ResourceTest {
 
