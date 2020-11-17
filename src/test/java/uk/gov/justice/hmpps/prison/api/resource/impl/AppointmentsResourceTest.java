@@ -64,7 +64,7 @@ public class AppointmentsResourceTest extends ResourceTest {
                 .eventSubType("VLB")
                 .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
                 .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
-                .eventLocation("Somewhere nice")
+                .eventLocationId(2L)
                 .build();
 
         when(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.of(scheduledEvent));

@@ -485,7 +485,13 @@ public class AppointmentsServiceImplTest {
         final var agencyId = "LEI";
         final var eventId = -10L;
         final var principal = "ME";
-        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
+        final var createdEventId = 999L;
+        final var expectedEvent = ScheduledEvent
+                .builder()
+                .bookingId(bookingId)
+                .eventId(createdEventId)
+                .eventLocationId(locationId)
+                .build();
         final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
 
         final var newAppointment = NewAppointment.builder()
@@ -628,7 +634,13 @@ public class AppointmentsServiceImplTest {
         final var agencyId = "LEI";
         final var eventId = -10L;
         final var principal = "ME";
-        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
+        final var expectedEvent = ScheduledEvent
+                .builder()
+                .bookingId(bookingId)
+                .eventId(eventId)
+                .eventLocationId(locationId)
+                .build();
+
         final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
 
         final var newAppointment = NewAppointment.builder()
@@ -782,7 +794,7 @@ public class AppointmentsServiceImplTest {
                 .eventSubType("VLB")
                 .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
                 .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
-                .eventLocation("Somewhere nice")
+                .eventLocationId(2L)
                 .build();
         when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.of(scheduledEvent));
 
@@ -793,11 +805,11 @@ public class AppointmentsServiceImplTest {
                 "AppointmentDeleted",
                 Map.of(
                         "eventId", "1",
-                        "type", "APP",
-                        "subType", "VLB",
+                        "type", "VLB",
                         "start", "2020-01-01T01:01",
                         "end", "2020-01-01T01:31",
-                        "location", "Somewhere nice"
+                        "location", "2",
+                        "user", "username"
                         ),
                 null);
     }
