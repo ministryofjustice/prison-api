@@ -16,6 +16,7 @@ import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthToke
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.LOCAL_ADMIN;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PAY;
+import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA;
 
 /**
  * BDD step definitions for User API endpoints:
@@ -77,6 +78,11 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @Given("^a trusted client with GLOBAL_SEARCH role has authenticated with the API$")
     public void aTrustedClientThatHasGlobalSearchAuthenticatedWithTheAPI() {
         user.authenticateAsClient(GLOBAL_SEARCH);
+    }
+
+    @Given("^a trusted client with VIEW_PRISONER_DATA role has authenticated with the API$")
+    public void aTrustedClientThatHasViewPrisonerDataAuthenticatedWithTheAPI() {
+        user.authenticateAsClient(VIEW_PRISONER_DATA);
     }
 
     @When("^a request is made to retrieve user locations$")

@@ -195,6 +195,7 @@ public class BookingServiceTest {
         verify(securityUtils).isOverrideRole(
                 "SYSTEM_USER",
                 "GLOBAL_SEARCH",
+                "VIEW_PRISONER_DATA",
                 "CREATE_CATEGORISATION",
                 "APPROVE_CATEGORISATION"
         );

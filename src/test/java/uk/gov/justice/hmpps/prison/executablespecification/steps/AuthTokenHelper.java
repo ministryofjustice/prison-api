@@ -26,7 +26,7 @@ public class AuthTokenHelper {
         NO_CASELOAD_USER,
         NORMAL_USER,
         GLOBAL_SEARCH,
-        SYSTEM_READ_ONLY,
+        VIEW_PRISONER_DATA,
         LOCAL_ADMIN,
         ADMIN_TOKEN,
         SUPER_ADMIN,
@@ -55,7 +55,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.RENEGADE_USER), renegadeUser());
         tokens.put(String.valueOf(AuthToken.NO_CASELOAD_USER), noCaseloadUser());
         tokens.put(String.valueOf(AuthToken.GLOBAL_SEARCH), globalSearchUser());
-        tokens.put(String.valueOf(AuthToken.SYSTEM_READ_ONLY), systemReadOnly());
+        tokens.put(String.valueOf(AuthToken.VIEW_PRISONER_DATA), viewPrisonerDataUser());
         tokens.put(String.valueOf(AuthToken.LOCAL_ADMIN), localAdmin());
         tokens.put(String.valueOf(AuthToken.ADMIN_TOKEN), adminToken());
         tokens.put(String.valueOf(AuthToken.SUPER_ADMIN), superAdmin());
@@ -144,6 +144,18 @@ public class AuthTokenHelper {
         );
     }
 
+    private String viewPrisonerDataUser() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .clientId("aclient")
+                        .internalUser(false)
+                        .scope(List.of("read"))
+                        .roles(singletonList("ROLE_VIEW_PRISONER_DATA"))
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
     private String systemUserReadWrite() {
         return jwtAuthenticationHelper.createJwt(
                 JwtParameters.builder()
@@ -154,18 +166,6 @@ public class AuthTokenHelper {
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );
-    }
-
-    private String systemReadOnly() {
-        return jwtAuthenticationHelper.createJwt(
-                JwtParameters.builder()
-                        .clientId("rollcount")
-                        .scope(List.of("read"))
-                        .roles(singletonList("ROLE_SYSTEM_READ_ONLY"))
-                        .expiryTime(Duration.ofDays(365 * 10))
-                        .build()
-        );
-
     }
 
     private String localAdmin() {

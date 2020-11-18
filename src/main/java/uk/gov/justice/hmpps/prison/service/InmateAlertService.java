@@ -52,7 +52,7 @@ public class InmateAlertService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Alert> getInmateAlerts(final Long bookingId, final String query, final String orderBy, final Order order, final long offset, final long limit) {
         final var orderByBlank = StringUtils.isBlank(orderBy);
 
@@ -79,7 +79,7 @@ public class InmateAlertService {
         return alert;
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_READ_ONLY", "SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
 
         final var alerts = Lists.partition(offenderNos, maxBatchSize)
@@ -93,7 +93,7 @@ public class InmateAlertService {
         return alerts;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER','CREATE_CATEGORISATION','APPROVE_CATEGORISATION','GLOBAL_SEARCH')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
 
         final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly, query, orderByField, order);
@@ -109,7 +109,7 @@ public class InmateAlertService {
         return alerts;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER')")
     public Page<String> getAlertCandidates(final LocalDateTime cutoffTimestamp, final long offset, final long limit) {
         return inmateAlertRepository.getAlertCandidates(cutoffTimestamp, offset, limit);
     }

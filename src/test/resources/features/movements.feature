@@ -10,7 +10,7 @@ Feature: Movement
     Then a correct list of records are returned
 
   Scenario Outline: Retrieve a list of recent movements for offenders
-    Given a user has a token name of "GLOBAL_SEARCH"
+    Given a user has a token name of "VIEW_PRISONER_DATA"
     When a make a request for recent movements for "A6676RS" and "Z0021ZZ"
     Then the records should contain a entry for "<movementType>" "<fromDescription>" "<toDescription>" "<reasonDescription>" "<movementTime>"
     Examples:
@@ -71,7 +71,7 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
       | A1181FF    |       -47 | 1980-01-02  | Janis     | Drp       |            | Leeds                 | LEI        | 00:00           |   2018-01-01 00:00 |             | Wadhurst |
 
   Scenario Outline: Get brief information about most recent movements, specifically dealing with temporary absences
-    Given a user has a token name of "GLOBAL_SEARCH"
+    Given a user has a token name of "VIEW_PRISONER_DATA"
     When a make a request for recent movements for "A1181FF" and "A6676RS" for all movement types
     Then the records should contain a entry for "<offenderNo>" "<movementType>" "<fromDescription>" "<toDescription>" "<reasonDescription>" "<movementTime>" "<fromCity>" "<toCity>"
   Examples:

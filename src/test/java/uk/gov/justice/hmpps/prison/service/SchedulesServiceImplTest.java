@@ -277,7 +277,7 @@ class SchedulesServiceImplTest {
 
         final var eventIds = IntStream.range(1, 1000).mapToObj(Long::valueOf).collect(Collectors.toList());
 
-        schedulesService.getActivitiesByEventIds("LEI", eventIds);
+        schedulesService.getActivitiesByEventIds(eventIds);
 
         verify(scheduledActivityRepository,  times(2)).findAllByEventIdIn(any());
     }

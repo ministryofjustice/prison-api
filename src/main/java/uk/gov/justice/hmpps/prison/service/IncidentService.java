@@ -25,7 +25,7 @@ public class IncidentService {
         this.bookingService = bookingService;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER')")
     public IncidentCase getIncidentCase(@NotNull final long incidentCaseId) {
         return repository.getIncidentCases(List.of(incidentCaseId)).stream().findFirst().orElseThrow(EntityNotFoundException.withId(incidentCaseId));
     }
@@ -36,7 +36,7 @@ public class IncidentService {
         return repository.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles);
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','SYSTEM_USER')")
     public List<IncidentCase> getIncidentCasesByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
         bookingService.getOffenderIdentifiers(offenderNo);
         return repository.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
@@ -46,7 +46,7 @@ public class IncidentService {
         return repository.getQuestionnaire(category, code).orElseThrow(EntityNotFoundException.withId(format("%s/%s", category, code)));
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER')")
     public Page<String> getIncidentCandidates(LocalDateTime cutoffTimestamp, final long offset, final long limit) {
         return repository.getIncidentCandidates(cutoffTimestamp, offset, limit);
     }

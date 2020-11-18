@@ -452,7 +452,7 @@ public class BookingResource {
         return inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
     }
 
-    @ApiOperation("Get alerts for a list of offenders. Requires SYSTEM_READ_ONLY role")
+    @ApiOperation("Get alerts for a list of offenders. Requires VIEW_PRISONER_DATA role")
     @PostMapping("/offenderNo/alerts")
     public List<Alert> getAlertsByOffenderNos(@RequestBody @NotEmpty(message = "A minimum of one offender number is required") @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         return inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, null, "bookingId,alertId", Order.ASC);
@@ -687,7 +687,7 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Offence history.", notes = "All Offences recorded for this offender.", nickname = "getOffenceHistory")
     @GetMapping("/offenderNo/{offenderNo}/offenceHistory")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA')")
     public List<OffenceHistoryDetail> getOffenceHistory(@PathVariable("offenderNo") @ApiParam(value = "The offender number", required = true) final String offenderNo, @RequestParam(value = "convictionsOnly", required = false, defaultValue = "true") @ApiParam(value = "include offences with convictions only", defaultValue = "true") final boolean convictionsOnly) {
         return bookingService.getOffenceHistory(offenderNo, convictionsOnly);
     }
@@ -951,7 +951,7 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Balances visit orders and privilege visit orders for offender.", notes = "Balances visit orders and privilege visit orders for offender.", nickname = "getBookingVisitsBalances")
     @GetMapping("/offenderNo/{offenderNo}/visit/balances")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public VisitBalances getBookingVisitBalances(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", required = true) final String offenderNo) {
         final var identifiers = bookingService.getOffenderIdentifiers(offenderNo).getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
 
@@ -965,7 +965,7 @@ public class BookingResource {
     @ApiOperation(value = "Key worker details.", notes = "Key worker details. This should not be used - call keywork API instead")
     @GetMapping("/offenderNo/{offenderNo}/key-worker")
     @Deprecated
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Keyworker getKeyworkerByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", required = true) final String offenderNo) {
         final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo).getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
         return keyworkerService.getKeyworkerDetailsByBooking(offenderIdentifiers.getBookingId());

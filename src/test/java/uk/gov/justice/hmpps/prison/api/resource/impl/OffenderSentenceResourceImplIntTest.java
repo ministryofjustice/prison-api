@@ -15,7 +15,7 @@ public class OffenderSentenceResourceImplIntTest extends ResourceTest {
     @Test
     public void offenderSentence_success() {
 
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_GLOBAL_SEARCH"), Map.of());
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_VIEW_PRISONER_DATA"), Map.of());
         final var responseEntity = testRestTemplate.exchange("/api/offender-sentences?agencyId=LEI", HttpMethod.GET, requestEntity, String.class);
 
         assertThatJsonFileAndStatus(responseEntity, 200, "offender_sentences.json");
@@ -23,7 +23,7 @@ public class OffenderSentenceResourceImplIntTest extends ResourceTest {
 
     @Test
     public void offenderSentenceTerms_with_filterParam_success() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_GLOBAL_SEARCH"), Map.of());
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_VIEW_PRISONER_DATA"), Map.of());
 
         final var url = "/api/offender-sentences/booking/-31/sentenceTerms";
 
@@ -39,7 +39,7 @@ public class OffenderSentenceResourceImplIntTest extends ResourceTest {
 
     @Test
     public void retrieveAllSentenceTerms_forABookingId() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_GLOBAL_SEARCH"), Map.of());
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_VIEW_PRISONER_DATA"), Map.of());
 
         final var url = "/api/offender-sentences/booking/-5/sentenceTerms";
         final var responseEntity = testRestTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
@@ -50,7 +50,7 @@ public class OffenderSentenceResourceImplIntTest extends ResourceTest {
     @Test
     public void offenderSentence_400ErrorWhenNoCaseloadsProvided() {
 
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_GLOBAL_SEARCH"), Map.of());
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_VIEW_PRISONER_DATA"), Map.of());
 
         final var responseEntity = testRestTemplate.exchange("/api/offender-sentences", HttpMethod.GET, requestEntity, ErrorResponse.class);
 

@@ -25,7 +25,7 @@ Feature: User Details and Roles
       | token               | roles                |
       | NORMAL_USER         | KW_ADMIN,OMIC_ADMIN,ACCESS_ROLE_ADMIN,MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN  |
       | API_TEST_USER       | KW_ADMIN,OMIC_ADMIN  |
-      | NO_CASELOAD_USER    | GLOBAL_SEARCH,LICENCE_RO |
+      | NO_CASELOAD_USER    | VIEW_PRISONER_DATA,LICENCE_RO |
 
   Scenario Outline: As a logged in user I can find out which users have a given role at a particular caseload
     Given a user has authenticated with the API

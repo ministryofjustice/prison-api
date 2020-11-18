@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -251,7 +252,7 @@ public class ScheduleResourceTest extends ResourceTest {
 
     @Test
     public void testThatGetScheduledActivitiesById_ReturnsNotFound_WhenUserNotInAgency() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
         final var eventIds = List.of(-1L, 91234L);
 
         final var response = testRestTemplate.exchange(
