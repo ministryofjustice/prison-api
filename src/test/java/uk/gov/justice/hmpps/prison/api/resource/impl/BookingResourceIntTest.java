@@ -444,7 +444,7 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getOffenceHistory() {
         final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}/offenceHistory", GET,
-                createHttpEntity(AuthToken.CATEGORISATION_CREATE, null),
+                createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
                 String.class, "A1234AG");
 
         assertThatJsonFileAndStatus(response, 200, "offender_main_offences.json");
@@ -453,7 +453,7 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getOffenceHistoryIncludeOffenderWithoutConviction() {
         final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}/offenceHistory?convictionsOnly=false", GET,
-                createHttpEntity(AuthToken.CATEGORISATION_CREATE, null),
+                createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
                 String.class, "A1234AB");
 
         assertThatJsonFileAndStatus(response, 200, "offender_offence_history_A12234AB_include_non_convictions.json");
