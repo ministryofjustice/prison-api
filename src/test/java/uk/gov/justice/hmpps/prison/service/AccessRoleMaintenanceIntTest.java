@@ -101,7 +101,7 @@ public class AccessRoleMaintenanceIntTest {
                         .staffId(-5L)
                         .build(),
                 StaffUserRole.builder()
-                        .roleId(-304L)
+                        .roleId(-316L)
                         .roleCode("VIEW_PRISONER_DATA")
                         .roleName("View Prisoner Data")
                         .caseloadId("NWEB")
