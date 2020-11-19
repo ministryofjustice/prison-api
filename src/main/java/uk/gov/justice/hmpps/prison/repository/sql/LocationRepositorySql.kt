@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class LocationRepositorySql(val sql: String) {
-    FIND_LOCATION("""
+  FIND_LOCATION(
+    """
         SELECT A.INTERNAL_LOCATION_ID LOCATION_ID,
         A.INTERNAL_LOCATION_TYPE LOCATION_TYPE,
         A.DESCRIPTION,
@@ -15,9 +16,11 @@ enum class LocationRepositorySql(val sql: String) {
         WHERE A.ACTIVE_FLAG = 'Y'
         AND A.INTERNAL_LOCATION_ID = :locationId
         AND SUA.USERNAME = :username
-    """),
+    """
+  ),
 
-    GET_LOCATION("""
+  GET_LOCATION(
+    """
         SELECT A.INTERNAL_LOCATION_ID LOCATION_ID,
         A.INTERNAL_LOCATION_TYPE LOCATION_TYPE,
         A.DESCRIPTION,
@@ -29,9 +32,11 @@ enum class LocationRepositorySql(val sql: String) {
         FROM AGENCY_INTERNAL_LOCATIONS A
         WHERE A.ACTIVE_FLAG = COALESCE(:activeFlag, A.ACTIVE_FLAG)
         AND A.INTERNAL_LOCATION_ID = :locationId
-    """),
+    """
+  ),
 
-    FIND_LOCATIONS_BY_AGENCY_AND_TYPE("""
+  FIND_LOCATIONS_BY_AGENCY_AND_TYPE(
+    """
         SELECT A.INTERNAL_LOCATION_ID LOCATION_ID,
         A.AGY_LOC_ID AGENCY_ID,
         A.INTERNAL_LOCATION_TYPE LOCATION_TYPE,
@@ -43,9 +48,11 @@ enum class LocationRepositorySql(val sql: String) {
         WHERE A.ACTIVE_FLAG = 'Y'
         AND A.AGY_LOC_ID = :agencyId
         AND A.INTERNAL_LOCATION_TYPE = :locationType
-    """),
+    """
+  ),
 
-    GET_LOCATION_GROUP_DATA("""
+  GET_LOCATION_GROUP_DATA(
+    """
         SELECT AIL.INTERNAL_LOCATION_ID                        AS LOCATION_ID,
         AIL.DESCRIPTION,
         AIL.USER_DESC                                   AS USER_DESCRIPTION,
@@ -59,9 +66,11 @@ enum class LocationRepositorySql(val sql: String) {
         AIL.AGY_LOC_ID = :agencyId                    AND
         AIL.ACTIVE_FLAG = 'Y'                         AND
                 AIL.PARENT_INTERNAL_LOCATION_ID IS NULL
-    """),
+    """
+  ),
 
-    GET_SUB_LOCATION_GROUP_DATA("""
+  GET_SUB_LOCATION_GROUP_DATA(
+    """
         SELECT AIL.INTERNAL_LOCATION_ID                        AS LOCATION_ID,
         AIL.DESCRIPTION,
         AIL.USER_DESC                                   AS USER_DESCRIPTION,
@@ -73,5 +82,6 @@ enum class LocationRepositorySql(val sql: String) {
         AIL.UNIT_TYPE IS NOT NULL                     AND
         AIL.ACTIVE_FLAG = 'Y'                         AND
                 AIL.PARENT_INTERNAL_LOCATION_ID IN (:parentLocationIds)
-    """)
+    """
+  )
 }

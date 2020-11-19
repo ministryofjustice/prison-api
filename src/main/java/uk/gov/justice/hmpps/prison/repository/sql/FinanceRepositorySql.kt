@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class FinanceRepositorySql(val sql: String) {
-    GET_ACCOUNT("""
+  GET_ACCOUNT(
+    """
         SELECT MAX(cash) cash_balance, MAX(spends) spends_balance, MAX(savings) savings_balance
         FROM (SELECT CASE WHEN ac.sub_account_type = 'REG'  THEN balance ELSE 0.00 END cash,
         CASE WHEN ac.sub_account_type = 'SPND' THEN balance ELSE 0.00 END spends,
@@ -13,5 +14,6 @@ enum class FinanceRepositorySql(val sql: String) {
         AND osa.caseload_id = :agencyId
         AND ac.sub_account_type IN ('REG','SPND','SAV')
         ) ACCOUNT
-    """),
+    """
+  ),
 }

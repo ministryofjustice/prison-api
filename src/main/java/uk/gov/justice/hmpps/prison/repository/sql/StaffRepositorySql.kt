@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class StaffRepositorySql(val sql: String) {
-    FIND_STAFF_BY_STAFF_ID("""
+  FIND_STAFF_BY_STAFF_ID(
+    """
         SELECT SM.STAFF_ID,
         SM.FIRST_NAME,
         SM.LAST_NAME,
@@ -15,9 +16,11 @@ enum class StaffRepositorySql(val sql: String) {
         AND TI.ACTIVE_FLAG = 'Y') THUMBNAIL_ID
         FROM STAFF_MEMBERS SM
         WHERE SM.STAFF_ID = :staffId
-    """),
+    """
+  ),
 
-    FIND_STAFF_BY_PERSONNEL_IDENTIFIER("""
+  FIND_STAFF_BY_PERSONNEL_IDENTIFIER(
+    """
         SELECT SM.STAFF_ID,
         SM.FIRST_NAME,
         SM.LAST_NAME,
@@ -32,16 +35,20 @@ enum class StaffRepositorySql(val sql: String) {
                 FROM STAFF_MEMBERS SM
         INNER JOIN PERSONNEL_IDENTIFICATIONS PI ON PI.STAFF_ID = SM.STAFF_ID
                 AND PI.IDENTIFICATION_TYPE = :idType AND PI.IDENTIFICATION_NUMBER = :id
-    """),
+    """
+  ),
 
-    GET_STAFF_EMAIL_ADDRESSES("""
+  GET_STAFF_EMAIL_ADDRESSES(
+    """
         SELECT DISTINCT INTERNET_ADDRESS
         FROM INTERNET_ADDRESSES I
         INNER JOIN STAFF_USER_ACCOUNTS S ON I.OWNER_ID = S.STAFF_ID AND I.OWNER_CLASS = :ownerClass
         WHERE I.INTERNET_ADDRESS_CLASS = :addressClass and S.STAFF_ID = :staffId
-    """),
+    """
+  ),
 
-    FIND_STAFF_BY_AGENCY_AND_ROLE("""
+  FIND_STAFF_BY_AGENCY_AND_ROLE(
+    """
         SELECT SLR.SAC_STAFF_ID                             STAFF_ID,
         SM.FIRST_NAME,
         SM.LAST_NAME,
@@ -80,9 +87,11 @@ enum class StaffRepositorySql(val sql: String) {
                 AND SLR2.CAL_AGY_LOC_ID = SLR.CAL_AGY_LOC_ID
                 AND SLR2.POSITION = SLR.POSITION
                 AND SLR2.ROLE = SLR.ROLE)
-    """),
+    """
+  ),
 
-    FIND_STAFF_BY_AGENCY_POSITION_ROLE("""
+  FIND_STAFF_BY_AGENCY_POSITION_ROLE(
+    """
         SELECT SLR.SAC_STAFF_ID                             STAFF_ID,
         SM.FIRST_NAME,
         SM.LAST_NAME,
@@ -122,9 +131,11 @@ enum class StaffRepositorySql(val sql: String) {
                 AND SLR2.CAL_AGY_LOC_ID = SLR.CAL_AGY_LOC_ID
                 AND SLR2.POSITION = SLR.POSITION
                 AND SLR2.ROLE = SLR.ROLE)
-    """),
+    """
+  ),
 
-    GET_STAFF_ROLES_FOR_AGENCY("""
+  GET_STAFF_ROLES_FOR_AGENCY(
+    """
         SELECT  DISTINCT
                 SLR.ROLE,
         RD2.DESCRIPTION as ROLE_DESCRIPTION
@@ -141,9 +152,10 @@ enum class StaffRepositorySql(val sql: String) {
                 AND SLR2.CAL_AGY_LOC_ID = SLR.CAL_AGY_LOC_ID
                 AND SLR2.POSITION = SLR.POSITION
                 AND SLR2.ROLE = SLR.ROLE)
-    """),
+    """
+  ),
 
-    NAME_FILTER_QUERY_TEMPLATE(" AND (UPPER(FIRST_NAME) LIKE '%s%%' OR UPPER(LAST_NAME) LIKE '%s%%')"),
-    STAFF_ID_FILTER_QUERY_TEMPLATE(" AND STAFF_ID = %d"),
-    ACTIVE_FILTER_CLAUSE(" AND SM.STATUS = 'ACTIVE'")
+  NAME_FILTER_QUERY_TEMPLATE(" AND (UPPER(FIRST_NAME) LIKE '%s%%' OR UPPER(LAST_NAME) LIKE '%s%%')"),
+  STAFF_ID_FILTER_QUERY_TEMPLATE(" AND STAFF_ID = %d"),
+  ACTIVE_FILTER_CLAUSE(" AND SM.STATUS = 'ACTIVE'")
 }
