@@ -94,8 +94,8 @@ public class AccessRoleMaintenanceIntTest {
         assertThat(roles).containsExactly(
                 StaffUserRole.builder()
                         .roleId(-304L)
-                        .roleCode("GLOBAL_SEARCH")
-                        .roleName("Global search")
+                        .roleCode("VIEW_PRISONER_DATA")
+                        .roleName("View Prisoner Data")
                         .caseloadId("NWEB")
                         .username("RO_USER")
                         .staffId(-5L)
