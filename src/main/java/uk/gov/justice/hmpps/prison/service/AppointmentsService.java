@@ -114,7 +114,7 @@ public class AppointmentsService {
         final var agencyId = validateLocationAndGetAgency(username, appointmentSpecification);
         final var eventId = bookingRepository.createBookingAppointment(bookingId, appointmentSpecification, agencyId);
 
-        final var createdAppointment = bookingRepository.getBookingAppointment(bookingId, eventId);
+        final var createdAppointment = getScheduledEventOrThrowEntityNotFound(eventId);
         trackSingleAppointmentCreation(createdAppointment);
         return createdAppointment;
     }
@@ -122,13 +122,15 @@ public class AppointmentsService {
     @Transactional
     @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
     public void deleteBookingAppointment(final long eventId) {
-        final ScheduledEvent appointmentForDeletion = bookingRepository
+        final ScheduledEvent appointmentForDeletion = getScheduledEventOrThrowEntityNotFound(eventId);
+        bookingRepository.deleteBookingAppointment(eventId);
+        trackAppointmentDeletion(appointmentForDeletion);
+    }
+
+    private ScheduledEvent getScheduledEventOrThrowEntityNotFound(Long eventId) {
+        return bookingRepository
                 .getBookingAppointmentByEventId(eventId)
                 .orElseThrow(() -> EntityNotFoundException.withMessage("Booking Appointment for eventId %d not found.", eventId));
-
-        bookingRepository.deleteBookingAppointment(eventId);
-
-        trackAppointmentDeletion(appointmentForDeletion);
     }
 
     private void validateStartTime(final NewAppointment newAppointment) {
@@ -173,7 +175,8 @@ public class AppointmentsService {
 
             if (isValidLocation) return appointmentLocation.getAgencyId();
 
-        } catch (final EntityNotFoundException ignored) { }
+        } catch (final EntityNotFoundException ignored) {
+        }
 
         throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload.");
     }
@@ -281,14 +284,14 @@ public class AppointmentsService {
                                 .build()
                 );
 
-         final var filteredByTimeSlot = timeSlot != null ?
+        final var filteredByTimeSlot = timeSlot != null ?
                 appointmentDtos.filter(appointment -> CalcDateRanges.eventStartsInTimeslot(appointment.getStartTime(), timeSlot)) :
                 appointmentDtos;
 
-         return filteredByTimeSlot
-                 .sorted(Comparator.comparing(ScheduledAppointmentDto::getStartTime)
-                         .thenComparing(ScheduledAppointmentDto::getLocationDescription))
-                 .collect(Collectors.toList());
+        return filteredByTimeSlot
+                .sorted(Comparator.comparing(ScheduledAppointmentDto::getStartTime)
+                        .thenComparing(ScheduledAppointmentDto::getLocationDescription))
+                .collect(Collectors.toList());
     }
 
 
