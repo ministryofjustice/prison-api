@@ -11,6 +11,9 @@ spring:
   application:
     name: prison-api
 
+  config:
+    use-legacy-processing: true
+
   jpa:
     open-in-view: false
     properties:
