@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class SentenceRepositorySql(val sql: String) {
-    GET_BOOKING_MAIN_OFFENCES("""
+  GET_BOOKING_MAIN_OFFENCES(
+    """
         SELECT OCH.OFFENDER_BOOK_ID BOOKING_ID,
         OFFS.DESCRIPTION     OFFENCE_DESCRIPTION,
         OCH.OFFENCE_CODE,
@@ -12,9 +13,11 @@ enum class SentenceRepositorySql(val sql: String) {
         AND OCH.MOST_SERIOUS_FLAG = :mostSerious
         AND OCH.CHARGE_STATUS = :chargeStatus
         ORDER BY CAST(COALESCE(OFFS.SEVERITY_RANKING, :severityRanking) AS INT)
-    """),
+    """
+  ),
 
-    GET_BOOKING_MAIN_OFFENCES_MULTIPLE("""
+  GET_BOOKING_MAIN_OFFENCES_MULTIPLE(
+    """
         SELECT OCH.OFFENDER_BOOK_ID BOOKING_ID,
         OFFS.DESCRIPTION     OFFENCE_DESCRIPTION,
         OCH.OFFENCE_CODE,
@@ -25,9 +28,11 @@ enum class SentenceRepositorySql(val sql: String) {
         AND OCH.MOST_SERIOUS_FLAG = :mostSerious
         AND OCH.CHARGE_STATUS = :chargeStatus
         ORDER BY OCH.OFFENDER_BOOK_ID, OCH.offence_date
-    """),
+    """
+  ),
 
-    GET_OFFENCES("""
+  GET_OFFENCES(
+    """
         SELECT OCH.OFFENDER_BOOK_ID  AS BOOKING_ID,
         OCH.OFFENCE_DATE,
         OCH.OFFENCE_RANGE_DATE,
@@ -60,9 +65,11 @@ enum class SentenceRepositorySql(val sql: String) {
         -- Avoid dups from merges (from NART team)
         AND NOT (OCH.CREATE_USER_ID = 'SYS' AND OCH.AUDIT_MODULE_NAME = 'MERGE')
         ORDER BY OCH.offence_date
-    """),
+    """
+  ),
 
-    GET_OFFENCES_FOR_BOOKING("""
+  GET_OFFENCES_FOR_BOOKING(
+    """
         SELECT OCH.OFFENDER_BOOK_ID  AS BOOKING_ID,
         OCH.OFFENCE_DATE,
         OCH.OFFENCE_RANGE_DATE,
@@ -94,15 +101,19 @@ enum class SentenceRepositorySql(val sql: String) {
         -- Avoid dups from merges (from NART team)
         AND NOT (OCH.CREATE_USER_ID = 'SYS' AND OCH.AUDIT_MODULE_NAME = 'MERGE')
         ORDER BY OCH.offence_date
-    """),
+    """
+  ),
 
-    GET_BOOKING_CONFIRMED_RELEASE_DATE("""
+  GET_BOOKING_CONFIRMED_RELEASE_DATE(
+    """
         SELECT RELEASE_DATE
                 FROM OFFENDER_RELEASE_DETAILS
                 WHERE OFFENDER_BOOK_ID = :bookingId
-    """),
+    """
+  ),
 
-    GET_CASE("""
+  GET_CASE(
+    """
         -- not currently used, this gets a case id for the query below
         SELECT ocs.case_id,
         ocs.case_info_number,
@@ -117,9 +128,11 @@ enum class SentenceRepositorySql(val sql: String) {
         LEFT JOIN reference_codes rc  ON rc.code = ocs.case_type AND rc.domain = 'LEG_CASE_TYP'
         WHERE ocs.offender_book_id = :offenderBookingId
         ORDER BY ocs.case_status asc, ocs.begin_date desc
-    """),
+    """
+  ),
 
-    GET_CHARGES("""
+  GET_CHARGES(
+    """
         -- not currently used, this services the 'old API' /offenders/<noms_id>/charges call
         SELECT och.offender_charge_id,
         och.statute_code,
@@ -149,5 +162,6 @@ enum class SentenceRepositorySql(val sql: String) {
                 LEFT JOIN reference_codes r2           ON r2.code = ist.band_code AND r2.domain = 'IMPSBAND'
         WHERE och.case_id = :caseId
         ORDER BY och.charge_status asc, och.most_serious_flag desc, offs.severity_ranking
-    """)
+    """
+  )
 }

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class AccessRoleRepositorySql(val sql: String) {
-    INSERT_ACCESS_ROLE("""
+  INSERT_ACCESS_ROLE(
+    """
         INSERT INTO
             OMS_ROLES(
                     ROLE_ID,
@@ -22,29 +23,37 @@ enum class AccessRoleRepositorySql(val sql: String) {
                   'APP',
                             :roleFunction,
                   'Y')
-    """),
+    """
+  ),
 
-    UPDATE_ACCESS_ROLE("""
+  UPDATE_ACCESS_ROLE(
+    """
         UPDATE OMS_ROLES SET
         ROLE_NAME = :roleName,
         ROLE_FUNCTION = :roleFunction
         WHERE ROLE_CODE = :roleCode
-    """),
+    """
+  ),
 
-    GET_ACCESS_ROLE("""
+  GET_ACCESS_ROLE(
+    """
         SELECT *
                 FROM OMS_ROLES
         WHERE ROLE_CODE = :roleCode
-    """),
+    """
+  ),
 
-    GET_ACCESS_ROLES("""
+  GET_ACCESS_ROLES(
+    """
         SELECT *
                 FROM OMS_ROLES
         WHERE ROLE_TYPE = 'APP'
-    """),
+    """
+  ),
 
-    EXCLUDE_ADMIN_ROLES_QUERY_TEMPLATE("""
+  EXCLUDE_ADMIN_ROLES_QUERY_TEMPLATE(
+    """
         AND OMS_ROLES.ROLE_FUNCTION != 'ADMIN'
-    """)
+    """
+  )
 }
-

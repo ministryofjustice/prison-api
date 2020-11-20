@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.v1.sql
 
 enum class AlertV1RepositorySql(val sql: String) {
-    ALERTS_BY_OFFENDER_WTIH_INACTIVE("""
+  ALERTS_BY_OFFENDER_WTIH_INACTIVE(
+    """
         select ob.root_offender_id,
         ob.offender_book_id,
         ob.active_flag,
@@ -37,9 +38,11 @@ enum class AlertV1RepositorySql(val sql: String) {
         where o.offender_id_display = :p_noms_id
         and ob.active_flag = 'Y'
         order by oa.alert_status, oa.alert_date
-    """),
+    """
+  ),
 
-    ALERTS_BY_OFFENDER("""
+  ALERTS_BY_OFFENDER(
+    """
         select ob.root_offender_id,
         ob.offender_book_id,
         ob.active_flag,
@@ -76,5 +79,6 @@ enum class AlertV1RepositorySql(val sql: String) {
                 where o.offender_id_display = :p_noms_id
         and ob.active_flag = 'Y'
         order by oa.alert_date
-    """)
+    """
+  )
 }

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class ImageRepositorySql(val sql: String) {
-    FIND_IMAGE_DETAIL("""
+  FIND_IMAGE_DETAIL(
+    """
         SELECT I.OFFENDER_IMAGE_ID  IMAGE_ID,
         I.CAPTURE_DATETIME   CAPTURE_DATE,
         I.IMAGE_VIEW_TYPE    IMAGE_VIEW,
@@ -10,16 +11,19 @@ enum class ImageRepositorySql(val sql: String) {
         I.IMAGE_OBJECT_ID    OBJECT_ID
         FROM OFFENDER_IMAGES I
         WHERE I.OFFENDER_IMAGE_ID = :imageId
-    """),
+    """
+  ),
 
-    FIND_IMAGE_CONTENT("""
+  FIND_IMAGE_CONTENT(
+    """
         SELECT I.%s
         FROM OFFENDER_IMAGES I
         WHERE I.OFFENDER_IMAGE_ID = :imageId
-    """),
+    """
+  ),
 
-
-    FIND_IMAGE_CONTENT_BY_OFFENDER_NO("""
+  FIND_IMAGE_CONTENT_BY_OFFENDER_NO(
+    """
         SELECT
         I.%s
                 FROM OFFENDER_BOOKINGS B
@@ -33,5 +37,6 @@ enum class ImageRepositorySql(val sql: String) {
                 AND OI.IMAGE_VIEW_TYPE = 'FACE'
         AND OI.ORIENTATION_TYPE = 'FRONT')
         WHERE B.BOOKING_SEQ = 1 AND O.OFFENDER_ID_DISPLAY = :offenderNo
-    """)
+    """
+  )
 }

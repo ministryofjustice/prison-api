@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class AdjudicationsRepositorySql(val sql: String) {
-    FIND_AWARDS("""
+  FIND_AWARDS(
+    """
         SELECT S.OIC_SANCTION_CODE   SANCTION_CODE,
         RC1.DESCRIPTION       SANCTION_CODE_DESCRIPTION,
         S.SANCTION_MONTHS     MONTHS,
@@ -20,9 +21,11 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         WHERE S.OFFENDER_BOOK_ID = :bookingId
         AND H.FINDING_CODE = 'PROVED'
         ORDER BY S.OIC_HEARING_ID, S.RESULT_SEQ
-    """),
+    """
+  ),
 
-    FIND_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER("""
+  FIND_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER(
+    """
         SELECT  OO.OIC_OFFENCE_ID   ID
         ,       OO.OIC_OFFENCE_CODE CODE
         ,       OO.DESCRIPTION      DESCRIPTION
@@ -39,9 +42,11 @@ enum class AdjudicationsRepositorySql(val sql: String) {
                 )
         INNER JOIN OIC_OFFENCES OO ON OO.OIC_OFFENCE_ID = OFFENCE_IDS
                 ORDER BY DESCRIPTION
-    """),
+    """
+  ),
 
-    FIND_ADJUDICATION_AGENCIES_FOR_OFFENDER("""
+  FIND_ADJUDICATION_AGENCIES_FOR_OFFENDER(
+    """
         SELECT  AL.AGY_LOC_ID AGENCY_ID
         ,       AL.AGENCY_LOCATION_TYPE AGENCY_TYPE
         ,       AL.DESCRIPTION
@@ -56,9 +61,11 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         )
         INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = AGENCY_LOCATION_ID
                 ORDER BY AL.LONG_DESCRIPTION
-    """),
+    """
+  ),
 
-    FIND_ADJUDICATIONS_FOR_OFFENDER("""
+  FIND_ADJUDICATIONS_FOR_OFFENDER(
+    """
         SELECT  AIP.OIC_INCIDENT_ID   ADJUDICATION_NUMBER
         ,		AI.REPORT_TIME
         ,       AI.AGENCY_INCIDENT_ID
@@ -84,9 +91,11 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         AND (:startDate IS NULL OR trunc(REPORT_TIME) >= :startDate)
         AND (:endDate IS NULL OR trunc(REPORT_TIME) <= :endDate)
         ORDER BY AI.REPORT_TIME DESC
-    """),
+    """
+  ),
 
-    FIND_ADJUDICATION("""
+  FIND_ADJUDICATION(
+    """
         SELECT  AIP.OFFENDER_BOOK_ID
         ,       AIP.OIC_INCIDENT_ID       ADJUDICATION_NUMBER
         ,       AI.INCIDENT_TIME
@@ -108,9 +117,11 @@ enum class AdjudicationsRepositorySql(val sql: String) {
                         WHERE OFF.OFFENDER_ID_DISPLAY = :offenderNo)
         AND AIP.OIC_INCIDENT_ID = :adjudicationNo
         AND AIP.INCIDENT_ROLE = 'S'
-    """),
+    """
+  ),
 
-    FIND_HEARINGS("""
+  FIND_HEARINGS(
+    """
         SELECT OH.OIC_HEARING_ID
         ,    REFCODE.DESCRIPTION     HEARING_TYPE
         ,    OH.HEARING_TIME
@@ -123,9 +134,11 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         INNER JOIN REFERENCE_CODES REFCODE ON "DOMAIN" = 'OIC_HEAR' AND CODE = OH.OIC_HEARING_TYPE
         LEFT  JOIN STAFF_MEMBERS SM ON SM.STAFF_ID = OH.HEARING_STAFF_ID
                 WHERE OH.OIC_INCIDENT_ID = :adjudicationNo
-    """),
+    """
+  ),
 
-    FIND_RESULTS("""
+  FIND_RESULTS(
+    """
         SELECT OH.OIC_HEARING_ID
         ,      OO.OIC_OFFENCE_CODE
         ,      OFFENCE_TYPES.DESCRIPTION   OFFENCE_TYPE
@@ -141,9 +154,11 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         INNER JOIN REFERENCE_CODES OFFENCE_TYPES ON OFFENCE_TYPES."DOMAIN" = 'OIC_OFN_TYPE' AND OFFENCE_TYPES.code = OO.OIC_OFFENCE_TYPE
         WHERE OH.OIC_HEARING_ID IN (:hearingIds)
         ORDER BY OHR.RESULT_SEQ
-    """),
+    """
+  ),
 
-    FIND_SANCTIONS("""
+  FIND_SANCTIONS(
+    """
         SELECT OIC_HEARING_ID
         ,      SANC_TYPES.DESCRIPTION  SANCTION_TYPE
         ,      SANCTION_DAYS
@@ -161,5 +176,6 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         INNER JOIN REFERENCE_CODES SANC_STATUS  ON SANC_STATUS."DOMAIN" = 'OIC_SANCT_ST' AND SANC_STATUS.CODE = SAN.STATUS
         WHERE SAN.OIC_HEARING_ID IN (:hearingIds)
         ORDER BY SAN.RESULT_SEQ, SAN.SANCTION_SEQ
-    """)
+    """
+  )
 }

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class ContactRepositorySql(val sql: String) {
-    RELATIONSHIP_TO_OFFENDER("""
+  RELATIONSHIP_TO_OFFENDER(
+    """
         SELECT
         O.OFFENDER_CONTACT_PERSON_ID RELATIONSHIP_ID,
         P.PERSON_ID,
@@ -29,9 +30,11 @@ enum class ContactRepositorySql(val sql: String) {
         JOIN REFERENCE_CODES RR ON O.RELATIONSHIP_TYPE = RR.CODE and RR.DOMAIN = 'RELATIONSHIP'
         WHERE  O.OFFENDER_BOOK_ID = :bookingId
         AND O.RELATIONSHIP_TYPE = COALESCE(:relationshipType, O.RELATIONSHIP_TYPE)
-    """),
+    """
+  ),
 
-    RELATIONSHIP_TO_OFFENDER_BY_ID("""
+  RELATIONSHIP_TO_OFFENDER_BY_ID(
+    """
         SELECT
         O.OFFENDER_CONTACT_PERSON_ID RELATIONSHIP_ID,
         P.PERSON_ID,
@@ -58,9 +61,11 @@ enum class ContactRepositorySql(val sql: String) {
                 JOIN REFERENCE_CODES RC ON O.CONTACT_TYPE = RC.CODE and RC.DOMAIN = 'CONTACTS'
         JOIN REFERENCE_CODES RR ON O.RELATIONSHIP_TYPE = RR.CODE and RR.DOMAIN = 'RELATIONSHIP'
         WHERE O.OFFENDER_CONTACT_PERSON_ID = :relationshipId
-    """),
+    """
+  ),
 
-    CREATE_OFFENDER_CONTACT_PERSONS("""
+  CREATE_OFFENDER_CONTACT_PERSONS(
+    """
         INSERT INTO OFFENDER_CONTACT_PERSONS
         (OFFENDER_CONTACT_PERSON_ID,
         OFFENDER_BOOK_ID,
@@ -79,49 +84,62 @@ enum class ContactRepositorySql(val sql: String) {
         :emergencyContactFlag,
         :nextOfKinFlag,
         :activeFlag)
-    """),
+    """
+  ),
 
-    UPDATE_OFFENDER_CONTACT_PERSONS_SAME_REL_TYPE("""
+  UPDATE_OFFENDER_CONTACT_PERSONS_SAME_REL_TYPE(
+    """
         UPDATE OFFENDER_CONTACT_PERSONS
                 SET PERSON_ID = :personId,
         ACTIVE_FLAG = :activeFlag,
         EXPIRY_DATE = :expiryDate
                 WHERE OFFENDER_CONTACT_PERSON_ID = :bookingContactPersonId
-    """),
+    """
+  ),
 
-    GET_PERSON_BY_ID("""
+  GET_PERSON_BY_ID(
+    """
         SELECT PERSON_ID, FIRST_NAME, LAST_NAME
         FROM PERSONS
                 WHERE PERSON_ID = :personId
-    """),
+    """
+  ),
 
-    GET_PERSON_BY_REF("""
+  GET_PERSON_BY_REF(
+    """
         SELECT P.PERSON_ID, P.FIRST_NAME, P.LAST_NAME
         FROM PERSONS P JOIN PERSON_IDENTIFIERS PI
                 ON PI.PERSON_ID = P.PERSON_ID AND PI.IDENTIFIER_TYPE = :identifierType
         AND PI.ID_SEQ = (SELECT MAX(ID_SEQ) FROM PERSON_IDENTIFIERS pi1 where pi1.PERSON_ID = PI.PERSON_ID AND pi1.IDENTIFIER_TYPE = PI.IDENTIFIER_TYPE )
         WHERE PI.IDENTIFIER = :identifier
-    """),
+    """
+  ),
 
-    CREATE_PERSON("""
+  CREATE_PERSON(
+    """
         INSERT INTO PERSONS (PERSON_ID,LAST_NAME,FIRST_NAME)
         VALUES (PERSON_ID.NEXTVAL,
                 :lastName,
                 :firstName)
-    """),
+    """
+  ),
 
-    UPDATE_PERSON("""
+  UPDATE_PERSON(
+    """
         UPDATE PERSONS
                 SET LAST_NAME = :lastName,
         FIRST_NAME = :firstName
                 WHERE PERSON_ID = :personId
-    """),
+    """
+  ),
 
-    CREATE_PERSON_IDENTIFIER("""
+  CREATE_PERSON_IDENTIFIER(
+    """
         INSERT INTO PERSON_IDENTIFIERS (PERSON_ID,ID_SEQ,IDENTIFIER_TYPE,IDENTIFIER)
         VALUES (:personId,
                 (SELECT COALESCE(MAX(ID_SEQ),1) FROM PERSON_IDENTIFIERS WHERE PERSON_ID = :personId AND IDENTIFIER_TYPE = :identifierType),
         :identifierType,
         :identifier)
-    """)
+    """
+  )
 }
