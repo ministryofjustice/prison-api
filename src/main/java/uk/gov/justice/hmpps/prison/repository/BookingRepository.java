@@ -600,12 +600,6 @@ public class BookingRepository extends RepositoryBase {
                 EVENT_ROW_MAPPER);
     }
 
-    public ScheduledEvent getBookingAppointment(final Long bookingId, final Long eventId) {
-        final var sql = BookingRepositorySql.GET_BOOKING_APPOINTMENT.getSql();
-        return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "eventId", eventId),
-                EVENT_ROW_MAPPER);
-    }
-
     public Optional<ScheduledEvent> getBookingAppointmentByEventId(final long eventId) {
         try {
             return Optional.ofNullable(

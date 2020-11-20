@@ -511,7 +511,7 @@ public class AppointmentsServiceImplTest {
         when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
                 .thenReturn(eventId);
 
-        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
+        when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
         final var actualEvent = appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
 
         assertThat(actualEvent).isEqualTo(expectedEvent);
@@ -580,7 +580,7 @@ public class AppointmentsServiceImplTest {
         when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
                 .thenReturn(eventId);
 
-        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
+        when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
 
         when(locationService.getLocation(newAppointment.getLocationId()))
                 .thenThrow(new EntityNotFoundException("test"));
@@ -615,7 +615,7 @@ public class AppointmentsServiceImplTest {
         when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
                 .thenReturn(eventId);
 
-        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
+        when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
 
         when(referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
@@ -660,7 +660,7 @@ public class AppointmentsServiceImplTest {
         when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
                 .thenReturn(eventId);
 
-        when(bookingRepository.getBookingAppointment(bookingId, eventId)).thenReturn(expectedEvent);
+        when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
 
         appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
 
