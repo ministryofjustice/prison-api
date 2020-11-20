@@ -219,12 +219,12 @@ public class UserRepository extends RepositoryBase {
 
 
     @CacheEvict(value = "findRolesByUsername", allEntries = true)
-    public void removeRole(final String username, final String caseload, final Long roleId) {
+    public int removeRole(final String username, final String caseload, final Long roleId) {
         Validate.notBlank(caseload, "caseload is required.");
         Validate.notBlank(username, "username is required.");
         Validate.notNull(roleId, "roleId is required.");
 
-        jdbcTemplate.update(
+        return jdbcTemplate.update(
                 UserRepositorySql.DELETE_USER_ROLE.getSql(),
                 createParams("caseloadId", caseload, "username", username, "roleId", roleId));
     }
