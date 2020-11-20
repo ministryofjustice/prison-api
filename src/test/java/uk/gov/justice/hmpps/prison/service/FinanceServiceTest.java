@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.prison.api.model.Account;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
@@ -22,15 +25,19 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
 
 @ExtendWith(MockitoExtension.class)
 class FinanceServiceTest {
@@ -48,13 +55,15 @@ class FinanceServiceTest {
     private OffenderSubAccountRepository offenderSubAccountRepository;
     @Mock
     private OffenderTrustAccountRepository offenderTrustAccountRepository;
+    @Mock
+    private OffenderDamageObligationService offenderDamageObligationService;
 
     private FinanceService financeService;
 
     @BeforeEach
     void setUp() {
         financeService = new FinanceService(financeRepository, bookingRepository, offenderBookingRepository, offenderTransactionRepository, accountCodeRepository,
-                offenderSubAccountRepository, offenderTrustAccountRepository);
+                offenderSubAccountRepository, offenderTrustAccountRepository, offenderDamageObligationService);
     }
 
     @Test
@@ -250,5 +259,143 @@ class FinanceServiceTest {
                 .description("desc")
                 .clientTransactionId("transId")
                 .build();
+    }
+
+    @Test
+    public void test_getBalances_HappyPath() {
+
+        var bookingId = -1L;
+        var offenderNo = "A1234AB";
+
+        var offenderSummary = OffenderSummary
+            .builder()
+            .offenderNo(offenderNo)
+            .build();
+
+        var offenderDamageObligationModel = OffenderDamageObligationModel
+            .builder()
+            .amountToPay(BigDecimal.valueOf(10))
+            .build();
+
+        var account = Account.builder().build();
+        var agency = "LEI";
+
+        when(bookingRepository.getLatestBookingByBookingId(bookingId))
+            .thenReturn(Optional.of(offenderSummary));
+        when(offenderDamageObligationService.getDamageObligations(offenderNo, ""))
+            .thenReturn(List.of(offenderDamageObligationModel));
+        when(bookingRepository.getBookingAgency(bookingId)).thenReturn(Optional.of(agency));
+        when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
+
+        var accountToReturn = financeService.getBalances(bookingId);
+
+        assertThat(accountToReturn).isNotNull();
+        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(10)));
+
+        verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
+        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, "");
+        verify(bookingRepository, times(1)).getBookingAgency(bookingId);
+        verify(financeRepository, times(1)).getBalances(bookingId, agency);
+
+    }
+
+    @Test
+    public void test_getBalances_With_Two_Obligations() {
+
+        var bookingId = -1L;
+        var offenderNo = "A1234AB";
+
+        var offenderSummary = OffenderSummary
+            .builder()
+            .offenderNo(offenderNo)
+            .build();
+
+        var offenderDamageObligationModel1 = OffenderDamageObligationModel
+            .builder()
+            .amountToPay(BigDecimal.valueOf(10))
+            .build();
+        var offenderDamageObligationModel2 = OffenderDamageObligationModel
+            .builder()
+            .amountToPay(BigDecimal.valueOf(5))
+            .build();
+
+        var account = Account.builder().build();
+        var agency = "LEI";
+
+        when(bookingRepository.getLatestBookingByBookingId(bookingId))
+            .thenReturn(Optional.of(offenderSummary));
+        when(offenderDamageObligationService.getDamageObligations(offenderNo, ""))
+            .thenReturn(List.of(offenderDamageObligationModel1, offenderDamageObligationModel2));
+        when(bookingRepository.getBookingAgency(bookingId)).thenReturn(Optional.of(agency));
+        when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
+
+        var accountToReturn = financeService.getBalances(bookingId);
+
+        assertThat(accountToReturn).isNotNull();
+        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(15)));
+
+        verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
+        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, "");
+        verify(bookingRepository, times(1)).getBookingAgency(bookingId);
+        verify(financeRepository, times(1)).getBalances(bookingId, agency);
+    }
+
+    @Test
+    public void test_getBalances_And_No_OffenderSummary() {
+
+        var bookingId = -1L;
+
+        var account = Account.builder().build();
+        var agency = "LEI";
+
+        when(bookingRepository.getLatestBookingByBookingId(bookingId))
+            .thenReturn(Optional.empty());
+        when(bookingRepository.getBookingAgency(bookingId)).thenReturn(Optional.of(agency));
+        when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
+
+        var accountToReturn = financeService.getBalances(bookingId);
+
+        assertThat(accountToReturn).isNotNull();
+        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(0)));
+
+        verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
+        verify(offenderDamageObligationService, times(0)).getDamageObligations(anyString(), anyString());
+        verify(bookingRepository, times(1)).getBookingAgency(bookingId);
+        verify(financeRepository, times(1)).getBalances(bookingId, agency);
+    }
+
+    @Test
+    public void test_getBalances_And_No_Agency() {
+
+        var bookingId = -1L;
+
+        when(bookingRepository.getBookingAgency(bookingId)).thenReturn(Optional.empty());
+        var accountToReturn = financeService.getBalances(bookingId);
+
+        assertThat(accountToReturn).isNull();
+
+        verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
+        verify(offenderDamageObligationService, times(0)).getDamageObligations(anyString(), anyString());
+        verify(bookingRepository, times(1)).getBookingAgency(bookingId);
+        verify(financeRepository, times(0)).getBalances(anyLong(), anyString());
+    }
+
+    @Test
+    public void test_getBalances_And_No_Account() {
+
+        var bookingId = -1L;
+        var agency = "LEI";
+
+        when(bookingRepository.getBookingAgency(bookingId)).thenReturn(Optional.of(agency));
+        when(financeRepository.getBalances(bookingId, agency)).thenReturn(null);
+
+        var accountToReturn = financeService.getBalances(bookingId);
+
+        assertThat(accountToReturn).isNull();
+
+        verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
+        verify(offenderDamageObligationService, times(0)).getDamageObligations(anyString(), anyString());
+        verify(bookingRepository, times(1)).getBookingAgency(bookingId);
+        verify(financeRepository, times(1)).getBalances(bookingId, agency);
     }
 }

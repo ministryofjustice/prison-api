@@ -2,10 +2,13 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.Account;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransactionDetail;
 import uk.gov.justice.hmpps.prison.api.model.v1.Transaction;
@@ -21,14 +24,18 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountR
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.util.MoneySupport;
 
 import javax.validation.ValidationException;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
+import java.util.List;
+import java.util.function.Function;
 
 import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
 import static uk.gov.justice.hmpps.prison.values.AccountCode.SAVINGS;
-
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
 @Service
 @Transactional(readOnly = true)
 @AllArgsConstructor
@@ -41,11 +48,21 @@ public class FinanceService {
     private final AccountCodeRepository accountCodeRepository;
     private final OffenderSubAccountRepository offenderSubAccountRepository;
     private final OffenderTrustAccountRepository offenderTrustAccountRepository;
+    private final OffenderDamageObligationService offenderDamageObligationService;
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Account getBalances(final Long bookingId) {
+
+        var damageObligationBalance = bookingRepository.getLatestBookingByBookingId(bookingId)
+            .map(OffenderSummary::getOffenderNo)
+            .map(createSumDamageObligationToPay.apply(offenderDamageObligationService))
+            .map(MoneySupport::toMoneyScale)
+            .orElse(toMoneyScale(BigDecimal.valueOf(0)));
+
         return bookingRepository.getBookingAgency(bookingId)
                 .map(agency -> financeRepository.getBalances(bookingId, agency))
+                .map(account -> Pair.of(account, damageObligationBalance))
+                .map(setDamageObligation)
                 .orElse(null);
     }
 
@@ -111,4 +128,17 @@ public class FinanceService {
             throw new ValidationException(String.format("Not enough money in offender sub account balance - %s", balance.setScale(2, RoundingMode.HALF_UP)));
         }
     }
+
+    private static final Function<Pair<Account, BigDecimal>, Account> setDamageObligation = (pair) -> {
+        pair.getFirst().setDamageObligations(pair.getSecond());
+        return pair.getFirst();
+    };
+
+    private static final Function<List<OffenderDamageObligationModel>, BigDecimal> sumAmountToPay = (obligations) -> obligations
+        .stream()
+        .map(OffenderDamageObligationModel::getAmountToPay)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    private static final Function<OffenderDamageObligationService, Function<String, BigDecimal>> createSumDamageObligationToPay =
+        (service) -> (Function<String, BigDecimal>) offenderNo -> sumAmountToPay.apply(service.getDamageObligations(offenderNo,""));
 }
