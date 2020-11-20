@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class MovementsRepositorySql(val sql: String) {
-    GET_RECENT_MOVEMENTS_BY_DATE_FOR_BATCH("""
+  GET_RECENT_MOVEMENTS_BY_DATE_FOR_BATCH(
+    """
         SELECT OFFENDERS.OFFENDER_ID_DISPLAY  AS OFFENDER_NO,
         OEM.CREATE_DATETIME            AS CREATE_DATE_TIME,
         OEM.FROM_AGY_LOC_ID            AS FROM_AGENCY,
@@ -17,9 +18,11 @@ enum class MovementsRepositorySql(val sql: String) {
         AND OEM.MOVEMENT_SEQ = (SELECT MAX(OEM2.MOVEMENT_SEQ) FROM OFFENDER_EXTERNAL_MOVEMENTS OEM2
         WHERE OEM2.OFFENDER_BOOK_ID = OEM.OFFENDER_BOOK_ID)
         AND OB.AGY_LOC_ID <> 'ZZGHI'
-    """),
+    """
+  ),
 
-    GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE("""
+  GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE(
+    """
         SELECT OFFENDERS.OFFENDER_ID_DISPLAY  AS OFFENDER_NO,
         OEM.CREATE_DATETIME            AS CREATE_DATE_TIME,
         OEM.FROM_AGY_LOC_ID            AS FROM_AGENCY,
@@ -45,9 +48,11 @@ enum class MovementsRepositorySql(val sql: String) {
         LEFT JOIN REFERENCE_CODES RC4 ON RC4.CODE = OEM.TO_CITY AND RC4.DOMAIN = 'CITY'
         WHERE OEM.MOVEMENT_SEQ = :sequenceNumber
         AND OEM.OFFENDER_BOOK_ID = :bookingId
-    """),
+    """
+  ),
 
-    GET_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES("""
+  GET_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES(
+    """
         SELECT OFFENDERS.OFFENDER_ID_DISPLAY  AS OFFENDER_NO,
         OEM.CREATE_DATETIME            AS CREATE_DATE_TIME,
         OEM.FROM_AGY_LOC_ID            AS FROM_AGENCY,
@@ -77,9 +82,11 @@ enum class MovementsRepositorySql(val sql: String) {
         AND OB.AGY_LOC_ID <> 'ZZGHI'
         AND OFFENDERS.OFFENDER_ID_DISPLAY in (:offenderNumbers)
         AND OEM.MOVEMENT_TYPE IN (:movementTypes)
-    """),
+    """
+  ),
 
-    GET_MOVEMENTS_BY_OFFENDERS("""
+  GET_MOVEMENTS_BY_OFFENDERS(
+    """
         SELECT OFFENDERS.OFFENDER_ID_DISPLAY  AS OFFENDER_NO,
         OEM.CREATE_DATETIME            AS CREATE_DATE_TIME,
         OEM.MOVEMENT_TYPE,
@@ -108,10 +115,11 @@ enum class MovementsRepositorySql(val sql: String) {
                 WHERE OEM2.OFFENDER_BOOK_ID = OEM.OFFENDER_BOOK_ID))
         AND OB.AGY_LOC_ID <> 'ZZGHI'
         AND OFFENDERS.OFFENDER_ID_DISPLAY in (:offenderNumbers)
-    """),
+    """
+  ),
 
-
-    GET_ROLLCOUNT_MOVEMENTS("""
+  GET_ROLLCOUNT_MOVEMENTS(
+    """
         SELECT
         DIRECTION_CODE, MOVEMENT_TYPE,
         FROM_AGY_LOC_ID AS FROM_AGENCY,
@@ -121,9 +129,11 @@ enum class MovementsRepositorySql(val sql: String) {
         INNER JOIN OFFENDER_BOOKINGS OB    ON OB.OFFENDER_BOOK_ID = OEM.OFFENDER_BOOK_ID AND OB.BOOKING_SEQ = 1
         INNER JOIN OFFENDERS               ON OFFENDERS.OFFENDER_ID = OB.OFFENDER_ID
         WHERE MOVEMENT_DATE = :movementDate
-    """),
+    """
+  ),
 
-    GET_ENROUTE_OFFENDER_COUNT("""
+  GET_ENROUTE_OFFENDER_COUNT(
+    """
         SELECT count(*)
         FROM OFFENDER_EXTERNAL_MOVEMENTS OEM
         INNER JOIN OFFENDER_BOOKINGS OB    ON OB.OFFENDER_BOOK_ID = OEM.OFFENDER_BOOK_ID AND OB.BOOKING_SEQ = 1
@@ -138,9 +148,11 @@ enum class MovementsRepositorySql(val sql: String) {
         AND OEM.MOVEMENT_TYPE = 'TRN'
         AND OEM.DIRECTION_CODE ='OUT'
         AND OEM.ACTIVE_FLAG ='Y'
-    """),
+    """
+  ),
 
-    GET_ENROUTE_OFFENDER_MOVEMENTS("""
+  GET_ENROUTE_OFFENDER_MOVEMENTS(
+    """
         SELECT
         O.OFFENDER_ID_DISPLAY  AS OFFENDER_NO,
         OB.OFFENDER_BOOK_ID AS BOOKING_ID,
@@ -177,9 +189,11 @@ enum class MovementsRepositorySql(val sql: String) {
         AND OEM.MOVEMENT_TYPE = 'TRN'
         AND OEM.DIRECTION_CODE ='OUT'
         AND OEM.ACTIVE_FLAG ='Y'
-    """),
+    """
+  ),
 
-    GET_OFFENDER_MOVEMENTS_IN("""
+  GET_OFFENDER_MOVEMENTS_IN(
+    """
         SELECT  /*+ index(OEM, OFFENDER_EXT_MOVEMENTS_X01) */
         O.OFFENDER_ID_DISPLAY  AS OFFENDER_NO,
         O.FIRST_NAME AS FIRST_NAME,
@@ -208,9 +222,11 @@ enum class MovementsRepositorySql(val sql: String) {
         OEM.TO_AGY_LOC_ID = :agencyId
                 AND OEM.DIRECTION_CODE ='IN'
         AND OEM.MOVEMENT_DATE = :movementDate
-    """),
+    """
+  ),
 
-    GET_ROLL_COUNT("""
+  GET_ROLL_COUNT(
+    """
         SELECT
         AIL.INTERNAL_LOCATION_ID                             AS LIVING_UNIT_ID,
         COALESCE(AIL.USER_DESC, AIL.INTERNAL_LOCATION_CODE) AS LIVING_UNIT_DESC,
@@ -251,9 +267,11 @@ enum class MovementsRepositorySql(val sql: String) {
         AND AIL.ACTIVE_FLAG = 'Y'
         AND ((AIL.PARENT_INTERNAL_LOCATION_ID IS NULL AND :livingUnitId IS NULL) OR AIL.PARENT_INTERNAL_LOCATION_ID = :livingUnitId)
         ORDER BY LIVING_UNIT_DESC
-    """),
+    """
+  ),
 
-    GET_OFFENDERS_OUT_TODAY("""
+  GET_OFFENDERS_OUT_TODAY(
+    """
         SELECT  /*+ index(OEM, OFFENDER_EXT_MOVEMENTS_X01) */
         DIRECTION_CODE,
         MOVEMENT_DATE,
@@ -273,9 +291,11 @@ enum class MovementsRepositorySql(val sql: String) {
         OEM.MOVEMENT_DATE = :movementDate AND
         OEM.DIRECTION_CODE = 'OUT' AND
                 OEM.FROM_AGY_LOC_ID = :agencyId
-    """),
+    """
+  ),
 
-    GET_OFFENDERS_IN_RECEPTION("""
+  GET_OFFENDERS_IN_RECEPTION(
+    """
         SELECT
         VR.OFFENDER_NO,
         VR.FIRST_NAME,
@@ -304,9 +324,11 @@ enum class MovementsRepositorySql(val sql: String) {
         AND STATUS_IN = 1
         AND AIL4.PARENT_INTERNAL_LOCATION_ID IS NULL
                 AND AIL4.ACTIVE_FLAG = 'Y'
-    """),
+    """
+  ),
 
-    GET_OFFENDERS_CURRENTLY_OUT_OF_LIVING_UNIT("""
+  GET_OFFENDERS_CURRENTLY_OUT_OF_LIVING_UNIT(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         OB.OFFENDER_BOOK_ID AS BOOKING_ID,
         O.FIRST_NAME,
@@ -322,9 +344,11 @@ enum class MovementsRepositorySql(val sql: String) {
         WHERE OB.BOOKING_SEQ = :bookingSeq
         AND OB.IN_OUT_STATUS = :inOutStatus
         AND LU.ROOT_LIVING_UNIT_ID = :livingUnitId
-    """),
+    """
+  ),
 
-    GET_OFFENDERS_CURRENTLY_OUT_OF_AGENCY("""
+  GET_OFFENDERS_CURRENTLY_OUT_OF_AGENCY(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         OB.OFFENDER_BOOK_ID AS BOOKING_ID,
         O.FIRST_NAME,
@@ -343,9 +367,11 @@ enum class MovementsRepositorySql(val sql: String) {
         and ail.CERTIFIED_FLAG = :certifiedFlag
         and ail.ACTIVE_FLAG = :activeFlag
         and ail.PARENT_INTERNAL_LOCATION_ID IS NULL
-    """),
+    """
+  ),
 
-    GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD("""
+  GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD(
+    """
         SELECT O.OFFENDER_ID_DISPLAY         AS OFFENDER_NO,
         OEM.CREATE_DATETIME            AS CREATE_DATE_TIME,
         OEM.EVENT_ID                   AS EVENT_ID,
@@ -374,9 +400,11 @@ enum class MovementsRepositorySql(val sql: String) {
         OEM.MOVEMENT_TIME BETWEEN :fromDateTime AND :toDateTime
         AND (OEM.FROM_AGY_LOC_ID IN (:agencyListFrom) OR OEM.TO_AGY_LOC_ID IN (:agencyListTo))
         ORDER BY OEM.MOVEMENT_TIME
-    """),
+    """
+  ),
 
-    GET_COURT_EVENTS_BY_AGENCY_AND_TIME_PERIOD("""
+  GET_COURT_EVENTS_BY_AGENCY_AND_TIME_PERIOD(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         CE.CREATE_DATETIME    AS CREATE_DATE_TIME,
         CE.EVENT_ID           AS EVENT_ID,
@@ -409,9 +437,11 @@ enum class MovementsRepositorySql(val sql: String) {
                 WHERE CE.HOLD_FLAG <>  'Y'
         AND CE.START_TIME BETWEEN :fromDateTime AND :toDateTime
         AND (OB.AGY_LOC_ID IN (:agencyListFrom) OR CE.AGY_LOC_ID IN (:agencyListTo))
-    """),
+    """
+  ),
 
-    GET_OFFENDER_TRANSFERS_BY_AGENCY_AND_TIME_PERIOD("""
+  GET_OFFENDER_TRANSFERS_BY_AGENCY_AND_TIME_PERIOD(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         OIS.CREATE_DATETIME   AS CREATE_DATE_TIME,
         OIS.EVENT_ID          AS EVENT_ID,
@@ -445,9 +475,11 @@ enum class MovementsRepositorySql(val sql: String) {
         AND OIS.EVENT_CLASS = 'EXT_MOV'
         AND OIS.START_TIME BETWEEN :fromDateTime AND :toDateTime
         AND (OIS.AGY_LOC_ID IN (:agencyListFrom) OR OIS.TO_AGY_LOC_ID IN (:agencyListTo))
-    """),
+    """
+  ),
 
-    GET_OFFENDER_RELEASES_BY_AGENCY_AND_DATE("""
+  GET_OFFENDER_RELEASES_BY_AGENCY_AND_DATE(
+    """
         SELECT O.OFFENDER_ID_DISPLAY    AS OFFENDER_NO,
         ORD.CREATE_DATETIME      AS CREATE_DATE_TIME,
         ORD.EVENT_ID             AS EVENT_ID,
@@ -472,5 +504,6 @@ enum class MovementsRepositorySql(val sql: String) {
         LEFT JOIN REFERENCE_CODES RC2    ON RC2.CODE = ORD.MOVEMENT_REASON_CODE AND RC2.DOMAIN = 'MOVE_RSN'
         WHERE ORD.RELEASE_DATE BETWEEN :fromDate AND :toDate
         AND OB.AGY_LOC_ID IN (:agencyListFrom)
-    """)
+    """
+  )
 }

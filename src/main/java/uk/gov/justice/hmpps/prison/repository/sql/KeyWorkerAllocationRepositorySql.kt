@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class KeyWorkerAllocationRepositorySql(val sql: String) {
-    GET_ALLOCATION_DETAIL_FOR_KEY_WORKERS("""
+  GET_ALLOCATION_DETAIL_FOR_KEY_WORKERS(
+    """
         SELECT
         OKW.OFFENDER_BOOK_ID   BOOKING_ID,
         O.OFFENDER_ID_DISPLAY  OFFENDER_NO,
@@ -19,9 +20,11 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         AND OB.AGY_LOC_ID IN (:agencyIds)
         AND OB.ACTIVE_FLAG = 'Y'
         AND OKW.ACTIVE_FLAG = 'Y'
-    """),
+    """
+  ),
 
-    GET_ALLOCATION_DETAIL_FOR_OFFENDERS("""
+  GET_ALLOCATION_DETAIL_FOR_OFFENDERS(
+    """
         SELECT
         OKW.OFFENDER_BOOK_ID   BOOKING_ID,
         O.OFFENDER_ID_DISPLAY  OFFENDER_NO,
@@ -39,9 +42,11 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         AND OB.AGY_LOC_ID IN (:agencyIds)
         AND OB.ACTIVE_FLAG = 'Y'
         AND OKW.ACTIVE_FLAG = 'Y'
-    """),
+    """
+  ),
 
-    GET_AVAILABLE_KEY_WORKERS("""
+  GET_AVAILABLE_KEY_WORKERS(
+    """
         SELECT DISTINCT SM.LAST_NAME,
         SM.FIRST_NAME,
         SM.STAFF_ID,
@@ -58,11 +63,11 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
                 AND SLR2.CAL_AGY_LOC_ID = SLR.CAL_AGY_LOC_ID
                 AND SLR2.POSITION = SLR.POSITION
                 AND SLR2.ROLE = SLR.ROLE)
-    """),
+    """
+  ),
 
-
-
-    GET_KEY_WORKER_DETAILS("""
+  GET_KEY_WORKER_DETAILS(
+    """
         SELECT SM.LAST_NAME,
         SM.FIRST_NAME,
         SM.STAFF_ID,
@@ -70,9 +75,11 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
                 FROM STAFF_MEMBERS SM
         WHERE SM.STAFF_ID = :staffId
         AND SM.STATUS = 'ACTIVE'
-    """),
+    """
+  ),
 
-    GET_KEY_WORKER_DETAILS_FOR_OFFENDER("""
+  GET_KEY_WORKER_DETAILS_FOR_OFFENDER(
+    """
         SELECT
         SM.STAFF_ID,
         SM.LAST_NAME,
@@ -82,16 +89,20 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         AND SM.STATUS = 'ACTIVE'
         AND OKW.ACTIVE_FLAG = 'Y'
         AND (OKW.EXPIRY_DATE is null OR OKW.EXPIRY_DATE >= :currentDate)
-    """),
+    """
+  ),
 
-    CHECK_KEY_WORKER_EXISTS("""
+  CHECK_KEY_WORKER_EXISTS(
+    """
         SELECT SM.STAFF_ID
                 FROM STAFF_MEMBERS SM
         WHERE SM.STAFF_ID = :staffId
         AND SM.STATUS = 'ACTIVE'
-    """),
+    """
+  ),
 
-    GET_ALLOCATION_HISTORY_BY_AGENCY("""
+  GET_ALLOCATION_HISTORY_BY_AGENCY(
+    """
         SELECT
         O.OFFENDER_ID_DISPLAY OFFENDER_NO,
         OKW.OFFICER_ID        STAFF_ID,
@@ -108,9 +119,11 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
                 INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
                 WHERE OKW.AGY_LOC_ID = :agencyId
-    """),
+    """
+  ),
 
-    GET_ALLOCATION_HISTORY_BY_STAFF("""
+  GET_ALLOCATION_HISTORY_BY_STAFF(
+    """
         SELECT
         O.OFFENDER_ID_DISPLAY OFFENDER_NO,
         OKW.OFFICER_ID        STAFF_ID,
@@ -127,9 +140,11 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
                 INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
                 WHERE OKW.OFFICER_ID in (:staffIds)
-    """),
+    """
+  ),
 
-    GET_ALLOCATION_HISTORY_BY_OFFENDER("""
+  GET_ALLOCATION_HISTORY_BY_OFFENDER(
+    """
         SELECT
         O.OFFENDER_ID_DISPLAY OFFENDER_NO,
         OKW.OFFICER_ID        STAFF_ID,
@@ -146,5 +161,6 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
                 INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
                 WHERE O.OFFENDER_ID_DISPLAY in (:offenderNos)
-    """)
+    """
+  )
 }

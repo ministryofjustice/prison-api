@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class InmateAlertRepositorySql(val sql: String) {
-    FIND_INMATE_ALERTS("""
+  FIND_INMATE_ALERTS(
+    """
         SELECT ALERT_SEQ,
         ALERT_DATE,
         ALERT_TYPE,
@@ -27,9 +28,11 @@ enum class InmateAlertRepositorySql(val sql: String) {
         left join STAFF_MEMBERS SMU on SUAU.STAFF_ID = SMU.STAFF_ID
 
         WHERE OA.OFFENDER_BOOK_ID = :bookingId and (:alertStatus IS NULL OR OA.ALERT_STATUS = :alertStatus)
-    """),
+    """
+  ),
 
-    FIND_INMATE_ALERT("""
+  FIND_INMATE_ALERT(
+    """
         select ALERT_SEQ,
         ALERT_DATE,
         ALERT_TYPE,
@@ -55,9 +58,11 @@ enum class InmateAlertRepositorySql(val sql: String) {
                 left join STAFF_MEMBERS SMU on SUAU.STAFF_ID = SMU.STAFF_ID
                 where OFFENDER_BOOK_ID = :bookingId
         and ALERT_SEQ = :alertSeqId
-    """),
+    """
+  ),
 
-    FIND_INMATE_OFFENDERS_ALERTS("""
+  FIND_INMATE_OFFENDERS_ALERTS(
+    """
         SELECT OA.ALERT_SEQ,
         OA.OFFENDER_BOOK_ID,
         O.OFFENDER_ID_DISPLAY,
@@ -75,17 +80,21 @@ enum class InmateAlertRepositorySql(val sql: String) {
                 LEFT JOIN REFERENCE_CODES ALTYPE ON ALTYPE.DOMAIN = 'ALERT' AND ALTYPE.CODE = OA.ALERT_TYPE
         LEFT JOIN REFERENCE_CODES ALCODE ON ALCODE.DOMAIN = 'ALERT_CODE' AND ALCODE.CODE = OA.ALERT_CODE
         WHERE O.OFFENDER_ID_DISPLAY IN (:offenderNos) AND (:agencyId IS NULL OR B.AGY_LOC_ID = :agencyId)
-    """),
+    """
+  ),
 
-    GET_ALERT_CANDIDATES("""
+  GET_ALERT_CANDIDATES(
+    """
         select distinct o.offender_id_display as offender_no
         from OFFENDER_ALERTS icp
         join OFFENDER_BOOKINGS ob on ob.offender_book_id = icp.offender_book_id
         join OFFENDERS o on o.offender_id = ob.offender_id
         where icp.modify_datetime > :cutoffTimestamp
-    """),
+    """
+  ),
 
-    CREATE_ALERT("""
+  CREATE_ALERT(
+    """
         INSERT INTO OFFENDER_ALERTS (
                 OFFENDER_BOOK_ID,
                 ROOT_OFFENDER_ID,
@@ -110,9 +119,11 @@ enum class InmateAlertRepositorySql(val sql: String) {
         USER,
         :caseLoadType
         )
-    """),
+    """
+  ),
 
-    EXPIRE_ALERT("""
+  EXPIRE_ALERT(
+    """
         UPDATE OFFENDER_ALERTS SET
         ALERT_STATUS = :alertStatus,
         EXPIRY_DATE = :expiryDate,
@@ -124,17 +135,21 @@ enum class InmateAlertRepositorySql(val sql: String) {
         MODIFY_USER_ID = USER
         WHERE ALERT_SEQ = :alertSeq
         AND OFFENDER_BOOK_ID = :bookingId
-    """),
+    """
+  ),
 
-    UPDATE_ALERT_COMMENT("""
+  UPDATE_ALERT_COMMENT(
+    """
         UPDATE OFFENDER_ALERTS SET
         COMMENT_TEXT = :comment,
         MODIFY_USER_ID = USER
         WHERE ALERT_SEQ = :alertSeq
         AND OFFENDER_BOOK_ID = :bookingId
-    """),
+    """
+  ),
 
-    INSERT_WORK_FLOW("""
+  INSERT_WORK_FLOW(
+    """
         INSERT INTO WORK_FLOWS (
                 WORK_FLOW_ID,
                 OBJECT_CODE,
@@ -147,9 +162,11 @@ enum class InmateAlertRepositorySql(val sql: String) {
                 :bookingId,
                 :alertSeq
         )
-    """),
+    """
+  ),
 
-    INSERT_WORK_FLOW_LOG("""
+  INSERT_WORK_FLOW_LOG(
+    """
         INSERT INTO WORK_FLOW_LOGS (
                 WORK_FLOW_ID,
                 WORK_FLOW_SEQ,
@@ -168,9 +185,11 @@ enum class InmateAlertRepositorySql(val sql: String) {
                 SYSDATE,
                 USER
         )
-    """),
+    """
+  ),
 
-    INSERT_NEXT_WORK_FLOW_LOG("""
+  INSERT_NEXT_WORK_FLOW_LOG(
+    """
         INSERT INTO WORK_FLOW_LOGS
         (WORK_FLOW_ID,
         WORK_FLOW_SEQ,
@@ -191,5 +210,6 @@ enum class InmateAlertRepositorySql(val sql: String) {
         WHERE WF.OBJECT_ID = :bookingId
         AND WF.OBJECT_SEQ = :alertSeq
         AND WF.OBJECT_CODE = :alertCode
-    """)
+    """
+  )
 }

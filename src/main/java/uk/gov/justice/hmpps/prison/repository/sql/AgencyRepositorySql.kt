@@ -1,16 +1,19 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class AgencyRepositorySql(val sql: String) {
-    GET_AGENCIES("""
+  GET_AGENCIES(
+    """
         SELECT DISTINCT AGY_LOC_ID AGENCY_ID,
         DESCRIPTION,
         AGENCY_LOCATION_TYPE AGENCY_TYPE
         FROM AGENCY_LOCATIONS
         WHERE ACTIVE_FLAG = 'Y'
         AND AGY_LOC_ID NOT IN ('OUT','TRN')
-    """),
+    """
+  ),
 
-    GET_AGENCIES_BY_TYPE("""
+  GET_AGENCIES_BY_TYPE(
+    """
         SELECT DISTINCT AGY_LOC_ID AGENCY_ID,
         DESCRIPTION,
         AGENCY_LOCATION_TYPE AGENCY_TYPE
@@ -18,9 +21,11 @@ enum class AgencyRepositorySql(val sql: String) {
                 WHERE ACTIVE_FLAG = :activeFlag
         AND AGENCY_LOCATION_TYPE = :agencyType
         AND AGY_LOC_ID NOT IN (:excludeIds)
-    """),
+    """
+  ),
 
-    FIND_AGENCIES_BY_USERNAME("""
+  FIND_AGENCIES_BY_USERNAME(
+    """
         SELECT DISTINCT A.AGY_LOC_ID AGENCY_ID,
         A.DESCRIPTION,
         A.AGENCY_LOCATION_TYPE AGENCY_TYPE
@@ -33,9 +38,11 @@ enum class AgencyRepositorySql(val sql: String) {
                         FROM USER_ACCESSIBLE_CASELOADS UCR JOIN CASELOADS CL ON CL.CASELOAD_ID = UCR.CASELOAD_ID AND CL.CASELOAD_TYPE = :caseloadType AND CL.CASELOAD_FUNCTION = :caseloadFunction
                 WHERE UCR.USERNAME = :username)
 
-    """),
+    """
+  ),
 
-    FIND_AGENCIES_BY_CURRENT_CASELOAD("""
+  FIND_AGENCIES_BY_CURRENT_CASELOAD(
+    """
         SELECT DISTINCT A.AGY_LOC_ID AGENCY_ID,
         A.DESCRIPTION,
         A.AGENCY_LOCATION_TYPE AGENCY_TYPE
@@ -47,9 +54,11 @@ enum class AgencyRepositorySql(val sql: String) {
                 SELECT SUA.WORKING_CASELOAD_ID
                         FROM STAFF_USER_ACCOUNTS SUA
                         WHERE SUA.USERNAME = :username)
-    """),
+    """
+  ),
 
-    FIND_PRISON_ADDRESSES_PHONE_NUMBERS("""
+  FIND_PRISON_ADDRESSES_PHONE_NUMBERS(
+    """
         SELECT
         al.AGY_LOC_ID agency_id,
         al.DESCRIPTION,
@@ -73,9 +82,11 @@ enum class AgencyRepositorySql(val sql: String) {
         AND al.AGY_LOC_ID NOT IN ('OUT', 'TRN')
         AND al.AGENCY_LOCATION_TYPE = 'INST'
         AND (:agencyId is NULL OR al.AGY_LOC_ID = :agencyId)
-    """),
+    """
+  ),
 
-    FIND_AGENCIES_BY_CASELOAD("""
+  FIND_AGENCIES_BY_CASELOAD(
+    """
         SELECT A.AGY_LOC_ID AGENCY_ID,
         A.DESCRIPTION,
         A.AGENCY_LOCATION_TYPE AGENCY_TYPE
@@ -84,9 +95,11 @@ enum class AgencyRepositorySql(val sql: String) {
                 WHERE A.ACTIVE_FLAG = 'Y'
         AND A.AGY_LOC_ID NOT IN ('OUT','TRN')
         AND C.CASELOAD_ID = :caseloadId
-    """),
+    """
+  ),
 
-    GET_AGENCY("""
+  GET_AGENCY(
+    """
         SELECT A.AGY_LOC_ID AGENCY_ID,
         A.DESCRIPTION,
         A.AGENCY_LOCATION_TYPE AGENCY_TYPE
@@ -94,9 +107,11 @@ enum class AgencyRepositorySql(val sql: String) {
         WHERE A.ACTIVE_FLAG = COALESCE(:activeFlag, A.ACTIVE_FLAG)
         AND AGENCY_LOCATION_TYPE = COALESCE(:agencyType, A.AGENCY_LOCATION_TYPE)
         AND A.AGY_LOC_ID = :agencyId
-    """),
+    """
+  ),
 
-    GET_AGENCY_LOCATIONS("""
+  GET_AGENCY_LOCATIONS(
+    """
         SELECT A.INTERNAL_LOCATION_ID LOCATION_ID,
         A.AGY_LOC_ID AGENCY_ID,
         A.INTERNAL_LOCATION_TYPE LOCATION_TYPE,
@@ -108,9 +123,11 @@ enum class AgencyRepositorySql(val sql: String) {
                 FROM AGENCY_INTERNAL_LOCATIONS A
         WHERE A.ACTIVE_FLAG = 'Y'
         AND A.AGY_LOC_ID = :agencyId
-    """),
+    """
+  ),
 
-    GET_AGENCY_LOCATIONS_FOR_EVENT_TYPE("""
+  GET_AGENCY_LOCATIONS_FOR_EVENT_TYPE(
+    """
         SELECT AIL.INTERNAL_LOCATION_ID LOCATION_ID,
         AIL.AGY_LOC_ID AGENCY_ID,
         AIL.INTERNAL_LOCATION_TYPE LOCATION_TYPE,
@@ -132,9 +149,11 @@ enum class AgencyRepositorySql(val sql: String) {
         AND NOT EXISTS (SELECT 1
                 FROM INT_LOC_USAGE_LOCATIONS
                 WHERE PARENT_USAGE_LOCATION_ID = ILUL.USAGE_LOCATION_ID)
-    """),
+    """
+  ),
 
-    GET_AGENCY_LOCATIONS_FOR_EVENTS_BOOKED("""
+  GET_AGENCY_LOCATIONS_FOR_EVENTS_BOOKED(
+    """
         SELECT DISTINCT AIL.INTERNAL_LOCATION_ID LOCATION_ID,
         AIL.USER_DESC USER_DESCRIPTION
                 FROM AGENCY_INTERNAL_LOCATIONS AIL
@@ -175,18 +194,22 @@ enum class AgencyRepositorySql(val sql: String) {
         )
         )
         ORDER BY USER_DESCRIPTION
-    """),
+    """
+  ),
 
-    GET_AGENCY_IEP_LEVELS("""
+  GET_AGENCY_IEP_LEVELS(
+    """
         SELECT IEP_LEVEL,
         RC.DESCRIPTION IEP_DESCRIPTION
                 FROM IEP_LEVELS IL
         LEFT JOIN REFERENCE_CODES RC ON RC.CODE = IL.IEP_LEVEL AND RC.DOMAIN = :refCodeDomain
         WHERE IL.AGY_LOC_ID = :agencyId
         AND IL.ACTIVE_FLAG = :activeFlag
-    """),
+    """
+  ),
 
-    GET_AGENCY_IEP_REVIEW_INFORMATION("""
+  GET_AGENCY_IEP_REVIEW_INFORMATION(
+    """
         SELECT OB.OFFENDER_BOOK_ID AS BOOKING_ID,
         COALESCE (POS_NEG_IEPS.POSITIVE_IEPS, 0) AS POSITIVE_IEPS,
         COALESCE (POS_NEG_IEPS.NEGATIVE_IEPS, 0) AS NEGATIVE_IEPS,
@@ -258,5 +281,6 @@ enum class AgencyRepositorySql(val sql: String) {
         AND OB.AGY_LOC_ID = :agencyId
         AND OB.BOOKING_SEQ = :bookingSeq
         ORDER BY POS_NEG_IEPS.NEGATIVE_IEPS DESC
-    """)
+    """
+  )
 }
