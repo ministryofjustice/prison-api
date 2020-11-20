@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class IncidentCaseRepositorySql(val sql: String) {
-    QUESTIONNAIRE("""
+  QUESTIONNAIRE(
+    """
         select q.code,
         q.questionnaire_id,
         qq.questionnaire_que_id,
@@ -24,9 +25,11 @@ enum class IncidentCaseRepositorySql(val sql: String) {
         join questionnaire_questions qq on q.questionnaire_id = qq.questionnaire_id
         join questionnaire_answers qa on qa.QUESTIONNAIRE_QUE_ID = qq.QUESTIONNAIRE_QUE_ID
         where q.questionnaire_category = :category and q.code = :code
-    """),
+    """
+  ),
 
-    GET_INCIDENT_CASE("""
+  GET_INCIDENT_CASE(
+    """
         select ic.INCIDENT_CASE_ID,
         ic.REPORTED_STAFF_ID,
         ic.REPORT_DATE,
@@ -54,9 +57,11 @@ enum class IncidentCaseRepositorySql(val sql: String) {
         join questionnaire_answers qa
         on qa.QUESTIONNAIRE_ANS_ID = icr.QUESTIONNAIRE_ANS_ID and qa.QUESTIONNAIRE_QUE_ID = qq.QUESTIONNAIRE_QUE_ID
                 where ic.INCIDENT_CASE_ID IN (:incidentCaseIds)
-    """),
+    """
+  ),
 
-    GET_PARTIES_INVOLVED("""
+  GET_PARTIES_INVOLVED(
+    """
         select icp.INCIDENT_CASE_ID,
         icp.PARTY_SEQ,
         icp.OFFENDER_BOOK_ID BOOKING_ID,
@@ -67,33 +72,43 @@ enum class IncidentCaseRepositorySql(val sql: String) {
         icp.COMMENT_TEXT
         from INCIDENT_CASE_PARTIES icp
         where icp.INCIDENT_CASE_ID IN (:incidentCaseIds)
-    """),
+    """
+  ),
 
-    GET_INCIDENT_CASES_BY_OFFENDER_NO("""
+  GET_INCIDENT_CASES_BY_OFFENDER_NO(
+    """
         select DISTINCT icp.INCIDENT_CASE_ID
         from INCIDENT_CASE_PARTIES icp
         join INCIDENT_CASES ic on ic.INCIDENT_CASE_ID = icp.INCIDENT_CASE_ID
         join OFFENDER_BOOKINGS ob on ob.offender_book_id = icp.offender_book_id
         join OFFENDERS o on o.offender_id = ob.offender_id
         where o.offender_id_display = :offenderNo
-    """),
+    """
+  ),
 
-    GET_INCIDENT_CASES_BY_BOOKING_ID("""
+  GET_INCIDENT_CASES_BY_BOOKING_ID(
+    """
         select DISTINCT icp.INCIDENT_CASE_ID
         from INCIDENT_CASE_PARTIES icp
         join INCIDENT_CASES ic on ic.INCIDENT_CASE_ID = icp.INCIDENT_CASE_ID
         where icp.OFFENDER_BOOK_ID = :bookingId
-    """),
+    """
+  ),
 
-    FILTER_BY_PARTICIPATION("""
+  FILTER_BY_PARTICIPATION(
+    """
         icp.participation_role IN (:participationRoles)
-    """),
+    """
+  ),
 
-    FILTER_BY_TYPE("""
+  FILTER_BY_TYPE(
+    """
         ic.incident_type IN (:incidentTypes)
-    """),
+    """
+  ),
 
-    GET_INCIDENT_CANDIDATES("""
+  GET_INCIDENT_CANDIDATES(
+    """
         select distinct o.offender_id_display as offender_no
         from (
                 select icp.offender_book_id, ic.modify_datetime
@@ -110,5 +125,6 @@ enum class IncidentCaseRepositorySql(val sql: String) {
                 join offender_bookings ob on ob.offender_book_id = data.offender_book_id
         join offenders o on o.offender_id = ob.offender_id
         where data.modify_datetime > :cutoffTimestamp
-    """)
+    """
+  )
 }

@@ -7,3 +7,4 @@ target
 nomis-db.*
 dps-gradle-spring-boot-suppressions.xml
 .DS_Store
+.editorconfig
