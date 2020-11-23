@@ -269,22 +269,22 @@ class FinanceServiceTest {
     @Test
     public void test_getBalances_HappyPath() {
 
-        var bookingId = -1L;
-        var offenderNo = "A1234AB";
-        var agency = "LEI";
+        final var bookingId = -1L;
+        final var offenderNo = "A1234AB";
+        final var agency = "LEI";
 
-        var offenderSummary = OffenderSummary
+        final var offenderSummary = OffenderSummary
             .builder()
             .offenderNo(offenderNo)
             .agencyLocationId(agency)
             .build();
 
-        var offenderDamageObligationModel = OffenderDamageObligationModel
+        final var offenderDamageObligationModel = OffenderDamageObligationModel
             .builder()
             .amountToPay(BigDecimal.valueOf(10))
             .build();
 
-        var account = Account.builder().build();
+        final var account = Account.builder().build();
 
         when(bookingRepository.getLatestBookingByBookingId(bookingId))
             .thenReturn(Optional.of(offenderSummary));
@@ -292,7 +292,7 @@ class FinanceServiceTest {
             .thenReturn(List.of(offenderDamageObligationModel));
         when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
 
-        var accountToReturn = financeService.getBalances(bookingId);
+        final var accountToReturn = financeService.getBalances(bookingId);
 
         assertThat(accountToReturn).isNotNull();
         assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(10)));
@@ -306,26 +306,26 @@ class FinanceServiceTest {
     @Test
     public void test_getBalances_With_Two_Obligations() {
 
-        var bookingId = -1L;
-        var offenderNo = "A1234AB";
-        var agency = "LEI";
+        final var bookingId = -1L;
+        final var offenderNo = "A1234AB";
+        final var agency = "LEI";
 
-        var offenderSummary = OffenderSummary
+        final var offenderSummary = OffenderSummary
             .builder()
             .offenderNo(offenderNo)
             .agencyLocationId(agency)
             .build();
 
-        var offenderDamageObligationModel1 = OffenderDamageObligationModel
+        final var offenderDamageObligationModel1 = OffenderDamageObligationModel
             .builder()
             .amountToPay(BigDecimal.valueOf(10))
             .build();
-        var offenderDamageObligationModel2 = OffenderDamageObligationModel
+        final var offenderDamageObligationModel2 = OffenderDamageObligationModel
             .builder()
             .amountToPay(BigDecimal.valueOf(5))
             .build();
 
-        var account = Account.builder().build();
+        final var account = Account.builder().build();
 
         when(bookingRepository.getLatestBookingByBookingId(bookingId))
             .thenReturn(Optional.of(offenderSummary));
@@ -333,7 +333,7 @@ class FinanceServiceTest {
             .thenReturn(List.of(offenderDamageObligationModel1, offenderDamageObligationModel2));
         when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
 
-        var accountToReturn = financeService.getBalances(bookingId);
+        final var accountToReturn = financeService.getBalances(bookingId);
 
         assertThat(accountToReturn).isNotNull();
         assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(15)));
@@ -346,7 +346,7 @@ class FinanceServiceTest {
     @Test
     public void test_getBalances_And_No_OffenderSummary() {
 
-        var bookingId = -1L;
+        final var bookingId = -1L;
 
         when(bookingRepository.getLatestBookingByBookingId(bookingId))
             .thenReturn(Optional.empty());
@@ -361,11 +361,11 @@ class FinanceServiceTest {
     @Test
     public void test_getBalances_And_No_Account() {
 
-        var bookingId = -1L;
-        var offenderNo = "A1234AB";
-        var agency = "LEI";
+        final var bookingId = -1L;
+        final var offenderNo = "A1234AB";
+        final var agency = "LEI";
 
-        var offenderSummary = OffenderSummary
+        final var offenderSummary = OffenderSummary
             .builder()
             .offenderNo(offenderNo)
             .agencyLocationId(agency)
@@ -375,7 +375,7 @@ class FinanceServiceTest {
             .thenReturn(Optional.of(offenderSummary));
         when(financeRepository.getBalances(bookingId, agency)).thenReturn(null);
 
-        var accountToReturn = financeService.getBalances(bookingId);
+        final var accountToReturn = financeService.getBalances(bookingId);
 
         assertThat(accountToReturn).isNotNull();
         assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoney("0.00"));
