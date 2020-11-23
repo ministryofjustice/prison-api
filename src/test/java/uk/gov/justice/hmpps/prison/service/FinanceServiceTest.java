@@ -67,8 +67,8 @@ class FinanceServiceTest {
 
     @BeforeEach
     void setUp() {
-        financeService = new FinanceService(currency, financeRepository, bookingRepository, offenderBookingRepository, offenderTransactionRepository, accountCodeRepository,
-                offenderSubAccountRepository, offenderTrustAccountRepository, offenderDamageObligationService);
+        financeService = new FinanceService(financeRepository, bookingRepository, offenderBookingRepository, offenderTransactionRepository, accountCodeRepository,
+                offenderSubAccountRepository, offenderTrustAccountRepository, offenderDamageObligationService, currency);
     }
 
     @Test

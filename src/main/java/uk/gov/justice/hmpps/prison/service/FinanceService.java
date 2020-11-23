@@ -45,7 +45,6 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObl
 @Slf4j
 public class FinanceService {
 
-    private final Currency currency;
     private final FinanceRepository financeRepository;
     private final BookingRepository bookingRepository;
     private final OffenderBookingRepository offenderBookingRepository;
@@ -54,6 +53,7 @@ public class FinanceService {
     private final OffenderSubAccountRepository offenderSubAccountRepository;
     private final OffenderTrustAccountRepository offenderTrustAccountRepository;
     private final OffenderDamageObligationService offenderDamageObligationService;
+    private Currency currency;
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Account getBalances(final Long bookingId) {
@@ -75,7 +75,7 @@ public class FinanceService {
     }
 
     private Account defaultBalances() {
-        val zero = toMoney("0");
+        val zero = toMoney("0.00");
         return Account.builder()
             .spends(zero).cash(zero).savings(zero).damageObligations(zero)
             .currency(currency.getCode()).build();
