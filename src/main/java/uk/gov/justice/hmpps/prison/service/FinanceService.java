@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.data.util.Pair;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -53,9 +54,11 @@ public class FinanceService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Account getBalances(final Long bookingId) {
 
+        val sumAmountToPayFun = createSumAmountToPayFun.apply(offenderDamageObligationService);
+
         var damageObligationBalance = bookingRepository.getLatestBookingByBookingId(bookingId)
             .map(OffenderSummary::getOffenderNo)
-            .map(createSumDamageObligationToPay.apply(offenderDamageObligationService))
+            .map(sumAmountToPayFun)
             .map(MoneySupport::toMoneyScale)
             .orElse(toMoneyScale(BigDecimal.valueOf(0)));
 
@@ -130,8 +133,10 @@ public class FinanceService {
     }
 
     private static final Function<Pair<Account, BigDecimal>, Account> setDamageObligation = (pair) -> {
-        pair.getFirst().setDamageObligations(pair.getSecond());
-        return pair.getFirst();
+        val account = pair.getFirst();
+        val damageObligationAmount = pair.getSecond();
+        account.setDamageObligations(damageObligationAmount);
+        return account;
     };
 
     private static final Function<List<OffenderDamageObligationModel>, BigDecimal> sumAmountToPay = (obligations) -> obligations
@@ -139,6 +144,6 @@ public class FinanceService {
         .map(OffenderDamageObligationModel::getAmountToPay)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    private static final Function<OffenderDamageObligationService, Function<String, BigDecimal>> createSumDamageObligationToPay =
+    private static final Function<OffenderDamageObligationService, Function<String, BigDecimal>> createSumAmountToPayFun =
         (service) -> (Function<String, BigDecimal>) offenderNo -> sumAmountToPay.apply(service.getDamageObligations(offenderNo,""));
 }
