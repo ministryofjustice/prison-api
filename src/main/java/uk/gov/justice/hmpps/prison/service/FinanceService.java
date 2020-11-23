@@ -26,8 +26,8 @@ import javax.validation.ValidationException;
 import java.math.RoundingMode;
 import java.util.Date;
 
-import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
 import static uk.gov.justice.hmpps.prison.values.AccountCode.SAVINGS;
+import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
 
 @Service
 @Transactional(readOnly = true)
@@ -42,7 +42,7 @@ public class FinanceService {
     private final OffenderSubAccountRepository offenderSubAccountRepository;
     private final OffenderTrustAccountRepository offenderTrustAccountRepository;
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Account getBalances(final Long bookingId) {
         return bookingRepository.getBookingAgency(bookingId)
                 .map(agency -> financeRepository.getBalances(bookingId, agency))

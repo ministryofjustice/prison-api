@@ -112,7 +112,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void offenderAlerts_respondsWithOKWhenOffenderNumberSupplied() {
-        final var oneOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), List.of("A1234AA"));
+        final var oneOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_VIEW_PRISONER_DATA"), List.of("A1234AA"));
 
         final var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, oneOffendersInRequest, String.class);
 
@@ -121,7 +121,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void offenderAlerts_respondsWithBadRequestWhenNoOffendersNumbersSupplied() {
-        final var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), List.of());
+        final var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_VIEW_PRISONER_DATA"), List.of());
 
         final var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, noOffendersInRequest, String.class);
 
@@ -131,7 +131,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void offenderAlerts_emptyBody() {
-        final var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), null);
+        final var noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_VIEW_PRISONER_DATA"), null);
 
         final var minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", HttpMethod.POST, noOffendersInRequest, String.class);
 

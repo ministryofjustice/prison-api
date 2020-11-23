@@ -195,6 +195,7 @@ public class BookingServiceTest {
         verify(securityUtils).isOverrideRole(
                 "SYSTEM_USER",
                 "GLOBAL_SEARCH",
+                "VIEW_PRISONER_DATA",
                 "CREATE_CATEGORISATION",
                 "APPROVE_CATEGORISATION"
         );
@@ -314,7 +315,7 @@ public class BookingServiceTest {
 
     @Test
     public void getBookingIEPSummary_multipleBooking_globalSearchUser() {
-        when(securityUtils.isOverrideRole(anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+        when(securityUtils.isOverrideRole(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
         when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
         assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), false)).containsKeys(-5L);
     }

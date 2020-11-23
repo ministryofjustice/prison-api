@@ -164,7 +164,7 @@ public class BookingService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public SentenceDetail getBookingSentenceDetail(final Long bookingId) {
 
         final var sentenceDetail = getSentenceDetail(bookingId);
@@ -175,7 +175,7 @@ public class BookingService {
         return deriveSentenceDetail(sentenceDetail);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
 
         final var activeSentenceAdjustments = offenderSentenceAdjustmentRepository.findAllByOffenderBookId(bookingId).stream().filter(OffenderSentenceAdjustment::isActive).collect(toList());
@@ -493,12 +493,12 @@ public class BookingService {
         return bookingRepository.getBookingVisits(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public VisitDetails getBookingVisitLast(final Long bookingId) {
         return bookingRepository.getBookingVisitLast(bookingId, LocalDateTime.now());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public VisitDetails getBookingVisitNext(final Long bookingId) {
         return bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
     }
@@ -669,12 +669,12 @@ public class BookingService {
         }
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenceDetail> getMainOffenceDetails(final Long bookingId) {
         return sentenceRepository.getMainOffenceDetails(bookingId);
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA')")
     public List<OffenceDetail> getMainOffenceDetails(final Set<Long> bookingIds) {
 
         final List<OffenceDetail> results = new ArrayList<>();
@@ -696,7 +696,7 @@ public class BookingService {
         return sentenceRepository.getActiveOffencesForBooking(bookingId, convictionsOnly);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsToday(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today, today);
@@ -706,19 +706,19 @@ public class BookingService {
         return getEvents(bookingIds, day, day);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsThisWeek(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today, today.plusDays(6));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsNextWeek(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today.plusDays(7), today.plusDays(13));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEvents(final Long bookingId, final LocalDate from, final LocalDate to) {
         final var activities = getBookingActivities(bookingId, from, to, null, null);
         final var visits = getBookingVisits(bookingId, from, to, null, null);
@@ -750,7 +750,7 @@ public class BookingService {
         return identifyLatest.values().stream().filter(Optional::isPresent).map(Optional::get).collect(toList());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
 
         final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
@@ -981,7 +981,7 @@ public class BookingService {
     }
 
     private boolean isViewAllOffenders() {
-        return securityUtils.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION");
+        return securityUtils.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION");
     }
 
     private boolean isRestrictedByCaseload() {
