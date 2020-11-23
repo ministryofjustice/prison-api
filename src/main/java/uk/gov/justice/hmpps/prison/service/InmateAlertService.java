@@ -93,7 +93,7 @@ public class InmateAlertService {
         return alerts;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
 
         final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly, query, orderByField, order);
