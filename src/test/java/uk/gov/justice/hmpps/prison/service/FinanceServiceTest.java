@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository;
+import uk.gov.justice.hmpps.prison.values.Currency;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoney;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE;
 
 @ExtendWith(MockitoExtension.class)
 class FinanceServiceTest {
@@ -59,11 +61,13 @@ class FinanceServiceTest {
     @Mock
     private OffenderDamageObligationService offenderDamageObligationService;
 
+    private Currency currency = Currency.builder().code("GBP").build();
+
     private FinanceService financeService;
 
     @BeforeEach
     void setUp() {
-        financeService = new FinanceService(financeRepository, bookingRepository, offenderBookingRepository, offenderTransactionRepository, accountCodeRepository,
+        financeService = new FinanceService(currency, financeRepository, bookingRepository, offenderBookingRepository, offenderTransactionRepository, accountCodeRepository,
                 offenderSubAccountRepository, offenderTrustAccountRepository, offenderDamageObligationService);
     }
 
@@ -284,7 +288,7 @@ class FinanceServiceTest {
 
         when(bookingRepository.getLatestBookingByBookingId(bookingId))
             .thenReturn(Optional.of(offenderSummary));
-        when(offenderDamageObligationService.getDamageObligations(offenderNo, ""))
+        when(offenderDamageObligationService.getDamageObligations(offenderNo, ACTIVE.name()))
             .thenReturn(List.of(offenderDamageObligationModel));
         when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
 
@@ -294,7 +298,7 @@ class FinanceServiceTest {
         assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(10)));
 
         verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
-        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, "");
+        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE.name());
         verify(financeRepository, times(1)).getBalances(bookingId, agency);
 
     }
@@ -325,7 +329,7 @@ class FinanceServiceTest {
 
         when(bookingRepository.getLatestBookingByBookingId(bookingId))
             .thenReturn(Optional.of(offenderSummary));
-        when(offenderDamageObligationService.getDamageObligations(offenderNo, ""))
+        when(offenderDamageObligationService.getDamageObligations(offenderNo,  ACTIVE.name()))
             .thenReturn(List.of(offenderDamageObligationModel1, offenderDamageObligationModel2));
         when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
 
@@ -335,7 +339,7 @@ class FinanceServiceTest {
         assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(15)));
 
         verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
-        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, "");
+        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE.name());
         verify(financeRepository, times(1)).getBalances(bookingId, agency);
     }
 
@@ -378,7 +382,7 @@ class FinanceServiceTest {
         assertThat(accountToReturn.getSpends()).isEqualTo(toMoney("0.00"));
         assertThat(accountToReturn.getCash()).isEqualTo(toMoney("0.00"));
         assertThat(accountToReturn.getSavings()).isEqualTo(toMoney("0.00"));
-        assertThat(accountToReturn.getCurrency()).isEqualTo("£");
+        assertThat(accountToReturn.getCurrency()).isEqualTo("GBP");
 
         verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
         verify(financeRepository, times(1)).getBalances(bookingId, agency);

@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountR
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.values.Currency;
 
 import javax.validation.ValidationException;
 import java.math.BigDecimal;
@@ -35,12 +37,15 @@ import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
 import static uk.gov.justice.hmpps.prison.values.AccountCode.SAVINGS;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoney;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE;
 
 @Service
 @Transactional(readOnly = true)
 @AllArgsConstructor
 @Slf4j
 public class FinanceService {
+
+    private final Currency currency;
     private final FinanceRepository financeRepository;
     private final BookingRepository bookingRepository;
     private final OffenderBookingRepository offenderBookingRepository;
@@ -57,7 +62,7 @@ public class FinanceService {
             .orElseThrow(new EntityNotFoundException("Booking not found for id: " + bookingId));
 
         final var damageObligationBalance =
-            offenderDamageObligationService.getDamageObligations(offenderSummary.getOffenderNo(), "")
+            offenderDamageObligationService.getDamageObligations(offenderSummary.getOffenderNo(), ACTIVE.name())
                 .stream()
                 .map(OffenderDamageObligationModel::getAmountToPay)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -73,7 +78,7 @@ public class FinanceService {
         val zero = toMoney("0");
         return Account.builder()
             .spends(zero).cash(zero).savings(zero).damageObligations(zero)
-            .currency("£").build();
+            .currency(currency.getCode()).build();
     }
 
     @Transactional

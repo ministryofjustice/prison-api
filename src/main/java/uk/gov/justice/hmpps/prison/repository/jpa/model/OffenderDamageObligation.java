@@ -24,6 +24,10 @@ import java.time.LocalDateTime;
 @Table(name = "OFFENDER_DAMAGE_OBLIGATIONS")
 public class OffenderDamageObligation extends AuditableEntity  {
 
+    public enum Status {
+        ACTIVE
+    }
+
     @Id
     @Column(name = "OFFENDER_DMG_OBLIGATION_ID", nullable = false, insertable = false, updatable = false)
     private Long id;

@@ -5,14 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.context.ContextConfiguration;
-import uk.gov.justice.hmpps.prison.web.config.ObjectMapperConfiguration;
+import uk.gov.justice.hmpps.prison.web.config.AppBeanConfiguration;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
-@ContextConfiguration(classes = ObjectMapperConfiguration.class)
+@ContextConfiguration(classes = AppBeanConfiguration.class)
 public class AdjudicationDetailTest {
 
     @Autowired

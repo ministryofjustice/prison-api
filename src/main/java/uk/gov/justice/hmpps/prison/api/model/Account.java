@@ -32,14 +32,17 @@ public class Account {
 
     @ApiModelProperty(required = true, value = "Spends sub account balance.")
     @NotNull
+    @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal spends;
 
     @ApiModelProperty(required = true, value = "Cash sub account balance.")
     @NotNull
+    @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal cash;
 
     @ApiModelProperty(required = true, value = "Saves sub account balance.")
     @NotNull
+    @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal savings;
 
     @ApiModelProperty(required = true, value = "Damage obligation balance.")
