@@ -53,7 +53,7 @@ public class FinanceService {
     private final OffenderSubAccountRepository offenderSubAccountRepository;
     private final OffenderTrustAccountRepository offenderTrustAccountRepository;
     private final OffenderDamageObligationService offenderDamageObligationService;
-    private Currency currency;
+    private final Currency currency;
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Account getBalances(final Long bookingId) {
