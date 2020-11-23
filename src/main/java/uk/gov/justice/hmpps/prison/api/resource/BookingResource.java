@@ -687,7 +687,7 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Offence history.", notes = "All Offences recorded for this offender.", nickname = "getOffenceHistory")
     @GetMapping("/offenderNo/{offenderNo}/offenceHistory")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<OffenceHistoryDetail> getOffenceHistory(@PathVariable("offenderNo") @ApiParam(value = "The offender number", required = true) final String offenderNo, @RequestParam(value = "convictionsOnly", required = false, defaultValue = "true") @ApiParam(value = "include offences with convictions only", defaultValue = "true") final boolean convictionsOnly) {
         return bookingService.getOffenceHistory(offenderNo, convictionsOnly);
     }
