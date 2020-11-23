@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class ScheduleRepositorySql(val sql: String) {
-    GET_ACTIVITIES_AT_ONE_LOCATION("""
+  GET_ACTIVITIES_AT_ONE_LOCATION(
+    """
         SELECT O.OFFENDER_ID_DISPLAY   AS OFFENDER_NO,
         OPP.OFFENDER_BOOK_ID    AS BOOKING_ID,
         OCA.EVENT_ID,
@@ -45,9 +46,11 @@ enum class ScheduleRepositorySql(val sql: String) {
         (SELECT OE.EXCLUDE_DAY, COALESCE(OE.SLOT_CATEGORY_CODE, CS.SLOT_CATEGORY_CODE)
         FROM OFFENDER_EXCLUDE_ACTS_SCHDS OE
         WHERE OE.OFF_PRGREF_ID = OPP.OFF_PRGREF_ID)
-    """),
+    """
+  ),
 
-    GET_ALL_ACTIVITIES_AT_AGENCY("""
+  GET_ALL_ACTIVITIES_AT_AGENCY(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         OPP.OFFENDER_BOOK_ID AS BOOKING_ID,
         OCA.EVENT_ID,
@@ -90,10 +93,11 @@ enum class ScheduleRepositorySql(val sql: String) {
         (SELECT OE.EXCLUDE_DAY, COALESCE(OE.SLOT_CATEGORY_CODE, CS.SLOT_CATEGORY_CODE)
         FROM OFFENDER_EXCLUDE_ACTS_SCHDS OE
         WHERE OE.OFF_PRGREF_ID = OPP.OFF_PRGREF_ID)
-    """),
+    """
+  ),
 
-
-    GET_ACTIVITIES("""
+  GET_ACTIVITIES(
+    """
         SELECT O.OFFENDER_ID_DISPLAY                      AS OFFENDER_NO,
         O.FIRST_NAME,
         O.LAST_NAME,
@@ -147,9 +151,11 @@ enum class ScheduleRepositorySql(val sql: String) {
         AND CA.ACTIVE_FLAG = 'Y'
         AND CA.COURSE_ACTIVITY_TYPE IS NOT NULL
         AND CS.CATCH_UP_CRS_SCH_ID IS NULL
-    """),
+    """
+  ),
 
-    GET_COURT_EVENTS("""
+  GET_COURT_EVENTS(
+    """
         SELECT
         O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         O.FIRST_NAME,
@@ -168,9 +174,11 @@ enum class ScheduleRepositorySql(val sql: String) {
                 LEFT JOIN REFERENCE_CODES RC ON RC.CODE = CEV.COURT_EVENT_TYPE AND RC.DOMAIN = 'MOVE_RSN'
         WHERE CEV.EVENT_DATE = :date
         AND O.OFFENDER_ID_DISPLAY in (:offenderNos)
-    """),
+    """
+  ),
 
-    GET_APPOINTMENTS_AT_LOCATION("""
+  GET_APPOINTMENTS_AT_LOCATION(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         OIS.OFFENDER_BOOK_ID AS BOOKING_ID,
         O.FIRST_NAME,
@@ -191,9 +199,11 @@ enum class ScheduleRepositorySql(val sql: String) {
         AND OIS.EVENT_TYPE = 'APP'
         AND OIS.EVENT_DATE >= TRUNC(COALESCE(:fromDate, OIS.EVENT_DATE))
         AND TRUNC(OIS.EVENT_DATE) <= COALESCE(:toDate, OIS.EVENT_DATE)
-    """),
+    """
+  ),
 
-    GET_VISITS_AT_LOCATION("""
+  GET_VISITS_AT_LOCATION(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         VIS.OFFENDER_BOOK_ID AS BOOKING_ID,
         O.FIRST_NAME,
@@ -215,9 +225,11 @@ enum class ScheduleRepositorySql(val sql: String) {
         WHERE VIS.VISIT_INTERNAL_LOCATION_ID = :locationId
         AND VIS.VISIT_DATE >= TRUNC(COALESCE(:fromDate, VIS.VISIT_DATE))
         AND TRUNC(VIS.VISIT_DATE) <= COALESCE(:toDate, VIS.VISIT_DATE)
-    """),
+    """
+  ),
 
-    GET_VISITS("""
+  GET_VISITS(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         O.FIRST_NAME,
         O.LAST_NAME,
@@ -237,9 +249,11 @@ enum class ScheduleRepositorySql(val sql: String) {
         LEFT JOIN REFERENCE_CODES RC3 ON RC3.CODE = VIS.VISIT_TYPE AND RC3.DOMAIN = 'VISIT_TYPE'
         LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON VIS.VISIT_INTERNAL_LOCATION_ID = AIL.INTERNAL_LOCATION_ID
                 WHERE VIS.VISIT_DATE = TRUNC(COALESCE(:date, VIS.VISIT_DATE))
-    """),
+    """
+  ),
 
-    GET_APPOINTMENTS("""
+  GET_APPOINTMENTS(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         O.FIRST_NAME,
         O.LAST_NAME,
@@ -258,9 +272,11 @@ enum class ScheduleRepositorySql(val sql: String) {
 
                 WHERE OIS.EVENT_TYPE = 'APP'
         AND OIS.EVENT_DATE = TRUNC(COALESCE(:date, OIS.EVENT_DATE))
-    """),
+    """
+  ),
 
-    GET_EXTERNAL_TRANSFERS("""
+  GET_EXTERNAL_TRANSFERS(
+    """
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         O.FIRST_NAME,
         O.LAST_NAME,
@@ -280,7 +296,8 @@ enum class ScheduleRepositorySql(val sql: String) {
                 OIS.EVENT_CLASS = 'EXT_MOV' AND
                 OIS.AGY_LOC_ID = :agencyId AND
         OIS.EVENT_DATE = TRUNC(COALESCE(:date, OIS.EVENT_DATE))
-    """),
+    """
+  ),
 
-    AND_OFFENDER_NUMBERS(" AND O.OFFENDER_ID_DISPLAY in (:offenderNos)")
+  AND_OFFENDER_NUMBERS(" AND O.OFFENDER_ID_DISPLAY in (:offenderNos)")
 }

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class ReferenceDataRepositorySql(val sql: String) {
-    FIND_REFERENCE_DOMAIN("""
+  FIND_REFERENCE_DOMAIN(
+    """
         SELECT DOMAIN,
         DESCRIPTION,
         DOMAIN_STATUS,
@@ -10,9 +11,11 @@ enum class ReferenceDataRepositorySql(val sql: String) {
         PARENT_DOMAIN
         FROM REFERENCE_DOMAINS
         WHERE DOMAIN = :domain
-    """),
+    """
+  ),
 
-    FIND_REFERENCE_CODES_BY_DOMAIN("""
+  FIND_REFERENCE_CODES_BY_DOMAIN(
+    """
         SELECT CODE,
         DOMAIN,
         DESCRIPTION,
@@ -24,14 +27,18 @@ enum class ReferenceDataRepositorySql(val sql: String) {
         EXPIRED_DATE
         FROM REFERENCE_CODES
                 WHERE DOMAIN = :domain
-    """),
+    """
+  ),
 
-    CREATE_REFERENCE_CODE("""
+  CREATE_REFERENCE_CODE(
+    """
         INSERT INTO REFERENCE_CODES (DOMAIN, CODE, DESCRIPTION, PARENT_CODE, PARENT_DOMAIN, LIST_SEQ, ACTIVE_FLAG, SYSTEM_DATA_FLAG, EXPIRED_DATE)
         VALUES (:domain, :code, :description, :parentCode, :parentDomain, :listSeq, :activeFlag, :systemDataFlag, :expiredDate)
-    """),
+    """
+  ),
 
-    UPDATE_REFERENCE_CODE("""
+  UPDATE_REFERENCE_CODE(
+    """
         UPDATE REFERENCE_CODES
                 SET DESCRIPTION = :description,
         PARENT_CODE = :parentCode,
@@ -41,9 +48,11 @@ enum class ReferenceDataRepositorySql(val sql: String) {
         SYSTEM_DATA_FLAG = :systemDataFlag,
         EXPIRED_DATE = :expiredDate
                 WHERE DOMAIN = :domain AND CODE = :code
-    """),
+    """
+  ),
 
-    FIND_REFERENCE_CODES_BY_DOMAIN_HAVING_SUB_CODES("""
+  FIND_REFERENCE_CODES_BY_DOMAIN_HAVING_SUB_CODES(
+    """
         SELECT RC1.CODE,
         RC1.DOMAIN,
         RC1.DESCRIPTION,
@@ -56,9 +65,11 @@ enum class ReferenceDataRepositorySql(val sql: String) {
         FROM REFERENCE_CODES RC1
         WHERE RC1.DOMAIN = :domain
         AND EXISTS (SELECT 1 FROM REFERENCE_CODES RC2 WHERE RC2.PARENT_DOMAIN = RC1.DOMAIN AND RC2.PARENT_CODE = RC1.CODE)
-    """),
+    """
+  ),
 
-    FIND_REFERENCE_CODES_BY_PARENT_DOMAIN_AND_CODE("""
+  FIND_REFERENCE_CODES_BY_PARENT_DOMAIN_AND_CODE(
+    """
         SELECT CODE,
         DOMAIN,
         DESCRIPTION,
@@ -71,9 +82,11 @@ enum class ReferenceDataRepositorySql(val sql: String) {
         FROM REFERENCE_CODES
                 WHERE PARENT_DOMAIN = :parentDomain
         AND PARENT_CODE IN (:parentCodes)
-    """),
+    """
+  ),
 
-    FIND_REFERENCE_CODES_BY_DOMAIN_AND_CODE_WITH_CHILDREN("""
+  FIND_REFERENCE_CODES_BY_DOMAIN_AND_CODE_WITH_CHILDREN(
+    """
         SELECT RC.CODE,
         RC.DOMAIN,
         RC.DESCRIPTION,
@@ -95,9 +108,11 @@ enum class ReferenceDataRepositorySql(val sql: String) {
                 INNER JOIN REFERENCE_DOMAINS RD ON RCSUB.DOMAIN = RD.DOMAIN AND RC.DOMAIN = RD.PARENT_DOMAIN
                 WHERE RC.DOMAIN = :domain
         AND RC.CODE = :code
-    """),
+    """
+  ),
 
-    FIND_REFERENCE_CODE_BY_DOMAIN_AND_CODE("""
+  FIND_REFERENCE_CODE_BY_DOMAIN_AND_CODE(
+    """
         SELECT RC.CODE,
         RC.DOMAIN,
         RC.DESCRIPTION,
@@ -111,12 +126,15 @@ enum class ReferenceDataRepositorySql(val sql: String) {
         INNER JOIN REFERENCE_DOMAINS RD ON RC.DOMAIN = RD.DOMAIN
                 WHERE RC.DOMAIN = :domain
         AND RC.CODE = :code
-    """),
+    """
+  ),
 
-    GET_AVAILABLE_EVENT_SUBTYPES("""
+  GET_AVAILABLE_EVENT_SUBTYPES(
+    """
         --- For INSERT_APPOINTMENT
                 SELECT internal_schedule_rsn_code AS code,
         description AS description
         FROM internal_schedule_reasons WHERE internal_schedule_type = :eventType AND active_flag = 'Y'
-    """)
+    """
+  )
 }

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.sql
 
 enum class OffenderCurfewRepositorySql(val sql: String) {
-    OFFENDER_CURFEWS("""
+  OFFENDER_CURFEWS(
+    """
         SELECT oc.offender_book_id,
         oc.offender_curfew_id,
         oc.assessment_date,
@@ -12,35 +13,45 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
         WHERE     OB.active_flag = 'Y'
         AND OB.booking_seq = 1
         AND OB.agy_loc_id IN (:agencyLocationIds)
-    """),
+    """
+  ),
 
-    UPDATE_CURFEW_CHECKS_PASSED("""
+  UPDATE_CURFEW_CHECKS_PASSED(
+    """
         UPDATE OFFENDER_CURFEWS
                 SET ASSESSMENT_DATE = :date,
         PASSED_FLAG = :checksPassed
                 WHERE OFFENDER_CURFEW_ID = :curfewId
-    """),
+    """
+  ),
 
-    UPDATE_CURFEW_CHECKS_PASSED_DATE("""
+  UPDATE_CURFEW_CHECKS_PASSED_DATE(
+    """
         UPDATE OFFENDER_CURFEWS
                 SET ASSESSMENT_DATE = :date
         WHERE OFFENDER_CURFEW_ID = :curfewId
-    """),
+    """
+  ),
 
-    UPDATE_APPROVAL_STATUS("""
+  UPDATE_APPROVAL_STATUS(
+    """
         UPDATE OFFENDER_CURFEWS
                 SET DECISION_DATE = :date,
         APPROVAL_STATUS = :approvalStatus
                 WHERE OFFENDER_CURFEW_ID = :curfewId
-    """),
+    """
+  ),
 
-    UPDATE_APPROVAL_STATUS_DATE("""
+  UPDATE_APPROVAL_STATUS_DATE(
+    """
         UPDATE OFFENDER_CURFEWS
                 SET DECISION_DATE = :date
         WHERE OFFENDER_CURFEW_ID = :curfewId
-    """),
+    """
+  ),
 
-    CREATE_HDC_STATUS_TRACKING("""
+  CREATE_HDC_STATUS_TRACKING(
+    """
         INSERT INTO HDC_STATUS_TRACKINGS (
                 HDC_STATUS_TRACKING_ID,
                 OFFENDER_CURFEW_ID,
@@ -53,9 +64,11 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                 :statusCode,
                 sysdate
         )
-    """),
+    """
+  ),
 
-    CREATE_HDC_STATUS_REASON("""
+  CREATE_HDC_STATUS_REASON(
+    """
         INSERT INTO HDC_STATUS_REASONS (
                 HDC_STATUS_REASON_ID,
                 HDC_STATUS_TRACKING_ID,
@@ -66,9 +79,11 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                 :hdcStatusTrackingId,
                 :statusReasonCode
         )
-    """),
+    """
+  ),
 
-    LATEST_HOME_DETENTION_CURFEW("""
+  LATEST_HOME_DETENTION_CURFEW(
+    """
         SELECT *
                 FROM (
                         SELECT OC.OFFENDER_CURFEW_ID  AS ID,
@@ -86,9 +101,11 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                         HST.HDC_STATUS_TRACKING_ID DESC,
                         HSR.HDC_STATUS_REASON_ID DESC
                 ) WHERE ROWNUM = 1
-    """),
+    """
+  ),
 
-    UPDATE_HDC_STATUS_REASON("""
+  UPDATE_HDC_STATUS_REASON(
+    """
         UPDATE HDC_STATUS_REASONS
                 SET STATUS_REASON_CODE = :hdcStatusReason
         WHERE HDC_STATUS_TRACKING_ID = (
@@ -97,23 +114,29 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                         WHERE OFFENDER_CURFEW_ID = :offenderCurfewId AND
                 STATUS_CODE = :hdcStatusTrackingCode
         )
-    """),
+    """
+  ),
 
-    FIND_HDC_STATUS_TRACKING("""
+  FIND_HDC_STATUS_TRACKING(
+    """
         SELECT HDC_STATUS_TRACKING_ID
                 FROM HDC_STATUS_TRACKINGS
                 WHERE OFFENDER_CURFEW_ID = :curfewId AND
         STATUS_CODE = :statusCode
-    """),
+    """
+  ),
 
-    DELETE_HDC_STATUS_TRACKINGS("""
+  DELETE_HDC_STATUS_TRACKINGS(
+    """
         DELETE
         FROM HDC_STATUS_TRACKINGS
                 WHERE OFFENDER_CURFEW_ID = :curfewId AND
         STATUS_CODE IN (:codes)
-    """),
+    """
+  ),
 
-    DELETE_HDC_STATUS_REASONS("""
+  DELETE_HDC_STATUS_REASONS(
+    """
         DELETE
         FROM HDC_STATUS_REASONS
                 WHERE HDC_STATUS_TRACKING_ID IN (
@@ -122,14 +145,17 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                         where OFFENDER_CURFEW_ID = :curfewId AND
                 STATUS_CODE IN (:codes)
         )
-    """),
+    """
+  ),
 
-    RESET_OFFENDER_CURFEW("""
+  RESET_OFFENDER_CURFEW(
+    """
         UPDATE OFFENDER_CURFEWS
                 SET PASSED_FLAG = NULL,
         APPROVAL_STATUS = NULL,
         DECISION_DATE = NULL,
         ASSESSMENT_DATE = NULL
         WHERE OFFENDER_CURFEW_ID = :curfewId
-    """)
+    """
+  )
 }
