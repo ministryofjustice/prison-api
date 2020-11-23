@@ -128,7 +128,7 @@ public class ScheduleResource {
     @ApiOperation(value = "", nickname = "getActivitiesByEventIds")
     @PostMapping("/{agencyId}/activities-by-event-ids")
     public List<PrisonerSchedule> getActivitiesByEventIds(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId, @NotEmpty @RequestBody @ApiParam(value = "Event ids(mandatory)", required = true) final List<Long> eventIds) {
-        return schedulesService.getActivitiesByEventIds(eventIds);
+        return schedulesService.getActivitiesByEventIds(agencyId, eventIds);
     }
 
     @ApiOperation(value = "", nickname = "getCourtEvents")

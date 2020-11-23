@@ -297,7 +297,7 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCannotRetrieveIncidentCandidatesWithGlobalSearch() {
+    public void testCannotRetrieveIncidentCandidatesWithViewPrisonerDataRole() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
