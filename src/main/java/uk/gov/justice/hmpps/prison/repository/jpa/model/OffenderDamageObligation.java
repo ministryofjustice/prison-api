@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @Data
 @Builder
@@ -23,10 +24,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "OFFENDER_DAMAGE_OBLIGATIONS")
 public class OffenderDamageObligation extends AuditableEntity  {
-
-    public enum Status {
-        ACTIVE
-    }
 
     @Id
     @Column(name = "OFFENDER_DMG_OBLIGATION_ID", nullable = false, insertable = false, updatable = false)
@@ -60,6 +57,24 @@ public class OffenderDamageObligation extends AuditableEntity  {
 
     @Column(name = "COMMENT_TEXT", length = 4000)
     private String comment;
+
+    public enum Status {
+        ACTIVE("ACTIVE"), PAID("PAID"), INACT("INACT"),
+        ONH("ONH"), APPEAL("APPEAL"), ALL("");
+        private String code;
+        Status(String code) {
+            this.code = code;
+        }
+        public String code() {
+            return code;
+        }
+        public static Status forCode(String code) {
+            return Arrays.stream(Status.values())
+                .filter(c -> c.equals(code.toLowerCase()))
+                .findFirst()
+                .orElse(ALL);
+        }
+    }
 }
 
 

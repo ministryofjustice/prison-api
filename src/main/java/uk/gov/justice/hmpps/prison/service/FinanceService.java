@@ -62,7 +62,7 @@ public class FinanceService {
             .orElseThrow(new EntityNotFoundException("Booking not found for id: " + bookingId));
 
         final var damageObligationBalance =
-            offenderDamageObligationService.getDamageObligations(offenderSummary.getOffenderNo(), ACTIVE.name())
+            offenderDamageObligationService.getDamageObligations(offenderSummary.getOffenderNo(), ACTIVE)
                 .stream()
                 .map(OffenderDamageObligationModel::getAmountToPay)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

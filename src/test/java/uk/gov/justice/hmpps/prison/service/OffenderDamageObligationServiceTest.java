@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +43,7 @@ public class OffenderDamageObligationServiceTest {
 
     @Test
     public void callRepositoryWithOffenderNoAndStatus() {
-        service.getDamageObligations("A1234", "ACTIVE");
+        service.getDamageObligations("A1234", ACTIVE);
 
         verify(repository).findOffenderDamageObligationByOffender_NomsIdAndStatus("A1234", "ACTIVE");
     }
@@ -67,7 +67,7 @@ public class OffenderDamageObligationServiceTest {
         ));
 
         final var outstandingDamageBalance =
-                service.getDamageObligations("A1234", "ACTIVE")
+                service.getDamageObligations("A1234", ACTIVE)
                         .stream().findFirst().orElseThrow();
 
         assertThat(outstandingDamageBalance.getId()).isEqualTo(1L);
@@ -87,7 +87,7 @@ public class OffenderDamageObligationServiceTest {
         when(repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(any(), any())).thenReturn(List.of(
                 OffenderDamageObligation.builder().offender(Offender.builder().build()).build()
         ));
-        service.getDamageObligations("A1234", "ACTIVE")
+        service.getDamageObligations("A1234", ACTIVE)
                 .stream().findFirst().orElseThrow();
 
     }

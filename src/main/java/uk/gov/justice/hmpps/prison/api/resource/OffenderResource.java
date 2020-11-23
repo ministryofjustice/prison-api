@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
@@ -334,7 +335,7 @@ public class OffenderResource {
     @ApiOperation("Return a list of damage obligations")
     @GetMapping("/{offenderNo}/damage-obligations")
     public OffenderDamageObligationResponse getOffenderDamageObligations(@NotNull @PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "status", required = false, defaultValue = "") @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE", allowableValues = "INACT,PAID,ONH,ACTIVE,APPEAL") final String status) {
-        final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, status);
+        final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, Status.forCode(status));
 
         return new OffenderDamageObligationResponse(damageObligations);
     }

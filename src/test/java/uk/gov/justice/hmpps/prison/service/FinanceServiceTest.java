@@ -288,7 +288,7 @@ class FinanceServiceTest {
 
         when(bookingRepository.getLatestBookingByBookingId(bookingId))
             .thenReturn(Optional.of(offenderSummary));
-        when(offenderDamageObligationService.getDamageObligations(offenderNo, ACTIVE.name()))
+        when(offenderDamageObligationService.getDamageObligations(offenderNo, ACTIVE))
             .thenReturn(List.of(offenderDamageObligationModel));
         when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
 
@@ -298,7 +298,7 @@ class FinanceServiceTest {
         assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(10)));
 
         verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
-        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE.name());
+        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE);
         verify(financeRepository, times(1)).getBalances(bookingId, agency);
 
     }
@@ -329,7 +329,7 @@ class FinanceServiceTest {
 
         when(bookingRepository.getLatestBookingByBookingId(bookingId))
             .thenReturn(Optional.of(offenderSummary));
-        when(offenderDamageObligationService.getDamageObligations(offenderNo,  ACTIVE.name()))
+        when(offenderDamageObligationService.getDamageObligations(offenderNo,  ACTIVE))
             .thenReturn(List.of(offenderDamageObligationModel1, offenderDamageObligationModel2));
         when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
 
@@ -339,7 +339,7 @@ class FinanceServiceTest {
         assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(15)));
 
         verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
-        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE.name());
+        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE);
         verify(financeRepository, times(1)).getBalances(bookingId, agency);
     }
 
