@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,15 +66,13 @@ public class FinanceService {
             .map(Account::toBuilder)
             .map(builder -> builder.damageObligations(toMoneyScale(damageObligationBalance)))
             .map(AccountBuilder::build)
-            .orElse(zeroBalances());
+            .orElse(defaultBalances());
     }
 
-    private Account zeroBalances() {
+    private Account defaultBalances() {
+        val zero = toMoney("0");
         return Account.builder()
-            .spends(toMoney("0.00"))
-            .cash(toMoney("0.00"))
-            .savings(toMoney("0.00"))
-            .damageObligations(toMoney("0.00"))
+            .spends(zero).cash(zero).savings(zero).damageObligations(zero)
             .currency("£").build();
     }
 
