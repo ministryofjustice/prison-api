@@ -981,7 +981,7 @@ public class BookingService {
     }
 
     private boolean isViewAllOffenders() {
-        return securityUtils.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA");
+        return securityUtils.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION");
     }
 
     private boolean isRestrictedByCaseload() {
