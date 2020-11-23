@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    include: connection-proxy
 
   flyway:
     enabled: false

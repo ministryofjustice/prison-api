@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    include: nomis-local,ai
 
   jpa:
     properties:
