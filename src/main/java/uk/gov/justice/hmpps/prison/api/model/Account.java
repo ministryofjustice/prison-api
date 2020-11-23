@@ -22,7 +22,7 @@ import static uk.gov.justice.hmpps.prison.util.MoneySupport.MoneyDeserializer;
  **/
 @ApiModel(description = "Prisoner Account Balance")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode

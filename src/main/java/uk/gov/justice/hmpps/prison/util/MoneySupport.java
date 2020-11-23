@@ -27,6 +27,10 @@ public class MoneySupport {
         return amount.setScale(2, RoundingMode.HALF_UP);
     }
 
+    public static BigDecimal toMoney(final String amount) {
+        return toMoneyScale(new BigDecimal(amount));
+    }
+
     public static class MoneyDeserializer extends JsonDeserializer<BigDecimal> {
         private NumberDeserializers.BigDecimalDeserializer delegate = NumberDeserializers.BigDecimalDeserializer.instance;
         @Override
