@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository;
 
 import java.math.BigDecimal;
@@ -89,6 +90,20 @@ public class OffenderDamageObligationServiceTest {
         ));
         service.getDamageObligations("A1234", ACTIVE)
                 .stream().findFirst().orElseThrow();
+
+    }
+
+    @Test
+    public void verifyOffenderDamageObligationStatus() {
+        assertThat(OffenderDamageObligation.Status.forCode(null)).isEqualTo(Status.ALL);
+        assertThat(OffenderDamageObligation.Status.forCode("")).isEqualTo(Status.ALL);
+        assertThat(OffenderDamageObligation.Status.forCode(" ")).isEqualTo(Status.ALL);
+        assertThat(OffenderDamageObligation.Status.forCode("badstatus")).isEqualTo(Status.ALL);
+        assertThat(OffenderDamageObligation.Status.forCode("ACTIVE")).isEqualTo(Status.ACTIVE);
+        assertThat(OffenderDamageObligation.Status.forCode("PAID")).isEqualTo(Status.PAID);
+        assertThat(OffenderDamageObligation.Status.forCode("APPEAL")).isEqualTo(Status.APPEAL);
+        assertThat(OffenderDamageObligation.Status.forCode("INACT")).isEqualTo(Status.INACT);
+        assertThat(OffenderDamageObligation.Status.forCode("ONH")).isEqualTo(Status.ONH);
 
     }
 }

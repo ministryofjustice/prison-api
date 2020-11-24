@@ -70,7 +70,7 @@ public class OffenderDamageObligation extends AuditableEntity  {
         }
         public static Status forCode(String code) {
             return Arrays.stream(Status.values())
-                .filter(c -> c.equals(code.toLowerCase()))
+                .filter(status -> code != null && status.code.equals(code.toUpperCase()))
                 .findFirst()
                 .orElse(ALL);
         }

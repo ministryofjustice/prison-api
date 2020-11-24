@@ -34,7 +34,7 @@ public class MoneySupport {
     public static class MoneyDeserializer extends JsonDeserializer<BigDecimal> {
         private NumberDeserializers.BigDecimalDeserializer delegate = NumberDeserializers.BigDecimalDeserializer.instance;
         @Override
-        public BigDecimal deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        public BigDecimal deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
             return toMoneyScale(delegate.deserialize(parser, context));
         }
     }

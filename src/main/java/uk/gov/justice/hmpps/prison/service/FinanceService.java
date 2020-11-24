@@ -75,7 +75,7 @@ public class FinanceService {
     }
 
     private Account defaultBalances() {
-        val zero = toMoney("0.00");
+        final var zero = toMoney("0.00");
         return Account.builder()
             .spends(zero).cash(zero).savings(zero).damageObligations(zero)
             .currency(currency.getCode()).build();
