@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository;
-import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
@@ -122,5 +121,21 @@ public class OffenderMovementsResourceImplIntTest_offenderDamageObligations exte
 
         verify(offenderDamageObligationRepository, times(1)).findOffenderDamageObligationByOffender_NomsId("A12345");
         verify(offenderDamageObligationRepository, times(0)).findOffenderDamageObligationByOffender_NomsIdAndStatus(anyString(), anyString());
+    }
+
+    @Test
+    public void when_StatusIsACTIVE_Then_DoNotDefaultToALL() {
+        stubVerifyOffenderAccess("A12345");
+
+        final var request = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{offenderNo}/damage-obligations?status=ACTIVE",
+            HttpMethod.GET,
+            request,
+            new ParameterizedTypeReference<String>() {
+            }, "A12345");
+
+        verify(offenderDamageObligationRepository, times(0)).findOffenderDamageObligationByOffender_NomsId("A12345");
+        verify(offenderDamageObligationRepository, times(1)).findOffenderDamageObligationByOffender_NomsIdAndStatus("A12345", "ACTIVE");
     }
 }
