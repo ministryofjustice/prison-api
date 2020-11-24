@@ -39,6 +39,7 @@ import uk.gov.justice.hmpps.prison.service.LocationService;
 import uk.gov.justice.hmpps.prison.service.StaffService;
 import uk.gov.justice.hmpps.prison.service.UserService;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Set;
 
@@ -170,6 +171,19 @@ public class UserResource {
     }
 
     @ApiResponses({
+            @ApiResponse(code = 200, message = "Roles have been added or user already had the role(s)"),
+            @ApiResponse(code = 404, message = "The role(s) is not recognised or user cannot access caseload"),
+            @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles"),
+    })
+    @ApiOperation(value = "Add the given access roles to the user.", nickname = "addAccessRoles")
+    @PostMapping("/{username}/access-role")
+    @ProxyUser
+    public void addAccessRoles(@PathVariable @ApiParam(value = "The username of the user.", required = true) final String username,
+                               @RequestBody @NotEmpty final List<String> roles) {
+        roles.forEach(r -> userService.addAccessRole(username, r));
+    }
+
+    @ApiResponses({
             @ApiResponse(code = 200, message = "User already has role"),
             @ApiResponse(code = 201, message = "Role has been successfully added to user"),
             @ApiResponse(code = 404, message = "The role is not recognised or user cannot access caseload"),
@@ -211,7 +225,7 @@ public class UserResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", notes = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", nickname = "getMyCaseNoteTypes")
     @GetMapping("/me/caseNoteTypes")
-    public List<ReferenceCode>  getMyCaseNoteTypes(@RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>code, activeFlag, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
+    public List<ReferenceCode> getMyCaseNoteTypes(@RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>code, activeFlag, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
         final var currentCaseLoad =
                 caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
 
@@ -253,10 +267,10 @@ public class UserResource {
             userService.setActiveCaseLoad(authenticationFacade.getCurrentUsername(), caseLoad.getCaseLoadId());
         } catch (final AccessDeniedException ex) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ErrorResponse.builder()
-                    .userMessage("Not Authorized")
-                    .developerMessage("The current user does not have acess to this CaseLoad")
-                    .build());
+                    .body(ErrorResponse.builder()
+                            .userMessage("Not Authorized")
+                            .developerMessage("The current user does not have acess to this CaseLoad")
+                            .build());
         }
         return ResponseEntity.ok().build();
     }
@@ -290,7 +304,7 @@ public class UserResource {
     @PostMapping("/list")
     public List<UserDetail> getUserDetailsList(@RequestBody @ApiParam(value = "The required usernames (mandatory)", required = true) final Set<String> usernames) {
         return userService.getUserListByUsernames(usernames);
-   }
+    }
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = AccessRole.class, responseContainer = "List"),
@@ -315,6 +329,7 @@ public class UserResource {
         if (caseloadUpdate.getNumUsersEnabled() > 0) {
             return ResponseEntity.status(HttpStatus.CREATED).body(caseloadUpdate);
         }
-        return ResponseEntity.ok().body(caseloadUpdate);    }
+        return ResponseEntity.ok().body(caseloadUpdate);
+    }
 
 }
