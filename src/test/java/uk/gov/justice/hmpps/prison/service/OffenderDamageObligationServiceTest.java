@@ -92,18 +92,4 @@ public class OffenderDamageObligationServiceTest {
                 .stream().findFirst().orElseThrow();
 
     }
-
-    @Test
-    public void verifyOffenderDamageObligationStatus() {
-        assertThat(OffenderDamageObligation.Status.forCode(null)).isEqualTo(Status.ALL);
-        assertThat(OffenderDamageObligation.Status.forCode("")).isEqualTo(Status.ALL);
-        assertThat(OffenderDamageObligation.Status.forCode(" ")).isEqualTo(Status.ALL);
-        assertThat(OffenderDamageObligation.Status.forCode("badstatus")).isEqualTo(Status.ALL);
-        assertThat(OffenderDamageObligation.Status.forCode("ACTIVE")).isEqualTo(Status.ACTIVE);
-        assertThat(OffenderDamageObligation.Status.forCode("PAID")).isEqualTo(Status.PAID);
-        assertThat(OffenderDamageObligation.Status.forCode("APPEAL")).isEqualTo(Status.APPEAL);
-        assertThat(OffenderDamageObligation.Status.forCode("INACT")).isEqualTo(Status.INACT);
-        assertThat(OffenderDamageObligation.Status.forCode("ONH")).isEqualTo(Status.ONH);
-
-    }
 }

@@ -61,18 +61,12 @@ public class OffenderDamageObligation extends AuditableEntity  {
     public enum Status {
         ACTIVE("ACTIVE"), PAID("PAID"), INACT("INACT"),
         ONH("ONH"), APPEAL("APPEAL"), ALL("");
-        private String code;
+        private final String code;
         Status(String code) {
             this.code = code;
         }
         public String code() {
             return code;
-        }
-        public static Status forCode(String code) {
-            return Arrays.stream(Status.values())
-                .filter(status -> code != null && status.code.equals(code.toUpperCase()))
-                .findFirst()
-                .orElse(ALL);
         }
     }
 }
