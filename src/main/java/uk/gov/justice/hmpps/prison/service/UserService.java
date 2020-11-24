@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
+import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.Validate;
@@ -23,6 +24,7 @@ import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,15 +51,17 @@ public class UserService {
     private final AuthenticationFacade securityUtils;
     private final String apiCaseloadId;
     private final int maxBatchSize;
+    private final TelemetryClient telemetryClient;
 
     public UserService(final CaseLoadService caseLoadService, final StaffService staffService,
-                           final UserRepository userRepository, final AuthenticationFacade securityUtils, @Value("${application.caseload.id:NWEB}") final String apiCaseloadId, @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                       final UserRepository userRepository, final AuthenticationFacade securityUtils, @Value("${application.caseload.id:NWEB}") final String apiCaseloadId, @Value("${batch.max.size:1000}") final int maxBatchSize, final TelemetryClient telemetryClient) {
         this.caseLoadService = caseLoadService;
         this.staffService = staffService;
         this.userRepository = userRepository;
         this.securityUtils = securityUtils;
         this.apiCaseloadId = apiCaseloadId;
         this.maxBatchSize = maxBatchSize;
+        this.telemetryClient = telemetryClient;
     }
 
     public UserDetail getUserByUsername(final String username) {
@@ -157,8 +161,13 @@ public class UserService {
         if (!userRepository.isRoleAssigned(username, caseload, role.getRoleId())) {
             throw EntityNotFoundException.withMessage("Role [%s] not assigned to user [%s] at caseload [%s]", roleCode, username, caseload);
         }
-        userRepository.removeRole(username, caseload, role.getRoleId()); // Don't care if it doesn't exist...
-        log.info("Removed role '{}' from username '{}' at caseload '{}'", roleCode, username, caseload);
+        if (userRepository.removeRole(username, caseload, role.getRoleId()) > 0) {
+            telemetryClient.trackEvent(
+                    "PrisonUserRoleRemoveSuccess",
+                    Map.of("username", username, "role", roleCode, "admin", securityUtils.getCurrentUsername()),
+                    null);
+            log.info("Removed role '{}' from username '{}' at caseload '{}'", roleCode, username, caseload);
+        }
     }
 
     private void verifyMaintainRolesAdminAccess(final AccessRole role) {
@@ -214,6 +223,10 @@ public class UserService {
 
         userRepository.addRole(username, caseloadId, role.getRoleId());
         log.info("Assigned role '{}' to username '{}' at caseload '{}'", roleCode, username, caseloadId);
+        telemetryClient.trackEvent(
+                "PrisonUserRoleAddSuccess",
+                Map.of("username", username, "role", roleCode, "admin", securityUtils.getCurrentUsername()),
+                null);
         return true;
     }
 
@@ -223,7 +236,7 @@ public class UserService {
     public CaseloadUpdate addDefaultCaseloadForPrison(final String caseloadId) {
         final var users = userRepository.findAllUsersWithCaseload(caseloadId, apiCaseloadId);
 
-        log.debug("Found {} users with caseload {} that do not have {} caseload", users.size(), caseloadId);
+        log.debug("Found {} users with caseload {} that do not have {} caseload", users.size(), caseloadId, apiCaseloadId);
         final List<UserDetail> caseloadsAdded = new ArrayList<>();
         users.forEach(user -> {
             final var username = user.getUsername();
@@ -275,7 +288,7 @@ public class UserService {
         Validate.notBlank(caseload, "A caseload id is required.");
         Validate.notBlank(username, "A username is required.");
 
-        if (!caseLoadService.getCaseLoad(caseload).isPresent()) {
+        if (caseLoadService.getCaseLoad(caseload).isEmpty()) {
             throw EntityNotFoundException.withMessage("Caseload with id [%s] not found", caseload);
         }
 

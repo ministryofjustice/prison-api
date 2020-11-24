@@ -16,8 +16,9 @@ import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,8 +26,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -48,8 +49,6 @@ public class GlobalSearchServiceImplTest {
 
     @BeforeEach
     void init() {
-        initMocks(inmateRepository);
-        initMocks(prisonerRepository);
         service = new GlobalSearchService(inmateRepository, prisonerRepository);
     }
 
@@ -71,7 +70,7 @@ public class GlobalSearchServiceImplTest {
 
         service.findOffenders(criteria, pageRequest);
 
-        verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        verify(inmateRepository).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
     }
 
     @Test
@@ -92,7 +91,7 @@ public class GlobalSearchServiceImplTest {
 
         assertThat(response.getItems()).isNotEmpty();
 
-        verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        verify(inmateRepository).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
         verify(prisonerRepository, Mockito.never()).findOffenders(any(PrisonerDetailSearchCriteria.class), any(PageRequest.class));
     }
 
@@ -116,8 +115,8 @@ public class GlobalSearchServiceImplTest {
 
         assertThat(response.getItems()).isNotEmpty();
 
-        verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
-        verify(prisonerRepository, Mockito.times(1)).findOffenders(eq(pncNumberCriteria), any(PageRequest.class));
+        verify(inmateRepository).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        verify(prisonerRepository).findOffenders(eq(pncNumberCriteria), any(PageRequest.class));
     }
 
     @Test
@@ -135,8 +134,8 @@ public class GlobalSearchServiceImplTest {
 
         assertThat(response.getItems()).isNotEmpty();
 
-        Mockito.verifyZeroInteractions(inmateRepository);
-        verify(prisonerRepository, Mockito.times(1)).findOffenders(eq(pncNumberCriteria), any(PageRequest.class));
+        verifyNoInteractions(inmateRepository);
+        verify(prisonerRepository).findOffenders(eq(pncNumberCriteria), any(PageRequest.class));
     }
 
     @Test
@@ -162,9 +161,9 @@ public class GlobalSearchServiceImplTest {
 
         assertThat(response.getItems()).isNotEmpty();
 
-        verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
-        verify(prisonerRepository, Mockito.times(1)).findOffenders(eq(pncNumberCriteria), any(PageRequest.class));
-        verify(prisonerRepository, Mockito.times(1)).findOffenders(eq(croNumberCriteria), any(PageRequest.class));
+        verify(inmateRepository).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        verify(prisonerRepository).findOffenders(eq(pncNumberCriteria), any(PageRequest.class));
+        verify(prisonerRepository).findOffenders(eq(croNumberCriteria), any(PageRequest.class));
     }
 
     @Test
@@ -183,8 +182,8 @@ public class GlobalSearchServiceImplTest {
 
         assertThat(response.getItems()).isNotEmpty();
 
-        Mockito.verifyZeroInteractions(inmateRepository);
-        verify(prisonerRepository, Mockito.times(1)).findOffenders(eq(croNumberCriteria), any(PageRequest.class));
+        verifyNoInteractions(inmateRepository);
+        verify(prisonerRepository).findOffenders(eq(croNumberCriteria), any(PageRequest.class));
     }
 
     @Test
@@ -211,8 +210,8 @@ public class GlobalSearchServiceImplTest {
 
         assertThat(response.getItems()).isNotEmpty();
 
-        verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
-        verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class));
+        verify(inmateRepository).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        verify(inmateRepository).findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class));
     }
 
     @Test
@@ -229,7 +228,7 @@ public class GlobalSearchServiceImplTest {
 
         assertThat(response.getItems()).isNotEmpty();
 
-        verify(inmateRepository, Mockito.times(1)).findOffendersWithAliases(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        verify(inmateRepository).findOffendersWithAliases(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
     }
 
     @Test
@@ -279,9 +278,9 @@ public class GlobalSearchServiceImplTest {
 
         assertThat(response.getItems()).isNotEmpty();
 
-        verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
-        verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class));
-        verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_DOB_RANGE_QUERY), any(PageRequest.class));
+        verify(inmateRepository).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        verify(inmateRepository).findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class));
+        verify(inmateRepository).findOffenders(eq(TEST_DOB_RANGE_QUERY), any(PageRequest.class));
     }
 
     @Test
@@ -307,7 +306,7 @@ public class GlobalSearchServiceImplTest {
     @Test
     public void getOffenderNumbers() {
 
-        var pageRequest = new PageRequest(0L, 1L);
+        final var pageRequest = new PageRequest(0L, 1L);
 
         when(prisonerRepository.listAllOffenders(pageRequest))
                 .thenReturn(new Page<>(List.of(new OffenderNumber("offender1")), 1L, pageRequest));
@@ -317,11 +316,9 @@ public class GlobalSearchServiceImplTest {
     }
 
     private Page<PrisonerDetail> pageResponse(final int prisonerCount) {
-        final List<PrisonerDetail> prisoners = new ArrayList<>();
-
-        for (var i = 1; i <= prisonerCount; i++) {
-            prisoners.add(PrisonerDetail.builder().offenderNo(String.format("A%4dAA", i)).latestLocation("WAKEFIELD (HMP)").build());
-        }
+        final var prisoners = IntStream.range(1, prisonerCount + 1)
+                .mapToObj(i -> PrisonerDetail.builder().offenderNo(String.format("A%4dAA", i)).latestLocation("WAKEFIELD (HMP)").build())
+                .collect(Collectors.toList());
 
         return new Page<>(prisoners, prisonerCount, 0, 10);
     }
