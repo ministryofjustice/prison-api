@@ -140,7 +140,7 @@ public class OffenderMovementsResourceImplIntTest_offenderDamageObligations exte
     }
 
     @Test
-    public void when_StatusIsBadValue_Then_DoNotDefaultToALL() {
+    public void when_StatusIsBadValue_Then_DefaultToALL() {
         stubVerifyOffenderAccess("A12345");
 
         final var request = createHttpEntity(token, null);
