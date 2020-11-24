@@ -93,17 +93,17 @@ public class AccessRoleMaintenanceIntTest {
         final var roles = staffService.getStaffRoles(-5L);
         assertThat(roles).containsExactly(
                 StaffUserRole.builder()
-                        .roleId(-304L)
-                        .roleCode("GLOBAL_SEARCH")
-                        .roleName("Global search")
+                        .roleId(-101L)
+                        .roleCode("LICENCE_RO")
+                        .roleName("Responsible Officer")
                         .caseloadId("NWEB")
                         .username("RO_USER")
                         .staffId(-5L)
                         .build(),
                 StaffUserRole.builder()
-                        .roleId(-101L)
-                        .roleCode("LICENCE_RO")
-                        .roleName("Responsible Officer")
+                        .roleId(-316L)
+                        .roleCode("VIEW_PRISONER_DATA")
+                        .roleName("View Prisoner Data")
                         .caseloadId("NWEB")
                         .username("RO_USER")
                         .staffId(-5L)

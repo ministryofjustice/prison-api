@@ -90,7 +90,7 @@ public class MovementsService {
                         .build());
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','SYSTEM_READ_ONLY','GLOBAL_SEARCH')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
         final var movements = Lists.partition(offenderNumbers, maxBatchSize)
                 .stream()

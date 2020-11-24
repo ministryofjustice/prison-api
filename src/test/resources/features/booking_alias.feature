@@ -26,6 +26,6 @@ Feature: Booking Aliases
     Then resource not found response is received from offender aliases API
 
   Scenario: Aliases are requested for booking that is not part of any of logged on staff user's caseloads but has global search
-    Given a user has a token name of "GLOBAL_SEARCH"
+    Given a user has a token name of "VIEW_PRISONER_DATA"
     When aliases are requested for an offender booking "-39"
     Then alias first names match "CHESNEY"

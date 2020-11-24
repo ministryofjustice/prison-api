@@ -33,11 +33,12 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.Optional;
 
-import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
 import static uk.gov.justice.hmpps.prison.values.AccountCode.SAVINGS;
+import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoney;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE;
+
 
 @Service
 @Transactional(readOnly = true)
@@ -55,7 +56,7 @@ public class FinanceService {
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final Currency currency;
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Account getBalances(final Long bookingId) {
 
         final var offenderSummary = bookingRepository.getLatestBookingByBookingId(bookingId)

@@ -11,8 +11,19 @@ spring:
   application:
     name: prison-api
 
-  config:
-    use-legacy-processing: true
+  profiles:
+    group:
+      nomis-hsqldb-localstack:
+        - "dev"
+      nomis-local:
+        - "connection-proxy"
+      nomis:
+        - "nomis-local"
+        - "ai"
+      nomis-hsqldb:
+        - "dev"
+      test:
+        - "nomis-hsqldb"
 
   jpa:
     open-in-view: false

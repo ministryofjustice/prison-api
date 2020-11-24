@@ -41,7 +41,7 @@ public class ContactService {
         this.referenceDomainService = referenceDomainService;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public ContactDetail getContacts(final Long bookingId) {
         final var contacts = repository.getOffenderRelationships(bookingId, null);
 
@@ -60,7 +60,7 @@ public class ContactService {
                         .collect(toList())).build();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<Contact> getRelationships(final Long bookingId, final String relationshipType, final boolean activeOnly) {
         return repository.getOffenderRelationships(bookingId, relationshipType)
                 .stream()

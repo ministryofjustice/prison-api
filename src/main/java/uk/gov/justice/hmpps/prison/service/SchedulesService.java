@@ -237,6 +237,7 @@ public class SchedulesService {
     }
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<PrisonerSchedule> getActivitiesByEventIds(final String agencyId, final List<Long> eventIds) {
+        Validate.notBlank(agencyId, "An agency id is required.");
         return Lists.partition(eventIds, maxBatchSize)
                 .stream()
                 .flatMap(ids -> scheduledActivityRepository.findAllByEventIdIn(ids).stream())
