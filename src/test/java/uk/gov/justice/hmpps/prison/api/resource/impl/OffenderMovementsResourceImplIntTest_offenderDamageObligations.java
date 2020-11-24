@@ -138,4 +138,20 @@ public class OffenderMovementsResourceImplIntTest_offenderDamageObligations exte
         verify(offenderDamageObligationRepository, times(0)).findOffenderDamageObligationByOffender_NomsId("A12345");
         verify(offenderDamageObligationRepository, times(1)).findOffenderDamageObligationByOffender_NomsIdAndStatus("A12345", "ACTIVE");
     }
+
+    @Test
+    public void when_StatusIsBadValue_Then_DoNotDefaultToALL() {
+        stubVerifyOffenderAccess("A12345");
+
+        final var request = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{offenderNo}/damage-obligations?status=BADSTATUS",
+            HttpMethod.GET,
+            request,
+            new ParameterizedTypeReference<String>() {
+            }, "A12345");
+
+        verify(offenderDamageObligationRepository, times(1)).findOffenderDamageObligationByOffender_NomsId("A12345");
+        verify(offenderDamageObligationRepository, times(0)).findOffenderDamageObligationByOffender_NomsIdAndStatus(anyString(), anyString());
+    }
 }
