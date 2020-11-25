@@ -17,7 +17,8 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
     private final CaseNoteService caseNoteService;
 
     public CaseNoteTypeSubTypeValidator(final AuthenticationFacade authenticationFacade,
-                                        final CaseLoadService caseLoadService, final CaseNoteService caseNoteService) {
+                                        final CaseLoadService caseLoadService,
+                                        final CaseNoteService caseNoteService) {
         this.authenticationFacade = authenticationFacade;
         this.caseLoadService = caseLoadService;
         this.caseNoteService = caseNoteService;
@@ -31,38 +32,49 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
 
     @Override
     public boolean isValid(final NewCaseNote value, final ConstraintValidatorContext context) {
-        if (value == null) {
-            // skip
-            return true;
-        }
-        var valid = true;
+        if (value == null) return true;
+        if (value.getType().equals("MOVED_CELL")) return validateMoveCellSubtype(value, context);
 
         // This should be ok as it is cached:
         final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
         final var caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
         final var allTypes = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
 
-        final var type =
-                allTypes.stream().filter(x -> x.getCode().equals(value.getType())).findFirst();
+        final var parentType = allTypes.stream()
+            .filter(type -> type.getCode().equals(value.getType()))
+            .findFirst();
 
-        if (type.isEmpty()) {
-            valid = false;
-        } else {
-            final var subType =
-                    type.get().getSubCodes().stream().filter(x -> x.getCode().equals(value.getSubType())).findFirst();
+        if (parentType.isEmpty()) return triggerViolation(value, context);
 
-            valid = subType.isPresent();
+        final var subType = parentType
+            .get()
+            .getSubCodes()
+            .stream()
+            .filter(sc -> sc.getCode().equals(value.getSubType()))
+            .findFirst();
+
+        return subType.isPresent() || triggerViolation(value, context);
+    }
+
+    private Boolean validateMoveCellSubtype(final NewCaseNote value, final ConstraintValidatorContext context) {
+        try {
+            MovedCell.valueOf(value.getSubType());
+            return true;
+
+        } catch (IllegalArgumentException e) {
         }
 
-        if (!valid) {
-            context.disableDefaultConstraintViolation();
+        return triggerViolation(value, context);
+    }
 
-            final var message = "CaseNote (type,subtype)=(" + value.getType() + ',' + value.getSubType()
-                    + ") does not exist";
+    private Boolean triggerViolation(final NewCaseNote value, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-            context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
-        }
+        final var message = "CaseNote (type,subtype)=(" + value.getType() + ',' + value.getSubType()
+            + ") does not exist";
 
-        return valid;
+        context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
+
+        return false;
     }
 }
