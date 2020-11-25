@@ -1,7 +1,11 @@
 package uk.gov.justice.hmpps.prison.service.validation;
 
 /*
-    Used to create a case note when making a cell move through whereabouts.
+    Used as the cell move reason when making a cell move through whereabouts.
+    Making a cell move through whereabouts results in a case note being created using type: MOVED_CELL and subType: ADM|BEH|CLA|CON|LN|VP
+
+    These case note types don't show up in classic and can't be selected when creating case notes through the dps frontend.
+
       ADM - Administrative
       BEH - Behaviour
       CLA - Classification or re-classification
