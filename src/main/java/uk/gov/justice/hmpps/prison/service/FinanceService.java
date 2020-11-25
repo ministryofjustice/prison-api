@@ -2,10 +2,14 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.Account;
+import uk.gov.justice.hmpps.prison.api.model.Account.AccountBuilder;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransactionDetail;
 import uk.gov.justice.hmpps.prison.api.model.v1.Transaction;
@@ -21,19 +25,27 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountR
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.values.Currency;
 
 import javax.validation.ValidationException;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
+import java.util.Optional;
 
-import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
 import static uk.gov.justice.hmpps.prison.values.AccountCode.SAVINGS;
+import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoney;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE;
+
 
 @Service
 @Transactional(readOnly = true)
 @AllArgsConstructor
 @Slf4j
 public class FinanceService {
+
     private final FinanceRepository financeRepository;
     private final BookingRepository bookingRepository;
     private final OffenderBookingRepository offenderBookingRepository;
@@ -41,12 +53,33 @@ public class FinanceService {
     private final AccountCodeRepository accountCodeRepository;
     private final OffenderSubAccountRepository offenderSubAccountRepository;
     private final OffenderTrustAccountRepository offenderTrustAccountRepository;
+    private final OffenderDamageObligationService offenderDamageObligationService;
+    private final Currency currency;
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Account getBalances(final Long bookingId) {
-        return bookingRepository.getBookingAgency(bookingId)
-                .map(agency -> financeRepository.getBalances(bookingId, agency))
-                .orElse(null);
+
+        final var offenderSummary = bookingRepository.getLatestBookingByBookingId(bookingId)
+            .orElseThrow(new EntityNotFoundException("Booking not found for id: " + bookingId));
+
+        final var damageObligationBalance =
+            offenderDamageObligationService.getDamageObligations(offenderSummary.getOffenderNo(), ACTIVE)
+                .stream()
+                .map(OffenderDamageObligationModel::getAmountToPay)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return Optional.ofNullable(financeRepository.getBalances(bookingId, offenderSummary.getAgencyLocationId()))
+            .map(Account::toBuilder)
+            .map(builder -> builder.damageObligations(toMoneyScale(damageObligationBalance)))
+            .map(AccountBuilder::build)
+            .orElse(defaultBalances());
+    }
+
+    private Account defaultBalances() {
+        final var zero = toMoney("0.00");
+        return Account.builder()
+            .spends(zero).cash(zero).savings(zero).damageObligations(zero)
+            .currency(currency.getCode()).build();
     }
 
     @Transactional

@@ -25,7 +25,7 @@ Feature: User Details and Roles
       | token               | roles                |
       | NORMAL_USER         | KW_ADMIN,OMIC_ADMIN,ACCESS_ROLE_ADMIN,MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN  |
       | API_TEST_USER       | KW_ADMIN,OMIC_ADMIN  |
-      | NO_CASELOAD_USER    | GLOBAL_SEARCH,LICENCE_RO |
+      | NO_CASELOAD_USER    | VIEW_PRISONER_DATA,LICENCE_RO |
 
   Scenario Outline: As a logged in user I can find out which users have a given role at a particular caseload
     Given a user has authenticated with the API
@@ -80,7 +80,7 @@ Feature: User Details and Roles
   Scenario: A list of staff users can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
     When a request for users is made
-    Then a list of users is returned with usernames "PRISON_API_USER,ITAG_USER,ITAG_USER_ADM,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER,GLOBAL_SEARCH_USER,PRISON_API_USER_ADM,LAA_USER,IEP_USER,PPL_USER,UOF_REVIEWER_USER,UOF_COORDINATOR_USER,RCTL_USER,POM_USER,PF_RO_USER,WAI_USER,SOC_PRISON_LOCAL,PRISON_COLLATOR_LOCAL,PRISON_ANALYST_LOCAL"
+    Then a list of users is returned with usernames "PRISON_API_USER,ITAG_USER,ITAG_USER_ADM,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER,GLOBAL_SEARCH_USER,PRISON_API_USER_ADM,LAA_USER,IEP_USER,PPL_USER,UOF_REVIEWER_USER,UOF_COORDINATOR_USER,RCTL_USER,POM_USER,PF_RO_USER,WAI_USER,SOC_PRISON_LOCAL,PRISON_COLLATOR_LOCAL,PRISON_ANALYST_LOCAL,VIEW_PRISONER_DATA"
 
   Scenario: A list of staff users by usernames can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"

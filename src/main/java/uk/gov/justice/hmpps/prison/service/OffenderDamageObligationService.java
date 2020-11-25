@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,17 +25,17 @@ public class OffenderDamageObligationService {
     }
 
     @VerifyOffenderAccess
-    public List<OffenderDamageObligationModel> getDamageObligations(final String offenderNo, final String status) {
+    public List<OffenderDamageObligationModel> getDamageObligations(final String offenderNo, final Status status) {
 
-        final var damages = StringUtils.isNotEmpty(status) ?
-                repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(offenderNo, status) :
+        final var statusCode = Optional.ofNullable(status).map(Status::code).orElse(Status.ALL.code());
+        final var damages = StringUtils.isNotEmpty(statusCode) ?
+                repository.findOffenderDamageObligationByOffender_NomsIdAndStatus(offenderNo, status.code()) :
                 repository.findOffenderDamageObligationByOffender_NomsId(offenderNo);
 
         return damages
                 .stream()
                 .map(this::damageObligationTransformer)
                 .collect(Collectors.toList());
-
     }
 
     public OffenderDamageObligationModel damageObligationTransformer(final OffenderDamageObligation damageObligation) {

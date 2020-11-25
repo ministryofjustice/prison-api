@@ -75,7 +75,7 @@ public class PrisonersResourceTest extends ResourceTest {
 
     @Test
     public void testCanReturnPrisonerInformationByNomsId() {
-        final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+        final var token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null, Map.of());
 
@@ -91,7 +91,7 @@ public class PrisonersResourceTest extends ResourceTest {
 
     @Test
     public void testCanReturnPrisonerInformationByNomsIdWhenReleased() {
-        final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+        final var token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null, Map.of());
 
@@ -107,7 +107,7 @@ public class PrisonersResourceTest extends ResourceTest {
 
     @Test
     public void testReturn404WhenOffenderNotFound() {
-        final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+        final var token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null, Map.of());
 

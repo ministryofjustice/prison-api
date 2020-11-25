@@ -64,6 +64,6 @@ Feature: Booking Alerts
     Then access denied response is received from alert API
 
   Scenario: Alerts are requested for multiple offender numbers without agency but with system access
-    When a user has a token name of "SYSTEM_READ_ONLY"
+    When a user has a token name of "VIEW_PRISONER_DATA"
     And alerts are requested for offender nos "A1234AA,A1234AF" and no agency
     Then "6" alerts are returned

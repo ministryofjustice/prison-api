@@ -38,7 +38,7 @@ public class SwaggerConfig {
 
     public static final String DEFAULT_INCLUDE_PATTERN = "/api/.*";
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String SECURITY_SCHEME_REF = "JWT";
+    public static final String SECURITY_SCHEME_REF = "Authorization";
 
     private final BuildProperties buildProperties;
 

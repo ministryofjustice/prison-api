@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.CategorisationUpdateDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategoryApprovalDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategoryRejectionDetail;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -170,7 +171,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
 
     @Test
     public void testGetOffenderCategorisationsSystem() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+        final var token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, List.of("-1", "-2", "-3", "-38", "-39", "-40", "-41"));
 
@@ -193,7 +194,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
 
     @Test
     public void testGetAssessments() {
-        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY, null);
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA, null);
 
         final var response = testRestTemplate.exchange(
                 "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false",
@@ -206,7 +207,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
 
     @Test
     public void testGetAssessmentsMostRecentTrue() {
-        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY, null);
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA, null);
 
         final var response = testRestTemplate.exchange(
                 "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false&mostRecentOnly=true",
@@ -221,7 +222,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
 
     @Test
     public void testGetAssessmentsMissingOffenderNo() {
-        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY, null);
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA, null);
 
         final var response = testRestTemplate.exchange(
                 "/api/offender-assessments/assessments?latestOnly=false&activeOnly=false",

@@ -198,7 +198,7 @@ public class InmateService {
     }
 
     private boolean isViewAllOffenders() {
-        return authenticationFacade.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH");
+        return authenticationFacade.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA");
     }
 
     private Set<String> loadCaseLoadsOrThrow() {
@@ -210,13 +210,13 @@ public class InmateService {
         return caseloads;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail findInmate(final Long bookingId, final boolean extraInfo) {
         final var inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
         return getOffenderDetails(inmate, extraInfo);
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail findOffender(final String offenderNo, final boolean extraInfo) {
         final var inmate = repository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
         return getOffenderDetails(inmate, extraInfo);
@@ -426,7 +426,7 @@ public class InmateService {
         return repository.getProfileInformation(bookingId);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public ImageDetail getMainBookingImage(final Long bookingId) {
         return repository.getMainBookingImage(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
@@ -445,7 +445,7 @@ public class InmateService {
         return physicalAttributes;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, @Nullable final String identifierType) {
         return repository.getOffenderIdentifiers(bookingId)
                 .stream()
@@ -458,7 +458,7 @@ public class InmateService {
         return repository.getOffenderIdentifiersByTypeAndValue(identifierType, identifierValue);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail getBasicInmateDetail(final Long bookingId) {
         return repository.getBasicInmateDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
@@ -481,7 +481,7 @@ public class InmateService {
      * @param assessmentCode tacit
      * @return Latest assessment of given code if any
      */
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<Assessment> getInmateAssessmentByCode(final Long bookingId, final String assessmentCode) {
         final var assessmentForCodeType = repository.findAssessments(Collections.singletonList(bookingId), assessmentCode, Collections.emptySet());
 
@@ -498,7 +498,7 @@ public class InmateService {
                                                         final boolean mostRecentOnly) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
-            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
+            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole( "SYSTEM_USER")
                     ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
 
@@ -532,7 +532,7 @@ public class InmateService {
         return doGetOffenderCategorisations(agencyId, bookingIds, latestOnly);
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY','SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','SYSTEM_USER')")
     public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
         return doGetOffenderCategorisations(null, bookingIds, latestOnly);
     }
@@ -727,7 +727,7 @@ public class InmateService {
         }
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Alias> findInmateAliases(final Long bookingId, final String orderBy, final Order order, final long offset, final long limit) {
         final var defaultOrderBy = StringUtils.defaultString(StringUtils.trimToNull(orderBy), "createDate");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);

@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
@@ -61,6 +62,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,7 +94,7 @@ public class OffenderResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Full details about the current state of an offender")
     @GetMapping("/{offenderNo}")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail getOffender(@Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return inmateService.findOffender(offenderNo, true);
     }
@@ -195,7 +197,7 @@ public class OffenderResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Return a list of alerts for a given offender No.", notes = "System or cat tool access only")
     @GetMapping("/{offenderNo}/alerts")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "SYSTEM_READ_ONLY", "GLOBAL_SEARCH", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
     public List<Alert> getAlertsByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam(value = "latestOnly", defaultValue = "true", required = false) @ApiParam("Only get alerts for the latest booking (prison term)") final Boolean latestOnly, @RequestParam(value = "query", required = false) @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - " +
             "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active</p> ", required = false, example = "alertCode:eq:'XA',or:alertCode:eq:'RSS'") final String query, @RequestHeader(value = "Sort-Fields", defaultValue = "bookingId,alertType", required = false) @ApiParam(value = "Comma separated list of one or more Alert fields", allowableValues = "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active", defaultValue = "bookingId,alertType") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order", defaultValue = "ASC") final Order sortOrder) {
         return alertService.getInmateAlertsByOffenderNos(
@@ -296,7 +298,7 @@ public class OffenderResource {
             @ApiResponse(code = 200, message = "OK", response = OffenderSentenceDetail.class)})
     @ApiOperation(value = "Offender Sentence Details", notes = "Retrieve an single offender sentence details", nickname = "getOffenderSentenceDetails")
     @GetMapping("/{offenderNo}/sentences")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public OffenderSentenceDetail getOffenderSentenceDetail(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getOffenderSentenceDetail(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
@@ -334,10 +336,16 @@ public class OffenderResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Return a list of damage obligations")
     @GetMapping("/{offenderNo}/damage-obligations")
-    public OffenderDamageObligationResponse getOffenderDamageObligations(@NotNull @PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "status", required = false, defaultValue = "") @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE", allowableValues = "INACT,PAID,ONH,ACTIVE,APPEAL") final String status) {
-        final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, status);
-
+    public OffenderDamageObligationResponse getOffenderDamageObligations(@NotNull @PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE", allowableValues = "INACT,PAID,ONH,ACTIVE,APPEAL") final String status) {
+        final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, lookupStatusOrDefaultToAll(status));
         return new OffenderDamageObligationResponse(damageObligations);
+    }
+
+    private Status lookupStatusOrDefaultToAll(final String status) {
+        return Arrays.stream(Status.values())
+            .filter(statusEnum -> status != null && statusEnum.name().equals(status.toUpperCase()))
+            .findFirst()
+            .orElse(Status.ALL);
     }
 
     @ApiResponses(value = {

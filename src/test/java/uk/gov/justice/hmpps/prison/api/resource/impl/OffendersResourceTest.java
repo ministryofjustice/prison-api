@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -81,8 +82,8 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCanRetrieveAlertsForOffenderWithGlobalSearch() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+    public void testCanRetrieveAlertsForOffenderWithViewDataRole() {
+        final var token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -115,8 +116,8 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCannotRetrieveCaseNotesForOffenderWithGlobalSearch() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+    public void testCannotRetrieveCaseNotesForOffenderWithViewPrisonerData() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -133,7 +134,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void getFullOffenderInformation() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -150,7 +151,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void testOffenderWithActiveRecallOffence() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -167,7 +168,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void testOffenderWithInActiveRecallOffence() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -184,7 +185,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void getOffenderInformationWithoutBooking() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -201,7 +202,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void getOffenderNotFound() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -219,7 +220,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void getFullOffenderInformation_WithAliases() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -236,7 +237,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void testGetIncidents() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var response = testRestTemplate.exchange(
             "/api/incidents/-1",
@@ -254,7 +255,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void testGetIncidentsNoParties() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var response = testRestTemplate.exchange(
             "/api/incidents/-4",
@@ -269,7 +270,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @Test
     public void testCanRetrieveIncidentCandidatesWithSystemUser() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_READ_ONLY);
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -288,7 +289,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var paging = new HashMap<String, String>();
         paging.put("Page-Offset", "1");
         paging.put("Page-Limit", "2");
-        final var httpEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), paging);
+        final var httpEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_USER"), paging);
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
@@ -304,8 +305,8 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCannotRetrieveIncidentCandidatesWithGlobalSearch() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+    public void testCannotRetrieveIncidentCandidatesWithViewPrisonerDataRole() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 
@@ -339,7 +340,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var paging = new HashMap<String, String>();
         paging.put("Page-Offset", "1");
         paging.put("Page-Limit", "2");
-        final var httpEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_READ_ONLY"), paging);
+        final var httpEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_USER"), paging);
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
@@ -355,8 +356,8 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCannotRetrieveAlertCandidatesWithGlobalSearch() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+    public void testCannotRetrieveAlertCandidatesWithViewData() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntity = createHttpEntity(token, null);
 

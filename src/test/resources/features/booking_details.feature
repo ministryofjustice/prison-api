@@ -309,6 +309,6 @@ Feature: Booking Details
       | Gillian   | Anderson   | Eve            | A1234AB      | -2        | LEI      |
 
   Scenario: A GLOBAL_SEARCH user can see offender details from any agency
-    Given a trusted client with GLOBAL_SEARCH role has authenticated with the API
+    Given a trusted client with VIEW_PRISONER_DATA role has authenticated with the API
     When a request is made for  "A1234AE,A1234AB,Z0017ZZ"
     Then the total records returned are "3"
