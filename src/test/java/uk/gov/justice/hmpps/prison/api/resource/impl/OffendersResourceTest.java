@@ -31,6 +31,7 @@ public class OffendersResourceTest extends ResourceTest {
     @TestConfiguration
     static class TestClock {
         private LocalDateTime timeIs_2020_10_01T000000 = LocalDate.parse("2020-10-01", DateTimeFormatter.ISO_DATE).atStartOfDay();
+
         @Bean
         public Clock clock() {
             return Clock.fixed(timeIs_2020_10_01T000000.toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
@@ -46,12 +47,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}/sentences",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                OFFENDER_NUMBER);
+            "/api/offenders/{nomsId}/sentences",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "sentence.json");
     }
@@ -63,12 +64,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}/sentences",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                OFFENDER_NUMBER);
+            "/api/offenders/{nomsId}/sentences",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "sentence.json");
     }
@@ -80,12 +81,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}/alerts",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                OFFENDER_NUMBER);
+            "/api/offenders/{nomsId}/alerts",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "alerts.json");
     }
@@ -97,12 +98,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}/case-notes",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                OFFENDER_NUMBER);
+            "/api/offenders/{nomsId}/case-notes",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "casenotes.json");
     }
@@ -114,12 +115,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}/case-notes",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                OFFENDER_NUMBER);
+            "/api/offenders/{nomsId}/case-notes",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }
@@ -131,12 +132,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                OFFENDER_NUMBER);
+            "/api/offenders/{nomsId}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "offender_detail.json");
     }
@@ -148,12 +149,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                "A1234AC");
+            "/api/offenders/{nomsId}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "A1234AC");
 
         assertThatJsonFileAndStatus(response, 200, "offender_detail_recall.json");
     }
@@ -165,12 +166,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                "A1234AD");
+            "/api/offenders/{nomsId}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "A1234AD");
 
         assertThatJsonFileAndStatus(response, 200, "offender_detail_no_recall.json");
     }
@@ -182,12 +183,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                "A1234DD");
+            "/api/offenders/{nomsId}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "A1234DD");
 
         assertThatJsonFileAndStatus(response, 200, "offender_detail_min.json");
     }
@@ -199,12 +200,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                "B1234DD");
+            "/api/offenders/{nomsId}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "B1234DD");
 
         assertThatStatus(response, 404);
     }
@@ -217,12 +218,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{nomsId}",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                "A1234AI");
+            "/api/offenders/{nomsId}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "A1234AI");
 
         assertThatJsonFileAndStatus(response, 200, "offender_detail_aliases.json");
     }
@@ -232,15 +233,15 @@ public class OffendersResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var response = testRestTemplate.exchange(
-                "/api/incidents/-1",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<IncidentCase>() {
-                });
+            "/api/incidents/-1",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<IncidentCase>() {
+            });
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         final var result = response.getBody();
         assertThat(result).extracting("incidentCaseId", "incidentTitle", "incidentType")
-                .containsExactlyInAnyOrder(-1L, "Big Fight", "ASSAULT");
+            .containsExactlyInAnyOrder(-1L, "Big Fight", "ASSAULT");
         assertThat(result.getResponses()).hasSize(19);
         assertThat(result.getParties()).hasSize(6);
     }
@@ -250,14 +251,14 @@ public class OffendersResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var response = testRestTemplate.exchange(
-                "/api/incidents/-4",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<IncidentCase>() {
-                });
+            "/api/incidents/-4",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<IncidentCase>() {
+            });
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).extracting("incidentCaseId", "incidentTitle")
-                .containsExactlyInAnyOrder(-4L, "Medium sized fight");
+            .containsExactlyInAnyOrder(-4L, "Medium sized fight");
     }
 
     @Test
@@ -267,11 +268,11 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThatJsonFileAndStatus(response, 200, "incidents_candidates.json");
     }
@@ -284,11 +285,11 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_USER"), paging);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("1");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("2");
@@ -303,11 +304,11 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
@@ -318,11 +319,11 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThatJsonFileAndStatus(response, 200, "alerts_candidates.json");
     }
@@ -335,11 +336,11 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_USER"), paging);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("1");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("2");
@@ -354,11 +355,11 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
@@ -367,7 +368,7 @@ public class OffendersResourceTest extends ResourceTest {
     public void listAllOffenders() {
 
         ResponseEntity<String> response = listAllOffendersUsingHeaders(
-                Map.of("Page-Offset", "0", "Page-Limit", "100"));
+            Map.of("Page-Offset", "0", "Page-Limit", "100"));
 
         assertThatJsonFileAndStatus(response, 200, "list_all_offenders.json");
 
@@ -393,11 +394,12 @@ public class OffendersResourceTest extends ResourceTest {
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, Map.of());
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{offenderNumber}/addresses",
-                HttpMethod.GET,
-                requestEntity,
-                new ParameterizedTypeReference<String>() {},
-                OFFENDER_NUMBER);
+            "/api/offenders/{offenderNumber}/addresses",
+            HttpMethod.GET,
+            requestEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
 
         assertThatJsonFileAndStatus(response, 200, "offender-address.json");
     }
@@ -409,11 +411,11 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/next-sequence",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/offenders/next-sequence",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThatStatus(response, 200);
     }
@@ -423,13 +425,59 @@ public class OffendersResourceTest extends ResourceTest {
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, Map.of());
 
         final var response = testRestTemplate.exchange(
-                "/api/offenders/{offenderNumber}/adjudications?finding={findingCode}",
-                HttpMethod.GET,
-                requestEntity,
-                new ParameterizedTypeReference<String>() {},
-                "A1181HH", "NOT_PROVED");
+            "/api/offenders/{offenderNumber}/adjudications?finding={findingCode}",
+            HttpMethod.GET,
+            requestEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "A1181HH", "NOT_PROVED");
 
-        assertThatJsonFileAndStatus(response, 200,"adjudications_by_finding_code.json");
+        assertThatJsonFileAndStatus(response, 200, "adjudications_by_finding_code.json");
+    }
+
+    @Test
+    public void testInvalidMovedCellSubType() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var newCaseNote = Map.of(
+            "type", "MOVED_CELL",
+            "subType", "BEH1",
+            "text", "This is a test comment"
+        );
+
+        final var httpEntity = createHttpEntity(token, newCaseNote);
+
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/case-notes",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {},
+            OFFENDER_NUMBER);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void testCreateMovedCellCaseNote() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var newCaseNote = Map.of(
+            "type", "MOVED_CELL",
+            "subType", "BEH",
+            "text", "This is a test comment"
+        );
+
+        final var httpEntity = createHttpEntity(token, newCaseNote);
+
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/case-notes",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {},
+            "A9876RS");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
     }
 
     private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
