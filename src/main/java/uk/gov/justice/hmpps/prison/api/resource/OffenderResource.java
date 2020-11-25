@@ -340,7 +340,7 @@ public class OffenderResource {
         return new OffenderDamageObligationResponse(damageObligations);
     }
 
-    private Status lookupStatusOrDefaultToAll(String status) {
+    private Status lookupStatusOrDefaultToAll(final String status) {
         return Arrays.stream(Status.values())
             .filter(statusEnum -> status != null && statusEnum.name().equals(status.toUpperCase()))
             .findFirst()
