@@ -237,6 +237,7 @@ public class OffenderResource {
 
             return ResponseEntity.ok()
                     .headers(pagedCaseNotes.getPaginationHeaders())
+                    .headers(pagedCaseNotes.getPaginationHeaders())
                     .body(pagedCaseNotes.getItems());
 
         } catch (EntityNotFoundException e) {
