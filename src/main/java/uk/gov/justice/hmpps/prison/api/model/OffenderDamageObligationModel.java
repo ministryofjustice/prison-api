@@ -34,7 +34,7 @@ public class OffenderDamageObligationModel {
     @ApiModelProperty(value = "Prison the damages occurred", example = "MDI", position = 6)
     private String prisonId;
 
-    @ApiModelProperty(value = "Amount left to pay", example = "50.0", position = 7)
+    @ApiModelProperty(value = "Original amount to pay", example = "50.0", position = 7)
     private BigDecimal amountToPay;
 
     @ApiModelProperty(value = "Amount paid", example = "10.0", position = 8)
