@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class AppointmentsResourceTest extends ResourceTest {
@@ -39,7 +40,7 @@ public class AppointmentsResourceTest extends ResourceTest {
     public void createAnAppointment() {
 
         when(bookingRepository.checkBookingExists(anyLong())).thenReturn(true);
-        when(bookingRepository.findBookingsIdsInAgency(any(),anyString())).thenReturn(List.of(1L, 2L));
+        when(bookingRepository.findBookingsIdsInAgency(any(), anyString())).thenReturn(List.of(1L, 2L));
 
         final var response = makeCreateAppointmentsRequest();
 
@@ -58,24 +59,24 @@ public class AppointmentsResourceTest extends ResourceTest {
     @Test
     public void deleteAnAppointment() {
         final var scheduledEvent = ScheduledEvent
-                .builder()
-                .eventId(1L)
-                .eventType("APP")
-                .eventSubType("VLB")
-                .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
-                .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
-                .eventLocationId(2L)
-                .build();
+            .builder()
+            .eventId(1L)
+            .eventType("APP")
+            .eventSubType("VLB")
+            .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
+            .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
+            .eventLocationId(2L)
+            .build();
 
         when(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.of(scheduledEvent));
 
 
         final var response = testRestTemplate.exchange(
-                "/api/appointments/1",
-                HttpMethod.DELETE,
-                createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), null),
-                Void.class
-                );
+            "/api/appointments/1",
+            HttpMethod.DELETE,
+            createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), null),
+            Void.class
+        );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
@@ -86,27 +87,96 @@ public class AppointmentsResourceTest extends ResourceTest {
     public void deleteAnAppointment_notFound() {
         when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.empty());
 
-
         final var response = testRestTemplate.exchange(
-                "/api/appointments/1",
-                HttpMethod.DELETE,
-                createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), null),
-                Void.class
+            "/api/appointments/1",
+            HttpMethod.DELETE,
+            createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), null),
+            Void.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         verify(bookingRepository).getBookingAppointmentByEventId(1L);
     }
 
+    @Test
+    public void deleteAnAppointment_notAuthorised() {
+        final var response = testRestTemplate.exchange(
+            "/api/appointments/1",
+            HttpMethod.DELETE,
+            createHttpEntity(validToken(List.of()), null),
+            Void.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        verifyNoInteractions(bookingRepository);
+    }
+
+    @Test
+    public void getAnAppointment() {
+        final var scheduledEvent = ScheduledEvent
+            .builder()
+            .eventId(1L)
+            .eventType("APP")
+            .eventSubType("VLB")
+            .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
+            .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
+            .eventLocationId(2L)
+            .build();
+
+        when(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.of(scheduledEvent));
+
+        final var response = testRestTemplate.exchange(
+            "/api/appointments/1",
+            HttpMethod.GET,
+            createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), null),
+            ScheduledEvent.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(scheduledEvent);
+        verify(bookingRepository).getBookingAppointmentByEventId(1L);
+    }
+
+    @Test
+    public void getAnAppointment_notFound() {
+        when(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.empty());
+
+        final var response = testRestTemplate.exchange(
+            "/api/appointments/1",
+            HttpMethod.GET,
+            createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), null),
+            String.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        verify(bookingRepository).getBookingAppointmentByEventId(1L);
+    }
+
+    @Test
+    public void getAnAppointment_notAuthorised() {
+        when(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.empty());
+
+        final var response = testRestTemplate.exchange(
+            "/api/appointments/1",
+            HttpMethod.GET,
+            createHttpEntity(validToken(List.of()), null),
+            String.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        verifyNoInteractions(bookingRepository);
+    }
+
+
     private ResponseEntity<String> makeCreateAppointmentsRequest() {
         final AppointmentsToCreate body = getCreateAppointmentBody();
 
         return testRestTemplate.exchange(
-                "/api/appointments",
-                HttpMethod.POST,
-                createHttpEntity(validToken(List.of("BULK_APPOINTMENTS")), body),
-                new ParameterizedTypeReference<>() {
-                });
+            "/api/appointments",
+            HttpMethod.POST,
+            createHttpEntity(validToken(List.of("BULK_APPOINTMENTS")), body),
+            new ParameterizedTypeReference<>() {
+            });
     }
 
     private AppointmentsToCreate getCreateAppointmentBody() {
@@ -115,24 +185,24 @@ public class AppointmentsResourceTest extends ResourceTest {
         final var bookingIds = Arrays.asList(-31L, -32L);
 
         final var appointments = bookingIds
-                .stream()
-                .map(id -> AppointmentDetails
-                        .builder()
-                        .bookingId(id)
-                        .comment("Comment")
-                        .build())
-                .collect(Collectors.toList());
+            .stream()
+            .map(id -> AppointmentDetails
+                .builder()
+                .bookingId(id)
+                .comment("Comment")
+                .build())
+            .collect(Collectors.toList());
 
         final var defaults = AppointmentDefaults
-                .builder()
-                .locationId(-25L) // LEI-CHAP
-                .appointmentType("ACTI") // Activity
-                .startTime(now)
-                .endTime(in1Hour)
-                .build();
+            .builder()
+            .locationId(-25L) // LEI-CHAP
+            .appointmentType("ACTI") // Activity
+            .startTime(now)
+            .endTime(in1Hour)
+            .build();
 
         return AppointmentsToCreate.builder()
-                .appointmentDefaults(defaults)
-                .appointments(appointments).build();
+            .appointmentDefaults(defaults)
+            .appointments(appointments).build();
     }
 }
