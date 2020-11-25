@@ -210,6 +210,17 @@ public class BookingResourceImplIntTest extends ResourceTest {
     }
 
     @Test
+    public void getOffenderBalances() {
+        final var bookingId = -1;
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/" + bookingId + "/balances", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJsonFileAndStatus(responseEntity, 200, "offender_balance.json");
+    }
+
+    @Test
     public void getEvents() {
         when(bookingRepository.getBookingActivities(anyLong(), any(), any(), anyString(), any())).thenReturn(
                 List.of(createEvent("act", "10:11:12"),

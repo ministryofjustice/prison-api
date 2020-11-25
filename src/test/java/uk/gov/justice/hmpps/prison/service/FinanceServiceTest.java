@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.prison.api.model.Account;
+import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
@@ -20,17 +23,24 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository;
+import uk.gov.justice.hmpps.prison.values.Currency;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoney;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE;
 
 @ExtendWith(MockitoExtension.class)
 class FinanceServiceTest {
@@ -48,13 +58,17 @@ class FinanceServiceTest {
     private OffenderSubAccountRepository offenderSubAccountRepository;
     @Mock
     private OffenderTrustAccountRepository offenderTrustAccountRepository;
+    @Mock
+    private OffenderDamageObligationService offenderDamageObligationService;
+
+    private Currency currency = Currency.builder().code("GBP").build();
 
     private FinanceService financeService;
 
     @BeforeEach
     void setUp() {
         financeService = new FinanceService(financeRepository, bookingRepository, offenderBookingRepository, offenderTransactionRepository, accountCodeRepository,
-                offenderSubAccountRepository, offenderTrustAccountRepository);
+                offenderSubAccountRepository, offenderTrustAccountRepository, offenderDamageObligationService, currency);
     }
 
     @Test
@@ -250,5 +264,127 @@ class FinanceServiceTest {
                 .description("desc")
                 .clientTransactionId("transId")
                 .build();
+    }
+
+    @Test
+    public void test_getBalances_HappyPath() {
+
+        final var bookingId = -1L;
+        final var offenderNo = "A1234AB";
+        final var agency = "LEI";
+
+        final var offenderSummary = OffenderSummary
+            .builder()
+            .offenderNo(offenderNo)
+            .agencyLocationId(agency)
+            .build();
+
+        final var offenderDamageObligationModel = OffenderDamageObligationModel
+            .builder()
+            .amountToPay(BigDecimal.valueOf(10))
+            .build();
+
+        final var account = Account.builder().build();
+
+        when(bookingRepository.getLatestBookingByBookingId(bookingId))
+            .thenReturn(Optional.of(offenderSummary));
+        when(offenderDamageObligationService.getDamageObligations(offenderNo, ACTIVE))
+            .thenReturn(List.of(offenderDamageObligationModel));
+        when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
+
+        final var accountToReturn = financeService.getBalances(bookingId);
+
+        assertThat(accountToReturn).isNotNull();
+        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(10)));
+
+        verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
+        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE);
+        verify(financeRepository, times(1)).getBalances(bookingId, agency);
+
+    }
+
+    @Test
+    public void test_getBalances_With_Two_Obligations() {
+
+        final var bookingId = -1L;
+        final var offenderNo = "A1234AB";
+        final var agency = "LEI";
+
+        final var offenderSummary = OffenderSummary
+            .builder()
+            .offenderNo(offenderNo)
+            .agencyLocationId(agency)
+            .build();
+
+        final var offenderDamageObligationModel1 = OffenderDamageObligationModel
+            .builder()
+            .amountToPay(BigDecimal.valueOf(10))
+            .build();
+        final var offenderDamageObligationModel2 = OffenderDamageObligationModel
+            .builder()
+            .amountToPay(BigDecimal.valueOf(5))
+            .build();
+
+        final var account = Account.builder().build();
+
+        when(bookingRepository.getLatestBookingByBookingId(bookingId))
+            .thenReturn(Optional.of(offenderSummary));
+        when(offenderDamageObligationService.getDamageObligations(offenderNo,  ACTIVE))
+            .thenReturn(List.of(offenderDamageObligationModel1, offenderDamageObligationModel2));
+        when(financeRepository.getBalances(bookingId, agency)).thenReturn(account);
+
+        final var accountToReturn = financeService.getBalances(bookingId);
+
+        assertThat(accountToReturn).isNotNull();
+        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(15)));
+
+        verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
+        verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE);
+        verify(financeRepository, times(1)).getBalances(bookingId, agency);
+    }
+
+    @Test
+    public void test_getBalances_And_No_OffenderSummary() {
+
+        final var bookingId = -1L;
+
+        when(bookingRepository.getLatestBookingByBookingId(bookingId))
+            .thenReturn(Optional.empty());
+
+        Throwable exception = assertThrows(EntityNotFoundException.class, () -> {
+            financeService.getBalances(bookingId);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Booking not found for id: -1");
+    }
+
+    @Test
+    public void test_getBalances_And_No_Account() {
+
+        final var bookingId = -1L;
+        final var offenderNo = "A1234AB";
+        final var agency = "LEI";
+
+        final var offenderSummary = OffenderSummary
+            .builder()
+            .offenderNo(offenderNo)
+            .agencyLocationId(agency)
+            .build();
+
+        when(bookingRepository.getLatestBookingByBookingId(bookingId))
+            .thenReturn(Optional.of(offenderSummary));
+        when(financeRepository.getBalances(bookingId, agency)).thenReturn(null);
+
+        final var accountToReturn = financeService.getBalances(bookingId);
+
+        assertThat(accountToReturn).isNotNull();
+        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoney("0.00"));
+        assertThat(accountToReturn.getSpends()).isEqualTo(toMoney("0.00"));
+        assertThat(accountToReturn.getCash()).isEqualTo(toMoney("0.00"));
+        assertThat(accountToReturn.getSavings()).isEqualTo(toMoney("0.00"));
+        assertThat(accountToReturn.getCurrency()).isEqualTo("GBP");
+
+        verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
+        verify(financeRepository, times(1)).getBalances(bookingId, agency);
     }
 }

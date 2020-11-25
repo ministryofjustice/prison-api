@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @Data
 @Builder
@@ -56,6 +57,18 @@ public class OffenderDamageObligation extends AuditableEntity  {
 
     @Column(name = "COMMENT_TEXT", length = 4000)
     private String comment;
+
+    public enum Status {
+        ACTIVE("ACTIVE"), PAID("PAID"), INACT("INACT"),
+        ONH("ONH"), APPEAL("APPEAL"), ALL("");
+        private final String code;
+        Status(String code) {
+            this.code = code;
+        }
+        public String code() {
+            return code;
+        }
+    }
 }
 
 

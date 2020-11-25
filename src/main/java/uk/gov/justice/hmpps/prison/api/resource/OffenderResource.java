@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
@@ -61,6 +62,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -333,10 +335,16 @@ public class OffenderResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Return a list of damage obligations")
     @GetMapping("/{offenderNo}/damage-obligations")
-    public OffenderDamageObligationResponse getOffenderDamageObligations(@NotNull @PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "status", required = false, defaultValue = "") @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE", allowableValues = "INACT,PAID,ONH,ACTIVE,APPEAL") final String status) {
-        final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, status);
-
+    public OffenderDamageObligationResponse getOffenderDamageObligations(@NotNull @PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE", allowableValues = "INACT,PAID,ONH,ACTIVE,APPEAL") final String status) {
+        final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, lookupStatusOrDefaultToAll(status));
         return new OffenderDamageObligationResponse(damageObligations);
+    }
+
+    private Status lookupStatusOrDefaultToAll(final String status) {
+        return Arrays.stream(Status.values())
+            .filter(statusEnum -> status != null && statusEnum.name().equals(status.toUpperCase()))
+            .findFirst()
+            .orElse(Status.ALL);
     }
 
     @ApiResponses(value = {

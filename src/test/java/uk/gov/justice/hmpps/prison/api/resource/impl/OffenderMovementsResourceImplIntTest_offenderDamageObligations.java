@@ -21,6 +21,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class OffenderMovementsResourceImplIntTest_offenderDamageObligations extends ResourceTest {
@@ -102,5 +105,53 @@ public class OffenderMovementsResourceImplIntTest_offenderDamageObligations exte
         when(bookingRepository.getLatestBookingIdentifierForOffender(any()))
                 .thenReturn(Optional.of(new OffenderBookingIdSeq(offenderNo, 1L, 1)));
         when(bookingRepository.verifyBookingAccess(any(), any())).thenReturn(true);
+    }
+
+    @Test
+    public void when_NoStatus_Then_DefaultToALL() {
+        stubVerifyOffenderAccess("A12345");
+
+        final var request = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{offenderNo}/damage-obligations",
+            HttpMethod.GET,
+            request,
+            new ParameterizedTypeReference<String>() {
+            }, "A12345");
+
+        verify(offenderDamageObligationRepository, times(1)).findOffenderDamageObligationByOffender_NomsId("A12345");
+        verify(offenderDamageObligationRepository, times(0)).findOffenderDamageObligationByOffender_NomsIdAndStatus(anyString(), anyString());
+    }
+
+    @Test
+    public void when_StatusIsACTIVE_Then_DoNotDefaultToALL() {
+        stubVerifyOffenderAccess("A12345");
+
+        final var request = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{offenderNo}/damage-obligations?status=ACTIVE",
+            HttpMethod.GET,
+            request,
+            new ParameterizedTypeReference<String>() {
+            }, "A12345");
+
+        verify(offenderDamageObligationRepository, times(0)).findOffenderDamageObligationByOffender_NomsId("A12345");
+        verify(offenderDamageObligationRepository, times(1)).findOffenderDamageObligationByOffender_NomsIdAndStatus("A12345", "ACTIVE");
+    }
+
+    @Test
+    public void when_StatusIsBadValue_Then_DefaultToALL() {
+        stubVerifyOffenderAccess("A12345");
+
+        final var request = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{offenderNo}/damage-obligations?status=BADSTATUS",
+            HttpMethod.GET,
+            request,
+            new ParameterizedTypeReference<String>() {
+            }, "A12345");
+
+        verify(offenderDamageObligationRepository, times(1)).findOffenderDamageObligationByOffender_NomsId("A12345");
+        verify(offenderDamageObligationRepository, times(0)).findOffenderDamageObligationByOffender_NomsIdAndStatus(anyString(), anyString());
     }
 }
