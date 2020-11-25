@@ -65,7 +65,7 @@ public class FinanceService {
         final var damageObligationBalance =
             offenderDamageObligationService.getDamageObligations(offenderSummary.getOffenderNo(), ACTIVE)
                 .stream()
-                .map(OffenderDamageObligationModel::getAmountToPay)
+                .map(model -> model.getAmountToPay().subtract(model.getAmountPaid()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return Optional.ofNullable(financeRepository.getBalances(bookingId, offenderSummary.getAgencyLocationId()))

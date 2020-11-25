@@ -282,6 +282,7 @@ class FinanceServiceTest {
         final var offenderDamageObligationModel = OffenderDamageObligationModel
             .builder()
             .amountToPay(BigDecimal.valueOf(10))
+            .amountPaid(BigDecimal.valueOf(5))
             .build();
 
         final var account = Account.builder().build();
@@ -295,7 +296,7 @@ class FinanceServiceTest {
         final var accountToReturn = financeService.getBalances(bookingId);
 
         assertThat(accountToReturn).isNotNull();
-        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(10)));
+        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(5)));
 
         verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
         verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE);
@@ -319,10 +320,12 @@ class FinanceServiceTest {
         final var offenderDamageObligationModel1 = OffenderDamageObligationModel
             .builder()
             .amountToPay(BigDecimal.valueOf(10))
+            .amountPaid(BigDecimal.valueOf(3))
             .build();
         final var offenderDamageObligationModel2 = OffenderDamageObligationModel
             .builder()
             .amountToPay(BigDecimal.valueOf(5))
+            .amountPaid(BigDecimal.valueOf(2))
             .build();
 
         final var account = Account.builder().build();
@@ -336,7 +339,7 @@ class FinanceServiceTest {
         final var accountToReturn = financeService.getBalances(bookingId);
 
         assertThat(accountToReturn).isNotNull();
-        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(15)));
+        assertThat(accountToReturn.getDamageObligations()).isEqualTo(toMoneyScale(BigDecimal.valueOf(10)));
 
         verify(bookingRepository, times(1)).getLatestBookingByBookingId(bookingId);
         verify(offenderDamageObligationService, times(1)).getDamageObligations(offenderNo, ACTIVE);
