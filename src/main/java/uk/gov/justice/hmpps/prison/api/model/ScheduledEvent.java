@@ -73,7 +73,7 @@ public class ScheduledEvent {
     @ApiModelProperty(value = "Id of an internal event location")
     private Long eventLocationId;
 
-    @JsonIgnore
+    @ApiModelProperty(value = "The agency ID for the booked internal location", example = "WWI")
     private String agencyId;
 
     @ApiModelProperty(required = true, value = "Code identifying underlying source of event data")
