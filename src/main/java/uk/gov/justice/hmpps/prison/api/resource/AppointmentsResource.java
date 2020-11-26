@@ -10,12 +10,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
@@ -32,7 +34,7 @@ public class AppointmentsResource {
     private final AppointmentsService appointmentsService;
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "The appointments have been created.")})
+        @ApiResponse(code = 200, message = "The appointments have been created.")})
     @ApiOperation(value = "Create multiple appointments", notes = "Create multiple appointments", nickname = "createAppointments")
     @PostMapping
     @ProxyUser
@@ -42,8 +44,11 @@ public class AppointmentsResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 204, message = "The appointment has been deleted")})
-    @ApiOperation(value = "Delete an appointment .", notes = "Delete appointment.", nickname = "deleteBookingAppointment")
+        @ApiResponse(code = 204, message = "The appointment has been deleted"),
+        @ApiResponse(code = 404, message = "The appointment was not found"),
+        @ApiResponse(code = 403, message = "The client is not authorised for this operation")
+    })
+    @ApiOperation(value = "Delete an appointment.", notes = "Delete appointment.", nickname = "deleteBookingAppointment")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{appointmentId}")
     @HasWriteScope
@@ -51,5 +56,15 @@ public class AppointmentsResource {
         appointmentsService.deleteBookingAppointment(appointmentId);
     }
 
-
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "The appointment has been returned"),
+        @ApiResponse(code = 403, message = "The client is not authorised for this operation"),
+        @ApiResponse(code = 404, message = "The appointment was not found")
+    })
+    @ApiOperation(value = "Get an appointment by id.", notes = "Get appointment byId.", nickname = "getBookingAppointment")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{appointmentId}")
+    public ScheduledEvent getAppointment(@PathVariable("appointmentId") @ApiParam(value = "The unique identifier for the appointment", required = true) @NotNull final Long appointmentId) {
+        return appointmentsService.getBookingAppointment(appointmentId);
+    }
 }

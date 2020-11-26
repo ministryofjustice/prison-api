@@ -119,6 +119,12 @@ public class AppointmentsService {
         return createdAppointment;
     }
 
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
+    public ScheduledEvent getBookingAppointment(Long appointmentId) {
+        return getScheduledEventOrThrowEntityNotFound(appointmentId);
+    }
+
     @Transactional
     @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
     public void deleteBookingAppointment(final long eventId) {
@@ -368,4 +374,5 @@ public class AppointmentsService {
         bookingRepository.createMultipleAppointments(details, defaults, agencyId);
         trackAppointmentsCreated(details, defaults);
     }
+
 }
