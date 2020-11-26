@@ -75,6 +75,8 @@ public class BookingAppointmentSteps extends ScheduledEventSteps {
         assertThat(scheduledEvent.getBookingId()).isEqualTo(-4L);
         assertThat(scheduledEvent.getEventDate()).isEqualTo(LocalDate.now().plusDays(1));
         assertThat(scheduledEvent.getEventLocation()).isEqualTo("Visiting Room");
+        assertThat(scheduledEvent.getEventLocationId()).isEqualTo(-28L);
+        assertThat(scheduledEvent.getAgencyId()).isEqualTo("LEI");
         assertThat(scheduledEvent.getEventType()).isEqualTo("APP");
         assertThat(scheduledEvent.getEventSubType()).isEqualTo("MEDE");
         assertThat(scheduledEvent.getEventStatus()).isEqualTo("SCH");

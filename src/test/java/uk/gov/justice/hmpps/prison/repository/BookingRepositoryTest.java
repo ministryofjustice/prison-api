@@ -102,6 +102,7 @@ public class BookingRepositoryTest {
         assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
         assertThat(event.getEventLocation()).isEqualTo("Medical Centre");
         assertThat(event.getEventLocationId()).isEqualTo(-29L);
+        assertThat(event.getAgencyId()).isEqualTo("LEI");
         assertThat(event.getStartTime()).isEqualTo(appt.getStartTime());
         assertThat(event.getEventDate()).isEqualTo(appt.getStartTime().toLocalDate());
     }
@@ -124,6 +125,7 @@ public class BookingRepositoryTest {
         assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
         assertThat(event.getEventLocation()).isEqualTo("Medical Centre");
         assertThat(event.getEventLocationId()).isEqualTo(-29L);
+        assertThat(event.getAgencyId()).isEqualTo("LEI");
         assertThat(event.getStartTime()).isEqualTo(appt.getStartTime());
         assertThat(event.getEndTime()).isEqualTo(appt.getEndTime());
         assertThat(event.getEventSourceDesc()).isEqualTo(appt.getComment());
