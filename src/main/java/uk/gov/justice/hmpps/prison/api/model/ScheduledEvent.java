@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -71,6 +72,9 @@ public class ScheduledEvent {
 
     @ApiModelProperty(value = "Id of an internal event location")
     private Long eventLocationId;
+
+    @JsonIgnore
+    private String agencyId;
 
     @ApiModelProperty(required = true, value = "Code identifying underlying source of event data")
     @NotBlank

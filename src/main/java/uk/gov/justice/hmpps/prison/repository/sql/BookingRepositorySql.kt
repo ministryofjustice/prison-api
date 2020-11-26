@@ -563,6 +563,7 @@ enum class BookingRepositorySql(val sql: String) {
                OIS.START_TIME,
                OIS.END_TIME,
                OIS.TO_INTERNAL_LOCATION_ID EVENT_LOCATION_ID,
+               OIS.AGY_LOC_ID AGENCY_ID,
                COALESCE(AIL.USER_DESC, AIL.DESCRIPTION, AGY.DESCRIPTION) EVENT_LOCATION,
                'APP' EVENT_SOURCE,
                'APP' EVENT_SOURCE_CODE,
@@ -573,6 +574,8 @@ enum class BookingRepositorySql(val sql: String) {
                LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OIS.TO_INTERNAL_LOCATION_ID = AIL.INTERNAL_LOCATION_ID
                LEFT JOIN AGENCY_LOCATIONS AGY ON OIS.TO_AGY_LOC_ID = AGY.AGY_LOC_ID
          WHERE OIS.EVENT_ID = :eventId
+               AND EVENT_CLASS = 'INT_MOV'
+               AND EVENT_TYPE = 'APP'
     """
   ),
 
@@ -588,7 +591,9 @@ enum class BookingRepositorySql(val sql: String) {
   DELETE_APPOINTMENT(
     """
         DELETE FROM OFFENDER_IND_SCHEDULES
-        WHERE EVENT_ID = :eventId
+         WHERE EVENT_ID = :eventId
+               AND EVENT_CLASS = 'INT_MOV'
+               AND EVENT_TYPE = 'APP'
     """
   ),
 

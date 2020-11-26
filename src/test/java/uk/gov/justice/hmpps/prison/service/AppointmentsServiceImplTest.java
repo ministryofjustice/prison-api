@@ -795,6 +795,7 @@ public class AppointmentsServiceImplTest {
                 .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
                 .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
                 .eventLocationId(2L)
+                .agencyId("WWI")
                 .build();
         when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.of(scheduledEvent));
 
@@ -809,6 +810,7 @@ public class AppointmentsServiceImplTest {
                         "start", "2020-01-01T01:01",
                         "end", "2020-01-01T01:31",
                         "location", "2",
+                        "agency", "WWI",
                         "user", "username"
                         ),
                 null);

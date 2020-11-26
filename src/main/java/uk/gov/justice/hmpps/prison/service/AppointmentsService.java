@@ -331,6 +331,7 @@ public class AppointmentsService {
         logMap.put("eventId", appointment.getEventId().toString());
         logMap.put("user", authenticationFacade.getCurrentUsername());
         logMap.put("type", appointment.getEventSubType());
+        logMap.put("agency", appointment.getAgencyId());
 
         if (appointment.getStartTime() != null) {
             logMap.put("start", appointment.getStartTime().toString());
