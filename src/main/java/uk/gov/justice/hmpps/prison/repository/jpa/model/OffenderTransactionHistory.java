@@ -57,6 +57,12 @@ public class OffenderTransactionHistory extends AuditableEntity {
     @Column(name = "SUB_ACCOUNT_TYPE", nullable = false, length = 12)
     private String accountType;
 
+    @Column(name = "TXN_POSTING_TYPE", nullable = false, length = 12)
+    private String postingType;
+
+    @Column(name = "CASELOAD_ID", nullable = false, length = 6)
+    private String agencyId;
+
     @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
