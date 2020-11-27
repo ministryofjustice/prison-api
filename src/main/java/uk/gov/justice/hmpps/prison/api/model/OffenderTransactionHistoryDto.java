@@ -51,4 +51,13 @@ public class OffenderTransactionHistoryDto {
 
     @ApiModelProperty(value = "Offender Sub Account", example = "savings,spends,cash", position = 10)
     private String accountType;
+
+    @ApiModelProperty(value = "Posting type. Denotes the direction of money moving in or out of the account", example = "CR,DR", position = 11)
+    private String postingType;
+
+    @ApiModelProperty(value = "Offender number",  example = "G6123VU", position = 12)
+    private String offenderNo;
+
+    @ApiModelProperty(value = "The place the transaction took place",  example = "MDI", position = 13)
+    private String agencyId;
 }

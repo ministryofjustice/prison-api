@@ -6,26 +6,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionHistoryRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
-import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransactionHistoryTransformer;
 
-import javax.lang.model.UnknownEntityException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
-import java.util.List;
 import java.util.Collections;
-import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OffenderTransactionHistoryServiceTest {
@@ -35,20 +33,17 @@ public class OffenderTransactionHistoryServiceTest {
     @Mock
     private OffenderTransactionHistoryRepository repository;
 
-    @Mock
-    private OffenderRepository offenderRepository;
-
     private OffenderTransactionHistoryService service;
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderTransactionHistoryService("GBP", repository, offenderRepository);
+        service = new OffenderTransactionHistoryService("GBP", repository);
     }
 
     @Test
     public void When_getTransactionHistory_And_AccountCodeIsGiven_Then_CallRepositoryWithAccountCode() {
 
-        final Optional<String> accountCode  = Optional.of("spends");
+        final Optional<String> accountCode = Optional.of("spends");
         final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
         final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
 
@@ -66,7 +61,7 @@ public class OffenderTransactionHistoryServiceTest {
     @Test
     public void When_getTransactionHistory_And_AccountCodeIsMissing_Then_CallRepositoryWithoutAccountCode() {
 
-        final Optional<String> accountCode  = Optional.empty();
+        final Optional<String> accountCode = Optional.empty();
         final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
         final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
 
@@ -86,7 +81,7 @@ public class OffenderTransactionHistoryServiceTest {
     public void When_getTransactionHistory_And_OffenderIdIsNull_Then_ThrowException() {
 
         Throwable exception = assertThrows(NullPointerException.class, () -> {
-            final String  nomisId = null;
+            final String nomisId = null;
             final Optional<String> accountCode = Optional.of("spends");
             final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
             final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
@@ -100,7 +95,7 @@ public class OffenderTransactionHistoryServiceTest {
     public void When_getTransactionHistory_And_AccountCodeIsNull_Then_ThrowException() {
 
         Throwable exception = assertThrows(NullPointerException.class, () -> {
-            final Optional<String> accountCode  = null;
+            final Optional<String> accountCode = null;
             final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
             final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
             service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
@@ -177,7 +172,7 @@ public class OffenderTransactionHistoryServiceTest {
     @Test
     public void When_getTransactionHistory_And_DatesDefaultToNow_Then_CallRepositoryWithoutAccountCode() {
 
-        final Optional<String> accountCode  = Optional.of("spends");
+        final Optional<String> accountCode = Optional.of("spends");
         final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
         final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
 
@@ -208,90 +203,69 @@ public class OffenderTransactionHistoryServiceTest {
     @Test
     public void When_getTransactionHistory_ShouldBe_SortedByEntryDateDescending() {
 
-        final Optional<String> accountCode  = Optional.empty();
-        final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
-        final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
+        final Optional<String> accountCode = Optional.empty();
+        final var fromDateOpl = Optional.of(LocalDate.now());
+        final var toDateOpl = Optional.of(LocalDate.now());
+        final var offender = Offender.builder().nomsId(OFFENDER_NO).id(1L).build();
 
-        Offender offender = Offender.builder().nomsId(OFFENDER_NO).build();
-
-        var firstSeq3 = OffenderTransactionHistory.builder()
-                .entryDate(LocalDate.now().minusDays(2))
-                .entryAmount(BigDecimal.ONE)
-                .transactionEntrySequence(3L)
-                .offender(offender)
-                .build();
-        var firstSeq2 = OffenderTransactionHistory.builder()
-                .entryDate(LocalDate.now().minusDays(2))
-                .entryAmount(BigDecimal.ONE)
-                .transactionEntrySequence(2L)
-                .offender(offender)
-                .build();
-        var firstSeq1 = OffenderTransactionHistory.builder()
-                .entryDate(LocalDate.now().minusDays(2))
-                .entryAmount(BigDecimal.ONE)
-                .transactionEntrySequence(1L)
-                .offender(offender)
-                .build();
-
-        var secondSeq2 = OffenderTransactionHistory.builder()
-                .entryDate(LocalDate.now().minusDays(1))
-                .entryAmount(BigDecimal.ONE)
-                .transactionEntrySequence(2L)
-                .offender(offender)
-                .build();
-
-        var secondSeq3 = OffenderTransactionHistory.builder()
-                .entryDate(LocalDate.now().minusDays(1))
-                .entryAmount(BigDecimal.ONE)
-                .transactionEntrySequence(3L)
-                .offender(offender)
-                .build();
-
-        var secondSeq1 = OffenderTransactionHistory.builder()
-                .entryDate(LocalDate.now().minusDays(1))
-                .entryAmount(BigDecimal.ONE)
-                .transactionEntrySequence(1L)
-                .offender(offender)
-                .build();
-
-        var thirdSeq1 = OffenderTransactionHistory.builder()
+        when(repository.findForAllAccountTypes(OFFENDER_NO, fromDateOpl.get(), toDateOpl.get())).thenReturn(List.of(
+            OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now())
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(1L)
                 .offender(offender)
-                .build();
-
-        var thirdSeq3 = OffenderTransactionHistory.builder()
-                .entryDate(LocalDate.now())
-                .entryAmount(BigDecimal.ONE)
-                .transactionEntrySequence(3L)
-                .offender(offender)
-                .build();
-
-        var thirdSeq2 = OffenderTransactionHistory.builder()
+                .build(),
+            OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now())
                 .entryAmount(BigDecimal.ONE)
                 .transactionEntrySequence(2L)
                 .offender(offender)
-                .build();
+                .build(),
+            OffenderTransactionHistory.builder()
+                .entryDate(LocalDate.now())
+                .entryAmount(BigDecimal.ONE)
+                .transactionEntrySequence(3L)
+                .offender(offender)
+                .build(),
+            OffenderTransactionHistory.builder()
+                .entryDate(LocalDate.now().minusDays(1))
+                .entryAmount(BigDecimal.ONE)
+                .transactionEntrySequence(1L)
+                .offender(offender)
+                .build(),
+            OffenderTransactionHistory.builder()
+                .entryDate(LocalDate.now().minusDays(1))
+                .entryAmount(BigDecimal.ONE)
+                .transactionEntrySequence(2L)
+                .offender(offender)
+                .build(),
+            OffenderTransactionHistory.builder()
+                .entryDate(LocalDate.now().minusDays(1))
+                .entryAmount(BigDecimal.ONE)
+                .transactionEntrySequence(3L)
+                .offender(offender)
+                .build(),
+            OffenderTransactionHistory.builder()
+                .entryDate(LocalDate.now().minusDays(2))
+                .entryAmount(BigDecimal.ONE)
+                .transactionEntrySequence(1L)
+                .offender(offender)
+                .build(),
+            OffenderTransactionHistory.builder()
+                .entryDate(LocalDate.now().minusDays(2))
+                .entryAmount(BigDecimal.ONE)
+                .transactionEntrySequence(2L)
+                .offender(offender)
+                .build(),
+            OffenderTransactionHistory.builder()
+                .entryDate(LocalDate.now().minusDays(2))
+                .entryAmount(BigDecimal.ONE)
+                .transactionEntrySequence(3L)
+                .offender(offender)
+                .build()
+            ));
 
-        var firstDtoSeq3 = OffenderTransactionHistoryTransformer.transform(firstSeq3);
-        var firstDtoSeq2 = OffenderTransactionHistoryTransformer.transform(firstSeq2);
-        var firstDtoSeq1 = OffenderTransactionHistoryTransformer.transform(firstSeq1);
-
-        var secondDtoSeq2 = OffenderTransactionHistoryTransformer.transform(secondSeq2);
-        var secondDtoSeq3 = OffenderTransactionHistoryTransformer.transform(secondSeq3);
-        var secondDtoSeq1 = OffenderTransactionHistoryTransformer.transform(secondSeq1);
-
-        var thirdDto = OffenderTransactionHistoryTransformer.transform(thirdSeq1);
-        var thirdDtoSeq3 = OffenderTransactionHistoryTransformer.transform(thirdSeq3);
-        var thirdDtoSeq2 = OffenderTransactionHistoryTransformer.transform(thirdSeq2);
-
-        final List<OffenderTransactionHistory> txnItem = Arrays.asList(secondSeq2, firstSeq3, secondSeq3, secondSeq1, firstSeq2, thirdSeq1, thirdSeq3, firstSeq1, thirdSeq2);
-
-        when(repository.findForAllAccountTypes(OFFENDER_NO, fromDateOpl.get(), toDateOpl.get())).thenReturn(txnItem);
-
-        List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
+        final var histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
 
         verify(repository, times(1)).findForAllAccountTypes(OFFENDER_NO, fromDateOpl.get(), toDateOpl.get());
 
@@ -299,18 +273,167 @@ public class OffenderTransactionHistoryServiceTest {
         assertThat(histories.size()).isEqualTo(9);
 
         /* verify */
-        assertThat(histories.get(0)).isEqualTo(thirdDto);
-        assertThat(histories.get(1)).isEqualTo(thirdDtoSeq2);
-        assertThat(histories.get(2)).isEqualTo(thirdDtoSeq3);
+        assertThat(histories.get(0)).isEqualTo(OffenderTransactionHistoryDto.builder()
+            .entryDate(LocalDate.now())
+            .penceAmount(100L)
+            .transactionEntrySequence(3L)
+            .offenderNo(OFFENDER_NO)
+            .offenderId(offender.getId())
+            .currency("GBP")
+            .build());
+
+        assertThat(histories.get(1)).isEqualTo(OffenderTransactionHistoryDto.builder()
+            .entryDate(LocalDate.now())
+            .penceAmount(100L)
+            .transactionEntrySequence(2L)
+            .offenderNo(OFFENDER_NO)
+            .offenderId(offender.getId())
+            .currency("GBP")
+            .build());
+
+        assertThat(histories.get(2)).isEqualTo(OffenderTransactionHistoryDto.builder()
+            .entryDate(LocalDate.now())
+            .penceAmount(100L)
+            .transactionEntrySequence(1L)
+            .offenderNo(OFFENDER_NO)
+            .offenderId(offender.getId())
+            .currency("GBP")
+            .build());
 
         /* verify */
-        assertThat(histories.get(3)).isEqualTo(secondDtoSeq1);
-        assertThat(histories.get(4)).isEqualTo(secondDtoSeq2);
-        assertThat(histories.get(5)).isEqualTo(secondDtoSeq3);
+        assertThat(histories.get(3)).isEqualTo(OffenderTransactionHistoryDto.builder()
+            .entryDate(LocalDate.now().minusDays(1))
+            .penceAmount(100L)
+            .transactionEntrySequence(3L)
+            .offenderNo(OFFENDER_NO)
+            .offenderId(offender.getId())
+            .currency("GBP")
+            .build());
+
+        assertThat(histories.get(4)).isEqualTo(OffenderTransactionHistoryDto.builder()
+            .entryDate(LocalDate.now().minusDays(1))
+            .penceAmount(100L)
+            .transactionEntrySequence(2L)
+            .offenderNo(OFFENDER_NO)
+            .offenderId(offender.getId())
+            .currency("GBP")
+            .build());
+
+        assertThat(histories.get(5)).isEqualTo(OffenderTransactionHistoryDto.builder()
+            .entryDate(LocalDate.now().minusDays(1))
+            .penceAmount(100L)
+            .transactionEntrySequence(1L)
+            .offenderNo(OFFENDER_NO)
+            .offenderId(offender.getId())
+            .currency("GBP")
+            .build());
 
         /* verify */
-        assertThat(histories.get(6)).isEqualTo(firstDtoSeq1);
-        assertThat(histories.get(7)).isEqualTo(firstDtoSeq2);
-        assertThat(histories.get(8)).isEqualTo(firstDtoSeq3);
+        assertThat(histories.get(6)).isEqualTo(OffenderTransactionHistoryDto.builder()
+            .entryDate(LocalDate.now().minusDays(2))
+            .penceAmount(100L)
+            .transactionEntrySequence(3L)
+            .offenderNo(OFFENDER_NO)
+            .offenderId(offender.getId())
+            .currency("GBP")
+            .build());
+
+        assertThat(histories.get(7)).isEqualTo(OffenderTransactionHistoryDto
+            .builder()
+            .entryDate(LocalDate.now().minusDays(2))
+            .penceAmount(100L)
+            .transactionEntrySequence(2L)
+            .offenderNo(OFFENDER_NO)
+            .offenderId(offender.getId())
+            .currency("GBP")
+            .build());
+
+        assertThat(histories.get(8)).isEqualTo(OffenderTransactionHistoryDto
+            .builder()
+            .entryDate(LocalDate.now().minusDays(2))
+            .penceAmount(100L)
+            .transactionEntrySequence(1L)
+            .offenderNo(OFFENDER_NO)
+            .offenderId(offender.getId())
+            .currency("GBP")
+            .build());
+    }
+
+    @Test
+    public void When_getTransactionHistory_ForAccountCode_Maps_Correctly() {
+        final var now = LocalDate.now();
+
+        when(repository.findForGivenAccountType(anyString(), anyString(), any(), any()))
+            .thenReturn(List.of(offenderTransactionHistoryEntry(now)));
+
+        final var accountCode = Optional.of("spends");
+        final var fromDateOpl = Optional.of(LocalDate.now());
+        final var toDateOpl = Optional.of(LocalDate.now());
+
+        final var transaction = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl)
+            .stream()
+            .findFirst()
+            .orElseThrow();
+
+        assertThat(transaction.getOffenderId()).isEqualTo(3L);
+        assertThat(transaction.getTransactionId()).isEqualTo(1L);
+        assertThat(transaction.getTransactionEntrySequence()).isEqualTo(1L);
+        assertThat(transaction.getEntryDate()).isEqualTo(now);
+        assertThat(transaction.getTransactionType()).isEqualTo("OUT");
+        assertThat(transaction.getEntryDescription()).isEqualTo("Some description");
+        assertThat(transaction.getReferenceNumber()).isEqualTo("12343/1");
+        assertThat(transaction.getCurrency()).isEqualTo("GBP");
+        assertThat(transaction.getPenceAmount()).isEqualTo(200);
+        assertThat(transaction.getAccountType()).isEqualTo("SPENDS");
+        assertThat(transaction.getPostingType()).isEqualTo("DR");
+        assertThat(transaction.getOffenderNo()).isEqualTo(OFFENDER_NO);
+        assertThat(transaction.getAgencyId()).isEqualTo("MDI");
+    }
+
+    @Test
+    public void When_getTransactionHistory_Maps_Correctly() {
+        final var now = LocalDate.now();
+
+        when(repository.findForAllAccountTypes(anyString(), any(), any()))
+            .thenReturn(List.of(offenderTransactionHistoryEntry(now)));
+
+        final var fromDateOpl = Optional.of(LocalDate.now());
+        final var toDateOpl = Optional.of(LocalDate.now());
+
+        final var transaction = service.getTransactionHistory(OFFENDER_NO, Optional.empty(), fromDateOpl, toDateOpl)
+            .stream()
+            .findFirst()
+            .orElseThrow();
+
+        assertThat(transaction.getOffenderId()).isEqualTo(3L);
+        assertThat(transaction.getTransactionId()).isEqualTo(1L);
+        assertThat(transaction.getTransactionEntrySequence()).isEqualTo(1L);
+        assertThat(transaction.getEntryDate()).isEqualTo(now);
+        assertThat(transaction.getTransactionType()).isEqualTo("OUT");
+        assertThat(transaction.getEntryDescription()).isEqualTo("Some description");
+        assertThat(transaction.getReferenceNumber()).isEqualTo("12343/1");
+        assertThat(transaction.getCurrency()).isEqualTo("GBP");
+        assertThat(transaction.getPenceAmount()).isEqualTo(200);
+        assertThat(transaction.getAccountType()).isEqualTo("SPENDS");
+        assertThat(transaction.getPostingType()).isEqualTo("DR");
+        assertThat(transaction.getOffenderNo()).isEqualTo(OFFENDER_NO);
+        assertThat(transaction.getAgencyId()).isEqualTo("MDI");
+    }
+
+    private OffenderTransactionHistory offenderTransactionHistoryEntry(final LocalDate entryDate) {
+        return OffenderTransactionHistory
+            .builder()
+            .entryAmount(BigDecimal.valueOf(2.0))
+            .postingType("DR")
+            .entryDate(entryDate)
+            .offender(Offender.builder().nomsId(OFFENDER_NO).rootOffenderId(2L).id(3L).build())
+            .entryDescription("Some description")
+            .referenceNumber("12343/1")
+            .transactionEntrySequence(1L)
+            .transactionId(1L)
+            .transactionType("OUT")
+            .accountType("SPENDS")
+            .agencyId("MDI")
+            .build();
     }
 }
