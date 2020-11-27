@@ -70,12 +70,10 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 url,
                 HttpMethod.GET,
                 httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                String.class,
                 OFFENDER_NO);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
-        assertThat(response.getBody()).isInstanceOf(List.class);
-        assertThat(response.getBody().size()).isEqualTo(1);
+        assertThatJsonFileAndStatus(response, 200, "offender-transaction-history.json");
     }
 
     @Test
