@@ -12,6 +12,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -48,11 +49,8 @@ public class AgencyInternalLocation {
     @Column(name = "DESCRIPTION")
     private String description;
 
-    @Column(name = "PARENT_INTERNAL_LOCATION_ID")
-    private Long parentLocationId;
-
-    @ManyToOne
-    @JoinColumn(name = "PARENT_INTERNAL_LOCATION_ID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_INTERNAL_LOCATION_ID")
     private AgencyInternalLocation parentLocation;
 
     @Column(name = "NO_OF_OCCUPANT")
@@ -85,7 +83,7 @@ public class AgencyInternalLocation {
     public boolean isCellSwap() {
         return (certifiedFlag == null || !certifiedFlag.isActive()) &&
                 (activeFlag == null || activeFlag.isActive()) &&
-                parentLocationId == null &&
+                parentLocation == null &&
                 locationCode != null &&
                 locationCode.equals("CSWAP");
     }

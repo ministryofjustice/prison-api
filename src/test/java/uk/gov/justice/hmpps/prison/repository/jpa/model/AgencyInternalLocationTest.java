@@ -19,7 +19,7 @@ public class AgencyInternalLocationTest {
                 .builder()
                 .activeFlag(ActiveFlag.Y)
                 .certifiedFlag(ActiveFlag.N)
-                .parentLocationId(null)
+                .parentLocation(null)
                 .locationCode("CSWAP")
                 .build();
 
