@@ -463,7 +463,7 @@ public class OffenderTransactionHistoryServiceTest {
             .orElseThrow();
 
         assertThat(relatedTransactionDetail.getId()).isEqualTo(1);
-        assertThat(relatedTransactionDetail.getPayAmount()).isEqualTo(BigDecimal.valueOf(1));
+        assertThat(relatedTransactionDetail.getPayAmount()).isEqualTo(BigDecimal.valueOf(1.0));
         assertThat(relatedTransactionDetail.getBonusPay()).isEqualTo(BigDecimal.valueOf(3.0));
         assertThat(relatedTransactionDetail.getPieceWork()).isEqualTo(BigDecimal.valueOf(2.0));
         assertThat(relatedTransactionDetail.getCalendarDate()).isEqualTo(LocalDate.now());
