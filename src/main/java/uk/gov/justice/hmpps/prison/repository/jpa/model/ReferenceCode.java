@@ -2,7 +2,10 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -23,9 +26,11 @@ public abstract class ReferenceCode implements Serializable {
 
     @AllArgsConstructor
     @NoArgsConstructor
+    @Getter
+    @ToString
+    @EqualsAndHashCode
     public static class Pk implements Serializable {
         private String domain;
-
         private String code;
     }
 

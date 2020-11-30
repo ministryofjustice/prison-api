@@ -21,6 +21,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -70,6 +71,9 @@ public class OffenderBooking {
     @JoinColumn(name = "LIVING_UNIT_ID")
     private AgencyInternalLocation assignedLivingUnit;
 
+    @Column(name = "AGENCY_IML_ID")
+    private Long livingUnitMv;
+
     @Column(name = "ACTIVE_FLAG")
     private String activeFlag;
 
@@ -80,6 +84,21 @@ public class OffenderBooking {
 
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
+
+    @Column(name = "BOOKING_STATUS")
+    private String bookingStatus;
+
+    @Column(name = "STATUS_REASON")
+    private String statusReason;
+
+    @Column(name = "COMM_STATUS")
+    private String commStatus;
+
+    @Column(name = "BOOKING_END_DATE")
+    private LocalDateTime bookingEndDate;
+
+    @Column(name = "IN_OUT_STATUS")
+    private String inOutStatus;
 
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);

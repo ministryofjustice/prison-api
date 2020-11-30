@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,6 +58,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
+import uk.gov.justice.hmpps.prison.service.PrisonerReleaseService;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -85,6 +87,7 @@ public class OffenderResource {
     private final GlobalSearchService globalSearchService;
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
+    private final PrisonerReleaseService prisonerReleaseService;
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
 
@@ -101,6 +104,23 @@ public class OffenderResource {
 
     @ApiResponses({
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation("Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison")
+    @PutMapping("/{offenderNo}/release")
+    @HasWriteScope
+    @PreAuthorize("hasRole('RELEASE_PRISONER')")
+    @ProxyUser
+    @VerifyOffenderAccess(overrideRoles = {"RELEASE_PRISONER"})
+    public InmateDetail releasePrisoner(
+        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @NotNull @RequestParam(value = "movementReasonCode", defaultValue = "CR") @ApiParam(value = "Reason code for the release", example = "CR", required = true, defaultValue = "CR") final String movementReasonCode,
+        @Length(max = 240, message = "Comments size is a maximum of 240 characters") @RequestParam(value = "commentText", required = false)  @ApiParam(value = "Additional comments about the release", example = "Prisoner was released on bail") final String commentText
+        ) {
+        prisonerReleaseService.releasePrisoner(offenderNo, movementReasonCode, commentText);
+        return inmateService.findOffender(offenderNo, false);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Returns the next prisoner number (NOMS ID or Offender No) that can be used to create an offender")
     @GetMapping("/next-sequence")
     @HasWriteScope

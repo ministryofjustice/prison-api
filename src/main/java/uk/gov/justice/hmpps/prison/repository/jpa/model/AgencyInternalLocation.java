@@ -13,6 +13,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Getter
@@ -48,6 +50,10 @@ public class AgencyInternalLocation {
 
     @Column(name = "PARENT_INTERNAL_LOCATION_ID")
     private Long parentLocationId;
+
+    @ManyToOne
+    @JoinColumn(name = "PARENT_INTERNAL_LOCATION_ID", insertable = false, updatable = false)
+    private AgencyInternalLocation parentLocation;
 
     @Column(name = "NO_OF_OCCUPANT")
     private Integer currentOccupancy;
@@ -93,6 +99,14 @@ public class AgencyInternalLocation {
             return currentOccupancy < operationalCapacity;
         }
         return capacity != null && currentOccupancy != null && currentOccupancy < capacity;
+    }
+
+    public Integer incrementCurrentOccupancy() {
+        if (currentOccupancy != null) {
+            currentOccupancy = currentOccupancy + 1;
+        }
+
+        return currentOccupancy;
     }
 
     public boolean isActiveCellWithSpace() {

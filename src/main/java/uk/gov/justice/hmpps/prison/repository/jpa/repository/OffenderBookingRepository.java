@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface OffenderBookingRepository extends CrudRepository<OffenderBooking, Long> {
     Optional<OffenderBooking> findByOffenderNomsIdAndActiveFlag(String nomsId, String activeFlag);
+    Optional<OffenderBooking> findByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 }

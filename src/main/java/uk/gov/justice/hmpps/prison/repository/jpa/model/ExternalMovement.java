@@ -23,10 +23,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import static javax.persistence.EnumType.STRING;
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.City.CITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.REASON;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TYPE;
-import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
 @Builder
@@ -71,6 +71,9 @@ public class ExternalMovement extends AuditableEntity {
 
     @Enumerated(EnumType.STRING)
     private ActiveFlag activeFlag;
+
+    @Column(name = "COMMENT_TEXT")
+    private String commentText;
 
     @ManyToOne
     @NotFound(action = IGNORE)
