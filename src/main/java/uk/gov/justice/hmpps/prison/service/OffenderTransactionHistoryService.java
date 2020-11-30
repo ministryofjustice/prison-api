@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
+import uk.gov.justice.hmpps.prison.api.model.RelatedTransactionDetails;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionDetails;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -37,8 +39,8 @@ public class OffenderTransactionHistoryService {
     }
 
     public static final Comparator<OffenderTransactionHistory> SORT_BY_MOST_RECENT_DATE_THEN_BY_LATEST_SEQ = Comparator
-            .comparing(OffenderTransactionHistory::getEntryDate).reversed()
-            .thenComparing(Comparator.comparing(OffenderTransactionHistory::getTransactionEntrySequence).reversed());
+        .comparing(OffenderTransactionHistory::getEntryDate).reversed()
+        .thenComparing(Comparator.comparing(OffenderTransactionHistory::getTransactionEntrySequence).reversed());
 
     @VerifyOffenderAccess
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final String offenderNo,
@@ -86,6 +88,13 @@ public class OffenderTransactionHistoryService {
     }
 
     public OffenderTransactionHistoryDto transform(final OffenderTransactionHistory offenderTransactionHistory) {
+
+        final var relatedTransactionDetails = offenderTransactionHistory
+            .getRelatedTransactionDetails()
+            .stream()
+            .map(this::transform)
+            .collect(Collectors.toList());
+
         return OffenderTransactionHistoryDto
             .builder()
             .accountType(offenderTransactionHistory.getAccountType())
@@ -100,6 +109,24 @@ public class OffenderTransactionHistoryService {
             .transactionId(offenderTransactionHistory.getTransactionId())
             .postingType(offenderTransactionHistory.getPostingType())
             .agencyId(offenderTransactionHistory.getAgencyId())
-            .transactionType(offenderTransactionHistory.getTransactionType()).build();
+            .transactionType(offenderTransactionHistory.getTransactionType())
+            .relatedOffenderTransactions(relatedTransactionDetails)
+            .build();
     }
+
+    public RelatedTransactionDetails transform(final OffenderTransactionDetails offenderTransactionDetails) {
+        return RelatedTransactionDetails
+            .builder()
+            .id(offenderTransactionDetails.getId())
+            .bonusPay(offenderTransactionDetails.getBonusPay())
+            .payAmount(offenderTransactionDetails.getPayAmount())
+            .pieceWork(offenderTransactionDetails.getPieceWork())
+            .calendarDate(offenderTransactionDetails.getCalendarDate())
+            .payTypeCode(offenderTransactionDetails.getPayTypeCode())
+            .eventId(offenderTransactionDetails.getEventId())
+            .transactionEntrySequence(offenderTransactionDetails.getTransactionEntrySequence())
+            .transactionId(offenderTransactionDetails.getTransactionId())
+            .build();
+    }
+
 }
