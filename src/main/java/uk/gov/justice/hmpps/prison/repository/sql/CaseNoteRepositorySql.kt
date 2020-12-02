@@ -197,8 +197,8 @@ enum class CaseNoteRepositorySql(val sql: String) {
                                 FROM WORKS W
                                 WHERE W.WORKFLOW_TYPE = 'CNOTE'
                         AND W.CASELOAD_TYPE IN ((:caseLoadType),'BOTH')
-        AND W.MANUAL_SELECT_FLAG = 'Y'
-        AND W.ACTIVE_FLAG = 'Y') WKS
+        AND W.MANUAL_SELECT_FLAG = :active_flag
+        AND W.ACTIVE_FLAG = :active_flag) WKS
         INNER JOIN REFERENCE_CODES RC1 ON RC1.CODE = WKS.WORK_TYPE
                 AND RC1.DOMAIN = 'TASK_TYPE'
         INNER JOIN REFERENCE_CODES RC2 ON RC2.CODE = WKS.WORK_SUB_TYPE

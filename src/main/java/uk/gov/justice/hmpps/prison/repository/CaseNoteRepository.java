@@ -46,37 +46,37 @@ import java.util.stream.Collectors;
 @Validated
 public class CaseNoteRepository extends RepositoryBase {
     private static final RowMapper<ReferenceCode> REF_CODE_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
+        new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
 
     private static final RowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
+        new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
     private final Map<String, FieldMapper> CASE_NOTE_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
-            .put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"))
-            .put("CASE_NOTE_ID", new FieldMapper("caseNoteId"))
-            .put("CASE_NOTE_TYPE", new FieldMapper("type"))
-            .put("CASE_NOTE_TYPE_DESC", new FieldMapper("typeDescription"))
-            .put("CASE_NOTE_SUB_TYPE", new FieldMapper("subType"))
-            .put("CASE_NOTE_SUB_TYPE_DESC", new FieldMapper("subTypeDescription"))
-            .put("NOTE_SOURCE_CODE", new FieldMapper("source"))
-            .put("AGY_LOC_ID", new FieldMapper("agencyId"))
-            .put("CONTACT_TIME", new FieldMapper("occurrenceDateTime", DateTimeConverter::toISO8601LocalDateTime))
-            .put("CREATE_DATETIME", new FieldMapper("creationDateTime", DateTimeConverter::toISO8601LocalDateTime))
-            .put("CASE_NOTE_TEXT", new FieldMapper("text"))
-            .put("STAFF_NAME", new FieldMapper("authorName"))
-            .build();
+        .put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"))
+        .put("CASE_NOTE_ID", new FieldMapper("caseNoteId"))
+        .put("CASE_NOTE_TYPE", new FieldMapper("type"))
+        .put("CASE_NOTE_TYPE_DESC", new FieldMapper("typeDescription"))
+        .put("CASE_NOTE_SUB_TYPE", new FieldMapper("subType"))
+        .put("CASE_NOTE_SUB_TYPE_DESC", new FieldMapper("subTypeDescription"))
+        .put("NOTE_SOURCE_CODE", new FieldMapper("source"))
+        .put("AGY_LOC_ID", new FieldMapper("agencyId"))
+        .put("CONTACT_TIME", new FieldMapper("occurrenceDateTime", DateTimeConverter::toISO8601LocalDateTime))
+        .put("CREATE_DATETIME", new FieldMapper("creationDateTime", DateTimeConverter::toISO8601LocalDateTime))
+        .put("CASE_NOTE_TEXT", new FieldMapper("text"))
+        .put("STAFF_NAME", new FieldMapper("authorName"))
+        .build();
 
     private static final RowMapper<CaseNoteUsage> CASE_NOTE_USAGE_MAPPER =
-            new StandardBeanPropertyRowMapper<>(CaseNoteUsage.class);
+        new StandardBeanPropertyRowMapper<>(CaseNoteUsage.class);
 
     private static final RowMapper<CaseNoteUsageByBookingId> CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(CaseNoteUsageByBookingId.class);
+        new StandardBeanPropertyRowMapper<>(CaseNoteUsageByBookingId.class);
 
     private static final RowMapper<CaseNoteStaffUsage> CASE_NOTE_STAFF_USAGE_MAPPER =
-            new StandardBeanPropertyRowMapper<>(CaseNoteStaffUsage.class);
+        new StandardBeanPropertyRowMapper<>(CaseNoteStaffUsage.class);
 
     private static final RowMapper<CaseNoteEvent> CASE_NOTE_EVENT_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(CaseNoteEvent.class);
+        new StandardBeanPropertyRowMapper<>(CaseNoteEvent.class);
 
 
     public Page<CaseNote> getCaseNotes(final long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderByField,
@@ -110,19 +110,19 @@ public class CaseNoteRepository extends RepositoryBase {
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
 
         final var sql = builder
-                .addRowCount()
-                .addQuery(query)
-                .addOrderBy(order == Order.ASC, orderByField)
-                .addPagination()
-                .build();
+            .addRowCount()
+            .addQuery(query)
+            .addOrderBy(order == Order.ASC, orderByField)
+            .addPagination()
+            .build();
 
         final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
         final var paRowMapper = new PageAwareRowMapper<>(caseNoteRowMapper);
 
         final var caseNotes = jdbcTemplate.query(
-                sql,
-                params,
-                paRowMapper);
+            sql,
+            params,
+            paRowMapper);
 
         return new Page<>(caseNotes, paRowMapper.getTotalRecords(), offset, limit);
     }
@@ -150,15 +150,15 @@ public class CaseNoteRepository extends RepositoryBase {
         final var sql = String.format(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS.getSql(), addSql.length() > 0 ? addSql.toString() : "");
 
         return jdbcTemplate.query(sql,
-                createParams(
-                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
-                        "type", new SqlParameterValue(Types.VARCHAR, type),
-                        "subType", new SqlParameterValue(Types.VARCHAR, subType),
-                        "offenderNos", offenderNos,
-                        "agencyId", new SqlParameterValue(Types.VARCHAR, agencyId),
-                        "staffId", new SqlParameterValue(Types.INTEGER, staffId)),
-                CASE_NOTE_USAGE_MAPPER);
+            createParams(
+                "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
+                "type", new SqlParameterValue(Types.VARCHAR, type),
+                "subType", new SqlParameterValue(Types.VARCHAR, subType),
+                "offenderNos", offenderNos,
+                "agencyId", new SqlParameterValue(Types.VARCHAR, agencyId),
+                "staffId", new SqlParameterValue(Types.INTEGER, staffId)),
+            CASE_NOTE_USAGE_MAPPER);
     }
 
 
@@ -167,33 +167,33 @@ public class CaseNoteRepository extends RepositoryBase {
         final var sql = CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS_FOR_BOOKING.getSql();
 
         return jdbcTemplate.query(sql,
-                createParams("bookingIds", bookingIds,
-                        "type", new SqlParameterValue(Types.VARCHAR, type),
-                        "subType", new SqlParameterValue(Types.VARCHAR, subType),
-                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
-                CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER);
+            createParams("bookingIds", bookingIds,
+                "type", new SqlParameterValue(Types.VARCHAR, type),
+                "subType", new SqlParameterValue(Types.VARCHAR, subType),
+                "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
+            CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER);
     }
 
 
     public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate, final Set<String> events, final long limit) {
         return jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.RECENT_CASE_NOTE_EVENTS.getSql(), Map.of()).addPagination().build(),
-                createParamSource(new PageRequest(0L, limit),
-                        "fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate),
-                        "types", events),
-                CASE_NOTE_EVENT_ROW_MAPPER);
+            createParamSource(new PageRequest(0L, limit),
+                "fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate),
+                "types", events),
+            CASE_NOTE_EVENT_ROW_MAPPER);
     }
 
 
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate) {
 
         return jdbcTemplate.query(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_STAFF.getSql(),
-                createParams("staffIds", staffIds,
-                        "type", type,
-                        "subType", subType,
-                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
-                CASE_NOTE_STAFF_USAGE_MAPPER);
+            createParams("staffIds", staffIds,
+                "type", type,
+                "subType", subType,
+                "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
+            CASE_NOTE_STAFF_USAGE_MAPPER);
     }
 
 
@@ -234,21 +234,21 @@ public class CaseNoteRepository extends RepositoryBase {
         final var generatedKeyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
-                sql,
-                createParams("bookingId", bookingId,
-                        "text", newCaseNote.getText(),
-                        "type", newCaseNote.getType(),
-                        "subType", newCaseNote.getSubType(),
-                        "sourceCode", sourceCode,
-                        "createDate", createdDate,
-                        "createTime", createdDateTime,
-                        "contactDate", occurrenceDate,
-                        "contactTime", occurrenceTime,
-                        "createdBy", username,
-                        "userId", username,
-                        "staffId", staffId),
-                generatedKeyHolder,
-                new String[]{"CASE_NOTE_ID"});
+            sql,
+            createParams("bookingId", bookingId,
+                "text", newCaseNote.getText(),
+                "type", newCaseNote.getType(),
+                "subType", newCaseNote.getSubType(),
+                "sourceCode", sourceCode,
+                "createDate", createdDate,
+                "createTime", createdDateTime,
+                "contactDate", occurrenceDate,
+                "contactTime", occurrenceTime,
+                "createdBy", username,
+                "userId", username,
+                "staffId", staffId),
+            generatedKeyHolder,
+            new String[]{"CASE_NOTE_ID"});
 
         return generatedKeyHolder.getKey().longValue();
     }
@@ -258,8 +258,8 @@ public class CaseNoteRepository extends RepositoryBase {
         final var sql = queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.UPDATE_CASE_NOTE.getSql(), CASE_NOTE_MAPPING).build();
 
         jdbcTemplate.update(sql, createParams("modifyBy", userId,
-                "caseNoteId", caseNoteId,
-                "text", updatedText));
+            "caseNoteId", caseNoteId,
+            "text", updatedText));
     }
 
 
@@ -267,13 +267,13 @@ public class CaseNoteRepository extends RepositoryBase {
         final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_COUNT.getSql();
 
         return jdbcTemplate.queryForObject(
-                sql,
-                createParams("bookingId", bookingId,
-                        "type", type,
-                        "subType", subType,
-                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
-                Long.class);
+            sql,
+            createParams("bookingId", bookingId,
+                "type", type,
+                "subType", subType,
+                "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
+            Long.class);
     }
 
 
@@ -282,18 +282,18 @@ public class CaseNoteRepository extends RepositoryBase {
         final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE.getSql();
 
         return jdbcTemplate.query(sql,
-                createParams("caseLoadType", caseLoadType),
-                REF_CODE_ROW_MAPPER);
+            createParams("caseLoadType", caseLoadType),
+            REF_CODE_ROW_MAPPER);
     }
 
 
     @Cacheable("caseNoteTypesWithSubTypesByCaseLoadType")
-    public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
+    public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType, final Boolean active) {
         final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE.getSql();
 
         final var referenceCodeDetails = jdbcTemplate.query(sql,
-                createParams("caseLoadType", caseLoadType),
-                REF_CODE_DETAIL_ROW_MAPPER);
+            createParams("caseLoadType", caseLoadType, "active_flag", active ? "Y" : "N"),
+            REF_CODE_DETAIL_ROW_MAPPER);
 
         return buildCaseNoteTypes(referenceCodeDetails);
     }
@@ -304,7 +304,7 @@ public class CaseNoteRepository extends RepositoryBase {
         final var sql = CaseNoteRepositorySql.GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES.getSql();
 
         final var referenceCodeDetails = jdbcTemplate.query(sql,
-                REF_CODE_DETAIL_ROW_MAPPER);
+            REF_CODE_DETAIL_ROW_MAPPER);
 
         return buildCaseNoteTypes(referenceCodeDetails);
     }
@@ -317,28 +317,28 @@ public class CaseNoteRepository extends RepositoryBase {
 
             if (caseNoteType == null) {
                 caseNoteType = ReferenceCode.builder()
-                        .code(ref.getCode())
-                        .domain(ref.getDomain())
-                        .description(ref.getDescription())
-                        .activeFlag(ref.getActiveFlag())
-                        .parentCode(ref.getParentCode())
-                        .parentDomain(ref.getParentDomain())
-                        .subCodes(new ArrayList<>())
-                        .build();
+                    .code(ref.getCode())
+                    .domain(ref.getDomain())
+                    .description(ref.getDescription())
+                    .activeFlag(ref.getActiveFlag())
+                    .parentCode(ref.getParentCode())
+                    .parentDomain(ref.getParentDomain())
+                    .subCodes(new ArrayList<>())
+                    .build();
 
                 caseNoteTypes.put(ref.getCode(), caseNoteType);
             }
 
             if (StringUtils.isNotBlank(ref.getSubCode())) {
                 final var caseNoteSubType = ReferenceCode.builder()
-                        .code(ref.getSubCode())
-                        .domain(ref.getSubDomain())
-                        .description(ref.getSubDescription())
-                        .activeFlag(ref.getSubActiveFlag())
-                        .listSeq(ref.getSubListSeq())
-                        .systemDataFlag(ref.getSubSystemDataFlag())
-                        .expiredDate(ref.getSubExpiredDate())
-                        .build();
+                    .code(ref.getSubCode())
+                    .domain(ref.getSubDomain())
+                    .description(ref.getSubDescription())
+                    .activeFlag(ref.getSubActiveFlag())
+                    .listSeq(ref.getSubListSeq())
+                    .systemDataFlag(ref.getSubSystemDataFlag())
+                    .expiredDate(ref.getSubExpiredDate())
+                    .build();
 
                 caseNoteType.getSubCodes().add(caseNoteSubType);
             }
@@ -349,15 +349,15 @@ public class CaseNoteRepository extends RepositoryBase {
         caseNoteTypes.values().stream().filter(typesWithSubTypes).forEach(caseNoteType -> {
 
             final var sortedSubTypes = caseNoteType.getSubCodes().stream()
-                    .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
-                    .collect(Collectors.toList());
+                .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
+                .collect(Collectors.toList());
 
             caseNoteType.setSubCodes(sortedSubTypes);
         });
 
         return caseNoteTypes.values().stream()
-                .filter(typesWithSubTypes)
-                .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
-                .collect(Collectors.toList());
+            .filter(typesWithSubTypes)
+            .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
+            .collect(Collectors.toList());
     }
 }
