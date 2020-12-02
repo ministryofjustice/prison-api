@@ -53,7 +53,7 @@ public class CaseNoteRepositoryTest {
 
     @Test
     public void testGetCaseNoteTypeWithSubTypesByCaseLoadType() {
-        final var types = repository.getCaseNoteTypesWithSubTypesByCaseLoadType("COMM", true);
+        final var types = repository.getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("COMM", true);
 
         // Spot check
         final var type = types.stream().filter(x -> x.getCode().equals("DRR")).findFirst();

@@ -189,11 +189,11 @@ public class CaseNoteService {
     }
 
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
-        return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType, true);
+        return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag(caseLoadType, true);
     }
 
     public List<ReferenceCode> getInactiveCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
-        return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType, false);
+        return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag(caseLoadType, false);
     }
 
     public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {

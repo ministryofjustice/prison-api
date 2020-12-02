@@ -287,8 +287,8 @@ public class CaseNoteRepository extends RepositoryBase {
     }
 
 
-    @Cacheable("caseNoteTypesWithSubTypesByCaseLoadType")
-    public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType, final Boolean active) {
+    @Cacheable("getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag")
+    public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag(final String caseLoadType, final Boolean active) {
         final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE.getSql();
 
         final var referenceCodeDetails = jdbcTemplate.query(sql,

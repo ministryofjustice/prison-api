@@ -117,14 +117,14 @@ public class CaseNoteServiceImplIntTest {
     public void callgetCaseNoteTypesWithSubTypesByCaseLoadType_activeTrue() {
         caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("INST");
 
-        verify(repository).getCaseNoteTypesWithSubTypesByCaseLoadType("INST", true);
+        verify(repository).getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("INST", true);
     }
     @Test
     @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
     public void callgetCaseNoteTypesWithSubTypesByCaseLoadType_activeFalse() {
         caseNoteService.getInactiveCaseNoteTypesWithSubTypesByCaseLoadType("INST");
 
-        verify(repository).getCaseNoteTypesWithSubTypesByCaseLoadType("INST", false);
+        verify(repository).getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("INST", false);
     }
 
 }
