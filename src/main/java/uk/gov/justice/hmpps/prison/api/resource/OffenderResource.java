@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +34,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
+import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
@@ -60,6 +60,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
@@ -110,13 +111,11 @@ public class OffenderResource {
     @PreAuthorize("hasRole('RELEASE_PRISONER')")
     @ProxyUser
     @VerifyOffenderAccess(overrideRoles = {"RELEASE_PRISONER"})
-    public InmateDetail releasePrisoner(
+    public String releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
-        @NotNull @RequestParam(value = "movementReasonCode", defaultValue = "CR") @ApiParam(value = "Reason code for the release", example = "CR", required = true, defaultValue = "CR") final String movementReasonCode,
-        @Length(max = 240, message = "Comments size is a maximum of 240 characters") @RequestParam(value = "commentText", required = false)  @ApiParam(value = "Additional comments about the release", example = "Prisoner was released on bail") final String commentText
-        ) {
-        prisonerReleaseService.releasePrisoner(offenderNo, movementReasonCode, commentText);
-        return inmateService.findOffender(offenderNo, false);
+        @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
+        prisonerReleaseService.releasePrisoner(offenderNo, requestToReleasePrisoner.getMovementReasonCode(), requestToReleasePrisoner.getCommentText());
+        return offenderNo;
     }
 
     @ApiResponses({

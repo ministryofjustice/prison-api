@@ -17,7 +17,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
@@ -55,7 +54,7 @@ public class OffenderBooking {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     private List<OffenderPropertyContainer> propertyContainers;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation location;
 
@@ -63,11 +62,11 @@ public class OffenderBooking {
     @Column(name = "BOOKING_SEQ", nullable = false)
     private Integer bookingSequence;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_ID", nullable = false)
     private Offender offender;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LIVING_UNIT_ID")
     private AgencyInternalLocation assignedLivingUnit;
 

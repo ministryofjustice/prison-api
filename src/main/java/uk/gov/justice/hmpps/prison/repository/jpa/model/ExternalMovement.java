@@ -14,12 +14,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static javax.persistence.EnumType.STRING;
@@ -54,19 +56,22 @@ public class ExternalMovement extends AuditableEntity {
     @Id
     private Long movementSequence;
 
+    @Column(name = "MOVEMENT_DATE")
+    private LocalDate movementDate;
+
     @Column(name = "MOVEMENT_TIME")
     private LocalDateTime movementTime;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_AGY_LOC_ID", nullable = true)
     private AgencyLocation fromAgency;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_AGY_LOC_ID", nullable = true)
     private AgencyLocation toAgency;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false, updatable = false, insertable = false)
     private OffenderBooking booking;
 
     @Enumerated(EnumType.STRING)
@@ -75,7 +80,7 @@ public class ExternalMovement extends AuditableEntity {
     @Column(name = "COMMENT_TEXT")
     private String commentText;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CITY + "'", referencedColumnName = "domain")),
@@ -84,7 +89,7 @@ public class ExternalMovement extends AuditableEntity {
     private City toCity;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CITY + "'", referencedColumnName = "domain")),
@@ -92,7 +97,7 @@ public class ExternalMovement extends AuditableEntity {
     })
     private City fromCity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + REASON + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "MOVEMENT_REASON_CODE", referencedColumnName = "code"))
@@ -104,7 +109,7 @@ public class ExternalMovement extends AuditableEntity {
     private MovementDirection movementDirection;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + TYPE + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "MOVEMENT_TYPE", referencedColumnName = "code"))

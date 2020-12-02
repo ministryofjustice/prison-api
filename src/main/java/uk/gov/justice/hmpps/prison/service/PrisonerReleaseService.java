@@ -12,9 +12,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 
@@ -36,6 +39,8 @@ public class PrisonerReleaseService {
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final BedAssignmentHistoriesRepository bedAssignmentHistoriesRepository;
+    private final AgencyInternalLocationRepository agencyInternalLocationRepository;
+    private final MovementTypeAndReasonRespository movementTypeAndReasonRespository;
 
     public void releasePrisoner(final String prisonerIdentifier, final String movementReasonCode, final String commentText) {
 
@@ -52,6 +57,10 @@ public class PrisonerReleaseService {
             throw new BadRequestException("Prisoner is not currently IN");
         }
 
+        final var releaseMovementTypeAndReason = Pk.builder().type(REL.getCode()).reasonCode(movementReasonCode).build();
+        movementTypeAndReasonRespository.findById(releaseMovementTypeAndReason)
+            .orElseThrow(EntityNotFoundException.withMessage("No movement type found for {}", releaseMovementTypeAndReason));
+
         // set previous active movements to false
         final var bookingId = booking.getBookingId();
         externalMovementRepository.findAllByBookingIdAndActiveFlag(bookingId, ActiveFlag.Y)
@@ -61,9 +70,10 @@ public class PrisonerReleaseService {
 
         // Generate the external movement out
         final var releaseDateTime = LocalDateTime.now();
-        externalMovementRepository.save(ExternalMovement.builder()
-            .booking(booking)
-            .movementSequence(externalMovementRepository.getLatestMovementSequence(bookingId)+1)
+        final var releaseMovement = ExternalMovement.builder()
+            .bookingId(bookingId)
+            .movementSequence(externalMovementRepository.getLatestMovementSequence(bookingId) + 1)
+            .movementDate(releaseDateTime.toLocalDate())
             .movementTime(releaseDateTime)
             .movementType(movementTypeRepository.findById(REL).orElseThrow(EntityNotFoundException.withMessage("No %s movement type found", REL.getCode())))
             .movementReason(movementReasonRepository.findById(MovementReason.pk(movementReasonCode)).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", movementReasonCode)))
@@ -72,7 +82,21 @@ public class PrisonerReleaseService {
             .toAgency(outLocation)
             .activeFlag(ActiveFlag.Y)
             .commentText(commentText)
-            .build());
+            .build();
+        externalMovementRepository.save(releaseMovement);
+
+        // Update occupancy (recursively)
+        incrementCurrentOccupancy(booking.getAssignedLivingUnit());
+
+        // Update Bed Assignment
+        bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(bookingId,
+            bedAssignmentHistoriesRepository.getMaxSeqForBookingId(bookingId)).ifPresent(b -> {
+                if (b.getAssignmentEndDate() == null && b.getAssignmentEndDateTime() == null) {
+                    b.setAssignmentEndDate(releaseDateTime.toLocalDate());
+                    b.setAssignmentEndDateTime(releaseDateTime);
+                }
+        });
+
 
         // update the booking record
         booking.setInOutStatus("OUT");
@@ -85,18 +109,6 @@ public class PrisonerReleaseService {
         booking.setStatusReason(REL.getCode() + "-" + movementReasonCode);
         booking.setCommStatus(null);
 
-        // Update Bed Assignment
-        bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(bookingId,
-            bedAssignmentHistoriesRepository.getMaxSeqForBookingId(bookingId)).ifPresent(b -> {
-                if (b.getAssignmentEndDate() == null && b.getAssignmentEndDateTime() == null) {
-                    b.setAssignmentEndDate(releaseDateTime.toLocalDate());
-                    b.setAssignmentEndDateTime(releaseDateTime);
-                }
-        });
-
-
-        // Update occupancy (recursively)
-        incrementCurrentOccupancy(booking.getAssignedLivingUnit());
 
         /** UPDATE OFFENDER_SENTENCE_ADJUSTS SET ACTIVE_FLAG = 'N'
          WHERE OFFENDER_BOOK_ID = :B1 AND ACTIVE_FLAG = 'Y'
@@ -108,6 +120,7 @@ public class PrisonerReleaseService {
     private void incrementCurrentOccupancy(final AgencyInternalLocation assignedLivingUnit) {
         if (assignedLivingUnit != null) {
             assignedLivingUnit.incrementCurrentOccupancy();
+            agencyInternalLocationRepository.save(assignedLivingUnit);
             incrementCurrentOccupancy(assignedLivingUnit.getParentLocation());
         }
     }

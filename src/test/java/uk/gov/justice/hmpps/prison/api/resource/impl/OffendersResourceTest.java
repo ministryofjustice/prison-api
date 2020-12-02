@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.PUT;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
 
 @ContextConfiguration(classes = OffendersResourceTest.TestClock.class)
@@ -375,6 +376,26 @@ public class OffendersResourceTest extends ResourceTest {
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
         assertThat(response.getHeaders().get("Total-Records")).containsExactly("52");
+    }
+
+    @Test
+    public void testCanReleaseAPrisoner() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("movementReasonCode", "CR", "commentText", "released prisoner today");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "A9876EC"
+        );
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
     }
 
     @Test
