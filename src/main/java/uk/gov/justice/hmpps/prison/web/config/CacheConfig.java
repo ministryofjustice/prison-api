@@ -51,7 +51,7 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("referenceCodeByDomainAndCode", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("caseNoteTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteTypesWithSubTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("usedCaseNoteTypesWithSubTypes", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findByStaffId", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));

@@ -13,6 +13,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -110,4 +111,20 @@ public class CaseNoteServiceImplIntTest {
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null))
                 .hasMessage("Access is denied");
     }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
+    public void callgetCaseNoteTypesWithSubTypesByCaseLoadType_activeTrue() {
+        caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("INST");
+
+        verify(repository).getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("INST", true);
+    }
+    @Test
+    @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
+    public void callgetCaseNoteTypesWithSubTypesByCaseLoadType_activeFalse() {
+        caseNoteService.getInactiveCaseNoteTypesWithSubTypesByCaseLoadType("INST");
+
+        verify(repository).getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("INST", false);
+    }
+
 }

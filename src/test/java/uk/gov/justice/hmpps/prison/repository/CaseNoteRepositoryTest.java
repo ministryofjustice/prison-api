@@ -53,7 +53,7 @@ public class CaseNoteRepositoryTest {
 
     @Test
     public void testGetCaseNoteTypeWithSubTypesByCaseLoadType() {
-        final var types = repository.getCaseNoteTypesWithSubTypesByCaseLoadType("COMM");
+        final var types = repository.getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("COMM", true);
 
         // Spot check
         final var type = types.stream().filter(x -> x.getCode().equals("DRR")).findFirst();
@@ -127,8 +127,8 @@ public class CaseNoteRepositoryTest {
         final var notes = repository.getCaseNoteUsageByBookingId("OBSERVE", "OBS_GEN", List.of(-16, -3), LocalDate.of(2017, 1, 1), LocalDate.of(2017, 8, 1));
 
         assertThat(notes).containsOnly(
-                new CaseNoteUsageByBookingId(-3, "OBSERVE", "OBS_GEN", 6, LocalDateTime.parse("2017-07-31T12:00")),
-                new CaseNoteUsageByBookingId(-16, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
+            new CaseNoteUsageByBookingId(-3, "OBSERVE", "OBS_GEN", 6, LocalDateTime.parse("2017-07-31T12:00")),
+            new CaseNoteUsageByBookingId(-16, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
     }
 
     @Test
@@ -143,19 +143,19 @@ public class CaseNoteRepositoryTest {
         final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("GEN", "BOB"), 1000);
         log.info("Used start time of {}", start);
         assertThat(caseNoteEvents).extracting(
-                CaseNoteEvent::getNomsId,
-                CaseNoteEvent::getId,
-                CaseNoteEvent::getContent,
-                CaseNoteEvent::getEstablishmentCode,
-                CaseNoteEvent::getNoteType,
-                CaseNoteEvent::getStaffName
+            CaseNoteEvent::getNomsId,
+            CaseNoteEvent::getId,
+            CaseNoteEvent::getContent,
+            CaseNoteEvent::getEstablishmentCode,
+            CaseNoteEvent::getNoteType,
+            CaseNoteEvent::getStaffName
         ).contains(Tuple.tuple(
-                "A1234AP",
-                id,
-                "Testing of getCaseNoteEvents",
-                "MUL",
-                "GEN HIS",
-                "User, Test"
+            "A1234AP",
+            id,
+            "Testing of getCaseNoteEvents",
+            "MUL",
+            "GEN HIS",
+            "User, Test"
         ));
         final var event = caseNoteEvents.stream().filter((e) -> e.getContent().equals("Testing of getCaseNoteEvents")).findFirst().orElseThrow();
         assertThat(event.getContactTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));

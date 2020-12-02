@@ -9,12 +9,14 @@ import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Set;
 
 @Component
 public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNoteTypeSubTypeValid, NewCaseNote> {
     private final AuthenticationFacade authenticationFacade;
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
+    private final Set<String> ALLOWED_INACTIVE_CASE_NOTE_TYPES = Set.of("MOVED_CELL");
 
     public CaseNoteTypeSubTypeValidator(final AuthenticationFacade authenticationFacade,
                                         final CaseLoadService caseLoadService,
@@ -33,12 +35,14 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
     @Override
     public boolean isValid(final NewCaseNote value, final ConstraintValidatorContext context) {
         if (value == null) return true;
-        if (value.getType().equals("MOVED_CELL")) return validateMoveCellSubtype(value, context);
 
         // This should be ok as it is cached:
         final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
         final var caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
-        final var allTypes = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
+
+        final var allTypes = ALLOWED_INACTIVE_CASE_NOTE_TYPES.contains(value.getType()) ?
+            caseNoteService.getInactiveCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType) :
+            caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
 
         final var parentType = allTypes.stream()
             .filter(type -> type.getCode().equals(value.getType()))
@@ -54,17 +58,6 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
             .findFirst();
 
         return subType.isPresent() || triggerViolation(value, context);
-    }
-
-    private Boolean validateMoveCellSubtype(final NewCaseNote value, final ConstraintValidatorContext context) {
-        try {
-            MovedCell.valueOf(value.getSubType());
-            return true;
-
-        } catch (IllegalArgumentException e) {
-        }
-
-        return triggerViolation(value, context);
     }
 
     private Boolean triggerViolation(final NewCaseNote value, final ConstraintValidatorContext context) {
