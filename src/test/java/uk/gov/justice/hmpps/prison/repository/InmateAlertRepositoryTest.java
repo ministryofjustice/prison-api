@@ -205,7 +205,7 @@ public class InmateAlertRepositoryTest {
         final var alert = repository.getAlert(-15L, 1).orElseThrow();
 
         assertThat(alert.getAddedByFirstName()).isEqualTo("API");
-        assertThat(alert.getAddedByLastName()).isEqualTo("User");
+        assertThat(alert.getAddedByLastName()).isEqualTo("USER");
     }
 
     @Test
