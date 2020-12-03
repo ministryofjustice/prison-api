@@ -402,6 +402,7 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    @Ignore
     public void testCannotReleasePrisonerAlreadyOut() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
