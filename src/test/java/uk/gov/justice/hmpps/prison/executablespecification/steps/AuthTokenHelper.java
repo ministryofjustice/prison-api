@@ -207,7 +207,7 @@ public class AuthTokenHelper {
                 JwtParameters.builder()
                         .username("RO_USER")
                         .scope(List.of("read", "write"))
-                        .roles(List.of("ROLE_GLOBAL_SEARCH", "ROLE_INACTIVE_BOOKINGS", "ROLE_LIECENCE_RO"))
+                        .roles(List.of("ROLE_GLOBAL_SEARCH", "ROLE_INACTIVE_BOOKINGS", "ROLE_LICENCE_RO"))
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );
@@ -330,7 +330,7 @@ public class AuthTokenHelper {
                 JwtParameters.builder()
                         .username("ITAG_USER")
                         .scope(List.of("read", "write"))
-                        .roles(List.of("ROLE_BOOKING_CREATE", "ROLE_RELEASE_PRISONER"))
+                        .roles(List.of("ROLE_BOOKING_CREATE", "ROLE_RELEASE_PRISONER", "ROLE_INACTIVE_BOOKINGS", "ROLE_VIEW_PRISONER_DATA"))
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );
