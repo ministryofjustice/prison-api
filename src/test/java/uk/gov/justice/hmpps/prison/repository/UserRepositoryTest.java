@@ -10,6 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
+import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
@@ -40,7 +41,7 @@ public class UserRepositoryTest {
     public void testFindUserByUsername() {
         final var user = userRepository.findByUsername("ITAG_USER").orElseThrow(EntityNotFoundException.withId("ITAG_USER"));
 
-        assertThat(user.getLastName()).isEqualTo("User");
+        assertThat(user.getLastName()).isEqualTo("USER");
     }
 
     @Test
@@ -99,7 +100,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseload() {
 
-        final var page = userRepository.findUsersByCaseload("LEI", null, new NameFilter(), new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var page = userRepository.findUsersByCaseload("LEI", null, new NameFilter(null), new PageRequest("last_name", Order.ASC, 0L, 5L));
         final var items = page.getItems();
 
         assertThat(items).hasSize(5);
@@ -119,8 +120,21 @@ public class UserRepositoryTest {
 
         final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("User Api"), new PageRequest());
 
-        assertThat(usersByCaseload.getItems()).hasSize(1);
-        assertThat(usersByCaseload.getItems().get(0).getUsername()).isEqualTo("ITAG_USER");
+        assertThat(usersByCaseload.getItems()).extracting(UserDetail::getUsername).containsExactly("ITAG_USER");
+    }
+
+    @Test
+    public void testFindUserByFullNameSearchReversed() {
+
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("Api User"), new PageRequest());
+        assertThat(usersByCaseload.getItems()).extracting(UserDetail::getUsername).containsExactly("ITAG_USER");
+    }
+
+    @Test
+    public void testFindUserByFullNameSearchWithComma() {
+
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("User, Api"), new PageRequest());
+        assertThat(usersByCaseload.getItems()).extracting(UserDetail::getUsername).containsExactly("ITAG_USER");
     }
 
     @Test
@@ -128,7 +142,7 @@ public class UserRepositoryTest {
 
         final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("Other Api"), new PageRequest());
 
-        assertThat(usersByCaseload.getItems()).hasSize(0);
+        assertThat(usersByCaseload.getItems()).isEmpty();
     }
 
     @Test
@@ -152,7 +166,7 @@ public class UserRepositoryTest {
 
         final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN", new NameFilter("User Api"), new PageRequest());
 
-        assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
+        assertThat(usersByCaseload.getItems()).extracting(UserDetail::getUsername).contains("ITAG_USER");
     }
 
     @Test
@@ -182,7 +196,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindLocalAdministratorUsersByCaseload() {
 
-        final var page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(), new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(null), new PageRequest("last_name", Order.ASC, 0L, 5L));
         final var items = page.getItems();
 
         assertThat(items).hasSize(3);
@@ -240,7 +254,7 @@ public class UserRepositoryTest {
     public void testGetBasicInmateDetailsByBookingIds() {
         final var users = userRepository.getUserListByUsernames(List.of("JBRIEN", "RENEGADE"));
         assertThat(users).extracting("username", "firstName", "staffId").contains(
-                Tuple.tuple("JBRIEN", "Jo", -12L),
-                Tuple.tuple("RENEGADE", "Renegade", -11L));
+            Tuple.tuple("JBRIEN", "JO", -12L),
+            Tuple.tuple("RENEGADE", "RENEGADE", -11L));
     }
 }

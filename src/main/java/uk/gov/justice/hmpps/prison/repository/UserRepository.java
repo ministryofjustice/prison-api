@@ -292,15 +292,15 @@ public class UserRepository extends RepositoryBase {
         final var users = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest,
-                        "caseloadId", caseload,
-                        "laaUsername", laaUsername,
-                        "activeFlag", "Y",
-                        "searchTerm", StringUtils.isNotBlank(nameFilter.getSearchTerm()) ? StringUtils.trimToEmpty(nameFilter.getSearchTerm()).toUpperCase() + "%" : null,
-                        "surname", StringUtils.isNotBlank(nameFilter.getSurname()) ? StringUtils.trimToEmpty(nameFilter.getSurname()).toUpperCase() + "%" : null,
-                        "firstName", StringUtils.isNotBlank(nameFilter.getFirstName()) ? StringUtils.trimToEmpty(nameFilter.getFirstName()).toUpperCase() + "%" : null,
-                        "apiCaseloadId", apiCaseloadId,
-                        "applicationType", applicationType,
-                        "roleCode", accessRole),
+                    "caseloadId", caseload,
+                    "laaUsername", laaUsername,
+                    "activeFlag", "Y",
+                    "searchTerm", StringUtils.isNotBlank(nameFilter.getSearchTerm()) ? nameFilter.getSearchTerm() + "%" : null,
+                    "surname", StringUtils.isNotBlank(nameFilter.getSurname()) ? nameFilter.getSurname() + "%" : null,
+                    "firstName", StringUtils.isNotBlank(nameFilter.getFirstName()) ? nameFilter.getFirstName() + "%" : null,
+                    "apiCaseloadId", apiCaseloadId,
+                    "applicationType", applicationType,
+                    "roleCode", accessRole),
                 paRowMapper);
 
         return new Page<>(users, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());

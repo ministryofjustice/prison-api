@@ -36,7 +36,7 @@ public class StaffRepositoryTest {
         final var staffDetail = repository.findByStaffId(testStaffId)
                 .orElseThrow(EntityNotFoundException.withId(testStaffId));
 
-        assertThat(staffDetail.getFirstName()).isEqualTo("Prison");
+        assertThat(staffDetail.getFirstName()).isEqualTo("PRISON");
     }
 
     @Test
@@ -86,7 +86,7 @@ public class StaffRepositoryTest {
                 .orElseThrow(EntityNotFoundException.withId(testId));
 
         assertThat(staffDetail.getStaffId()).isEqualTo(-1L);
-        assertThat(staffDetail.getFirstName()).isEqualTo("Prison");
+        assertThat(staffDetail.getFirstName()).isEqualTo("PRISON");
         assertThat(staffDetail.getStatus()).isEqualTo("ACTIVE");
     }
 
@@ -99,7 +99,7 @@ public class StaffRepositoryTest {
                 .orElseThrow(EntityNotFoundException.withId(testId));
 
         assertThat(staffDetail.getStaffId()).isEqualTo(-10L);
-        assertThat(staffDetail.getFirstName()).isEqualTo("Ex");
+        assertThat(staffDetail.getFirstName()).isEqualTo("EX");
         assertThat(staffDetail.getStatus()).isEqualTo("INACTIVE");
     }
 
@@ -120,8 +120,8 @@ public class StaffRepositoryTest {
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
         assertThat(slr.getAgencyDescription()).isEqualTo(TEST_AGENCY_DESCRIPTION);
         assertThat(slr.getStaffId()).isEqualTo(-9);
-        assertThat(slr.getFirstName()).isEqualTo("Wing");
-        assertThat(slr.getLastName()).isEqualTo("Officer4");
+        assertThat(slr.getFirstName()).isEqualTo("WING");
+        assertThat(slr.getLastName()).isEqualTo("OFFICER4");
         assertThat(slr.getFromDate()).isEqualTo(LocalDate.of(2018, 1, 2));
         assertThat(slr.getToDate()).isNull();
         assertThat(slr.getPosition()).isEqualTo("AO");
@@ -149,8 +149,8 @@ public class StaffRepositoryTest {
 
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
         assertThat(slr.getStaffId()).isEqualTo(-12);
-        assertThat(slr.getFirstName()).isEqualTo("Jo");
-        assertThat(slr.getLastName()).isEqualTo("O'brien");
+        assertThat(slr.getFirstName()).isEqualTo("JO");
+        assertThat(slr.getLastName()).isEqualTo("O'BRIEN");
         assertThat(slr.getPosition()).isEqualTo("AO");
         assertThat(slr.getRoleDescription()).isEqualTo("Key Worker");
     }
@@ -174,7 +174,7 @@ public class StaffRepositoryTest {
         assertThat(slr.getAgencyDescription()).isEqualTo(TEST_AGENCY_DESCRIPTION);
         assertThat(slr.getStaffId()).isEqualTo(-2);
         assertThat(slr.getFirstName()).isEqualTo("API");
-        assertThat(slr.getLastName()).isEqualTo("User");
+        assertThat(slr.getLastName()).isEqualTo("USER");
         // assertThat(slr.getEmail()).isEqualTo("itaguser@syscon.net");
         assertThat(slr.getFromDate()).isEqualTo(LocalDate.of(2016, 8, 8));
         assertThat(slr.getToDate()).isNull();

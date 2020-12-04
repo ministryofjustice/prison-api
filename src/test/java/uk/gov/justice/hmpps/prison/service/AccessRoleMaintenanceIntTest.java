@@ -122,7 +122,7 @@ public class AccessRoleMaintenanceIntTest {
         assertThat(roles).hasSize(4);
 
         staffService.removeStaffRole(-4L, "NWEB", "LICENCE_CA");
-        assertThat(addedRole).isEqualToComparingFieldByField(
+        assertThat(addedRole).usingRecursiveComparison().isEqualTo(
             StaffUserRole.builder()
                 .roleId(-100L)
                 .roleCode("LICENCE_CA")
