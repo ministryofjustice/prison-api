@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.PUT;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
@@ -387,16 +388,30 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var entity = createHttpEntity(token, body);
 
+        final var prisonerNo = "A1181MV";
         final var response =  testRestTemplate.exchange(
             "/api/offenders/{nomsId}/release",
             PUT,
             entity,
             new ParameterizedTypeReference<String>() {
             },
-            "A1181MV"
+            prisonerNo
         );
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
+
+        // check that prisoner is now out
+        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", prisonerNo));
+
+        final var searchResponse = testRestTemplate.exchange(
+            "/api/prisoners",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(searchResponse, 200, "released_prisoner.json");
     }
 
     @Test
