@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 public class RequestToReleasePrisoner {
 
     @NotNull
-    @ApiModelProperty(value = "Reason code for the release", example = "CR")
+    @ApiModelProperty(value = "Reason code for the release, reference domain is MOVE_RSN", example = "CR", allowableValues = "AR,AU,BD, BL, CE, CR, D1, D2, D3, D4, D5, D6, DA, DD, DE, DEC, DL, DS, ER, ESCP, ETR, EX, HC, HD, HE, HP, HR, HU, IF,MRG,NCS,NG,NP,PD,PF,PX,RE,RW,SC,UAL")
     private String movementReasonCode;
 
     @ApiModelProperty(value = "Additional comments about the release", example = "Prisoner was released on bail")

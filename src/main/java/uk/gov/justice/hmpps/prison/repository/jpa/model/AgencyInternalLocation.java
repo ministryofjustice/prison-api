@@ -102,6 +102,8 @@ public class AgencyInternalLocation {
     public Integer incrementCurrentOccupancy() {
         if (currentOccupancy != null) {
             currentOccupancy = currentOccupancy + 1;
+        } else {
+            currentOccupancy = 1;
         }
 
         return currentOccupancy;

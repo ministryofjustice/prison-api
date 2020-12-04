@@ -22,7 +22,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.time.LocalDateTime;
 
@@ -61,11 +60,6 @@ public class PrisonerReleaseService {
 
         if (!booking.getInOutStatus().equals("IN")) {
             throw new BadRequestException("Prisoner is not currently IN");
-        }
-
-        // unless you are system user you must have the caseload
-        if (!AuthenticationFacade.hasRoles("SYSTEM_USER")) {
-            agencyService.verifyAgencyAccess(booking.getLocation().getId());
         }
 
         final var releaseMovementTypeAndReason = Pk.builder().type(REL.getCode()).reasonCode(movementReasonCode).build();

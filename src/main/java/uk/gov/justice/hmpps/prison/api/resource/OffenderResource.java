@@ -104,13 +104,15 @@ public class OffenderResource {
     }
 
     @ApiResponses({
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation("Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison")
+    @ApiOperation("Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison, requires the RELEASE_PRISONER role")
     @PutMapping("/{offenderNo}/release")
     @HasWriteScope
     @PreAuthorize("hasRole('RELEASE_PRISONER')")
     @ProxyUser
-    @VerifyOffenderAccess(overrideRoles = {"RELEASE_PRISONER"})
+    @VerifyOffenderAccess
     public String releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
