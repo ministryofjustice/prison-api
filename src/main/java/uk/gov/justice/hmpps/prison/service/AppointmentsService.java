@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ScheduledAppointment;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledAppointmentRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -123,6 +124,12 @@ public class AppointmentsService {
     @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
     public ScheduledEvent getBookingAppointment(Long appointmentId) {
         return getScheduledEventOrThrowEntityNotFound(appointmentId);
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
+    public List<ScheduledEvent> getBookingAppointmentsByTypeAndDate(final String type, final LocalDate date) {
+        return bookingRepository.getBookingAppointmentsByTypeAndDate(type, date);
     }
 
     @Transactional
@@ -270,25 +277,7 @@ public class AppointmentsService {
                 scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(agencyId, date, locationId).stream() :
                 scheduledAppointmentRepository.findByAgencyIdAndEventDate(agencyId, date).stream();
 
-        final var appointmentDtos = appointmentStream
-                .map(scheduledAppointment ->
-                        ScheduledAppointmentDto
-                                .builder()
-                                .id(scheduledAppointment.getEventId())
-                                .offenderNo(scheduledAppointment.getOffenderNo())
-                                .firstName(scheduledAppointment.getFirstName())
-                                .lastName(scheduledAppointment.getLastName())
-                                .date(scheduledAppointment.getEventDate())
-                                .startTime(scheduledAppointment.getStartTime())
-                                .endTime(scheduledAppointment.getEndTime())
-                                .appointmentTypeDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getAppointmentTypeDescription()))
-                                .appointmentTypeCode(scheduledAppointment.getAppointmentTypeCode())
-                                .locationDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getLocationDescription()))
-                                .locationId(scheduledAppointment.getLocationId())
-                                .createUserId(scheduledAppointment.getCreateUserId())
-                                .agencyId(scheduledAppointment.getAgencyId())
-                                .build()
-                );
+        final var appointmentDtos = appointmentStream.map(AppointmentsService::mapToScheduledAppointmentDto);
 
         final var filteredByTimeSlot = timeSlot != null ?
                 appointmentDtos.filter(appointment -> CalcDateRanges.eventStartsInTimeslot(appointment.getStartTime(), timeSlot)) :
@@ -299,7 +288,6 @@ public class AppointmentsService {
                         .thenComparing(ScheduledAppointmentDto::getLocationDescription))
                 .collect(Collectors.toList());
     }
-
 
     private void trackAppointmentsCreated(final List<AppointmentDetails> appointments, final AppointmentDefaults defaults) {
         if (appointments.size() < 1) return;
@@ -376,4 +364,23 @@ public class AppointmentsService {
         trackAppointmentsCreated(details, defaults);
     }
 
+    private static ScheduledAppointmentDto mapToScheduledAppointmentDto(final ScheduledAppointment scheduledAppointment) {
+        return
+            ScheduledAppointmentDto
+                .builder()
+                .id(scheduledAppointment.getEventId())
+                .offenderNo(scheduledAppointment.getOffenderNo())
+                .firstName(scheduledAppointment.getFirstName())
+                .lastName(scheduledAppointment.getLastName())
+                .date(scheduledAppointment.getEventDate())
+                .startTime(scheduledAppointment.getStartTime())
+                .endTime(scheduledAppointment.getEndTime())
+                .appointmentTypeDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getAppointmentTypeDescription()))
+                .appointmentTypeCode(scheduledAppointment.getAppointmentTypeCode())
+                .locationDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getLocationDescription()))
+                .locationId(scheduledAppointment.getLocationId())
+                .createUserId(scheduledAppointment.getCreateUserId())
+                .agencyId(scheduledAppointment.getAgencyId())
+                .build();
+    }
 }

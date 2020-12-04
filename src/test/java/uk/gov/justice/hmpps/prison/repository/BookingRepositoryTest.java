@@ -516,6 +516,27 @@ public class BookingRepositoryTest {
     }
 
     @Test
+    public void getBookingAppointmentsByTypeAndDate() {
+        final LocalDate date = LocalDate.of(2020, 12, 4);
+        final var type = "EDUC";
+
+        final var appointments = repository.getBookingAppointmentsByTypeAndDate(type, date);
+        assertThat(appointments)
+            .hasSize(3)
+            .extracting("eventSubType", "eventDate")
+            .allMatch(tuple -> tuple.equals(Tuple.tuple(type, date)));
+    }
+
+    @Test
+    public void getBookingAppointmentsByTypeAndDate_noMatch() {
+        final LocalDate date = LocalDate.of(2020, 12, 4);
+        final var type = "VLB";
+
+        final var appointments = repository.getBookingAppointmentsByTypeAndDate(type, date);
+        assertThat(appointments).isEmpty();
+    }
+
+    @Test
     public void deleteBookingAppointment() {
         // Do this test in a single transaction. Good enough for JDBC.
         final var startTime = LocalDateTime.now().plusDays(2);

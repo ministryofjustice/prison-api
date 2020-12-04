@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -167,6 +168,31 @@ public class AppointmentsResourceTest extends ResourceTest {
         verifyNoInteractions(bookingRepository);
     }
 
+    @Test
+    public void getAppointmentsByTypeAndDate() {
+        final var scheduledEvent = ScheduledEvent
+            .builder()
+            .eventId(1L)
+            .eventType("APP")
+            .eventSubType("VLB")
+            .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
+            .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
+            .eventLocationId(2L)
+            .build();
+
+        when(bookingRepository.getBookingAppointmentsByTypeAndDate(anyString(), any())).thenReturn(List.of(scheduledEvent));
+
+        final var response = testRestTemplate.exchange(
+            "/api/appointments/of-type/VLB/on-date/2020-12-25",
+            HttpMethod.GET,
+            createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), null),
+            new ParameterizedTypeReference<List<ScheduledEvent>>(){}
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(List.of(scheduledEvent));
+        verify(bookingRepository).getBookingAppointmentsByTypeAndDate("VLB", LocalDate.of(2020, 12, 25));
+    }
 
     private ResponseEntity<String> makeCreateAppointmentsRequest() {
         final AppointmentsToCreate body = getCreateAppointmentBody();

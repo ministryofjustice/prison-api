@@ -612,6 +612,16 @@ public class BookingRepository extends RepositoryBase {
         }
     }
 
+    public List<ScheduledEvent> getBookingAppointmentsByTypeAndDate(String type, LocalDate date) {
+        return jdbcTemplate.query(
+            BookingRepositorySql.GET_BOOKING_APPOINTMENTS_BY_TYPE_AND_DATE.getSql(),
+            createParams(
+                "type", type,
+                "date", date),
+            EVENT_ROW_MAPPER
+        );
+    }
+
     public Long createBookingAppointment(final Long bookingId, final NewAppointment newAppointment, final String agencyId) {
         final var sql = BookingRepositorySql.INSERT_APPOINTMENT.getSql();
         final var generatedKeyHolder = new GeneratedKeyHolder();
