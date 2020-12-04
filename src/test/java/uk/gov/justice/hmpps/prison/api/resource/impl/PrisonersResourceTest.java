@@ -13,7 +13,7 @@ public class PrisonersResourceTest extends ResourceTest {
     public void testCanFindMultiplePrisonersUsingPost() {
         final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
 
-        final var httpEntity = createHttpEntity(token, "{ \"offenderNos\": [ \"A1181MV\", \"A1234AC\", \"A1234AA\" ] }");
+        final var httpEntity = createHttpEntity(token, "{ \"offenderNos\": [ \"A1234AC\", \"A1234AA\" ] }");
 
         final var response = testRestTemplate.exchange(
                 "/api/prisoners",
