@@ -70,12 +70,10 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
                 url,
                 HttpMethod.GET,
                 httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
+                String.class,
                 OFFENDER_NO);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
-        assertThat(response.getBody()).isInstanceOf(List.class);
-        assertThat(response.getBody().size()).isEqualTo(1);
+        assertThatJsonFileAndStatus(response, 200, "offender-transaction-history.json");
     }
 
     @Test
@@ -375,5 +373,22 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_NOT_FOUND);
         assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Resource with id [Z00028] not found.");
         assertThat(response.getBody().getUserMessage()).isEqualTo("Resource with id [Z00028] not found.");
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_With_Related_Transactions() {
+
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=cash&from_date=2000-10-17&to_date=2019-10-17";
+
+        final var response = testRestTemplate.exchange(
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            String.class,
+            "A1234AJ");
+
+        assertThatJsonFileAndStatus(response, 200, "offender-transaction-history-with-related.json");
     }
 }

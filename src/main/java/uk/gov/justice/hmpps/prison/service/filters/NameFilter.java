@@ -1,22 +1,17 @@
 package uk.gov.justice.hmpps.prison.service.filters;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 @Getter
-@Setter
 public class NameFilter {
-    private String searchTerm;
+    private final String searchTerm;
     private String firstName;
     private String surname;
 
-    public NameFilter() {
-    }
-
     public NameFilter(final String searchTerm) {
-        this.searchTerm = searchTerm;
-        extractNames(searchTerm);
+        this.searchTerm = StringUtils.remove(StringUtils.upperCase(StringUtils.trimToNull(searchTerm)), ',');
+        extractNames(this.searchTerm);
     }
 
     private void extractNames(final String searchTerm) {
