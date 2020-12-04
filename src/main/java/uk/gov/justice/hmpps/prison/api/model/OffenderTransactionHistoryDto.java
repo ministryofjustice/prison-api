@@ -2,15 +2,18 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Builder;
-import lombok.ToString;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApiModel(description = "Offender transaction details")
 @Data
@@ -51,4 +54,18 @@ public class OffenderTransactionHistoryDto {
 
     @ApiModelProperty(value = "Offender Sub Account", example = "savings,spends,cash", position = 10)
     private String accountType;
+
+    @ApiModelProperty(value = "Posting type. Denotes the direction of money moving in or out of the account", example = "CR,DR", position = 11)
+    private String postingType;
+
+    @ApiModelProperty(value = "Offender number", example = "G6123VU", position = 12)
+    private String offenderNo;
+
+    @ApiModelProperty(value = "The place the transaction took place", example = "MDI", position = 13)
+    private String agencyId;
+
+    @ApiModelProperty(value = "List of related transaction details", position = 14)
+    @Default
+    private List<RelatedTransactionDetails> relatedOffenderTransactions = new ArrayList<>();
 }
+

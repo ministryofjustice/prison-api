@@ -120,19 +120,6 @@ public class CaseNoteTypeSubTypeValidatorTest {
         verify(constraintViolationBuilder, never()).addConstraintViolation();
     }
 
-    @ParameterizedTest(name="{index} - MOVED_CELL with subtype code of {0}")
-    @ValueSource(strings = {"ADM", "BEH", "CLA", "LN", "VP"})
-    public void testValidationCorrectMovedCellTypes(final String subTypeCode) {
-        final var validator = new CaseNoteTypeSubTypeValidator(authenticationFacade, caseLoadService, caseNoteService);
-        final var result = validator.isValid(NewCaseNote.builder().type("MOVED_CELL").subType(subTypeCode).build(), context);
-
-        assertThat(result).isTrue();
-
-        verify(context, never()).disableDefaultConstraintViolation();
-        verify(context, never()).buildConstraintViolationWithTemplate(any());
-        verify(constraintViolationBuilder, never()).addConstraintViolation();
-    }
-
     @Test
     public void testInvalidMovedCellSubtype() {
         when(context.buildConstraintViolationWithTemplate(any())).thenReturn(constraintViolationBuilder);
