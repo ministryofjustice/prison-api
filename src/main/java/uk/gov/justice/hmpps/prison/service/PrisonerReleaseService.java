@@ -19,6 +19,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
@@ -43,6 +45,8 @@ public class PrisonerReleaseService {
     private final BedAssignmentHistoriesRepository bedAssignmentHistoriesRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final MovementTypeAndReasonRespository movementTypeAndReasonRespository;
+    private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
+    private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
 
     public void releasePrisoner(final String prisonerIdentifier, final String movementReasonCode, final String commentText) {
 
@@ -104,6 +108,11 @@ public class PrisonerReleaseService {
                 }
         });
 
+        offenderSentenceAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
+            .forEach(s -> s.setActiveFlag(ActiveFlag.N));
+
+        offenderKeyDateAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
+            .forEach(s -> s.setActiveFlag(ActiveFlag.N));
 
         // update the booking record
         booking.setInOutStatus("OUT");
@@ -116,12 +125,6 @@ public class PrisonerReleaseService {
         booking.setStatusReason(REL.getCode() + "-" + movementReasonCode);
         booking.setCommStatus(null);
 
-
-        /** UPDATE OFFENDER_SENTENCE_ADJUSTS SET ACTIVE_FLAG = 'N'
-         WHERE OFFENDER_BOOK_ID = :B1 AND ACTIVE_FLAG = 'Y'
-
-         UPDATE OFFENDER_KEY_DATE_ADJUSTS SET ACTIVE_FLAG = 'N'
-         WHERE OFFENDER_BOOK_ID = :B1 AND ACTIVE_FLAG = 'Y' */
     }
 
     private void incrementCurrentOccupancy(final AgencyInternalLocation assignedLivingUnit) {

@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -381,7 +380,6 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    @Ignore
     public void testCanReleaseAPrisoner() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
@@ -395,14 +393,13 @@ public class OffendersResourceTest extends ResourceTest {
             entity,
             new ParameterizedTypeReference<String>() {
             },
-            "A9876EC"
+            "A1181MV"
         );
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
     }
 
     @Test
-    @Ignore
     public void testCannotReleasePrisonerAlreadyOut() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
