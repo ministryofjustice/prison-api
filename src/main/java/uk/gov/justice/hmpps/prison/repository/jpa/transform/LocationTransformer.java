@@ -13,7 +13,7 @@ public class LocationTransformer {
                 .description(agencyInternalLocation.getDescription())
                 .locationUsage("")
                 .agencyId(agencyInternalLocation.getAgencyId())
-                .parentLocationId(agencyInternalLocation.getParentLocationId())
+                .parentLocationId(agencyInternalLocation.getParentLocation() != null ? agencyInternalLocation.getParentLocation().getLocationId() : null)
                 .currentOccupancy(agencyInternalLocation.getCurrentOccupancy())
                 .locationPrefix("")
                 .operationalCapacity(agencyInternalLocation.getOperationalCapacity())

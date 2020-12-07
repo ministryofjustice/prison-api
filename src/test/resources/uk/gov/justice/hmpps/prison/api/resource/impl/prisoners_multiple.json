@@ -40,19 +40,5 @@
     "religionCode": "CHRANG",
     "convictedStatus": "Convicted",
     "imprisonmentStatus": "SENT"
-  },
-  {
-    "offenderNo": "A1181MV",
-    "firstName": "MICHAEL",
-    "lastName": "O'VAUGHAN",
-    "dateOfBirth": "1974-10-29",
-    "gender": "Male",
-    "sexCode": "M",
-    "currentlyInPrison": "Y",
-    "latestBookingId": -37,
-    "latestLocationId": "WAI",
-    "latestLocation": "The Weare",
-    "ethnicity": "White: British",
-    "ethnicityCode": "W1"
   }
 ]
