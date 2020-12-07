@@ -14,6 +14,7 @@ import org.hibernate.annotations.NotFound;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -48,7 +49,7 @@ public class OffenderCourtCase extends AuditableEntity {
     @Column(name = "CASE_ID", nullable = false)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
@@ -57,11 +58,11 @@ public class OffenderCourtCase extends AuditableEntity {
 
     private LocalDate beginDate;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation agencyLocation;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + LEG_CASE_TYP + "'", referencedColumnName = "domain")),
@@ -73,7 +74,7 @@ public class OffenderCourtCase extends AuditableEntity {
 
     private String caseInfoNumber;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CASE_STS + "'", referencedColumnName = "domain")),
@@ -81,7 +82,7 @@ public class OffenderCourtCase extends AuditableEntity {
     })
     private CaseStatus caseStatus;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMBINED_CASE_ID")
     private OffenderCourtCase combinedCase;
 

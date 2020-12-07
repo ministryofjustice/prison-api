@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,46 +9,40 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import javax.persistence.Inheritance;
 import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "REFERENCE_CODES")
-@DiscriminatorColumn(name = "domain")
-@Inheritance
-@IdClass(ReferenceCode.Pk.class)
-public abstract class ReferenceCode implements Serializable {
+@Entity(name = "MOVEMENT_REASONS")
+@IdClass(MovementTypeAndReason.Pk.class)
+public class MovementTypeAndReason implements Serializable {
 
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
     @ToString
     @EqualsAndHashCode
+    @Builder
     public static class Pk implements Serializable {
-        private String domain;
-        private String code;
+        @Column(name = "MOVEMENT_TYPE", updatable = false, insertable = false)
+        private String type;
+        @Column(name = "MOVEMENT_REASON_CODE", updatable = false, insertable = false)
+        private String reasonCode;
     }
 
     @Id
-    @Column(insertable = false, updatable = false)
-    private String domain;
+    private String type;
 
     @Id
-    private String code;
+    private String reasonCode;
 
     private String description;
 
-    public static String getDescriptionOrNull(final ReferenceCode referenceCode) {
+    public static String getDescriptionOrNull(final MovementTypeAndReason referenceCode) {
         return referenceCode != null ? referenceCode.getDescription() : null;
-    }
-
-    public static String getCodeOrNull(final ReferenceCode referenceCode) {
-        return referenceCode != null ? referenceCode.getCode() : null;
     }
 }

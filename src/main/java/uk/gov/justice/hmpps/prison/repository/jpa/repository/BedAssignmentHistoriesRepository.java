@@ -7,9 +7,9 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface BedAssignmentHistoriesRepository extends PagingAndSortingRepository<BedAssignmentHistory, BedAssignmentHistory.BedAssignmentHistoryPK> {
 
@@ -17,6 +17,8 @@ public interface BedAssignmentHistoriesRepository extends PagingAndSortingReposi
     Integer getMaxSeqForBookingId(@Param("bookingId") Long bookingId);
 
     List<BedAssignmentHistory> findAllByBedAssignmentHistoryPKOffenderBookingId(Long offenderBookingId);
+
+    Optional<BedAssignmentHistory> findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(Long offenderBookingId, Integer sequence);
 
     Page<BedAssignmentHistory> findAllByBedAssignmentHistoryPKOffenderBookingId(Long offenderBookingId, Pageable pageable);
 

@@ -1,0 +1,16 @@
+[
+  {
+    "offenderNo": "A1181MV",
+    "firstName": "MICHAEL",
+    "lastName": "O'VAUGHAN",
+    "dateOfBirth": "1974-10-29",
+    "gender": "Male",
+    "sexCode": "M",
+    "currentlyInPrison": "N",
+    "latestBookingId": -37,
+    "latestLocationId": "OUT",
+    "latestLocation": "Outside",
+    "ethnicity": "White: British",
+    "ethnicityCode": "W1"
+  }
+]

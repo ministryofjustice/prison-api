@@ -370,6 +370,14 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
     @Test
     public void getPropertyContainers() {
+        final var parentParentLocation = AgencyInternalLocation.builder().locationId(-1L).locationType("WING").agencyId("LEI")
+            .currentOccupancy(null).operationalCapacity(13).description("LEI-A").userDescription("Block A").capacity(14)
+            .certifiedFlag(ActiveFlag.Y).locationCode("A").activeFlag(ActiveFlag.Y).build();
+
+        final var parentLocation = AgencyInternalLocation.builder().locationId(-2L).locationType("LAND").agencyId("LEI").capacity(14)
+            .currentOccupancy(null).operationalCapacity(13).description("LEI-A-1").parentLocation(parentParentLocation).userDescription("Landing A/1")
+            .certifiedFlag(ActiveFlag.Y).locationCode("1").activeFlag(ActiveFlag.Y).build();
+
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(
             OffenderBooking.builder()
                 .propertyContainers(List.of(
@@ -382,7 +390,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                 .locationType("CELL")
                                 .agencyId("LEI")
                                 .description("LEI-A-1-8")
-                                .parentLocationId(-2L)
+                                .parentLocation(parentLocation)
                                 .currentOccupancy(0)
                                 .operationalCapacity(1)
                                 .userDescription(null)

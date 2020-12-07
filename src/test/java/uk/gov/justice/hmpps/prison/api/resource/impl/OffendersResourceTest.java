@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
+import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
@@ -22,7 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.PUT;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
 
 @ContextConfiguration(classes = OffendersResourceTest.TestClock.class)
@@ -375,6 +378,62 @@ public class OffendersResourceTest extends ResourceTest {
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
         assertThat(response.getHeaders().get("Total-Records")).containsExactly("52");
+    }
+
+    @Test
+    public void testCanReleaseAPrisoner() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("movementReasonCode", "CR", "commentText", "released prisoner today");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var prisonerNo = "A1181MV";
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            },
+            prisonerNo
+        );
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+
+        // check that prisoner is now out
+        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", prisonerNo));
+
+        final var searchResponse = testRestTemplate.exchange(
+            "/api/prisoners",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(searchResponse, 200, "released_prisoner.json");
+    }
+
+    @Test
+    public void testCannotReleasePrisonerAlreadyOut() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("movementReasonCode", "CR", "commentText", "released prisoner today");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            entity,
+            ErrorResponse.class,
+            "Z0020ZZ"
+        );
+
+        final var error = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        assertThat(error.getUserMessage()).contains("Prisoner is not currently active");
     }
 
     @Test

@@ -17,4 +17,8 @@ public class MovementReason extends ReferenceCode {
     public MovementReason(final String code, final String description) {
         super(REASON, code, description);
     }
+
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(REASON, code);
+    }
 }

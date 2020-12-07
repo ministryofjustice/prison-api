@@ -25,6 +25,10 @@ import java.util.List;
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "AGENCY_LOCATIONS")
 public class AgencyLocation extends AuditableEntity {
+
+    public static final String IN = "IN";
+    public static final String OUT = "OUT";
+
     @Id
     @Column(name = "AGY_LOC_ID")
     private String id;

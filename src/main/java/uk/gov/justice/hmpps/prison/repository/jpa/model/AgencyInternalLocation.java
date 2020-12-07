@@ -12,7 +12,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Getter
@@ -46,8 +49,9 @@ public class AgencyInternalLocation {
     @Column(name = "DESCRIPTION")
     private String description;
 
-    @Column(name = "PARENT_INTERNAL_LOCATION_ID")
-    private Long parentLocationId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_INTERNAL_LOCATION_ID")
+    private AgencyInternalLocation parentLocation;
 
     @Column(name = "NO_OF_OCCUPANT")
     private Integer currentOccupancy;
@@ -79,7 +83,7 @@ public class AgencyInternalLocation {
     public boolean isCellSwap() {
         return (certifiedFlag == null || !certifiedFlag.isActive()) &&
                 (activeFlag == null || activeFlag.isActive()) &&
-                parentLocationId == null &&
+                parentLocation == null &&
                 locationCode != null &&
                 locationCode.equals("CSWAP");
     }
@@ -93,6 +97,16 @@ public class AgencyInternalLocation {
             return currentOccupancy < operationalCapacity;
         }
         return capacity != null && currentOccupancy != null && currentOccupancy < capacity;
+    }
+
+    public Integer incrementCurrentOccupancy() {
+        if (currentOccupancy != null) {
+            currentOccupancy = currentOccupancy + 1;
+        } else {
+            currentOccupancy = 1;
+        }
+
+        return currentOccupancy;
     }
 
     public boolean isActiveCellWithSpace() {
