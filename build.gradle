@@ -105,6 +105,8 @@ task testWithSchemaNomis(type: Test) {
     exclude '**/*IntTest*'
     environment nomisEnvVars
     useJUnitPlatform()
+    minHeapSize = "1024m"
+    maxHeapSize = "2048m"
 }
 
 task testWithSchemaNomisOracle(type: Test) {
