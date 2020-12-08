@@ -18,12 +18,14 @@ test {
     useJUnitPlatform()
 }
 
+ext['tomcat.version'] = '9.0.40'          // Introduced to mitigate CVE-2020-25638 - remove once this version of hibernate is pulled in by spring-boot-starter-data-jpa
+ext['hibernate.version'] = '5.4.24.Final' // Introduced to mitigate CVE-2020-17527 - remove once this version of tomcat is pulled in by spring-boot-starter-tomcat
+
 dependencies {
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
-
 
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
