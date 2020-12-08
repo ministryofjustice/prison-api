@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -32,7 +33,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 @Validated
 @Slf4j
 @AllArgsConstructor
-public class PrisonerReleaseService {
+public class PrisonerReleaseAndTransferService {
 
     private final OffenderBookingRepository offenderBookingRepository;
     private final AgencyLocationRepository agencyLocationRepository;
@@ -127,5 +128,9 @@ public class PrisonerReleaseService {
             agencyInternalLocationRepository.save(assignedLivingUnit);
             incrementCurrentOccupancy(assignedLivingUnit.getParentLocation());
         }
+    }
+
+    public void transferOutPrisoner(final String offenderNo, final RequestToTransferOut requestToTransferOut) {
+
     }
 }

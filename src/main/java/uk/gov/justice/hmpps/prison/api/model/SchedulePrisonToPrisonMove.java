@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ToString
-public class PrisonToPrisonMove {
+public class SchedulePrisonToPrisonMove {
 
     @ApiModelProperty(required = true, value = "The prison (agency code) to be moved from.", position = 1, example = "LEI")
     @NotBlank(message = "The from prison location must be provided.")

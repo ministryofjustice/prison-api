@@ -35,6 +35,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
@@ -58,7 +59,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
-import uk.gov.justice.hmpps.prison.service.PrisonerReleaseService;
+import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -88,7 +89,7 @@ public class OffenderResource {
     private final GlobalSearchService globalSearchService;
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
-    private final PrisonerReleaseService prisonerReleaseService;
+    private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
 
@@ -116,7 +117,24 @@ public class OffenderResource {
     public String releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
-        prisonerReleaseService.releasePrisoner(offenderNo, requestToReleasePrisoner.getMovementReasonCode(), requestToReleasePrisoner.getCommentText());
+        prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner.getMovementReasonCode(), requestToReleasePrisoner.getCommentText());
+        return offenderNo;
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation("Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison, requires the TRANSFER_PRISONER role")
+    @PutMapping("/{offenderNo}/transfer-out")
+    @HasWriteScope
+    @PreAuthorize("hasRole('TRANSFER_PRISONER')")
+    @ProxyUser
+    @VerifyOffenderAccess
+    public String transferOutPrisoner(
+        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @RequestBody @NotNull @Valid final RequestToTransferOut requestToTransferOut) {
+        prisonerReleaseAndTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
         return offenderNo;
     }
 

@@ -34,7 +34,7 @@ public class OffenderPropertyContainer {
     @Column(name = "PROPERTY_CONTAINER_ID")
     private Long containerId;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 

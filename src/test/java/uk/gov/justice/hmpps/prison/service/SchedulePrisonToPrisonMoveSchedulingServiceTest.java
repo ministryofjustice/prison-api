@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.prison.api.model.PrisonToPrisonMove;
+import uk.gov.justice.hmpps.prison.api.model.SchedulePrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -37,7 +37,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule.EventClass.EXT_MOV;
 
 @ExtendWith(MockitoExtension.class)
-class PrisonToPrisonMoveSchedulingServiceTest {
+class SchedulePrisonToPrisonMoveSchedulingServiceTest {
 
     private static final Long OFFENDER_BOOKING_ID = 1L;
 
@@ -148,7 +148,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .andEventStatusScheduledFound()
                 .andValidEscort();
 
-        final var move = PrisonToPrisonMove
+        final var move = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation(FROM_PRISON)
                 .toPrisonLocation(TO_PRISON)
@@ -197,7 +197,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     void schedule_move_errors_when_no_matching_booking() {
         when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.empty());
 
-        final var move = PrisonToPrisonMove
+        final var move = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation(FROM_PRISON)
                 .toPrisonLocation(TO_PRISON)
@@ -214,7 +214,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     void schedule_move_errors_when_booking_is_not_active() {
         givenAnInActiveBooking();
 
-        final var move = PrisonToPrisonMove
+        final var move = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation(FROM_PRISON)
                 .toPrisonLocation(TO_PRISON)
@@ -237,7 +237,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
     @Test
     void schedule_move_errors_when_move_date_not_in_future() {
-        final var moveWithInvalidDate = PrisonToPrisonMove
+        final var moveWithInvalidDate = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation(FROM_PRISON)
                 .toPrisonLocation(TO_PRISON)
@@ -251,7 +251,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
     @Test
     void schedule_move_errors_when_from_and_to_are_the_same() {
-        final var moveWithInvalidToPrison = PrisonToPrisonMove
+        final var moveWithInvalidToPrison = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation(FROM_PRISON)
                 .toPrisonLocation(FROM_PRISON)
@@ -268,7 +268,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
     void schedule_move_errors_when_from_does_not_match_offenders_booking() {
         givenAnActiveBooking();
 
-        final var moveWithInvalidFromPrison = PrisonToPrisonMove
+        final var moveWithInvalidFromPrison = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation("BAD_" + FROM_PRISON)
                 .toPrisonLocation(TO_PRISON)
@@ -287,7 +287,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .andValidEscort()
                 .andToPrisonNotFound();
 
-        final var move = PrisonToPrisonMove
+        final var move = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation(FROM_PRISON)
                 .toPrisonLocation(TO_PRISON)
@@ -306,7 +306,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .andValidEscort()
                 .andToPrisonNotActive();
 
-        final var move = PrisonToPrisonMove
+        final var move = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation(FROM_PRISON)
                 .toPrisonLocation(TO_PRISON)
@@ -325,7 +325,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .andValidEscort()
                 .andToPrisonIsNotPrison();
 
-        final var move = PrisonToPrisonMove
+        final var move = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation(FROM_PRISON)
                 .toPrisonLocation(TO_PRISON)
@@ -343,7 +343,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
         givenAnActiveBooking()
                 .andEscortNotFound();
 
-        final var move = PrisonToPrisonMove
+        final var move = SchedulePrisonToPrisonMove
                 .builder()
                 .fromPrisonLocation(FROM_PRISON)
                 .toPrisonLocation(TO_PRISON)
@@ -447,7 +447,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .hasMessage("Cancellation reason XXXXXX not found.");
     }
 
-    private PrisonToPrisonMoveSchedulingServiceTest givenAnActiveBooking() {
+    private SchedulePrisonToPrisonMoveSchedulingServiceTest givenAnActiveBooking() {
         when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(ACTIVE_BOOKING));
 
         return this;
@@ -476,7 +476,7 @@ class PrisonToPrisonMoveSchedulingServiceTest {
                 .build()));
     }
 
-    private PrisonToPrisonMoveSchedulingServiceTest andValidEscort() {
+    private SchedulePrisonToPrisonMoveSchedulingServiceTest andValidEscort() {
         when(escortAgencyTypeRepository.findById(any())).thenReturn(Optional.of(new EscortAgencyType(PRISON_ESCORT_CUSTODY_SERVICES, "Prison Escort Custody Service")));
 
         return this;
@@ -487,25 +487,25 @@ class PrisonToPrisonMoveSchedulingServiceTest {
 
     }
 
-    private PrisonToPrisonMoveSchedulingServiceTest andValidToPrison() {
+    private SchedulePrisonToPrisonMoveSchedulingServiceTest andValidToPrison() {
         when(agencyLocationRepository.findById(TO_PRISON)).thenReturn(Optional.of(TO_PRISON_AGENCY));
 
         return this;
     }
 
-    private PrisonToPrisonMoveSchedulingServiceTest andEventStatusScheduledFound() {
+    private SchedulePrisonToPrisonMoveSchedulingServiceTest andEventStatusScheduledFound() {
         when(eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED)).thenReturn(Optional.of(SCHEDULED));
 
         return this;
     }
 
-    private PrisonToPrisonMoveSchedulingServiceTest andEventStatusCancelFound() {
+    private SchedulePrisonToPrisonMoveSchedulingServiceTest andEventStatusCancelFound() {
         when(eventStatusRepository.findById(EventStatus.CANCELLED)).thenReturn(Optional.of(CANCELLED));
 
         return this;
     }
 
-    private PrisonToPrisonMoveSchedulingServiceTest givenAnUnscheduledMove() {
+    private SchedulePrisonToPrisonMoveSchedulingServiceTest givenAnUnscheduledMove() {
         scheduledPrisonMove.setEventStatus(new EventStatus("COMP", "Completed"));
         scheduledPrisonMove.setOffenderBooking(ACTIVE_BOOKING);
 
@@ -514,13 +514,13 @@ class PrisonToPrisonMoveSchedulingServiceTest {
         return this;
     }
 
-    private PrisonToPrisonMoveSchedulingServiceTest given(final OffenderIndividualSchedule scheduledMove) {
+    private SchedulePrisonToPrisonMoveSchedulingServiceTest given(final OffenderIndividualSchedule scheduledMove) {
         when(scheduleRepository.findById(scheduledMove.getId())).thenReturn(Optional.of(scheduledMove));
 
         return this;
     }
 
-    private PrisonToPrisonMoveSchedulingServiceTest givenScheduledMoveWith(final OffenderBooking booking) {
+    private SchedulePrisonToPrisonMoveSchedulingServiceTest givenScheduledMoveWith(final OffenderBooking booking) {
         scheduledPrisonMove.setOffenderBooking(booking);
 
         when(scheduleRepository.findById(scheduledPrisonMove.getId())).thenReturn(Optional.of(scheduledPrisonMove));

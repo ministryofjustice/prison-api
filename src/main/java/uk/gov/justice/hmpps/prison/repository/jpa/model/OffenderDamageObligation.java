@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -29,7 +30,7 @@ public class OffenderDamageObligation extends AuditableEntity  {
     @Column(name = "OFFENDER_DMG_OBLIGATION_ID", nullable = false, insertable = false, updatable = false)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_ID", nullable = false)
     private Offender offender;
 
@@ -42,7 +43,7 @@ public class OffenderDamageObligation extends AuditableEntity  {
     @Column(name = "END_DATE", nullable = false)
     private LocalDateTime endDateTime;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation prison;
 

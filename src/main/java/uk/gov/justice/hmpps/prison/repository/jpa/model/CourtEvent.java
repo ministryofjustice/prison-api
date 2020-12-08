@@ -19,6 +19,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -66,7 +67,7 @@ public class CourtEvent extends AuditableEntity {
     @JoinColumn(name = "CASE_ID")
     private OffenderCourtCase offenderCourtCase;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
@@ -92,7 +93,7 @@ public class CourtEvent extends AuditableEntity {
     })
     private EventStatus eventStatus;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation courtLocation;
 

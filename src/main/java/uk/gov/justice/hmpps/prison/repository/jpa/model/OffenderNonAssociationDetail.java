@@ -13,6 +13,7 @@ import org.hibernate.annotations.NotFound;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -48,12 +49,12 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     }
 
     @Id
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_ID", nullable = false, insertable = false, updatable = false)
     private Offender offender;
 
     @Id
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "NS_OFFENDER_ID", nullable = false, insertable = false, updatable = false, referencedColumnName = "OFFENDER_ID")
     private Offender nsOffender;
 
@@ -61,7 +62,7 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     @Column(name = "TYPE_SEQ", nullable = false, insertable = false, updatable = false)
     private Integer typeSequence;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
@@ -101,7 +102,7 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     })
     private NonAssociationReason recipNonAssociationReason;
 
-    @OneToOne(optional = false)
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(column = @JoinColumn(name = "OFFENDER_ID", referencedColumnName = "OFFENDER_ID")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "NS_OFFENDER_ID", referencedColumnName = "NS_OFFENDER_ID")),
