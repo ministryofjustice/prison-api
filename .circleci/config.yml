@@ -115,7 +115,10 @@ workflows:
                 - main
           requires:
             - build_docker
-            - build
+            - check
+            - test-integration
+            - test-schema-nomis
+            -
       - request-stage-approval:
           type: approval
           requires:
