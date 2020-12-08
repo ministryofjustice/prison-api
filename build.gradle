@@ -18,8 +18,8 @@ test {
     useJUnitPlatform()
 }
 
-ext['tomcat.version'] = '9.0.40'          // Introduced to mitigate CVE-2020-25638 - remove once this version of hibernate is pulled in by spring-boot-starter-data-jpa
-ext['hibernate.version'] = '5.4.24.Final' // Introduced to mitigate CVE-2020-17527 - remove once this version of tomcat is pulled in by spring-boot-starter-tomcat
+ext['tomcat.version'] = '9.0.40'          // Introduced to mitigate CVE-2020-17527 - remove once this version of tomcat is pulled in by spring-boot-starter-tomcat
+ext['hibernate.version'] = '5.4.24.Final' // Introduced to mitigate CVE-2020-25638 - remove once this version of hibernate is pulled in by spring-boot-starter-data-jpa
 
 dependencies {
 
