@@ -41,7 +41,7 @@ public class UserRepositoryTest {
     public void testFindUserByUsername() {
         final var user = userRepository.findByUsername("ITAG_USER").orElseThrow(EntityNotFoundException.withId("ITAG_USER"));
 
-        assertThat(user.getLastName()).isEqualTo("USER");
+        assertThat(user.getLastName()).isEqualTo("User");
     }
 
     @Test
@@ -254,7 +254,7 @@ public class UserRepositoryTest {
     public void testGetBasicInmateDetailsByBookingIds() {
         final var users = userRepository.getUserListByUsernames(List.of("JBRIEN", "RENEGADE"));
         assertThat(users).extracting("username", "firstName", "staffId").contains(
-            Tuple.tuple("JBRIEN", "JO", -12L),
-            Tuple.tuple("RENEGADE", "RENEGADE", -11L));
+            Tuple.tuple("JBRIEN", "Jo", -12L),
+            Tuple.tuple("RENEGADE", "Renegade", -11L));
     }
 }

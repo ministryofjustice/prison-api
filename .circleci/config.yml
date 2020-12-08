@@ -14,7 +14,7 @@ executors:
     environment:
       _JAVA_OPTIONS: -Xmx1800m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-XX:+UseContainerSupport
 jobs:
-  build:
+  check:
     executor: builder
     steps:
       - checkout
@@ -22,7 +22,53 @@ jobs:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
           key: gradle-cache-{{ checksum "build.gradle" }}
-      - run: ./gradlew build
+      - run: ./gradlew check --exclude-task testIntegration --exclude-task testWithSchemaNomis
+      - save_cache:
+          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+          paths:
+            - /home/circleci/.gradle/wrapper
+      - save_cache:
+          key: gradle-cache-{{ checksum "build.gradle" }}
+          paths:
+            - /home/circleci/.gradle/caches
+      - store_test_results:
+          path: build/test-results
+      - store_test_results:
+          path: build/serenity
+      - store_artifacts:
+          path: build/libs
+  test-integration:
+    executor: builder
+    steps:
+      - checkout
+      - restore_cache:
+          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - restore_cache:
+          key: gradle-cache-{{ checksum "build.gradle" }}
+      - run: ./gradlew testIntegration
+      - save_cache:
+          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+          paths:
+            - /home/circleci/.gradle/wrapper
+      - save_cache:
+          key: gradle-cache-{{ checksum "build.gradle" }}
+          paths:
+            - /home/circleci/.gradle/caches
+      - store_test_results:
+          path: build/test-results
+      - store_test_results:
+          path: build/serenity
+      - store_artifacts:
+          path: build/libs
+  test-schema-nomis:
+    executor: builder
+    steps:
+      - checkout
+      - restore_cache:
+          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - restore_cache:
+          key: gradle-cache-{{ checksum "build.gradle" }}
+      - run: ./gradlew testWithSchemaNomis
       - save_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
@@ -42,7 +88,15 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - build:
+      - check:
+          filters:
+            tags:
+              ignore: /.*/
+      - test-integration:
+          filters:
+            tags:
+              ignore: /.*/
+      - test-schema-nomis:
           filters:
             tags:
               ignore: /.*/
@@ -61,7 +115,9 @@ workflows:
                 - main
           requires:
             - build_docker
-            - build
+            - check
+            - test-integration
+            - test-schema-nomis
       - request-stage-approval:
           type: approval
           requires:
