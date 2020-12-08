@@ -118,7 +118,6 @@ workflows:
             - check
             - test-integration
             - test-schema-nomis
-            -
       - request-stage-approval:
           type: approval
           requires:
