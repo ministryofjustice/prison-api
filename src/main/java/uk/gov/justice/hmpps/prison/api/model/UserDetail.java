@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.text.WordUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -73,4 +74,11 @@ public class UserDetail {
         return "ACTIVE".equals(accountStatus);
     }
 
+    public String getFirstName() {
+        return WordUtils.capitalizeFully(firstName);
+    }
+
+    public String getLastName() {
+        return WordUtils.capitalizeFully(lastName);
+    }
 }
