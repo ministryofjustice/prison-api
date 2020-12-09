@@ -362,6 +362,6 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
             String.class,
             "A1234AJ");
 
-        assertThatJsonFileAndStatus(response, 200, "e-learn-transaction-history.json");
+        assertThatJsonFileAndStatus(response, 200, "a-earn-transaction-history.json");
     }
 }
