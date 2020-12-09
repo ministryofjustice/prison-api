@@ -433,6 +433,19 @@ public class OffendersResourceTest extends ResourceTest {
         );
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
+
+        // check that prisoner is now out
+        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", prisonerNo));
+
+        final var searchResponse = testRestTemplate.exchange(
+            "/api/prisoners",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(searchResponse, 200, "transferred_prisoner.json");
     }
 
     @Test
