@@ -74,11 +74,7 @@ public class OffenderTransactionHistoryService {
         checkNotNull(toDate, "toDate optional can't be null");
 
         if (fromDate.isPresent() && toDate.isPresent()) checkDateRange(fromDate.get(), toDate.get());
-
-        if (accountCodeOpl.isPresent()) {
-            boolean isAccountCodeExists = AccountCode.exists(accountCodeOpl.get());
-            checkState(isAccountCodeExists, "Unknown account-code " + accountCodeOpl.get());
-        }
+        if (accountCodeOpl.isPresent()) checkState(AccountCode.exists(accountCodeOpl.get()), "Unknown account-code " + accountCodeOpl.get());
     }
 
     private void checkDateRange(final LocalDate fromDate, final LocalDate toDate) {
