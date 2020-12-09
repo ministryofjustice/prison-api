@@ -415,6 +415,27 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCanTransferAPrisoner() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("transferReasonCode", "NOTR", "commentText", "transferred prisoner today", "toLocation", "MDI");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var prisonerNo = "A1180HI";
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/transfer-out",
+            PUT,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            },
+            prisonerNo
+        );
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+    }
+
+    @Test
     public void testCannotReleasePrisonerAlreadyOut() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 

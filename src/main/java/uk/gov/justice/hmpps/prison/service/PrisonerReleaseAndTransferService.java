@@ -65,16 +65,18 @@ public class PrisonerReleaseAndTransferService {
         final Long bookingId = setPreviousMovementsToInactive(booking);
 
         // Generate the external movement out
-        final var releaseDateTime = LocalDateTime.now();
         final var movementReason = movementReasonRepository.findById(MovementReason.pk(movementReasonCode)).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", movementReasonCode));
 
+        final var releaseDateTime = LocalDateTime.now();
         createOutMovement(booking, REL, movementReason, toLocation, releaseDateTime, commentText, null);
 
         // generate the release case note
         generateReleaseNote(booking, releaseDateTime, movementReason);
 
         // Update occupancy (recursively)
-        updateBeds(booking, bookingId, releaseDateTime);
+        updateBeds(booking, releaseDateTime);
+
+        deactivateSentences(bookingId);
 
         // update the booking record
         booking.setInOutStatus("OUT");
@@ -99,12 +101,11 @@ public class PrisonerReleaseAndTransferService {
         final Long bookingId = setPreviousMovementsToInactive(booking);
 
         // Generate the external movement out
-        final var releaseDateTime = LocalDateTime.now();
         final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToTransferOut.getTransferReasonCode())).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", requestToTransferOut.getTransferReasonCode()));
 
+        final var releaseDateTime = LocalDateTime.now();
         createOutMovement(booking, TRN, movementReason, toLocation, releaseDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
-
-        updateBeds(booking, bookingId, releaseDateTime);
+        updateBeds(booking, releaseDateTime);
 
         // update the booking record
         booking.setInOutStatus(TRN.getCode());
@@ -144,10 +145,11 @@ public class PrisonerReleaseAndTransferService {
         return bookingId;
     }
 
-    private AgencyLocation checkMovementTypes(final String movementCode, final String reasonCode, String agencyLocation) {
-        final var toLocation = agencyLocationRepository.findById(agencyLocation).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", AgencyLocation.TRN));
+    private AgencyLocation checkMovementTypes(final String movementCode, final String reasonCode, final String toLocationId) {
+        final var toLocation = agencyLocationRepository.findById(toLocationId).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", toLocationId));
 
         final var movementTypeAndReason = Pk.builder().type(movementCode).reasonCode(reasonCode).build();
+
         movementTypeAndReasonRespository.findById(movementTypeAndReason)
             .orElseThrow(EntityNotFoundException.withMessage("No movement type found for {}", movementTypeAndReason));
         return toLocation;
@@ -190,18 +192,21 @@ public class PrisonerReleaseAndTransferService {
     }
 
 
-    private void updateBeds(final OffenderBooking booking, final Long bookingId, final LocalDateTime releaseDateTime) {
+    private void updateBeds(final OffenderBooking booking, final LocalDateTime releaseDateTime) {
         // Update occupancy (recursively)
         incrementCurrentOccupancy(booking.getAssignedLivingUnit());
 
         // Update Bed Assignment
-        bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(bookingId,
-            bedAssignmentHistoriesRepository.getMaxSeqForBookingId(bookingId)).ifPresent(b -> {
+        bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(booking.getBookingId(),
+            bedAssignmentHistoriesRepository.getMaxSeqForBookingId(booking.getBookingId())).ifPresent(b -> {
             if (b.getAssignmentEndDate() == null && b.getAssignmentEndDateTime() == null) {
                 b.setAssignmentEndDate(releaseDateTime.toLocalDate());
                 b.setAssignmentEndDateTime(releaseDateTime);
             }
         });
+    }
+
+    private void deactivateSentences(final Long bookingId) {
 
         offenderSentenceAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
             .forEach(s -> s.setActiveFlag(ActiveFlag.N));
