@@ -77,6 +77,9 @@ public class ExternalMovement extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     private ActiveFlag activeFlag;
 
+    @Column(name = "ESCORT_TEXT")
+    private String escortText;
+
     @Column(name = "COMMENT_TEXT")
     private String commentText;
 

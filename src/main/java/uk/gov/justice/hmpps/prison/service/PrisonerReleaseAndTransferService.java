@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
+import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -14,6 +17,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
@@ -23,10 +28,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.time.LocalDateTime;
 
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TRN;
 
 @Service
 @Transactional
@@ -38,8 +45,6 @@ public class PrisonerReleaseAndTransferService {
     private final OffenderBookingRepository offenderBookingRepository;
     private final AgencyLocationRepository agencyLocationRepository;
     private final ExternalMovementRepository externalMovementRepository;
-    private final AgencyService agencyService;
-
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final BedAssignmentHistoriesRepository bedAssignmentHistoriesRepository;
@@ -47,9 +52,108 @@ public class PrisonerReleaseAndTransferService {
     private final MovementTypeAndReasonRespository movementTypeAndReasonRespository;
     private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
     private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
+    private final CaseNoteRepository caseNoteRepository;
+    private final UserRepository userRepository;
+    private final AuthenticationFacade authenticationFacade;
 
     public void releasePrisoner(final String prisonerIdentifier, final String movementReasonCode, final String commentText) {
+        final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier);
 
+        final AgencyLocation toLocation = checkMovementTypes(REL.getCode(), movementReasonCode, AgencyLocation.OUT);
+
+        // set previous active movements to false
+        final Long bookingId = setPreviousMovementsToInactive(booking);
+
+        // Generate the external movement out
+        final var releaseDateTime = LocalDateTime.now();
+        final var movementReason = movementReasonRepository.findById(MovementReason.pk(movementReasonCode)).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", movementReasonCode));
+
+        createOutMovement(booking, REL, movementReason, toLocation, releaseDateTime, commentText, null);
+
+        // generate the release case note
+        generateReleaseNote(booking, releaseDateTime, movementReason);
+
+        // Update occupancy (recursively)
+        updateBeds(booking, bookingId, releaseDateTime);
+
+        // update the booking record
+        booking.setInOutStatus("OUT");
+        booking.setActiveFlag("N");
+        booking.setBookingStatus("C");
+        booking.setLivingUnitMv(null);
+        booking.setAssignedLivingUnit(null);
+        booking.setLocation(toLocation);
+        booking.setBookingEndDate(releaseDateTime);
+        booking.setStatusReason(REL.getCode() + "-" + movementReasonCode);
+        booking.setCommStatus(null);
+
+    }
+
+    public void transferOutPrisoner(final String prisonerIdentifier, final RequestToTransferOut requestToTransferOut) {
+        // check that prisoner is active in
+        final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier);
+
+        final AgencyLocation toLocation = checkMovementTypes(TRN.getCode(), requestToTransferOut.getTransferReasonCode(), AgencyLocation.TRN);
+
+        // set previous active movements to false
+        final Long bookingId = setPreviousMovementsToInactive(booking);
+
+        // Generate the external movement out
+        final var releaseDateTime = LocalDateTime.now();
+        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToTransferOut.getTransferReasonCode())).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", requestToTransferOut.getTransferReasonCode()));
+
+        createOutMovement(booking, TRN, movementReason, toLocation, releaseDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
+
+        updateBeds(booking, bookingId, releaseDateTime);
+
+        // update the booking record
+        booking.setInOutStatus(TRN.getCode());
+        booking.setActiveFlag("N");
+        booking.setBookingStatus("O");
+        booking.setLivingUnitMv(null);
+        booking.setAssignedLivingUnit(null);
+        booking.setLocation(toLocation);
+        booking.setCreateLocation(toLocation);
+        booking.setStatusReason(TRN.getCode() + "-" + requestToTransferOut.getTransferReasonCode());
+        booking.setCommStatus(null);
+    }
+
+
+    private void createOutMovement(final OffenderBooking booking, final ReferenceCode.Pk movementCode, final MovementReason movementReason, final AgencyLocation toLocation, final LocalDateTime movementTime, final String commentText, final String escortText) {
+        final var releaseMovement = ExternalMovement.builder()
+            .bookingId(booking.getBookingId())
+            .movementSequence(externalMovementRepository.getLatestMovementSequence(booking.getBookingId()) + 1)
+            .movementDate(movementTime.toLocalDate())
+            .movementTime(movementTime)
+            .movementType(movementTypeRepository.findById(movementCode).orElseThrow(EntityNotFoundException.withMessage("No %s movement type found", movementCode)))
+            .movementReason(movementReason)
+            .movementDirection(MovementDirection.OUT)
+            .fromAgency(booking.getLocation())
+            .toAgency(toLocation)
+            .escortText(escortText)
+            .activeFlag(ActiveFlag.Y)
+            .commentText(commentText)
+            .build();
+        externalMovementRepository.save(releaseMovement);
+    }
+
+    private Long setPreviousMovementsToInactive(final OffenderBooking booking) {
+        final var bookingId = booking.getBookingId();
+        externalMovementRepository.findAllByBookingIdAndActiveFlag(bookingId, ActiveFlag.Y)
+            .forEach(m -> m.setActiveFlag(ActiveFlag.N));
+        return bookingId;
+    }
+
+    private AgencyLocation checkMovementTypes(final String movementCode, final String reasonCode, String agencyLocation) {
+        final var toLocation = agencyLocationRepository.findById(agencyLocation).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", AgencyLocation.TRN));
+
+        final var movementTypeAndReason = Pk.builder().type(movementCode).reasonCode(reasonCode).build();
+        movementTypeAndReasonRespository.findById(movementTypeAndReason)
+            .orElseThrow(EntityNotFoundException.withMessage("No movement type found for {}", movementTypeAndReason));
+        return toLocation;
+    }
+
+    private OffenderBooking getAndCheckOffenderBooking(final String prisonerIdentifier) {
         // check that prisoner is active in
         final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(prisonerIdentifier, 1);
 
@@ -62,64 +166,19 @@ public class PrisonerReleaseAndTransferService {
         if (!booking.getInOutStatus().equals("IN")) {
             throw new BadRequestException("Prisoner is not currently IN");
         }
+        return booking;
+    }
 
-        final var releaseMovementTypeAndReason = Pk.builder().type(REL.getCode()).reasonCode(movementReasonCode).build();
-        movementTypeAndReasonRespository.findById(releaseMovementTypeAndReason)
-            .orElseThrow(EntityNotFoundException.withMessage("No movement type found for {}", releaseMovementTypeAndReason));
-
-        // set previous active movements to false
-        final var bookingId = booking.getBookingId();
-        externalMovementRepository.findAllByBookingIdAndActiveFlag(bookingId, ActiveFlag.Y)
-            .forEach(m -> m.setActiveFlag(ActiveFlag.N));
-
-        final var outLocation = agencyLocationRepository.findById(AgencyLocation.OUT).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", AgencyLocation.OUT));
-
-        // Generate the external movement out
-        final var releaseDateTime = LocalDateTime.now();
-        final var releaseMovement = ExternalMovement.builder()
-            .bookingId(bookingId)
-            .movementSequence(externalMovementRepository.getLatestMovementSequence(bookingId) + 1)
-            .movementDate(releaseDateTime.toLocalDate())
-            .movementTime(releaseDateTime)
-            .movementType(movementTypeRepository.findById(REL).orElseThrow(EntityNotFoundException.withMessage("No %s movement type found", REL.getCode())))
-            .movementReason(movementReasonRepository.findById(MovementReason.pk(movementReasonCode)).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", movementReasonCode)))
-            .movementDirection(MovementDirection.OUT)
-            .fromAgency(booking.getLocation())
-            .toAgency(outLocation)
-            .activeFlag(ActiveFlag.Y)
-            .commentText(commentText)
+    private void generateReleaseNote(final OffenderBooking booking, final LocalDateTime releaseDateTime, final MovementReason movementReason) {
+        final var currentUsername = authenticationFacade.getCurrentUsername();
+        final var userDetail = userRepository.findByUsername(currentUsername).orElseThrow(EntityNotFoundException.withId(currentUsername));
+        final var newCaseNote = NewCaseNote.builder()
+            .type("PRISON")
+            .subType("RELEASE")
+            .text(String.format("Released from %s for reason: %s.", booking.getLocation().getDescription(), movementReason.getDescription()))
+            .occurrenceDateTime(releaseDateTime)
             .build();
-        externalMovementRepository.save(releaseMovement);
-
-        // Update occupancy (recursively)
-        incrementCurrentOccupancy(booking.getAssignedLivingUnit());
-
-        // Update Bed Assignment
-        bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(bookingId,
-            bedAssignmentHistoriesRepository.getMaxSeqForBookingId(bookingId)).ifPresent(b -> {
-                if (b.getAssignmentEndDate() == null && b.getAssignmentEndDateTime() == null) {
-                    b.setAssignmentEndDate(releaseDateTime.toLocalDate());
-                    b.setAssignmentEndDateTime(releaseDateTime);
-                }
-        });
-
-        offenderSentenceAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
-            .forEach(s -> s.setActiveFlag(ActiveFlag.N));
-
-        offenderKeyDateAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
-            .forEach(s -> s.setActiveFlag(ActiveFlag.N));
-
-        // update the booking record
-        booking.setInOutStatus("OUT");
-        booking.setActiveFlag("N");
-        booking.setBookingStatus("C");
-        booking.setLivingUnitMv(null);
-        booking.setAssignedLivingUnit(null);
-        booking.setLocation(outLocation);
-        booking.setBookingEndDate(releaseDateTime);
-        booking.setStatusReason(REL.getCode() + "-" + movementReasonCode);
-        booking.setCommStatus(null);
-
+        caseNoteRepository.createCaseNote(booking.getBookingId(), newCaseNote, "AUTO", currentUsername, userDetail.getStaffId());
     }
 
     private void incrementCurrentOccupancy(final AgencyInternalLocation assignedLivingUnit) {
@@ -130,7 +189,24 @@ public class PrisonerReleaseAndTransferService {
         }
     }
 
-    public void transferOutPrisoner(final String offenderNo, final RequestToTransferOut requestToTransferOut) {
 
+    private void updateBeds(final OffenderBooking booking, final Long bookingId, final LocalDateTime releaseDateTime) {
+        // Update occupancy (recursively)
+        incrementCurrentOccupancy(booking.getAssignedLivingUnit());
+
+        // Update Bed Assignment
+        bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(bookingId,
+            bedAssignmentHistoriesRepository.getMaxSeqForBookingId(bookingId)).ifPresent(b -> {
+            if (b.getAssignmentEndDate() == null && b.getAssignmentEndDateTime() == null) {
+                b.setAssignmentEndDate(releaseDateTime.toLocalDate());
+                b.setAssignmentEndDateTime(releaseDateTime);
+            }
+        });
+
+        offenderSentenceAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
+            .forEach(s -> s.setActiveFlag(ActiveFlag.N));
+
+        offenderKeyDateAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
+            .forEach(s -> s.setActiveFlag(ActiveFlag.N));
     }
 }
