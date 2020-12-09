@@ -67,7 +67,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
@@ -93,9 +92,9 @@ public class OffenderResource {
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Full details about the current state of an offender")
     @GetMapping("/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
@@ -104,9 +103,9 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison, requires the RELEASE_PRISONER role")
     @PutMapping("/{offenderNo}/release")
     @HasWriteScope
@@ -132,32 +131,32 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = IncidentCase.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 200, message = "OK", response = IncidentCase.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Return a set Incidents for a given offender No.", notes = "Can be filtered by participation type and incident type")
     @GetMapping("/{offenderNo}/incidents")
-    public  List<IncidentCase> getIncidentsByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam("incidentType") @ApiParam(value = "incidentType", example = "ASSAULT", allowMultiple = true) final List<String> incidentTypes, @RequestParam("participationRoles") @ApiParam(value = "participationRoles", example = "ASSIAL", allowMultiple = true, allowableValues = "ACTINV,ASSIAL,FIGHT,IMPED,PERP,SUSASS,SUSINV,VICT,AI,PAS,AO") final List<String> participationRoles) {
+    public List<IncidentCase> getIncidentsByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam("incidentType") @ApiParam(value = "incidentType", example = "ASSAULT", allowMultiple = true) final List<String> incidentTypes, @RequestParam("participationRoles") @ApiParam(value = "participationRoles", example = "ASSIAL", allowMultiple = true, allowableValues = "ACTINV,ASSIAL,FIGHT,IMPED,PERP,SUSASS,SUSINV,VICT,AI,PAS,AO") final List<String> participationRoles) {
         return incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
+        @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
     @ApiOperation(value = "Return a list of offender nos across the estate for which an incident has recently occurred or changed", notes = "This query is slow and can take several minutes")
     @GetMapping("/incidents/candidates")
     public ResponseEntity<List<String>> getIncidentCandidates(@RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") final Long pageLimit) {
         var paged = incidentService.getIncidentCandidates(fromDateTime,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 1000L));
+            nvl(pageOffset, 0L),
+            nvl(pageLimit, 1000L));
 
         return ResponseEntity.ok().headers(paged.getPaginationHeaders()).body(paged.getItems());
     }
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Return a list of addresses for a given offender, most recent first.")
     @GetMapping("/{offenderNo}/addresses")
     public List<AddressDto> getAddressesByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull String offenderNo) {
@@ -165,10 +164,10 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = AdjudicationSearchResponse.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 200, message = "OK", response = AdjudicationSearchResponse.class),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Return a list of adjudications for a given offender")
     @GetMapping("/{offenderNo}/adjudications")
     public ResponseEntity<AdjudicationSearchResponse> getAdjudicationsByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo,
@@ -180,31 +179,31 @@ public class OffenderResource {
                                                                                    @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of adjudications returned.", defaultValue = "10") final Long pageLimit) {
 
         val criteria = AdjudicationSearchCriteria.builder()
-                .offenderNumber(offenderNo)
-                .offenceId(offenceId)
-                .agencyId(agencyId)
-                .findingCode(finding)
-                .startDate(fromDate)
-                .endDate(toDate)
-                .pageRequest(new PageRequest(pageOffset, pageLimit))
-                .build();
+            .offenderNumber(offenderNo)
+            .offenceId(offenceId)
+            .agencyId(agencyId)
+            .findingCode(finding)
+            .startDate(fromDate)
+            .endDate(toDate)
+            .pageRequest(new PageRequest(pageOffset, pageLimit))
+            .build();
 
         val page = adjudicationService.findAdjudications(criteria);
 
         return ResponseEntity.ok()
-                .headers(page.getPaginationHeaders())
-                .body(AdjudicationSearchResponse.builder()
-                        .results(page.getItems())
-                        .offences(adjudicationService.findAdjudicationsOffences(criteria.getOffenderNumber()))
-                        .agencies(adjudicationService.findAdjudicationAgencies(criteria.getOffenderNumber()))
-                        .build());
+            .headers(page.getPaginationHeaders())
+            .body(AdjudicationSearchResponse.builder()
+                .results(page.getItems())
+                .offences(adjudicationService.findAdjudicationsOffences(criteria.getOffenderNumber()))
+                .agencies(adjudicationService.findAdjudicationAgencies(criteria.getOffenderNumber()))
+                .build());
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = AdjudicationDetail.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 200, message = "OK", response = AdjudicationDetail.class),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Return a specific adjudication")
     @GetMapping("/{offenderNo}/adjudications/{adjudicationNo}")
     public AdjudicationDetail getAdjudication(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @PathVariable("adjudicationNo") @ApiParam(value = "adjudicationNo", required = true) @NotNull final long adjudicationNo) {
@@ -212,35 +211,35 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = Alert.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 200, message = "OK", response = Alert.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Return a list of alerts for a given offender No.", notes = "System or cat tool access only")
     @GetMapping("/{offenderNo}/alerts")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
     public List<Alert> getAlertsByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam(value = "latestOnly", defaultValue = "true", required = false) @ApiParam("Only get alerts for the latest booking (prison term)") final Boolean latestOnly, @RequestParam(value = "query", required = false) @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - " +
-            "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active</p> ", required = false, example = "alertCode:eq:'XA',or:alertCode:eq:'RSS'") final String query, @RequestHeader(value = "Sort-Fields", defaultValue = "bookingId,alertType", required = false) @ApiParam(value = "Comma separated list of one or more Alert fields", allowableValues = "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active", defaultValue = "bookingId,alertType") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order", defaultValue = "ASC") final Order sortOrder) {
+        "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active</p> ", required = false, example = "alertCode:eq:'XA',or:alertCode:eq:'RSS'") final String query, @RequestHeader(value = "Sort-Fields", defaultValue = "bookingId,alertType", required = false) @ApiParam(value = "Comma separated list of one or more Alert fields", allowableValues = "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active", defaultValue = "bookingId,alertType") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order", defaultValue = "ASC") final Order sortOrder) {
         return alertService.getInmateAlertsByOffenderNos(
-                offenderNo,
-                nvl(latestOnly, true),
-                query,
-                StringUtils.defaultIfBlank(sortFields, "bookingId,alertId"),
-                nvl(sortOrder, Order.ASC));
+            offenderNo,
+            nvl(latestOnly, true),
+            query,
+            StringUtils.defaultIfBlank(sortFields, "bookingId,alertId"),
+            nvl(sortOrder, Order.ASC));
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
+        @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
     @ApiOperation(value = "Return a list of offender nos across the estate for which an alert has recently been created or changed", notes = "This query is slow and can take several minutes")
     @GetMapping("/alerts/candidates")
     public ResponseEntity<List<String>> getAlertCandidates(@RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") final Long pageLimit) {
         return alertService.getAlertCandidates(fromDateTime,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 1000L)).getResponse();
+            nvl(pageOffset, 0L),
+            nvl(pageLimit, 1000L)).getResponse();
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = CaseNote.class, responseContainer = "List")})
+        @ApiResponse(code = 200, message = "OK", response = CaseNote.class, responseContainer = "List")})
     @ApiOperation(value = "Offender case notes", notes = "Retrieve an offenders case notes for latest booking", nickname = "getOffenderCaseNotes")
     @GetMapping("/{offenderNo}/case-notes")
     @VerifyOffenderAccess
@@ -249,18 +248,18 @@ public class OffenderResource {
 
         try {
             final var pagedCaseNotes = caseNoteService.getCaseNotes(
-                    latestBookingByOffenderNo.getBookingId(),
-                    query,
-                    from,
-                    to,
-                    sortFields,
-                    sortOrder,
-                    nvl(pageOffset, 0L),
-                    nvl(pageLimit, 10L));
+                latestBookingByOffenderNo.getBookingId(),
+                query,
+                from,
+                to,
+                sortFields,
+                sortOrder,
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L));
 
             return ResponseEntity.ok()
-                    .headers(pagedCaseNotes.getPaginationHeaders())
-                    .body(pagedCaseNotes.getItems());
+                .headers(pagedCaseNotes.getPaginationHeaders())
+                .body(pagedCaseNotes.getItems());
 
         } catch (EntityNotFoundException e) {
             throw EntityNotFoundException.withId(offenderNo);
@@ -268,7 +267,7 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = CaseNote.class)})
+        @ApiResponse(code = 200, message = "OK", response = CaseNote.class)})
     @ApiOperation(value = "Offender case note detail.", notes = "Retrieve an single offender case note", nickname = "getOffenderCaseNote")
     @GetMapping("/{offenderNo}/case-notes/{caseNoteId}")
     @VerifyOffenderAccess
@@ -282,8 +281,8 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
-            @ApiResponse(code = 409, message = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", response = ErrorResponse.class)})
+        @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
+        @ApiResponse(code = 409, message = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", response = ErrorResponse.class)})
     @ApiOperation(value = "Create case note for offender.", notes = "Create case note for offender. Will attach to the latest booking", nickname = "createOffenderCaseNote")
     @PostMapping("/{offenderNo}/case-notes")
     @HasWriteScope
@@ -297,11 +296,11 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Case Note amendment processed successfully. Updated case note is returned.", response = CaseNote.class),
-            @ApiResponse(code = 400, message = "Invalid request - e.g. amendment text not provided.", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden - user not authorised to amend case note.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Resource not found - offender or case note does not exist or is not accessible to user.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
+        @ApiResponse(code = 201, message = "Case Note amendment processed successfully. Updated case note is returned.", response = CaseNote.class),
+        @ApiResponse(code = 400, message = "Invalid request - e.g. amendment text not provided.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to amend case note.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Resource not found - offender or case note does not exist or is not accessible to user.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
     @ApiOperation(value = "Amend offender case note.", notes = "Amend offender case note.", nickname = "updateOffenderCaseNote")
     @PutMapping("/{offenderNo}/case-notes/{caseNoteId}")
     @HasWriteScope
@@ -315,7 +314,7 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = OffenderSentenceDetail.class)})
+        @ApiResponse(code = 200, message = "OK", response = OffenderSentenceDetail.class)})
     @ApiOperation(value = "Offender Sentence Details", notes = "Retrieve an single offender sentence details", nickname = "getOffenderSentenceDetails")
     @GetMapping("/{offenderNo}/sentences")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
@@ -324,26 +323,26 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = OffenderNumber.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 200, message = "OK", response = OffenderNumber.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Return a list of all unique Noms IDs (also called Prisoner number and offenderNo).")
     @GetMapping("/ids")
     public ResponseEntity<List<OffenderNumber>> getOffenderNumbers(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first Noms ID in returned list.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "100", required = false) @ApiParam(value = "Requested limit to the Noms IDs returned.", defaultValue = "100") final Long pageLimit) {
 
         final var offenderNumbers = globalSearchService.getOffenderNumbers(
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 100L));
+            nvl(pageOffset, 0L),
+            nvl(pageLimit, 100L));
 
         return ResponseEntity.ok()
-                .headers(offenderNumbers.getPaginationHeaders())
-                .body(offenderNumbers.getItems());
+            .headers(offenderNumbers.getPaginationHeaders())
+            .body(offenderNumbers.getItems());
     }
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Offenders IEP (Incentives & Earned Privileges) summary for the latest booking only.", notes = "Offenders IEP (Incentives & Earned Privileges) summary.", nickname = "getLatestBookingIEPSummaryForOffender")
     @GetMapping("/{offenderNo}/iepSummary")
     public PrivilegeSummary getLatestBookingIEPSummaryForOffender(@NotNull @PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
@@ -352,8 +351,8 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 404, message = "Offender does not exists or is in a different caseload to the user", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 404, message = "Offender does not exists or is in a different caseload to the user", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Return a list of damage obligations")
     @GetMapping("/{offenderNo}/damage-obligations")
     public OffenderDamageObligationResponse getOffenderDamageObligations(@NotNull @PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam(value = "Filter by obligation status. Leave blank to return all", required = false, example = "ACTIVE", allowableValues = "INACT,PAID,ONH,ACTIVE,APPEAL") final String status) {
@@ -369,22 +368,22 @@ public class OffenderResource {
     }
 
     @ApiResponses(value = {
-            @ApiResponse(code = 400, message = "Not a digital offender. Offender has no account at this prison.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+        @ApiResponse(code = 400, message = "Not a digital offender. Offender has no account at this prison.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Prison, offender or accountType not found", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Retrieve an offender's financial transaction history for cash, spends or savings.",
-            notes = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
-                    "All transaction amounts are represented as pence values.")
+        notes = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
+            "All transaction amounts are represented as pence values.")
     @GetMapping("/{offenderNo}/transaction-history")
-    public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(@ApiParam(name = "offenderNo", value = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull final String offenderNo,
-                                                                                      @ApiParam(name = "account_code", value = "Account code", example = "spends", required = false, allowableValues = "spends,cash,savings") @RequestParam(value = "account_code", required = false) final String accountCode,
-                                                                                      @ApiParam(name = "from_date", value = "Start date for transactions, format yyyy-MM-dd, defaults to today if not supplied", example = "2019-04-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) final LocalDate fromDate,
-                                                                                      @ApiParam(name = "to_date", value = "To date for transactions, format yyyy-MM-dd, defaults to today if not supplied", example = "2019-05-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to_date", required = false) final LocalDate toDate) {
-        val accountCodeOpl = Optional.ofNullable(accountCode);
-        val fromDateOpl = Optional.ofNullable(fromDate);
-        val toDateOpl = Optional.ofNullable(toDate);
+    public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(
+        @ApiParam(name = "offenderNo", value = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull final String offenderNo,
+        @ApiParam(name = "account_code", value = "Account code", example = "spends", required = false, allowableValues = "spends,cash,savings") @RequestParam(value = "account_code", required = false) final String accountCode,
+        @ApiParam(name = "from_date", value = "Start date for transactions, format yyyy-MM-dd", example = "2019-04-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) final LocalDate fromDate,
+        @ApiParam(name = "to_date", value = "To date for transactions, format yyyy-MM-dd", example = "2019-05-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to_date", required = false) final LocalDate toDate,
+        @ApiParam(name = "transaction_type", value = "Transaction type", example = "A_EARN") @RequestParam(value = "transaction_type", required = false) final String transactionType
+    ) {
         var histories =
-                offenderTransactionHistoryService.getTransactionHistory(offenderNo, accountCodeOpl, fromDateOpl, toDateOpl);
+            offenderTransactionHistoryService.getTransactionHistory(offenderNo, accountCode, fromDate, toDate, transactionType);
 
         return ResponseEntity.ok(histories);
     }

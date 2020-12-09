@@ -42,36 +42,17 @@ public class OffenderTransactionHistoryServiceTest {
     }
 
     @Test
-    public void When_getTransactionHistory_And_AccountCodeIsGiven_Then_CallRepositoryWithAccountCode() {
+    public void testGetTransactionHistory_CallsRepositoryWithCorrectParameters() {
 
-        final Optional<String> accountCode = Optional.of("spends");
-        final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-        final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
+        final var accountCode = "spends";
+        final LocalDate fromDate = LocalDate.now().minusDays(7);
+        final String transactionType = "E_LEARN";
 
-        final List<OffenderTransactionHistory> txnItem = Collections.emptyList();
-        when(repository.findForGivenAccountType(OFFENDER_NO, "SPND", fromDateOpl.get(), toDateOpl.get())).thenReturn(txnItem);
+        when(repository.getTransactionHistory(anyString(), any(), any(), any(), any())).thenReturn(Collections.emptyList());
 
-        List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
+        final var histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, null, transactionType);
 
-        verify(repository, times(1)).findForGivenAccountType(OFFENDER_NO, "SPND", fromDateOpl.get(), toDateOpl.get());
-
-        assertThat(histories).isNotNull();
-        assertThat(histories.size()).isEqualTo(0);
-    }
-
-    @Test
-    public void When_getTransactionHistory_And_AccountCodeIsMissing_Then_CallRepositoryWithoutAccountCode() {
-
-        final Optional<String> accountCode = Optional.empty();
-        final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-        final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
-
-        final List<OffenderTransactionHistory> txnItem = Collections.emptyList();
-        when(repository.findForAllAccountTypes(OFFENDER_NO, fromDateOpl.get(), toDateOpl.get())).thenReturn(txnItem);
-
-        List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
-
-        verify(repository, times(1)).findForAllAccountTypes(OFFENDER_NO, fromDateOpl.get(), toDateOpl.get());
+        verify(repository, times(1)).getTransactionHistory(OFFENDER_NO, "SPND", fromDate, null, transactionType);
 
         assertThat(histories).isNotNull();
         assertThat(histories.size()).isEqualTo(0);
@@ -79,137 +60,79 @@ public class OffenderTransactionHistoryServiceTest {
 
 
     @Test
-    public void When_getTransactionHistory_And_OffenderIdIsNull_Then_ThrowException() {
+    public void testGetTransactionHistoryThrowException_offenderIdIsNull() {
 
         Throwable exception = assertThrows(NullPointerException.class, () -> {
             final String nomisId = null;
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
-            service.getTransactionHistory(nomisId, accountCode, fromDateOpl, toDateOpl);
+            final var accountCode = "spends";
+            final var fromDate = LocalDate.now().minusDays(7);
+            final var toDate = LocalDate.now();
+            service.getTransactionHistory(nomisId, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("offenderNo can't be null", exception.getMessage());
     }
 
     @Test
-    public void When_getTransactionHistory_And_AccountCodeIsNull_Then_ThrowException() {
-
-        Throwable exception = assertThrows(NullPointerException.class, () -> {
-            final Optional<String> accountCode = null;
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
-        });
-
-        assertEquals("accountCode optional can't be null", exception.getMessage());
-    }
-
-    @Test
-    public void When_getTransactionHistory_And_FromDateIsNull_Then_ThrowException() {
-
-        Throwable exception = assertThrows(NullPointerException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = null;
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
-        });
-
-        assertEquals("fromDate optional can't be null", exception.getMessage());
-    }
-
-    @Test
-    public void When_getTransactionHistory_And_ToDateIsNull_Then_ThrowException() {
-
-        Throwable exception = assertThrows(NullPointerException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-            final Optional<LocalDate> toDateOpl = null;
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
-        });
-
-        assertEquals("toDate optional can't be null", exception.getMessage());
-    }
-
-    @Test
-    public void When_getTransactionHistory_And_ToDateIsBeforeFromDate_Then_ThrowException() {
+    public void testGetTransactionHistoryThrowException_toDateIsBeforeFromDate() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now().minusDays(8));
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
+            final var accountCode = "spends";
+            final var fromDate = LocalDate.now().minusDays(7);
+            final var toDate = LocalDate.now().minusDays(8);
+            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("toDate can't be before fromDate", exception.getMessage());
     }
 
     @Test
-    public void When_getTransactionHistory_And_FromDateIsTomorrow_Then_ThrowException() {
+    public void testGetTransactionHistory_ThrowException_FromDateIsTomorrow() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().plusDays(1));
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now().plusDays(2));
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
+            final var accountCode = "spends";
+            final var fromDate = LocalDate.now().plusDays(1);
+            final var toDate = LocalDate.now().plusDays(2);
+            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("fromDate can't be in the future", exception.getMessage());
     }
 
     @Test
-    public void When_getTransactionHistory_And_ToDateIs2DaysInFuture_Then_ThrowException() {
+    public void testGetTransactionHistoryThrowException_ToDateIs2DaysInFuture() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now().plusDays(2));
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
+            final var accountCode ="spends";
+            final var fromDate = LocalDate.now();
+            final var toDate = LocalDate.now().plusDays(2);
+            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("toDate can't be in the future", exception.getMessage());
     }
 
     @Test
-    public void When_getTransactionHistory_And_DatesDefaultToNow_Then_CallRepositoryWithoutAccountCode() {
-
-        final Optional<String> accountCode = Optional.of("spends");
-        final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
-        final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
-
-        final List<OffenderTransactionHistory> txnItem = Collections.emptyList();
-        when(repository.findForAllAccountTypes(OFFENDER_NO, fromDateOpl.get(), toDateOpl.get())).thenReturn(txnItem);
-
-        List<OffenderTransactionHistoryDto> histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
-
-        verify(repository, times(1)).findForAllAccountTypes(OFFENDER_NO, fromDateOpl.get(), toDateOpl.get());
-
-        assertThat(histories).isNotNull();
-        assertThat(histories.size()).isEqualTo(0);
-    }
-
-    @Test
-    public void When_getTransactionHistory_And_TypoInAccountCode_Then_ThrowException() {
+    public void testGetTransactionHistoryThrowException_TypoInAccountCode() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spendss");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
+            final var accountCode = "spendss";
+            final LocalDate fromDate = LocalDate.now();
+            final LocalDate toDate = LocalDate.now();
+            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("Unknown account-code spendss", exception.getMessage());
     }
 
     @Test
-    public void When_getTransactionHistory_ShouldBe_SortedByEntryDateDescending() {
+    public void testGetTransactionHistory_sortedByEntryDateDescending() {
 
-        final Optional<String> accountCode = Optional.empty();
-        final var fromDateOpl = Optional.of(LocalDate.now());
-        final var toDateOpl = Optional.of(LocalDate.now());
+        final var fromDate = LocalDate.now();
+        final var toDate = LocalDate.now();
         final var offender = Offender.builder().nomsId(OFFENDER_NO).id(1L).build();
 
-        when(repository.findForAllAccountTypes(OFFENDER_NO, fromDateOpl.get(), toDateOpl.get())).thenReturn(List.of(
+        when(repository.getTransactionHistory(OFFENDER_NO, null, fromDate, toDate, null)).thenReturn(List.of(
             OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now())
                 .entryAmount(BigDecimal.ONE)
@@ -266,9 +189,7 @@ public class OffenderTransactionHistoryServiceTest {
                 .build()
         ));
 
-        final var histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl);
-
-        verify(repository, times(1)).findForAllAccountTypes(OFFENDER_NO, fromDateOpl.get(), toDateOpl.get());
+        final var histories = service.getTransactionHistory(OFFENDER_NO, null, fromDate, toDate, null);
 
         assertThat(histories).isNotNull();
         assertThat(histories.size()).isEqualTo(9);
@@ -361,15 +282,14 @@ public class OffenderTransactionHistoryServiceTest {
     }
 
     @Test
-    public void When_getTransactionHistory_ForAccountCode_Maps_Correctly() {
-        when(repository.findForGivenAccountType(anyString(), anyString(), any(), any()))
+    public void testGetTransactionHistory_MapsCorrectly() {
+        when(repository.getTransactionHistory(anyString(), any(), any(), any(), any()))
             .thenReturn(List.of(offenderTransactionHistoryEntry()));
 
-        final var accountCode = Optional.of("spends");
-        final var fromDateOpl = Optional.of(LocalDate.now());
-        final var toDateOpl = Optional.of(LocalDate.now());
+        final var fromDate = LocalDate.now();
+        final var toDate = LocalDate.now();
 
-        final var transaction = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl)
+        final var transaction = service.getTransactionHistory(OFFENDER_NO, null, fromDate, toDate, null)
             .stream()
             .findFirst()
             .orElseThrow();
@@ -391,72 +311,16 @@ public class OffenderTransactionHistoryServiceTest {
     }
 
     @Test
-    public void When_getTransactionHistory_Maps_Correctly() {
-        when(repository.findForAllAccountTypes(anyString(), any(), any()))
-            .thenReturn(List.of(offenderTransactionHistoryEntry()));
-
-        final var fromDateOpl = Optional.of(LocalDate.now());
-        final var toDateOpl = Optional.of(LocalDate.now());
-
-        final var transaction = service.getTransactionHistory(OFFENDER_NO, Optional.empty(), fromDateOpl, toDateOpl)
-            .stream()
-            .findFirst()
-            .orElseThrow();
-
-        assertThat(transaction.getOffenderId()).isEqualTo(3L);
-        assertThat(transaction.getTransactionId()).isEqualTo(1L);
-        assertThat(transaction.getTransactionEntrySequence()).isEqualTo(1L);
-        assertThat(transaction.getEntryDate()).isEqualTo(LocalDate.now());
-        assertThat(transaction.getTransactionType()).isEqualTo("OUT");
-        assertThat(transaction.getEntryDescription()).isEqualTo("Some description");
-        assertThat(transaction.getReferenceNumber()).isEqualTo("12343/1");
-        assertThat(transaction.getCurrency()).isEqualTo("GBP");
-        assertThat(transaction.getPenceAmount()).isEqualTo(200);
-        assertThat(transaction.getAccountType()).isEqualTo("SPENDS");
-        assertThat(transaction.getPostingType()).isEqualTo("DR");
-        assertThat(transaction.getOffenderNo()).isEqualTo(OFFENDER_NO);
-        assertThat(transaction.getAgencyId()).isEqualTo("MDI");
-        assertThat(transaction.getRelatedOffenderTransactions()).isEmpty();
-    }
-
-    @Test
-    public void When_getTransactionHistoryRelatedTransactionDetails_Correctly() {
-        when(repository.findForAllAccountTypes(anyString(), any(), any()))
+    public void testGetTransactionHistory_MapsRelatedTransactionDetailsCorrectly() {
+        when(repository.getTransactionHistory(anyString(), any(), any(), any(), any()))
             .thenReturn(List.of(
                 withRelatedTransactionDetails(offenderTransactionHistoryEntry())
             ));
 
-        final var fromDateOpl = Optional.of(LocalDate.now());
-        final var toDateOpl = Optional.of(LocalDate.now());
+        final var fromDate = LocalDate.now();
+        final var toDateOpl =LocalDate.now();
 
-        final var relatedTransactionDetail = service.getTransactionHistory(OFFENDER_NO, Optional.empty(), fromDateOpl, toDateOpl)
-            .stream()
-            .flatMap(transaction -> transaction.getRelatedOffenderTransactions().stream())
-            .findFirst()
-            .orElseThrow();
-
-        assertThat(relatedTransactionDetail.getId()).isEqualTo(1);
-        assertThat(relatedTransactionDetail.getPayAmount()).isEqualTo(BigDecimal.valueOf(1.0));
-        assertThat(relatedTransactionDetail.getBonusPay()).isEqualTo(BigDecimal.valueOf(3.0));
-        assertThat(relatedTransactionDetail.getPieceWork()).isEqualTo(BigDecimal.valueOf(2.0));
-        assertThat(relatedTransactionDetail.getCalendarDate()).isEqualTo(LocalDate.now());
-        assertThat(relatedTransactionDetail.getEventId()).isEqualTo(1);
-        assertThat(relatedTransactionDetail.getPayTypeCode()).isEqualTo("UNEMPLOYED");
-        assertThat(relatedTransactionDetail.getTransactionEntrySequence()).isEqualTo(1);
-        assertThat(relatedTransactionDetail.getTransactionId()).isEqualTo(1);
-    }
-
-    @Test
-    public void When_getTransactionHistoryRelatedTransactionDetails_ForAccountCode_Correctly() {
-        when(repository.findForGivenAccountType(anyString(), anyString(), any(), any()))
-            .thenReturn(List.of(
-                withRelatedTransactionDetails(offenderTransactionHistoryEntry())
-            ));
-
-        final var fromDateOpl = Optional.of(LocalDate.now());
-        final var toDateOpl = Optional.of(LocalDate.now());
-
-        final var relatedTransactionDetail = service.getTransactionHistory(OFFENDER_NO, Optional.of("SPENDS"), fromDateOpl, toDateOpl)
+        final var relatedTransactionDetail = service.getTransactionHistory(OFFENDER_NO, null, fromDate, toDateOpl, null)
             .stream()
             .flatMap(transaction -> transaction.getRelatedOffenderTransactions().stream())
             .findFirst()

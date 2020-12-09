@@ -9,11 +9,11 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderTransactionHistoryResourceTest extends ResourceTest {
 
@@ -31,11 +31,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-04-01&to_date=2019-05-01";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {
+            },
+            OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -50,11 +51,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?from_date=2019-04-01&to_date=2019-05-01";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NO);
 
         assertThatJsonAndStatus(response, HTTP_OK, "[]");
     }
@@ -67,11 +69,11 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=cash&from_date=2019-10-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                String.class,
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            String.class,
+            OFFENDER_NO);
 
         assertThatJsonFileAndStatus(response, 200, "offender-transaction-history.json");
     }
@@ -84,11 +86,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?from_date=2019-10-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {
+            },
+            OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -103,11 +106,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=savings&from_date=2019-10-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {
+            },
+            OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -122,11 +126,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-10-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {
+            },
+            OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -141,11 +146,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=cash&from_date=2019-11-17&to_date=2019-11-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {
+            },
+            OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
@@ -160,89 +166,16 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?from_date=2019-11-17&to_date=2019-11-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {
+            },
+            OFFENDER_NO);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
         assertThat(response.getBody().size()).isEqualTo(1);
-    }
-
-    @Test
-    public void When_GetOffenderTransactionHistory_And_FromDateIsMissing_And_ToDateIsNotToday_Then_ReturnError() {
-
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-        final var httpEntity = createHttpEntity(token, null);
-        final var url = "/api/offenders/{offenderNo}/transaction-history?to_date=2019-11-17";
-
-        final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<ErrorResponse>() {},
-                OFFENDER_NO);
-
-        assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
-        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("toDate can't be before fromDate");
-        assertThat(response.getBody().getUserMessage()).isEqualTo("toDate can't be before fromDate");
-    }
-
-    @Test
-    public void When_GetOffenderTransactionHistory_And_FromDateIsMissing_And_ToDateIsToday_Then_NoErrorIsThrown() {
-
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-        final var httpEntity = createHttpEntity(token, null);
-        final var url = "/api/offenders/{offenderNo}/transaction-history?to_date=" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-
-        final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {},
-                OFFENDER_NO);
-        
-        assertThatJsonAndStatus(response, HTTP_OK, "[]");
-    }
-
-    @Test
-    public void When_GetOffenderTransactionHistory_And_ToDateIsMissing_Then_ToDateIsAssumedToBeToday_And_OneRecordIsReturned() {
-
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-        final var httpEntity = createHttpEntity(token, null);
-        final var url = "/api/offenders/{offenderNo}/transaction-history?from_date=2019-11-17";
-
-        final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                OFFENDER_NO);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
-        assertThat(response.getBody()).isInstanceOf(List.class);
-        assertThat(response.getBody().size()).isEqualTo(1);
-    }
-
-    @Test
-    public void When_GetOffenderTransactionHistory_And_OneRecordExisting_And_AccountCodeIsMissing_And_DatesAreMissing_Then_ReturnOneItem() {
-
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-        final var httpEntity = createHttpEntity(token, null);
-        final var url = "/api/offenders/{offenderNo}/transaction-history";
-
-        final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<List<OffenderTransactionHistoryDto>>() {},
-                OFFENDER_NO);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
-        assertThat(response.getBody()).isInstanceOf(List.class);
-        assertThat(response.getBody().size()).isEqualTo(0);
     }
 
     @Test
@@ -253,11 +186,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spendss&from_date=2019-10-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<ErrorResponse>() {},
-                "xxx");
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<ErrorResponse>() {
+            },
+            "xxx");
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_NOT_FOUND);
         assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Resource with id [xxx] not found.");
@@ -272,11 +206,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spendss&from_date=2019-10-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<ErrorResponse>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<ErrorResponse>() {
+            },
+            OFFENDER_NO);
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
         assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Unknown account-code spendss");
@@ -291,11 +226,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-30-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<ErrorResponse>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<ErrorResponse>() {
+            },
+            OFFENDER_NO);
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
         assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Invalid value for MonthOfYear (valid values 1 - 12): 30");
@@ -310,13 +246,14 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-10-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NO);
 
-        assertThatJsonFileAndStatus(response, HTTP_OK,"When_GetOffenderTransactionHistory_Then_ReturnCorrectJson.json");
+        assertThatJsonFileAndStatus(response, HTTP_OK, "When_GetOffenderTransactionHistory_Then_ReturnCorrectJson.json");
     }
 
     @Test
@@ -327,13 +264,14 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?from_date=2019-10-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {},
-                OFFENDER_NO);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NO);
 
-        assertThatJsonFileAndStatus(response, HTTP_OK,"When_GetOffenderTransactionHistory_And_MissingAccountCode_Then_ReturnCorrectJson.json");
+        assertThatJsonFileAndStatus(response, HTTP_OK, "When_GetOffenderTransactionHistory_And_MissingAccountCode_Then_ReturnCorrectJson.json");
     }
 
     @Test
@@ -345,11 +283,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
 
         var nonExistingId = "nonExistingId";
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<ErrorResponse>() {},
-                nonExistingId);
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<ErrorResponse>() {
+            },
+            nonExistingId);
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_NOT_FOUND);
         assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Resource with id [nonExistingId] not found.");
@@ -364,11 +303,12 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
         final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends&from_date=2019-10-17&to_date=2019-10-17";
 
         final var response = testRestTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<ErrorResponse>() {},
-                "Z00028");
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<ErrorResponse>() {
+            },
+            "Z00028");
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_NOT_FOUND);
         assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Resource with id [Z00028] not found.");
@@ -377,10 +317,9 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
 
     @Test
     public void When_GetOffenderTransactionHistory_With_Related_Transactions() {
-
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
-        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=cash&from_date=2000-10-17&to_date=2019-10-17";
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=cash&from_date=2000-10-17&to_date=2001-10-17";
 
         final var response = testRestTemplate.exchange(
             url,
@@ -390,5 +329,39 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
             "A1234AJ");
 
         assertThatJsonFileAndStatus(response, 200, "offender-transaction-history-with-related.json");
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_With_No_DateRange_Supplied_And_All_Accounts() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var url = "/api/offenders/{offenderNo}/transaction-history?account_code=spends";
+
+        final var response = testRestTemplate.exchange(
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            String.class,
+            "A1234AJ");
+
+        assertThatJsonFileAndStatus(response, 200, "all-spends-transactions.json");
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_With_TransactionType() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var url = "/api/offenders/{offenderNo}/transaction-history?transaction_type=A_EARN";
+
+        final var response = testRestTemplate.exchange(
+            url,
+            HttpMethod.GET,
+            httpEntity,
+            String.class,
+            "A1234AJ");
+
+        assertThatJsonFileAndStatus(response, 200, "a-earn-transaction-history.json");
     }
 }
