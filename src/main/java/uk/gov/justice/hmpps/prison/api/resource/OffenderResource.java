@@ -67,7 +67,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
@@ -384,13 +383,7 @@ public class OffenderResource {
         @ApiParam(name = "transaction_type", value = "Transaction type", example = "A_EARN") @RequestParam(value = "transaction_type", required = false) final String transactionType
     ) {
         var histories =
-            offenderTransactionHistoryService.getTransactionHistory(
-                offenderNo,
-                Optional.ofNullable(accountCode),
-                Optional.ofNullable(fromDate),
-                Optional.ofNullable(toDate),
-                transactionType
-            );
+            offenderTransactionHistoryService.getTransactionHistory(offenderNo, accountCode, fromDate, toDate, transactionType);
 
         return ResponseEntity.ok(histories);
     }

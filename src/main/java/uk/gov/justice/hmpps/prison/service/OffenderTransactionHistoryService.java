@@ -45,34 +45,30 @@ public class OffenderTransactionHistoryService {
 
     @VerifyOffenderAccess
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final String offenderNo,
-                                                                     final Optional<String> accountCodeOpl,
-                                                                     final Optional<LocalDate> fromDate,
-                                                                     final Optional<LocalDate> toDate,
+                                                                     final String accountCode,
+                                                                     final LocalDate fromDate,
+                                                                     final LocalDate toDate,
                                                                      final String transactionType) {
-        validate(offenderNo, accountCodeOpl, fromDate, toDate);
+        validate(offenderNo, accountCode, fromDate, toDate);
 
-        final var accountCode = accountCodeOpl
-            .map(AccountCode::byCodeName)
-            .map(optionalCode -> optionalCode.get().code)
+        final var accountCodeValue =
+            Optional.ofNullable(accountCode)
+            .flatMap(AccountCode::byCodeName)
+            .map(optionalCode -> optionalCode.code)
             .orElse(null);
 
-        return historyRepository.getTransactionHistory(offenderNo, accountCode, fromDate.orElse(null), toDate.orElse(null), transactionType)
+        return historyRepository.getTransactionHistory(offenderNo, accountCodeValue, fromDate, toDate, transactionType)
             .stream()
             .sorted(SORT_BY_MOST_RECENT_DATE_THEN_BY_LATEST_SEQ)
             .map(this::transform)
             .collect(Collectors.toList());
     }
 
-    private void validate(final String offenderNo,
-                          final Optional<String> accountCodeOpl,
-                          final Optional<LocalDate> fromDate,
-                          final Optional<LocalDate> toDate) {
-
+    private void validate(final String offenderNo, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
         checkNotNull(offenderNo, "offenderNo can't be null");
-        checkNotNull(accountCodeOpl, "accountCode optional can't be null");
-        checkState(AccountCode.exists(accountCodeOpl.get()), "Unknown account-code " + accountCodeOpl.get());
 
-        if (fromDate.isPresent() && toDate.isPresent()) checkDateRange(fromDate.get(), toDate.get());
+        if (fromDate != null && toDate != null) checkDateRange(fromDate, toDate);
+        if (accountCode != null) checkState(AccountCode.exists(accountCode), "Unknown account-code " + accountCode);
     }
 
     private void checkDateRange(final LocalDate fromDate, final LocalDate toDate) {

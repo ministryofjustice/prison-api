@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import org.assertj.core.api.OptionalAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,16 +44,15 @@ public class OffenderTransactionHistoryServiceTest {
     @Test
     public void testGetTransactionHistory_CallsRepositoryWithCorrectParameters() {
 
-        final Optional<String> accountCode = Optional.of("spends");
-        final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-        final Optional<LocalDate> toDateOpl = Optional.empty();
+        final var accountCode = "spends";
+        final LocalDate fromDate = LocalDate.now().minusDays(7);
         final String transactionType = "E_LEARN";
 
-        when(repository.getTransactionHistory(anyString(), any(), any(), any(), any())).thenReturn( Collections.emptyList());
+        when(repository.getTransactionHistory(anyString(), any(), any(), any(), any())).thenReturn(Collections.emptyList());
 
-        final var histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl, transactionType);
+        final var histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, null, transactionType);
 
-        verify(repository, times(1)).getTransactionHistory(OFFENDER_NO, "SPND", fromDateOpl.get(), null, transactionType);
+        verify(repository, times(1)).getTransactionHistory(OFFENDER_NO, "SPND", fromDate, null, transactionType);
 
         assertThat(histories).isNotNull();
         assertThat(histories.size()).isEqualTo(0);
@@ -66,36 +64,23 @@ public class OffenderTransactionHistoryServiceTest {
 
         Throwable exception = assertThrows(NullPointerException.class, () -> {
             final String nomisId = null;
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
-            service.getTransactionHistory(nomisId, accountCode, fromDateOpl, toDateOpl,null);
+            final var accountCode = "spends";
+            final var fromDate = LocalDate.now().minusDays(7);
+            final var toDate = LocalDate.now();
+            service.getTransactionHistory(nomisId, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("offenderNo can't be null", exception.getMessage());
     }
 
     @Test
-    public void testGetTransactionHistoryThrowsException_accountCodeIsNull() {
-
-        Throwable exception = assertThrows(NullPointerException.class, () -> {
-            final Optional<String> accountCode = null;
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl, null);
-        });
-
-        assertEquals("accountCode optional can't be null", exception.getMessage());
-    }
-
-    @Test
     public void testGetTransactionHistoryThrowException_toDateIsBeforeFromDate() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().minusDays(7));
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now().minusDays(8));
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl, null);
+            final var accountCode = "spends";
+            final var fromDate = LocalDate.now().minusDays(7);
+            final var toDate = LocalDate.now().minusDays(8);
+            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("toDate can't be before fromDate", exception.getMessage());
@@ -105,10 +90,10 @@ public class OffenderTransactionHistoryServiceTest {
     public void testGetTransactionHistory_ThrowException_FromDateIsTomorrow() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now().plusDays(1));
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now().plusDays(2));
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl, null);
+            final var accountCode = "spends";
+            final var fromDate = LocalDate.now().plusDays(1);
+            final var toDate = LocalDate.now().plusDays(2);
+            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("fromDate can't be in the future", exception.getMessage());
@@ -118,10 +103,10 @@ public class OffenderTransactionHistoryServiceTest {
     public void testGetTransactionHistoryThrowException_ToDateIs2DaysInFuture() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spends");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now().plusDays(2));
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl, null);
+            final var accountCode ="spends";
+            final var fromDate = LocalDate.now();
+            final var toDate = LocalDate.now().plusDays(2);
+            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("toDate can't be in the future", exception.getMessage());
@@ -131,10 +116,10 @@ public class OffenderTransactionHistoryServiceTest {
     public void testGetTransactionHistoryThrowException_TypoInAccountCode() {
 
         Throwable exception = assertThrows(IllegalStateException.class, () -> {
-            final Optional<String> accountCode = Optional.of("spendss");
-            final Optional<LocalDate> fromDateOpl = Optional.of(LocalDate.now());
-            final Optional<LocalDate> toDateOpl = Optional.of(LocalDate.now());
-            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl, null);
+            final var accountCode = "spendss";
+            final LocalDate fromDate = LocalDate.now();
+            final LocalDate toDate = LocalDate.now();
+            service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
         });
 
         assertEquals("Unknown account-code spendss", exception.getMessage());
@@ -143,12 +128,11 @@ public class OffenderTransactionHistoryServiceTest {
     @Test
     public void testGetTransactionHistory_sortedByEntryDateDescending() {
 
-        final Optional<String> accountCode = Optional.empty();
-        final var fromDateOpl = Optional.of(LocalDate.now());
-        final var toDateOpl = Optional.of(LocalDate.now());
+        final var fromDate = LocalDate.now();
+        final var toDate = LocalDate.now();
         final var offender = Offender.builder().nomsId(OFFENDER_NO).id(1L).build();
 
-        when(repository.getTransactionHistory(OFFENDER_NO, null ,fromDateOpl.get(), toDateOpl.get(), null)).thenReturn(List.of(
+        when(repository.getTransactionHistory(OFFENDER_NO, null, fromDate, toDate, null)).thenReturn(List.of(
             OffenderTransactionHistory.builder()
                 .entryDate(LocalDate.now())
                 .entryAmount(BigDecimal.ONE)
@@ -205,7 +189,7 @@ public class OffenderTransactionHistoryServiceTest {
                 .build()
         ));
 
-        final var histories = service.getTransactionHistory(OFFENDER_NO, accountCode, fromDateOpl, toDateOpl, null);
+        final var histories = service.getTransactionHistory(OFFENDER_NO, null, fromDate, toDate, null);
 
         assertThat(histories).isNotNull();
         assertThat(histories.size()).isEqualTo(9);
@@ -302,10 +286,10 @@ public class OffenderTransactionHistoryServiceTest {
         when(repository.getTransactionHistory(anyString(), any(), any(), any(), any()))
             .thenReturn(List.of(offenderTransactionHistoryEntry()));
 
-        final var fromDateOpl = Optional.of(LocalDate.now());
-        final var toDateOpl = Optional.of(LocalDate.now());
+        final var fromDate = LocalDate.now();
+        final var toDate = LocalDate.now();
 
-        final var transaction = service.getTransactionHistory(OFFENDER_NO, Optional.empty(), fromDateOpl, toDateOpl, null)
+        final var transaction = service.getTransactionHistory(OFFENDER_NO, null, fromDate, toDate, null)
             .stream()
             .findFirst()
             .orElseThrow();
@@ -333,10 +317,10 @@ public class OffenderTransactionHistoryServiceTest {
                 withRelatedTransactionDetails(offenderTransactionHistoryEntry())
             ));
 
-        final var fromDateOpl = Optional.of(LocalDate.now());
-        final var toDateOpl = Optional.of(LocalDate.now());
+        final var fromDate = LocalDate.now();
+        final var toDateOpl =LocalDate.now();
 
-        final var relatedTransactionDetail = service.getTransactionHistory(OFFENDER_NO, Optional.empty(), fromDateOpl, toDateOpl, null)
+        final var relatedTransactionDetail = service.getTransactionHistory(OFFENDER_NO, null, fromDate, toDateOpl, null)
             .stream()
             .flatMap(transaction -> transaction.getRelatedOffenderTransactions().stream())
             .findFirst()
