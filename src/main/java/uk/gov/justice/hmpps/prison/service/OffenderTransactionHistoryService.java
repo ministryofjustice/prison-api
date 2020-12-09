@@ -82,7 +82,7 @@ public class OffenderTransactionHistoryService {
     }
 
     private void checkDateRange(final LocalDate fromDate, final LocalDate toDate) {
-        var now = LocalDate.now();
+        final var now = LocalDate.now();
         checkState(fromDate.isBefore(toDate) || fromDate.isEqual(toDate), "toDate can't be before fromDate");
         checkState(fromDate.isBefore(now) || fromDate.isEqual(now), "fromDate can't be in the future");
         checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
