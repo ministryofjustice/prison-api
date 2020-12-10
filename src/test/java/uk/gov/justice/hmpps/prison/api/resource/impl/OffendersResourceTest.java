@@ -410,7 +410,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var body = Map.of("movementReasonCode", "CR",
             "commentText", "released prisoner today",
-            "releaseTime", LocalDateTime.of(2020, 12, 9, 17, 29, 0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            "releaseTime", LocalDateTime.of(2019, 10, 17, 17, 29, 0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         final var entity = createHttpEntity(token, body);
 
@@ -420,7 +420,7 @@ public class OffendersResourceTest extends ResourceTest {
             entity,
             new ParameterizedTypeReference<String>() {
             },
-            OFFENDER_NUMBER
+            "A1234AA"
         );
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
