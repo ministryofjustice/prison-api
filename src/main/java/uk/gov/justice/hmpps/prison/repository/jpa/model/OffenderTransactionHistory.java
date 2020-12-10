@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -41,7 +42,7 @@ public class OffenderTransactionHistory extends AuditableEntity {
     @Column(name = "TXN_ENTRY_SEQ", nullable = false, insertable = false, updatable = false)
     private Long transactionEntrySequence;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_ID", nullable = false)
     private Offender offender;
 

@@ -5,7 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.api.model.PrisonToPrisonMove;
+import uk.gov.justice.hmpps.prison.api.model.SchedulePrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -73,7 +73,7 @@ public class PrisonToPrisonMoveSchedulingService {
     @VerifyBookingAccess(overrideRoles = "PRISON_MOVE_MAINTAINER")
     @HasWriteScope
     @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER')")
-    public ScheduledPrisonToPrisonMove schedule(final Long bookingId, final PrisonToPrisonMove move) {
+    public ScheduledPrisonToPrisonMove schedule(final Long bookingId, final SchedulePrisonToPrisonMove move) {
         log.debug("Scheduling a prison to prison move for booking: {} with details: {}", bookingId, move);
 
         checkIsInFuture(move.getScheduledMoveDateTime());

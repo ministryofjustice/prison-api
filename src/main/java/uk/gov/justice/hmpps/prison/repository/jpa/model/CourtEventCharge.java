@@ -12,6 +12,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -37,11 +38,11 @@ public class CourtEventCharge extends AuditableEntity {
     @Embeddable
     @Getter
     public static class Pk implements Serializable {
-        @ManyToOne(optional = false)
+        @ManyToOne(optional = false, fetch = FetchType.LAZY)
         @JoinColumn(name = "EVENT_ID", nullable = false)
         private CourtEvent courtEvent;
 
-        @OneToOne(optional = false)
+        @OneToOne(optional = false, fetch = FetchType.LAZY)
         @JoinColumn(name = "OFFENDER_CHARGE_ID", nullable = false)
         private OffenderCharge offenderCharge;
     }

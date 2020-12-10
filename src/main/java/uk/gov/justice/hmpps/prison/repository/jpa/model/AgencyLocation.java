@@ -28,6 +28,7 @@ public class AgencyLocation extends AuditableEntity {
 
     public static final String IN = "IN";
     public static final String OUT = "OUT";
+    public static final String TRN = "TRN";
 
     @Id
     @Column(name = "AGY_LOC_ID")

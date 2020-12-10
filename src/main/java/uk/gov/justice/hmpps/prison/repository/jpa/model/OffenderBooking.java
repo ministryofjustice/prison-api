@@ -58,6 +58,10 @@ public class OffenderBooking {
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation location;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CREATE_AGY_LOC_ID")
+    private AgencyLocation createLocation;
+
     @Setter(AccessLevel.NONE)
     @Column(name = "BOOKING_SEQ", nullable = false)
     private Integer bookingSequence;

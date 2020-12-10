@@ -17,6 +17,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
@@ -58,7 +59,7 @@ public class OffenderMilitaryRecord extends AuditableEntity implements Serializa
     })
     private MilitaryDischarge militaryDischarge;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + MLTY_BRANCH + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "MILITARY_BRANCH_CODE", referencedColumnName = "code"))
@@ -95,7 +96,7 @@ public class OffenderMilitaryRecord extends AuditableEntity implements Serializa
     @AllArgsConstructor
     @Embeddable
     public static class BookingAndSequence implements Serializable {
-        @ManyToOne(optional = false)
+        @ManyToOne(optional = false, fetch = FetchType.LAZY)
         @JoinColumn(name = "OFFENDER_BOOK_ID")
         private OffenderBooking offenderBooking;
 

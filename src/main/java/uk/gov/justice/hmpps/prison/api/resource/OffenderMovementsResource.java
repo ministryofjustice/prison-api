@@ -28,7 +28,7 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.PrisonMoveCancellation;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
-import uk.gov.justice.hmpps.prison.api.model.PrisonToPrisonMove;
+import uk.gov.justice.hmpps.prison.api.model.SchedulePrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.api.model.RequestMoveToCellSwap;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
@@ -148,7 +148,7 @@ public class OffenderMovementsResource {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/prison-to-prison")
     @ProxyUser
-    public ScheduledPrisonToPrisonMove prisonToPrison(@PathVariable("bookingId") @ApiParam(value = "The offender booking to associate the prison to prison move with.", required = true) final Long bookingId, @RequestBody @ApiParam(value = "The prison to prison move to be scheduled for the offender booking.", required = true) final @Valid PrisonToPrisonMove prisonMove) {
+    public ScheduledPrisonToPrisonMove prisonToPrison(@PathVariable("bookingId") @ApiParam(value = "The offender booking to associate the prison to prison move with.", required = true) final Long bookingId, @RequestBody @ApiParam(value = "The prison to prison move to be scheduled for the offender booking.", required = true) final @Valid SchedulePrisonToPrisonMove prisonMove) {
         return prisonToPrisonMoveSchedulingService.schedule(bookingId, prisonMove);
     }
 

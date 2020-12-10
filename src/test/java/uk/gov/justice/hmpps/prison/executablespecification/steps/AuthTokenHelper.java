@@ -330,7 +330,7 @@ public class AuthTokenHelper {
                 JwtParameters.builder()
                         .username("ITAG_USER")
                         .scope(List.of("read", "write"))
-                        .roles(List.of("ROLE_BOOKING_CREATE", "ROLE_RELEASE_PRISONER", "ROLE_INACTIVE_BOOKINGS", "ROLE_VIEW_PRISONER_DATA"))
+                        .roles(List.of("ROLE_BOOKING_CREATE", "ROLE_RELEASE_PRISONER", "ROLE_TRANSFER_PRISONER", "ROLE_INACTIVE_BOOKINGS", "ROLE_VIEW_PRISONER_DATA"))
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );
