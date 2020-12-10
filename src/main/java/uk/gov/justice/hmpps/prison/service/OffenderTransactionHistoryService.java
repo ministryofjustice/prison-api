@@ -29,8 +29,13 @@ import static uk.gov.justice.hmpps.prison.util.MoneySupport.poundsToPence;
 @Slf4j
 public class OffenderTransactionHistoryService {
 
+    public static final Comparator<OffenderTransactionHistory> SORT_BY_MOST_RECENT_DATE_THEN_BY_LATEST_SEQ = Comparator
+        .comparing(OffenderTransactionHistory::getEntryDate).reversed()
+        .thenComparing(Comparator.comparing(OffenderTransactionHistory::getTransactionEntrySequence).reversed());
+
     private final String apiCurrency;
     private final OffenderTransactionHistoryRepository historyRepository;
+
 
     public OffenderTransactionHistoryService(@Value("${api.currency:GBP}") final String currency,
                                              final OffenderTransactionHistoryRepository historyRepository) {
@@ -38,53 +43,39 @@ public class OffenderTransactionHistoryService {
         this.historyRepository = historyRepository;
     }
 
-    public static final Comparator<OffenderTransactionHistory> SORT_BY_MOST_RECENT_DATE_THEN_BY_LATEST_SEQ = Comparator
-        .comparing(OffenderTransactionHistory::getEntryDate).reversed()
-        .thenComparing(Comparator.comparing(OffenderTransactionHistory::getTransactionEntrySequence).reversed());
-
     @VerifyOffenderAccess
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final String offenderNo,
-                                                                     final Optional<String> accountCodeOpl,
-                                                                     final Optional<LocalDate> fromDateOpl,
-                                                                     final Optional<LocalDate> toDateOpl) {
-        validate(offenderNo, accountCodeOpl, fromDateOpl, toDateOpl);
+                                                                     final String accountCode,
+                                                                     final LocalDate fromDate,
+                                                                     final LocalDate toDate,
+                                                                     final String transactionType) {
+        validate(offenderNo, accountCode, fromDate, toDate);
 
-        var fromDate = fromDateOpl.orElse(LocalDate.now());
-        var toDate = toDateOpl.orElse(LocalDate.now());
-        checkDateRange(fromDate, toDate);
+        final var accountCodeValue =
+            Optional.ofNullable(accountCode)
+            .flatMap(AccountCode::byCodeName)
+            .map(optionalCode -> optionalCode.code)
+            .orElse(null);
 
-        if (accountCodeOpl.isPresent()) {
-            boolean isAccountCodeExists = AccountCode.exists(accountCodeOpl.get());
-            checkState(isAccountCodeExists, "Unknown account-code " + accountCodeOpl.get());
-        }
-
-        return accountCodeOpl.map(AccountCode::byCodeName)
-            .filter(Optional::isPresent)
-            .map(optionalCode -> optionalCode.get().code)
-            .map(code -> historyRepository.findForGivenAccountType(offenderNo, code, fromDate, toDate))
-            .orElse(historyRepository.findForAllAccountTypes(offenderNo, fromDate, toDate))
+        return historyRepository.getTransactionHistory(offenderNo, accountCodeValue, fromDate, toDate, transactionType)
             .stream()
             .sorted(SORT_BY_MOST_RECENT_DATE_THEN_BY_LATEST_SEQ)
             .map(this::transform)
             .collect(Collectors.toList());
     }
 
-    private void checkDateRange(LocalDate fromDate, LocalDate toDate) {
-        var now = LocalDate.now();
+    private void validate(final String offenderNo, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
+        checkNotNull(offenderNo, "offenderNo can't be null");
+
+        if (fromDate != null && toDate != null) checkDateRange(fromDate, toDate);
+        if (accountCode != null) checkState(AccountCode.exists(accountCode), "Unknown account-code " + accountCode);
+    }
+
+    private void checkDateRange(final LocalDate fromDate, final LocalDate toDate) {
+        final var now = LocalDate.now();
         checkState(fromDate.isBefore(toDate) || fromDate.isEqual(toDate), "toDate can't be before fromDate");
         checkState(fromDate.isBefore(now) || fromDate.isEqual(now), "fromDate can't be in the future");
         checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
-    }
-
-    private void validate(final String offenderNo,
-                          final Optional<String> accountCodeOpl,
-                          final Optional<LocalDate> fromDateOpl,
-                          final Optional<LocalDate> toDateOpl) {
-
-        checkNotNull(offenderNo, "offenderNo can't be null");
-        checkNotNull(accountCodeOpl, "accountCode optional can't be null");
-        checkNotNull(fromDateOpl, "fromDate optional can't be null");
-        checkNotNull(toDateOpl, "toDate optional can't be null");
     }
 
     public OffenderTransactionHistoryDto transform(final OffenderTransactionHistory offenderTransactionHistory) {

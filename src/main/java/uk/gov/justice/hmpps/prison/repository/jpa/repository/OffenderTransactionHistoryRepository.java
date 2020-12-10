@@ -11,9 +11,9 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransacti
 
 public interface OffenderTransactionHistoryRepository extends CrudRepository<OffenderTransactionHistory, Pk> {
 
-    @Query("select h from OffenderTransactionHistory h where h.offender.nomsId = ?1 and h.accountType = ?2 and (h.entryDate between ?3 and ?4)")
-    List<OffenderTransactionHistory> findForGivenAccountType(String offenderNo, String accountType, LocalDate fromDate, LocalDate toDate);
-
-    @Query("select h from OffenderTransactionHistory h where h.offender.nomsId = ?1 and (h.entryDate between ?2 and ?3)")
-    List<OffenderTransactionHistory> findForAllAccountTypes(String offenderNo, LocalDate fromDat, LocalDate toDate);
+    @Query("select h from OffenderTransactionHistory h where h.offender.nomsId = :offenderNo and " +
+        " (:accountType is null or h.accountType = :accountType) and " +
+        " ((:fromDate is null and :toDate is null) or h.entryDate between :fromDate and :toDate) and" +
+        " (:transactionType is null or h.transactionType = :transactionType)")
+    List<OffenderTransactionHistory> getTransactionHistory(String offenderNo, String accountType, LocalDate fromDate, LocalDate toDate, String transactionType);
 }

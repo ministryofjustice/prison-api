@@ -1,0 +1,34 @@
+[
+  {
+    "offenderId": -1010,
+    "transactionId": 4,
+    "transactionEntrySequence": 1,
+    "entryDate": "2020-10-17",
+    "transactionType": "AD",
+    "entryDescription": null,
+    "referenceNumber": null,
+    "currency": "GBP",
+    "penceAmount": 0,
+    "accountType": "SPND",
+    "postingType": "CR",
+    "offenderNo": "A1234AJ",
+    "agencyId": "LEI",
+    "relatedOffenderTransactions": []
+  },
+  {
+    "offenderId": -1010,
+    "transactionId": 3,
+    "transactionEntrySequence": 1,
+    "entryDate": "2010-10-17",
+    "transactionType": "A_EARN",
+    "entryDescription": null,
+    "referenceNumber": null,
+    "currency": "GBP",
+    "penceAmount": 0,
+    "accountType": "SPND",
+    "postingType": "CR",
+    "offenderNo": "A1234AJ",
+    "agencyId": "LEI",
+    "relatedOffenderTransactions": []
+  }
+]
