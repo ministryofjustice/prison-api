@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
@@ -56,19 +57,20 @@ public class PrisonerReleaseAndTransferService {
     private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
 
-    public void releasePrisoner(final String prisonerIdentifier, final String movementReasonCode, final String commentText) {
+    public void releasePrisoner(final String prisonerIdentifier, final RequestToReleasePrisoner requestToReleasePrisoner) {
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier);
 
+        final var movementReasonCode = requestToReleasePrisoner.getMovementReasonCode();
         final AgencyLocation toLocation = checkMovementTypes(REL.getCode(), movementReasonCode, AgencyLocation.OUT);
-
-        // set previous active movements to false
-        final Long bookingId = setPreviousMovementsToInactive(booking);
 
         // Generate the external movement out
         final var movementReason = movementReasonRepository.findById(MovementReason.pk(movementReasonCode)).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", movementReasonCode));
 
-        final var releaseDateTime = LocalDateTime.now();
-        createOutMovement(booking, REL, movementReason, toLocation, releaseDateTime, commentText, null);
+        final var releaseDateTime = getAndCheckMovementTime(requestToReleasePrisoner.getReleaseTime(), booking.getBookingId());
+        // set previous active movements to false
+        final Long bookingId = setPreviousMovementsToInactive(booking);
+
+        createOutMovement(booking, REL, movementReason, toLocation, releaseDateTime, requestToReleasePrisoner.getCommentText(), null);
 
         // generate the release case note
         generateReleaseNote(booking, releaseDateTime, movementReason);
@@ -97,15 +99,15 @@ public class PrisonerReleaseAndTransferService {
 
         final AgencyLocation toLocation = checkMovementTypes(TRN.getCode(), requestToTransferOut.getTransferReasonCode(), AgencyLocation.TRN);
 
-        // set previous active movements to false
-        final Long bookingId = setPreviousMovementsToInactive(booking);
-
         // Generate the external movement out
         final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToTransferOut.getTransferReasonCode())).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", requestToTransferOut.getTransferReasonCode()));
 
-        final var releaseDateTime = LocalDateTime.now();
-        createOutMovement(booking, TRN, movementReason, toLocation, releaseDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
-        updateBeds(booking, releaseDateTime);
+        final var transferDateTime = getAndCheckMovementTime(requestToTransferOut.getMovementTime(), booking.getBookingId());
+        // set previous active movements to false
+        setPreviousMovementsToInactive(booking);
+
+        createOutMovement(booking, TRN, movementReason, toLocation, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
+        updateBeds(booking, transferDateTime);
 
         // update the booking record
         booking.setInOutStatus(TRN.getCode());
@@ -117,6 +119,25 @@ public class PrisonerReleaseAndTransferService {
         booking.setCreateLocation(toLocation);
         booking.setStatusReason(TRN.getCode() + "-" + requestToTransferOut.getTransferReasonCode());
         booking.setCommStatus(null);
+    }
+
+    private LocalDateTime getAndCheckMovementTime(final LocalDateTime movementTime, final Long bookingId) {
+        final var now = LocalDateTime.now();
+        if (movementTime != null) {
+            if (movementTime.isAfter(now)) {
+                throw new BadRequestException("Transfer cannot be done in the future");
+            }
+
+            externalMovementRepository.findAllByBookingIdAndActiveFlag(bookingId, ActiveFlag.Y).forEach(
+                    movement -> { if (movementTime.isBefore(movement.getMovementTime())) {
+                        throw new BadRequestException("Movement cannot be before the previous active movement");
+                    }
+                }
+            );
+
+            return movementTime;
+        }
+        return now;
     }
 
 

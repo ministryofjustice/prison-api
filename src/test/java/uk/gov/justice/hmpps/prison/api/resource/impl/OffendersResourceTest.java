@@ -381,10 +381,58 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCannotReleasePrisonerInTheFuture() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("movementReasonCode", "CR",
+            "commentText", "released prisoner today",
+            "releaseTime", LocalDateTime.now().plusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        final var entity = createHttpEntity(token, body);
+
+        final var prisonerNo = "A1234AA";
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            },
+            prisonerNo
+        );
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(400);
+    }
+
+    //
+    @Test
+    public void testCannotReleasePrisonerBeforeLastMovement() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("movementReasonCode", "CR",
+            "commentText", "released prisoner today",
+            "releaseTime", LocalDateTime.of(2020, 12, 9, 17, 29, 0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        final var entity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER
+        );
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(400);
+    }
+
+    @Test
     public void testCanReleaseAPrisoner() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
-        final var body = Map.of("movementReasonCode", "CR", "commentText", "released prisoner today");
+        final var body = Map.of("movementReasonCode", "CR",
+            "commentText", "released prisoner today",
+            "releaseTime", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         final var entity = createHttpEntity(token, body);
 

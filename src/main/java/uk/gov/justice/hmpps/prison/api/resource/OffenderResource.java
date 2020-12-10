@@ -108,7 +108,7 @@ public class OffenderResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation("Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison, requires the RELEASE_PRISONER role")
+    @ApiOperation("*** BETA *** Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison, requires the RELEASE_PRISONER role")
     @PutMapping("/{offenderNo}/release")
     @HasWriteScope
     @PreAuthorize("hasRole('RELEASE_PRISONER')")
@@ -117,7 +117,7 @@ public class OffenderResource {
     public String releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
-        prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner.getMovementReasonCode(), requestToReleasePrisoner.getCommentText());
+        prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner);
         return offenderNo;
     }
 
@@ -125,7 +125,7 @@ public class OffenderResource {
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation("Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison, requires the TRANSFER_PRISONER role")
+    @ApiOperation("*** BETA *** Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison, requires the TRANSFER_PRISONER role")
     @PutMapping("/{offenderNo}/transfer-out")
     @HasWriteScope
     @PreAuthorize("hasRole('TRANSFER_PRISONER')")
