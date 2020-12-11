@@ -28,10 +28,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
@@ -57,12 +60,14 @@ public class PrisonerReleaseAndTransferService {
     private final CaseNoteRepository caseNoteRepository;
     private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
+    private final OffenderNoPayPeriodRepository offenderNoPayPeriodRepository;
+    private final OffenderPayStatusRepository offenderPayStatusRepository;
 
     public void releasePrisoner(final String prisonerIdentifier, final RequestToReleasePrisoner requestToReleasePrisoner) {
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier);
 
         final var movementReasonCode = requestToReleasePrisoner.getMovementReasonCode();
-        final AgencyLocation toLocation = checkMovementTypes(REL.getCode(), movementReasonCode, AgencyLocation.OUT);
+        checkMovementTypes(REL.getCode(), movementReasonCode);
 
         // Generate the external movement out
         final var movementReason = movementReasonRepository.findById(MovementReason.pk(movementReasonCode)).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", movementReasonCode));
@@ -70,6 +75,8 @@ public class PrisonerReleaseAndTransferService {
         final var releaseDateTime = getAndCheckMovementTime(requestToReleasePrisoner.getReleaseTime(), booking.getBookingId());
         // set previous active movements to false
         final Long bookingId = setPreviousMovementsToInactive(booking);
+
+        final var toLocation = agencyLocationRepository.findById(AgencyLocation.OUT).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", AgencyLocation.OUT));
 
         createOutMovement(booking, REL, movementReason, toLocation, releaseDateTime, requestToReleasePrisoner.getCommentText(), null);
 
@@ -80,6 +87,8 @@ public class PrisonerReleaseAndTransferService {
         updateBeds(booking, releaseDateTime);
 
         deactivateSentences(bookingId);
+
+        updatePayPeriods(bookingId, releaseDateTime.toLocalDate());
 
         // update the booking record
         booking.setInOutStatus("OUT");
@@ -98,7 +107,7 @@ public class PrisonerReleaseAndTransferService {
         // check that prisoner is active in
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier);
 
-        final AgencyLocation toLocation = checkMovementTypes(TRN.getCode(), requestToTransferOut.getTransferReasonCode(), AgencyLocation.TRN);
+        checkMovementTypes(TRN.getCode(), requestToTransferOut.getTransferReasonCode());
 
         // Generate the external movement out
         final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToTransferOut.getTransferReasonCode())).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", requestToTransferOut.getTransferReasonCode()));
@@ -107,8 +116,13 @@ public class PrisonerReleaseAndTransferService {
         // set previous active movements to false
         setPreviousMovementsToInactive(booking);
 
+        final var toLocation = agencyLocationRepository.findById(requestToTransferOut.getToLocation()).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", requestToTransferOut.getToLocation()));
+
         createOutMovement(booking, TRN, movementReason, toLocation, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
         updateBeds(booking, transferDateTime);
+        updatePayPeriods(booking.getBookingId(), transferDateTime.toLocalDate());
+
+        final var trnLocation = agencyLocationRepository.findById(TRN.getCode()).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", TRN.getCode()));
 
         // update the booking record
         booking.setInOutStatus(TRN.getCode());
@@ -116,8 +130,8 @@ public class PrisonerReleaseAndTransferService {
         booking.setBookingStatus("O");
         booking.setLivingUnitMv(null);
         booking.setAssignedLivingUnit(null);
-        booking.setLocation(toLocation);
-        booking.setCreateLocation(toLocation);
+        booking.setLocation(trnLocation);
+        booking.setCreateLocation(trnLocation);
         booking.setStatusReason(TRN.getCode() + "-" + requestToTransferOut.getTransferReasonCode());
         booking.setCommStatus(null);
     }
@@ -171,14 +185,11 @@ public class PrisonerReleaseAndTransferService {
         return bookingId;
     }
 
-    private AgencyLocation checkMovementTypes(final String movementCode, final String reasonCode, final String toLocationId) {
-        final var toLocation = agencyLocationRepository.findById(toLocationId).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", toLocationId));
-
+    private void checkMovementTypes(final String movementCode, final String reasonCode) {
         final var movementTypeAndReason = Pk.builder().type(movementCode).reasonCode(reasonCode).build();
 
         movementTypeAndReasonRespository.findById(movementTypeAndReason)
             .orElseThrow(EntityNotFoundException.withMessage("No movement type found for {}", movementTypeAndReason));
-        return toLocation;
     }
 
     private OffenderBooking getAndCheckOffenderBooking(final String prisonerIdentifier) {
@@ -241,5 +252,51 @@ public class PrisonerReleaseAndTransferService {
             .forEach(s -> s.setActiveFlag(ActiveFlag.N));
     }
 
+    void updatePayPeriods(Long bookingId, LocalDate movementDate) {
 
+        /*
+         * UPDATE OFFENDER_PAY_STATUSES OPS SET OPS.END_DATE = TRUNC (SYSDATE)
+         * WHERE
+         *  OPS.OFFENDER_BOOK_ID = :B1 AND ( OPS.END_DATE > TRUNC (SYSDATE) OR
+         *   OPS.END_DATE IS NULL) */
+
+        final var now = LocalDate.now();
+        offenderPayStatusRepository.findAllByBookingId(bookingId)
+            .forEach(p -> {
+                if (p.getEndDate() == null || p.getEndDate().isAfter(now)) {
+                    p.setEndDate(now);
+                }
+            });
+
+        /*
+         *   UPDATE OFFENDER_NO_PAY_PERIODS ONPP SET ONPP.END_DATE = TRUNC (SYSDATE)
+         * WHERE
+         *  ONPP.OFFENDER_BOOK_ID = :B1 AND ( ONPP.END_DATE > TRUNC (SYSDATE) OR
+         *   ONPP.END_DATE IS NULL)
+         *
+         *   UPDATE OFFENDER_NO_PAY_PERIODS SET END_DATE = GREATEST(START_DATE, :B2 )
+         * WHERE
+         *  OFFENDER_BOOK_ID = :B1 AND TRUNC(SYSDATE) BETWEEN START_DATE AND
+         *   NVL(END_DATE, TRUNC(SYSDATE))
+         *
+         *   UPDATE OFFENDER_NO_PAY_PERIODS SET END_DATE = START_DATE
+         * WHERE
+         *  OFFENDER_BOOK_ID = :B1 AND START_DATE > TRUNC(SYSDATE)
+         */
+
+        offenderNoPayPeriodRepository.findAllByBookingId(bookingId)
+            .forEach(p -> {
+                if (p.getEndDate() == null || p.getEndDate().isAfter(now)) {
+                    p.setEndDate(now);
+                }
+
+                if (now.compareTo(p.getStartDate()) >= 0 && now.compareTo(p.getEndDate() != null ? p.getEndDate() : now) < 0) {
+                    p.setEndDate(p.getStartDate().isBefore(movementDate) ? movementDate : p.getStartDate());
+                }
+
+                if (p.getStartDate().isAfter(now)) {
+                    p.setEndDate(p.getStartDate());
+                }
+            });
+    }
 }
