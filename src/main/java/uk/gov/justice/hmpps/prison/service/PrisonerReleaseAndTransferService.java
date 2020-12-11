@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
@@ -119,6 +120,10 @@ public class PrisonerReleaseAndTransferService {
         booking.setCreateLocation(toLocation);
         booking.setStatusReason(TRN.getCode() + "-" + requestToTransferOut.getTransferReasonCode());
         booking.setCommStatus(null);
+    }
+
+    public void transferInPrisoner(final String offenderNo, final RequestToTransferIn requestToTransferIn) {
+
     }
 
     private LocalDateTime getAndCheckMovementTime(final LocalDateTime movementTime, final Long bookingId) {
@@ -235,4 +240,6 @@ public class PrisonerReleaseAndTransferService {
         offenderKeyDateAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
             .forEach(s -> s.setActiveFlag(ActiveFlag.N));
     }
+
+
 }
