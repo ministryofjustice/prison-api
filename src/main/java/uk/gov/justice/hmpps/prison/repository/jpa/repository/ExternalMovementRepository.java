@@ -12,7 +12,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ExternalMovementRepository extends PagingAndSortingRepository<ExternalMovement, Long> {
+public interface ExternalMovementRepository extends PagingAndSortingRepository<ExternalMovement, ExternalMovement.PK> {
 
     @Query("select m from ExternalMovement m " +
             "where m.toAgency.id = :agencyId " +
