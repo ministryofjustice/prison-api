@@ -5,7 +5,8 @@ enum class AgencyRepositorySql(val sql: String) {
     """
         SELECT DISTINCT AGY_LOC_ID AGENCY_ID,
         DESCRIPTION,
-        AGENCY_LOCATION_TYPE AGENCY_TYPE
+        AGENCY_LOCATION_TYPE AGENCY_TYPE,
+        ACTIVE_FLAG ACTIVE
         FROM AGENCY_LOCATIONS
         WHERE ACTIVE_FLAG = 'Y'
         AND AGY_LOC_ID NOT IN ('OUT','TRN')
@@ -16,6 +17,7 @@ enum class AgencyRepositorySql(val sql: String) {
     """
         SELECT DISTINCT AGY_LOC_ID AGENCY_ID,
         DESCRIPTION,
+        ACTIVE_FLAG ACTIVE,
         AGENCY_LOCATION_TYPE AGENCY_TYPE
                 FROM AGENCY_LOCATIONS
                 WHERE ACTIVE_FLAG = :activeFlag
