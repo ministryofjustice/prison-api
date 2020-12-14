@@ -546,6 +546,29 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCannotTransferInPrisonerNotOut() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var tranferInRequest = Map.of("commentText", "admitted",
+            "cellLocation", "MDI-1-3-022");
+
+        final var tranferInEntity = createHttpEntity(token, tranferInRequest);
+
+        final var transferInResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/transfer-in",
+            PUT,
+            tranferInEntity,
+            ErrorResponse.class,
+            OFFENDER_NUMBER
+        );
+
+        final var error = transferInResponse.getBody();
+
+        assertThat(transferInResponse.getStatusCodeValue()).isEqualTo(400);
+        assertThat(error.getUserMessage()).contains("Prisoner is not currently being transferred");
+    }
+
+    @Test
     public void listAllOffendersUsesDefaultPaginationParams() {
 
         ResponseEntity<String> response = listAllOffendersUsingHeaders(Map.of());

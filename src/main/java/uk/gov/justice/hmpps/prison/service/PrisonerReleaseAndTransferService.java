@@ -2,6 +2,8 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -12,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -73,6 +76,9 @@ public class PrisonerReleaseAndTransferService {
     private final OffenderPayStatusRepository offenderPayStatusRepository;
     private final BookingRepository bookingRepository;
     private final IepLevelRepository iepLevelRepository;
+    private final FinanceRepository financeRepository;
+
+    private final Environment env;
 
     public void releasePrisoner(final String prisonerIdentifier, final RequestToReleasePrisoner requestToReleasePrisoner) {
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier);
@@ -154,7 +160,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         if (!booking.getInOutStatus().equals("TRN")) {
-            throw new BadRequestException("Prisoner is not currently TRN");
+            throw new BadRequestException("Prisoner is not currently being transferred");
         }
 
         final var latestMovementSequence = externalMovementRepository.getLatestMovementSequence(booking.getBookingId());
@@ -200,7 +206,11 @@ public class PrisonerReleaseAndTransferService {
             .offenderBooking(booking)
             .build());
 
-        // Create Trust Account
+        if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
+            // Create Trust Account
+            financeRepository.createTrustAccount(latestExternalMovement.getToAgency().getId(), booking.getBookingId(), booking.getRootOffenderId(), latestExternalMovement.getFromAgency().getId(),
+                movementReason.getCode(), null, null, latestExternalMovement.getToAgency().getId());
+        }
 
         // Create IEP levels
         iepLevelRepository.findByAgencyLocationIdAndDefaultFlag(booking.getLocation().getId(), "Y")
