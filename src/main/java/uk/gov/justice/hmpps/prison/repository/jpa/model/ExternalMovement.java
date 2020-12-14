@@ -59,6 +59,9 @@ public class ExternalMovement extends AuditableEntity {
     @Column(name = "MOVEMENT_DATE")
     private LocalDate movementDate;
 
+    @Column(name = "REPORTING_DATE")
+    private LocalDate reportingDate;
+
     @Column(name = "MOVEMENT_TIME")
     private LocalDateTime movementTime;
 

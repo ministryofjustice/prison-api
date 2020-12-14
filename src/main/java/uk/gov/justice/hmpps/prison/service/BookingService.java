@@ -259,7 +259,7 @@ public class BookingService {
             throw new IllegalArgumentException(format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId));
         }
 
-        bookingRepository.addIepLevel(bookingId, username, iepLevel);
+        bookingRepository.addIepLevel(bookingId, username, iepLevel, LocalDateTime.now());
     }
 
     private boolean activeIepLevelForAgencySelectedByBooking(final long bookingId, final String iepLevel) {

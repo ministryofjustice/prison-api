@@ -1,0 +1,16 @@
+[
+  {
+    "offenderNo": "A1180HI",
+    "firstName": "DEREK",
+    "lastName": "DIGGLE",
+    "dateOfBirth": "1982-01-02",
+    "gender": "Male",
+    "sexCode": "M",
+    "currentlyInPrison": "Y",
+    "latestBookingId": -52,
+    "latestLocationId": "MDI",
+    "latestLocation": "Moorland",
+    "ethnicity": "Mixed: White and Black African",
+    "ethnicityCode": "M2"
+  }
+]

@@ -14,6 +14,7 @@ public class MovementType extends ReferenceCode {
 
     public static final ReferenceCode.Pk REL = new ReferenceCode.Pk(TYPE, "REL");
     public static final ReferenceCode.Pk TRN = new ReferenceCode.Pk(TYPE, "TRN");
+    public static final ReferenceCode.Pk ADM = new ReferenceCode.Pk(TYPE, "ADM");
 
     public MovementType(final String code, final String description) {
         super(TYPE, code, description);
