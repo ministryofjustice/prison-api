@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.Account;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.FinanceRepositorySql;
+import uk.gov.justice.hmpps.prison.repository.storedprocs.AdmissionTrustProcs.CreateTrustAccount;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew;
 
@@ -21,11 +22,13 @@ public class FinanceRepository extends RepositoryBase {
     private final String currency;
     private final InsertIntoOffenderTrans insertIntoOffenderTrans;
     private final ProcessGlTransNew processGlTransNew;
+    private final CreateTrustAccount createTrustAccount;
 
-    public FinanceRepository(@Value("${api.currency:GBP}") final String currency, final InsertIntoOffenderTrans insertIntoOffenderTrans, final ProcessGlTransNew processGlTransNew) {
+    public FinanceRepository(@Value("${api.currency:GBP}") final String currency, final InsertIntoOffenderTrans insertIntoOffenderTrans, final ProcessGlTransNew processGlTransNew, final CreateTrustAccount createTrustAccount) {
         this.currency = currency;
         this.insertIntoOffenderTrans = insertIntoOffenderTrans;
         this.processGlTransNew = processGlTransNew;
+        this.createTrustAccount = createTrustAccount;
     }
 
     private final Map<String, FieldMapper> accountMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -95,5 +98,21 @@ public class FinanceRepository extends RepositoryBase {
                 .addValue("p_gl_sqnc", 0)
                 .addValue("p_off_ded_id", null);
         processGlTransNew.execute(params);
+    }
+
+    public void createTrustAccount(final String caseloadId, final long offBookId, final long rootOffId,
+                                   final String fromAgencyLocationId, final String movementReasonCode, final Long shadowId,
+                                        final Long receiptNumber, final String destinationCaseloadId) {
+        final var params = new MapSqlParameterSource()
+            .addValue("p_caseload_id", caseloadId)
+            .addValue("p_off_book_id", offBookId)
+            .addValue("p_root_off_id", rootOffId)
+            .addValue("p_from_agy_loc_id", fromAgencyLocationId)
+            .addValue("p_mvmt_reason_code", movementReasonCode)
+            .addValue("p_shadow_id", shadowId)
+            .addValue("p_receipt_no", receiptNumber)
+            .addValue("p_dest_caseload_id", destinationCaseloadId);
+
+        createTrustAccount.execute(params);
     }
 }

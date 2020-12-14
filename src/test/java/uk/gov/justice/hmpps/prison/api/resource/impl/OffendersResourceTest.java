@@ -466,7 +466,9 @@ public class OffendersResourceTest extends ResourceTest {
     public void testCanTransferAPrisoner() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
-        final var body = Map.of("transferReasonCode", "NOTR", "commentText", "transferred prisoner today", "toLocation", "MDI");
+        final var now = LocalDateTime.now();
+        final var body = Map.of("transferReasonCode", "NOTR", "commentText", "transferred prisoner today", "toLocation", "MDI",
+            "movementTime", now.minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         final var entity = createHttpEntity(token, body);
 
@@ -493,7 +495,32 @@ public class OffendersResourceTest extends ResourceTest {
             new ParameterizedTypeReference<String>() {
             });
 
-        assertThatJsonFileAndStatus(searchResponse, 200, "transferred_prisoner.json");
+        assertThatJsonFileAndStatus(searchResponse, 200, "transferred_out_prisoner.json");
+
+        final var tranferInRequest = Map.of("receiveTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), "commentText", "admitted",
+            "cellLocation", "MDI-1-3-022");
+
+        final var tranferInEntity = createHttpEntity(token, tranferInRequest);
+
+        final var transferInResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/transfer-in",
+            PUT,
+            tranferInEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            prisonerNo
+        );
+
+        assertThat(transferInResponse.getStatusCodeValue()).isEqualTo(200);
+
+        final var transferredPrisonerResponse = testRestTemplate.exchange(
+            "/api/prisoners",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(transferredPrisonerResponse, 200, "transferred_in_prisoner.json");
     }
 
     @Test
@@ -516,6 +543,29 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
         assertThat(error.getUserMessage()).contains("Prisoner is not currently active");
+    }
+
+    @Test
+    public void testCannotTransferInPrisonerNotOut() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var tranferInRequest = Map.of("commentText", "admitted",
+            "cellLocation", "MDI-1-3-022");
+
+        final var tranferInEntity = createHttpEntity(token, tranferInRequest);
+
+        final var transferInResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/transfer-in",
+            PUT,
+            tranferInEntity,
+            ErrorResponse.class,
+            OFFENDER_NUMBER
+        );
+
+        final var error = transferInResponse.getBody();
+
+        assertThat(transferInResponse.getStatusCodeValue()).isEqualTo(400);
+        assertThat(error.getUserMessage()).contains("Prisoner is not currently being transferred");
     }
 
     @Test
