@@ -92,8 +92,8 @@ dependencies {
 task testIntegration(type: Test) {
     include '**/*IntTest*'
     useJUnitPlatform()
-    minHeapSize = "1024m"
-    maxHeapSize = "2048m"
+    minHeapSize = "128m"
+    maxHeapSize = "4096m"
 }
 
 task testWithSchemaNomis(type: Test) {
@@ -104,8 +104,8 @@ task testWithSchemaNomis(type: Test) {
     exclude '**/*IntTest*'
     environment nomisEnvVars
     useJUnitPlatform()
-    minHeapSize = "1024m"
-    maxHeapSize = "2048m"
+    minHeapSize = "128m"
+    maxHeapSize = "4096m"
 }
 
 task testWithSchemaNomisOracle(type: Test) {
