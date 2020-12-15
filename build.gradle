@@ -1,21 +1,7 @@
-buildscript {
-    repositories {
-        maven {
-            url 'http://palantir.bintray.com/releases'
-        }
-        dependencies {
-            classpath 'com.palantir.baseline:gradle-baseline-java:3.60.0'
-            classpath 'gradle.plugin.org.inferred:gradle-processors:2.1.0'
-        }
-    }
-}
-
 plugins {
     id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.1"
     id 'groovy'
 }
-
-apply plugin: 'com.palantir.baseline-testing'
 
 group 'uk.gov.justice.hmpps.prison'
 
