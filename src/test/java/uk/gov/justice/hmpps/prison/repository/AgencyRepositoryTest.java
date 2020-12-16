@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
+import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReview;
@@ -120,6 +121,14 @@ public class AgencyRepositoryTest {
 
         assertThat(agencies).extracting("agencyType")
                 .contains("INST", "INST", "INST", "INST", "INST", "INST", "INST", "INST");
+    }
+
+    @Test
+    public void testGetAgencies() {
+        final var agencies = repository.getAgencies("agencyId", Order.ASC, 0, 10);
+        assertThat(agencies.getItems()).extracting("agencyId").containsExactly("ABDRCT", "BMI", "BXI", "COURT1", "LEI", "MDI", "MUL", "RNI", "SYI", "TRO");
+        assertThat(agencies.getItems()).extracting("agencyType").containsExactly("CRT", "INST", "INST", "CRT", "INST", "INST", "INST", "INST", "INST", "INST");
+        assertThat(agencies.getItems()).extracting("active").containsExactly(true, true, true, true, true, true, true, true, true, true);
     }
 
 
