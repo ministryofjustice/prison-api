@@ -66,6 +66,11 @@ public abstract class CommonSteps {
         assertThat(resources).hasSize(Math.toIntExact(expectedCount));
     }
 
+    @Step("Verify some resource records are returned")
+    public void verifyResourceRecordsNotEmpty() {
+        assertThat(resources).isNotEmpty();
+    }
+
     @Step("Verify some resource records returned")
     public void verifySomeResourceRecordsReturned() {
         assertThat(resources).hasSizeGreaterThan(0);

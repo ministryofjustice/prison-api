@@ -442,6 +442,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyOffenderCategoryListSize(size);
     }
 
+    @Then("^some uncategorised offenders are returned$")
+    public void returnedUncategorisedOffenders() {
+        bookingAssessment.verifyOffenderCategoryListNotEmpty();
+    }
+
     @Then("^([0-9]+) categorised offenders are returned$")
     public void returnedCategorisedOffenders(final int size) {
         bookingAssessment.verifyOffenderCategoryListSize(size);

@@ -222,6 +222,12 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
         bookingSentenceDetail.verifyResourceRecordsReturned(total);
     }
 
+    @Then("^some offenders are returned$")
+    public void offendersAreReturned() {
+        bookingSentenceDetail.verifyNoError();
+        bookingSentenceDetail.verifyResourceRecordsNotEmpty();
+    }
+
     @And("^\"([0-9-]+)\" offenders in total$")
     public void offendersInTotal(final long total) {
         bookingSentenceDetail.verifyTotalResourceRecordsAvailable(total);
