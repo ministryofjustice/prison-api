@@ -5,12 +5,14 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
+import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeInfo;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -102,6 +104,13 @@ public class ReferenceDomainsSteps extends CommonSteps {
                 .isEqualTo(expectedSubCodeDescription);
     }
 
+    @Step("Verify item contains sub-code with description")
+    public void verifyItemContainsSubCodeWithDescription(final String itemDescription, final String expectedSubCodeDescription) {
+        final var item = referenceCodes.stream().filter(it -> it.getDescription().equals(itemDescription)).findFirst();
+        assertThat(item).isPresent().withFailMessage(format("Item %s not found", itemDescription));
+        assertThat(item.get().getSubCodes()).extracting(ReferenceCodeInfo::getDescription).contains(expectedSubCodeDescription);
+    }
+
     @Step("Verify domain for all returned reference code items")
     public void verifyDomain(final String expectedDomain) {
         referenceCodes.forEach(rc -> {
@@ -128,6 +137,11 @@ public class ReferenceDomainsSteps extends CommonSteps {
     @Step("Verify description for specific reference code item")
     public void verifyDescription(final int index, final String expectedDescription) {
         assertThat(referenceCodes.get(index).getDescription()).isEqualTo(expectedDescription);
+    }
+
+    @Step("Verify description exists in the reference codes")
+    public void verifyDescriptionExists(final String expectedDescription) {
+        assertThat(referenceCodes).extracting(ReferenceCodeInfo::getDescription).contains(expectedDescription);
     }
 
     @Step("Verify parent code for specific reference code item")

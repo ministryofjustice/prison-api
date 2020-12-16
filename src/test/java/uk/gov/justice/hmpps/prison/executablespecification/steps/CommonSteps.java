@@ -66,6 +66,11 @@ public abstract class CommonSteps {
         assertThat(resources).hasSize(Math.toIntExact(expectedCount));
     }
 
+    @Step("Verify some resource records returned")
+    public void verifySomeResourceRecordsReturned() {
+        assertThat(resources).hasSizeGreaterThan(0);
+    }
+
     @Step("Verify total number of resource records available")
     public void verifyTotalResourceRecordsAvailable(final long expectedCount) {
         assertThat(pageMetaData.getTotalRecords()).isEqualTo(expectedCount);

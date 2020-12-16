@@ -128,6 +128,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSearch.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
+    @Then("^some booking records are available$")
+    public void someBookingRecordsAreAvailable() {
+        bookingSearch.verifySomeResourceRecordsReturned();
+    }
+
     @Then("^\"([^\"]*)\" total booking records are available$")
     public void totalBookingRecordsAreAvailable(final String expectedCount) {
         bookingSearch.verifyTotalResourceRecordsAvailable(Long.parseLong(expectedCount));

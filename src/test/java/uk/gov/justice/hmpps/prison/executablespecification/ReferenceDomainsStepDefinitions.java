@@ -43,6 +43,11 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
         referenceDomains.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
+    @Then("^some reference code items are returned$")
+    public void someCaseNoteSourcesAreReturned() throws Throwable {
+        referenceDomains.verifySomeResourceRecordsReturned();
+    }
+
     @And("^domain for all returned items is \"([^\"]*)\"$")
     public void domainForAllReturnedItemsIs(final String expectedDomain) throws Throwable {
         referenceDomains.verifyDomain(expectedDomain);
@@ -56,6 +61,11 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
     @And("^description for \"([^\"]*)\" returned item is \"([^\"]*)\"$")
     public void descriptionForReturnedItemIs(final String ordinal, final String expecteDescription) throws Throwable {
         referenceDomains.verifyDescription(ord2idx(ordinal), expecteDescription);
+    }
+
+    @And("^the returned items contain description \"([^\"]*)\"$")
+    public void returnedItemsContainDescription(final String expectedDescription) throws Throwable {
+        referenceDomains.verifyDescriptionExists(expectedDescription);
     }
 
     @And("^codes of returned items are \"([^\"]*)\"$")
@@ -136,6 +146,11 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
     @And("^description for \"([^\"]*)\" sub-code of \"([^\"]*)\" returned item is \"([^\"]*)\"$")
     public void descriptionForSubCodeOfReturnedItemIs(final String subCodeOrdinal, final String refCodeOrdinal, final String expectedDescription) throws Throwable {
         referenceDomains.verifyDescriptionForSubCode(ord2idx(subCodeOrdinal), ord2idx(refCodeOrdinal), expectedDescription);
+    }
+
+    @And("^item description \"([^\"]*)\" contains sub-code with description \"([^\"]*)\"$")
+    public void itemContainsSubCodeWithDescription(final String itemDescription, final String expectedDescription) throws Throwable {
+        referenceDomains.verifyItemContainsSubCodeWithDescription(itemDescription, expectedDescription);
     }
 
     @When("^request submitted to retrieve reference code, without sub-codes, for domain \"([^\"]*)\" and code \"([^\"]*)\"$")
