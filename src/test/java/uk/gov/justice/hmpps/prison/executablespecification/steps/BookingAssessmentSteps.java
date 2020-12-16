@@ -250,6 +250,11 @@ public class BookingAssessmentSteps extends CommonSteps {
         assertThat(offenderCatList).asList().hasSize(size);
     }
 
+    public void verifyOffenderCategoryListNotEmpty() {
+        verifyNoError();
+        assertThat(offenderCatList).asList().isNotEmpty();
+    }
+
     public void verifyCategorisedPendingApproval(final long bookingId) {
         verifyNoError();
         assertThat(offenderCatList).extracting("bookingId", "status").contains(tuple(bookingId, CategorisationStatus.AWAITING_APPROVAL));

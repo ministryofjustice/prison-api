@@ -234,7 +234,7 @@ Feature: Booking Sentence Details
 
   Scenario: Retrieve sentence details for an agency
     When sentence details are requested of offenders for agency "MDI"
-    Then "3" offenders are returned
+    Then some offenders are returned
 
   Scenario: Retrieve sentence details as a list using post request for multiple offender Nos
     When sentence details are requested by a POST request for offender Nos "A1234AK,A1234AE,A1234AJ,A1234AC"

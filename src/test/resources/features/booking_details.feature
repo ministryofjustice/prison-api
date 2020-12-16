@@ -150,7 +150,7 @@ Feature: Booking Details
 
   Scenario: Request for offenders who need to be categorised
     When a request is made for uncategorised offenders at "MDI"
-    Then 3 uncategorised offenders are returned
+    Then some uncategorised offenders are returned
 
   Scenario: Request for offenders who need to be categorised with invalid agency
     When a request is made for uncategorised offenders at "XXXX"

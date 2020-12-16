@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.0"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.1"
     id 'groovy'
 }
 
@@ -92,7 +92,7 @@ dependencies {
 task testIntegration(type: Test) {
     include '**/*IntTest*'
     useJUnitPlatform()
-    minHeapSize = "1024m"
+    minHeapSize = "128m"
     maxHeapSize = "2048m"
 }
 
@@ -104,7 +104,7 @@ task testWithSchemaNomis(type: Test) {
     exclude '**/*IntTest*'
     environment nomisEnvVars
     useJUnitPlatform()
-    minHeapSize = "1024m"
+    minHeapSize = "128m"
     maxHeapSize = "2048m"
 }
 
