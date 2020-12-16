@@ -38,7 +38,7 @@ Feature: Reference Domains
   Scenario: Retrieve used case note types with sub-types
     When request submitted to retrieve used case note types
     Then some reference code items are returned
-    Then domain for all returned items is "TASK_TYPE"
+    And domain for all returned items is "TASK_TYPE"
     And the returned items contain description "Accredited Programme"
     And the returned items contain description "Unpaid Work"
     And there are one or more sub codes for every returned item
