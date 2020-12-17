@@ -69,8 +69,9 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static uk.gov.justice.hmpps.prison.values.AccountCode.codeForNameOrEmpty;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.poundsToPence;
+import static uk.gov.justice.hmpps.prison.values.AccountCode.codeForNameOrEmpty;
 
 @Slf4j
 @Service
@@ -248,7 +249,9 @@ public class NomisApiV1Service {
     }
 
     private String convertToJsonString(final EventSP e) {
-        final var json = StringUtils.trimToEmpty(e.getEventData_1()) + StringUtils.trimToEmpty(e.getEventData_2()) + StringUtils.trimToEmpty(e.getEventData_3());
+        final var json = defaultIfBlank(e.getEventData_1(), "") +
+            defaultIfBlank(e.getEventData_2(), "") +
+            defaultIfBlank(e.getEventData_3(), "");
         return StringUtils.defaultIfEmpty(json, "{}");
     }
 

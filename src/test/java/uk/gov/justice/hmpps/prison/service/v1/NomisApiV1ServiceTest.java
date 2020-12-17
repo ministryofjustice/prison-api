@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.prison.api.model.v1.Event;
+import uk.gov.justice.hmpps.prison.api.model.v1.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.repository.v1.AlertV1Repository;
 import uk.gov.justice.hmpps.prison.repository.v1.BookingV1Repository;
 import uk.gov.justice.hmpps.prison.repository.v1.CoreV1Repository;
@@ -15,11 +17,20 @@ import uk.gov.justice.hmpps.prison.repository.v1.LegalV1Repository;
 import uk.gov.justice.hmpps.prison.repository.v1.OffenderV1Repository;
 import uk.gov.justice.hmpps.prison.repository.v1.PrisonV1Repository;
 import uk.gov.justice.hmpps.prison.repository.v1.VisitV1Repository;
+import uk.gov.justice.hmpps.prison.repository.v1.model.EventSP;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class NomisApiV1ServiceTest {
@@ -73,7 +84,7 @@ public class NomisApiV1ServiceTest {
         final var to = LocalDate.now().plusDays(61);
         assertThatThrownBy(() -> service.getVisitAvailableDates(12345L, from, to))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessageContaining("End date cannot be more than 60 days in the future");
+            .hasMessageContaining("End date cannot be more than 60 days in the future");
     }
 
     @Test
@@ -82,5 +93,35 @@ public class NomisApiV1ServiceTest {
         final var to = LocalDate.now().plusDays(5);
         service.getVisitAvailableDates(12345L, from, to);
         verify(visitV1Repository).getAvailableDates(12345L, from, to);
+    }
+
+    @Test
+    public void getEvents() {
+        final var date = LocalDateTime.parse("2020-01-02T03:02:01");
+        when(eventsV1Repository.getEvents(anyString(), isNull(), anyLong(), isNull(), anyString(), any(), anyLong())).thenReturn(
+            List.of(new EventSP(5L, date, "MDI", "A1234", "ETYPE", "Event ", "Data 2", " and 3"))
+        );
+        final var events = service.getEvents("prison", new OffenderIdentifier("12345"), "type", LocalDateTime.now(), 5L);
+        assertThat(events).containsExactly(new Event("ETYPE", 5L, "A1234", "MDI", date, "Event Data 2 and 3"));
+    }
+
+    @Test
+    public void getEventsCopesWithAllNull() {
+        final var date = LocalDateTime.parse("2020-01-02T03:02:01");
+        when(eventsV1Repository.getEvents(anyString(), isNull(), anyLong(), isNull(), anyString(), any(), anyLong())).thenReturn(
+            List.of(new EventSP(5L, date, "MDI", "A1234", "ETYPE", null, null, null))
+        );
+        final var events = service.getEvents("prison", new OffenderIdentifier("12345"), "type", LocalDateTime.now(), 5L);
+        assertThat(events).containsExactly(new Event("ETYPE", 5L, "A1234", "MDI", date, "{}"));
+    }
+
+    @Test
+    public void getEventsCopesWithSomeNull() {
+        final var date = LocalDateTime.parse("2020-01-02T03:02:01");
+        when(eventsV1Repository.getEvents(anyString(), isNull(), anyLong(), isNull(), anyString(), any(), anyLong())).thenReturn(
+            List.of(new EventSP(5L, date, "MDI", "A1234", "ETYPE", null, " a value ", null))
+        );
+        final var events = service.getEvents("prison", new OffenderIdentifier("12345"), "type", LocalDateTime.now(), 5L);
+        assertThat(events).containsExactly(new Event("ETYPE", 5L, "A1234", "MDI", date, " a value "));
     }
 }
