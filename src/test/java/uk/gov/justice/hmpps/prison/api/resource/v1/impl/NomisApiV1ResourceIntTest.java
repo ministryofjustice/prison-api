@@ -421,6 +421,38 @@ public class NomisApiV1ResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getEvents_WithSpacesBetweenEventData() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        final var events = List.of(
+            new EventSP(3L, LocalDateTime.parse("2019-03-31T00:01:00.12456"), "LEI", "AB1256B", "ALERT", "{\"case_note\":{\"id\":47004657,\"contact_datetime\":\"2019-03-31 ", null,
+                "00:00:00\"\n" +
+                    ",\"source\":{\"code\":\"AUTO\"\n" +
+                    ",\"desc\":\"System\"\n" +
+                    "},\"type\":{\"code\":\"ALERT\"\n" +
+                    ",\"desc\":\"Alert\"\n" +
+                    "},\"sub_type\":{\"code\":\"INACTIVE\"\n" +
+                    ",\"desc\":\"Made Inactive\"\n" +
+                    "},\"staff_member\":{\"id\":1,\"name\":\"Cnomis, Admin&Onb\"\n" +
+                    ",\"userid\":\"\"\n" +
+                    "},\"text\":\"Alert Other and Charged under Harassment Act made inactive.\"\n" +
+                    ",\"amended\":false}}"),
+            new EventSP(4L, LocalDateTime.parse("2019-04-30T00:00:01.234567"), "MDI", "BC1256B", "INTERNAL_LOCATION_CHANGED", "{\"account\":{\"code\":\"REG\"\n" +
+                ",\"desc\":\"Private",
+                " Cash\"\n" +
+                    "},\"balance\":0}", null),
+            new EventSP(5L, LocalDateTime.parse("2019-03-31T00:00:01"), "MDI", "CD1256B", "PERSONAL_DETAILS_CHANGED", null, null, null)
+        );
+
+        when(getEvents.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_EVENTS_CSR, events));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/offenders/events?prison_id=MDI&offender_id=A1492AE&event_type=e&from_datetime=2019-07-07 07:15:20.090&limit=100", HttpMethod.GET, requestEntity, String.class);
+
+        //noinspection ConstantConditions
+        assertThat(new JsonContent<Events>(getClass(), forType(Events.class), responseEntity.getBody())).isEqualToJson("events.json");
+    }
+
+    @Test
     public void getLiveRoll() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
 
