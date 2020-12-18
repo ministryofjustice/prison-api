@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@1.1.0
+  hmpps: ministryofjustice/hmpps@2.0.0
   owasp: entur/owasp@0.0.10
 
 defaults: &defaults
@@ -109,6 +109,7 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_dev
           env: "t2"
+          context: prison-api-t2
           filters:
             branches:
               only:
