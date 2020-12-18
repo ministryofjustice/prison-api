@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@dev:alpha2
+  hmpps: ministryofjustice/hmpps@dev:alpha3
   owasp: entur/owasp@0.0.10
 
 defaults: &defaults
@@ -88,18 +88,6 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - check:
-          filters:
-            tags:
-              ignore: /.*/
-      - test-integration:
-          filters:
-            tags:
-              ignore: /.*/
-      - test-schema-nomis:
-          filters:
-            tags:
-              ignore: /.*/
       - hmpps/build_docker:
           name: build_docker
           filters:
@@ -116,7 +104,3 @@ workflows:
                 - POC-generic-service-chart
           requires:
             - build_docker
-            - check
-            - test-integration
-            - test-schema-nomis
-
