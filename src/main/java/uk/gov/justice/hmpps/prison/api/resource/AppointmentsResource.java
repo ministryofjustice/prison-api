@@ -7,12 +7,14 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -38,7 +40,10 @@ public class AppointmentsResource {
     @ApiOperation(value = "Create multiple appointments", notes = "Create multiple appointments", nickname = "createAppointments")
     @PostMapping
     @ProxyUser
-    public ResponseEntity<Void> createAppointments(@RequestBody @ApiParam(required = true) final AppointmentsToCreate createAppointmentsRequest) {
+    public ResponseEntity<Void> createAppointments(
+        @RequestBody
+        @ApiParam(required = true) final AppointmentsToCreate createAppointmentsRequest
+    ) {
         appointmentsService.createAppointments(createAppointmentsRequest);
         return ResponseEntity.ok().build();
     }
@@ -52,7 +57,11 @@ public class AppointmentsResource {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{appointmentId}")
     @HasWriteScope
-    public void deleteAppointment(@PathVariable("appointmentId") @ApiParam(value = "The unique identifier for the appointment", required = true) @NotNull final Long appointmentId) {
+    public void deleteAppointment(
+        @PathVariable("appointmentId")
+        @ApiParam(value = "The unique identifier for the appointment", required = true)
+        @NotNull final Long appointmentId
+    ) {
         appointmentsService.deleteBookingAppointment(appointmentId);
     }
 
@@ -64,7 +73,31 @@ public class AppointmentsResource {
     @ApiOperation(value = "Get an appointment by id.", notes = "Get appointment byId.", nickname = "getBookingAppointment")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{appointmentId}")
-    public ScheduledEvent getAppointment(@PathVariable("appointmentId") @ApiParam(value = "The unique identifier for the appointment", required = true) @NotNull final Long appointmentId) {
+    public ScheduledEvent getAppointment(
+        @PathVariable("appointmentId")
+        @ApiParam(value = "The unique identifier for the appointment", required = true)
+        @NotNull final Long appointmentId
+    ) {
         return appointmentsService.getBookingAppointment(appointmentId);
+    }
+
+    @ApiOperation(value = "Change an appointment's comment.")
+    @ApiResponses({
+        @ApiResponse(code = 204, message = "The appointment's comment has been set."),
+        @ApiResponse(code = 403, message = "The client is not authorised for this operation"),
+        @ApiResponse(code = 404, message = "The appointment was not found."),
+    })
+    @HasWriteScope
+    @PutMapping(path = "/{appointmentId}/comment", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateAppointmentComment(
+        @PathVariable("appointmentId")
+        @ApiParam(value = "The appointment's unique identifier.", required = true)
+        @NotNull final Long appointmentId,
+
+        @RequestBody
+        @ApiParam(value = "The text of the comment. May be empty or null", allowEmptyValue = true) final String comment
+    ) {
+        appointmentsService.updateComment(appointmentId, comment);
     }
 }

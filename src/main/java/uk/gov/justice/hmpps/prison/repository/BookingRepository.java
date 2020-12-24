@@ -639,6 +639,23 @@ public class BookingRepository extends RepositoryBase {
         );
     }
 
+    /**
+     * Update the comment field of an OFFENDER_IND_SCHEDULES record if it's event class is 'INT_MOV' and
+     * its event type is 'APP'
+     * @param eventId The unique identifier for the appointment
+     * @param comment The value to which the appointment should be set. Can be null.
+     * @return true if the appointment was updated. false if the appointment does not exist.
+     */
+    public boolean updateBookingAppointmentComment(final long eventId, final String comment) {
+        return jdbcTemplate.update(
+            BookingRepositorySql.UPDATE_APPOINTMENT_COMMENT.getSql(),
+            createParams(
+                "eventId", eventId,
+                "comment", comment
+            )
+        ) == 1;
+    }
+
     public List<OffenderSentenceDetailDto> getOffenderSentenceSummary(final String query, final Set<String> allowedCaseloadsOnly, final boolean filterByCaseload, final boolean viewInactiveBookings) {
         var initialSql = BookingRepositorySql.GET_OFFENDER_SENTENCE_DETAIL.getSql();
 
