@@ -9,5 +9,7 @@ generic-service:
     tag: latest
     pullPolicy: IfNotPresent
     port: 8080
+  service:
+    enabled: false
   env:
     SPRING_PROFILES_ACTIVE: "nomis"
