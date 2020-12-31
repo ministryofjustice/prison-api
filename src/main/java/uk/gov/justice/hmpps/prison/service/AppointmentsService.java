@@ -133,6 +133,14 @@ public class AppointmentsService {
         trackAppointmentDeletion(appointmentForDeletion);
     }
 
+    @Transactional
+    @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
+    public void updateComment(final Long appointmentId, final String comment) {
+        if (!bookingRepository.updateBookingAppointmentComment(appointmentId, comment)) {
+            throw EntityNotFoundException.withMessage("An appointment with id %s does not exist.", appointmentId);
+        }
+    }
+
     private ScheduledEvent getScheduledEventOrThrowEntityNotFound(Long eventId) {
         return bookingRepository
                 .getBookingAppointmentByEventId(eventId)
@@ -375,5 +383,4 @@ public class AppointmentsService {
         bookingRepository.createMultipleAppointments(details, defaults, agencyId);
         trackAppointmentsCreated(details, defaults);
     }
-
 }

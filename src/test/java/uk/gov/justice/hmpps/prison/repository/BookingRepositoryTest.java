@@ -539,6 +539,44 @@ public class BookingRepositoryTest {
         assertThat(repository.getBookingAppointmentByEventId(id)).isEmpty();
     }
 
+    @Test
+    public void updateBookingAppointmentComment() {
+       final var startTime = LocalDateTime.now().plusDays(2);
+        final var endTime = startTime.plusMinutes(30);
+        final var bookingId = -30L;
+        final var locationId = -28L;// LEI-LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
+
+        final var newAppointment = NewAppointment.builder()
+            .appointmentType("VLB")
+            .startTime(startTime)
+            .endTime(endTime)
+            .locationId(locationId)
+            .build();
+
+        final var id = repository.createBookingAppointment(bookingId, newAppointment, "LEI");
+
+        assertThat(repository.getBookingAppointmentByEventId(id)).isNotEmpty();
+
+        assertThat(repository.updateBookingAppointmentComment(id, "Test comment")).isTrue();
+
+        assertThat(repository.getBookingAppointmentByEventId(id))
+            .get()
+            .extracting("eventSourceDesc")
+            .isEqualTo("Test comment");
+
+        assertThat(repository.updateBookingAppointmentComment(id, null)).isTrue();
+
+        assertThat(repository.getBookingAppointmentByEventId(id))
+            .get()
+            .extracting("eventSourceDesc")
+            .isNull();
+
+        repository.deleteBookingAppointment(id);
+
+        assertThat(repository.getBookingAppointmentByEventId(id)).isEmpty();
+
+        assertThat(repository.updateBookingAppointmentComment(id, "Don't care")).isFalse();
+    }
 
     @Test
     public void testGetBookingIEPDetailsByBookingIds() {

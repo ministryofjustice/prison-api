@@ -167,6 +167,54 @@ public class AppointmentsResourceTest extends ResourceTest {
         verifyNoInteractions(bookingRepository);
     }
 
+    @Test
+    public void updateAppointmentComment() {
+        when(bookingRepository.updateBookingAppointmentComment(anyLong(), anyString())).thenReturn(true);
+
+        final var response = testRestTemplate
+            .exchange(
+                "/api/appointments/1/comment",
+                HttpMethod.PUT,
+                createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), "Comment"),
+                Void.class
+            );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        verify(bookingRepository).updateBookingAppointmentComment(1L, "Comment");
+    }
+
+    @Test
+    public void updateAppointmentComment_notFound() {
+        when(bookingRepository.updateBookingAppointmentComment(anyLong(), anyString())).thenReturn(false);
+
+        final var response = testRestTemplate
+            .exchange(
+                "/api/appointments/1/comment",
+                HttpMethod.PUT,
+                createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), "Comment"),
+                Void.class
+            );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
+        verify(bookingRepository).updateBookingAppointmentComment(1L, "Comment");
+    }
+
+    @Test
+    public void updateAppointmentComment_unauthorised() {
+        final var response = testRestTemplate
+            .exchange(
+                "/api/appointments/1/comment",
+                HttpMethod.PUT,
+                createHttpEntity(validToken(List.of()), "Comment"),
+                Void.class
+            );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+
+        verifyNoInteractions(bookingRepository);
+    }
 
     private ResponseEntity<String> makeCreateAppointmentsRequest() {
         final AppointmentsToCreate body = getCreateAppointmentBody();
