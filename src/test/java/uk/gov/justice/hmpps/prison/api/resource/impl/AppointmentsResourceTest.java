@@ -4,8 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import uk.gov.justice.hmpps.prison.aop.ProxyUserAspect;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
@@ -25,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -167,6 +171,13 @@ public class AppointmentsResourceTest extends ResourceTest {
         verifyNoInteractions(bookingRepository);
     }
 
+    private HttpHeaders headers(final String token, final MediaType contentType) {
+        final var headers = new HttpHeaders();
+        headers.setContentType(contentType);
+        headers.setBearerAuth(token);
+        return headers;
+    }
+
     @Test
     public void updateAppointmentComment() {
         when(bookingRepository.updateBookingAppointmentComment(anyLong(), anyString())).thenReturn(true);
@@ -175,13 +186,54 @@ public class AppointmentsResourceTest extends ResourceTest {
             .exchange(
                 "/api/appointments/1/comment",
                 HttpMethod.PUT,
-                createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), "Comment"),
+                new HttpEntity<>(
+                    "Comment",
+                    headers(
+                        validToken(List.of("ROLE_GLOBAL_APPOINTMENT")),
+                        MediaType.TEXT_PLAIN)
+                ),
                 Void.class
             );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
         verify(bookingRepository).updateBookingAppointmentComment(1L, "Comment");
+    }
+
+    @Test
+    public void updateAppointmentComment_emptyComment() {
+        when(bookingRepository.updateBookingAppointmentComment(anyLong(), isNull())).thenReturn(true);
+
+        final var response = testRestTemplate
+            .exchange(
+                "/api/appointments/1/comment",
+                HttpMethod.PUT,
+                new HttpEntity<>(
+                    "",
+                    headers(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), MediaType.TEXT_PLAIN)),
+                Void.class
+            );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        verify(bookingRepository).updateBookingAppointmentComment(1L, null);
+    }
+
+    @Test
+    public void updateAppointmentComment_noComment() {
+        when(bookingRepository.updateBookingAppointmentComment(anyLong(), isNull())).thenReturn(true);
+
+        final var response = testRestTemplate
+            .exchange(
+                "/api/appointments/1/comment",
+                HttpMethod.PUT,
+                new HttpEntity<>(headers(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), MediaType.TEXT_PLAIN)),
+                Void.class
+            );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        verify(bookingRepository).updateBookingAppointmentComment(1L, null);
     }
 
     @Test
@@ -192,7 +244,12 @@ public class AppointmentsResourceTest extends ResourceTest {
             .exchange(
                 "/api/appointments/1/comment",
                 HttpMethod.PUT,
-                createHttpEntity(validToken(List.of("ROLE_GLOBAL_APPOINTMENT")), "Comment"),
+                new HttpEntity<>(
+                    "Comment",
+                    headers(
+                        validToken(List.of("ROLE_GLOBAL_APPOINTMENT")),
+                        MediaType.TEXT_PLAIN)
+                ),
                 Void.class
             );
 
@@ -207,7 +264,12 @@ public class AppointmentsResourceTest extends ResourceTest {
             .exchange(
                 "/api/appointments/1/comment",
                 HttpMethod.PUT,
-                createHttpEntity(validToken(List.of()), "Comment"),
+                new HttpEntity<>(
+                    "Comment",
+                    headers(
+                        validToken(List.of()),
+                        MediaType.TEXT_PLAIN)
+                ),
                 Void.class
             );
 
