@@ -143,6 +143,7 @@ public class PrisonerReleaseAndTransferService {
 
         // update the booking record
         booking.setInOutStatus(TRN.getCode());
+        booking.setActiveFlag("N");
         booking.setBookingStatus("O");
         booking.setLivingUnitMv(null);
         booking.setAssignedLivingUnit(null);
