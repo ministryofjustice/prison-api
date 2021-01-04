@@ -65,9 +65,9 @@ dependencies {
     runtime 'org.flywaydb:flyway-core:7.3.2'
 
     testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
-    testImplementation 'io.rest-assured:rest-assured:4.3.3'
-    testImplementation 'io.rest-assured:json-schema-validator:4.3.3'
-    testImplementation 'io.rest-assured:spring-mock-mvc:4.3.3'
+    testImplementation 'io.rest-assured:rest-assured:4.3.1'
+    testImplementation 'io.rest-assured:json-schema-validator:4.3.1'
+    testImplementation 'io.rest-assured:spring-mock-mvc:4.3.1'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.google.code.gson:gson:2.8.6'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
