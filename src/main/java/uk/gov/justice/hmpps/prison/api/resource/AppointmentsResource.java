@@ -88,14 +88,14 @@ public class AppointmentsResource {
         @ApiResponse(code = 404, message = "The appointment was not found."),
     })
     @HasWriteScope
-    @PutMapping(path = "/{appointmentId}/comment", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @PutMapping(path = "/{appointmentId}/comment", consumes = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateAppointmentComment(
         @PathVariable("appointmentId")
         @ApiParam(value = "The appointment's unique identifier.", required = true)
         @NotNull final Long appointmentId,
 
-        @RequestBody
+        @RequestBody(required = false)
         @ApiParam(value = "The text of the comment. May be empty or null", allowEmptyValue = true) final String comment
     ) {
         appointmentsService.updateComment(appointmentId, comment);
