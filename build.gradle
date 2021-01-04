@@ -76,9 +76,9 @@ dependencies {
     testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.22.0'
 
-    testImplementation 'net.serenity-bdd:serenity-core:2.3.10'
-    testImplementation 'net.serenity-bdd:serenity-junit:2.3.10'
-    testImplementation 'net.serenity-bdd:serenity-spring:2.3.10'
+    testImplementation 'net.serenity-bdd:serenity-core:2.1.8'
+    testImplementation 'net.serenity-bdd:serenity-junit:2.1.8'
+    testImplementation 'net.serenity-bdd:serenity-spring:2.1.8'
     testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.51'
     testImplementation 'org.slf4j:slf4j-api:1.7.30'
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.2'
