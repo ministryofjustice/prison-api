@@ -143,6 +143,7 @@ public class PrisonerReleaseAndTransferService {
 
         // update the booking record
         booking.setInOutStatus(TRN.getCode());
+        booking.setActiveFlag("N");
         booking.setBookingStatus("O");
         booking.setLivingUnitMv(null);
         booking.setAssignedLivingUnit(null);
@@ -154,10 +155,6 @@ public class PrisonerReleaseAndTransferService {
 
     public void transferInPrisoner(final String prisonerIdentifier, final RequestToTransferIn requestToTransferIn) {
         final OffenderBooking booking = getOffenderBooking(prisonerIdentifier);
-
-        if (!booking.getActiveFlag().equals("Y")) {
-            throw new BadRequestException("Prisoner is not currently active");
-        }
 
         if (!booking.getInOutStatus().equals("TRN")) {
             throw new BadRequestException("Prisoner is not currently being transferred");

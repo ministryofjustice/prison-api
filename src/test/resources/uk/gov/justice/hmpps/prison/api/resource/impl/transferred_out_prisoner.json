@@ -6,7 +6,7 @@
     "dateOfBirth": "1982-01-02",
     "gender": "Male",
     "sexCode": "M",
-    "currentlyInPrison": "Y",
+    "currentlyInPrison": "N",
     "latestBookingId": -52,
     "latestLocationId": "TRN",
     "latestLocation": "Transfer",
