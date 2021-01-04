@@ -156,10 +156,6 @@ public class PrisonerReleaseAndTransferService {
     public void transferInPrisoner(final String prisonerIdentifier, final RequestToTransferIn requestToTransferIn) {
         final OffenderBooking booking = getOffenderBooking(prisonerIdentifier);
 
-        if (!booking.getActiveFlag().equals("Y")) {
-            throw new BadRequestException("Prisoner is not currently active");
-        }
-
         if (!booking.getInOutStatus().equals("TRN")) {
             throw new BadRequestException("Prisoner is not currently being transferred");
         }
