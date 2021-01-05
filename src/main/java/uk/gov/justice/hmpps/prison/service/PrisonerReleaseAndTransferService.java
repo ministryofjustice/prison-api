@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -138,7 +140,7 @@ public class PrisonerReleaseAndTransferService {
         // set previous active movements to false
         setPreviousMovementsToInactive(booking);
 
-        final var toLocation = agencyLocationRepository.findById(requestToTransferOut.getToLocation()).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", requestToTransferOut.getToLocation()));
+        final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToTransferOut.getToLocation(), "INST", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", requestToTransferOut.getToLocation()));
 
         createOutMovement(booking, TRN, movementReason, toLocation, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
         updateBeds(booking, transferDateTime);
@@ -160,10 +162,88 @@ public class PrisonerReleaseAndTransferService {
 
     public void recallPrisoner(final String prisonerIdentifier, final RequestToRecall requestToRecall) {
 
+        final OffenderBooking booking = getOffenderBooking(prisonerIdentifier);
+
+        // check prison id
+        final var fromLocationId = StringUtils.isNotBlank(requestToRecall.getFromLocationId()) ? requestToRecall.getFromLocationId() : "OUT";
+        final var fromLocation = agencyLocationRepository.findByIdAndDeactivationDateIsNull(fromLocationId).orElseThrow(EntityNotFoundException.withMessage(format("%s is not a valid from location", fromLocationId)));
 
         // check imprisonment status
-        imprisonmentStatusRepository.findByStatusAndActiveFlagAndExpiryDateIsNull(requestToRecall.getImprisonmentStatus(), "Y");
+        final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActiveFlag(requestToRecall.getImprisonmentStatus(), "Y").orElseThrow(EntityNotFoundException.withMessage("No imprisonment status %s found", requestToRecall.getImprisonmentStatus()));
 
+        // check prison id
+        final var prisonToRecallTo = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToRecall.getRecallLocationId(), "INST", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestToRecall.getRecallLocationId())));
+
+        final var internalLocation = requestToRecall.getCellLocation() != null ? requestToRecall.getCellLocation() : prisonToRecallTo.getId() + "-" + "RECP";
+
+        final var cellLocation = agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(internalLocation, prisonToRecallTo.getId()).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
+
+        booking.setInOutStatus(IN.name());
+        booking.setActiveFlag("Y");
+        booking.setBookingStatus("O");
+        booking.setAssignedLivingUnit(cellLocation);
+        booking.setBookingEndDate(null);
+        booking.setLocation(prisonToRecallTo);
+
+        checkMovementTypes(ADM.getCode(), requestToRecall.getMovementReason());
+
+        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToRecall.getMovementReason())).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", requestToRecall.getMovementReason()));
+
+        final var receiveTime = getAndCheckMovementTime(requestToRecall.getRecallTime(), booking.getBookingId());
+
+        // set previous active movements to false
+        setPreviousMovementsToInactive(booking);
+
+        // Generate the external movement in
+        createInMovement(booking, ADM, movementReason, fromLocation, prisonToRecallTo, receiveTime, "Recall", null);
+
+        //Create Bed History
+        bedAssignmentHistoriesRepository.save(BedAssignmentHistory.builder()
+            .bedAssignmentHistoryPK(new BedAssignmentHistoryPK(booking.getBookingId(), bedAssignmentHistoriesRepository.getMaxSeqForBookingId(booking.getBookingId()) + 1))
+            .livingUnitId(cellLocation.getLocationId())
+            .assignmentDate(receiveTime.toLocalDate())
+            .assignmentDateTime(receiveTime)
+            .assignmentReason(ADM.getCode())
+            .offenderBooking(booking)
+            .build());
+
+        /*
+         *    --
+         *         -- Set Offender Profile Details to Youth (if so indicated)
+         *         --
+         */
+        if (requestToRecall.isYouthOffender()) {
+            // set youth status
+        }
+
+        if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
+            // Create Trust Account
+            financeRepository.createTrustAccount(prisonToRecallTo.getId(), booking.getBookingId(), booking.getRootOffenderId(), fromLocation.getId(),
+                movementReason.getCode(), null, null, prisonToRecallTo.getId());
+        }
+
+        // Create IEP levels
+        iepLevelRepository.findByAgencyLocationIdAndDefaultFlag(booking.getLocation().getId(), "Y")
+            .stream().findFirst().ifPresentOrElse(
+            iepLevel -> {
+                bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
+                    IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", booking.getLocation().getDescription())).build(), receiveTime);
+            },
+            () -> { throw new BadRequestException("No default IEP level found"); } );
+
+        // add imprisonment status
+        offenderImprisonmentStatusRepository.save(OffenderImprisonmentStatus.builder()
+            .offenderBookId(booking.getBookingId())
+            .agyLocId(prisonToRecallTo.getId())
+            .imprisonStatusSeq(offenderImprisonmentStatusRepository.getMaxSeqForBookingId(booking.getBookingId()) + 1L)
+            .imprisonmentStatus(imprisonmentStatus.getStatus())
+            .latestStatus("Y")
+            .effectiveDate(receiveTime.toLocalDate())
+            .effectiveTime(receiveTime)
+            .build());
+
+        // create Admission case note
+        generateAdmissionNote(booking.getBookingId(), fromLocation, prisonToRecallTo, receiveTime, movementReason);
     }
 
     public void transferInPrisoner(final String prisonerIdentifier, final RequestToTransferIn requestToTransferIn) {
@@ -186,7 +266,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var internalLocation = requestToTransferIn.getCellLocation() != null ? requestToTransferIn.getCellLocation() : latestExternalMovement.getToAgency().getId() + "-" + "RECP";
 
-        final var cellLocation = agencyInternalLocationRepository.findOneByDescription(internalLocation).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
+        final var cellLocation = agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(internalLocation, latestExternalMovement.getToAgency().getId()).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
 
         booking.setInOutStatus(IN.name());
         booking.setActiveFlag("Y");
@@ -197,7 +277,7 @@ public class PrisonerReleaseAndTransferService {
 
         checkMovementTypes(ADM.getCode(), "INT");
 
-        // Generate the external movement out
+        // Generate the external movement in
         final var movementReason = movementReasonRepository.findById(MovementReason.pk("INT")).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", "INT"));
 
         final var receiveTime = getAndCheckMovementTime(requestToTransferIn.getReceiveTime(), booking.getBookingId());

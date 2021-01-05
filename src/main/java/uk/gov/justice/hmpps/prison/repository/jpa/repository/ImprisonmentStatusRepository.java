@@ -6,5 +6,5 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
 import java.util.Optional;
 
 public interface ImprisonmentStatusRepository extends CrudRepository<ImprisonmentStatus, Long> {
-    Optional<ImprisonmentStatus> findByStatusAndActiveFlagAndExpiryDateIsNull(String status, String activeFlag);
+    Optional<ImprisonmentStatus> findByStatusAndActiveFlag(String status, String activeFlag);
 }

@@ -1,0 +1,16 @@
+[
+  {
+    "offenderNo": "Z0020ZZ",
+    "firstName": "BURT",
+    "lastName": "REYNOLDS",
+    "dateOfBirth": "1966-01-01",
+    "gender": "Male",
+    "sexCode": "M",
+    "currentlyInPrison": "Y",
+    "latestBookingId": -20,
+    "latestLocationId": "SYI",
+    "latestLocation": "Shrewsbury",
+    "ethnicity": "White: British",
+    "ethnicityCode": "W1"
+  }
+]
