@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
@@ -34,8 +35,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.IepLevelRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
@@ -77,6 +80,8 @@ public class PrisonerReleaseAndTransferService {
     private final BookingRepository bookingRepository;
     private final IepLevelRepository iepLevelRepository;
     private final FinanceRepository financeRepository;
+    private final ImprisonmentStatusRepository imprisonmentStatusRepository;
+    private final OffenderImprisonmentStatusRepository offenderImprisonmentStatusRepository;
 
     private final Environment env;
 
@@ -151,6 +156,14 @@ public class PrisonerReleaseAndTransferService {
         booking.setCreateLocation(trnLocation);
         booking.setStatusReason(TRN.getCode() + "-" + requestToTransferOut.getTransferReasonCode());
         booking.setCommStatus(null);
+    }
+
+    public void recallPrisoner(final String prisonerIdentifier, final RequestToRecall requestToRecall) {
+
+
+        // check imprisonment status
+        imprisonmentStatusRepository.findByStatusAndActiveFlagAndExpiryDateIsNull(requestToRecall.getImprisonmentStatus(), "Y");
+
     }
 
     public void transferInPrisoner(final String prisonerIdentifier, final RequestToTransferIn requestToTransferIn) {

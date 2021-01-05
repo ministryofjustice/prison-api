@@ -19,7 +19,7 @@ import java.io.Serializable;
 @Entity
 @IdClass(IepLevel.PK.class)
 @Table(name = "IEP_LEVELS")
-public class IepLevel {
+public class IepLevel extends AuditableEntity  {
 
     @NoArgsConstructor
     @AllArgsConstructor
