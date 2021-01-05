@@ -31,6 +31,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -44,12 +45,15 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmen
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 import static java.lang.String.format;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN;
@@ -84,6 +88,8 @@ public class PrisonerReleaseAndTransferService {
     private final FinanceRepository financeRepository;
     private final ImprisonmentStatusRepository imprisonmentStatusRepository;
     private final OffenderImprisonmentStatusRepository offenderImprisonmentStatusRepository;
+    private final OffenderProfileDetailRepository offenderProfileDetailRepository;
+    private final ProfileTypeRepository profileTypeRepository;
 
     private final Environment env;
 
@@ -207,13 +213,23 @@ public class PrisonerReleaseAndTransferService {
             .offenderBooking(booking)
             .build());
 
-        /*
-         *    --
-         *         -- Set Offender Profile Details to Youth (if so indicated)
-         *         --
-         */
         if (requestToRecall.isYouthOffender()) {
             // set youth status
+            offenderProfileDetailRepository.findAllByBookingIdAndType(booking.getBookingId(), "YOUTH").stream()
+                .max(Comparator.comparing(OffenderProfileDetail::getSequence))
+                .ifPresentOrElse (
+                    y -> y.setCode("Y")
+            , () -> profileTypeRepository.findByTypeAndCategoryAndActiveFlag("YOUTH", "PI", ActiveFlag.Y)
+                .ifPresent(pt -> {
+                    offenderProfileDetailRepository.save(OffenderProfileDetail.builder()
+                        .bookingId(booking.getBookingId())
+                        .sequence(1)
+                        .caseloadType("INST")
+                        .type("YOUTH")
+                        .code("Y")
+                        .listSequence(pt.getListSequence())
+                        .build());
+                }));
         }
 
         if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
