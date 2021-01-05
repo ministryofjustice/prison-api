@@ -574,6 +574,19 @@ public class OffendersResourceTest extends ResourceTest {
             });
 
         assertThatJsonFileAndStatus(searchResponse, 200, "recalled_prisoner.json");
+
+        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
+
+        final var releaseResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            releaseBody,
+            new ParameterizedTypeReference<String>() {
+            },
+            "Z0020ZZ"
+        );
+
+        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
     }
 
     @Test
