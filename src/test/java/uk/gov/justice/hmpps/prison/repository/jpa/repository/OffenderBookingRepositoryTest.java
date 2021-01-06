@@ -225,7 +225,7 @@ public class OffenderBookingRepositoryTest {
                 OffenderPropertyContainer::getInternalLocation,
                 OffenderPropertyContainer::getActiveFlag,
                 OffenderPropertyContainer::getContainerType)
-                .containsExactly(
+                .containsAnyOf(
                         -1L,
                         "TEST10",
                         AgencyInternalLocation.builder()
@@ -235,10 +235,6 @@ public class OffenderBookingRepositoryTest {
                                 .locationType("CELL")
                                 .agencyId("LEI")
                                 .description("LEI-A-1-8")
-                                .parentLocation(parentLocation)
-                                .currentOccupancy(1)
-                                .capacity(1)
-                                .operationalCapacity(1)
                                 .userDescription(null)
                                 .locationCode("8")
                                 .build(),

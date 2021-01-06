@@ -30,16 +30,16 @@ public class AgencyInternalLocationsRepositoryTest {
     @Test
     public void findLocationsByAgencyIdAndLocationTypeAndActiveFlag_hydratesReturnObject() {
 
-        final var parentParentLocation = AgencyInternalLocation.builder().locationId(-1L).locationType("WING").agencyId("LEI")
-            .currentOccupancy(null).operationalCapacity(13).description("LEI-A").userDescription("Block A").capacity(14)
-            .certifiedFlag(ActiveFlag.Y).locationCode("A").activeFlag(ActiveFlag.Y).build();
+        final var parentParentLocation = AgencyInternalLocation.builder().locationId(-13L).locationType("WING").agencyId("LEI")
+            .currentOccupancy(null).operationalCapacity(20).description("LEI-H").capacity(20)
+            .certifiedFlag(ActiveFlag.Y).locationCode("H").activeFlag(ActiveFlag.Y).build();
 
-        final var parentLocation = AgencyInternalLocation.builder().locationId(-2L).locationType("LAND").agencyId("LEI").capacity(14)
-            .currentOccupancy(null).operationalCapacity(13).description("LEI-A-1").parentLocation(parentParentLocation).userDescription("Landing A/1")
+        final var parentLocation = AgencyInternalLocation.builder().locationId(-14L).locationType("LAND").agencyId("LEI").capacity(20)
+            .currentOccupancy(null).operationalCapacity(20).description("LEI-H-1").parentLocation(parentParentLocation).userDescription("Landing H/1")
             .certifiedFlag(ActiveFlag.Y).locationCode("1").activeFlag(ActiveFlag.Y).build();
 
-        final var expected = AgencyInternalLocation.builder().locationId(-202L).locationType("CELL").agencyId("SYI")
-                .currentOccupancy(2).operationalCapacity(2).description("SYI-A-1-1").parentLocation(parentLocation).userDescription("Cell A/1-1")
+        final var expected = AgencyInternalLocation.builder().locationId(-207L).locationType("CELL").agencyId("SYI")
+                .currentOccupancy(1).operationalCapacity(1).description("SYI-H-1-1").parentLocation(parentLocation).userDescription("Cell H/1-1")
                 .certifiedFlag(ActiveFlag.Y).locationCode("1").activeFlag(ActiveFlag.Y).build();
 
         final var locations = repository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("SYI", "CELL", ActiveFlag.Y);
