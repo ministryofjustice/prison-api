@@ -559,12 +559,12 @@ public class OffendersResourceTest extends ResourceTest {
             recallEntity,
             new ParameterizedTypeReference<String>() {
             },
-            "Z0020ZZ"
+            "Z0022ZZ"
         );
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
 
         final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
-        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", "Z0020ZZ"));
+        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", "Z0022ZZ"));
 
         final var searchResponse = testRestTemplate.exchange(
             "/api/prisoners",
@@ -583,7 +583,7 @@ public class OffendersResourceTest extends ResourceTest {
             releaseBody,
             new ParameterizedTypeReference<String>() {
             },
-            "Z0020ZZ"
+            "Z0022ZZ"
         );
 
         assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);

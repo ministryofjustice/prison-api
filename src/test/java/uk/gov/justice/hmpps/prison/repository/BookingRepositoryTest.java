@@ -639,7 +639,7 @@ public class BookingRepositoryTest {
 
         assertThatOffenderIepLevelsForBookingAre(bookingId, Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"));
 
-        repository.addIepLevel(-54L, "A_DUMMY_USER", new IepLevelAndComment("STD", "A comment"), LocalDateTime.now());
+        repository.addIepLevel(-54L, "A_DUMMY_USER", new IepLevelAndComment("STD", "A comment"), LocalDateTime.now(), "BMI");
 
         final Timestamp today = Timestamp.valueOf(LocalDate.now().atStartOfDay());
 
@@ -647,7 +647,7 @@ public class BookingRepositoryTest {
                 Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"),
                 Tuple.tuple(BigDecimal.valueOf(2L), today, "BMI", "STD", "A comment", "A_DUMMY_USER"));
 
-        repository.addIepLevel(-54L, "A_DIFFERENT_USER", new IepLevelAndComment("ENH", "Comment 2"), LocalDateTime.now());
+        repository.addIepLevel(-54L, "A_DIFFERENT_USER", new IepLevelAndComment("ENH", "Comment 2"), LocalDateTime.now(), "BMI");
 
         assertThatOffenderIepLevelsForBookingAre(bookingId,
                 Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"),

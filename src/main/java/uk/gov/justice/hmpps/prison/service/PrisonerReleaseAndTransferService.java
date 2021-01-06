@@ -241,10 +241,8 @@ public class PrisonerReleaseAndTransferService {
         // Create IEP levels
         iepLevelRepository.findByAgencyLocationIdAndDefaultFlag(booking.getLocation().getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> {
-                bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
-                    IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", booking.getLocation().getDescription())).build(), receiveTime);
-            },
+            iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
+                IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", prisonToRecallTo.getDescription())).build(), receiveTime, prisonToRecallTo.getId()),
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
         // add imprisonment status
@@ -323,7 +321,7 @@ public class PrisonerReleaseAndTransferService {
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> {
                 bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
-                    IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", booking.getLocation().getDescription())).build(), receiveTime);
+                    IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", latestExternalMovement.getToAgency().getDescription())).build(), receiveTime, latestExternalMovement.getToAgency().getId());
             },
             () -> { throw new BadRequestException("No default IEP level found"); } );
 

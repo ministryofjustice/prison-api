@@ -239,13 +239,14 @@ public class BookingRepository extends RepositoryBase {
         return privs.stream().collect(Collectors.groupingBy(PrivilegeDetail::getBookingId));
     }
 
-    public void addIepLevel(Long bookingId, String username, IepLevelAndComment iepLevel, final LocalDateTime creationTime) {
+    public void addIepLevel(Long bookingId, String username, IepLevelAndComment iepLevel, final LocalDateTime creationTime, final String agencyId) {
         val now = LocalDateTime.now();
 
         jdbcTemplate.update(
                 BookingRepositorySql.ADD_IEP_LEVEL.getSql(),
                 createParams(
                         "bookingId", bookingId,
+                        "agencyId", agencyId,
                         "userId", username,
                         "date", DateTimeConverter.toDate(creationTime.toLocalDate()),
                         "time", DateTimeConverter.toDate(creationTime),
