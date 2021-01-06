@@ -415,7 +415,7 @@ enum class BookingRepositorySql(val sql: String) {
                         USER_ID)
         VALUES (
                 :bookingId,
-                (select AGY_LOC_ID from OFFENDER_BOOKINGS WHERE OFFENDER_BOOK_ID = :bookingId),
+                :agencyId,
         (select NVL( MAX(IEP_LEVEL_SEQ), 0) + 1 from OFFENDER_IEP_LEVELS where OFFENDER_BOOK_ID = :bookingId),
         :iepLevel,
         :comment,

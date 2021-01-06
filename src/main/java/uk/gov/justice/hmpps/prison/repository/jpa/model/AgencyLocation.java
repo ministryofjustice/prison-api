@@ -14,6 +14,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,4 +46,7 @@ public class AgencyLocation extends AuditableEntity {
     @OneToMany(mappedBy = "agencyLocId", cascade = CascadeType.ALL)
     @Builder.Default
     private List<AgencyLocationEstablishment> establishmentTypes = new ArrayList<>();
+
+    @Column(name = "DEACTIVATION_DATE")
+    private LocalDate deactivationDate;
 }

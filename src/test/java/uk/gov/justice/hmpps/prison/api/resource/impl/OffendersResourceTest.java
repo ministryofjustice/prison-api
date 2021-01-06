@@ -546,18 +546,62 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testRecallAPrisoner() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("recallLocationId", "SYI", "fromLocationId", "COURT1", "movementReason", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
+
+        final var recallEntity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/recall",
+            PUT,
+            recallEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "Z0022ZZ"
+        );
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+
+        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", "Z0022ZZ"));
+
+        final var searchResponse = testRestTemplate.exchange(
+            "/api/prisoners",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(searchResponse, 200, "recalled_prisoner.json");
+
+        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
+
+        final var releaseResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            releaseBody,
+            new ParameterizedTypeReference<String>() {
+            },
+            "Z0022ZZ"
+        );
+
+        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
+    }
+
+    @Test
     public void testCannotTransferInPrisonerNotOut() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
         final var tranferInRequest = Map.of("commentText", "admitted",
             "cellLocation", "MDI-1-3-022");
 
-        final var tranferInEntity = createHttpEntity(token, tranferInRequest);
+        final var transferInEntity = createHttpEntity(token, tranferInRequest);
 
         final var transferInResponse =  testRestTemplate.exchange(
             "/api/offenders/{nomsId}/transfer-in",
             PUT,
-            tranferInEntity,
+            transferInEntity,
             ErrorResponse.class,
             OFFENDER_NUMBER
         );

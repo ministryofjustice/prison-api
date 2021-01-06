@@ -224,12 +224,13 @@ public class BookingServiceTest {
 
         when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
         when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "STD", "ENH"));
+        when(bookingRepository.getBookingAgency(bookingId)).thenReturn(Optional.of("LEI"));
 
         final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
 
         bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment);
 
-        verify(bookingRepository).addIepLevel(eq(bookingId), eq("FRED"), eq(iepLevelAndComment), isA(LocalDateTime.class));
+        verify(bookingRepository).addIepLevel(eq(bookingId), eq("FRED"), eq(iepLevelAndComment), isA(LocalDateTime.class), eq("LEI"));
     }
 
     @Test
