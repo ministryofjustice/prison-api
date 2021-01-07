@@ -12,6 +12,8 @@ import java.util.List;
 public interface OffenderImprisonmentStatusRepository extends CrudRepository<OffenderImprisonmentStatus, OffenderImprisonmentStatus.PK> {
     List<OffenderImprisonmentStatus> findByOffenderBookId(final long offenderBookId);
 
+    List<OffenderImprisonmentStatus> findByOffenderBookIdAndLatestStatus(final long offenderBookId, final String latestStatus);
+
     @Query("select coalesce(max(s.imprisonStatusSeq), 0) from OffenderImprisonmentStatus s where s.offenderBookId = :bookingId")
     Integer getMaxSeqForBookingId(@Param("bookingId") Long bookingId);
 }

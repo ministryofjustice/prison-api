@@ -170,9 +170,18 @@ public class PrisonerReleaseAndTransferService {
 
         final OffenderBooking booking = getOffenderBooking(prisonerIdentifier);
 
-        // check prison id
-        final var fromLocationId = StringUtils.isNotBlank(requestToRecall.getFromLocationId()) ? requestToRecall.getFromLocationId() : "OUT";
-        final var fromLocation = agencyLocationRepository.findByIdAndDeactivationDateIsNull(fromLocationId).orElseThrow(EntityNotFoundException.withMessage(format("%s is not a valid from location", fromLocationId)));
+        if (!booking.getActiveFlag().equals("N")) {
+            throw new BadRequestException("Prisoner is currently active");
+        }
+
+        if (!booking.getInOutStatus().equals("OUT")) {
+            throw new BadRequestException("Prisoner is not currently OUT");
+        }
+
+        // check from location
+        final var fromLocation = StringUtils.isNotBlank(requestToRecall.getFromLocationId())
+            ? agencyLocationRepository.findByIdAndDeactivationDateIsNull(requestToRecall.getFromLocationId()).orElseThrow(EntityNotFoundException.withMessage(format("%s is not a valid from location", requestToRecall.getFromLocationId())))
+            : agencyLocationRepository.findById(AgencyLocation.OUT).orElseThrow(EntityNotFoundException.withMessage("%s is not a valid from location", AgencyLocation.OUT));
 
         // check imprisonment status
         final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActiveFlag(requestToRecall.getImprisonmentStatus(), "Y").orElseThrow(EntityNotFoundException.withMessage("No imprisonment status %s found", requestToRecall.getImprisonmentStatus()));
@@ -191,9 +200,9 @@ public class PrisonerReleaseAndTransferService {
         booking.setBookingEndDate(null);
         booking.setLocation(prisonToRecallTo);
 
-        checkMovementTypes(ADM.getCode(), requestToRecall.getMovementReason());
+        checkMovementTypes(ADM.getCode(), requestToRecall.getMovementReasonCode());
 
-        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToRecall.getMovementReason())).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", requestToRecall.getMovementReason()));
+        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToRecall.getMovementReasonCode())).orElseThrow(EntityNotFoundException.withMessage("No movement reason %s found", requestToRecall.getMovementReasonCode()));
 
         final var receiveTime = getAndCheckMovementTime(requestToRecall.getRecallTime(), booking.getBookingId());
 
@@ -239,12 +248,19 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepLevelRepository.findByAgencyLocationIdAndDefaultFlag(booking.getLocation().getId(), "Y")
+        iepLevelRepository.findByAgencyLocationIdAndDefaultFlag(prisonToRecallTo.getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
                 IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", prisonToRecallTo.getDescription())).build(), receiveTime, prisonToRecallTo.getId()),
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
+        //clear off old status
+        offenderImprisonmentStatusRepository.findByOffenderBookIdAndLatestStatus(booking.getBookingId(), "Y")
+            .forEach(impStat -> {
+                impStat.setExpiryDate(receiveTime);
+                impStat.setLatestStatus("N");
+            });
+            
         // add imprisonment status
         offenderImprisonmentStatusRepository.save(OffenderImprisonmentStatus.builder()
             .offenderBookId(booking.getBookingId())

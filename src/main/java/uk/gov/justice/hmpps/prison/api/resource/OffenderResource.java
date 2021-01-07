@@ -107,6 +107,7 @@ public class OffenderResource {
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to release a prisoner.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison, requires the RELEASE_PRISONER role")
@@ -124,6 +125,7 @@ public class OffenderResource {
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to recall a prisoner.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Recalls a prisoner into prison. TRANSFER_PRISONER role")
@@ -138,7 +140,6 @@ public class OffenderResource {
         prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
         return offenderNo;
     }
-
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -159,6 +160,7 @@ public class OffenderResource {
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to transfer a prisoner", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Transfer a prisoner into a prison. Must be an out prisoner in currently in transfer status, requires the TRANSFER_PRISONER role")
