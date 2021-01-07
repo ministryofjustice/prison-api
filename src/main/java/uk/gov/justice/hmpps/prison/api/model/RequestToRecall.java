@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @ToString
 public class RequestToRecall {
 
-    @ApiModelProperty(value = "Prison ID where recalled", example = "MDI", position = 1)
+    @ApiModelProperty(value = "Prison ID where recalled to", example = "MDI", position = 1)
     @Length(max = 3, message = "Prison ID")
     @NotNull
     private String recallLocationId;
@@ -36,9 +36,9 @@ public class RequestToRecall {
     @Length(max = 6, message = "From location")
     private String fromLocationId;
 
-    @ApiModelProperty(value = "Reason for recall", example = "MDI", position = 4)
+    @ApiModelProperty(value = "Reason for in movement (e.g. Recall from Intermittent Custody)", example = "24", position = 4)
     @NotNull
-    private String movementReason;
+    private String movementReasonCode;
 
     @ApiModelProperty(value = "Is this offender a youth", example = "false", position = 5)
     private boolean youthOffender;
@@ -47,7 +47,7 @@ public class RequestToRecall {
     @Length(max = 240, message = "Cell Location description cannot be more than 240 characters")
     private String cellLocation;
 
-    @ApiModelProperty(value = "Require imprisonment status", example = "", position = 7)
+    @ApiModelProperty(value = "Require imprisonment status", example = "CUR_ORA", position = 7)
     @Length(max = 12, message = "Imprisonment status cannot be more than 12 characters")
     private String imprisonmentStatus;
 

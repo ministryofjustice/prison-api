@@ -34,6 +34,7 @@ public class ProfileType extends AuditableEntity {
 
     @Column(name = "MANDATORY_FLAG", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Default
     private ActiveFlag mandatory = ActiveFlag.Y;
 
     @Column(name = "UPDATED_ALLOWED_FLAG", nullable = false)
@@ -53,6 +54,6 @@ public class ProfileType extends AuditableEntity {
     private LocalDate endDate;
 
     @Column(name = "LIST_SEQ", nullable = false)
-    @Builder.Default
+    @Default
     private Integer listSequence = 99;
 }
