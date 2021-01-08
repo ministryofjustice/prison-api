@@ -12,15 +12,19 @@ import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 import org.springframework.data.annotation.CreatedDate;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX;
@@ -59,6 +63,9 @@ public class Offender extends AuditableEntity {
 
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
+
+    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OffenderBooking> bookings;
 
     @ManyToOne
     @NotFound(action = IGNORE)

@@ -165,4 +165,9 @@ public class OffenderBooking {
     public List<OffenderPropertyContainer> getActivePropertyContainers() {
         return propertyContainers.stream().filter(OffenderPropertyContainer::isActive).collect(toUnmodifiableList());
     }
+
+    public int incBookingSequence() {
+        bookingSequence = bookingSequence + 1;
+        return bookingSequence;
+    }
 }

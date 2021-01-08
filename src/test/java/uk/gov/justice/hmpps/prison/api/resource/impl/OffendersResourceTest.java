@@ -25,6 +25,7 @@ import java.util.Map;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
 
@@ -454,7 +455,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var searchResponse = testRestTemplate.exchange(
             "/api/prisoners",
-            HttpMethod.POST,
+            POST,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -490,7 +491,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var searchResponse = testRestTemplate.exchange(
             "/api/prisoners",
-            HttpMethod.POST,
+            POST,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -515,7 +516,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var transferredPrisonerResponse = testRestTemplate.exchange(
             "/api/prisoners",
-            HttpMethod.POST,
+            POST,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -568,7 +569,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var searchResponse = testRestTemplate.exchange(
             "/api/prisoners",
-            HttpMethod.POST,
+            POST,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -588,6 +589,51 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
     }
+
+    @Test
+    public void testReceiveAPrisonerAsNewBooking() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("receivedPrisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
+
+        final var newBookingEntity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/new-booking",
+            POST,
+            newBookingEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "Z0022ZZ"
+        );
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+
+        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", "Z0022ZZ"));
+
+        final var searchResponse = testRestTemplate.exchange(
+            "/api/prisoners",
+            POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(searchResponse, 200, "new_booking_prisoner.json");
+
+        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
+
+        final var releaseResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            releaseBody,
+            new ParameterizedTypeReference<String>() {
+            },
+            "Z0022ZZ"
+        );
+
+        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
+    }
+
 
     @Test
     public void testCannotTransferInPrisonerNotOut() {
@@ -684,7 +730,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}/case-notes",
-            HttpMethod.POST,
+            POST,
             httpEntity,
             new ParameterizedTypeReference<String>() {},
             OFFENDER_NUMBER);
@@ -706,7 +752,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}/case-notes",
-            HttpMethod.POST,
+            POST,
             httpEntity,
             new ParameterizedTypeReference<String>() {},
             "A9876RS");

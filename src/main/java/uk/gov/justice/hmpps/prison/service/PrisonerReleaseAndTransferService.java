@@ -315,7 +315,9 @@ public class PrisonerReleaseAndTransferService {
 
         final var receiveTime = getAndCheckMovementTime(requestForNewBooking.getBookingInTime(), previousBooking != null ? previousBooking.getBookingId() : null);
 
-        final var bookNumber = env.acceptsProfiles(Profiles.of("nomis")) ? generateNewBookingNo.executeFunction(String.class) : "B"+getRandomNumberString(); // TODO replace PL/SQL SP
+        final var bookNumber = env.acceptsProfiles(Profiles.of("nomis")) ? generateNewBookingNo.executeFunction(String.class) : getRandomNumberString() + "D"; // TODO replace PL/SQL SP
+
+        offender.getBookings().forEach(b -> b.incBookingSequence());
 
         final var booking = offenderBookingRepository.save(
             OffenderBooking.builder()
@@ -334,6 +336,7 @@ public class PrisonerReleaseAndTransferService {
                 .bookingType("INST")
                 .rootOffenderId(offender.getRootOffenderId())
                 .admissionReason("NCO")
+                .bookingSequence(1)
                 .build()
         );
         entityManager.flush();
