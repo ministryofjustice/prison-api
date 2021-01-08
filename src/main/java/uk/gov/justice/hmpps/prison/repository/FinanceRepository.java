@@ -8,7 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.Account;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.FinanceRepositorySql;
-import uk.gov.justice.hmpps.prison.repository.storedprocs.AdmissionTrustProcs.CreateTrustAccount;
+import uk.gov.justice.hmpps.prison.repository.storedprocs.OffenderAdminProcs.CreateTrustAccount;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew;
 

@@ -16,7 +16,7 @@ import javax.persistence.Table;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Staff {
+public class Staff extends AuditableEntity {
 
     @Id()
     @Column(name = "STAFF_ID", nullable = false)
