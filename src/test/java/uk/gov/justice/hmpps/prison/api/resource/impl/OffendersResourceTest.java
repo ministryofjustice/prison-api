@@ -550,7 +550,7 @@ public class OffendersResourceTest extends ResourceTest {
     public void testRecallAPrisoner() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
-        final var body = Map.of("recallLocationId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
+        final var body = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
 
         final var recallEntity = createHttpEntity(token, body);
 
@@ -594,7 +594,7 @@ public class OffendersResourceTest extends ResourceTest {
     public void testReceiveAPrisonerAsNewBooking() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
-        final var body = Map.of("receivedPrisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
+        final var body = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
 
         final var newBookingEntity = createHttpEntity(token, body);
 
@@ -638,7 +638,7 @@ public class OffendersResourceTest extends ResourceTest {
     public void testReceiveAPrisonerAsNewBookingForFirstTime() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
-        final var body = Map.of("receivedPrisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
+        final var body = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
 
         final var newBookingEntity = createHttpEntity(token, body);
 
