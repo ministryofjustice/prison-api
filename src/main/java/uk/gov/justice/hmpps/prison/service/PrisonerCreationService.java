@@ -46,9 +46,9 @@ public class PrisonerCreationService {
 
 
         final var gender = genderRepository.findById(new ReferenceCode.Pk(Gender.SEX, requestToCreate.getGender())).orElseThrow(EntityNotFoundException.withMessage("Gender %s not found", requestToCreate.getGender()));
-        final var ethnicity = ethnicityRepository.findById(new ReferenceCode.Pk(Ethnicity.ETHNICITY, requestToCreate.getGender())).orElseThrow(EntityNotFoundException.withMessage("Ethnicity %s not found", requestToCreate.getEthnicity()));
-        final var title = titleRepository.findById(new ReferenceCode.Pk(Title.TITLE, requestToCreate.getTitle())).orElseThrow(EntityNotFoundException.withMessage("Title %s not found", requestToCreate.getTitle()));
-        final var suffix = suffixRepository.findById(new ReferenceCode.Pk(Suffix.SUFFIX, requestToCreate.getSuffix())).orElseThrow(EntityNotFoundException.withMessage("Suffix %s not found", requestToCreate.getSuffix()));
+        final var ethnicity = requestToCreate.getEthnicity() != null ? ethnicityRepository.findById(new ReferenceCode.Pk(Ethnicity.ETHNICITY, requestToCreate.getEthnicity())).orElseThrow(EntityNotFoundException.withMessage("Ethnicity %s not found", requestToCreate.getEthnicity())) : null;
+        final var title = requestToCreate.getTitle() != null ? titleRepository.findById(new ReferenceCode.Pk(Title.TITLE, requestToCreate.getTitle())).orElseThrow(EntityNotFoundException.withMessage("Title %s not found", requestToCreate.getTitle())) : null;
+        final var suffix = requestToCreate.getSuffix() != null ? suffixRepository.findById(new ReferenceCode.Pk(Suffix.SUFFIX, requestToCreate.getSuffix())).orElseThrow(EntityNotFoundException.withMessage("Suffix %s not found", requestToCreate.getSuffix())) : null;
 
         final var offender = offenderRepository.save(Offender.builder()
             .lastName(requestToCreate.getLastName())
