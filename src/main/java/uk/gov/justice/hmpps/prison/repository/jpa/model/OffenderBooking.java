@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 
@@ -30,13 +32,15 @@ import java.util.Optional;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
+@EqualsAndHashCode(of = "bookingId", callSuper = false)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
-public class OffenderBooking {
+@ToString(of = {"bookingId", "bookNumber", "bookingSequence", "activeFlag", "inOutStatus"})
+public class OffenderBooking extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_BOOK_ID", sequenceName = "OFFENDER_BOOK_ID", allocationSize = 1)
     @GeneratedValue(generator = "OFFENDER_BOOK_ID")

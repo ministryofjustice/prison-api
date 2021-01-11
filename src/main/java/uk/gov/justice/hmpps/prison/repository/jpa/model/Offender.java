@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -32,11 +33,11 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX;
 @AllArgsConstructor
 @Builder
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(of = "id", callSuper = false)
 @NoArgsConstructor
 @Entity
 @Table(name = "OFFENDERS")
-@ToString
+@ToString(of = {"nomsId", "firstName", "lastName", "birthDate", "id", "rootOffenderId"})
 public class Offender extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_ID", sequenceName = "OFFENDER_ID", allocationSize = 1)
@@ -46,7 +47,7 @@ public class Offender extends AuditableEntity {
     private Long id;
 
     @Column(name = "ID_SOURCE_CODE", nullable = false)
-    @Builder.Default
+    @Default
     private String idSourceCode = "SEQ";
 
     @Column(name = "FIRST_NAME", nullable = true)
@@ -67,7 +68,7 @@ public class Offender extends AuditableEntity {
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OffenderBooking> bookings;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEX + "'", referencedColumnName = "domain")),

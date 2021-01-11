@@ -317,7 +317,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var bookNumber = env.acceptsProfiles(Profiles.of("nomis")) ? generateNewBookingNo.executeFunction(String.class) : getRandomNumberString() + "D"; // TODO replace PL/SQL SP
 
-        offender.getBookings().forEach(b -> b.incBookingSequence());
+        offender.getBookings().forEach(OffenderBooking::incBookingSequence);
 
         final var booking = offenderBookingRepository.save(
             OffenderBooking.builder()
