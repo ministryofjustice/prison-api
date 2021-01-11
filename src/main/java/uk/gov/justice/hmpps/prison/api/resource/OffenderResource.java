@@ -144,7 +144,7 @@ public class OffenderResource {
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to recall a prisoner.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to receive prisoner on new bookings", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Receives a prisoner on a new booking. BOOKING_CREATE role")
