@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 import java.sql.Types;
 
 @Component
-public class AdmissionTrustProcs {
+public class OffenderAdminProcs {
 
     @Component
     public static class CreateTrustAccount extends SimpleJdbcCallWithExceptionTranslater {
@@ -30,6 +30,17 @@ public class AdmissionTrustProcs {
                             new SqlParameter("p_receipt_no", Types.NUMERIC),
                             new SqlParameter("p_dest_caseload_id", Types.VARCHAR)
                     );
+            compile();
+        }
+    }
+
+    @Component
+    public static class GenerateNewBookingNo extends SimpleJdbcCallWithExceptionTranslater {
+        public GenerateNewBookingNo(final DataSource dataSource, final NomisV1SQLErrorCodeTranslator errorCodeTranslator) {
+            super(dataSource, errorCodeTranslator);
+            withSchemaName("OMS_OWNER")
+                .withCatalogName("OIDADMIS")
+                .withFunctionName("generate_new_booking_no");
             compile();
         }
     }

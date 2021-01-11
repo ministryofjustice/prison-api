@@ -41,7 +41,7 @@ public class OffenderMilitaryRecord extends AuditableEntity implements Serializa
     @EmbeddedId
     private BookingAndSequence bookingAndSequence;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + MLTY_WZONE + "'", referencedColumnName = "domain")),
@@ -51,7 +51,7 @@ public class OffenderMilitaryRecord extends AuditableEntity implements Serializa
     private LocalDate startDate;
     private LocalDate endDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + MLTY_DSCHRG + "'", referencedColumnName = "domain")),
@@ -74,7 +74,7 @@ public class OffenderMilitaryRecord extends AuditableEntity implements Serializa
     @Default
     private Boolean selectiveServicesFlag = Boolean.FALSE;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + MLTY_RANK + "'", referencedColumnName = "domain")),
@@ -83,7 +83,7 @@ public class OffenderMilitaryRecord extends AuditableEntity implements Serializa
     private MilitaryRank militaryRank;
     private String serviceNumber;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + MLTY_DISCP + "'", referencedColumnName = "domain")),

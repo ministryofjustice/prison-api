@@ -34,6 +34,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
+import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
@@ -138,6 +139,23 @@ public class OffenderResource {
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToRecall requestToRecall) {
         prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
+        return offenderNo;
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to receive prisoner on new bookings", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation("*** BETA *** Receives a prisoner on a new booking. BOOKING_CREATE role")
+    @PostMapping("/{offenderNo}/new-booking")
+    @HasWriteScope
+    @PreAuthorize("hasRole('BOOKING_CREATE')")
+    @ProxyUser
+    public String newBooking(
+        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @RequestBody @NotNull @Valid final RequestForNewBooking requestForNewBooking) {
+        prisonerReleaseAndTransferService.newBooking(offenderNo, requestForNewBooking);
         return offenderNo;
     }
 

@@ -1,0 +1,15 @@
+[
+  {
+    "offenderNo": "A9880GH",
+    "firstName": "BRIAN",
+    "lastName": "JONES",
+    "dateOfBirth": "1961-01-01",
+    "gender": "Male",
+    "sexCode": "M",
+    "currentlyInPrison": "Y",
+    "latestLocationId": "SYI",
+    "latestLocation": "Shrewsbury",
+    "ethnicity": "White: British",
+    "ethnicityCode": "W1"
+  }
+]
