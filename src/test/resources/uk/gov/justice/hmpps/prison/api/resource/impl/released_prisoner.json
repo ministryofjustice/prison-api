@@ -1,16 +1,41 @@
-[
-  {
-    "offenderNo": "A1181MV",
-    "firstName": "MICHAEL",
-    "lastName": "O'VAUGHAN",
-    "dateOfBirth": "1974-10-29",
+{
+  "offenderNo": "A1181MV",
+  "bookingId": -37,
+  "bookingNo": "Z00037",
+  "offenderId": -1037,
+  "rootOffenderId": -1037,
+  "firstName": "MICHAEL",
+  "lastName": "O'VAUGHAN",
+  "dateOfBirth": "1974-10-29",
+  "activeFlag": false,
+  "agencyId": "OUT",
+  "assignedLivingUnit": {
+    "agencyId": "OUT",
+    "agencyName": "Outside"
+  },
+  "physicalAttributes": {
     "gender": "Male",
-    "sexCode": "M",
-    "currentlyInPrison": "N",
-    "latestBookingId": -37,
-    "latestLocationId": "OUT",
-    "latestLocation": "Outside",
+    "raceCode": "W1",
     "ethnicity": "White: British",
-    "ethnicityCode": "W1"
-  }
-]
+    "sexCode": "M"
+  },
+  "assessments": [
+    {
+      "bookingId": -37,
+      "classificationCode": "B",
+      "classification": "Cat B",
+      "assessmentCode": "CATEGORY",
+      "assessmentDescription": "Categorisation",
+      "cellSharingAlertFlag": false,
+      "assessmentDate": "2016-05-04",
+      "nextReviewDate": "2016-08-08",
+      "assessmentStatus": "A",
+      "assessmentSeq": 2
+    }
+  ],
+  "category": "Cat B",
+  "categoryCode": "B",
+  "birthCountryCode": "UK",
+  "inOutStatus": "OUT",
+  "status": "INACTIVE OUT"
+}

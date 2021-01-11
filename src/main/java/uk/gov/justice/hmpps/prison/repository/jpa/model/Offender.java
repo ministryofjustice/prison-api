@@ -28,7 +28,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.Suffix.SUFFIX;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 
 @AllArgsConstructor
 @Builder
@@ -50,16 +53,27 @@ public class Offender extends AuditableEntity {
     @Default
     private String idSourceCode = "SEQ";
 
-    @Column(name = "FIRST_NAME", nullable = true)
+    @Column(name = "NAME_SEQUENCE")
+    @Default
+    private String nameSequence = "1234";
+
+    @Column(name = "CASELOAD_TYPE")
+    @Default
+    private String caseloadType = "INST";
+
+    @Column(name = "FIRST_NAME", nullable = false)
     private String firstName;
 
-    @Column(name = "MIDDLE_NAME", nullable = true)
+    @Column(name = "MIDDLE_NAME")
     private String middleName;
+
+    @Column(name = "MIDDLE_NAME_2")
+    private String middleName2;
 
     @Column(name = "LAST_NAME", nullable = false)
     private String lastName;
 
-    @Column(name = "BIRTH_DATE", nullable = true)
+    @Column(name = "BIRTH_DATE", nullable = false)
     private LocalDate birthDate;
 
     @Column(name = "ROOT_OFFENDER_ID")
@@ -72,9 +86,33 @@ public class Offender extends AuditableEntity {
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEX + "'", referencedColumnName = "domain")),
-            @JoinColumnOrFormula(column = @JoinColumn(name = "SEX_CODE", referencedColumnName = "code"))
+            @JoinColumnOrFormula(column = @JoinColumn(name = "SEX_CODE", referencedColumnName = "code", nullable = false))
     })
     private Gender gender;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + ETHNICITY + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "RACE_CODE", referencedColumnName = "code"))
+    })
+    private Ethnicity ethnicity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + TITLE + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "TITLE", referencedColumnName = "code"))
+    })
+    private Title title;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SUFFIX + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "SUFFIX", referencedColumnName = "code"))
+    })
+    private Suffix suffix;
 
     @Column(name = "CREATE_DATE", nullable = false)
     @CreatedDate

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
@@ -34,7 +33,7 @@ public class OffendersResourceTest extends ResourceTest {
 
     @TestConfiguration
     static class TestClock {
-        private LocalDateTime timeIs_2020_10_01T000000 = LocalDate.parse("2020-10-01", DateTimeFormatter.ISO_DATE).atStartOfDay();
+        private final LocalDateTime timeIs_2020_10_01T000000 = LocalDate.parse("2020-10-01", DateTimeFormatter.ISO_DATE).atStartOfDay();
 
         @Bean
         public Clock clock() {
@@ -447,20 +446,7 @@ public class OffendersResourceTest extends ResourceTest {
             prisonerNo
         );
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-
-        // check that prisoner is now out
-        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
-        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", prisonerNo));
-
-        final var searchResponse = testRestTemplate.exchange(
-            "/api/prisoners",
-            POST,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThatJsonFileAndStatus(searchResponse, 200, "released_prisoner.json");
+        assertThatJsonFileAndStatus(response, 200, "released_prisoner.json");
     }
 
     @Test
@@ -483,45 +469,23 @@ public class OffendersResourceTest extends ResourceTest {
             prisonerNo
         );
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-
-        // check that prisoner is now out
-        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
-        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", prisonerNo));
-
-        final var searchResponse = testRestTemplate.exchange(
-            "/api/prisoners",
-            POST,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThatJsonFileAndStatus(searchResponse, 200, "transferred_out_prisoner.json");
+        assertThatJsonFileAndStatus(response, 200, "transferred_out_prisoner.json");
 
         final var tranferInRequest = Map.of("receiveTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), "commentText", "admitted",
             "cellLocation", "MDI-1-3-022");
 
-        final var tranferInEntity = createHttpEntity(token, tranferInRequest);
+        final var transferInEntity = createHttpEntity(token, tranferInRequest);
 
         final var transferInResponse =  testRestTemplate.exchange(
             "/api/offenders/{nomsId}/transfer-in",
             PUT,
-            tranferInEntity,
+            transferInEntity,
             new ParameterizedTypeReference<String>() {
             },
             prisonerNo
         );
 
-        assertThat(transferInResponse.getStatusCodeValue()).isEqualTo(200);
-
-        final var transferredPrisonerResponse = testRestTemplate.exchange(
-            "/api/prisoners",
-            POST,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThatJsonFileAndStatus(transferredPrisonerResponse, 200, "transferred_in_prisoner.json");
+        assertThatJsonFileAndStatus(transferInResponse, 200, "transferred_in_prisoner.json");
     }
 
     @Test
@@ -562,19 +526,8 @@ public class OffendersResourceTest extends ResourceTest {
             },
             "Z0022ZZ"
         );
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
 
-        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
-        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", "Z0022ZZ"));
-
-        final var searchResponse = testRestTemplate.exchange(
-            "/api/prisoners",
-            POST,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThatJsonFileAndStatus(searchResponse, 200, "recalled_prisoner.json");
+        assertThatJsonFileAndStatus(response, 200, "recalled_prisoner.json");
 
         final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
 
@@ -606,19 +559,7 @@ public class OffendersResourceTest extends ResourceTest {
             },
             "Z0022ZZ"
         );
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-
-        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
-        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", "Z0022ZZ"));
-
-        final var searchResponse = testRestTemplate.exchange(
-            "/api/prisoners",
-            POST,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThatJsonFileAndStatus(searchResponse, 200, "new_booking_prisoner.json");
+        assertThatJsonFileAndStatus(response, 200, "new_booking_prisoner.json");
 
         final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
 
@@ -650,19 +591,7 @@ public class OffendersResourceTest extends ResourceTest {
             },
             "A9880GH"
         );
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-
-        final var searchToken  = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
-        final var httpEntity = createHttpEntity(searchToken, format("{ \"offenderNos\": [ \"%s\" ] }", "A9880GH"));
-
-        final var searchResponse = testRestTemplate.exchange(
-            "/api/prisoners",
-            POST,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThatJsonFileAndStatus(searchResponse, 200, "first_new_booking_prisoner.json");
+        assertThatJsonFileAndStatus(response, 200, "first_new_booking_prisoner.json");
 
         final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
 

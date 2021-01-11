@@ -1,15 +1,33 @@
-[
-  {
-    "offenderNo": "Z0022ZZ",
-    "firstName": "HARVEY",
-    "lastName": "HARRISON",
-    "dateOfBirth": "1962-01-01",
+{
+  "offenderNo": "Z0022ZZ",
+  "offenderId": -1022,
+  "rootOffenderId": -1022,
+  "firstName": "HARVEY",
+  "lastName": "HARRISON",
+  "dateOfBirth": "1962-01-01",
+  "activeFlag": true,
+  "agencyId": "SYI",
+  "assignedLivingUnitId": -202,
+  "assignedLivingUnit": {
+    "agencyId": "SYI",
+    "locationId": -202,
+    "description": "A-1-1",
+    "agencyName": "Shrewsbury"
+  },
+  "physicalAttributes": {
     "gender": "Male",
-    "sexCode": "M",
-    "currentlyInPrison": "Y",
-    "latestLocationId": "SYI",
-    "latestLocation": "Shrewsbury",
+    "raceCode": "W1",
     "ethnicity": "White: British",
-    "ethnicityCode": "W1"
-  }
-]
+    "sexCode": "M"
+  },
+  "profileInformation": [
+    {
+      "type": "YOUTH",
+      "question": "Youth Offender?",
+      "resultValue": "Yes"
+    }
+  ],
+  "birthCountryCode": "UK",
+  "inOutStatus": "IN",
+  "status": "ACTIVE IN"
+}
