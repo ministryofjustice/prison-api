@@ -378,7 +378,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("52");
+        assertThat(response.getHeaders().get("Total-Records")).containsExactly("53");
     }
 
     @Test
@@ -711,7 +711,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("52");
+        assertThat(response.getHeaders().get("Total-Records")).containsExactly("53");
     }
 
     @Test
