@@ -204,7 +204,7 @@ public class PrisonerReleaseAndTransferService {
         final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActiveFlag(requestToRecall.getImprisonmentStatus(), "Y").orElseThrow(EntityNotFoundException.withMessage("No imprisonment status %s found", requestToRecall.getImprisonmentStatus()));
 
         // check prison id
-        final var prisonToRecallTo = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToRecall.getRecallLocationId(), "INST", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestToRecall.getRecallLocationId())));
+        final var prisonToRecallTo = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToRecall.getPrisonId(), "INST", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestToRecall.getPrisonId())));
 
         final var internalLocation = requestToRecall.getCellLocation() != null ? requestToRecall.getCellLocation() : prisonToRecallTo.getId() + "-" + "RECP";
 
@@ -305,7 +305,7 @@ public class PrisonerReleaseAndTransferService {
         final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActiveFlag(requestForNewBooking.getImprisonmentStatus(), "Y").orElseThrow(EntityNotFoundException.withMessage("No imprisonment status %s found", requestForNewBooking.getImprisonmentStatus()));
 
         // check prison id
-        final var receivedPrison = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestForNewBooking.getReceivedPrisonId(), "INST", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestForNewBooking.getReceivedPrisonId())));
+        final var receivedPrison = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestForNewBooking.getPrisonId(), "INST", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestForNewBooking.getPrisonId())));
 
         final var internalLocation = requestForNewBooking.getCellLocation() != null ? requestForNewBooking.getCellLocation() : receivedPrison.getId() + "-" + "RECP";
 

@@ -24,9 +24,9 @@ import java.time.LocalDateTime;
 public class RequestForNewBooking {
 
     @ApiModelProperty(value = "Received Prison ID", example = "MDI", position = 1)
-    @Length(max = 3, message = "Prison ID")
+    @Length(max = 3, message = "Prison ID is 3 character code")
     @NotNull
-    private String receivedPrisonId;
+    private String prisonId;
 
     @ApiModelProperty(required = true, value = "The time the booking in occurred, if not supplied it will be the current time", position = 2, example = "2020-03-24T12:13:40")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

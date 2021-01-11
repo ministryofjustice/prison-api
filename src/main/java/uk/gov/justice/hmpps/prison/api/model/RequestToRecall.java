@@ -24,9 +24,9 @@ import java.time.LocalDateTime;
 public class RequestToRecall {
 
     @ApiModelProperty(value = "Prison ID where recalled to", example = "MDI", position = 1)
-    @Length(max = 3, message = "Prison ID")
+    @Length(max = 3, message = "Prison ID is a 3 character code")
     @NotNull
-    private String recallLocationId;
+    private String prisonId;
 
     @ApiModelProperty(required = true, value = "The time the recall occurred, if not supplied it will be the current time", notes = "Time can be in the past but not before the last movement", position = 2, example = "2020-03-24T12:13:40")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
