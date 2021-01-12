@@ -29,7 +29,7 @@ class PrisonerCreationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new PrisonerCreationService(prisonerRepository, null, null, null, null, null);
+        service = new PrisonerCreationService(prisonerRepository, null, null, null, null, null, null);
     }
 
     @Test

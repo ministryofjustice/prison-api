@@ -11,6 +11,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
@@ -25,25 +26,29 @@ public class RequestToCreate {
 
     @ApiModelProperty(value = "The offender's PNC (Police National Computer) number.", example = "03/11999M")
     @Size(max = 20)
-    @NotBlank
+    @Pattern(regexp = "^^([0-9]{2}|[0-9]{4})/[0-9]+[a-zA-Z]$", message = "PNC is not valid")
     private String pncNumber;
 
     @ApiModelProperty(required = true, value = "The offender's last name.", example = "Mark")
     @Size(max = 35)
     @NotBlank
+    @Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Last name is not valid")
     private String lastName;
 
     @ApiModelProperty(required = true, value = "The offender's first name.", example = "John")
     @Size(max = 35)
     @NotBlank
+    @Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "First name is not valid")
     private String firstName;
 
     @ApiModelProperty(value = "The offender's middle name.", example = "Luke")
     @Size(max = 35)
+    @Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Middle name is not valid")
     private String middleName1;
 
     @ApiModelProperty(value = "An additional middle name for the offender.", example = "Matthew")
     @Size(max = 35)
+    @Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Middle name 2 is not valid")
     private String middleName2;
 
     @ApiModelProperty(value = "A code representing the offender's title (from TITLE reference domain).", example = "MR", allowableValues = "BR,DAME,DR,FR,IMAM,LADY,LORD,MISS,MR,MRS,MS,RABBI,REV,SIR,SR")

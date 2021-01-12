@@ -427,6 +427,91 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCanCreateANewPrisoner() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of(
+            "pncNumber", "03/11999M",
+            "lastName", "d'Arras",
+            "firstName", "Mathias",
+            "middleName1", "Hector",
+            "middleName2", "Sausage-Hausen",
+            "title", "MR",
+            "suffix", "JR",
+            "dateOfBirth", LocalDate.of(2000, 10, 17).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "gender", "M",
+            "ethnicity", "M1");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders",
+            POST,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            }
+        );
+
+        assertThatJsonFileAndStatus(response, 200, "new_prisoner.json");
+    }
+
+    @Test
+    public void testCannotCreateNewPrisonerWithExistingPNC() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of(
+            "pncNumber", "1998/1234567L",
+            "lastName", "d'Arras",
+            "firstName", "Mathias",
+            "middleName1", "Hector",
+            "middleName2", "Sausage-Hausen",
+            "title", "MR",
+            "suffix", "JR",
+            "dateOfBirth", LocalDate.of(2000, 10, 17).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "gender", "M",
+            "ethnicity", "M1");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders",
+            POST,
+            entity,
+            ErrorResponse.class
+        );
+
+        final var error = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        assertThat(error.getUserMessage()).contains("Prisoner with PNC 1998/1234567L already exists with ID A1234AD");
+    }
+
+    @Test
+    public void testCannotCreateNewPrisonerWithSameNames() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of(
+            "lastName", "Andrews",
+            "firstName", "Anthony",
+            "dateOfBirth", LocalDate.of(1964, 12, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "gender", "M");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders",
+            POST,
+            entity,
+            ErrorResponse.class
+        );
+
+        final var error = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        assertThat(error.getUserMessage()).contains("Prisoner with lastname ANDREWS, firstname ANTHONY and dob 1964-12-01 already exists with ID A1234AF");
+    }
+
+    @Test
     public void testCanReleaseAPrisoner() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 

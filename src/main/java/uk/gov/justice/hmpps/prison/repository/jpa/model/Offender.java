@@ -25,7 +25,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY;
@@ -48,6 +51,9 @@ public class Offender extends AuditableEntity {
     @Id
     @Column(name = "OFFENDER_ID", nullable = false)
     private Long id;
+
+    @Column(name = "OFFENDER_ID_DISPLAY", nullable = false)
+    private String nomsId;
 
     @Column(name = "ID_SOURCE_CODE", nullable = false)
     @Default
@@ -81,6 +87,9 @@ public class Offender extends AuditableEntity {
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OffenderBooking> bookings;
+
+    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OffenderIdentifier> identifiers;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
@@ -121,6 +130,23 @@ public class Offender extends AuditableEntity {
     @Column(name = "LAST_NAME_KEY", nullable = false)
     private String lastNameKey;
 
-    @Column(name = "OFFENDER_ID_DISPLAY", nullable = false)
-    private String nomsId;
+    @Column(name = "LAST_NAME_SOUNDEX")
+    private String lastNameSoundex;
+
+    @Column(name = "LAST_NAME_ALPHA_KEY")
+    private String lastNameAlphaKey;
+
+
+    public Optional<String> getLatestIdentifierOfType(final String type) {
+        final var mapOfTypes = identifiers.stream().collect(Collectors.groupingBy(OffenderIdentifier::getIdentifierType));
+        return mapOfTypes.get(type).stream().max(Comparator.comparing(id -> id.getOffenderIdentifierPK().getOffenderIdSeq())).map(OffenderIdentifier::getIdentifier);
+    }
+
+    public Optional<String> getPnc() {
+        return getLatestIdentifierOfType("PNC");
+    }
+
+    public Optional<String> getCro() {
+        return getLatestIdentifierOfType("CRO");
+    }
 }

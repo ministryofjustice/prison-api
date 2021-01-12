@@ -464,6 +464,14 @@ public class InmateRepository extends RepositoryBase {
                 OFFENDER_IDENTIFIER_MAPPER);
     }
 
+    public List<OffenderIdentifier> getOffenderIdentifiersByOffenderId(final long offenderId) {
+        final var sql = InmateRepositorySql.GET_OFFENDER_IDENTIFIERS_BY_OFFENDER_ID.getSql();
+
+        return jdbcTemplate.query(
+            sql,
+            createParams("offenderId", offenderId),
+            OFFENDER_IDENTIFIER_MAPPER);
+    }
 
     public List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue) {
         final var sql = InmateRepositorySql.FIND_IDENTIFIER_RECORDS_BY_TYPE_AND_VALUE.getSql();

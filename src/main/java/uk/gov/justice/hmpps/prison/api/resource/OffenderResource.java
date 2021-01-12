@@ -112,16 +112,13 @@ public class OffenderResource {
         @ApiResponse(code = 403, message = "Forbidden - user not authorised to create a prisoner.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation("*** BETA *** Recalls a prisoner into prison. CREATE_BOOKING role")
-    @PostMapping("/{offenderNo}")
+    @ApiOperation("*** BETA *** Creates a prisoner. CREATE_BOOKING role")
+    @PostMapping
     @HasWriteScope
     @PreAuthorize("hasRole('BOOKING_CREATE')")
     @ProxyUser
-    @VerifyOffenderAccess
-    public InmateDetail createPrisoner(
-        @RequestBody @NotNull @Valid final RequestToCreate requestToCreate) {
-        final var prisonerId = prisonerCreationService.createPrisoner(requestToCreate);
-        return inmateService.findOffender(prisonerId, false);
+    public InmateDetail createPrisoner(@RequestBody @NotNull @Valid final RequestToCreate requestToCreate) {
+        return inmateService.findOffender(prisonerCreationService.createPrisoner(requestToCreate), true);
     }
 
     @ApiResponses({

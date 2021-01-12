@@ -221,6 +221,10 @@ public class InmateService {
     }
 
     private InmateDetail getOffenderDetails(final InmateDetail inmate, final boolean extraInfo) {
+        if (extraInfo) {
+            inmate.setIdentifiers(repository.getOffenderIdentifiersByOffenderId(inmate.getOffenderId()));
+        }
+
         if (inmate.getBookingId() != null) {
             final var bookingId = inmate.getBookingId();
             inmate.setStatus(format("%s %s", inmate.isActiveFlag() ? "ACTIVE" : "INACTIVE", inmate.getInOutStatus()));
@@ -249,7 +253,6 @@ public class InmateService {
             if (extraInfo) {
                 inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
                 inmate.setPrivilegeSummary(bookingService.getBookingIEPSummary(bookingId, false));
-                inmate.setIdentifiers(getOffenderIdentifiers(bookingId, null));
                 inmate.setSentenceDetail(bookingService.getBookingSentenceDetail(bookingId));
                 inmate.setPersonalCareNeeds(getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
 
