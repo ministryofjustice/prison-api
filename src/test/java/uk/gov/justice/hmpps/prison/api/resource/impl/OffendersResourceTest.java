@@ -761,17 +761,6 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void listAllOffendersUsesDefaultPaginationParams() {
-
-        ResponseEntity<String> response = listAllOffendersUsingHeaders(Map.of());
-
-        assertThatJsonFileAndStatus(response, 200, "list_all_offenders.json");
-
-        assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
-        assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
-    }
-
-    @Test
     public void testCanRetrieveAddresses() {
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, Map.of());
 
