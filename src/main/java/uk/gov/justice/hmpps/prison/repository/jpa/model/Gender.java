@@ -9,7 +9,7 @@ import javax.persistence.Entity;
 @DiscriminatorValue(Gender.SEX)
 @NoArgsConstructor
 public class Gender extends ReferenceCode {
-    static final String SEX = "SEX";
+    public static final String SEX = "SEX";
 
     public static final ReferenceCode.Pk MALE = new Pk(SEX, "M");
 

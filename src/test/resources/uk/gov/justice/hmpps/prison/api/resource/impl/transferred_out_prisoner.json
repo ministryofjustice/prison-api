@@ -1,16 +1,25 @@
-[
-  {
-    "offenderNo": "A1180HI",
-    "firstName": "DEREK",
-    "lastName": "DIGGLE",
-    "dateOfBirth": "1982-01-02",
+{
+  "offenderNo": "A1180HI",
+  "bookingId": -52,
+  "bookingNo": "Z00048",
+  "offenderId": -1050,
+  "rootOffenderId": -1050,
+  "firstName": "DEREK",
+  "lastName": "DIGGLE",
+  "dateOfBirth": "1982-01-02",
+  "activeFlag": false,
+  "agencyId": "TRN",
+  "assignedLivingUnit": {
+    "agencyId": "TRN",
+    "agencyName": "Transfer"
+  },
+  "physicalAttributes": {
     "gender": "Male",
-    "sexCode": "M",
-    "currentlyInPrison": "N",
-    "latestBookingId": -52,
-    "latestLocationId": "TRN",
-    "latestLocation": "Transfer",
+    "raceCode": "M2",
     "ethnicity": "Mixed: White and Black African",
-    "ethnicityCode": "M2"
-  }
-]
+    "sexCode": "M"
+  },
+  "birthCountryCode": "UK",
+  "inOutStatus": "TRN",
+  "status": "INACTIVE TRN"
+}

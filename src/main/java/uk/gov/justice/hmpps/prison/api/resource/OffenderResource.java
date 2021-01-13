@@ -35,6 +35,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
+import uk.gov.justice.hmpps.prison.api.model.RequestToCreate;
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
@@ -108,6 +109,20 @@ public class OffenderResource {
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to create a prisoner.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation("*** BETA *** Creates a prisoner. CREATE_BOOKING role")
+    @PostMapping
+    @HasWriteScope
+    @PreAuthorize("hasRole('BOOKING_CREATE')")
+    @ProxyUser
+    public InmateDetail createPrisoner(@RequestBody @NotNull @Valid final RequestToCreate requestToCreate) {
+        return inmateService.findOffender(prisonerCreationService.createPrisoner(requestToCreate), true);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 403, message = "Forbidden - user not authorised to release a prisoner.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -117,11 +132,11 @@ public class OffenderResource {
     @PreAuthorize("hasRole('RELEASE_PRISONER')")
     @ProxyUser
     @VerifyOffenderAccess
-    public String releasePrisoner(
+    public InmateDetail releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
         prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner);
-        return offenderNo;
+        return inmateService.findOffender(offenderNo, false);
     }
 
     @ApiResponses({
@@ -135,11 +150,11 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER')")
     @ProxyUser
     @VerifyOffenderAccess
-    public String recallPrisoner(
+    public InmateDetail recallPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToRecall requestToRecall) {
         prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
-        return offenderNo;
+        return inmateService.findOffender(offenderNo, false);
     }
 
     @ApiResponses({
@@ -152,11 +167,11 @@ public class OffenderResource {
     @HasWriteScope
     @PreAuthorize("hasRole('BOOKING_CREATE')")
     @ProxyUser
-    public String newBooking(
+    public InmateDetail newBooking(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForNewBooking requestForNewBooking) {
         prisonerReleaseAndTransferService.newBooking(offenderNo, requestForNewBooking);
-        return offenderNo;
+        return inmateService.findOffender(offenderNo, false);
     }
 
     @ApiResponses({
@@ -169,11 +184,11 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER')")
     @ProxyUser
     @VerifyOffenderAccess
-    public String transferOutPrisoner(
+    public InmateDetail transferOutPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOut requestToTransferOut) {
         prisonerReleaseAndTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
-        return offenderNo;
+        return inmateService.findOffender(offenderNo, false);
     }
 
     @ApiResponses({
@@ -187,11 +202,11 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER')")
     @ProxyUser
     @VerifyOffenderAccess
-    public String transferInPrisoner(
+    public InmateDetail transferInPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferIn requestToTransferIn) {
         prisonerReleaseAndTransferService.transferInPrisoner(offenderNo, requestToTransferIn);
-        return offenderNo;
+        return inmateService.findOffender(offenderNo, false);
     }
 
     @ApiResponses({

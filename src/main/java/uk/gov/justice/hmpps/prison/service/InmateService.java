@@ -48,7 +48,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRep
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
 import uk.gov.justice.hmpps.prison.service.support.InmateDto;
 import uk.gov.justice.hmpps.prison.service.support.InmatesHelper;
@@ -216,13 +215,16 @@ public class InmateService {
         return getOffenderDetails(inmate, extraInfo);
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail findOffender(final String offenderNo, final boolean extraInfo) {
         final var inmate = repository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
         return getOffenderDetails(inmate, extraInfo);
     }
 
     private InmateDetail getOffenderDetails(final InmateDetail inmate, final boolean extraInfo) {
+        if (extraInfo) {
+            inmate.setIdentifiers(repository.getOffenderIdentifiersByOffenderId(inmate.getOffenderId()));
+        }
+
         if (inmate.getBookingId() != null) {
             final var bookingId = inmate.getBookingId();
             inmate.setStatus(format("%s %s", inmate.isActiveFlag() ? "ACTIVE" : "INACTIVE", inmate.getInOutStatus()));
@@ -251,7 +253,6 @@ public class InmateService {
             if (extraInfo) {
                 inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
                 inmate.setPrivilegeSummary(bookingService.getBookingIEPSummary(bookingId, false));
-                inmate.setIdentifiers(getOffenderIdentifiers(bookingId, null));
                 inmate.setSentenceDetail(bookingService.getBookingSentenceDetail(bookingId));
                 inmate.setPersonalCareNeeds(getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
 

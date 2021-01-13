@@ -128,7 +128,6 @@
       "type": "PNC",
       "value": "1998/1234567L",
       "offenderNo": "A1234AD",
-      "bookingId": -4,
       "issuedDate": "2017-08-28",
       "caseloadType": "INST"
     },
@@ -136,7 +135,6 @@
       "type": "CRO",
       "value": "CRO144322",
       "offenderNo": "A1234AD",
-      "bookingId": -4,
       "issuedDate": "2019-09-25",
       "caseloadType": "INST"
     }

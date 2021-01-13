@@ -1,15 +1,34 @@
-[
-  {
-    "offenderNo": "A9880GH",
-    "firstName": "BRIAN",
-    "lastName": "JONES",
-    "dateOfBirth": "1961-01-01",
+{
+  "offenderNo": "A9880GH",
+  "offenderId": -1059,
+  "rootOffenderId": -1059,
+  "firstName": "BRIAN",
+  "lastName": "JONES",
+  "dateOfBirth": "1961-01-01",
+  "activeFlag": true,
+  "agencyId": "SYI",
+  "assignedLivingUnitId": -202,
+  "assignedLivingUnit": {
+    "agencyId": "SYI",
+    "locationId": -202,
+    "description": "A-1-1",
+    "agencyName": "Shrewsbury"
+  },
+  "physicalAttributes": {
     "gender": "Male",
-    "sexCode": "M",
-    "currentlyInPrison": "Y",
-    "latestLocationId": "SYI",
-    "latestLocation": "Shrewsbury",
+    "raceCode": "W1",
     "ethnicity": "White: British",
-    "ethnicityCode": "W1"
-  }
-]
+    "sexCode": "M"
+  },
+  "physicalCharacteristics": [],
+  "profileInformation": [
+    {
+      "type": "YOUTH",
+      "question": "Youth Offender?",
+      "resultValue": "Yes"
+    }
+  ],
+  "birthCountryCode": "UK",
+  "inOutStatus": "IN",
+  "status": "ACTIVE IN"
+}

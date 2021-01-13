@@ -50,7 +50,6 @@
       "type": "PNC",
       "value": " - 20/0009n ",
       "offenderNo": "A1184MA",
-      "bookingId": -41,
       "issuedDate": "2017-08-28",
       "caseloadType": "INST"
     },
@@ -58,7 +57,6 @@
       "type": "CRO",
       "value": "  01/11x  ",
       "offenderNo": "A1184MA",
-      "bookingId": -41,
       "issuedDate": "2017-08-28",
       "caseloadType": "INST"
     }
