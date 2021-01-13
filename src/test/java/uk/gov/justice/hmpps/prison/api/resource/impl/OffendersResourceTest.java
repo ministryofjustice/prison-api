@@ -454,7 +454,7 @@ public class OffendersResourceTest extends ResourceTest {
             "middleName1", "Sarah",
             "middleName2", "Mia",
             "title", "MRS",
-            "dateOfBirth", LocalDate.of(1990, 10, 30).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "dateOfBirth", LocalDate.of(2001, 10, 30).format(DateTimeFormatter.ISO_LOCAL_DATE),
             "gender", "F",
             "ethnicity", "W1");
 
