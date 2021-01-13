@@ -491,7 +491,7 @@ public class InmateServiceImplTest {
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
-        when(repository.getOffenderIdentifiers(anyLong())).thenReturn(List.of());
+        when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(movementsService.getMovementsByOffenders(anyList(), anyList(), anyBoolean())).thenReturn(List.of(buildMovementReleased("REL","")));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
@@ -510,7 +510,7 @@ public class InmateServiceImplTest {
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
-        when(repository.getOffenderIdentifiers(anyLong())).thenReturn(List.of());
+        when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(movementsService.getMovementsByOffenders(anyList(), anyList(), anyBoolean())).thenReturn(List.of(buildMovementReleased("TAP","Temporary Absence")));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
@@ -529,7 +529,7 @@ public class InmateServiceImplTest {
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
-        when(repository.getOffenderIdentifiers(anyLong())).thenReturn(List.of());
+        when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 

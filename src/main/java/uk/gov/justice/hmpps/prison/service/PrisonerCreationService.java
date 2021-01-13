@@ -14,8 +14,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Suffix;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title;
@@ -99,34 +97,12 @@ public class PrisonerCreationService {
 
         offender.setRootOffenderId(offender.getId());
 
-        var offenderSequence = 0L;
-
         if (StringUtils.isNotBlank(requestToCreate.getPncNumber())) {
-            offenderSequence = offenderSequence + 1;
-            offenderIdentifierRepository.save(OffenderIdentifier.builder()
-                .offender(offender)
-                .offenderIdentifierPK(new OffenderIdentifierPK(offender.getId(), offenderSequence))
-                .identifierType("PNC")
-                .identifier(requestToCreate.getPncNumber())
-                .issuedDate(now)
-                .rootOffenderId(offender.getRootOffenderId())
-                .caseloadType("INST")
-                .build());
-
+            offender.addIdentifier("PNC", requestToCreate.getPncNumber());
         }
 
         if (StringUtils.isNotBlank(requestToCreate.getCroNumber())) {
-            offenderSequence = offenderSequence + 1;
-            offenderIdentifierRepository.save(OffenderIdentifier.builder()
-                .offender(offender)
-                .offenderIdentifierPK(new OffenderIdentifierPK(offender.getId(), offenderSequence))
-                .identifierType("CRO")
-                .identifier(requestToCreate.getCroNumber())
-                .issuedDate(now)
-                .rootOffenderId(offender.getRootOffenderId())
-                .caseloadType("INST")
-                .build());
-
+            offender.addIdentifier("CRO", requestToCreate.getCroNumber());
         }
 
         return offender.getNomsId();

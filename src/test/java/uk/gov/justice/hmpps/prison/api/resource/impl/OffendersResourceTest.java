@@ -368,19 +368,6 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void listAllOffenders() {
-
-        ResponseEntity<String> response = listAllOffendersUsingHeaders(
-            Map.of("Page-Offset", "0", "Page-Limit", "100"));
-
-        assertThatJsonFileAndStatus(response, 200, "list_all_offenders.json");
-
-        assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
-        assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("53");
-    }
-
-    @Test
     public void testCannotReleasePrisonerInTheFuture() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
@@ -437,7 +424,7 @@ public class OffendersResourceTest extends ResourceTest {
             "middleName1", "Hector",
             "middleName2", "Sausage-Hausen",
             "title", "MR",
-            "suffix", "JR",
+            "croNumber", "D827492834",
             "dateOfBirth", LocalDate.of(2000, 10, 17).format(DateTimeFormatter.ISO_LOCAL_DATE),
             "gender", "M",
             "ethnicity", "M1");

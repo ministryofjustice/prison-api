@@ -12,6 +12,7 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 import org.springframework.data.annotation.CreatedDate;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -25,6 +26,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -86,10 +88,12 @@ public class Offender extends AuditableEntity {
     private Long rootOffenderId;
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OffenderBooking> bookings;
+    @Default
+    private List<OffenderBooking> bookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OffenderIdentifier> identifiers;
+    @Default
+    private List<OffenderIdentifier> identifiers = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
@@ -137,16 +141,36 @@ public class Offender extends AuditableEntity {
     private String lastNameAlphaKey;
 
 
-    public Optional<String> getLatestIdentifierOfType(final String type) {
+    public Optional<OffenderIdentifier> getLatestIdentifierOfType(final String type) {
         final var mapOfTypes = identifiers.stream().collect(Collectors.groupingBy(OffenderIdentifier::getIdentifierType));
-        return mapOfTypes.get(type).stream().max(Comparator.comparing(id -> id.getOffenderIdentifierPK().getOffenderIdSeq())).map(OffenderIdentifier::getIdentifier);
+        final var offenderIdentifiers = mapOfTypes.get(type);
+        if (offenderIdentifiers != null) {
+            return offenderIdentifiers.stream().max(Comparator.comparing(id -> id.getOffenderIdentifierPK().getOffenderIdSeq()));
+        } else {
+            return Optional.empty();
+        }
     }
 
     public Optional<String> getPnc() {
-        return getLatestIdentifierOfType("PNC");
+        return getLatestIdentifierOfType("PNC").map(OffenderIdentifier::getIdentifier);
     }
 
     public Optional<String> getCro() {
-        return getLatestIdentifierOfType("CRO");
+        return getLatestIdentifierOfType("CRO").map(OffenderIdentifier::getIdentifier);
+    }
+
+    public OffenderIdentifier addIdentifier(final String type, final String value) {
+        final var latestSeq = identifiers.stream().max(Comparator.comparing(id -> id.getOffenderIdentifierPK().getOffenderIdSeq())).map(id -> id.getOffenderIdentifierPK().getOffenderIdSeq()).orElse(0L);
+        final var offenderIdentifier = OffenderIdentifier.builder()
+            .offender(this)
+            .offenderIdentifierPK(new OffenderIdentifierPK(getId(), latestSeq+1))
+            .identifierType(type)
+            .identifier(value)
+            .issuedDate(LocalDate.now())
+            .rootOffenderId(getRootOffenderId())
+            .caseloadType("INST")
+            .build();
+        identifiers.add(offenderIdentifier);
+        return offenderIdentifier;
     }
 }

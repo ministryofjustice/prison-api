@@ -25,7 +25,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(exclude = {"offenderIdentifierPK"}, callSuper = false)
 @ToString(exclude = {"offenderIdentifierPK"})
 @Table(name = "OFFENDER_IDENTIFIERS")
-public class OffenderIdentifier {
+public class OffenderIdentifier extends AuditableEntity {
 
     @Data
     @NoArgsConstructor
