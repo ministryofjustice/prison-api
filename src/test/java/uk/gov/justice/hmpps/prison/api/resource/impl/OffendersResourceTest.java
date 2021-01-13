@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -441,6 +442,62 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(response, 200, "new_prisoner.json");
     }
+
+    @Test
+    public void testCanCreateANewPrisonerAndBooking() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of(
+            "pncNumber", "03/11964Z",
+            "lastName", "smith",
+            "firstName", "Jayne",
+            "middleName1", "Sarah",
+            "middleName2", "Mia",
+            "title", "MRS",
+            "dateOfBirth", LocalDate.of(1990, 10, 30).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "gender", "F",
+            "ethnicity", "W1");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders",
+            POST,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            }
+        );
+
+        final var offenderNo = new Gson().fromJson(response.getBody(), Map.class).get("offenderNo");
+
+        final var newBookingBody = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
+        final var newBookingEntity = createHttpEntity(token, newBookingBody);
+
+        final var newBookingResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/new-booking",
+            POST,
+            newBookingEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo
+        );
+        assertThatJsonFileAndStatus(newBookingResponse, 200, "new_offender_and_booking.json");
+
+        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
+
+        final var releaseResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            releaseBody,
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo
+        );
+
+        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
+
+    }
+
 
     @Test
     public void testCannotCreateNewPrisonerWithExistingPNC() {

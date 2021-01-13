@@ -61,24 +61,24 @@ public class InmateDetail {
     @NotBlank
     private String lastName;
 
-    @ApiModelProperty(required = true, value = "Date of Birth of offender", example = "1970-03-15", position = 9)
+    @ApiModelProperty(required = true, value = "Date of Birth of prisoner", example = "1970-03-15", position = 9)
     @NotNull
     private LocalDate dateOfBirth;
 
-    @ApiModelProperty(value = "Age of offender", notes = "Full Details Only", position = 10)
+    @ApiModelProperty(value = "Age of prisoner", notes = "Full Details Only", position = 10)
     private Integer age;
 
-    @ApiModelProperty(required = true, value = "Indicates that the offender is currently in prison", position = 11)
+    @ApiModelProperty(required = true, value = "Indicates that the person is currently in prison", position = 11)
     @NotNull
     private boolean activeFlag;
 
-    @ApiModelProperty(value = "Image Id Ref of Offender")
+    @ApiModelProperty(value = "Image Id Ref of prisoner")
     private Long facialImageId;
 
-    @ApiModelProperty(value = "Identifier of agency to which the offender is associated.")
+    @ApiModelProperty(value = "Identifier of agency to which the prisoner is associated.")
     private String agencyId;
 
-    @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that offender is assigned to.")
+    @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that prisoner is assigned to.")
     private Long assignedLivingUnitId;
 
     @ApiModelProperty(value = "Religion of the prisoner")
@@ -105,7 +105,7 @@ public class InmateDetail {
     @ApiModelProperty(value = "List of alert details")
     private List<Alert> alerts;
 
-    @ApiModelProperty(value = "Where the offender is staying")
+    @ApiModelProperty(value = "Cell or location of the prisoner")
     private AssignedLivingUnit assignedLivingUnit;
 
     @ApiModelProperty(value = "A set of physical attributes")

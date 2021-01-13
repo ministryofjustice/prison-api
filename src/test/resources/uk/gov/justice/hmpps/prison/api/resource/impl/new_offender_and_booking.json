@@ -1,0 +1,30 @@
+{
+  "firstName": "JAYNE",
+  "middleName": "SARAH MIA",
+  "lastName": "SMITH",
+  "dateOfBirth": "1990-10-30",
+  "activeFlag": true,
+  "agencyId": "SYI",
+  "assignedLivingUnitId": -202,
+  "assignedLivingUnit": {
+    "agencyId": "SYI",
+    "locationId": -202,
+    "description": "A-1-1",
+    "agencyName": "Shrewsbury"
+  },
+  "physicalAttributes": {
+    "sexCode": "F",
+    "gender": "Female",
+    "raceCode": "W1",
+    "ethnicity": "White: British"
+  },
+  "profileInformation": [
+    {
+      "type": "YOUTH",
+      "question": "Youth Offender?",
+      "resultValue": "Yes"
+    }
+  ],
+  "inOutStatus": "IN",
+  "status": "ACTIVE IN"
+}
