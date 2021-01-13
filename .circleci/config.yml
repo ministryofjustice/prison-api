@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@1.1.0
+  hmpps: ministryofjustice/hmpps@2.2
   owasp: entur/owasp@0.0.10
 
 defaults: &defaults
@@ -109,6 +109,8 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_dev
           env: "t3"
+          context:
+            - hmpps-common-vars
           filters:
             branches:
               only:
@@ -126,7 +128,9 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_stage
           env: "t2"
-          context: prison-api-t2
+          context:
+            - hmpps-common-vars
+            - prison-api-t2
           requires:
             - request-stage-approval
       - request-preprod-approval:
@@ -137,7 +141,9 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_preprod
           env: "preprod"
-          context: prison-api-preprod
+          context:
+            - hmpps-common-vars
+            - prison-api-preprod
           requires:
             - request-preprod-approval
       - request-prod-approval:
@@ -149,7 +155,9 @@ workflows:
           name: deploy_prod
           env: "prod"
           slack_notification: true
-          context: prison-api-prod
+          context:
+            - hmpps-common-vars
+            - prison-api-prod
           requires:
             - request-prod-approval
   scheduled:
