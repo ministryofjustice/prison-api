@@ -334,7 +334,6 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 
@@ -344,7 +343,6 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 
@@ -536,7 +534,6 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 
@@ -1254,9 +1251,19 @@ public class InmateRepositoryTest {
     @Test
     public void findPhysicalAttributes() {
         final var physicalAttributes = repository.findPhysicalAttributes(-1);
-        assertThat(physicalAttributes).get().isEqualToIgnoringGivenFields(
-                new PhysicalAttributes(Collections.emptyMap(), "Male", "W1", "White: British", 5, 6, null, 168, 165, 75),
-                "additionalProperties");
+        assertThat(physicalAttributes).get().isEqualTo(
+            PhysicalAttributes.builder()
+                .gender("Male")
+                .sexCode("M")
+                .raceCode( "W1")
+                .ethnicity("White: British")
+                .heightFeet(5)
+                .heightInches(6)
+                .heightMetres(null)
+                .heightCentimetres(168)
+                .weightPounds(165)
+                .weightKilograms(75)
+                .build());
     }
 
     @Test

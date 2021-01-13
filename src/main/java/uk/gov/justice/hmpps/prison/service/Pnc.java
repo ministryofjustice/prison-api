@@ -31,6 +31,25 @@ public class Pnc {
         checksum = StringUtils.substring(pncStr, pncStr.length() - 1).charAt(0);
     }
 
+    public static String getShortPncNumber(String pncNumber) {
+        if (Pnc.isPNCNumberShort(pncNumber)) {
+            return new Pnc(pncNumber).toString();
+        } else if (Pnc.isPNCNumberLong(pncNumber)) {
+            final var pnc = new Pnc(pncNumber);
+            return new Pnc(StringUtils.substring(pnc.getYear(),2,4), pnc.getSerialNumber(), pnc.getChecksum()).toString();
+        }
+        return null;
+    }
+
+    public static String getLongPncNumber(String pncNumber) {
+        if (Pnc.isPNCNumberShort(pncNumber)) {
+            final var pnc = new Pnc(pncNumber);
+            return new Pnc(Pnc.addCenturyToYear(pnc.getYear()), pnc.getSerialNumber(), pnc.getChecksum()).toString();
+        } else if (Pnc.isPNCNumberLong(pncNumber)) {
+            return new Pnc(pncNumber).toString();
+        }
+        return null;
+    }
 
     public static boolean isPNCNumberLong(String pncStr) {
         return LONG_PNC.matcher(pncStr).find();

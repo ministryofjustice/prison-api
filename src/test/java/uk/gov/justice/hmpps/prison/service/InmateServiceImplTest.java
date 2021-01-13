@@ -34,6 +34,7 @@ import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
 
@@ -91,7 +92,8 @@ public class InmateServiceImplTest {
     private TelemetryClient telemetryClient;
     @Mock
     private OffenderLanguageRepository offenderLanguageRepository;
-
+    @Mock
+    private OffenderRepository offenderRepository;
 
     @Captor
     private ArgumentCaptor<List<Long>> bookingIdsArgument;
@@ -101,7 +103,7 @@ public class InmateServiceImplTest {
     @BeforeEach
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
-                referenceDomainService, bookingService, agencyService, userService, movementsService, authenticationFacade, telemetryClient, "WING", 100, offenderLanguageRepository);
+                referenceDomainService, bookingService, agencyService, userService, movementsService, authenticationFacade, telemetryClient, "WING", 100, offenderLanguageRepository, offenderRepository);
     }
 
     @Test

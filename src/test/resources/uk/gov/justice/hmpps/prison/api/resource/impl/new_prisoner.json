@@ -4,6 +4,12 @@
   "lastName": "D'ARRAS",
   "dateOfBirth": "2000-10-17",
   "activeFlag": false,
+  "physicalAttributes": {
+    "sexCode": "M",
+    "gender": "Male",
+    "raceCode": "M1",
+    "ethnicity": "Mixed: White and Black Caribbean"
+  },
   "identifiers": [
     {
       "type": "PNC",

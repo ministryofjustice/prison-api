@@ -45,6 +45,7 @@ import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -93,6 +94,7 @@ public class InmateService {
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
     private final OffenderLanguageRepository offenderLanguageRepository;
+    private final OffenderRepository offenderRepository;
     private final TelemetryClient telemetryClient;
 
     private final String locationTypeGranularity;
@@ -108,7 +110,8 @@ public class InmateService {
                          final TelemetryClient telemetryClient,
                          @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
                          @Value("${batch.max.size:1000}") final int maxBatchSize,
-                         final OffenderLanguageRepository offenderLanguageRepository) {
+                         final OffenderLanguageRepository offenderLanguageRepository,
+                         final OffenderRepository offenderRepository) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
@@ -122,6 +125,7 @@ public class InmateService {
         this.maxBatchSize = maxBatchSize;
         this.userService = userService;
         this.offenderLanguageRepository = offenderLanguageRepository;
+        this.offenderRepository = offenderRepository;
     }
 
     public Page<OffenderBooking> findAllInmates(final InmateSearchCriteria criteria) {
@@ -221,6 +225,16 @@ public class InmateService {
     }
 
     private InmateDetail getOffenderDetails(final InmateDetail inmate, final boolean extraInfo) {
+        if (inmate.getBookingId() == null) {
+            offenderRepository.findById(inmate.getOffenderId())
+                .ifPresent(offender -> inmate.setPhysicalAttributes(PhysicalAttributes.builder()
+                    .sexCode(offender.getGender().getCode())
+                    .gender(offender.getGender().getDescription())
+                    .raceCode(offender.getEthnicity() != null ? offender.getEthnicity().getCode() : null)
+                    .ethnicity(offender.getEthnicity() != null ? offender.getEthnicity().getDescription() : null)
+                    .build()));
+        }
+
         if (extraInfo) {
             inmate.setIdentifiers(repository.getOffenderIdentifiersByOffenderId(inmate.getOffenderId()));
         }
