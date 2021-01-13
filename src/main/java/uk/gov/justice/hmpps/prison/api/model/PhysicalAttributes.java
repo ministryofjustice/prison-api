@@ -1,209 +1,62 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Physical Attributes
  **/
-@SuppressWarnings("unused")
 @ApiModel(description = "Physical Attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class PhysicalAttributes {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
 
     @NotBlank
+    @ApiModelProperty(required = true, value = "Gender Code", position = 1, example = "M")
+    private String sexCode;
+
+    @NotBlank
+    @ApiModelProperty(required = true, value = "Gender", position = 2, example = "Male")
     private String gender;
 
-    @NotBlank
+    @ApiModelProperty(required = true, value = "Ethnicity Code", position = 3, example = "W1")
     private String raceCode;
 
-    @NotBlank
+    @ApiModelProperty(required = true, value = "Ethnicity", position = 4, example = "White: Eng./Welsh/Scot./N.Irish/British")
     private String ethnicity;
 
-    @NotNull
+    @ApiModelProperty(required = true, value = "Height in Feet", position = 5, example = "5")
     private Integer heightFeet;
 
-    @NotNull
+    @ApiModelProperty(required = true, value = "Height in Inches", position = 6, example = "60")
     private Integer heightInches;
 
-    @NotNull
+    @ApiModelProperty(required = true, value = "Height in Metres (to 2dp)", position = 7, example = "1.76")
     private BigDecimal heightMetres;
 
-    @NotNull
+    @ApiModelProperty(required = true, value = "Height in Centimetres", position = 8, example = "176")
     private Integer heightCentimetres;
 
-    @NotNull
+    @ApiModelProperty(required = true, value = "Weight in Pounds", position = 9, example = "50")
     private Integer weightPounds;
 
-    @NotNull
+    @ApiModelProperty(required = true, value = "Weight in Kilograms", position = 10, example = "67")
     private Integer weightKilograms;
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
-
-    /**
-     * Gender
-     */
-    @ApiModelProperty(required = true, value = "Gender")
-    @JsonProperty("gender")
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(final String gender) {
-        this.gender = gender;
-    }
-
-    /**
-     * Ethnicity Code
-     */
-    @ApiModelProperty(required = true, value = "Ethnicity Code")
-    @JsonProperty("raceCode")
-    public String getRaceCode() {
-        return raceCode;
-    }
-
-    public void setRaceCode(final String raceCode) {
-        this.raceCode = raceCode;
-    }
-
-    /**
-     * Ethnicity
-     */
-    @ApiModelProperty(required = true, value = "Ethnicity")
-    @JsonProperty("ethnicity")
-    public String getEthnicity() {
-        return ethnicity;
-    }
-
-    public void setEthnicity(final String ethnicity) {
-        this.ethnicity = ethnicity;
-    }
-
-    /**
-     * Height in Feet
-     */
-    @ApiModelProperty(required = true, value = "Height in Feet")
-    @JsonProperty("heightFeet")
-    public Integer getHeightFeet() {
-        return heightFeet;
-    }
-
-    public void setHeightFeet(final Integer heightFeet) {
-        this.heightFeet = heightFeet;
-    }
-
-    /**
-     * Height in Inches
-     */
-    @ApiModelProperty(required = true, value = "Height in Inches")
-    @JsonProperty("heightInches")
-    public Integer getHeightInches() {
-        return heightInches;
-    }
-
-    public void setHeightInches(final Integer heightInches) {
-        this.heightInches = heightInches;
-    }
-
-    /**
-     * Height in Metres (to 2dp)
-     */
-    @ApiModelProperty(required = true, value = "Height in Metres (to 2dp)")
-    @JsonProperty("heightMetres")
-    public BigDecimal getHeightMetres() {
-        return heightMetres;
-    }
-
-    public void setHeightMetres(final BigDecimal heightMetres) {
-        this.heightMetres = heightMetres;
-    }
-
-    /**
-     * Height in Centimetres
-     */
-    @ApiModelProperty(required = true, value = "Height in Centimetres")
-    @JsonProperty("heightCentimetres")
-    public Integer getHeightCentimetres() {
-        return heightCentimetres;
-    }
-
-    public void setHeightCentimetres(final Integer heightCentimetres) {
-        this.heightCentimetres = heightCentimetres;
-    }
-
-    /**
-     * Weight in Pounds
-     */
-    @ApiModelProperty(required = true, value = "Weight in Pounds")
-    @JsonProperty("weightPounds")
-    public Integer getWeightPounds() {
-        return weightPounds;
-    }
-
-    public void setWeightPounds(final Integer weightPounds) {
-        this.weightPounds = weightPounds;
-    }
-
-    /**
-     * Weight in Kilograms
-     */
-    @ApiModelProperty(required = true, value = "Weight in Kilograms")
-    @JsonProperty("weightKilograms")
-    public Integer getWeightKilograms() {
-        return weightKilograms;
-    }
-
-    public void setWeightKilograms(final Integer weightKilograms) {
-        this.weightKilograms = weightKilograms;
-    }
-
-    @Override
-    public String toString() {
-        final var sb = new StringBuilder();
-
-        sb.append("class PhysicalAttributes {\n");
-
-        sb.append("  gender: ").append(gender).append("\n");
-        sb.append("  raceCode: ").append(raceCode).append("\n");
-        sb.append("  ethnicity: ").append(ethnicity).append("\n");
-        sb.append("  heightFeet: ").append(heightFeet).append("\n");
-        sb.append("  heightInches: ").append(heightInches).append("\n");
-        sb.append("  heightMetres: ").append(heightMetres).append("\n");
-        sb.append("  heightCentimetres: ").append(heightCentimetres).append("\n");
-        sb.append("  weightPounds: ").append(weightPounds).append("\n");
-        sb.append("  weightKilograms: ").append(weightKilograms).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
-    }
 }
