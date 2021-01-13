@@ -334,7 +334,6 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 
@@ -344,7 +343,6 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 
@@ -536,7 +534,6 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 

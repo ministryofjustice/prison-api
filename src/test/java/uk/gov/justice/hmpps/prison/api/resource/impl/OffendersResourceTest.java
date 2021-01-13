@@ -449,7 +449,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var body = Map.of(
             "pncNumber", "03/11964Z",
-            "lastName", "smith",
+            "lastName", "Janus",
             "firstName", "Jayne",
             "middleName1", "Sarah",
             "middleName2", "Mia",
@@ -769,7 +769,6 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getHeaders().get("Page-Offset")).containsExactly("0");
         assertThat(response.getHeaders().get("Page-Limit")).containsExactly("100");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("53");
     }
 
     @Test
