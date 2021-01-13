@@ -447,7 +447,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
         final var body = Map.of(
-            "pncNumber", "1998/1234567L",
+            "pncNumber", "98/1234567L",
             "lastName", "d'Arras",
             "firstName", "Mathias",
             "middleName1", "Hector",

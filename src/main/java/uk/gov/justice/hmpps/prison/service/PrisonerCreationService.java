@@ -43,17 +43,25 @@ public class PrisonerCreationService {
 
     public String createPrisoner(final RequestToCreate requestToCreate) {
 
-        // check if prisoner exists
         final var upperLastName = StringUtils.upperCase(requestToCreate.getLastName());
         final var upperFirstname = StringUtils.upperCase(requestToCreate.getFirstName());
         final var gender = genderRepository.findById(new ReferenceCode.Pk(Gender.SEX, requestToCreate.getGender())).orElseThrow(EntityNotFoundException.withMessage("Gender %s not found", requestToCreate.getGender()));
 
-        // Don't really know there business rules here
         if (StringUtils.isNotBlank(requestToCreate.getPncNumber())) {
-            offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("PNC", requestToCreate.getPncNumber()).stream()
+            final var shortPnc = getShortPncNumber(requestToCreate.getPncNumber());
+
+            offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("PNC", shortPnc).stream()
                 .findFirst()
                 .ifPresent(identifier -> {
-                    throw new BadRequestException(format("Prisoner with PNC %s already exists with ID %s", requestToCreate.getPncNumber(), identifier.getOffender().getNomsId()));
+                    throw new BadRequestException(format("Prisoner with PNC %s already exists with ID %s", shortPnc, identifier.getOffender().getNomsId()));
+                });
+
+            final var longPnc = getLongPncNumber(requestToCreate.getPncNumber());
+
+            offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("PNC", longPnc).stream()
+                .findFirst()
+                .ifPresent(identifier -> {
+                    throw new BadRequestException(format("Prisoner with PNC %s already exists with ID %s", longPnc, identifier.getOffender().getNomsId()));
                 });
 
         } else {
@@ -98,7 +106,8 @@ public class PrisonerCreationService {
         offender.setRootOffenderId(offender.getId());
 
         if (StringUtils.isNotBlank(requestToCreate.getPncNumber())) {
-            offender.addIdentifier("PNC", requestToCreate.getPncNumber());
+            // Record in long format always
+            offender.addIdentifier("PNC", getLongPncNumber(requestToCreate.getPncNumber()));
         }
 
         if (StringUtils.isNotBlank(requestToCreate.getCroNumber())) {
@@ -124,4 +133,26 @@ public class PrisonerCreationService {
         }
         return PrisonerIdentifier.builder().id(currentSequence.getPrisonerIdentifier()).build();
     }
+
+    private String getShortPncNumber(String pncNumber) {
+        if (Pnc.isPNCNumberShort(pncNumber)) {
+            return new Pnc(pncNumber).toString();
+        } else if (Pnc.isPNCNumberLong(pncNumber)) {
+            final var pnc = new Pnc(pncNumber);
+            return new Pnc(StringUtils.substring(pnc.getYear(),2,4), pnc.getSerialNumber(), pnc.getChecksum()).toString();
+        }
+        return null;
+    }
+
+    private String getLongPncNumber(String pncNumber) {
+        if (Pnc.isPNCNumberShort(pncNumber)) {
+            final var pnc = new Pnc(pncNumber);
+            return new Pnc(Pnc.addCenturyToYear(pnc.getYear()), pnc.getSerialNumber(), pnc.getChecksum()).toString();
+        } else if (Pnc.isPNCNumberLong(pncNumber)) {
+            return new Pnc(pncNumber).toString();
+        }
+        return null;
+    }
+
+
 }
