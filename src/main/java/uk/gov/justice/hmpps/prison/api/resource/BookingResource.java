@@ -6,14 +6,12 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +46,6 @@ import uk.gov.justice.hmpps.prison.api.model.Keyworker;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
-import uk.gov.justice.hmpps.prison.api.model.NewBooking;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
@@ -56,7 +53,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
@@ -65,7 +61,6 @@ import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
-import uk.gov.justice.hmpps.prison.api.model.RecallBooking;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
@@ -85,13 +80,11 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
-import uk.gov.justice.hmpps.prison.service.BookingMaintenanceService;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.ContactService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.FinanceService;
-import uk.gov.justice.hmpps.prison.service.IdempotentRequestService;
 import uk.gov.justice.hmpps.prison.service.ImageService;
 import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
@@ -100,8 +93,6 @@ import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
-import uk.gov.justice.hmpps.prison.service.support.WrappedErrorResponseException;
-import uk.gov.justice.hmpps.prison.web.handler.ResourceExceptionHandler;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -136,8 +127,6 @@ public class BookingResource {
     private final AdjudicationService adjudicationService;
     private final ImageService imageService;
     private final KeyWorkerAllocationService keyworkerService;
-    private final BookingMaintenanceService bookingMaintenanceService;
-    private final IdempotentRequestService idempotentRequestService;
     private final IncidentService incidentService;
     private final MovementsService movementsService;
     private final AppointmentsService appointmentsService;
@@ -162,81 +151,6 @@ public class BookingResource {
         return ResponseEntity.ok()
                 .headers(allInmates.getPaginationHeaders())
                 .body(allInmates.getItems());
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 201, message = "Offender booking created.", response = OffenderSummary.class),
-            @ApiResponse(code = 204, message = "Request in progress."),
-            @ApiResponse(code = 400, message = "Request to create offender booking failed. Consult response for reason.", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "User not authorised to create offender booking.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Create booking for offender (additionally creating offender record if one does not already exist).", notes = "<b>(BETA)</b> Create booking for offender (additionally creating offender record if one does not already exist).", nickname = "createOffenderBooking")
-    @PostMapping
-    @HasWriteScope
-    @PreAuthorize("hasRole('BOOKING_CREATE')")
-    @ProxyUser
-    public ResponseEntity<OffenderSummary> createOffenderBooking(@RequestBody @ApiParam(value = "Details required to enable creation of new offender booking (and offender, if necessary).", required = true) @Valid final NewBooking newBooking) {
-        // Step 1.
-        // This service supports idempotent request control. First step is to check for existence of a response for
-        // a previous request that used the same correlationId. If no correlationId is provided, this step can be skipped.
-        final var correlationId = newBooking.getCorrelationId();
-        final var isIdempotentRequest = StringUtils.isNotBlank(correlationId);
-
-        if (isIdempotentRequest) {
-            final var irc = idempotentRequestService.getAndSet(correlationId);
-
-            if (irc.isComplete()) {
-                // Immediately process and return response.
-                if (HttpStatus.CREATED.value() == irc.getResponseStatus()) {
-                    final var offenderSummary = idempotentRequestService.extractJsonResponse(irc, OffenderSummary.class);
-
-                    return ResponseEntity.status(HttpStatus.CREATED).body(offenderSummary);
-                } else {
-                    final var errorResponse = idempotentRequestService.extractJsonResponse(irc, ErrorResponse.class);
-
-                    throw new WrappedErrorResponseException(errorResponse);
-                }
-            } else if (irc.isPending()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-            }
-        }
-
-        // Step 2.
-        // Delegate to service to create booking
-        final OffenderSummary offenderSummary;
-
-        try {
-            offenderSummary =
-                    bookingMaintenanceService.createBooking(authenticationFacade.getCurrentUsername(), newBooking);
-        } catch (final Exception ex) {
-            if (isIdempotentRequest) {
-                final var errorResponse = ResourceExceptionHandler.processResponse(ex);
-
-                idempotentRequestService.convertAndStoreResponse(correlationId, errorResponse, errorResponse.getStatus());
-
-                throw new WrappedErrorResponseException(errorResponse);
-            }
-
-            throw ex;
-        }
-
-        if (isIdempotentRequest) {
-            idempotentRequestService.convertAndStoreResponse(correlationId, offenderSummary, 201);
-        }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(offenderSummary);
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Offender successfully recalled."),
-            @ApiResponse(code = 400, message = "Request to recall offender failed. Consult response for reason.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Process recall for offender.", notes = "<b>(BETA)</b> Process recall for offender.", nickname = "recallOffenderBooking")
-    @PutMapping
-    @HasWriteScope
-    @PreFilter("hasRole('BOOKING_RECALL')")
-    @ProxyUser
-    public OffenderSummary recallOffenderBooking(@RequestBody @ApiParam(value = "Details required to enable recall of offender.", required = true) @Valid final RecallBooking recallBooking) {
-        return bookingMaintenanceService.recallBooking(authenticationFacade.getCurrentUsername(), recallBooking);
     }
 
     @ApiResponses({

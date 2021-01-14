@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,13 +17,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
-import uk.gov.justice.hmpps.prison.api.model.NewBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
-import uk.gov.justice.hmpps.prison.api.model.RecallBooking;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -72,9 +69,6 @@ public class BookingRepository extends RepositoryBase {
             new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
 
     private final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
-
-    private final CreateBookingRepository createBookingRepository;
-    private final RecallBookingRepository recallBookingRepository;
 
     @Data
     @NoArgsConstructor
@@ -157,11 +151,6 @@ public class BookingRepository extends RepositoryBase {
         SENTENCE_DETAIL_ROW_MAPPER = Collections.unmodifiableMap(builderMap);
     }
 
-    public BookingRepository(final CreateBookingRepository createBookingRepository, final RecallBookingRepository recallBookingRepository) {
-        this.createBookingRepository = createBookingRepository;
-        this.recallBookingRepository = recallBookingRepository;
-    }
-
     public boolean verifyBookingAccess(final Long bookingId, final Set<String> agencyIds) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         Objects.requireNonNull(agencyIds, "agencyIds is a required parameter");
@@ -240,7 +229,6 @@ public class BookingRepository extends RepositoryBase {
     }
 
     public void addIepLevel(Long bookingId, String username, IepLevelAndComment iepLevel, final LocalDateTime creationTime, final String agencyId) {
-        val now = LocalDateTime.now();
 
         jdbcTemplate.update(
                 BookingRepositorySql.ADD_IEP_LEVEL.getSql(),
@@ -265,7 +253,7 @@ public class BookingRepository extends RepositoryBase {
     }
 
     /**
-     * @param bookingIds
+     * @param bookingIds Booking IDs
      * @param cutoffDate Omit alerts which have expired before this date-time
      * @return a list of active alert codes for each booking id
      */
@@ -290,7 +278,7 @@ public class BookingRepository extends RepositoryBase {
 
         final var sql = buildOrderAndPagination(orderByFields, order, builder);
 
-        final var paRowMapper = new PageAwareRowMapper<ScheduledEvent>(EVENT_ROW_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<>(EVENT_ROW_MAPPER);
 
         final var activities = jdbcTemplate.query(
                 sql,
@@ -547,7 +535,7 @@ public class BookingRepository extends RepositoryBase {
 
         final var sql = buildOrderAndPagination(orderByFields, order, builder);
 
-        final var paRowMapper = new PageAwareRowMapper<ScheduledEvent>(EVENT_ROW_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<>(EVENT_ROW_MAPPER);
 
         final var visits = jdbcTemplate.query(
                 sql,
@@ -731,18 +719,6 @@ public class BookingRepository extends RepositoryBase {
         }
 
         return Optional.ofNullable(summary);
-    }
-
-    public Long createBooking(final String agencyId, final NewBooking newBooking) {
-        Validate.notNull(newBooking);
-
-        return createBookingRepository.createBooking(agencyId, newBooking);
-    }
-
-    public Long recallBooking(final String agencyId, final RecallBooking recallBooking) {
-        Validate.notNull(recallBooking);
-
-        return recallBookingRepository.recallBooking(agencyId, recallBooking);
     }
 
     public List<OffenderSentenceCalculation> getOffenderSentenceCalculations(final Set<String> agencyIds) {
