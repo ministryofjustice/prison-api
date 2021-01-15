@@ -103,7 +103,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRecentMovementsByOffendersAndMovementTypes() {
-        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of("TRN"), true);
+        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of("TRN"), true, false);
 
         assertThat(movements).extracting(Movement::getToAgency).containsExactly("MDI");
     }
@@ -118,21 +118,21 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveMovementsByOffendersAndMovementTypes() {
-        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of("TRN"), false);
+        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of("TRN"), false, false);
 
         assertThat(movements).extracting(Movement::getToAgency).containsOnly("BMI", "MDI");
     }
 
     @Test
     public void canRetrieveRecentMovementsByOffenders() {
-        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of(), true);
+        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of(), true, false);
 
         assertThat(movements).extracting(Movement::getToCity).containsExactly("Wadhurst");
     }
 
     @Test
     public void canRetrieveMovementsByOffenders() {
-        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of(), false);
+        final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of(), false, false);
 
         assertThat(movements).extracting(Movement::getFromAgency).containsOnly("BMI", "LEI");
     }

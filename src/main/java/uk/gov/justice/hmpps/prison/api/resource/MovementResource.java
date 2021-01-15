@@ -110,8 +110,11 @@ public class MovementResource {
 
     @ApiOperation(value = "", nickname = "getMovementsByOffenders")
     @PostMapping("/offenders")
-    public List<Movement> getMovementsByOffenders(@RequestBody @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderNumbers, @RequestParam(value = "movementTypes", required = false) @ApiParam("movement type codes to filter by") final List<String> movementTypes, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") final Boolean latestOnly) {
-        return movementsService.getMovementsByOffenders(offenderNumbers, movementTypes, latestOnly == null || latestOnly);
+    public List<Movement> getMovementsByOffenders(@RequestBody @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderNumbers,
+                                                  @RequestParam(value = "movementTypes", required = false) @ApiParam("movement type codes to filter by") final List<String> movementTypes,
+                                                  @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @ApiParam(value = "Returns only latest movement for the offenders specified", defaultValue = "true") final Boolean latestOnly,
+                                                  @RequestParam(value = "allBookings", required = false, defaultValue = "false") @ApiParam(value = "Returns all movements for this offender list from all bookings if true", defaultValue = "false") final boolean allBookings) {
+        return movementsService.getMovementsByOffenders(offenderNumbers, movementTypes, latestOnly == null || latestOnly, allBookings);
     }
 
     @ApiResponses({

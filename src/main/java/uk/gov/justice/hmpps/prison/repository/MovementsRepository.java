@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
 @Repository
@@ -71,13 +72,14 @@ public class MovementsRepository extends RepositoryBase {
     }
 
 
-    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
+    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly, final boolean allBookings) {
+        final var firstSeqOnly = allBookings ? "" : "AND OB.BOOKING_SEQ = 1";
         if (movementTypes == null || movementTypes.isEmpty()) {
-            return jdbcTemplate.query(MovementsRepositorySql.GET_MOVEMENTS_BY_OFFENDERS.getSql(), createParams(
+            return jdbcTemplate.query(format(MovementsRepositorySql.GET_MOVEMENTS_BY_OFFENDERS.getSql(), firstSeqOnly), createParams(
                     "offenderNumbers", offenderNumbers, "latestOnly", latestOnly),
                     MOVEMENT_MAPPER);
         }
-        return jdbcTemplate.query(MovementsRepositorySql.GET_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES.getSql(), createParams(
+        return jdbcTemplate.query(format(MovementsRepositorySql.GET_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES.getSql(), firstSeqOnly), createParams(
                 "offenderNumbers", offenderNumbers,
                 "movementTypes", movementTypes,
                 "latestOnly", latestOnly),

@@ -91,10 +91,10 @@ public class MovementsService {
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
-    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly) {
+    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly, final boolean allBookings) {
         final var movements = Lists.partition(offenderNumbers, maxBatchSize)
                 .stream()
-                .map(offenders -> movementsRepository.getMovementsByOffenders(offenders, movementTypes, latestOnly))
+                .map(offenders -> movementsRepository.getMovementsByOffenders(offenders, movementTypes, latestOnly, allBookings))
                 .flatMap(List::stream);
 
         return movements.map(movement -> movement.toBuilder()
