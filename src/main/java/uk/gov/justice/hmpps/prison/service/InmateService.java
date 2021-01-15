@@ -289,7 +289,7 @@ public class InmateService {
 
     private String calculateLocationDescription(final InmateDetail inmate) {
         if ("OUT".equals(inmate.getInOutStatus())) {
-            final var movementList = movementsService.getMovementsByOffenders(List.of(inmate.getOffenderNo()), List.of(), true);
+            final var movementList = movementsService.getMovementsByOffenders(List.of(inmate.getOffenderNo()), List.of(), true, false);
             return movementList.stream().findFirst().map(lastMovement ->
                     "REL".equals(lastMovement.getMovementType())
                     ? "Outside - released from " + lastMovement.getFromAgencyDescription()

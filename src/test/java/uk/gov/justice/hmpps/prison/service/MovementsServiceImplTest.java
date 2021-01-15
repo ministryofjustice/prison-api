@@ -65,13 +65,13 @@ public class MovementsServiceImplTest {
         final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).fromAgencyDescription("LEEDS").toAgencyDescription("BLACKBURN").build());
         final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
 
-        when(movementsRepository.getMovementsByOffenders(offenderNoList, null, true)).thenReturn(movements);
+        when(movementsRepository.getMovementsByOffenders(offenderNoList, null, true, false)).thenReturn(movements);
 
-        final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, true);
+        final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, true, false);
         assertThat(processedMovements).extracting("toAgencyDescription").containsExactly("Blackburn");
         assertThat(processedMovements).extracting("fromAgencyDescription").containsExactly("Leeds");
 
-        verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, true);
+        verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, true, false);
     }
 
     @Test
@@ -79,13 +79,13 @@ public class MovementsServiceImplTest {
         final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).fromAgencyDescription("LEEDS").toAgencyDescription("BLACKBURN").build());
         final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
 
-        when(movementsRepository.getMovementsByOffenders(offenderNoList, null, false)).thenReturn(movements);
+        when(movementsRepository.getMovementsByOffenders(offenderNoList, null, false, false)).thenReturn(movements);
 
-        final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, false);
+        final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, false, false);
         assertThat(processedMovements).extracting("toAgencyDescription").containsExactly("Blackburn");
         assertThat(processedMovements).extracting("fromAgencyDescription").containsExactly("Leeds");
 
-        verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, false);
+        verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, false, false);
     }
 
     @Test
@@ -93,14 +93,14 @@ public class MovementsServiceImplTest {
         final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).build());
         final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
 
-        when(movementsRepository.getMovementsByOffenders(offenderNoList, null, true)).thenReturn(movements);
+        when(movementsRepository.getMovementsByOffenders(offenderNoList, null, true, false)).thenReturn(movements);
 
-        final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, true);
+        final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, true, false);
 
         assertThat(processedMovements).hasSize(1);
         assertThat(processedMovements.get(0).getFromAgencyDescription()).isEmpty();
 
-        verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, true);
+        verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, true, false);
     }
 
     @Test
@@ -249,18 +249,18 @@ public class MovementsServiceImplTest {
                 .movementReason("COURT")
                 .build();
 
-        when(movementsRepository.getMovementsByOffenders(List.of("offender1"), Collections.emptyList(), true))
+        when(movementsRepository.getMovementsByOffenders(List.of("offender1"), Collections.emptyList(), true, false))
                 .thenReturn(List.of(movement1));
 
-        when(movementsRepository.getMovementsByOffenders(List.of("offender2"), Collections.emptyList(), true))
+        when(movementsRepository.getMovementsByOffenders(List.of("offender2"), Collections.emptyList(), true, false))
                 .thenReturn(List.of(movement2));
 
-        final var movements = movementsService.getMovementsByOffenders(offenders, Collections.emptyList(), true);
+        final var movements = movementsService.getMovementsByOffenders(offenders, Collections.emptyList(), true, false);
 
         assertThat(movements).containsSequence(List.of(movement1, movement2));
 
-        verify(movementsRepository).getMovementsByOffenders(List.of("offender1"), Collections.emptyList(), true);
-        verify(movementsRepository).getMovementsByOffenders(List.of("offender2"), Collections.emptyList(), true);
+        verify(movementsRepository).getMovementsByOffenders(List.of("offender1"), Collections.emptyList(), true, false);
+        verify(movementsRepository).getMovementsByOffenders(List.of("offender2"), Collections.emptyList(), true, false);
     }
 
 

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+import static java.lang.String.format;
 import static java.util.Map.entry;
 import static java.util.Map.of;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -48,6 +49,24 @@ public class MovementResourceTest extends ResourceTest {
 
         assertThatStatus(response, 200);
         assertThatJson(response.getBody()).isEqualTo("[]");
+    }
+
+    @Test
+    public void testGetMovementsForOffenders() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var body = format("[ \"%s\" ]", "A1179MT");
+
+        final var response = testRestTemplate.exchange(
+            "/api/movements/offenders?allBookings=true&latestOnly=false",
+            HttpMethod.POST,
+            createHttpEntity(token, body),
+            new ParameterizedTypeReference<String>() {
+            }
+        );
+
+        assertThatStatus(response, 200);
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_all_bookings.json");
     }
 
     @Test
