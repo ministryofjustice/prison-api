@@ -112,7 +112,7 @@ public class OffenderResource {
         @ApiResponse(code = 403, message = "Forbidden - user not authorised to create a prisoner.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation("*** BETA *** Creates a prisoner. CREATE_BOOKING role")
+    @ApiOperation("*** BETA *** Creates a prisoner. BOOKING_CREATE role")
     @PostMapping
     @HasWriteScope
     @PreAuthorize("hasRole('BOOKING_CREATE')")
@@ -163,7 +163,7 @@ public class OffenderResource {
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Receives a prisoner on a new booking. BOOKING_CREATE role")
-    @PostMapping("/{offenderNo}/new-booking")
+    @PostMapping("/{offenderNo}/booking")
     @HasWriteScope
     @PreAuthorize("hasRole('BOOKING_CREATE')")
     @ProxyUser

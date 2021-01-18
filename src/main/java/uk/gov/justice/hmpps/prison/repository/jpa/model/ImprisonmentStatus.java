@@ -3,7 +3,9 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +19,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Entity
 @Table(name = "IMPRISONMENT_STATUSES")
+@EqualsAndHashCode(of = { "id" }, callSuper = false)
+@ToString(of = { "id", "status", "description"})
 public class ImprisonmentStatus extends AuditableEntity {
 
     @Id

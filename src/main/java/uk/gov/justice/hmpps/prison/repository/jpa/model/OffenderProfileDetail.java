@@ -3,7 +3,9 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +21,8 @@ import java.io.Serializable;
 @Entity
 @IdClass(OffenderProfileDetail.PK.class)
 @Table(name = "OFFENDER_PROFILE_DETAILS")
+@EqualsAndHashCode(of = { "bookingId", "type", "sequence" }, callSuper = false)
+@ToString(of =  { "bookingId", "type", "sequence", "code" })
 public class OffenderProfileDetail extends AuditableEntity {
 
     @NoArgsConstructor
