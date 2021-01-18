@@ -64,12 +64,19 @@ public class PrisonerCreationService {
                     throw new BadRequestException(format("Prisoner with PNC %s already exists with ID %s", longPnc, identifier.getOffender().getNomsId()));
                 });
 
+        } else if (StringUtils.isNotBlank(requestToCreate.getCroNumber())) {
+            offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("CRO", requestToCreate.getCroNumber()).stream()
+                .findFirst()
+                .ifPresent(identifier -> {
+                    throw new BadRequestException(format("Prisoner with CRO %s already exists with ID %s", requestToCreate.getCroNumber(), identifier.getOffender().getNomsId()));
+                });
+
         } else {
             offenderRepository.findByLastNameAndFirstNameAndBirthDate(upperLastName, upperFirstname, requestToCreate.getDateOfBirth())
-              .stream().findFirst().ifPresent(offender -> {
-                    throw new BadRequestException(format("Prisoner with lastname %s, firstname %s and dob %s already exists with ID %s", upperLastName, upperFirstname, requestToCreate.getDateOfBirth().format(DateTimeFormatter.ISO_LOCAL_DATE), offender.getNomsId()));
-                });
-          }
+                .stream().findFirst().ifPresent(offender -> {
+                throw new BadRequestException(format("Prisoner with lastname %s, firstname %s and dob %s already exists with ID %s", upperLastName, upperFirstname, requestToCreate.getDateOfBirth().format(DateTimeFormatter.ISO_LOCAL_DATE), offender.getNomsId()));
+            });
+        }
 
         //check dob range
         final var now = LocalDate.now();

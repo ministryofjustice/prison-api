@@ -59,7 +59,7 @@ public class RequestToCreate {
     @Size(max = 12)
     private String suffix;
 
-    @ApiModelProperty(required = true, value = "The offender's date of birth. Must be specified in YYYY-MM-DD format. Current has to match YJAF allowed DOB", example = "1970-01-01")
+    @ApiModelProperty(required = true, value = "The offender's date of birth. Must be specified in YYYY-MM-DD format. Range allowed is 16-110 years", example = "1970-01-01")
     @NotNull
     private LocalDate dateOfBirth;
 

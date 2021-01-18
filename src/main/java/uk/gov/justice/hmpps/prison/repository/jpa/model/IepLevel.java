@@ -3,7 +3,9 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +21,8 @@ import java.io.Serializable;
 @Entity
 @IdClass(IepLevel.PK.class)
 @Table(name = "IEP_LEVELS")
+@EqualsAndHashCode(of = { "iepLevel", "agencyLocationId"}, callSuper = false)
+@ToString
 public class IepLevel extends AuditableEntity  {
 
     @NoArgsConstructor

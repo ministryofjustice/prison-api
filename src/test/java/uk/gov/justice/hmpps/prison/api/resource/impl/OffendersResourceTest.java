@@ -474,7 +474,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var newBookingEntity = createHttpEntity(token, newBookingBody);
 
         final var newBookingResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/new-booking",
+            "/api/offenders/{nomsId}/booking",
             POST,
             newBookingEntity,
             new ParameterizedTypeReference<String>() {
@@ -529,6 +529,38 @@ public class OffendersResourceTest extends ResourceTest {
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
         assertThat(error.getUserMessage()).contains("Prisoner with PNC 1998/1234567L already exists with ID A1234AD");
     }
+
+    @Test
+    public void testCannotCreateNewPrisonerWithExistingCRO() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of(
+            "croNumber", "CRO112234",
+            "lastName", "d'Arras",
+            "firstName", "Mathias",
+            "middleName1", "Hector",
+            "middleName2", "Sausage-Hausen",
+            "title", "MR",
+            "suffix", "JR",
+            "dateOfBirth", LocalDate.of(2000, 10, 17).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "gender", "M",
+            "ethnicity", "M1");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders",
+            POST,
+            entity,
+            ErrorResponse.class
+        );
+
+        final var error = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        assertThat(error.getUserMessage()).contains("Prisoner with CRO CRO112234 already exists with ID A1234AC");
+    }
+
 
     @Test
     public void testCannotCreateNewPrisonerWithSameNames() {
@@ -681,7 +713,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var newBookingEntity = createHttpEntity(token, body);
 
         final var response =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/new-booking",
+            "/api/offenders/{nomsId}/booking",
             POST,
             newBookingEntity,
             new ParameterizedTypeReference<String>() {
@@ -713,7 +745,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var newBookingEntity = createHttpEntity(token, body);
 
         final var response =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/new-booking",
+            "/api/offenders/{nomsId}/booking",
             POST,
             newBookingEntity,
             new ParameterizedTypeReference<String>() {

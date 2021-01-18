@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,6 +22,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Entity
 @Table(name = "PROFILE_TYPES")
+@EqualsAndHashCode(of = { "type"}, callSuper = false)
+@ToString(of = { "type", "category", "description"})
 public class ProfileType extends AuditableEntity {
 
     @Id
