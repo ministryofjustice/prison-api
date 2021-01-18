@@ -303,6 +303,10 @@ public class OffenderEventsTransformer {
                     return offenderBedAssignmentEventOf(xtag);
                 case "CONFIRMED_RELEASE_DATE-CHANGED":
                     return confirmedReleaseDateOf(xtag);
+                case "OFFENDER-INSERTED":
+                case "OFFENDER-UPDATED":
+                case "OFFENDER-DELETED":
+                    return offenderUpdatedOf(xtag);
                 default:
                     return OffenderEvent.builder()
                             .eventType(xtag.getEventType())
@@ -957,6 +961,15 @@ public class OffenderEventsTransformer {
                 .eventDatetime(xtag.getNomisTimestamp())
                 .bookingId(longOf(xtag.getContent().getP_offender_book_id()))
                 .build();
+    }
+
+    private OffenderEvent offenderUpdatedOf(final Xtag xtag) {
+        return OffenderEvent.builder()
+            .eventType(xtag.getEventType())
+            .eventDatetime(xtag.getNomisTimestamp())
+            .offenderId(longOf(xtag.getContent().getP_offender_id()))
+            .offenderIdDisplay(xtag.getContent().getP_offender_id_display())
+            .build();
     }
 
     public String caseNoteEventTypeOf(final uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEvent event) {

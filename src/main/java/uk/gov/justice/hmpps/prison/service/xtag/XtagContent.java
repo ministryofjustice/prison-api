@@ -18,6 +18,7 @@ public class XtagContent {
     private String p_offender_id;
     private String p_root_offender_id;
     private String p_offender_book_id;
+    private String p_offender_id_display;
 
     private String p_address_usage;
     private String p_address_end_date;
