@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import java.time.LocalTime;
  * Prisoner Custody Status
  **/
 @SuppressWarnings("unused")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel(description = "Prisoner Custody Status")
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -36,7 +38,6 @@ public class Movement {
     @ApiModelProperty(required = true, value = "Agency travelling from")
     private String fromAgency;
 
-    @NotBlank
     @ApiModelProperty(required = true, value = "Description of the agency travelling from")
     private String fromAgencyDescription;
 
@@ -44,15 +45,12 @@ public class Movement {
     @ApiModelProperty(required = true, value = "Agency travelling to")
     private String toAgency;
 
-    @NotBlank
     @ApiModelProperty(required = true, value = "Description of the agency travelling to")
     private String toAgencyDescription;
 
-    @NotBlank
     @ApiModelProperty(value = "City offender was received from")
     private String fromCity;
 
-    @NotBlank
     @ApiModelProperty(value = "City offender was sent to")
     private String toCity;
 
@@ -60,7 +58,6 @@ public class Movement {
     @ApiModelProperty(required = true, value = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = "ADM,CRT,REL,TAP,TRN")
     private String movementType;
 
-    @NotBlank
     @ApiModelProperty(required = true, value = "Description of the movement type")
     private String movementTypeDescription;
 

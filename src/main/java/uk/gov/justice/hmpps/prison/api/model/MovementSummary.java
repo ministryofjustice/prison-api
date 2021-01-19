@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 
 @SuppressWarnings("unused")
 @ApiModel(description = "Summary data for a completed movement")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor

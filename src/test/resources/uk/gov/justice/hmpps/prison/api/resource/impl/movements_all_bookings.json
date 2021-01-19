@@ -11,10 +11,9 @@
     "movementType": "REL",
     "movementTypeDescription": "Release",
     "directionCode": "OUT",
-    "movementDate": null,
+    "movementDate": "2018-05-01",
     "movementTime": "13:00:00",
-    "movementReason": "Abscond",
-    "commentText": null
+    "movementReason": "Abscond"
   },
   {
     "offenderNo": "A1179MT",
@@ -28,9 +27,8 @@
     "movementType": "ADM",
     "movementTypeDescription": "Admission",
     "directionCode": "IN",
-    "movementDate": null,
+    "movementDate": "2019-05-01",
     "movementTime": "13:00:00",
-    "movementReason": "Recapture (Escapee)",
-    "commentText": null
+    "movementReason": "Recapture (Escapee)"
   }
 ]
