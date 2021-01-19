@@ -1,0 +1,12 @@
+[
+  {
+    "offenderNo": "A1179MT",
+    "createDateTime": "2018-04-25T00:00:00",
+    "fromAgency": "MDI",
+    "toAgency": "OUT",
+    "movementType": "REL",
+    "directionCode": "OUT",
+    "movementDate": "2018-05-01",
+    "movementTime": "13:00:00"
+  }
+]

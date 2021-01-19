@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -67,6 +68,24 @@ public class MovementResourceTest extends ResourceTest {
 
         assertThatStatus(response, 200);
         assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_all_bookings.json");
+    }
+
+    @Test
+    public void testGetMovementsForDateRange() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
+
+        final var response = testRestTemplate.exchange(
+            "/api/movements?fromDateTime={fromDateTime}&movementDate={movementDate}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            LocalDateTime.of(2018,4, 25,0,0,0).truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            LocalDate.of(2018,5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)
+        );
+
+        assertThatStatus(response, 200);
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_on_day.json");
     }
 
     @Test
