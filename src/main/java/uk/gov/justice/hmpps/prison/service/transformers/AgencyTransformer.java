@@ -24,7 +24,7 @@ public class AgencyTransformer {
             .id(agency.getAgencyId())
             .type(type)
             .activeFlag(agency.isActive() ? ActiveFlag.Y : ActiveFlag.N)
-            .description(LocationProcessor.formatLocation(agency.getDescription()))
+            .description(agency.getDescription())
             .longDescription(agency.getLongDescription())
             .deactivationDate(agency.getDeactivationDate())
             .build();
