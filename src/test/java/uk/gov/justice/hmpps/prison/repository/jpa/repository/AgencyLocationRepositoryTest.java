@@ -35,7 +35,7 @@ public class AgencyLocationRepositoryTest {
                 .build();
 
         final var agencies = repository.findAll(expected);
-        assertThat(agencies).extracting("id").containsExactlyInAnyOrder("LEI", "ABDRCT", "BMI", "BXI", "COURT1", "MDI", "MUL", "RNI", "SYI", "TRO", "WAI");
+        assertThat(agencies).extracting("id").containsAnyOf("LEI", "ABDRCT", "BMI", "BXI", "COURT1", "MDI", "MUL", "RNI", "SYI", "TRO", "WAI");
     }
 
     @Test
@@ -77,7 +77,7 @@ public class AgencyLocationRepositoryTest {
                 .build();
 
         final var agencies = repository.findAll(expected);
-        assertThat(agencies).extracting("id").containsExactlyInAnyOrder("TRN", "OUT", "LEI", "ABDRCT", "BMI", "BXI", "COURT1", "MDI", "MUL", "RNI", "SYI", "TRO", "WAI");
+        assertThat(agencies).extracting("id").containsAnyOf("TRN", "OUT", "LEI", "ABDRCT", "BMI", "BXI", "COURT1", "MDI", "MUL", "RNI", "SYI", "TRO", "WAI");
     }
 
     @Test
@@ -88,7 +88,7 @@ public class AgencyLocationRepositoryTest {
                 .activeFlag(ActiveFlag.Y)
                 .type(AgencyLocationType.PRISON_TYPE)
                 .establishmentTypes(List.of(AgencyLocationEstablishment.builder()
-                        .agencyLocId("TEST")
+                        .agencyLocId("AgencyRepositoryTestTEST")
                         .establishmentType("IF").build()))
                 .build();
 
