@@ -52,7 +52,7 @@ public class AgencyResourceTest extends ResourceTest {
 
         final var body = Map.of(
             "agencyId", "LEI",
-            "description", "Leeds",
+            "description", "LEEDS",
             "longDescription", "This is a prison based in Leeds",
             "agencyType", "INST",
             "active", "true");
