@@ -22,7 +22,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(of = { "id" }, callSuper = false)
 @Table(name = "OFFENDER_CHARGES")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 public class OffenderCharge extends AuditableEntity {

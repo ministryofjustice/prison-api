@@ -34,6 +34,7 @@ public class AddressUsage extends AuditableEntity {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class PK implements Serializable {
         @Column(name = "ADDRESS_ID", updatable = false, insertable = false)
         private Long id;

@@ -3,7 +3,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
@@ -16,10 +16,8 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -33,6 +31,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 public class AgencyInternalLocationProfile {
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class PK implements Serializable {
 
         @Column(name = "INTERNAL_LOCATION_ID")

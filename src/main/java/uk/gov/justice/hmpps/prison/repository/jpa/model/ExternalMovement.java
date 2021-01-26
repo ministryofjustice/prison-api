@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.NotFound;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,7 +24,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static javax.persistence.EnumType.STRING;
-import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.City.CITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.REASON;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TYPE;
@@ -42,6 +40,7 @@ public class ExternalMovement extends AuditableEntity {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class PK implements Serializable {
         @Column(name = "OFFENDER_BOOK_ID", updatable = false, insertable = false)
         private Long bookingId;
@@ -87,7 +86,6 @@ public class ExternalMovement extends AuditableEntity {
     private String commentText;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CITY + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "TO_CITY", referencedColumnName = "code"))
@@ -96,7 +94,6 @@ public class ExternalMovement extends AuditableEntity {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CITY + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "FROM_CITY", referencedColumnName = "code"))
