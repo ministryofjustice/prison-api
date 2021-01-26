@@ -67,5 +67,8 @@ public class OffenderTransactionHistoryDto {
     @ApiModelProperty(value = "List of related transaction details", position = 14)
     @Default
     private List<RelatedTransactionDetails> relatedOffenderTransactions = new ArrayList<>();
+
+    @ApiModelProperty(value = "Balance at a point in time", position = 15)
+    private Long currentBalance;
 }
 
