@@ -11,7 +11,7 @@ public class AgencyTransformer {
     public static Agency transform(final AgencyLocation agency) {
         return Agency.builder()
                 .agencyId(agency.getId())
-                .agencyType(agency.getType().getCode())
+                .agencyType(agency.getType() != null ? agency.getType().getCode() : null)
                 .active(agency.getActiveFlag() != null && agency.getActiveFlag().isActive())
                 .description(LocationProcessor.formatLocation(agency.getDescription()))
                 .longDescription(agency.getLongDescription())

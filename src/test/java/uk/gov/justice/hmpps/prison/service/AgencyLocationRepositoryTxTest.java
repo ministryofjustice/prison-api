@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -25,13 +26,16 @@ public class AgencyLocationRepositoryTxTest {
     @Autowired
     private AgencyLocationRepository repository;
 
+    @Autowired
+    private ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCode;
+
     @Test
-    public void testPersistingAgency() throws NoSuchFieldException, IllegalAccessException {
+    public void testPersistingAgency() {
         final var newAgency = AgencyLocation.builder()
                 .id(TEST_AGY_ID)
                 .description("A Test Agency")
                 .activeFlag(ActiveFlag.Y)
-                .type(AgencyLocationType.COURT_TYPE)
+                .type(agencyLocationTypeReferenceCode.findById(AgencyLocationType.CRT).orElseThrow())
                 .build();
 
         final var persistedEntity = repository.save(newAgency);
