@@ -10,7 +10,6 @@ import lombok.ToString;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.NotFound;
 import org.springframework.data.annotation.CreatedDate;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
 
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Suffix.SUFFIX;
@@ -96,7 +94,6 @@ public class Offender extends AuditableEntity {
     private List<OffenderIdentifier> identifiers = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEX + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "SEX_CODE", referencedColumnName = "code", nullable = false))
@@ -104,7 +101,6 @@ public class Offender extends AuditableEntity {
     private Gender gender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + ETHNICITY + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "RACE_CODE", referencedColumnName = "code"))
@@ -112,7 +108,6 @@ public class Offender extends AuditableEntity {
     private Ethnicity ethnicity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + TITLE + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "TITLE", referencedColumnName = "code"))
@@ -120,7 +115,6 @@ public class Offender extends AuditableEntity {
     private Title title;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SUFFIX + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "SUFFIX", referencedColumnName = "code"))

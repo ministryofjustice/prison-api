@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer.transform;
@@ -15,7 +16,7 @@ public class AgencyTransformerTest {
 
     @BeforeEach
     void setup() {
-        builder.id("MDI").type("CRT").description("moorland");
+        builder.id("MDI").type(new AgencyLocationType("INST")).description("moorland");
     }
 
     @Test
@@ -25,7 +26,7 @@ public class AgencyTransformerTest {
         assertThat(transform(agency)).isEqualTo(
                 Agency.builder()
                         .agencyId("MDI")
-                        .agencyType("CRT")
+                        .agencyType("INST")
                         .description("Moorland")
                         .active(true)
                         .build());
@@ -38,7 +39,7 @@ public class AgencyTransformerTest {
         assertThat(transform(agency)).isEqualTo(
                 Agency.builder()
                         .agencyId("MDI")
-                        .agencyType("CRT")
+                        .agencyType("INST")
                         .description("Moorland")
                         .active(false)
                         .build());
@@ -51,7 +52,7 @@ public class AgencyTransformerTest {
         assertThat(transform(agency)).isEqualTo(
                 Agency.builder()
                         .agencyId("MDI")
-                        .agencyType("CRT")
+                        .agencyType("INST")
                         .description("Moorland")
                         .active(false)
                         .build());

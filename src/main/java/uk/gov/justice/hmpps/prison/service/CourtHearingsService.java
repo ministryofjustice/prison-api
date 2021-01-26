@@ -194,7 +194,7 @@ public class CourtHearingsService {
     private AgencyLocation getActiveCourtFor(final String courtLocation) {
         final var agency = agencyLocationRepository.findById(courtLocation).orElseThrow(EntityNotFoundException.withMessage("Court with id %s not found.", courtLocation));
 
-        checkArgument(agency.getType().equalsIgnoreCase("CRT"), "Supplied court location wih id %s is not a valid court location.", courtLocation);
+        checkArgument(agency.getType().getCode().equalsIgnoreCase("CRT"), "Supplied court location wih id %s is not a valid court location.", courtLocation);
         checkArgument(agency.getActiveFlag().isActive(), "Supplied court location wih id %s is not active.", courtLocation);
 
         return agency;

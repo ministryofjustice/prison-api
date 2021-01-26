@@ -11,6 +11,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 
 @ActiveProfiles("test")
@@ -30,7 +31,7 @@ public class AgencyLocationRepositoryTxTest {
                 .id(TEST_AGY_ID)
                 .description("A Test Agency")
                 .activeFlag(ActiveFlag.Y)
-                .type("NEWTYPE")
+                .type(AgencyLocationType.COURT_TYPE)
                 .build();
 
         final var persistedEntity = repository.save(newAgency);

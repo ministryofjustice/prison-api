@@ -7,6 +7,8 @@ import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -27,6 +29,68 @@ public class AgencyResourceTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(response, 200, "agencies_by_type.json");
     }
+
+    @Test
+    public void testCanFindAgencyById() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/LEI",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(response, 200, "single_agency.json");
+    }
+
+    @Test
+    public void testCanUpdateAgencyById() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+
+        final var body = Map.of(
+            "agencyId", "LEI",
+            "description", "Leeds",
+            "longDescription", "This is a prison based in Leeds",
+            "agencyType", "INST",
+            "active", "true");
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/LEI",
+            HttpMethod.PUT,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(response, 200, "single_agency_updated.json");
+    }
+
+    @Test
+    public void testCanCreateNewAgency() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "agencyId", "SHFCRT",
+            "description", "Sheffield Crown Court",
+            "longDescription", "This is a court in Sheffield",
+            "agencyType", "CRT",
+            "active", "true");
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(response, 200, "new_agency.json");
+    }
+
 
     @Test
     public void testCanFindAgenciesByTypePlusInactive() {

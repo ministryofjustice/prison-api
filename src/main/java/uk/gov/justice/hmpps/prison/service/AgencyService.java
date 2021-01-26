@@ -24,10 +24,12 @@ import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.transform.LocationTransformer;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -46,6 +48,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.INACTIVE_ONLY;
@@ -70,6 +73,7 @@ public class AgencyService {
     private final AgencyRepository agencyRepository;
     private final AgencyLocationRepository agencyLocationRepository;
     private final ReferenceDomainService referenceDomainService;
+    private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
 
@@ -84,6 +88,31 @@ public class AgencyService {
                 .stream()
                 .findFirst()
                 .map(AgencyTransformer::transform).orElseThrow(EntityNotFoundException.withId(agencyId));
+    }
+
+
+    @Transactional
+    public Agency updateAgency(final String agencyId, final Agency agencyToUpdate) {
+        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+        if (!agency.getId().equalsIgnoreCase(agencyToUpdate.getAgencyId())) {
+            throw new BadRequestException(format("Agency ID %s does not match payload ID %s", agencyId, agencyToUpdate.getAgencyId()));
+        }
+
+        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToUpdate.getAgencyType())).orElseThrow(EntityNotFoundException.withId(agencyToUpdate.getAgencyType()));
+        return AgencyTransformer.transform(AgencyTransformer.update(agency, agencyToUpdate, agencyLocationType));
+    }
+
+    @Transactional
+    public Agency createAgency(final Agency agencyToCreate) {
+        agencyLocationRepository.findById(agencyToCreate.getAgencyId())
+        .ifPresent(p -> {
+            throw new EntityAlreadyExistsException(format("Agency with ID %s already exists", agencyToCreate.getAgencyId()));
+        });
+
+        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToCreate.getAgencyType())).orElseThrow(EntityNotFoundException.withId(agencyToCreate.getAgencyType()));
+
+        final var agencyLocation = agencyLocationRepository.save(AgencyTransformer.build(agencyToCreate, agencyLocationType));
+        return AgencyTransformer.transform(agencyLocation);
     }
 
     public List<Agency> getAgenciesByType(final String agencyType, final boolean activeOnly) {
@@ -166,7 +195,7 @@ public class AgencyService {
         final var agencyInternalLocations = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag(agencyId, type, ActiveFlag.Y);
 
         if (agencyInternalLocations.size() == 0) {
-            throw EntityNotFoundException.withMessage(String.format("Locations of type %s in agency %s not found", type, agencyId));
+            throw EntityNotFoundException.withMessage(format("Locations of type %s in agency %s not found", type, agencyId));
         }
 
         return agencyInternalLocations.stream().map(LocationTransformer::fromAgencyInternalLocation).collect(toList());
@@ -213,7 +242,7 @@ public class AgencyService {
 
         final var prisonContactDetailList = removeBlankAddresses(agencyRepository.getPrisonContactDetails(agencyId));
         if (prisonContactDetailList.isEmpty()) {
-            throw EntityNotFoundException.withMessage(String.format("Contact details not found for Prison %s", agencyId));
+            throw EntityNotFoundException.withMessage(format("Contact details not found for Prison %s", agencyId));
         }
         return prisonContactDetailList.get(0);
     }
@@ -251,7 +280,7 @@ public class AgencyService {
         final var agencyInternalLocation = agencyInternalLocationRepository.findOneByLocationId(locationId);
         final var offenderCell = agencyInternalLocation.map(cell -> transform(cell, false)).orElse(null);
         if (offenderCell == null) {
-            throw EntityNotFoundException.withMessage(String.format("No cell details found for location id %s", locationId));
+            throw EntityNotFoundException.withMessage(format("No cell details found for location id %s", locationId));
         }
         return offenderCell;
     }

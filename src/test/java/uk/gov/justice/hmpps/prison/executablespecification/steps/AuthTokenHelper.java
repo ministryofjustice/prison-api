@@ -44,6 +44,7 @@ public class AuthTokenHelper {
         PRISON_MOVE_MAINTAINER,
         CREATE_BOOKING_USER,
         SMOKE_TEST,
+        REF_DATA_MAINTAINER
     }
 
 
@@ -73,7 +74,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.PRISON_MOVE_MAINTAINER), prisonMoveMaintiner());
         tokens.put(String.valueOf(AuthToken.CREATE_BOOKING_USER), createBookingApiUser());
         tokens.put(String.valueOf(AuthToken.SMOKE_TEST), createSmokeTestUser());
-
+        tokens.put(String.valueOf(AuthToken.REF_DATA_MAINTAINER), createRefDataMaintainerUser());
     }
 
     public String getToken() {
@@ -344,6 +345,17 @@ public class AuthTokenHelper {
                         .roles(List.of("ROLE_SMOKE_TEST"))
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
+        );
+    }
+
+    private String createRefDataMaintainerUser() {
+        return jwtAuthenticationHelper.createJwt(
+            JwtParameters.builder()
+                .username("ITAG_USER")
+                .scope(List.of("read", "write"))
+                .roles(List.of("ROLE_MAINTAIN_REF_DATA"))
+                .expiryTime(Duration.ofDays(365 * 10))
+                .build()
         );
     }
 }

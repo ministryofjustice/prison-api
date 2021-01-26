@@ -22,6 +22,8 @@ import java.io.Serializable;
 @DiscriminatorColumn(name = "domain")
 @Inheritance
 @IdClass(ReferenceCode.Pk.class)
+@EqualsAndHashCode(of = {"domain", "code"})
+@ToString(of = {"domain", "code", "description"})
 public abstract class ReferenceCode implements Serializable {
 
     @AllArgsConstructor

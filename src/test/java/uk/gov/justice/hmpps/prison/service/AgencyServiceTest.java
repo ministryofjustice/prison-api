@@ -19,11 +19,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HousingAttributeReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.util.List;
@@ -55,10 +57,12 @@ public class AgencyServiceTest {
     private AgencyLocationRepository agencyLocationRepository;
     @Mock
     private AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
+    @Mock
+    private ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
 
     @BeforeEach
     public void setUp() {
-        service = new AgencyService(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyInternalLocationRepository, agencyInternalLocationProfileRepository);
+        service = new AgencyService(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyLocationTypeReferenceCodeRepository, agencyInternalLocationRepository, agencyInternalLocationProfileRepository);
     }
 
     @Test
