@@ -50,6 +50,7 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         SELECT  AL.AGY_LOC_ID AGENCY_ID
         ,       AL.AGENCY_LOCATION_TYPE AGENCY_TYPE
         ,       AL.DESCRIPTION
+        ,       CASE WHEN AL.ACTIVE_FLAG = 'Y' THEN 1 ELSE 0 END AS ACTIVE
         FROM (
                 SELECT DISTINCT AI.AGY_LOC_ID AS AGENCY_LOCATION_ID
                         FROM AGENCY_INCIDENTS AI
