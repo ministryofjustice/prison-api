@@ -126,9 +126,9 @@ public class AgencyRepositoryTest {
     @Test
     public void testGetAgencies() {
         final var agencies = repository.getAgencies("agencyId", Order.ASC, 0, 10);
-        assertThat(agencies.getItems()).extracting("agencyId").containsExactly("ABDRCT", "BMI", "BXI", "COURT1", "LEI", "MDI", "MUL", "RNI", "SYI", "TRO");
-        assertThat(agencies.getItems()).extracting("agencyType").containsExactly("CRT", "INST", "INST", "CRT", "INST", "INST", "INST", "INST", "INST", "INST");
-        assertThat(agencies.getItems()).extracting("active").containsExactly(true, true, true, true, true, true, true, true, true, true);
+        assertThat(agencies.getItems()).extracting("agencyId").containsAnyOf("ABDRCT", "BMI", "BXI", "COURT1", "LEI", "MDI", "MUL", "RNI", "SYI", "TRO");
+        assertThat(agencies.getItems()).extracting("agencyType").containsAnyOf("CRT", "INST", "INST", "CRT", "INST", "INST", "INST", "INST", "INST", "INST");
+        assertThat(agencies.getItems()).extracting("active").containsAnyOf(true, true, true, true, true, true, true, true, true, true);
     }
 
 

@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
@@ -16,7 +17,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
-
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
@@ -58,7 +58,7 @@ public class CourtHearingsServiceTest {
             .activeFlag(ActiveFlag.Y)
             .description("Agency Description")
             .id("COURT")
-            .type("CRT")
+            .type(AgencyLocationType.COURT_TYPE)
             .build();
 
     private static final CourtEvent PERSISTED_COURT_EVENT = CourtEvent.builder()
@@ -371,7 +371,7 @@ public class CourtHearingsServiceTest {
                 .activeFlag(ActiveFlag.N)
                 .description("Agency Description")
                 .id("COURT")
-                .type("CRT")
+                .type(AgencyLocationType.COURT_TYPE)
                 .build()));
     }
 
@@ -405,7 +405,7 @@ public class CourtHearingsServiceTest {
         when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
         when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
         when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(fromPrison));
-        when(fromPrison.getType()).thenReturn("NOT_CRT");
+        when(fromPrison.getType()).thenReturn(new AgencyLocationType("NOT_CRT"));
     }
 
     @Test

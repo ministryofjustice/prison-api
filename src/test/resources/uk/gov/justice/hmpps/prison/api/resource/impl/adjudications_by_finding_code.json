@@ -33,13 +33,13 @@
       "agencyId": "LEI",
       "description": "Leeds",
       "agencyType": "INST",
-      "active": false
+      "active": true
     },
     {
       "agencyId": "MDI",
       "description": "Moorland",
       "agencyType": "INST",
-      "active": false
+      "active": true
     }
   ]
 }

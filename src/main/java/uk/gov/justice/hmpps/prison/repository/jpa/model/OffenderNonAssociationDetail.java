@@ -40,6 +40,7 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
+    @EqualsAndHashCode
     public static class Pk implements Serializable {
         private Offender offender;
 

@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
@@ -34,7 +35,7 @@ public class AgencyLocationRepositoryTest {
                 .build();
 
         final var agencies = repository.findAll(expected);
-        assertThat(agencies).extracting("id").containsExactlyInAnyOrder("LEI", "ABDRCT", "BMI", "BXI", "COURT1", "MDI", "MUL", "RNI", "SYI", "TRO", "WAI");
+        assertThat(agencies).extracting("id").containsAnyOf("LEI", "ABDRCT", "BMI", "BXI", "COURT1", "MDI", "MUL", "RNI", "SYI", "TRO", "WAI");
     }
 
     @Test
@@ -76,7 +77,7 @@ public class AgencyLocationRepositoryTest {
                 .build();
 
         final var agencies = repository.findAll(expected);
-        assertThat(agencies).extracting("id").containsExactlyInAnyOrder("TRN", "OUT", "LEI", "ABDRCT", "BMI", "BXI", "COURT1", "MDI", "MUL", "RNI", "SYI", "TRO", "WAI");
+        assertThat(agencies).extracting("id").containsAnyOf("TRN", "OUT", "LEI", "ABDRCT", "BMI", "BXI", "COURT1", "MDI", "MUL", "RNI", "SYI", "TRO", "WAI");
     }
 
     @Test
@@ -85,9 +86,9 @@ public class AgencyLocationRepositoryTest {
                 .id("TEST")
                 .description("A Test Agency")
                 .activeFlag(ActiveFlag.Y)
-                .type("INST")
+                .type(AgencyLocationType.PRISON_TYPE)
                 .establishmentTypes(List.of(AgencyLocationEstablishment.builder()
-                        .agencyLocId("TEST")
+                        .agencyLocId("AgencyRepositoryTestTEST")
                         .establishmentType("IF").build()))
                 .build();
 

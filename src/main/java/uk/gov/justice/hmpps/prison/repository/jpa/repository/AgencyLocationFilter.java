@@ -44,7 +44,7 @@ public class AgencyLocationFilter implements Specification<AgencyLocation>  {
         }
 
         if (StringUtils.isNotBlank(type)) {
-            predicateBuilder.add(cb.equal(root.get("type"), type));
+            predicateBuilder.add(cb.equal(root.get("type").get("code"), type));
         }
 
         if (StringUtils.isBlank(id) && excludedAgencies != null && !excludedAgencies.isEmpty()) {

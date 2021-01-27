@@ -37,6 +37,7 @@ public class CourtEventCharge extends AuditableEntity {
     @NoArgsConstructor
     @Embeddable
     @Getter
+    @EqualsAndHashCode
     public static class Pk implements Serializable {
         @ManyToOne(optional = false, fetch = FetchType.LAZY)
         @JoinColumn(name = "EVENT_ID", nullable = false)

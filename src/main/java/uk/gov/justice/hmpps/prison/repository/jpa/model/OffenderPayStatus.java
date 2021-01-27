@@ -26,6 +26,7 @@ public class OffenderPayStatus extends AuditableEntity {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class PK implements Serializable {
         @Column(name = "OFFENDER_BOOK_ID", updatable = false, insertable = false)
         private Long bookingId;

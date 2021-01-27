@@ -24,6 +24,7 @@ import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
@@ -83,6 +84,7 @@ public class PrisonerReleaseAndTransferService {
     private final AgencyLocationRepository agencyLocationRepository;
     private final ExternalMovementRepository externalMovementRepository;
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
+    private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeRepository;
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final BedAssignmentHistoriesRepository bedAssignmentHistoriesRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
@@ -163,7 +165,7 @@ public class PrisonerReleaseAndTransferService {
         // set previous active movements to false
         setPreviousMovementsToInactive(booking);
 
-        final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToTransferOut.getToLocation(), "INST", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", requestToTransferOut.getToLocation()));
+        final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToTransferOut.getToLocation(), agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage("Not Found")), ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", requestToTransferOut.getToLocation()));
 
         createOutMovement(booking, TRN, movementReason, toLocation, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
         updateBeds(booking, transferDateTime);
@@ -204,7 +206,7 @@ public class PrisonerReleaseAndTransferService {
         final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActiveFlag(requestToRecall.getImprisonmentStatus(), "Y").orElseThrow(EntityNotFoundException.withMessage("No imprisonment status %s found", requestToRecall.getImprisonmentStatus()));
 
         // check prison id
-        final var prisonToRecallTo = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToRecall.getPrisonId(), "INST", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestToRecall.getPrisonId())));
+        final var prisonToRecallTo = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToRecall.getPrisonId(), agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage("Not Found")), ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestToRecall.getPrisonId())));
 
         final var internalLocation = requestToRecall.getCellLocation() != null ? requestToRecall.getCellLocation() : prisonToRecallTo.getId() + "-" + "RECP";
 
@@ -305,7 +307,7 @@ public class PrisonerReleaseAndTransferService {
         final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActiveFlag(requestForNewBooking.getImprisonmentStatus(), "Y").orElseThrow(EntityNotFoundException.withMessage("No imprisonment status %s found", requestForNewBooking.getImprisonmentStatus()));
 
         // check prison id
-        final var receivedPrison = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestForNewBooking.getPrisonId(), "INST", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestForNewBooking.getPrisonId())));
+        final var receivedPrison = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestForNewBooking.getPrisonId(), agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage("Not Found")), ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestForNewBooking.getPrisonId())));
 
         final var internalLocation = requestForNewBooking.getCellLocation() != null ? requestForNewBooking.getCellLocation() : receivedPrison.getId() + "-" + "RECP";
 

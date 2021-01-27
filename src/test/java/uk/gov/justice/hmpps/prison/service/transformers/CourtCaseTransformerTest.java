@@ -7,6 +7,7 @@ import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
@@ -36,14 +37,14 @@ public class CourtCaseTransformerTest {
                 .location(AgencyLocation.builder()
                         .id("LEI")
                         .activeFlag(ActiveFlag.Y)
-                        .type("INST")
+                        .type(new AgencyLocationType("INST"))
                         .description("Leeds")
                         .build()).build();
 
         courtLocation = AgencyLocation.builder()
                 .id("MDI")
                 .activeFlag(ActiveFlag.Y)
-                .type("CRT")
+                .type(AgencyLocationType.COURT_TYPE)
                 .description("Moorland")
                 .build();
 
@@ -80,7 +81,7 @@ public class CourtCaseTransformerTest {
                         .caseInfoNumber("CIN20177010")
                         .agency(Agency.builder()
                                 .agencyId(courtLocation.getId())
-                                .agencyType(courtLocation.getType())
+                                .agencyType(courtLocation.getType().getCode())
                                 .description(courtLocation.getDescription())
                                 .active(true)
                                 .build())

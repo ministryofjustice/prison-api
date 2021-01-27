@@ -5,18 +5,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.AGY_LOC_TYPE;
 
 @Data
 @Entity
@@ -36,8 +44,14 @@ public class AgencyLocation extends AuditableEntity {
     private String id;
     @Column(name = "DESCRIPTION")
     private String description;
-    @Column(name = "AGENCY_LOCATION_TYPE")
-    private String type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AGY_LOC_TYPE + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "AGENCY_LOCATION_TYPE", referencedColumnName = "code", nullable = false))
+    })
+    private AgencyLocationType type;
+
     @Column(name = "ACTIVE_FLAG")
     @Enumerated(EnumType.STRING)
     private ActiveFlag activeFlag;
