@@ -9,6 +9,11 @@
     "referenceNumber": "REF",
     "currency": "GBP",
     "penceAmount": 100,
-    "accountType": "SPND"
+    "accountType": "SPND",
+    "postingType": "CR",
+    "offenderNo": "A1234AI",
+    "agencyId": "LEI",
+    "relatedOffenderTransactions": [],
+    "currentBalance": 300
   }
 ]

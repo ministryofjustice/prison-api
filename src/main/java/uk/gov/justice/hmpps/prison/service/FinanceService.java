@@ -2,14 +2,10 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.Account;
-import uk.gov.justice.hmpps.prison.api.model.Account.AccountBuilder;
-import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction;
 import uk.gov.justice.hmpps.prison.api.model.TransferTransactionDetail;
 import uk.gov.justice.hmpps.prison.api.model.v1.Transaction;
@@ -33,11 +29,11 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.Optional;
 
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoney;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
 import static uk.gov.justice.hmpps.prison.values.AccountCode.SAVINGS;
 import static uk.gov.justice.hmpps.prison.values.AccountCode.SPENDS;
-import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
-import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoney;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE;
 
 
 @Service
@@ -70,8 +66,7 @@ public class FinanceService {
 
         return Optional.ofNullable(financeRepository.getBalances(bookingId, offenderSummary.getAgencyLocationId()))
             .map(Account::toBuilder)
-            .map(builder -> builder.damageObligations(toMoneyScale(damageObligationBalance)))
-            .map(AccountBuilder::build)
+            .map(builder -> builder.damageObligations(toMoneyScale(damageObligationBalance)).build())
             .orElse(defaultBalances());
     }
 

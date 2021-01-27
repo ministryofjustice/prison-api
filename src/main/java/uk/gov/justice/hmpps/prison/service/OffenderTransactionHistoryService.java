@@ -13,10 +13,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransaction
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.values.AccountCode;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -28,10 +31,11 @@ import static uk.gov.justice.hmpps.prison.util.MoneySupport.poundsToPence;
 @Validated
 @Slf4j
 public class OffenderTransactionHistoryService {
+    public static final Comparator<OffenderTransactionHistory> SORT_BY_RECENT_DATE = Comparator
+        .comparing(OffenderTransactionHistory::getCreateDatetime).reversed();
 
-    public static final Comparator<OffenderTransactionHistory> SORT_BY_MOST_RECENT_DATE_THEN_BY_LATEST_SEQ = Comparator
-        .comparing(OffenderTransactionHistory::getEntryDate).reversed()
-        .thenComparing(Comparator.comparing(OffenderTransactionHistory::getTransactionEntrySequence).reversed());
+    public static final Comparator<OffenderTransactionHistory> SORT_BY_OLDEST_DATE = Comparator
+        .comparing(OffenderTransactionHistory::getCreateDatetime);
 
     private final String apiCurrency;
     private final OffenderTransactionHistoryRepository historyRepository;
@@ -51,15 +55,12 @@ public class OffenderTransactionHistoryService {
                                                                      final String transactionType) {
         validate(offenderNo, accountCode, fromDate, toDate);
 
-        final var accountCodeValue =
-            Optional.ofNullable(accountCode)
-            .flatMap(AccountCode::byCodeName)
-            .map(optionalCode -> optionalCode.code)
-            .orElse(null);
-
-        return historyRepository.getTransactionHistory(offenderNo, accountCodeValue, fromDate, toDate, transactionType)
+        return getAllTransactionsWithRunningBalance(offenderNo)
             .stream()
-            .sorted(SORT_BY_MOST_RECENT_DATE_THEN_BY_LATEST_SEQ)
+            .filter(byDateRange(fromDate, toDate))
+            .filter(byAccountCode(accountCode))
+            .filter(transaction -> transactionType == null || transaction.getTransactionType().equals(transactionType))
+            .sorted(SORT_BY_RECENT_DATE)
             .map(this::transform)
             .collect(Collectors.toList());
     }
@@ -67,15 +68,58 @@ public class OffenderTransactionHistoryService {
     private void validate(final String offenderNo, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
         checkNotNull(offenderNo, "offenderNo can't be null");
 
-        if (fromDate != null && toDate != null) checkDateRange(fromDate, toDate);
         if (accountCode != null) checkState(AccountCode.exists(accountCode), "Unknown account-code " + accountCode);
+
+        if (fromDate != null && toDate != null) {
+            final var now = LocalDate.now();
+            checkState(fromDate.isBefore(toDate) || fromDate.isEqual(toDate), "toDate can't be before fromDate");
+            checkState(fromDate.isBefore(now) || fromDate.isEqual(now), "fromDate can't be in the future");
+            checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
+
+        }
     }
 
-    private void checkDateRange(final LocalDate fromDate, final LocalDate toDate) {
-        final var now = LocalDate.now();
-        checkState(fromDate.isBefore(toDate) || fromDate.isEqual(toDate), "toDate can't be before fromDate");
-        checkState(fromDate.isBefore(now) || fromDate.isEqual(now), "fromDate can't be in the future");
-        checkState(toDate.isBefore(now) || toDate.isEqual(now), "toDate can't be in the future");
+    private List<OffenderTransactionHistory> getAllTransactionsWithRunningBalance(final String offenderNo) {
+        final var allOffenderTransactions = historyRepository
+            .findByOffender_NomsId(offenderNo)
+            .stream()
+            .sorted(SORT_BY_OLDEST_DATE)
+            .collect(Collectors.toList());
+
+        final var runningBalance = new AtomicReference<>(BigDecimal.valueOf(0));
+
+        allOffenderTransactions.forEach(transaction -> {
+            final var postingType = transaction.getPostingType();
+            if (postingType.equals("CR")) {
+                runningBalance.set(runningBalance.get().add(transaction.getEntryAmount()));
+            } else if (postingType.equals("DR")) {
+                runningBalance.set(runningBalance.get().subtract(transaction.getEntryAmount()));
+            }
+            transaction.setCurrentBalance(runningBalance.get());
+        });
+
+        return allOffenderTransactions;
+    }
+
+    private Predicate<OffenderTransactionHistory> byDateRange(final LocalDate fromDate, final LocalDate toDate) {
+        if (fromDate == null && toDate == null) return entry -> true;
+
+        final var today = LocalDate.now();
+        final var from = Optional.ofNullable(fromDate).orElse(today);
+        final var to = Optional.ofNullable(toDate).orElse(today);
+
+        return entry -> (entry.getEntryDate().isEqual(from) || entry.getEntryDate().isAfter(from)) &&
+            (entry.getEntryDate().isEqual(to) || entry.getEntryDate().isBefore(to));
+    }
+
+    private Predicate<OffenderTransactionHistory> byAccountCode(final String accountCode) {
+        final var accountCodeValue =
+            Optional.ofNullable(accountCode)
+                .flatMap(AccountCode::byCodeName)
+                .map(optionalCode -> optionalCode.code)
+                .orElse(null);
+
+        return entry -> (accountCode == null || entry.getAccountType().equals(accountCodeValue));
     }
 
     public OffenderTransactionHistoryDto transform(final OffenderTransactionHistory offenderTransactionHistory) {
@@ -101,6 +145,7 @@ public class OffenderTransactionHistoryService {
             .postingType(offenderTransactionHistory.getPostingType())
             .agencyId(offenderTransactionHistory.getAgencyId())
             .transactionType(offenderTransactionHistory.getTransactionType())
+            .currentBalance(poundsToPence(offenderTransactionHistory.getCurrentBalance()))
             .relatedOffenderTransactions(relatedTransactionDetails)
             .build();
     }
