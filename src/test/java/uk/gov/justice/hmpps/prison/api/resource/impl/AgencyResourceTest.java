@@ -67,6 +67,15 @@ public class AgencyResourceTest extends ResourceTest {
             });
 
         assertThatJsonFileAndStatus(response, 200, "single_agency_updated.json");
+
+        final var getResponse = testRestTemplate.exchange(
+            "/api/agencies/LEI",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(getResponse, 200, "single_agency_updated.json");
     }
 
     @Test
@@ -89,6 +98,15 @@ public class AgencyResourceTest extends ResourceTest {
             });
 
         assertThatJsonFileAndStatus(response, 200, "new_agency.json");
+
+        final var getResponse = testRestTemplate.exchange(
+            "/api/agencies/SHFCRT",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(getResponse, 200, "new_agency.json");
     }
 
 

@@ -165,7 +165,8 @@ public class PrisonerReleaseAndTransferService {
         // set previous active movements to false
         setPreviousMovementsToInactive(booking);
 
-        final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToTransferOut.getToLocation(), agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage("Not Found")), ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", requestToTransferOut.getToLocation()));
+        final var agencyLocationType = agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
+        final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToTransferOut.getToLocation(), agencyLocationType, ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage("No %s agency found", requestToTransferOut.getToLocation()));
 
         createOutMovement(booking, TRN, movementReason, toLocation, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
         updateBeds(booking, transferDateTime);
@@ -206,7 +207,8 @@ public class PrisonerReleaseAndTransferService {
         final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActiveFlag(requestToRecall.getImprisonmentStatus(), "Y").orElseThrow(EntityNotFoundException.withMessage("No imprisonment status %s found", requestToRecall.getImprisonmentStatus()));
 
         // check prison id
-        final var prisonToRecallTo = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToRecall.getPrisonId(), agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage("Not Found")), ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestToRecall.getPrisonId())));
+        final var agencyLocationType = agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
+        final var prisonToRecallTo = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToRecall.getPrisonId(), agencyLocationType, ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestToRecall.getPrisonId())));
 
         final var internalLocation = requestToRecall.getCellLocation() != null ? requestToRecall.getCellLocation() : prisonToRecallTo.getId() + "-" + "RECP";
 
