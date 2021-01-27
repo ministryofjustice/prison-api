@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
@@ -32,6 +33,7 @@ public class LivingUnit {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class PK implements Serializable {
 
         @Column(name = "LIVING_UNIT_ID", insertable = false, updatable = false, nullable = false)

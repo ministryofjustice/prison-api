@@ -10,24 +10,6 @@ Feature: Agencies
   Background:
     Given a user has authenticated with the API
 
-  Scenario: Retrieve all agencies
-    When a request is submitted to retrieve all agencies
-    Then "11" agency records are returned
-    And "11" total agency records are available
-    Then the returned agencies are as follows:
-      | agencyId | agencyType | description  |
-      | ABDRCT   | CRT        | Court 2      |
-      | BMI      | INST       | BIRMINGHAM   |
-      | BXI      | INST       | BRIXTON      |
-      | COURT1   | CRT        | Court 1      |
-      | LEI      | INST       | LEEDS        |
-      | MDI      | INST       | MOORLAND     |
-      | MUL      | INST       | MUL          |
-      | RNI      | INST       | RANBY (HMP) |
-      | SYI      | INST       | SHREWSBURY   |
-      | TRO      | INST       | TROOM        |
-      | WAI      | INST       | THE WEARE    |
-
   Scenario: Retrieve agency by caseload for single agency
     When a request is submitted to retrieve all agencies by caseload "LEI"
     Then "1" agency records are returned

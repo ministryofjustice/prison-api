@@ -27,6 +27,7 @@ public class IepLevel extends AuditableEntity  {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class PK implements Serializable {
 
         @Column(name = "IEP_LEVEL", insertable = false, updatable = false, nullable = false)

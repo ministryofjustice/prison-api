@@ -34,6 +34,7 @@ import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
@@ -965,7 +966,7 @@ public class BookingServiceTest {
                 .agencyLocation(AgencyLocation.builder()
                         .id("agency_id")
                         .activeFlag(ActiveFlag.Y)
-                        .type("CRT")
+                        .type(AgencyLocationType.COURT_TYPE)
                         .description("The agency description")
                         .build())
                 .legalCaseType(new LegalCaseType("A", "Adult"))

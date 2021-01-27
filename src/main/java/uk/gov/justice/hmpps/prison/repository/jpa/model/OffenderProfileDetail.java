@@ -27,6 +27,7 @@ public class OffenderProfileDetail extends AuditableEntity {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class PK implements Serializable {
 
         @Column(name = "OFFENDER_BOOK_ID", nullable = false, updatable = false, insertable = false)

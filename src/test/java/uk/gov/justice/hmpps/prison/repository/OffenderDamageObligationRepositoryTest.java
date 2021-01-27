@@ -9,6 +9,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation;
@@ -50,7 +51,7 @@ public class OffenderDamageObligationRepositoryTest {
     private final AgencyLocation someAgencyLocation = AgencyLocation.builder()
             .id("LEI")
             .description("LEEDS")
-            .type("INST")
+            .type(AgencyLocationType.PRISON_TYPE)
             .activeFlag(ActiveFlag.Y)
             .longDescription("HMP LEEDS")
             .build();

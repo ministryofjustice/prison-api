@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
@@ -277,7 +278,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                         .agencyLocation(AgencyLocation.builder()
                                 .id("MDI")
                                 .activeFlag(ActiveFlag.Y)
-                                .type("CRT")
+                                .type(AgencyLocationType.COURT_TYPE)
                                 .description("Moorland")
                                 .build())
                         .legalCaseType(new LegalCaseType("A", "Adult"))
@@ -291,7 +292,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                 .courtLocation(AgencyLocation.builder()
                                         .id("COURT1")
                                         .description("Court 1")
-                                        .type("CRT")
+                                        .type(AgencyLocationType.COURT_TYPE)
                                         .activeFlag(ActiveFlag.Y)
                                         .build())
                                 .build()))
@@ -315,7 +316,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                 .agencyLocation(AgencyLocation.builder()
                                         .id("MDI")
                                         .activeFlag(ActiveFlag.Y)
-                                        .type("CRT")
+                                        .type(AgencyLocationType.COURT_TYPE)
                                         .description("Moorland")
                                         .build())
                                 .legalCaseType(new LegalCaseType("A", "Adult"))
@@ -329,7 +330,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                         .courtLocation(AgencyLocation.builder()
                                                 .id("COURT1")
                                                 .description("Court 1")
-                                                .type("CRT")
+                                                .type(AgencyLocationType.COURT_TYPE)
                                                 .activeFlag(ActiveFlag.Y)
                                                 .build())
                                         .build()))
@@ -341,7 +342,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                 .agencyLocation(AgencyLocation.builder()
                                         .id("MDI")
                                         .activeFlag(ActiveFlag.Y)
-                                        .type("CRT")
+                                        .type(AgencyLocationType.COURT_TYPE)
                                         .description("Moorland")
                                         .build())
                                 .legalCaseType(new LegalCaseType("A", "Adult"))
@@ -355,7 +356,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                         .courtLocation(AgencyLocation.builder()
                                                 .id("COURT1")
                                                 .description("Court 1")
-                                                .type("CRT")
+                                                .type(AgencyLocationType.COURT_TYPE)
                                                 .activeFlag(ActiveFlag.Y)
                                                 .build())
                                         .build()))

@@ -5,11 +5,16 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,11 +30,15 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
+import uk.gov.justice.hmpps.prison.core.HasWriteScope;
+import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.LocationGroupService;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReview;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReviewSearchCriteria;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -77,8 +86,35 @@ public class AgencyResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Agency detail.", notes = "Agency detail.", nickname = "getAgency")
     @GetMapping("/{agencyId}")
-    public Agency getAgency(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId, @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @ApiParam(value = "Only return active agencies", defaultValue = "true") final boolean activeOnly, @RequestParam(value = "agencyType", required = false) @ApiParam("Agency Type") final String agencyType) {
+    public Agency getAgency(@PathVariable("agencyId") @ApiParam(value = "The ID of the agency", required = true) final String agencyId, @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @ApiParam(value = "Only return active agencies", defaultValue = "true") final boolean activeOnly, @RequestParam(value = "agencyType", required = false) @ApiParam("Agency Type") final String agencyType) {
         return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Update an existing agency", notes = "Requires MAINTAIN_REF_DATA")
+    @PutMapping("/{agencyId}")
+    @HasWriteScope
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA')")
+    @ProxyUser
+    public Agency updateAgency(@PathVariable("agencyId") @ApiParam(value = "The ID of the agency", required = true) @Valid @Length(max = 6, message = "Agency Id is max 6 characters") final String agencyId,
+                               @RequestBody @NotNull @Valid Agency agencyToUpdate) {
+        return agencyService.updateAgency(agencyId, agencyToUpdate);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 201, message = "The Agency location created", response = Agency.class),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Create an agency", notes = "Requires MAINTAIN_REF_DATA")
+    @PostMapping()
+    @HasWriteScope
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA')")
+    @ProxyUser
+    public Agency createAgency(@RequestBody @NotNull @Valid final Agency agencyToCreate) {
+        return agencyService.createAgency(agencyToCreate);
     }
 
     @ApiResponses({

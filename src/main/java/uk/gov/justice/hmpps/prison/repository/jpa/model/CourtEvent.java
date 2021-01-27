@@ -51,7 +51,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.RE
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(of = { "id" }, callSuper = false)
 @Table(name = "COURT_EVENTS")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 @Slf4j

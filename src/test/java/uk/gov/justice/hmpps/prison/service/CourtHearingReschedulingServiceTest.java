@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
@@ -49,7 +50,7 @@ public class CourtHearingReschedulingServiceTest {
             .courtLocation(AgencyLocation.builder()
                     .id("ABC")
                     .description("Description")
-                    .type("CRT")
+                    .type(AgencyLocationType.COURT_TYPE)
                     .activeFlag(ActiveFlag.Y)
                     .build())
             .eventDate(LocalDate.now(clock))
@@ -68,7 +69,7 @@ public class CourtHearingReschedulingServiceTest {
             .courtLocation(AgencyLocation.builder()
                     .id("ABC")
                     .description("Description")
-                    .type("CRT")
+                    .type(AgencyLocationType.COURT_TYPE)
                     .activeFlag(ActiveFlag.Y)
                     .build())
             .eventDate(LocalDate.now(clock))
@@ -85,7 +86,7 @@ public class CourtHearingReschedulingServiceTest {
             .courtLocation(AgencyLocation.builder()
                     .id("ABC")
                     .description("Description")
-                    .type("CRT")
+                    .type(AgencyLocationType.COURT_TYPE)
                     .activeFlag(ActiveFlag.Y)
                     .build())
             .eventDate(LocalDate.now(clock))

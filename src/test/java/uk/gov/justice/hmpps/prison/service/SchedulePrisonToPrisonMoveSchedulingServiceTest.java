@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.prison.api.model.SchedulePrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
@@ -49,7 +50,7 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
     private static final String TO_PRISON = "B";
 
     private static final AgencyLocation TO_PRISON_AGENCY = AgencyLocation
-            .builder().id(TO_PRISON).description("Prison A description").activeFlag(ActiveFlag.Y).type("INST").build();
+            .builder().id(TO_PRISON).description("Prison A description").activeFlag(ActiveFlag.Y).type(new AgencyLocationType("INST")).build();
 
     private static final String PRISON_ESCORT_CUSTODY_SERVICES = "PECS";
 
@@ -472,7 +473,7 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
                 .id(TO_PRISON)
                 .description("Prison B description")
                 .activeFlag(ActiveFlag.Y)
-                .type("CRT")
+                .type(AgencyLocationType.COURT_TYPE)
                 .build()));
     }
 

@@ -123,7 +123,7 @@ public class PrisonToPrisonMoveSchedulingService {
 
         checkArgument(agency.getActiveFlag().isActive(), "Prison with id %s not active.", prison);
 
-        checkArgument(agency.getType().equals("INST"), "Prison to prison move to prison is not a prison.");
+        checkArgument(agency.getType().getCode().equals("INST"), "Prison to prison move to prison is not a prison.");
 
         return agency;
     }

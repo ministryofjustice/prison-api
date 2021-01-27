@@ -117,13 +117,13 @@ public class AdjudicationsRepositoryTest {
     public void findAdjudicationLocations() {
 
         var locations = repository.findAdjudicationAgencies("A1181GG");
-        assertThat(locations).extracting("agencyId", "description", "agencyType").containsExactly(
+        assertThat(locations).extracting("agencyId", "description", "agencyType").containsExactlyInAnyOrder(
                 tuple("LEI", "LEEDS", "INST"),
                 tuple("MDI", "MOORLAND", "INST")
         );
 
         locations = repository.findAdjudicationAgencies("A1181HH");
-        assertThat(locations).extracting("agencyId", "description", "agencyType").containsExactly(
+        assertThat(locations).extracting("agencyId", "description", "agencyType").containsExactlyInAnyOrder(
                 tuple("LEI", "LEEDS", "INST"),
                 tuple("MDI", "MOORLAND", "INST")
         );
