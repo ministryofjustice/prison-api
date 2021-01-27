@@ -57,10 +57,10 @@ public class OffenderTransactionHistoryService {
 
         return getAllTransactionsWithRunningBalance(offenderNo)
             .stream()
-            .sorted(SORT_BY_RECENT_DATE)
             .filter(byDateRange(fromDate, toDate))
             .filter(byAccountCode(accountCode))
             .filter(transaction -> transactionType == null || transaction.getTransactionType().equals(transactionType))
+            .sorted(SORT_BY_RECENT_DATE)
             .map(this::transform)
             .collect(Collectors.toList());
     }
