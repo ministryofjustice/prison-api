@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.groupingBy;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.poundsToPence;
 
 @Service
@@ -84,21 +85,26 @@ public class OffenderTransactionHistoryService {
             .findByOffender_NomsId(offenderNo)
             .stream()
             .sorted(SORT_BY_OLDEST_DATE)
-            .collect(Collectors.toList());
+            .collect(groupingBy(OffenderTransactionHistory::getAgencyId));
 
-        final var runningBalance = new AtomicReference<>(BigDecimal.valueOf(0));
-
-        allOffenderTransactions.forEach(transaction -> {
-            final var postingType = transaction.getPostingType();
-            if (postingType.equals("CR")) {
-                runningBalance.set(runningBalance.get().add(transaction.getEntryAmount()));
-            } else if (postingType.equals("DR")) {
-                runningBalance.set(runningBalance.get().subtract(transaction.getEntryAmount()));
-            }
-            transaction.setCurrentBalance(runningBalance.get());
+        allOffenderTransactions.keySet().forEach(agencyId -> {
+            final var runningBalance = new AtomicReference<>(BigDecimal.valueOf(0));
+            allOffenderTransactions.get(agencyId).forEach(transaction -> {
+                final var postingType = transaction.getPostingType();
+                if (postingType.equals("CR")) {
+                    runningBalance.set(runningBalance.get().add(transaction.getEntryAmount()));
+                } else if (postingType.equals("DR")) {
+                    runningBalance.set(runningBalance.get().subtract(transaction.getEntryAmount()));
+                }
+                transaction.setCurrentBalance(runningBalance.get());
+            });
         });
 
-        return allOffenderTransactions;
+        return allOffenderTransactions
+            .keySet()
+            .stream()
+            .flatMap(key -> allOffenderTransactions.get(key).stream())
+            .collect(Collectors.toList());
     }
 
     private Predicate<OffenderTransactionHistory> byDateRange(final LocalDate fromDate, final LocalDate toDate) {
@@ -146,6 +152,7 @@ public class OffenderTransactionHistoryService {
             .agencyId(offenderTransactionHistory.getAgencyId())
             .transactionType(offenderTransactionHistory.getTransactionType())
             .currentBalance(poundsToPence(offenderTransactionHistory.getCurrentBalance()))
+            .holdingCleared(offenderTransactionHistory.getHoldingCleared())
             .relatedOffenderTransactions(relatedTransactionDetails)
             .build();
     }

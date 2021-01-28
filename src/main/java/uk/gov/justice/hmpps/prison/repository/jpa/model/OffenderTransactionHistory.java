@@ -94,6 +94,9 @@ public class OffenderTransactionHistory {
     @Transient
     private BigDecimal currentBalance = BigDecimal.ZERO;
 
+    @Column(name = "HOLD_CLEAR_FLAG")
+    private Boolean holdingCleared;
+
     @Column(name = "CREATE_DATETIME")
     @CreatedDate
     private LocalDateTime createDatetime;
