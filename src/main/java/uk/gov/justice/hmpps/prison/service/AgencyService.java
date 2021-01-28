@@ -17,6 +17,8 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
+import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
+import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -92,18 +94,15 @@ public class AgencyService {
 
 
     @Transactional
-    public Agency updateAgency(final String agencyId, final Agency agencyToUpdate) {
+    public Agency updateAgency(final String agencyId, final RequestToUpdateAgency agencyToUpdate) {
         final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
-        if (!agency.getId().equalsIgnoreCase(agencyToUpdate.getAgencyId())) {
-            throw new BadRequestException(format("Agency ID %s does not match payload ID %s", agencyId, agencyToUpdate.getAgencyId()));
-        }
 
         final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToUpdate.getAgencyType())).orElseThrow(EntityNotFoundException.withMessage(format("Agency Type [%s] not found", agencyToUpdate.getAgencyType())));
         return AgencyTransformer.transform(AgencyTransformer.update(agency, agencyToUpdate, agencyLocationType));
     }
 
     @Transactional
-    public Agency createAgency(final Agency agencyToCreate) {
+    public Agency createAgency(final RequestToCreateAgency agencyToCreate) {
         agencyLocationRepository.findById(agencyToCreate.getAgencyId())
         .ifPresent(p -> {
             throw new EntityAlreadyExistsException(format("Agency with ID %s already exists", agencyToCreate.getAgencyId()));

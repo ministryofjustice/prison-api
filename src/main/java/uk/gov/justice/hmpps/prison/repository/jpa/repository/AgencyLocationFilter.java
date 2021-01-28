@@ -26,10 +26,10 @@ import java.util.List;
 public class AgencyLocationFilter implements Specification<AgencyLocation>  {
     private String id;
     @Builder.Default
-    private ActiveFlag activeFlag = ActiveFlag.Y;
+    private final ActiveFlag activeFlag = ActiveFlag.Y;
     private String type;
     @Builder.Default
-    private List<String> excludedAgencies = List.of("OUT", "TRN");
+    private final List<String> excludedAgencies = List.of("OUT", "TRN");
 
 
     public Predicate toPredicate(final Root<AgencyLocation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {

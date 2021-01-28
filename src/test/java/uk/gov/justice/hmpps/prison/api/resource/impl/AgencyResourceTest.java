@@ -50,23 +50,41 @@ public class AgencyResourceTest extends ResourceTest {
     public void testCanUpdateAgencyById() {
         final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
 
-        final var body = Map.of(
+        final var update1 = Map.of(
+            "agencyId", "LEI",
+            "description", "LEEDS",
+            "longDescription", "This is a prison based in Leeds",
+            "agencyType", "INST",
+            "active", "false");
+
+        final var httpEntity1 = createHttpEntity(token, update1);
+
+        final var response1 = testRestTemplate.exchange(
+            "/api/agencies/LEI",
+            HttpMethod.PUT,
+            httpEntity1,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(response1, 200, "single_agency_updated_inactive.json");
+
+        final var update2 = Map.of(
             "agencyId", "LEI",
             "description", "LEEDS",
             "longDescription", "This is a prison based in Leeds",
             "agencyType", "INST",
             "active", "true");
 
-        final var httpEntity = createHttpEntity(token, body);
+        final var httpEntity2 = createHttpEntity(token, update2);
 
-        final var response = testRestTemplate.exchange(
+        final var response2 = testRestTemplate.exchange(
             "/api/agencies/LEI",
             HttpMethod.PUT,
-            httpEntity,
+            httpEntity2,
             new ParameterizedTypeReference<String>() {
             });
 
-        assertThatJsonFileAndStatus(response, 200, "single_agency_updated.json");
+        assertThatJsonFileAndStatus(response2, 200, "single_agency_updated.json");
 
         final var getResponse = testRestTemplate.exchange(
             "/api/agencies/LEI",
@@ -97,7 +115,7 @@ public class AgencyResourceTest extends ResourceTest {
             new ParameterizedTypeReference<String>() {
             });
 
-        assertThatJsonFileAndStatus(response, 200, "new_agency.json");
+        assertThatJsonFileAndStatus(response, 201, "new_agency.json");
 
         final var getResponse = testRestTemplate.exchange(
             "/api/agencies/SHFCRT",
@@ -109,6 +127,25 @@ public class AgencyResourceTest extends ResourceTest {
         assertThatJsonFileAndStatus(getResponse, 200, "new_agency.json");
     }
 
+    @Test
+    public void testCantCreateExistingAgency() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "agencyId", "MDI",
+            "description", "Moorland",
+            "agencyType", "INST");
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatStatus(response, 409);
+    }
 
     @Test
     public void testCanFindAgenciesByTypePlusInactive() {

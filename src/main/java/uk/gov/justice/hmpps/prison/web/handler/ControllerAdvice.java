@@ -20,6 +20,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.service.BadRequestException;
+import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 
@@ -106,6 +107,19 @@ public class ControllerAdvice {
                         .status(HttpStatus.NOT_FOUND.value())
                         .developerMessage(e.getMessage())
                         .build());
+    }
+
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEntityAlreadyExistsException(final EntityAlreadyExistsException e) {
+        log.debug("Already exists (409) returned with message {}", e.getMessage());
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ErrorResponse
+                .builder()
+                .userMessage(e.getMessage())
+                .status(HttpStatus.CONFLICT.value())
+                .developerMessage(e.getMessage())
+                .build());
     }
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
