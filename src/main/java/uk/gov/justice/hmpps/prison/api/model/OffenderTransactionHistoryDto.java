@@ -70,5 +70,8 @@ public class OffenderTransactionHistoryDto {
 
     @ApiModelProperty(value = "Balance at a point in time", position = 15)
     private Long currentBalance;
+
+    @ApiModelProperty(value = "Indicates that the amount has been cleared from holding", position = 16)
+    private Boolean holdingCleared;
 }
 

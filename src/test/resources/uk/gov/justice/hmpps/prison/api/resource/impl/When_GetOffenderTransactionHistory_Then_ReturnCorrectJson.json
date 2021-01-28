@@ -14,6 +14,7 @@
     "offenderNo": "A1234AI",
     "agencyId": "LEI",
     "relatedOffenderTransactions": [],
-    "currentBalance": 300
+    "currentBalance": 300,
+    "holdingCleared": false
   }
 ]
