@@ -22,9 +22,4 @@ public class VersionOutputter {
     public void logVersionOnStartup() {
         log.info("Version {} started", buildProperties.getVersion());
     }
-
-    @Bean
-    public ContextInitializer versionContextInitializer() {
-        return telemetryContext -> telemetryContext.getComponent().setVersion(buildProperties.getVersion());
-    }
 }
