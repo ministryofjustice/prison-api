@@ -33,7 +33,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationTyp
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "AGENCY_LOCATIONS")
-public class AgencyLocation extends AuditableEntity {
+public class AgencyLocation extends ExtendedAuditableEntity {
 
     public static final String IN = "IN";
     public static final String OUT = "OUT";

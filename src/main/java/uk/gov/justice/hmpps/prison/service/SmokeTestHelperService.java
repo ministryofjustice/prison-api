@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.service;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository;
@@ -26,8 +25,7 @@ public class SmokeTestHelperService {
 
     @Transactional
     @VerifyBookingAccess(overrideRoles = "SMOKE_TEST")
-    @HasWriteScope
-    @PreAuthorize("hasRole('SMOKE_TEST')")
+    @PreAuthorize("hasRole('SMOKE_TEST') and hasAuthority('SCOPE_write')")
     public void imprisonmentDataSetup(String offenderNo) {
         final var latestOffenderBooking = bookingService.getOffenderIdentifiers(offenderNo, "SMOKE_TEST");
         final var bookingAndSeq = getBookingAndSeqOrThrow(offenderNo, latestOffenderBooking);

@@ -64,6 +64,10 @@ public class UserService {
         this.telemetryClient = telemetryClient;
     }
 
+    public boolean isStaff(final String username) {
+         return userRepository.findByUsername(username).isPresent();
+    }
+
     public UserDetail getUserByUsername(final String username) {
         final var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
         final var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, false);

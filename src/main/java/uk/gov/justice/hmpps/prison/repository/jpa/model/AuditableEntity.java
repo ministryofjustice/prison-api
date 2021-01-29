@@ -23,6 +23,8 @@ abstract class AuditableEntity {
     @CreatedBy
     private String createUserId;
 
+    @Getter
+    @Setter
     @Column(name = "CREATE_DATETIME")
     @CreatedDate
     private LocalDateTime createDatetime;

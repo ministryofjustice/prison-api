@@ -8,7 +8,9 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.service.UserService;
 
+import static uk.gov.justice.hmpps.prison.util.MdcUtility.NOMIS_USER_HEADER;
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 
 @Aspect
@@ -17,9 +19,11 @@ import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 public class ProxyUserAspect {
 
     private final AuthenticationFacade authenticationFacade;
+    private final UserService service;
 
-    public ProxyUserAspect(AuthenticationFacade authenticationFacade) {
+    public ProxyUserAspect(final AuthenticationFacade authenticationFacade, final UserService userService) {
         this.authenticationFacade = authenticationFacade;
+        this.service = userService;
     }
 
     @Pointcut("within(uk.gov.justice.hmpps.prison.api.resource.*) && @annotation(uk.gov.justice.hmpps.prison.core.ProxyUser)")
@@ -33,16 +37,20 @@ public class ProxyUserAspect {
         var proxyUser = authenticationFacade.getCurrentUsername();
         try {
             if (proxyUser != null) {
-                log.debug("Proxying User: {} for {}->{}", proxyUser,
+                final var nomisStaffUser = Boolean.toString(service.isStaff(proxyUser));
+                log.debug("Proxying User: {} for {}->{} NOMIS Staff = {}", proxyUser,
                         joinPoint.getSignature().getDeclaringTypeName(),
-                        joinPoint.getSignature().getName());
+                        joinPoint.getSignature().getName(),
+                        nomisStaffUser);
 
                 MDC.put(PROXY_USER, proxyUser);
+                MDC.put(NOMIS_USER_HEADER, nomisStaffUser);
             }
             return joinPoint.proceed();
         } finally {
             if (proxyUser != null) {
                 MDC.remove(PROXY_USER);
+                MDC.remove(NOMIS_USER_HEADER);
             }
         }
     }

@@ -40,7 +40,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
 @ToString(of = {"bookingId", "bookNumber", "bookingSequence", "activeFlag", "inOutStatus"})
-public class OffenderBooking extends AuditableEntity {
+public class OffenderBooking extends ExtendedAuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_BOOK_ID", sequenceName = "OFFENDER_BOOK_ID", allocationSize = 1)
     @GeneratedValue(generator = "OFFENDER_BOOK_ID")

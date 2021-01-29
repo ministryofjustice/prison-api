@@ -114,8 +114,7 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Creates a prisoner. BOOKING_CREATE role")
     @PostMapping
-    @HasWriteScope
-    @PreAuthorize("hasRole('BOOKING_CREATE')")
+    @PreAuthorize("hasRole('BOOKING_CREATE') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail createPrisoner(@RequestBody @NotNull @Valid final RequestToCreate requestToCreate) {
         return inmateService.findOffender(prisonerCreationService.createPrisoner(requestToCreate), true);
@@ -128,8 +127,7 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Releases a prisoner from their current prison location. Must be an active prisoner in currently inside a prison, requires the RELEASE_PRISONER role")
     @PutMapping("/{offenderNo}/release")
-    @HasWriteScope
-    @PreAuthorize("hasRole('RELEASE_PRISONER')")
+    @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @VerifyOffenderAccess
     public InmateDetail releasePrisoner(
@@ -146,8 +144,7 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Recalls a prisoner into prison. TRANSFER_PRISONER role")
     @PutMapping("/{offenderNo}/recall")
-    @HasWriteScope
-    @PreAuthorize("hasRole('TRANSFER_PRISONER')")
+    @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @VerifyOffenderAccess
     public InmateDetail recallPrisoner(
@@ -164,8 +161,7 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Receives a prisoner on a new booking. BOOKING_CREATE role")
     @PostMapping("/{offenderNo}/booking")
-    @HasWriteScope
-    @PreAuthorize("hasRole('BOOKING_CREATE')")
+    @PreAuthorize("hasRole('BOOKING_CREATE') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail newBooking(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
@@ -180,8 +176,7 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Marks a prisoner as in transit from their current prison location to a new prison. Must be an active prisoner in currently inside a prison, requires the TRANSFER_PRISONER role")
     @PutMapping("/{offenderNo}/transfer-out")
-    @HasWriteScope
-    @PreAuthorize("hasRole('TRANSFER_PRISONER')")
+    @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @VerifyOffenderAccess
     public InmateDetail transferOutPrisoner(
@@ -198,8 +193,7 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("*** BETA *** Transfer a prisoner into a prison. Must be an out prisoner in currently in transfer status, requires the TRANSFER_PRISONER role")
     @PutMapping("/{offenderNo}/transfer-in")
-    @HasWriteScope
-    @PreAuthorize("hasRole('TRANSFER_PRISONER')")
+    @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @VerifyOffenderAccess
     public InmateDetail transferInPrisoner(
@@ -213,8 +207,7 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Returns the next prisoner number (NOMS ID or Offender No) that can be used to create an offender")
     @GetMapping("/next-sequence")
-    @HasWriteScope
-    @PreAuthorize("hasRole('BOOKING_CREATE')")
+    @PreAuthorize("hasRole('BOOKING_CREATE') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public PrisonerIdentifier getNextPrisonerIdentifier() {
         return prisonerCreationService.getNextPrisonerIdentifier();
