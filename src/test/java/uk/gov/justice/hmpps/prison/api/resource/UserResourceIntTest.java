@@ -13,8 +13,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class UserResourceIntTest extends ResourceTest {
@@ -22,12 +22,13 @@ public class UserResourceIntTest extends ResourceTest {
     @MockBean
     private UserRepository userRepository;
 
+
     @Test
     public void addAccessRole() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("BOB", List.of("ROLE_MAINTAIN_ACCESS_ROLES"), null);
         final var role = AccessRole.builder().roleId(1L).roleFunction("GENERAL").build();
+        when(userRepository.findByUsername(eq("BOB"))).thenReturn(Optional.empty());
         when(userRepository.getRoleByCode(anyString())).thenReturn(Optional.of(role));
-
         final var responseEntity = testRestTemplate.exchange("/api/users/joe/access-role/ROLE_FRED", HttpMethod.PUT, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
@@ -42,8 +43,8 @@ public class UserResourceIntTest extends ResourceTest {
             "[\"ROLE_FRED\",\"ROLE_GEORGE\"]");
         final var role = AccessRole.builder().roleId(1L).roleFunction("GENERAL").build();
         final var role2 = AccessRole.builder().roleId(2L).roleFunction("GENERAL").build();
+        when(userRepository.findByUsername(eq("BOB"))).thenReturn(Optional.empty());
         when(userRepository.getRoleByCode(anyString())).thenReturn(Optional.of(role)).thenReturn(Optional.of(role2));
-
         final var responseEntity = testRestTemplate.exchange("/api/users/joe/access-role", HttpMethod.POST, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -59,12 +60,12 @@ public class UserResourceIntTest extends ResourceTest {
             "[]");
         final var role = AccessRole.builder().roleId(1L).roleFunction("GENERAL").build();
         final var role2 = AccessRole.builder().roleId(2L).roleFunction("GENERAL").build();
+        when(userRepository.findByUsername(eq("BOB"))).thenReturn(Optional.empty());
         when(userRepository.getRoleByCode(anyString())).thenReturn(Optional.of(role)).thenReturn(Optional.of(role2));
-
         final var responseEntity = testRestTemplate.exchange("/api/users/joe/access-role", HttpMethod.POST, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
-        verifyNoInteractions(userRepository);
+        verify(userRepository).findByUsername("BOB");
     }
 
     @Test
@@ -75,11 +76,12 @@ public class UserResourceIntTest extends ResourceTest {
             "[\"ROLE_FRED\",\"ROLE_GEORGE\"]");
         final var role = AccessRole.builder().roleId(1L).roleFunction("GENERAL").build();
         final var role2 = AccessRole.builder().roleId(2L).roleFunction("GENERAL").build();
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         when(userRepository.getRoleByCode(anyString())).thenReturn(Optional.of(role)).thenReturn(Optional.of(role2));
-
         final var responseEntity = testRestTemplate.exchange("/api/users/joe/access-role", HttpMethod.POST, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 
-        verifyNoInteractions(userRepository);
+        verify(userRepository).findByUsername("BOB");
+
     }
 }

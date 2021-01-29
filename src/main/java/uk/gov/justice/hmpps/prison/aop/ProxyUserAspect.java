@@ -37,14 +37,14 @@ public class ProxyUserAspect {
         var proxyUser = authenticationFacade.getCurrentUsername();
         try {
             if (proxyUser != null) {
-                final var nomisStaffUser = Boolean.toString(service.isStaff(proxyUser));
-                log.debug("Proxying User: {} for {}->{} NOMIS Staff = {}", proxyUser,
+                final var isANomisUser = Boolean.toString(service.isStaff(proxyUser));
+                log.debug("Proxying User: {} for {}->{} NOMIS User? = {}", proxyUser,
                         joinPoint.getSignature().getDeclaringTypeName(),
                         joinPoint.getSignature().getName(),
-                        nomisStaffUser);
+                    isANomisUser);
 
                 MDC.put(PROXY_USER, proxyUser);
-                MDC.put(NOMIS_USER_HEADER, nomisStaffUser);
+                MDC.put(NOMIS_USER_HEADER, isANomisUser);
             }
             return joinPoint.proceed();
         } finally {
