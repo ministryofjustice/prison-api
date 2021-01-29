@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearings;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
@@ -66,8 +65,7 @@ public class CourtHearingsService {
 
     @Transactional
     @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
-    @HasWriteScope
-    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
+    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
     public CourtHearing scheduleHearing(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
@@ -99,8 +97,7 @@ public class CourtHearingsService {
 
     @Transactional
     @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
-    @HasWriteScope
-    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
+    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
     public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 

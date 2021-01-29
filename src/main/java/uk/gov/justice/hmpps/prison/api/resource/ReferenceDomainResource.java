@@ -24,7 +24,6 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeInfo;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
@@ -146,8 +145,7 @@ public class ReferenceDomainResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Creates a reference code")
     @PostMapping("/domains/{domain}/codes/{code}")
-    @HasWriteScope
-    @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA','SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public ReferenceCode createReferenceCode(@Size(max = 12) @NotNull @PathVariable("domain") @ApiParam(value = "The domain identifier/name.", required = true) final String domain, @Size(max = 12) @NotNull @PathVariable("code") @ApiParam(value = "The reference code.", required = true) final String code, @RequestBody @javax.validation.Valid @NotNull @ApiParam(value = "Reference Information", required = true) final ReferenceCodeInfo referenceData) {
         return referenceDomainService.createReferenceCode(domain, code, referenceData);
@@ -160,8 +158,7 @@ public class ReferenceDomainResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Updates a reference code")
     @PutMapping("/domains/{domain}/codes/{code}")
-    @HasWriteScope
-    @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA','SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public ReferenceCode updateReferenceCode(@Size(max = 12) @NotNull @PathVariable("domain") @ApiParam(value = "The domain identifier/name.", required = true) final String domain, @Size(max = 12) @NotNull @PathVariable("code") @ApiParam(value = "The reference code.", required = true) final String code, @javax.validation.Valid @NotNull @RequestBody @ApiParam(value = "Reference Information", required = true) final ReferenceCodeInfo referenceData) {
         return referenceDomainService.updateReferenceCode(domain, code, referenceData);

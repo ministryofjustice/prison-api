@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.SchedulePrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
@@ -71,8 +70,7 @@ public class PrisonToPrisonMoveSchedulingService {
 
     @Transactional
     @VerifyBookingAccess(overrideRoles = "PRISON_MOVE_MAINTAINER")
-    @HasWriteScope
-    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER')")
+    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ScheduledPrisonToPrisonMove schedule(final Long bookingId, final SchedulePrisonToPrisonMove move) {
         log.debug("Scheduling a prison to prison move for booking: {} with details: {}", bookingId, move);
 
@@ -154,8 +152,7 @@ public class PrisonToPrisonMoveSchedulingService {
 
     @Transactional
     @VerifyBookingAccess(overrideRoles = "PRISON_MOVE_MAINTAINER")
-    @HasWriteScope
-    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER')")
+    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public void cancel(final Long bookingId, final Long scheduledMoveId, final String transferCancellationReasonCode) {
         final var move = scheduleRepository.findById(scheduledMoveId).orElseThrow(() -> EntityNotFoundException.withMessage("Scheduled prison move with id %s not found.", scheduledMoveId));
 

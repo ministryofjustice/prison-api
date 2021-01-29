@@ -97,7 +97,7 @@ public class AgencyService {
     public Agency updateAgency(final String agencyId, final RequestToUpdateAgency agencyToUpdate) {
         final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
 
-        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToUpdate.getAgencyType())).orElseThrow(EntityNotFoundException.withMessage(format("Agency Type [%s] not found", agencyToUpdate.getAgencyType())));
+        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToUpdate.getAgencyType())).orElseThrow(BadRequestException.withMessage(format("Agency Type [%s] not found", agencyToUpdate.getAgencyType())));
         return AgencyTransformer.transform(AgencyTransformer.update(agency, agencyToUpdate, agencyLocationType));
     }
 
@@ -108,7 +108,7 @@ public class AgencyService {
             throw new EntityAlreadyExistsException(format("Agency with ID %s already exists", agencyToCreate.getAgencyId()));
         });
 
-        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToCreate.getAgencyType())).orElseThrow(EntityNotFoundException.withMessage(format("Agency Type [%s] not found", agencyToCreate.getAgencyType())));
+        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToCreate.getAgencyType())).orElseThrow(BadRequestException.withMessage(format("Agency Type [%s] not found", agencyToCreate.getAgencyType())));
 
         final var agencyLocation = agencyLocationRepository.save(AgencyTransformer.build(agencyToCreate, agencyLocationType));
         return AgencyTransformer.transform(agencyLocation);
