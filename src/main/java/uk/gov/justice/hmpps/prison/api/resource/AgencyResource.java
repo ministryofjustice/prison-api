@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -27,6 +28,8 @@ import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
+import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
+import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -101,7 +104,7 @@ public class AgencyResource {
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA')")
     @ProxyUser
     public Agency updateAgency(@PathVariable("agencyId") @ApiParam(value = "The ID of the agency", required = true) @Valid @Length(max = 6, message = "Agency Id is max 6 characters") final String agencyId,
-                               @RequestBody @NotNull @Valid Agency agencyToUpdate) {
+                               @RequestBody @NotNull @Valid RequestToUpdateAgency agencyToUpdate) {
         return agencyService.updateAgency(agencyId, agencyToUpdate);
     }
 
@@ -115,8 +118,9 @@ public class AgencyResource {
     @HasWriteScope
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA')")
     @ProxyUser
-    public Agency createAgency(@RequestBody @NotNull @Valid final Agency agencyToCreate) {
-        return agencyService.createAgency(agencyToCreate);
+    public ResponseEntity<Agency> createAgency(@RequestBody @NotNull @Valid final RequestToCreateAgency agencyToCreate) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(agencyService.createAgency(agencyToCreate));
     }
 
     @ApiResponses({

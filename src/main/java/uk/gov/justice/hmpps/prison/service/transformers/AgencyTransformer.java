@@ -1,10 +1,14 @@
 package uk.gov.justice.hmpps.prison.service.transformers;
 
 import uk.gov.justice.hmpps.prison.api.model.Agency;
+import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
+import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
+
+import java.time.LocalDate;
 
 public class AgencyTransformer {
 
@@ -19,21 +23,21 @@ public class AgencyTransformer {
                 .build();
     }
 
-    public static AgencyLocation build(final Agency agency, final AgencyLocationType type) {
+    public static AgencyLocation build(final RequestToCreateAgency agency, final AgencyLocationType type) {
         return AgencyLocation.builder()
             .id(agency.getAgencyId())
             .type(type)
             .activeFlag(agency.isActive() ? ActiveFlag.Y : ActiveFlag.N)
             .description(agency.getDescription())
             .longDescription(agency.getLongDescription())
-            .deactivationDate(agency.getDeactivationDate())
+            .deactivationDate(agency.isActive() ? null : LocalDate.now())
             .build();
     }
 
-    public static AgencyLocation update(final AgencyLocation agencyLocation, final Agency agency, final AgencyLocationType type) {
+    public static AgencyLocation update(final AgencyLocation agencyLocation, final RequestToUpdateAgency agency, final AgencyLocationType type) {
         agencyLocation.setActiveFlag(agency.isActive() ? ActiveFlag.Y : ActiveFlag.N);
         agencyLocation.setDescription(agency.getDescription());
-        agencyLocation.setDeactivationDate(agency.getDeactivationDate());
+        agencyLocation.setDeactivationDate(agency.isActive() ? null : LocalDate.now());
         agencyLocation.setType(type);
         agencyLocation.setLongDescription(agency.getLongDescription());
         return agencyLocation;
