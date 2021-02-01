@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static uk.gov.justice.hmpps.prison.util.MdcUtility.NOMIS_USER_HEADER;
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 
 @Component
@@ -45,9 +44,6 @@ public class AuthenticationFacade {
         return username;
     }
 
-    public boolean isNomisStaffUser() {
-        return "true".equals(MDC.get(NOMIS_USER_HEADER));
-    }
 
     public AuthSource getProxyUserAuthenticationSource() {
         final var auth = getAuthentication();

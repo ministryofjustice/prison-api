@@ -38,8 +38,8 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
     @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
         final var proxyUserAuthSource = authenticationFacade.getProxyUserAuthenticationSource();
-        if (proxyUserAuthSource == NOMIS || authenticationFacade.isNomisStaffUser()) {
-            log.trace("Configuring Oracle Proxy Session for NOMIS user {}", pooledConnection);
+        if (proxyUserAuthSource == NOMIS ) {
+            log.trace("Configuring Oracle Proxy Session for Nomis user {}", pooledConnection);
             return openAndConfigureProxySessionForConnection(pooledConnection);
         }
 
