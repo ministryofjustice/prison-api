@@ -964,7 +964,7 @@ public class InmateRepository extends RepositoryBase {
     }
 
     private List<OffenderCategorise> removeNonStandardCategoryRecords(List<OffenderCategorise> rawData) {
-        final var validCategoryCodes = Set.of("B", "C", "D");
+        final var validCategoryCodes = Set.of("B", "C", "D", "U");
         return rawData.stream().filter(cat -> cat.getCategory() != null && validCategoryCodes.contains(cat.getCategory())).collect(Collectors.toList());
     }
 
