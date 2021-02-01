@@ -167,6 +167,82 @@ public class AgencyResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCantCreateAgencyWithBadAgencyId() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "agencyId", "   ",
+            "description", "Will Fail");
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatStatus(response, 400);
+    }
+
+    @Test
+    public void testCantCreateAgencyWith1charAgencyId() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "agencyId", "X",
+            "description", "Will Fail");
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatStatus(response, 400);
+    }
+
+    @Test
+    public void testCantCreateAgencyWith1charDecription() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "agencyId", "MDI",
+            "description", " ");
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatStatus(response, 400);
+    }
+
+    @Test
+    public void testCantCreateAgencyWithInvalidChars() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "agencyId", "%$£",
+            "description", "Cool");
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatStatus(response, 400);
+    }
+
+    @Test
     public void testCantCreateAgencyWithInvalidId() {
         final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
         final var body = Map.of(
