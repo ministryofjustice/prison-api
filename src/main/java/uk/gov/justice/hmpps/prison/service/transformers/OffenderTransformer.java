@@ -49,13 +49,13 @@ public class OffenderTransformer {
                 .locationId(latestBooking.getAssignedLivingUnit() != null ? latestBooking.getAssignedLivingUnit().getLocationId() : null)
                 .build())
             .assignedLivingUnitId(latestBooking.getAssignedLivingUnit() != null ? latestBooking.getAssignedLivingUnit().getLocationId() : null)
-            .birthCountryCode(null)
-            .profileInformation(latestBooking.getProfileDetails().stream().map(pd -> ProfileInformation.builder()
+            .profileInformation(latestBooking.getActiveProfileDetails().stream()
+                .filter(pd -> pd.getCode() != null)
+                .map(pd -> ProfileInformation.builder()
                 .type(pd.getId().getType().getType())
                 .question(pd.getId().getType().getDescription())
-                .resultValue(pd.getCode() != null ? pd.getCode().getDescription() : null)
+                .resultValue(pd.getCode().getDescription())
                 .build()).collect(Collectors.toList()))
-            .facialImageId(null)
             .build();
     }
 
@@ -70,7 +70,7 @@ public class OffenderTransformer {
             .dateOfBirth(offender.getBirthDate())
             .age(getAge(offender.getBirthDate(), LocalDate.now(clock)))
             .profileInformation(null)
-            .identifiers(offender.getIdentifiers().stream().map(oi -> OffenderIdentifier.builder()
+            .identifiers(offender.getLatestIdentifiers().stream().map(oi -> OffenderIdentifier.builder()
                 .offenderNo(offender.getNomsId())
                 .caseloadType(oi.getCaseloadType())
                 .type(oi.getIdentifierType())

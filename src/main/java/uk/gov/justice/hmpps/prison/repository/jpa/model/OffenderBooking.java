@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -188,6 +189,21 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     public List<OffenderPropertyContainer> getActivePropertyContainers() {
         return propertyContainers.stream().filter(OffenderPropertyContainer::isActive).collect(toUnmodifiableList());
+    }
+
+    public List<OffenderProfileDetail> getActiveProfileDetails() {
+        return profileDetails.stream()
+            .filter(pd -> {
+                final var profileType = pd.getId().getType();
+                return profileType.getCategory().equals("PI") && (profileType.getActiveFlag().isActive() || profileType.getType().equals("RELF"));
+            })
+            .collect(
+                Collectors.groupingBy(pd -> pd.getId().getType())
+            ).entrySet().stream()
+            .flatMap(pd -> pd.getValue().stream()
+                .max(Comparator.comparing(op -> op.getId().getSequence()))
+                .stream())
+            .collect(Collectors.toList());
     }
 
     public int incBookingSequence() {
