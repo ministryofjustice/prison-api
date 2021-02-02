@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -91,7 +92,7 @@ public class OffenderTransactionHistoryService {
         return transactions.keySet().stream().flatMap(agencyAccountType -> {
             final var runningBalance = new AtomicReference<>(BigDecimal.valueOf(0));
 
-            transactions.get(agencyAccountType).forEach(transaction -> {
+            return transactions.get(agencyAccountType).stream().flatMap(transaction -> {
                 final var postingType = transaction.getPostingType();
                 if (postingType.equals("CR")) {
                     runningBalance.set(runningBalance.get().add(transaction.getEntryAmount()));
@@ -99,9 +100,8 @@ public class OffenderTransactionHistoryService {
                     runningBalance.set(runningBalance.get().subtract(transaction.getEntryAmount()));
                 }
                 transaction.setCurrentBalance(runningBalance.get());
+                return Stream.of(transaction);
             });
-
-            return transactions.get(agencyAccountType).stream();
         }).collect(Collectors.toList());
     }
 
