@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -136,13 +137,25 @@ public class Offender extends ExtendedAuditableEntity {
 
 
     public Optional<OffenderIdentifier> getLatestIdentifierOfType(final String type) {
-        final var mapOfTypes = identifiers.stream().collect(Collectors.groupingBy(OffenderIdentifier::getIdentifierType));
-        final var offenderIdentifiers = mapOfTypes.get(type);
+        final var offenderIdentifiers = mapOfIdentifiers().get(type);
         if (offenderIdentifiers != null) {
             return offenderIdentifiers.stream().max(Comparator.comparing(id -> id.getOffenderIdentifierPK().getOffenderIdSeq()));
         } else {
             return Optional.empty();
         }
+    }
+
+    public List<OffenderIdentifier> getLatestIdentifiers() {
+        return mapOfIdentifiers()
+            .entrySet().stream()
+            .flatMap(pd -> pd.getValue().stream()
+                .max(Comparator.comparing(id -> id.getOffenderIdentifierPK().getOffenderIdSeq()))
+                .stream())
+            .collect(Collectors.toList());
+    }
+
+    private Map<String, List<OffenderIdentifier>> mapOfIdentifiers() {
+        return identifiers.stream().collect(Collectors.groupingBy(OffenderIdentifier::getIdentifierType));
     }
 
     public Optional<OffenderBooking> getLatestBooking() {
