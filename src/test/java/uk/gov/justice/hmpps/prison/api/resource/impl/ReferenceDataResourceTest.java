@@ -6,6 +6,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +21,7 @@ public class ReferenceDataResourceTest extends ResourceTest {
 
         try {
 
-            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+            final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
             final var httpEntity = createHttpEntity(token,
                 "{" +
                     "    \"description\": \"TASK_TEST1\"," +
@@ -50,7 +51,7 @@ public class ReferenceDataResourceTest extends ResourceTest {
 
     @Test
     public void testUpdateASubReferenceTypeToActive() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
 
         final var httpEntity = createHttpEntity(token,
                 "{" +
@@ -77,7 +78,7 @@ public class ReferenceDataResourceTest extends ResourceTest {
 
     @Test
     public void testUpdateASubReferenceTypeToInactive() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
 
         final var httpEntity = createHttpEntity(token,
                 "{" +

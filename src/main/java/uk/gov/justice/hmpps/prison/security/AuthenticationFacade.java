@@ -44,6 +44,7 @@ public class AuthenticationFacade {
         return username;
     }
 
+
     public AuthSource getProxyUserAuthenticationSource() {
         final var auth = getAuthentication();
         return Optional.ofNullable(auth).

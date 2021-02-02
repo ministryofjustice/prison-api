@@ -18,7 +18,7 @@ public class ProxyUserAspect {
 
     private final AuthenticationFacade authenticationFacade;
 
-    public ProxyUserAspect(AuthenticationFacade authenticationFacade) {
+    public ProxyUserAspect(final AuthenticationFacade authenticationFacade) {
         this.authenticationFacade = authenticationFacade;
     }
 

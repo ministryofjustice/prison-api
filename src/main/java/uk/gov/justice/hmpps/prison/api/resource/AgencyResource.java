@@ -33,7 +33,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.LocationGroupService;
@@ -100,8 +99,7 @@ public class AgencyResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Update an existing agency", notes = "Requires MAINTAIN_REF_DATA")
     @PutMapping("/{agencyId}")
-    @HasWriteScope
-    @PreAuthorize("hasRole('MAINTAIN_REF_DATA')")
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public Agency updateAgency(@PathVariable("agencyId") @ApiParam(value = "The ID of the agency", required = true) @Valid @Length(max = 6, message = "Agency Id is max 6 characters") final String agencyId,
                                @RequestBody @NotNull @Valid RequestToUpdateAgency agencyToUpdate) {
@@ -115,8 +113,7 @@ public class AgencyResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Create an agency", notes = "Requires MAINTAIN_REF_DATA")
     @PostMapping()
-    @HasWriteScope
-    @PreAuthorize("hasRole('MAINTAIN_REF_DATA')")
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public ResponseEntity<Agency> createAgency(@RequestBody @NotNull @Valid final RequestToCreateAgency agencyToCreate) {
         return ResponseEntity.status(HttpStatus.CREATED)

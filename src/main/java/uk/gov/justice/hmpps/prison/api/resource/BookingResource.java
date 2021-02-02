@@ -443,8 +443,7 @@ public class BookingResource {
     @ApiOperation("Add a new IEP (Incentives & Earned Privileges) level to an offender's booking.")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/{bookingId}/iepLevels")
-    @HasWriteScope
-    @PreAuthorize("hasRole('MAINTAIN_IEP')")
+    @PreAuthorize("hasRole('MAINTAIN_IEP') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public ResponseEntity<Void> addIepLevel(@PathVariable("bookingId") @ApiParam(value = "The booking id of the offender", required = true) final Long bookingId, @RequestBody @ApiParam(value = "The new IEP Level and accompanying comment (reason for change).", required = true) @NotNull final IepLevelAndComment iepLevel) {
         bookingService.addIepLevel(bookingId, authenticationFacade.getCurrentUsername(), iepLevel);

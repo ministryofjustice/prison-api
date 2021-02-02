@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
@@ -39,8 +38,7 @@ public class CourtHearingReschedulingService {
 
     @Transactional
     @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
-    @HasWriteScope
-    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER')")
+    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
     public CourtHearing reschedule(final Long bookingId, final Long hearingId, final LocalDateTime revisedDateTime) {
         final var scheduledCourtHearing = getScheduledHearingFor(hearingId);
 
