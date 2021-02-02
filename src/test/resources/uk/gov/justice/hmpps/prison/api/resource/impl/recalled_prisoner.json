@@ -8,7 +8,6 @@
   "lastName": "HARRISON",
   "dateOfBirth": "1962-01-01",
   "activeFlag": true,
-  "facialImageId": -22,
   "agencyId": "SYI",
   "assignedLivingUnitId": -202,
   "assignedLivingUnit": {
@@ -30,7 +29,6 @@
       "resultValue": "Yes"
     }
   ],
-  "birthCountryCode": "UK",
   "inOutStatus": "IN",
   "status": "ACTIVE IN"
 }

@@ -117,7 +117,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('BOOKING_CREATE') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail createPrisoner(@RequestBody @NotNull @Valid final RequestToCreate requestToCreate) {
-        return inmateService.findOffender(prisonerCreationService.createPrisoner(requestToCreate), true);
+        return prisonerCreationService.createPrisoner(requestToCreate);
     }
 
     @ApiResponses({
@@ -133,8 +133,7 @@ public class OffenderResource {
     public InmateDetail releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
-        prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner);
-        return inmateService.findOffender(offenderNo, false);
+        return prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner);
     }
 
     @ApiResponses({
@@ -150,8 +149,7 @@ public class OffenderResource {
     public InmateDetail recallPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToRecall requestToRecall) {
-        prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
-        return inmateService.findOffender(offenderNo, false);
+        return prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
     }
 
     @ApiResponses({
@@ -166,8 +164,7 @@ public class OffenderResource {
     public InmateDetail newBooking(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForNewBooking requestForNewBooking) {
-        prisonerReleaseAndTransferService.newBooking(offenderNo, requestForNewBooking);
-        return inmateService.findOffender(offenderNo, false);
+        return prisonerReleaseAndTransferService.newBooking(offenderNo, requestForNewBooking);
     }
 
     @ApiResponses({
@@ -182,8 +179,7 @@ public class OffenderResource {
     public InmateDetail transferOutPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOut requestToTransferOut) {
-        prisonerReleaseAndTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
-        return inmateService.findOffender(offenderNo, false);
+        return prisonerReleaseAndTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
     }
 
     @ApiResponses({
@@ -199,8 +195,7 @@ public class OffenderResource {
     public InmateDetail transferInPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferIn requestToTransferIn) {
-        prisonerReleaseAndTransferService.transferInPrisoner(offenderNo, requestToTransferIn);
-        return inmateService.findOffender(offenderNo, false);
+        return prisonerReleaseAndTransferService.transferInPrisoner(offenderNo, requestToTransferIn);
     }
 
     @ApiResponses({
