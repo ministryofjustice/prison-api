@@ -145,6 +145,10 @@ public class Offender extends ExtendedAuditableEntity {
         }
     }
 
+    public Optional<OffenderBooking> getLatestBooking() {
+        return getBookings().stream().min(Comparator.comparing(OffenderBooking::getBookingSequence));
+    }
+
     public Optional<String> getPnc() {
         return getLatestIdentifierOfType("PNC").map(OffenderIdentifier::getIdentifier);
     }
