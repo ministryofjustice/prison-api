@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate;
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
@@ -20,6 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Title;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIdentifierRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -40,8 +42,9 @@ public class PrisonerCreationService {
     private final ReferenceCodeRepository<Title> titleRepository;
     private final ReferenceCodeRepository<Suffix> suffixRepository;
     private final OffenderIdentifierRepository offenderIdentifierRepository;
+    private final OffenderTransformer offenderTransformer;
 
-    public String createPrisoner(final RequestToCreate requestToCreate) {
+    public InmateDetail createPrisoner(final RequestToCreate requestToCreate) {
 
         final var upperLastName = StringUtils.upperCase(requestToCreate.getLastName());
         final var upperFirstname = StringUtils.upperCase(requestToCreate.getFirstName());
@@ -123,7 +126,7 @@ public class PrisonerCreationService {
             offender.addIdentifier("CRO", requestToCreate.getCroNumber());
         }
 
-        return offender.getNomsId();
+        return offenderTransformer.transform(offender);
     }
 
     public PrisonerIdentifier getNextPrisonerIdentifier() {

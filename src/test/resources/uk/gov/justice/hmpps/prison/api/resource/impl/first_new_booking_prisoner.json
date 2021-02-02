@@ -20,7 +20,6 @@
     "ethnicity": "White: British",
     "sexCode": "M"
   },
-  "physicalCharacteristics": [],
   "profileInformation": [
     {
       "type": "YOUTH",
@@ -28,7 +27,6 @@
       "resultValue": "Yes"
     }
   ],
-  "birthCountryCode": "UK",
   "inOutStatus": "IN",
   "status": "ACTIVE IN"
 }
