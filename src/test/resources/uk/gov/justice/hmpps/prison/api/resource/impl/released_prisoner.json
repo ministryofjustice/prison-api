@@ -19,23 +19,6 @@
     "ethnicity": "White: British",
     "sexCode": "M"
   },
-  "assessments": [
-    {
-      "bookingId": -37,
-      "classificationCode": "B",
-      "classification": "Cat B",
-      "assessmentCode": "CATEGORY",
-      "assessmentDescription": "Categorisation",
-      "cellSharingAlertFlag": false,
-      "assessmentDate": "2016-05-04",
-      "nextReviewDate": "2016-08-08",
-      "assessmentStatus": "A",
-      "assessmentSeq": 2
-    }
-  ],
-  "category": "Cat B",
-  "categoryCode": "B",
-  "birthCountryCode": "UK",
   "inOutStatus": "OUT",
   "status": "INACTIVE OUT"
 }

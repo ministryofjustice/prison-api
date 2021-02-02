@@ -392,14 +392,17 @@ public class OffenderTransactionHistoryServiceTest {
         public void testCalculateRunningBalance() {
             final var allTransactions = List.of(
                 in.toBuilder()
+                    .accountType("SPENDS")
                     .createDatetime(LocalDateTime.of(2000,10,10, 0,0,0))
                     .entryAmount(BigDecimal.valueOf(2))
                     .build(),
                 in.toBuilder()
+                    .accountType("SPENDS")
                     .createDatetime(LocalDateTime.of(2000,11,10, 0,0,0))
                     .entryAmount(BigDecimal.valueOf(3))
                     .build(),
                 out.toBuilder()
+                    .accountType("SPENDS")
                     .createDatetime(LocalDateTime.of(2001,12,10,0,0,0))
                     .entryAmount(BigDecimal.valueOf(5))
                     .build()
@@ -423,6 +426,7 @@ public class OffenderTransactionHistoryServiceTest {
                     .transactionId(1L)
                     .createDatetime(LocalDateTime.of(2000,10,10, 0,0,0))
                     .agencyId("LEI")
+                    .accountType("SPENDS")
                     .entryAmount(BigDecimal.valueOf(2))
                     .build(),
                 in.toBuilder()
@@ -430,24 +434,28 @@ public class OffenderTransactionHistoryServiceTest {
                     .createDatetime(LocalDateTime.of(2000,11,10, 0,0,0))
                     .entryAmount(BigDecimal.valueOf(3))
                     .agencyId("LEI")
+                    .accountType("SPENDS")
                     .build(),
                 in.toBuilder()
                     .transactionId(3L)
                     .createDatetime(LocalDateTime.of(2002,1,1,0,0,0))
                     .entryAmount(BigDecimal.valueOf(5))
                     .agencyId("MDI")
+                    .accountType("SPENDS")
                     .build(),
                 in.toBuilder()
                     .transactionId(4L)
                     .createDatetime(LocalDateTime.of(2002,2,1,0,0,0))
                     .entryAmount(BigDecimal.valueOf(5))
                     .agencyId("MDI")
+                    .accountType("SPENDS")
                     .build(),
                 in.toBuilder()
                     .transactionId(5L)
                     .createDatetime(LocalDateTime.of(2002,3,1,0,0,0))
                     .entryAmount(BigDecimal.valueOf(1))
                     .agencyId("LEI")
+                    .accountType("SPENDS")
                     .build()
             );
             when(repository.findByOffender_NomsId(any())).thenReturn(allTransactions);
@@ -462,8 +470,81 @@ public class OffenderTransactionHistoryServiceTest {
             assertThat(transactions.get(3).getCurrentBalance()).isEqualTo(500L);
             assertThat(transactions.get(4).getCurrentBalance()).isEqualTo(200L);
         }
-    }
 
+
+        @Test
+        public void testCalculateRunningBalance_GroupedByAgencyAndAccountType() {
+            final var allTransactions = List.of(
+                in.toBuilder()
+                    .transactionId(1L)
+                    .createDatetime(LocalDateTime.of(2000,10,10, 0,0,0))
+                    .entryDate(LocalDate.of(2000,10, 10))
+                    .agencyId("LEI")
+                    .accountType("SPND")
+                    .entryAmount(BigDecimal.valueOf(2))
+                    .build(),
+                in.toBuilder()
+                    .transactionId(2L)
+                    .createDatetime(LocalDateTime.of(2000,11,10, 0,0,0))
+                    .entryDate(LocalDate.of(2000,11, 10))
+                    .entryAmount(BigDecimal.valueOf(3))
+                    .agencyId("LEI")
+                    .accountType("REG")
+                    .build(),
+                in.toBuilder()
+                    .transactionId(3L)
+                    .createDatetime(LocalDateTime.of(2002,1,1,0,0,0))
+                    .entryDate(LocalDate.of(2002,1, 1))
+                    .entryAmount(BigDecimal.valueOf(5))
+                    .agencyId("LEI")
+                    .accountType("SPND")
+                    .build(),
+                in.toBuilder()
+                    .transactionId(4L)
+                    .createDatetime(LocalDateTime.of(2002,2,1,0,0,0))
+                    .entryDate(LocalDate.of(2002,2, 1))
+                    .entryAmount(BigDecimal.valueOf(5))
+                    .agencyId("MDI")
+                    .accountType("REG")
+                    .build(),
+                in.toBuilder()
+                    .transactionId(5L)
+                    .createDatetime(LocalDateTime.of(2002,3,1,0,0,0))
+                    .entryDate(LocalDate.of(2002,3, 1))
+                    .entryAmount(BigDecimal.valueOf(1))
+                    .agencyId("MDI")
+                    .accountType("REG")
+                    .build()
+            );
+            when(repository.findByOffender_NomsId(any())).thenReturn(allTransactions);
+
+            final var transactions =
+                service.getTransactionHistory(OFFENDER_NO, null, null, null,null);
+
+            //MDI - REG
+            assertThat(transactions.get(0))
+                .extracting("currentBalance", "agencyId", "accountType")
+                .containsExactlyInAnyOrder(600L, "MDI", "REG");
+
+            assertThat(transactions.get(1))
+                .extracting("currentBalance", "agencyId", "accountType")
+                .containsExactlyInAnyOrder(500L, "MDI", "REG");
+
+            // LEI - SPENDS
+            assertThat(transactions.get(2))
+                .extracting("currentBalance", "agencyId", "accountType")
+                .containsExactlyInAnyOrder(700L, "LEI", "SPND");
+
+            assertThat(transactions.get(3))
+                .extracting("currentBalance", "agencyId", "accountType")
+                .containsExactlyInAnyOrder(300L, "LEI", "REG");
+
+            // LEI - REG
+            assertThat(transactions.get(4))
+                .extracting("currentBalance", "agencyId", "accountType")
+                .containsExactlyInAnyOrder(200L, "LEI", "SPND");
+        }
+    }
 
 
     private OffenderTransactionHistory offenderTransactionHistoryEntry() {
