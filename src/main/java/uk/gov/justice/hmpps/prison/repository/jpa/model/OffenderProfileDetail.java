@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.NotFound;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -17,6 +18,8 @@ import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
+
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
 @Builder
@@ -41,7 +44,8 @@ public class OffenderProfileDetail extends AuditableEntity {
         @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
         private OffenderBooking offenderBooking;
 
-        @ManyToOne(optional = false, fetch = FetchType.LAZY)
+        @ManyToOne(optional = false, fetch = FetchType.EAGER)
+        @NotFound(action = IGNORE)
         @JoinColumn(name = "PROFILE_TYPE", nullable = false)
         private ProfileType type;
 
@@ -49,10 +53,10 @@ public class OffenderProfileDetail extends AuditableEntity {
         private Integer sequence;
     }
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumns(value = {
-        @JoinColumn(name = "PROFILE_TYPE",  nullable = false, insertable = false, updatable = false),
-        @JoinColumn(name = "PROFILE_CODE", nullable = false, insertable = false, updatable = false)
+        @JoinColumn(name = "PROFILE_CODE", referencedColumnName = "PROFILE_CODE", insertable = false, updatable = false),
+        @JoinColumn(name = "PROFILE_TYPE", referencedColumnName = "PROFILE_TYPE", nullable = false, insertable = false, updatable = false)
     })
     private ProfileCode code;
 
