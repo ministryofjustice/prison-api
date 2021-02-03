@@ -178,7 +178,7 @@ Feature: Booking Details
 
   Scenario: Request for offenders who need to be recategorised
     When a request is made for offenders who need to be recategorised at "LEI" with cutoff Date of "2018-07-01"
-    Then 5 categorised offenders are returned
+    Then 4 categorised offenders are returned
 
 
   Scenario: Approve categorisation validation: no auth

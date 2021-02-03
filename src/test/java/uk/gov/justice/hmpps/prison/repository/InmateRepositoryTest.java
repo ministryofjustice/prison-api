@@ -761,8 +761,7 @@ public class InmateRepositoryTest {
                 .contains( //-34 pending may or may not be present during the build as the feature tests approve it
                         Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", "B", LocalDate.of(2018, 6, 1), 8, "P"),
                         Tuple.tuple("A1234AF", -6L, "ANTHONY", "ANDREWS", "C", LocalDate.of(2018, 6, 7), 2, "A"),
-                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1, "A"),
-                        Tuple.tuple("A1234AD", -4L, "CHARLES", "CHAPLIN", "U", LocalDate.of(2016, 6, 8), 3, "A")
+                        Tuple.tuple("A1234AG", -7L, "GILES", "SMITH", "C", LocalDate.of(2018, 6, 7), 1, "A")
                 );
     }
 
@@ -804,6 +803,15 @@ public class InmateRepositoryTest {
 
         assertThat(list2).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus"
         ).containsExactly(Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P"));
+    }
+
+    @Test
+    public void testGetRecategoriseGetsSecondLatestIfLatestIsCategoryU() {
+        final var recategorisations = repository.getRecategorise("SYI", LocalDate.of(2016, 6, 7));
+
+        // There is a fourth assessment that should be ignored as it is of type U
+        assertThat(recategorisations).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus",  "category"
+        ).contains(Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P", "B"));
     }
 
     @Test
