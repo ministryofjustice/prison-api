@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,8 +28,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -53,6 +56,10 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     @Column(name = "BOOKING_TYPE")
     private String bookingType;
+
+    @OneToMany(mappedBy = "id.offenderBooking", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<OffenderProfileDetail> profileDetails = new ArrayList<>();
 
     @OrderColumn(name = "MILITARY_SEQ")
     @ListIndexBase(1)
@@ -154,6 +161,20 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         courtCase.setOffenderBooking(this);
     }
 
+    public void add(final ProfileType profileType, final ProfileCode code) {
+        profileDetails.stream()
+            .filter(pd -> profileType.equals(pd.getId().getType()))
+            .max(Comparator.comparing(op -> op.getId().getSequence()))
+            .ifPresentOrElse(
+                y -> y.setCode(code)
+                , () -> profileDetails.add(OffenderProfileDetail.builder()
+                    .id(new PK(this, profileType, 1))
+                    .caseloadType("INST")
+                    .code(code)
+                    .listSequence(profileType.getListSequence())
+                    .build()));
+    }
+
     public Optional<OffenderCourtCase> getCourtCaseBy(final Long courtCaseId) {
         return courtCases == null ? Optional.empty() : courtCases.stream().filter(cc -> cc.getId().equals(courtCaseId)).findFirst();
     }
@@ -168,6 +189,21 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     public List<OffenderPropertyContainer> getActivePropertyContainers() {
         return propertyContainers.stream().filter(OffenderPropertyContainer::isActive).collect(toUnmodifiableList());
+    }
+
+    public List<OffenderProfileDetail> getActiveProfileDetails() {
+        return profileDetails.stream()
+            .filter(pd -> {
+                final var profileType = pd.getId().getType();
+                return profileType.getCategory().equals("PI") && (profileType.getActiveFlag().isActive() || profileType.getType().equals("RELF"));
+            })
+            .collect(
+                Collectors.groupingBy(pd -> pd.getId().getType())
+            ).entrySet().stream()
+            .flatMap(pd -> pd.getValue().stream()
+                .max(Comparator.comparing(op -> op.getId().getSequence()))
+                .stream())
+            .collect(Collectors.toList());
     }
 
     public int incBookingSequence() {

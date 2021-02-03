@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
+import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
@@ -35,7 +36,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -50,20 +51,20 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmen
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.CopyProcs.CopyBookData;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.OffenderAdminProcs.GenerateNewBookingNo;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.Random;
 
 import static java.lang.String.format;
@@ -101,18 +102,19 @@ public class PrisonerReleaseAndTransferService {
     private final FinanceRepository financeRepository;
     private final ImprisonmentStatusRepository imprisonmentStatusRepository;
     private final OffenderImprisonmentStatusRepository offenderImprisonmentStatusRepository;
-    private final OffenderProfileDetailRepository offenderProfileDetailRepository;
+    private final ProfileCodeRepository profileCodeRepository;
     private final ProfileTypeRepository profileTypeRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final GenerateNewBookingNo generateNewBookingNo;
     private final CopyTableRepository copyTableRepository;
     private final CopyBookData copyBookData;
     private final InmateRepository inmateRepository;
+    private final OffenderTransformer offenderTransformer;
     private final EntityManager entityManager;
 
     private final Environment env;
 
-    public void releasePrisoner(final String prisonerIdentifier, final RequestToReleasePrisoner requestToReleasePrisoner) {
+    public InmateDetail releasePrisoner(final String prisonerIdentifier, final RequestToReleasePrisoner requestToReleasePrisoner) {
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier);
 
         final var movementReasonCode = requestToReleasePrisoner.getMovementReasonCode();
@@ -150,9 +152,10 @@ public class PrisonerReleaseAndTransferService {
         booking.setStatusReason(REL.getCode() + "-" + movementReasonCode);
         booking.setCommStatus(null);
 
+        return offenderTransformer.transform(booking);
     }
 
-    public void transferOutPrisoner(final String prisonerIdentifier, final RequestToTransferOut requestToTransferOut) {
+    public InmateDetail transferOutPrisoner(final String prisonerIdentifier, final RequestToTransferOut requestToTransferOut) {
         // check that prisoner is active in
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier);
 
@@ -184,9 +187,11 @@ public class PrisonerReleaseAndTransferService {
         booking.setCreateLocation(trnLocation);
         booking.setStatusReason(TRN.getCode() + "-" + requestToTransferOut.getTransferReasonCode());
         booking.setCommStatus(null);
+
+        return offenderTransformer.transform(booking);
     }
 
-    public void recallPrisoner(final String prisonerIdentifier, final RequestToRecall requestToRecall) {
+    public InmateDetail recallPrisoner(final String prisonerIdentifier, final RequestToRecall requestToRecall) {
 
         final OffenderBooking booking = getOffenderBooking(prisonerIdentifier);
 
@@ -280,9 +285,11 @@ public class PrisonerReleaseAndTransferService {
 
         // create Admission case note
         generateAdmissionNote(booking.getBookingId(), fromLocation, prisonToRecallTo, receiveTime, movementReason);
+
+        return offenderTransformer.transform(booking);
     }
 
-    public void newBooking(final String prisonerIdentifier, final RequestForNewBooking requestForNewBooking) {
+    public InmateDetail newBooking(final String prisonerIdentifier, final RequestForNewBooking requestForNewBooking) {
 
         final var offenderNonJpa = inmateRepository.findOffender(prisonerIdentifier).orElseThrow(EntityNotFoundException.withMessage("No prisoner found for id %s", prisonerIdentifier));
 
@@ -420,27 +427,17 @@ public class PrisonerReleaseAndTransferService {
 
         // create Admission case note
         generateAdmissionNote(booking.getBookingId(), fromLocation, receivedPrison, receiveTime, movementReason);
+
+        return offenderTransformer.transform(booking);
     }
 
     private void setYouthStatus(final OffenderBooking booking) {
-        offenderProfileDetailRepository.findAllByBookingIdAndType(booking.getBookingId(), "YOUTH").stream()
-            .max(Comparator.comparing(OffenderProfileDetail::getSequence))
-            .ifPresentOrElse(
-                y -> y.setCode("Y")
-                , () -> profileTypeRepository.findByTypeAndCategoryAndActiveFlag("YOUTH", "PI", ActiveFlag.Y)
-                    .ifPresent(pt -> {
-                        offenderProfileDetailRepository.save(OffenderProfileDetail.builder()
-                            .bookingId(booking.getBookingId())
-                            .sequence(1)
-                            .caseloadType("INST")
-                            .type("YOUTH")
-                            .code("Y")
-                            .listSequence(pt.getListSequence())
-                            .build());
-                    }));
+        final var profileType = profileTypeRepository.findByTypeAndCategoryAndActiveFlag("YOUTH", "PI", ActiveFlag.Y).orElseThrow(EntityNotFoundException.withId("YOUTH"));
+        final var profileCode = profileCodeRepository.findById(new ProfileCode.PK(profileType, "Y")).orElseThrow(EntityNotFoundException.withMessage("Profile Code for YOUTH and Y not found"));
+        booking.add(profileType, profileCode);
     }
 
-    public void transferInPrisoner(final String prisonerIdentifier, final RequestToTransferIn requestToTransferIn) {
+    public InmateDetail transferInPrisoner(final String prisonerIdentifier, final RequestToTransferIn requestToTransferIn) {
         final OffenderBooking booking = getOffenderBooking(prisonerIdentifier);
 
         if (!booking.getInOutStatus().equals("TRN")) {
@@ -507,6 +504,8 @@ public class PrisonerReleaseAndTransferService {
 
         // create Admission case note
         generateAdmissionNote(booking.getBookingId(), latestExternalMovement.getFromAgency(), latestExternalMovement.getToAgency(), receiveTime, movementReason);
+
+        return offenderTransformer.transform(booking);
      }
 
     private LocalDateTime getAndCheckMovementTime(final LocalDateTime movementTime, final Long bookingId) {

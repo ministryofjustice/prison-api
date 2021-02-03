@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -81,15 +83,16 @@ public class OffenderTransactionHistoryService {
     }
 
     private List<OffenderTransactionHistory> getAllTransactionsWithRunningBalance(final String offenderNo) {
-        final var allOffenderTransactions = historyRepository
+        final var transactions = historyRepository
             .findByOffender_NomsId(offenderNo)
             .stream()
             .sorted(SORT_BY_OLDEST_DATE)
-            .collect(groupingBy(OffenderTransactionHistory::getAgencyId));
+            .collect(groupingBy(transaction -> Pair.of(transaction.getAgencyId(), transaction.getAccountType())));
 
-        allOffenderTransactions.keySet().forEach(agencyId -> {
+        return transactions.keySet().stream().flatMap(agencyAccountType -> {
             final var runningBalance = new AtomicReference<>(BigDecimal.valueOf(0));
-            allOffenderTransactions.get(agencyId).forEach(transaction -> {
+
+            return transactions.get(agencyAccountType).stream().flatMap(transaction -> {
                 final var postingType = transaction.getPostingType();
                 if (postingType.equals("CR")) {
                     runningBalance.set(runningBalance.get().add(transaction.getEntryAmount()));
@@ -97,14 +100,9 @@ public class OffenderTransactionHistoryService {
                     runningBalance.set(runningBalance.get().subtract(transaction.getEntryAmount()));
                 }
                 transaction.setCurrentBalance(runningBalance.get());
+                return Stream.of(transaction);
             });
-        });
-
-        return allOffenderTransactions
-            .keySet()
-            .stream()
-            .flatMap(key -> allOffenderTransactions.get(key).stream())
-            .collect(Collectors.toList());
+        }).collect(Collectors.toList());
     }
 
     private Predicate<OffenderTransactionHistory> byDateRange(final LocalDate fromDate, final LocalDate toDate) {

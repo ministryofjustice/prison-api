@@ -8,6 +8,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
+
+import java.time.Clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,7 +32,7 @@ class PrisonerCreationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new PrisonerCreationService(prisonerRepository, null, null, null, null, null, null);
+        service = new PrisonerCreationService(prisonerRepository, null, null, null, null, null, null, new OffenderTransformer(Clock.systemUTC()));
     }
 
     @Test
