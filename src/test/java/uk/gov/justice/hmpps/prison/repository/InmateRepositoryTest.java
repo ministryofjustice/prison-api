@@ -807,11 +807,11 @@ public class InmateRepositoryTest {
 
     @Test
     public void testGetRecategoriseGetsSecondLatestIfLatestIsCategoryU() {
-        final var recategorisations = repository.getRecategorise("SYI", LocalDate.of(2016, 6, 7));
+        final var recategorisations = repository.getRecategorise("MUL", LocalDate.of(2019, 6, 7));
 
-        // There is a fourth assessment that should be ignored as it is of type U
+        // -16 has a latest assessment of type U, this should be ignored and the earlier pending one returned
         assertThat(recategorisations).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus",  "category"
-        ).contains(Tuple.tuple(-38L, 3, LocalDate.of(2019, 6, 8), "P", "B"));
+        ).containsExactly(Tuple.tuple(-16L, 1, LocalDate.of(2019, 6, 8), "P", "B"));
     }
 
     @Test
