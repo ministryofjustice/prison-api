@@ -4,16 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderRestrictionRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderRestrictionService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,6 +48,9 @@ class DataComplianceEventListenerTest {
     @Mock
     private FreeTextSearchService freeTextSearchService;
 
+    @Mock
+    private OffenderRestrictionService offenderRestrictionService;
+
     private DataComplianceEventListener listener;
 
     @BeforeEach
@@ -52,6 +60,7 @@ class DataComplianceEventListenerTest {
                 dataDuplicateService,
                 offenderDeletionService,
                 freeTextSearchService,
+                offenderRestrictionService,
                 MAPPER);
     }
 
@@ -282,6 +291,76 @@ class DataComplianceEventListenerTest {
 
         verifyNoInteractions(freeTextSearchService);
     }
+
+    @Test
+    void handleOffenderRestrictionCheck() {
+
+        handleMessage(
+            "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"restrictionCodes\":[\"CHILD\"],\"regex\":\"^(regex|1)$\"}",
+            Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-RESTRICTION-CHECK"));
+
+        verify(offenderRestrictionService).checkForOffenderRestrictions(OffenderRestrictionRequest.builder()
+            .offenderIdDisplay("A1234AA")
+            .retentionCheckId(123L)
+            .restrictionCode("CHILD")
+            .regex("^(regex|1)$")
+            .build());
+    }
+
+    @ParameterizedTest()
+    @NullAndEmptySource
+    void handleOffenderRestrictionCheckIfOffenderIdIsNullOrEmpty(String offenderId) {
+
+        assertThatThrownBy(() -> handleMessage(
+            "{\"offenderIdDisplay\":" + offenderId + ",\"retentionCheckId\":123,\"restrictionCodes\":[\"CHILD\"],\"regex\":\"^(regex|1)$\"}",
+            Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-RESTRICTION-CHECK")))
+            .isInstanceOf(IllegalStateException.class);
+
+        verifyNoInteractions(offenderRestrictionService);
+    }
+
+    @ParameterizedTest()
+    @NullAndEmptySource
+    void handleOffenderRestrictionCheckIfRetentionCheckIdIsNullOrEmpty(String retentionCheckId) {
+
+        assertThatThrownBy(() -> {
+            handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":" + retentionCheckId + ",\"restrictionCodes\":[\"CHILD\"],\"regex\":\"^(regex|1)$\"}",
+                    Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-RESTRICTION-CHECK"));
+        })
+            .isInstanceOf(RuntimeException.class);
+
+        verifyNoInteractions(offenderRestrictionService);
+    }
+
+    @ParameterizedTest()
+    @NullAndEmptySource
+    void handleOffenderRestrictionCheckIfRestrictionCodesAreNullOrEmpty(String restrictionCodes) {
+
+        assertThatThrownBy(() -> {
+            handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"restrictionCodes\":" + restrictionCodes + ",\"regex\":\"^(regex|1)$\"}",
+                Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-RESTRICTION-CHECK"));
+        })
+            .isInstanceOf(IllegalStateException.class);
+
+        verifyNoInteractions(offenderRestrictionService);
+    }
+
+
+    @ParameterizedTest()
+    @NullAndEmptySource
+    @ValueSource(strings = {".**SOME_INVALID_REGEX", "..*SOME_INVALID_REGEX", "?></|'&^%$£@"})
+    void handleOffenderRestrictionCheckIfRegexInvalid(String regex) {
+
+        assertThatThrownBy(() -> handleMessage(
+            "{\"offenderIdDisplay\":\"A1234AA\",\"retentionCheckId\":123,\"restrictionCodes\":[\"CHILD\"],\"regex\":" + regex + "}",
+            Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-RESTRICTION-CHECK")))
+            .isInstanceOf(IllegalStateException.class);
+
+        verifyNoInteractions(offenderRestrictionService);
+    }
+
 
     @Test
     void handleOffenderDeletionEvent() {
