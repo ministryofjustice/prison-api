@@ -806,6 +806,15 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testGetRecategoriseGetsSecondLatestIfLatestIsCategoryU() {
+        final var recategorisations = repository.getRecategorise("MUL", LocalDate.of(2019, 6, 7));
+
+        // -16 has a latest assessment of type U, this should be ignored and the earlier pending one returned
+        assertThat(recategorisations).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus",  "category"
+        ).containsExactly(Tuple.tuple(-16L, 1, LocalDate.of(2019, 6, 8), "P", "B"));
+    }
+
+    @Test
     public void testGetALLActiveAssessments() {
         final var list = repository.findAssessmentsByOffenderNo(
                 List.of("A1234AF"), "CATEGORY", Collections.emptySet(), false, true);
