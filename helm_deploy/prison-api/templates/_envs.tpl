@@ -4,8 +4,6 @@ Environment variables for web and worker containers
 */}}
 {{- define "deployment.envs" }}
 env:
-  - name: JAVA_OPTS
-    value: "{{ .Values.env.JAVA_OPTS }}"
 
   - name: DATA_COMPLIANCE_DELETION_ENABLED
     value: "{{ .Values.env.DATA_COMPLIANCE_DELETION_ENABLED }}"
