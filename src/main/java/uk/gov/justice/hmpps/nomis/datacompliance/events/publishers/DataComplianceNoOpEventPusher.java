@@ -8,7 +8,6 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.FreeTextS
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderRestrictionResult;
 
 @Slf4j
 @Component
@@ -42,11 +41,6 @@ public class DataComplianceNoOpEventPusher implements DataComplianceEventPusher 
     @Override
     public void sendDuplicateDataResult(final DataDuplicateResult event) {
         log.warn("Pretending to push duplicate data result for '{}' to queue", event.getOffenderIdDisplay());
-    }
-
-    @Override
-    public void send(OffenderRestrictionResult event) {
-        log.warn("Pretending to push offender restriction result for '{}' to queue", event.getOffenderIdDisplay());
     }
 
     @Override
