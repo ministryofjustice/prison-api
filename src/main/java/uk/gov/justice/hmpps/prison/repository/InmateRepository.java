@@ -189,7 +189,7 @@ public class InmateRepository extends RepositoryBase {
                 .build();
 
         final var assignedInmateRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
+            Row2BeanRowMapper.makeMapping(OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
         final var paRowMapper = new PageAwareRowMapper<>(assignedInmateRowMapper);
 
@@ -234,7 +234,7 @@ public class InmateRepository extends RepositoryBase {
                 .build();
 
         final var assignedInmateRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
+            Row2BeanRowMapper.makeMapping(OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
         final var paRowMapper = new PageAwareRowMapper<>(assignedInmateRowMapper);
 
@@ -310,7 +310,7 @@ public class InmateRepository extends RepositoryBase {
                 .build();
 
         final var offenderBookingRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
+            Row2BeanRowMapper.makeMapping(OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
         final var paRowMapper = new PageAwareRowMapper<>(offenderBookingRowMapper);
 
@@ -382,7 +382,7 @@ public class InmateRepository extends RepositoryBase {
         final var sql = InmateRepositorySql.FIND_PHYSICAL_MARKS_BY_BOOKING.getSql();
 
         final var physicalMarkRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, PhysicalMark.class, physicalMarkMapping);
+            Row2BeanRowMapper.makeMapping(PhysicalMark.class, physicalMarkMapping);
 
         return jdbcTemplate.query(
                 sql,
@@ -487,7 +487,7 @@ public class InmateRepository extends RepositoryBase {
         final var sql = InmateRepositorySql.FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING.getSql();
 
         final var physicalAttributesRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, PhysicalAttributes.class, physicalAttributesMapping);
+            Row2BeanRowMapper.makeMapping(PhysicalAttributes.class, physicalAttributesMapping);
 
         PhysicalAttributes physicalAttributes;
         try {
@@ -645,7 +645,7 @@ public class InmateRepository extends RepositoryBase {
         final var sql = InmateRepositorySql.FIND_ASSIGNED_LIVING_UNIT.getSql();
 
         final var assignedLivingUnitRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, AssignedLivingUnit.class, assignedLivingUnitMapping);
+            Row2BeanRowMapper.makeMapping(AssignedLivingUnit.class, assignedLivingUnitMapping);
 
         AssignedLivingUnit assignedLivingUnit;
         try {
@@ -665,7 +665,7 @@ public class InmateRepository extends RepositoryBase {
         final var builder = queryBuilderFactory.getQueryBuilder(InmateRepositorySql.FIND_INMATE_DETAIL.getSql(), inmateDetailsMapping);
         final var sql = builder.build();
 
-        final var inmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
+        final var inmateRowMapper = Row2BeanRowMapper.makeMapping(InmateDetail.class, inmateDetailsMapping);
         InmateDetail inmate;
         try {
             inmate = jdbcTemplate.queryForObject(
@@ -699,7 +699,7 @@ public class InmateRepository extends RepositoryBase {
         final var builder = queryBuilderFactory.getQueryBuilder(InmateRepositorySql.FIND_BASIC_INMATE_DETAIL.getSql(), inmateDetailsMapping);
         final var sql = builder.build();
 
-        final var inmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
+        final var inmateRowMapper = Row2BeanRowMapper.makeMapping(InmateDetail.class, inmateDetailsMapping);
         InmateDetail inmate;
         try {
             inmate = jdbcTemplate.queryForObject(
@@ -724,7 +724,7 @@ public class InmateRepository extends RepositoryBase {
                 .addOrderBy(order, orderByFields)
                 .build();
 
-        final var aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, ALIAS_MAPPING);
+        final var aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(Alias.class, ALIAS_MAPPING);
         final var paRowMapper = new PageAwareRowMapper<>(aliasAttributesRowMapper);
 
         final var results = jdbcTemplate.query(

@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.mapping;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import uk.gov.justice.hmpps.prison.core.Constants;
 import uk.gov.justice.hmpps.prison.exception.RowMappingException;
@@ -15,43 +14,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
+@Log4j2
 public class Row2BeanRowMapper<T> implements RowMapper<T> {
-
-    @SuppressWarnings("rawtypes")
-    private static final Map<MappingInfo, Row2BeanRowMapper> cachedMappings = new ConcurrentHashMap<>();
-    private static final Logger logger = LoggerFactory.getLogger(Row2BeanRowMapper.class);
     private final Class<? extends T> type;
     private final Map<String, FieldMapper> columnsMapping;
-    private List<String> sqlToCollumns;
+    private List<String> sqlToColumns;
 
-    private static class MappingInfo {
-        private final String sql;
-        private final Class<?> type;
-
-        MappingInfo(final String sql, final Class<?> type) {
-            this.sql = sql;
-            this.type = type;
-        }
-
-
-        public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            final var that = (MappingInfo) o;
-            return Objects.equals(sql, that.sql) &&
-                    Objects.equals(type, that.type);
-        }
-
-
-        public int hashCode() {
-            return Objects.hash(sql, type);
-        }
-    }
-
-    public Row2BeanRowMapper(final Class<? extends T> type, final Map<String, FieldMapper> mappings) {
+    private Row2BeanRowMapper(final Class<? extends T> type, final Map<String, FieldMapper> mappings) {
         this.type = type;
         this.columnsMapping = new HashMap<>();
         for (final var entry : mappings.entrySet()) {
@@ -61,7 +31,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
     }
 
     private void loadColumns(final ResultSet rs) {
-        if (sqlToCollumns == null) {
+        if (sqlToColumns == null) {
             final List<String> loadingCols = new ArrayList<>();
             try {
                 final var rsmd = rs.getMetaData();
@@ -69,7 +39,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
                 for (var i = 1; i <= count; i++) {
                     loadingCols.add(rsmd.getColumnName(i).toUpperCase());
                 }
-                sqlToCollumns = loadingCols;
+                sqlToColumns = loadingCols;
             } catch (final SQLException ex) {
                 throw new RowMappingException(ex.getMessage(), ex);
             }
@@ -78,12 +48,8 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static <M> RowMapper<M> makeMapping(final String sql, final Class<M> type, final Map<String, FieldMapper> mappings) {
-        final var mappingInfo = new MappingInfo(sql, type);
-        if (!cachedMappings.containsKey(mappingInfo)) {
-            cachedMappings.put(mappingInfo, new Row2BeanRowMapper(type, mappings));
-        }
-        return cachedMappings.get(mappingInfo);
+    public static <M> RowMapper<M> makeMapping(final Class<M> type, final Map<String, FieldMapper> mappings) {
+        return new Row2BeanRowMapper(type, mappings);
     }
 
     private String camelize(final String columnName) {
@@ -98,7 +64,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
             final var bean = type.getDeclaredConstructor().newInstance();
             loadColumns(rs);
 
-            for (final var columnName : sqlToCollumns) {
+            for (final var columnName : sqlToColumns) {
                 if (!StringUtils.equals(Constants.RECORD_COUNT_COLUMN, columnName)) {
                     final var value = rs.getObject(columnName);
 
@@ -149,7 +115,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
                     additionalProperties.put(fieldName, value);
                 }
             } catch (final IllegalArgumentException | IllegalAccessException ex) {
-                logger.warn("Failure adding the field " + fieldName + " on \"" + FieldMapper.ADDITIONAL_PROPERTIES + "\" " + type.getName());
+                log.warn("Failure adding the field {} on \"{}\" {}", fieldName, FieldMapper.ADDITIONAL_PROPERTIES, type.getName());
             }
             return null;
         });

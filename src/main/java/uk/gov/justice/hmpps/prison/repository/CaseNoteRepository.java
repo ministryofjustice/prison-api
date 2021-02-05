@@ -116,7 +116,7 @@ public class CaseNoteRepository extends RepositoryBase {
             .addPagination()
             .build();
 
-        final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
+        final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(CaseNote.class, CASE_NOTE_MAPPING);
         final var paRowMapper = new PageAwareRowMapper<>(caseNoteRowMapper);
 
         final var caseNotes = jdbcTemplate.query(
@@ -199,7 +199,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
     public Optional<CaseNote> getCaseNote(final long bookingId, final long caseNoteId) {
         final var sql = CaseNoteRepositorySql.FIND_CASENOTE.getSql();
-        final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
+        final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(CaseNote.class, CASE_NOTE_MAPPING);
 
         CaseNote caseNote;
         try {
