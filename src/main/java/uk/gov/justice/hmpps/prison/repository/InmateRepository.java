@@ -576,7 +576,8 @@ public class InmateRepository extends RepositoryBase {
                 OFFENDER_CATEGORY_MAPPER);
 
         return applyCutoffDateForActiveCategorisations(
-                removeNonStandardCategoryRecords(removeEarlierCategorisations(removeInvalidLatestCategorisations(rawData))), cutoffDate);
+                removeNonStandardCategoryRecords(removeEarlierCategorisations(rawData)),
+                cutoffDate);
     }
 
 
@@ -616,11 +617,6 @@ public class InmateRepository extends RepositoryBase {
         return bookingIdMap.values().stream()
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-    }
-
-    private List<OffenderCategorise> removeInvalidLatestCategorisations(final List<OffenderCategorise> catList) {
-        final var invalidCategoryCodes = Set.of("U");
-        return catList.stream().filter(cat -> cat.getCategory() != null && !invalidCategoryCodes.contains(cat.getCategory())).collect(Collectors.toList());
     }
 
     private List<OffenderCategorise> cleanDuplicateRecordsUsingAssessmentSeq(final List<OffenderCategorise> individualCatList) {
