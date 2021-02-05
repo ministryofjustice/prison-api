@@ -20,11 +20,14 @@
         "transactionEntrySequence": 1,
         "calendarDate": "0016-04-11",
         "payTypeCode": "UNEMPLOYED",
-        "eventId": 1,
-        "payAmount": 2.00,
-        "pieceWork": 0.00,
-        "bonusPay": 0.00
+        "eventId": -1,
+        "payAmount": 200,
+        "pieceWork": 0,
+        "bonusPay": 0,
+        "paymentDescription": "Unemployment Pay"
       }
-    ]
+    ],
+    "currentBalance": 0,
+    "holdingCleared": false
   }
 ]

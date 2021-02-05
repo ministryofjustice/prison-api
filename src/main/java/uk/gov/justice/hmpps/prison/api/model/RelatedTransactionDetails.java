@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import uk.gov.justice.hmpps.prison.util.MoneySupport.MoneyDeserializer;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
@@ -40,17 +39,21 @@ public class RelatedTransactionDetails {
     private String payTypeCode;
 
     @ApiModelProperty(value = "Event id the payment is associated with", example = "1", position = 6)
-    private Integer eventId;
+    private Long eventId;
 
-    @ApiModelProperty(value = "Payment amount", example = "1.0", position = 7)
+    @ApiModelProperty(value = "Payment amount in pence", example = "100", position = 7)
     @JsonDeserialize(using = MoneyDeserializer.class)
-    private BigDecimal payAmount;
+    private Long payAmount;
 
-    @ApiModelProperty(value = "Piece work amount", example = "2.50", position = 8)
+    @ApiModelProperty(value = "Piece work amount in pence", example = "250", position = 8)
     @JsonDeserialize(using = MoneyDeserializer.class)
-    private BigDecimal pieceWork;
+    private Long pieceWork;
 
-    @ApiModelProperty(value = "Bonus payment", example = "0.55", position = 9)
+    @ApiModelProperty(value = "Bonus payment in pence", example = "55", position = 9)
     @JsonDeserialize(using = MoneyDeserializer.class)
-    private BigDecimal bonusPay;
+    private Long bonusPay;
+
+    @ApiModelProperty(value = "Reason for payment",example = "Cleaner HB1 PM", position = 10)
+    private String paymentDescription;
+
 }
