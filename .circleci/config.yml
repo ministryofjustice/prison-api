@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   hmpps: ministryofjustice/hmpps@2.2
-  owasp: entur/owasp@0.0.10
+  owasp: entur/owasp@0.0.14
 
 defaults: &defaults
 
