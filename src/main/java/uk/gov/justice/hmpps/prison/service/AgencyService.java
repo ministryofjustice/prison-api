@@ -266,12 +266,12 @@ public class AgencyService {
         return agencyRepository.getPrisonIepReview(criteria);
     }
 
-    public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, String attribute) {
+    public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var cells = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag(agencyId, "CELL", ActiveFlag.Y);
         return cells.stream()
+                .filter((l) -> l.isActiveCellWithSpace(true))
                 .map(cell -> transform(cell, true))
-                .filter(Objects::nonNull)
-                .filter(cell -> attribute == null || cell.getAttributes().stream().map(OffenderCellAttribute::getCode).collect(toList()).contains(attribute))
+                .filter(cell -> attribute == null || cell.getAttributes().stream().anyMatch((a) -> a.getCode().equals(attribute)))
                 .collect(toList());
     }
 
@@ -298,27 +298,24 @@ public class AgencyService {
                 .build();
     }
 
-    private OffenderCell transform(final AgencyInternalLocation cell, final boolean checkCapacity) {
-        final var capacity = cell.getOperationalCapacity() != null ? cell.getOperationalCapacity() : cell.getCapacity();
-        if (!checkCapacity || cell.isActiveCellWithSpace()) {
-            return OffenderCell.builder()
-                    .capacity(capacity)
-                    .noOfOccupants(cell.getCurrentOccupancy())
-                    .id(cell.getLocationId())
-                    .description(cell.getDescription())
-                    .userDescription(cell.getUserDescription())
-                    .attributes(agencyInternalLocationProfileRepository
-                            .findAllByLocationId(cell.getLocationId())
-                            .stream()
-                            .filter(AgencyInternalLocationProfile::isAttribute)
-                            .map(profile -> OffenderCellAttribute.builder()
-                                    .code(profile.getHousingAttributeReferenceCode().getCode())
-                                    .description(profile.getHousingAttributeReferenceCode().getDescription())
-                                    .build())
-                            .collect(toList()))
-                    .build();
-        }
-
-        return null;
+    private OffenderCell transform(final AgencyInternalLocation cell, final boolean treatZeroOperationalCapacityAsNull) {
+        final var attributes = agencyInternalLocationProfileRepository
+            .findAllByLocationId(cell.getLocationId())
+            .stream()
+            .filter(AgencyInternalLocationProfile::isAttribute)
+            .map(AgencyInternalLocationProfile::getHousingAttributeReferenceCode)
+            .map(referenceCode -> OffenderCellAttribute.builder()
+                .code(referenceCode.getCode())
+                .description(referenceCode.getDescription())
+                .build())
+            .collect(toList());
+        return OffenderCell.builder()
+            .capacity(cell.getActualCapacity(treatZeroOperationalCapacityAsNull))
+            .noOfOccupants(cell.getCurrentOccupancy())
+            .id(cell.getLocationId())
+            .description(cell.getDescription())
+            .userDescription(cell.getUserDescription())
+            .attributes(attributes)
+            .build();
     }
 }
