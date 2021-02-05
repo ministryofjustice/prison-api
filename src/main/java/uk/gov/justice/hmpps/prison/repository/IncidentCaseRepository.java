@@ -220,7 +220,7 @@ public class IncidentCaseRepository extends RepositoryBase {
                 .addPagination()
                 .build();
 
-        final var rowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderSummary.class, CANDIDATE_MAPPER.getFieldMap());
+        final var rowMapper = Row2BeanRowMapper.makeMapping(OffenderSummary.class, CANDIDATE_MAPPER.getFieldMap());
         final var paRowMapper = new PageAwareRowMapper<>(rowMapper);
 
         final List<OffenderSummary> offenderSummaries = jdbcTemplate.query(

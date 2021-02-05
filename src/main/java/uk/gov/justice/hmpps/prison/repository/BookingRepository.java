@@ -200,7 +200,7 @@ public class BookingRepository extends RepositoryBase {
         final var sql = builder.build();
 
         final var sentenceDetailRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, SentenceDetail.class, SENTENCE_DETAIL_MAPPING);
+            Row2BeanRowMapper.makeMapping(SentenceDetail.class, SENTENCE_DETAIL_MAPPING);
 
         SentenceDetail sentenceDetail;
 
@@ -368,7 +368,7 @@ public class BookingRepository extends RepositoryBase {
         final var sql = builder.build();
 
         final var inmateRowMapper = Row2BeanRowMapper.makeMapping(
-                sql, PayableAttendanceOutcomeDto.class, PAYABLE_ATTENDANCE_OUTCOMES_MAPPING);
+            PayableAttendanceOutcomeDto.class, PAYABLE_ATTENDANCE_OUTCOMES_MAPPING);
 
         return jdbcTemplate.queryForObject(
                 sql,
@@ -667,7 +667,7 @@ public class BookingRepository extends RepositoryBase {
 
         final var sql = builder.addQuery(query).build();
 
-        final var offenderSentenceDetailDtoRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderSentenceDetailDto.class, SENTENCE_DETAIL_ROW_MAPPER);
+        final var offenderSentenceDetailDtoRowMapper = Row2BeanRowMapper.makeMapping(OffenderSentenceDetailDto.class, SENTENCE_DETAIL_ROW_MAPPER);
 
         return jdbcTemplate.query(
                 sql,

@@ -52,7 +52,7 @@ public class InmateAlertRepository extends RepositoryBase {
     public List<Alert> getActiveAlerts(final long bookingId) {
         final var sql = InmateAlertRepositorySql.FIND_INMATE_ALERTS.getSql();
 
-        final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+        final var alertMapper = Row2BeanRowMapper.makeMapping(Alert.class, alertMapping);
 
         return jdbcTemplate.query(
                 sql,
@@ -75,7 +75,7 @@ public class InmateAlertRepository extends RepositoryBase {
                 .addPagination()
                 .build();
 
-        final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+        final var alertMapper = Row2BeanRowMapper.makeMapping(Alert.class, alertMapping);
         final var paRowMapper = new PageAwareRowMapper<>(alertMapper);
 
         final var results = jdbcTemplate.query(
@@ -91,7 +91,7 @@ public class InmateAlertRepository extends RepositoryBase {
         final var initialSql = InmateAlertRepositorySql.FIND_INMATE_ALERT.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
         final var sql = builder.build();
-        final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+        final var alertMapper = Row2BeanRowMapper.makeMapping(Alert.class, alertMapping);
 
         Alert alert;
 
@@ -113,10 +113,10 @@ public class InmateAlertRepository extends RepositoryBase {
         final var initialSql = latestOnly ? basicSql + " AND B.BOOKING_SEQ=1" : basicSql;
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
         final var sql = builder
-                .addQuery(query)
-                .addOrderBy(order, orderByField)
-                .build();
-        final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+            .addQuery(query)
+            .addOrderBy(order, orderByField)
+            .build();
+        final var alertMapper = Row2BeanRowMapper.makeMapping(Alert.class, alertMapping);
 
         return jdbcTemplate.query(
                 sql,
@@ -135,7 +135,7 @@ public class InmateAlertRepository extends RepositoryBase {
                 .addPagination()
                 .build();
 
-        final var rowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderSummary.class, CANDIDATE_MAPPER.getFieldMap());
+        final var rowMapper = Row2BeanRowMapper.makeMapping(OffenderSummary.class, CANDIDATE_MAPPER.getFieldMap());
         final var paRowMapper = new PageAwareRowMapper<>(rowMapper);
 
         final List<OffenderSummary> offenderSummaries = jdbcTemplate.query(

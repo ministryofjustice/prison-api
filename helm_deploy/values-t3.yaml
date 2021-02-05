@@ -10,6 +10,7 @@ image:
   port: 8080
 
 env:
+  JAVA_OPTS: "-Xmx1024m"
   DATA_COMPLIANCE_DELETION_ENABLED: true
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
   SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 5
