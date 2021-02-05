@@ -159,6 +159,19 @@ public class AgencyServiceTest {
     }
 
     @Test
+    public void shouldReturnAllActiveCellsWithIgnoringZeroOperationalCapacityForAgencyWithAttribute() {
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("LEI", "CELL", ActiveFlag.Y)).thenReturn(List.of(
+            AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(0).capacity(3).currentOccupancy(2).activeFlag(ActiveFlag.Y).build(),
+            AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").operationalCapacity(0).capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
+        ));
+
+        when(agencyInternalLocationProfileRepository.findAllByLocationId(-1L)).thenReturn(buildAgencyInternalLocationProfiles());
+
+        final var offenderCells = service.getCellsWithCapacityInAgency("LEI", "DO");
+        assertThat(offenderCells).extracting("id").containsExactly(-1L);
+    }
+
+    @Test
     public void shouldReturnCellWithAttributes() {
         when(agencyInternalLocationRepository.findOneByLocationId(anyLong())).thenReturn(Optional.of(
                 AgencyInternalLocation.builder()
