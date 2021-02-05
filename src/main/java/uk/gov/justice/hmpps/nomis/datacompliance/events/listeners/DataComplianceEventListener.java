@@ -13,14 +13,12 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.AdHocRefer
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.DataDuplicateCheck;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.FreeTextCheck;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderDeletionGranted;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderRestrictionRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.ReferralRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService.OffenderDeletionGrant;
-import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderRestrictionService;
 
 import java.io.IOException;
 import java.util.Map;
@@ -44,7 +42,6 @@ public class DataComplianceEventListener {
     private static final String DATA_DUPLICATE_ID_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-ID-CHECK";
     private static final String DATA_DUPLICATE_DB_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-DB-CHECK";
     private static final String FREE_TEXT_MORATORIUM_CHECK = "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK";
-    private static final String OFFENDER_RESTRICTION_CHECK = "DATA_COMPLIANCE_OFFENDER-RESTRICTION-CHECK";
     private static final String OFFENDER_DELETION_GRANTED = "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED";
 
     private final Map<String, MessageHandler> messageHandlers = Map.of(
@@ -53,21 +50,18 @@ public class DataComplianceEventListener {
             DATA_DUPLICATE_ID_CHECK, this::handleDuplicateIdCheck,
             DATA_DUPLICATE_DB_CHECK, this::handleDuplicateDataCheck,
             FREE_TEXT_MORATORIUM_CHECK, this::handleFreeTextMoratoriumCheck,
-            OFFENDER_RESTRICTION_CHECK, this::handleOffenderRestrictionCheck,
             OFFENDER_DELETION_GRANTED, this::handleDeletionGranted);
 
     private final DataComplianceReferralService dataComplianceReferralService;
     private final DataDuplicateService dataDuplicateService;
     private final OffenderDeletionService offenderDeletionService;
     private final FreeTextSearchService freeTextSearchService;
-    private final OffenderRestrictionService offenderRestrictionService;
     private final ObjectMapper objectMapper;
 
     public DataComplianceEventListener(final DataComplianceReferralService dataComplianceReferralService,
                                        final DataDuplicateService dataDuplicateService,
                                        final OffenderDeletionService offenderDeletionService,
                                        final FreeTextSearchService freeTextSearchService,
-                                       final OffenderRestrictionService offenderRestrictionService,
                                        final ObjectMapper objectMapper) {
 
         log.info("Configured to listen to data compliance events");
@@ -76,7 +70,6 @@ public class DataComplianceEventListener {
         this.dataDuplicateService = dataDuplicateService;
         this.offenderDeletionService = offenderDeletionService;
         this.freeTextSearchService = freeTextSearchService;
-        this.offenderRestrictionService = offenderRestrictionService;
         this.objectMapper = objectMapper;
     }
 
@@ -136,27 +129,11 @@ public class DataComplianceEventListener {
         freeTextSearchService.checkForMatchingContent(event.getOffenderIdDisplay(), event.getRetentionCheckId(), event.getRegex());
     }
 
-    private void handleOffenderRestrictionCheck(final Message<String> message) {
-        final var event = parseEvent(message.getPayload(), OffenderRestrictionRequest.class);
-
-        validateOffenderRestrictionCheck(event, message.getPayload());
-
-        offenderRestrictionService.checkForOffenderRestrictions(event);
-    }
-
     private void validateFreeTextCheck(final FreeTextCheck event, final String payload) {
         checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", payload);
         checkNotNull(event.getRetentionCheckId(), "No retention check ID specified in request: %s", payload);
         checkState(isNotEmpty(event.getRegex()), "No regex provided in request: %s", payload);
         event.getRegex().forEach(regex -> validateRegex(regex, payload));
-    }
-
-    private void validateOffenderRestrictionCheck(final OffenderRestrictionRequest event, final String payload) {
-        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", payload);
-        checkNotNull(event.getRetentionCheckId(), "No retention check ID specified in request: %s", payload);
-        checkState(isNotEmpty(event.getRestrictionCodes()), "No restriction code specified in request: %s", payload);
-        checkState(isNotEmpty(event.getRegex()), "No regex provided in request: %s", payload);
-        validateRegex(event.getRegex(), payload);
     }
 
     private void validateRegex(final String regex, final String payload) {
@@ -205,7 +182,7 @@ public class DataComplianceEventListener {
         try {
             return objectMapper.readValue(requestJson, eventType);
         } catch (final IOException e) {
-            throw new IllegalStateException("Failed to parse request: " + requestJson, e);
+            throw new RuntimeException("Failed to parse request: " + requestJson, e);
         }
     }
 
