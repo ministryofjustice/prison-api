@@ -15,7 +15,6 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.FreeTextS
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
-import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderRestrictionResult;
 
 import java.util.Map;
 
@@ -81,16 +80,9 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
     }
 
     @Override
-    public void send(final OffenderRestrictionResult event) {
-        log.trace("Sending offender restriction result for offender: {}", event.getOffenderIdDisplay());
-
-        sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-RESTRICTION-RESULT", event));
-    }
-
-    @Override
     public void send(final FreeTextSearchResult event) {
 
-        log.trace("Sending free text search result for offender: {}", event.getOffenderIdDisplay());
+        log.trace("Sending duplicate data result for offender: {}", event.getOffenderIdDisplay());
 
         sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-RESULT", event));
     }
