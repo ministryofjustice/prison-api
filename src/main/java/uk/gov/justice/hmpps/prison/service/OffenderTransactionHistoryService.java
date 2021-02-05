@@ -8,8 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.RelatedTransactionDetails;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourseAttendance;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionDetails;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionHistoryRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.values.AccountCode;
@@ -42,7 +45,6 @@ public class OffenderTransactionHistoryService {
 
     private final String apiCurrency;
     private final OffenderTransactionHistoryRepository historyRepository;
-
 
     public OffenderTransactionHistoryService(@Value("${api.currency:GBP}") final String currency,
                                              final OffenderTransactionHistoryRepository historyRepository) {
@@ -89,17 +91,20 @@ public class OffenderTransactionHistoryService {
             .sorted(SORT_BY_OLDEST_DATE)
             .collect(groupingBy(transaction -> Pair.of(transaction.getAgencyId(), transaction.getAccountType())));
 
-        return transactions.keySet().stream().flatMap(agencyAccountType -> {
+        return transactions.keySet().stream().flatMap(agencyAccountTypePair -> {
             final var runningBalance = new AtomicReference<>(BigDecimal.valueOf(0));
 
-            return transactions.get(agencyAccountType).stream().flatMap(transaction -> {
+            return transactions.get(agencyAccountTypePair).stream().flatMap(transaction -> {
                 final var postingType = transaction.getPostingType();
+
                 if (postingType.equals("CR")) {
-                    runningBalance.set(runningBalance.get().add(transaction.getEntryAmount()));
+                    runningBalance.updateAndGet((v) -> v.add(transaction.getEntryAmount()));
                 } else if (postingType.equals("DR")) {
-                    runningBalance.set(runningBalance.get().subtract(transaction.getEntryAmount()));
+                    runningBalance.updateAndGet((v) -> v.subtract(transaction.getEntryAmount()));
                 }
+
                 transaction.setCurrentBalance(runningBalance.get());
+
                 return Stream.of(transaction);
             });
         }).collect(Collectors.toList());
@@ -112,7 +117,7 @@ public class OffenderTransactionHistoryService {
         final var from = Optional.ofNullable(fromDate).orElse(today);
         final var to = Optional.ofNullable(toDate).orElse(today);
 
-        return entry -> (entry.getEntryDate().isEqual(from) || entry.getEntryDate().isAfter(from)) &&
+        return entry -> (entry.getEntryDate().atStartOfDay().isEqual(from.atStartOfDay()) || entry.getEntryDate().atStartOfDay().isAfter(from.atStartOfDay())) &&
             (entry.getEntryDate().isEqual(to) || entry.getEntryDate().isBefore(to));
     }
 
@@ -156,18 +161,43 @@ public class OffenderTransactionHistoryService {
     }
 
     public RelatedTransactionDetails transform(final OffenderTransactionDetails offenderTransactionDetails) {
+        final var eventId =
+            Optional.ofNullable(offenderTransactionDetails.getEvent())
+                .map(OffenderCourseAttendance::getEventId)
+                .orElse(null);
+
+        final var eventDescription =
+            Optional.ofNullable(offenderTransactionDetails.getEvent())
+                .map(OffenderCourseAttendance::getCourseActivity)
+                .map(CourseActivity::getDescription)
+                .orElse(null);
+
+        final var paymentTypeDescription =
+            Optional.of(offenderTransactionDetails)
+                .filter(od -> !od.isAttachedToPaidActivity())
+                .map(OffenderTransactionDetails::getNoneActivityPaymentType)
+                .map(ReferenceCode::getDescription)
+                .orElse(eventDescription);
+
+        final var paymentTypeCode =
+            Optional.of(offenderTransactionDetails)
+                .filter(od -> !od.isAttachedToPaidActivity())
+                .map(OffenderTransactionDetails::getNoneActivityPaymentType)
+                .map(ReferenceCode::getCode)
+                .orElse(OffenderTransactionDetails.ACTIVITY_PAY_TYPE_CODE);
+
         return RelatedTransactionDetails
             .builder()
             .id(offenderTransactionDetails.getId())
-            .bonusPay(offenderTransactionDetails.getBonusPay())
-            .payAmount(offenderTransactionDetails.getPayAmount())
-            .pieceWork(offenderTransactionDetails.getPieceWork())
+            .bonusPay(poundsToPence(offenderTransactionDetails.getBonusPay()))
+            .payAmount(poundsToPence(offenderTransactionDetails.getPayAmount()))
+            .pieceWork(poundsToPence(offenderTransactionDetails.getPieceWork()))
             .calendarDate(offenderTransactionDetails.getCalendarDate())
-            .payTypeCode(offenderTransactionDetails.getPayTypeCode())
-            .eventId(offenderTransactionDetails.getEventId())
+            .payTypeCode(paymentTypeCode)
             .transactionEntrySequence(offenderTransactionDetails.getTransactionEntrySequence())
             .transactionId(offenderTransactionDetails.getTransactionId())
+            .paymentDescription(paymentTypeDescription)
+            .eventId(eventId)
             .build();
     }
-
 }

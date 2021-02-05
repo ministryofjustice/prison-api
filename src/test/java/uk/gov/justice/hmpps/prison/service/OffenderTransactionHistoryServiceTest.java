@@ -6,9 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourseAttendance;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionDetails;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PaymentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionHistoryRepository;
 
 import java.math.BigDecimal;
@@ -39,6 +42,11 @@ public class OffenderTransactionHistoryServiceTest {
         service = new OffenderTransactionHistoryService("GBP", repository);
     }
 
+    final Offender OFFENDER = Offender.builder().nomsId(OFFENDER_NO).rootOffenderId(2L).id(3L).build();
+    final OffenderTransactionHistory OFFENDER_TRANSACTION = OffenderTransactionHistory.builder().offender(OFFENDER).entryDescription("Some description").entryAmount(BigDecimal.valueOf(1.0)).agencyId("MDI").build();
+    final OffenderTransactionHistory TRANSACTION_OUT = OFFENDER_TRANSACTION.toBuilder().postingType("DR").accountType("SPND").transactionType("OUT").build();
+    final OffenderTransactionHistory TRANSACTION_IN = OFFENDER_TRANSACTION.toBuilder().postingType("CR").accountType("REG").transactionType("IN").build();
+
     @Nested
     public class CorrectParameters {
         @Test
@@ -50,8 +58,8 @@ public class OffenderTransactionHistoryServiceTest {
                 final var toDate = LocalDate.now();
                 service.getTransactionHistory(nomisId, accountCode, fromDate, toDate, null);
             })
-            .isInstanceOf(NullPointerException.class)
-            .hasMessage("offenderNo can't be null");
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("offenderNo can't be null");
         }
 
         @Test
@@ -62,8 +70,8 @@ public class OffenderTransactionHistoryServiceTest {
                 final var toDate = LocalDate.now().minusDays(8);
                 service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
             })
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("toDate can't be before fromDate");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("toDate can't be before fromDate");
         }
 
         @Test
@@ -74,32 +82,32 @@ public class OffenderTransactionHistoryServiceTest {
                 final var toDate = LocalDate.now().plusDays(2);
                 service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
             })
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("fromDate can't be in the future");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("fromDate can't be in the future");
         }
 
         @Test
         public void testGetTransactionHistoryThrowException_ToDateIs2DaysInFuture() {
             assertThatThrownBy(() -> {
-                final var accountCode ="spends";
+                final var accountCode = "spends";
                 final var fromDate = LocalDate.now();
                 final var toDate = LocalDate.now().plusDays(2);
                 service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
             })
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("toDate can't be in the future");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("toDate can't be in the future");
         }
 
         @Test
         public void testGetTransactionHistoryThrowException_TypoInAccountCode() {
-            assertThatThrownBy(() ->{
+            assertThatThrownBy(() -> {
                 final var accountCode = "spendss";
                 final LocalDate fromDate = LocalDate.now();
                 final LocalDate toDate = LocalDate.now();
                 service.getTransactionHistory(OFFENDER_NO, accountCode, fromDate, toDate, null);
             })
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("Unknown account-code spendss");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Unknown account-code spendss");
         }
 
         @Test
@@ -118,9 +126,24 @@ public class OffenderTransactionHistoryServiceTest {
     public class Sorting {
         @Test
         public void testSortedByEntryDateDescending() {
+            final var transaction = OffenderTransactionHistory.builder().offender(OFFENDER).postingType("CR").agencyId("LEI").build();
 
-            final var offender = Offender.builder().nomsId(OFFENDER_NO).id(1L).build();
-            final var transaction =  OffenderTransactionHistory.builder().offender(offender).postingType("CR").agencyId("LEI").build();
+            final var event = OffenderCourseAttendance
+                .builder()
+                .eventId(1L)
+                .courseActivity(CourseActivity.builder().description("Wing cleaner").build())
+                .build();
+
+            transaction.setRelatedTransactionDetails(List.of(OffenderTransactionDetails.builder()
+                .id(1L)
+                .event(event)
+                .calendarDate(LocalDate.now())
+                .bonusPay(BigDecimal.valueOf(3.00))
+                .pieceWork(BigDecimal.valueOf(2.00))
+                .payAmount(BigDecimal.valueOf(1.00))
+                .transactionEntrySequence(1L)
+                .transactionId(1L)
+                .build()));
 
             when(repository.findByOffender_NomsId(anyString())).thenReturn(List.of(
                 transaction.toBuilder()
@@ -233,9 +256,17 @@ public class OffenderTransactionHistoryServiceTest {
     @Nested
     public class Mapping {
         @Test
-        public void testGetTransactionHistory_MapsCorrectly() {
+        public void testMapsTransactions() {
             when(repository.findByOffender_NomsId(anyString()))
-                .thenReturn(List.of(offenderTransactionHistoryEntry()));
+                .thenReturn(List.of(
+                    TRANSACTION_OUT.toBuilder()
+                        .transactionId(1L)
+                        .referenceNumber("12343/1")
+                        .transactionEntrySequence(1L)
+                        .entryDate(LocalDate.now())
+                        .createDatetime(LocalDateTime.now())
+                        .build()
+                ));
 
             final var fromDate = LocalDate.now();
             final var toDate = LocalDate.now();
@@ -253,8 +284,8 @@ public class OffenderTransactionHistoryServiceTest {
             assertThat(transaction.getEntryDescription()).isEqualTo("Some description");
             assertThat(transaction.getReferenceNumber()).isEqualTo("12343/1");
             assertThat(transaction.getCurrency()).isEqualTo("GBP");
-            assertThat(transaction.getPenceAmount()).isEqualTo(200);
-            assertThat(transaction.getAccountType()).isEqualTo("SPENDS");
+            assertThat(transaction.getPenceAmount()).isEqualTo(100L);
+            assertThat(transaction.getAccountType()).isEqualTo("SPND");
             assertThat(transaction.getPostingType()).isEqualTo("DR");
             assertThat(transaction.getOffenderNo()).isEqualTo(OFFENDER_NO);
             assertThat(transaction.getAgencyId()).isEqualTo("MDI");
@@ -262,14 +293,32 @@ public class OffenderTransactionHistoryServiceTest {
         }
 
         @Test
-        public void testGetTransactionHistory_MapsRelatedTransactionDetailsCorrectly() {
+        public void testMapsRelatedTransactionsForPaidActivityWork() {
+            final var courseActivity = CourseActivity.builder().description("Wing cleaner").build();
+            final var courseAttendance = OffenderCourseAttendance.builder().eventId(2L).courseActivity(courseActivity).build();
+            final var relatedTransaction = OffenderTransactionDetails.builder()
+                .id(1L)
+                .payAmount(BigDecimal.valueOf(1.0))
+                .bonusPay(BigDecimal.valueOf(3.0))
+                .pieceWork(BigDecimal.valueOf(2.0))
+                .calendarDate(LocalDate.now())
+                .transactionId(1L)
+                .event(courseAttendance)
+                .transactionEntrySequence(1L)
+                .build();
+
+
             when(repository.findByOffender_NomsId(anyString()))
                 .thenReturn(List.of(
-                    withRelatedTransactionDetails(offenderTransactionHistoryEntry())
+                    TRANSACTION_IN.toBuilder()
+                        .entryDate(LocalDate.now())
+                        .createDatetime(LocalDateTime.now())
+                        .relatedTransactionDetails(List.of(relatedTransaction))
+                        .build()
                 ));
 
             final var fromDate = LocalDate.now();
-            final var toDateOpl =LocalDate.now();
+            final var toDateOpl = LocalDate.now();
 
             final var relatedTransactionDetail = service.getTransactionHistory(OFFENDER_NO, null, fromDate, toDateOpl, null)
                 .stream()
@@ -278,41 +327,77 @@ public class OffenderTransactionHistoryServiceTest {
                 .orElseThrow();
 
             assertThat(relatedTransactionDetail.getId()).isEqualTo(1);
-            assertThat(relatedTransactionDetail.getPayAmount()).isEqualTo(BigDecimal.valueOf(1.0));
-            assertThat(relatedTransactionDetail.getBonusPay()).isEqualTo(BigDecimal.valueOf(3.0));
-            assertThat(relatedTransactionDetail.getPieceWork()).isEqualTo(BigDecimal.valueOf(2.0));
+            assertThat(relatedTransactionDetail.getPayAmount()).isEqualTo(100);
+            assertThat(relatedTransactionDetail.getBonusPay()).isEqualTo(300);
+            assertThat(relatedTransactionDetail.getPieceWork()).isEqualTo(200);
             assertThat(relatedTransactionDetail.getCalendarDate()).isEqualTo(LocalDate.now());
-            assertThat(relatedTransactionDetail.getEventId()).isEqualTo(1);
-            assertThat(relatedTransactionDetail.getPayTypeCode()).isEqualTo("UNEMPLOYED");
-            assertThat(relatedTransactionDetail.getTransactionEntrySequence()).isEqualTo(1);
-            assertThat(relatedTransactionDetail.getTransactionId()).isEqualTo(1);
+            assertThat(relatedTransactionDetail.getEventId()).isEqualTo(2L);
+            assertThat(relatedTransactionDetail.getPayTypeCode()).isEqualTo("SESSION");
+            assertThat(relatedTransactionDetail.getPaymentDescription()).isEqualTo("Wing cleaner");
         }
 
+        @Test
+        public void testMapsRelatedTransactionsForOtherPaid() {
+            final var relatedTransaction = OffenderTransactionDetails.builder()
+                .id(1L)
+                .payAmount(BigDecimal.valueOf(1.0))
+                .bonusPay(BigDecimal.valueOf(3.0))
+                .pieceWork(BigDecimal.valueOf(2.0))
+                .calendarDate(LocalDate.now())
+                .transactionId(1L)
+                .noneActivityPaymentType(new PaymentType("UNEMPLOYMENT", "Unemployment"))
+                .transactionEntrySequence(1L)
+                .build();
+
+            when(repository.findByOffender_NomsId(anyString()))
+                .thenReturn(List.of(
+                    TRANSACTION_IN.toBuilder()
+                        .entryDate(LocalDate.now())
+                        .createDatetime(LocalDateTime.now())
+                        .relatedTransactionDetails(List.of(relatedTransaction))
+                        .build()
+                ));
+
+            final var fromDate = LocalDate.now();
+            final var toDateOpl = LocalDate.now();
+
+            final var relatedTransactionDetail = service.getTransactionHistory(OFFENDER_NO, null, fromDate, toDateOpl, null)
+                .stream()
+                .flatMap(transaction -> transaction.getRelatedOffenderTransactions().stream())
+                .findFirst()
+                .orElseThrow();
+
+            assertThat(relatedTransactionDetail.getId()).isEqualTo(1);
+            assertThat(relatedTransactionDetail.getPayAmount()).isEqualTo(100);
+            assertThat(relatedTransactionDetail.getBonusPay()).isEqualTo(300);
+            assertThat(relatedTransactionDetail.getPieceWork()).isEqualTo(200);
+            assertThat(relatedTransactionDetail.getCalendarDate()).isEqualTo(LocalDate.now());
+            assertThat(relatedTransactionDetail.getEventId()).isNull();
+            assertThat(relatedTransactionDetail.getPayTypeCode()).isEqualTo("UNEMPLOYMENT");
+            assertThat(relatedTransactionDetail.getTransactionEntrySequence()).isEqualTo(1L);
+            assertThat(relatedTransactionDetail.getTransactionId()).isEqualTo(1);
+            assertThat(relatedTransactionDetail.getPaymentDescription()).isEqualTo("Unemployment");
+        }
     }
 
     @Nested
     public class Filtering {
-        final Offender offender = Offender.builder().nomsId(OFFENDER_NO).rootOffenderId(2L).id(3L).build();
-        final OffenderTransactionHistory baseOffenderTransactionHistory = OffenderTransactionHistory.builder().offender(offender).entryDescription("Some description").agencyId("MDI").build();
-        final OffenderTransactionHistory out = baseOffenderTransactionHistory.toBuilder().postingType("DR").accountType("SPND").transactionType("OUT").build();
-        final OffenderTransactionHistory in = baseOffenderTransactionHistory.toBuilder().postingType("CR").accountType("REG").transactionType("IN").build();
-
         @Test
         public void testFilterByDateRange() {
             final var allTransactions = List.of(
-                in.toBuilder()
-                    .entryDate(LocalDate.of(2000,10,10))
-                    .createDatetime(LocalDateTime.of(2000,10,10,0,0))
+                TRANSACTION_IN.toBuilder()
+                    .entryDate(LocalDate.of(2000, 10, 10))
+                    .createDatetime(LocalDateTime.of(2000, 10, 10, 0, 0))
                     .entryAmount(BigDecimal.valueOf(2))
                     .build(),
-                in.toBuilder()
-                    .entryDate(LocalDate.of(2000,11,10))
-                    .createDatetime(LocalDateTime.of(2000,11,10,0,0))
+                TRANSACTION_IN.toBuilder()
+                    .entryDate(LocalDate.of(2000, 11, 10))
+                    .createDatetime(LocalDateTime.of(2000, 11, 10, 0, 0))
                     .entryAmount(BigDecimal.valueOf(3))
                     .build(),
-                out.toBuilder()
-                    .entryDate(LocalDate.of(2001,11,10))
-                    .createDatetime(LocalDateTime.of(2001,11,10,0,0))
+                TRANSACTION_OUT.toBuilder()
+                    .entryDate(LocalDate.now())
+                    .createDatetime(LocalDateTime.now())
                     .entryAmount(BigDecimal.valueOf(5))
                     .build()
             );
@@ -320,26 +405,26 @@ public class OffenderTransactionHistoryServiceTest {
             when(repository.findByOffender_NomsId(anyString())).thenReturn(allTransactions);
 
             final var transactions = service.getTransactionHistory(OFFENDER_NO, null,
-                LocalDate.of(2000,10,11), null,null);
+                LocalDate.of(2000, 10, 11), null, null);
 
             assertThat(transactions.size()).isEqualTo(2);
-            assertThat(transactions.get(0).getEntryDate()).isEqualTo(LocalDate.of(2001,11,10));
-            assertThat(transactions.get(1).getEntryDate()).isEqualTo(LocalDate.of(2000,11,10));
+            assertThat(transactions.get(0).getEntryDate()).isEqualTo(LocalDate.now());
+            assertThat(transactions.get(1).getEntryDate()).isEqualTo(LocalDate.of(2000, 11, 10));
         }
 
         @Test
         public void testFilterByAccountType() {
             final var allTransactions = List.of(
-                in.toBuilder()
-                    .createDatetime(LocalDateTime.of(2000,10,10,0,0))
+                TRANSACTION_IN.toBuilder()
+                    .createDatetime(LocalDateTime.of(2000, 10, 10, 0, 0))
                     .entryAmount(BigDecimal.valueOf(2))
                     .build(),
-                in.toBuilder()
-                    .createDatetime(LocalDateTime.of(2000,11,10,0,0))
+                TRANSACTION_IN.toBuilder()
+                    .createDatetime(LocalDateTime.of(2000, 11, 10, 0, 0))
                     .entryAmount(BigDecimal.valueOf(3))
                     .build(),
-                out.toBuilder()
-                    .createDatetime(LocalDateTime.of(2001,11,10,0,0))
+                TRANSACTION_OUT.toBuilder()
+                    .createDatetime(LocalDateTime.of(2001, 11, 10, 0, 0))
                     .entryAmount(BigDecimal.valueOf(5))
                     .build()
             );
@@ -347,7 +432,7 @@ public class OffenderTransactionHistoryServiceTest {
             when(repository.findByOffender_NomsId(anyString())).thenReturn(allTransactions);
 
             final var transactions = service
-                .getTransactionHistory(OFFENDER_NO, "SPENDS", null, null,null);
+                .getTransactionHistory(OFFENDER_NO, "SPENDS", null, null, null);
 
             assertThat(transactions.size()).isEqualTo(1);
             assertThat(transactions.get(0).getAccountType()).isEqualTo("SPND");
@@ -356,16 +441,16 @@ public class OffenderTransactionHistoryServiceTest {
         @Test
         public void testFilterTransactionType() {
             final var allTransactions = List.of(
-                in.toBuilder()
-                    .createDatetime(LocalDateTime.of(2000,10,10,0,0))
+                TRANSACTION_IN.toBuilder()
+                    .createDatetime(LocalDateTime.of(2000, 10, 10, 0, 0))
                     .entryAmount(BigDecimal.valueOf(2))
                     .build(),
-                in.toBuilder()
-                    .createDatetime(LocalDateTime.of(2000,11,10,0,0))
+                TRANSACTION_IN.toBuilder()
+                    .createDatetime(LocalDateTime.of(2000, 11, 10, 0, 0))
                     .entryAmount(BigDecimal.valueOf(3))
                     .build(),
-                out.toBuilder()
-                    .createDatetime(LocalDateTime.of(2001,11,10,0,0))
+                TRANSACTION_OUT.toBuilder()
+                    .createDatetime(LocalDateTime.of(2001, 11, 10, 0, 0))
                     .entryAmount(BigDecimal.valueOf(5))
                     .transactionType("OUT")
                     .build()
@@ -374,7 +459,7 @@ public class OffenderTransactionHistoryServiceTest {
             when(repository.findByOffender_NomsId(any())).thenReturn(allTransactions);
 
             final var transactions = service
-                .getTransactionHistory(OFFENDER_NO, null, null, null,"OUT");
+                .getTransactionHistory(OFFENDER_NO, null, null, null, "OUT");
 
             assertThat(transactions.size()).isEqualTo(1);
             assertThat(transactions.get(0).getPenceAmount()).isEqualTo(500L);
@@ -382,28 +467,23 @@ public class OffenderTransactionHistoryServiceTest {
     }
 
     @Nested
-    public class RunningBalance{
-        final Offender offender = Offender.builder().nomsId(OFFENDER_NO).rootOffenderId(2L).id(3L).build();
-        final OffenderTransactionHistory baseOffenderTransactionHistory = OffenderTransactionHistory.builder().offender(offender).entryDescription("Some description").agencyId("MDI").transactionEntrySequence(1L).build();
-        final OffenderTransactionHistory out = baseOffenderTransactionHistory.toBuilder().postingType("DR").accountType("SPENDS").build();
-        final OffenderTransactionHistory in = baseOffenderTransactionHistory.toBuilder().postingType("CR").accountType("REG").build();
-
+    public class RunningBalance {
         @Test
         public void testCalculateRunningBalance() {
             final var allTransactions = List.of(
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .accountType("SPENDS")
-                    .createDatetime(LocalDateTime.of(2000,10,10, 0,0,0))
+                    .createDatetime(LocalDateTime.of(2000, 10, 10, 0, 0, 0))
                     .entryAmount(BigDecimal.valueOf(2))
                     .build(),
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .accountType("SPENDS")
-                    .createDatetime(LocalDateTime.of(2000,11,10, 0,0,0))
+                    .createDatetime(LocalDateTime.of(2000, 11, 10, 0, 0, 0))
                     .entryAmount(BigDecimal.valueOf(3))
                     .build(),
-                out.toBuilder()
+                TRANSACTION_OUT.toBuilder()
                     .accountType("SPENDS")
-                    .createDatetime(LocalDateTime.of(2001,12,10,0,0,0))
+                    .createDatetime(LocalDateTime.of(2001, 12, 10, 0, 0, 0))
                     .entryAmount(BigDecimal.valueOf(5))
                     .build()
             );
@@ -411,7 +491,7 @@ public class OffenderTransactionHistoryServiceTest {
             when(repository.findByOffender_NomsId(any())).thenReturn(allTransactions);
 
             final var transactions =
-                service.getTransactionHistory(OFFENDER_NO, null, null, null,null);
+                service.getTransactionHistory(OFFENDER_NO, null, null, null, null);
 
             assertThat(transactions.size()).isEqualTo(3);
             assertThat(transactions.get(0).getCurrentBalance()).isEqualTo(0L);
@@ -422,37 +502,37 @@ public class OffenderTransactionHistoryServiceTest {
         @Test
         public void testCalculateRunningBalance_OffenderMovedThroughMultiplePrions() {
             final var allTransactions = List.of(
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(1L)
-                    .createDatetime(LocalDateTime.of(2000,10,10, 0,0,0))
+                    .createDatetime(LocalDateTime.of(2000, 10, 10, 0, 0, 0))
                     .agencyId("LEI")
                     .accountType("SPENDS")
                     .entryAmount(BigDecimal.valueOf(2))
                     .build(),
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(2L)
-                    .createDatetime(LocalDateTime.of(2000,11,10, 0,0,0))
+                    .createDatetime(LocalDateTime.of(2000, 11, 10, 0, 0, 0))
                     .entryAmount(BigDecimal.valueOf(3))
                     .agencyId("LEI")
                     .accountType("SPENDS")
                     .build(),
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(3L)
-                    .createDatetime(LocalDateTime.of(2002,1,1,0,0,0))
+                    .createDatetime(LocalDateTime.of(2002, 1, 1, 0, 0, 0))
                     .entryAmount(BigDecimal.valueOf(5))
                     .agencyId("MDI")
                     .accountType("SPENDS")
                     .build(),
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(4L)
-                    .createDatetime(LocalDateTime.of(2002,2,1,0,0,0))
+                    .createDatetime(LocalDateTime.of(2002, 2, 1, 0, 0, 0))
                     .entryAmount(BigDecimal.valueOf(5))
                     .agencyId("MDI")
                     .accountType("SPENDS")
                     .build(),
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(5L)
-                    .createDatetime(LocalDateTime.of(2002,3,1,0,0,0))
+                    .createDatetime(LocalDateTime.of(2002, 3, 1, 0, 0, 0))
                     .entryAmount(BigDecimal.valueOf(1))
                     .agencyId("LEI")
                     .accountType("SPENDS")
@@ -461,7 +541,7 @@ public class OffenderTransactionHistoryServiceTest {
             when(repository.findByOffender_NomsId(any())).thenReturn(allTransactions);
 
             final var transactions =
-                service.getTransactionHistory(OFFENDER_NO, null, null, null,null);
+                service.getTransactionHistory(OFFENDER_NO, null, null, null, null);
 
 
             assertThat(transactions.get(0).getCurrentBalance()).isEqualTo(600L);
@@ -475,42 +555,42 @@ public class OffenderTransactionHistoryServiceTest {
         @Test
         public void testCalculateRunningBalance_GroupedByAgencyAndAccountType() {
             final var allTransactions = List.of(
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(1L)
-                    .createDatetime(LocalDateTime.of(2000,10,10, 0,0,0))
-                    .entryDate(LocalDate.of(2000,10, 10))
+                    .createDatetime(LocalDateTime.of(2000, 10, 10, 0, 0, 0))
+                    .entryDate(LocalDate.of(2000, 10, 10))
                     .agencyId("LEI")
                     .accountType("SPND")
                     .entryAmount(BigDecimal.valueOf(2))
                     .build(),
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(2L)
-                    .createDatetime(LocalDateTime.of(2000,11,10, 0,0,0))
-                    .entryDate(LocalDate.of(2000,11, 10))
+                    .createDatetime(LocalDateTime.of(2000, 11, 10, 0, 0, 0))
+                    .entryDate(LocalDate.of(2000, 11, 10))
                     .entryAmount(BigDecimal.valueOf(3))
                     .agencyId("LEI")
                     .accountType("REG")
                     .build(),
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(3L)
-                    .createDatetime(LocalDateTime.of(2002,1,1,0,0,0))
-                    .entryDate(LocalDate.of(2002,1, 1))
+                    .createDatetime(LocalDateTime.of(2002, 1, 1, 0, 0, 0))
+                    .entryDate(LocalDate.of(2002, 1, 1))
                     .entryAmount(BigDecimal.valueOf(5))
                     .agencyId("LEI")
                     .accountType("SPND")
                     .build(),
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(4L)
-                    .createDatetime(LocalDateTime.of(2002,2,1,0,0,0))
-                    .entryDate(LocalDate.of(2002,2, 1))
+                    .createDatetime(LocalDateTime.of(2002, 2, 1, 0, 0, 0))
+                    .entryDate(LocalDate.of(2002, 2, 1))
                     .entryAmount(BigDecimal.valueOf(5))
                     .agencyId("MDI")
                     .accountType("REG")
                     .build(),
-                in.toBuilder()
+                TRANSACTION_IN.toBuilder()
                     .transactionId(5L)
-                    .createDatetime(LocalDateTime.of(2002,3,1,0,0,0))
-                    .entryDate(LocalDate.of(2002,3, 1))
+                    .createDatetime(LocalDateTime.of(2002, 3, 1, 0, 0, 0))
+                    .entryDate(LocalDate.of(2002, 3, 1))
                     .entryAmount(BigDecimal.valueOf(1))
                     .agencyId("MDI")
                     .accountType("REG")
@@ -519,7 +599,7 @@ public class OffenderTransactionHistoryServiceTest {
             when(repository.findByOffender_NomsId(any())).thenReturn(allTransactions);
 
             final var transactions =
-                service.getTransactionHistory(OFFENDER_NO, null, null, null,null);
+                service.getTransactionHistory(OFFENDER_NO, null, null, null, null);
 
             //MDI - REG
             assertThat(transactions.get(0))
@@ -544,40 +624,5 @@ public class OffenderTransactionHistoryServiceTest {
                 .extracting("currentBalance", "agencyId", "accountType")
                 .containsExactlyInAnyOrder(200L, "LEI", "SPND");
         }
-    }
-
-
-    private OffenderTransactionHistory offenderTransactionHistoryEntry() {
-        return OffenderTransactionHistory
-            .builder()
-            .entryAmount(BigDecimal.valueOf(2.0))
-            .postingType("DR")
-            .entryDate(LocalDate.now())
-            .offender(Offender.builder().nomsId(OFFENDER_NO).rootOffenderId(2L).id(3L).build())
-            .entryDescription("Some description")
-            .referenceNumber("12343/1")
-            .transactionEntrySequence(1L)
-            .transactionId(1L)
-            .transactionType("OUT")
-            .accountType("SPENDS")
-            .agencyId("MDI")
-            .build();
-    }
-
-    private OffenderTransactionHistory withRelatedTransactionDetails(final OffenderTransactionHistory offenderTransactionHistory) {
-        return offenderTransactionHistory.toBuilder()
-            .relatedTransactionDetails(List.of(OffenderTransactionDetails.builder()
-                .id(1L)
-                .calendarDate(LocalDate.now())
-                .bonusPay(BigDecimal.valueOf(3.00))
-                .pieceWork(BigDecimal.valueOf(2.00))
-                .payAmount(BigDecimal.valueOf(1.00))
-                .eventId(1)
-                .payTypeCode("UNEMPLOYED")
-                .transactionEntrySequence(1L)
-                .transactionId(1L)
-                .build()))
-            .build();
-
     }
 }
