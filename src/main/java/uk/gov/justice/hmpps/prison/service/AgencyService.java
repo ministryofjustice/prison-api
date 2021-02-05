@@ -266,7 +266,7 @@ public class AgencyService {
         return agencyRepository.getPrisonIepReview(criteria);
     }
 
-    public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, String attribute) {
+    public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var cells = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag(agencyId, "CELL", ActiveFlag.Y);
         return cells.stream()
                 .filter((l) -> l.isActiveCellWithSpace(true))
