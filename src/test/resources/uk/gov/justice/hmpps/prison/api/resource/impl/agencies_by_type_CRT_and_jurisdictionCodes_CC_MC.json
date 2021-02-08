@@ -1,0 +1,14 @@
+[
+  {
+    "agencyId": "ABDRCT",
+    "description": "Court 2",
+    "agencyType": "CRT",
+    "active": true
+  },
+  {
+    "agencyId": "COURT1",
+    "description": "Court 1",
+    "agencyType": "CRT",
+    "active": true
+  }
+]

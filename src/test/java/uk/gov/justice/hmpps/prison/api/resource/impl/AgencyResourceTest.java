@@ -21,13 +21,39 @@ public class AgencyResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/agencies/type/INST",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/agencies/type/INST",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThatJsonFileAndStatus(response, 200, "agencies_by_type.json");
+    }
+
+    @Test
+    public void testCanFindAgenciesByTypeAndJurisdictionCode() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/type/CRT?jurisdictionCode=CC",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_and_jurisdictionCode_CC.json");
+    }
+
+    @Test
+    public void testCanFindAgenciesByTypeAndJurisdictionCodes() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/type/CRT?jurisdictionCode=CC&jurisdictionCode=MC",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_and_jurisdictionCodes_CC_MC.json");
     }
 
     @Test
@@ -283,8 +309,6 @@ public class AgencyResourceTest extends ResourceTest {
     }
 
 
-
-
     @Test
     public void testCantUupdateAgencyWithNoType() {
         final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
@@ -428,11 +452,11 @@ public class AgencyResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/agencies/type/INST?activeOnly={activeOnly}",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                }, "false");
+            "/api/agencies/type/INST?activeOnly={activeOnly}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            }, "false");
 
         assertThatJsonFileAndStatus(response, 200, "inactive_agencies_by_type.json");
     }
@@ -444,11 +468,11 @@ public class AgencyResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/agencies/LEI/cellsWithCapacity",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/agencies/LEI/cellsWithCapacity",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
         System.out.println(response);
         assertThatJsonFileAndStatus(response, 200, "cells_with_capacity.json");
     }
@@ -460,11 +484,11 @@ public class AgencyResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/agencies/LEI/cellsWithCapacity?attribute=DO",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/agencies/LEI/cellsWithCapacity?attribute=DO",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
         System.out.println(response);
         assertThatJsonFileAndStatus(response, 200, "cells_with_capacity_filtered.json");
     }
@@ -476,17 +500,17 @@ public class AgencyResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/agencies/MDI/establishment-types",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<AgencyEstablishmentTypes>() {
-                });
+            "/api/agencies/MDI/establishment-types",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<AgencyEstablishmentTypes>() {
+            });
 
         assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(response.getBody().getAgencyId()).isEqualTo("MDI");
         assertThat(response.getBody().getEstablishmentTypes()).containsExactlyInAnyOrder(
-                AgencyEstablishmentType.builder().code("CM").description("Closed (Male)").build(),
-                AgencyEstablishmentType.builder().code("CNOMIS").description("C-NOMIS Establishment").build(),
-                AgencyEstablishmentType.builder().code("IM").description("Closed Young Offender Institute (Male)").build());
+            AgencyEstablishmentType.builder().code("CM").description("Closed (Male)").build(),
+            AgencyEstablishmentType.builder().code("CNOMIS").description("C-NOMIS Establishment").build(),
+            AgencyEstablishmentType.builder().code("IM").description("Closed Young Offender Institute (Male)").build());
     }
 }
