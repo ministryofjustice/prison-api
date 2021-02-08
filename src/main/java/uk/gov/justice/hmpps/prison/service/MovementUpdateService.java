@@ -58,7 +58,7 @@ public class MovementUpdateService {
         if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId()))
             return transformToCellSwapResult(offenderBooking);
 
-        if (!internalLocation.isActiveCellWithSpace(false))
+        if (!internalLocation.isActiveCellWithSpace())
             throw new IllegalArgumentException(String.format("Location %s is either not a cell, active or is at maximum capacity", internalLocation.getDescription()));
 
         return saveAndReturnCellMoveResult(bookingId, reasonCode, movementDateTime, internalLocation);
