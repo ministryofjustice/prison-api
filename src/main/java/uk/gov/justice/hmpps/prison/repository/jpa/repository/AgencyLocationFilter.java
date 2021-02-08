@@ -15,7 +15,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Expression;
 import java.util.List;
 
 @Getter
@@ -23,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class AgencyLocationFilter implements Specification<AgencyLocation>  {
+public class AgencyLocationFilter implements Specification<AgencyLocation> {
     private String id;
 
     @Builder.Default
@@ -35,7 +34,6 @@ public class AgencyLocationFilter implements Specification<AgencyLocation>  {
     private final List<String> excludedAgencies = List.of("OUT", "TRN");
 
     private List<String> jurisdictionCodes;
-
 
     public Predicate toPredicate(final Root<AgencyLocation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
@@ -56,7 +54,7 @@ public class AgencyLocationFilter implements Specification<AgencyLocation>  {
             predicateBuilder.add(cb.not(root.get("id").in(excludedAgencies)));
         }
 
-        if(jurisdictionCodes != null && jurisdictionCodes.size() > 0) {
+        if (jurisdictionCodes != null && jurisdictionCodes.size() > 0) {
             predicateBuilder.add(root.get("jurisdictionCode").in(jurisdictionCodes));
         }
 
