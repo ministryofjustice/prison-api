@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment;
 import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
+import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
@@ -1324,6 +1325,44 @@ public class InmateRepositoryTest {
         final var offender = repository.findOffender("A1234AA");
         assertThat(offender.get().getReceptionDate()).isEqualTo(LocalDate.now());
 
+    }
+
+    @Test
+    public void testSearchForInmatesByLocation() {
+        final var expectedInfo = List.of(
+            OffenderBooking.builder()
+                .bookingId(-18L)
+                .bookingNo("Z00018")
+                .offenderNo("Z0018ZZ")
+                .firstName("NICK")
+                .lastName("TALBOT")
+                .dateOfBirth(LocalDate.of(1970, Month.JANUARY, 1))
+                .age(51)
+                .agencyId("LEI")
+                .assignedLivingUnitId(-14L)
+                .facialImageId(-18L)
+                .build(),
+            OffenderBooking.builder()
+                .bookingId(-19L)
+                .bookingNo("Z00019")
+                .offenderNo("Z0019ZZ")
+                .firstName("STEPHEN")
+                .lastName("STRUDWICK")
+                .dateOfBirth(LocalDate.of(1968, Month.JANUARY, 1))
+                .age(53)
+                .agencyId("LEI")
+                .assignedLivingUnitId(-14L)
+                .facialImageId(-19L)
+                .build());
+
+        final var results = repository.findInmatesByLocation(-13L, "WING", "LEI", null, "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+
+        assertThat(results.getItems()).hasSize(10);
+        // Check the first 2 items are as expected
+        assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));
+        assertThat(results.getItems().get(1)).isEqualTo(expectedInfo.get(1));
+        // Check there is an item where the living unit ID is multiple levels down from the location ID (-13)
+        assertThat(results.getItems()).anyMatch((r) -> r.getAssignedLivingUnitId() == -15L);
     }
 
     /*****************************************************************************************/
