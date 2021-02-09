@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
@@ -25,6 +26,7 @@ public class OffenderDamageObligationService {
     }
 
     @VerifyOffenderAccess
+    @Transactional
     public List<OffenderDamageObligationModel> getDamageObligations(final String offenderNo, final Status status) {
 
         final var statusCode = Optional.ofNullable(status).map(Status::code).orElse(Status.ALL.code());
