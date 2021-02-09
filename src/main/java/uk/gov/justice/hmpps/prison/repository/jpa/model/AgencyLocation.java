@@ -63,4 +63,7 @@ public class AgencyLocation extends ExtendedAuditableEntity {
 
     @Column(name = "DEACTIVATION_DATE")
     private LocalDate deactivationDate;
+
+    @Column(name = "JURISDICTION_CODE")
+    private String jurisdictionCode;
 }
