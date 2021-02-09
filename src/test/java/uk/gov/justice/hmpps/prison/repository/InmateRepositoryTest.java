@@ -1331,38 +1331,21 @@ public class InmateRepositoryTest {
     public void testSearchForInmatesByLocation() {
         final var expectedInfo = List.of(
             OffenderBooking.builder()
-                .bookingId(-18L)
-                .bookingNo("Z00018")
-                .offenderNo("Z0018ZZ")
-                .firstName("NICK")
-                .lastName("TALBOT")
-                .dateOfBirth(LocalDate.of(1970, Month.JANUARY, 1))
-                .age(51)
-                .agencyId("LEI")
-                .assignedLivingUnitId(-14L)
-                .facialImageId(-18L)
-                .build(),
-            OffenderBooking.builder()
-                .bookingId(-19L)
-                .bookingNo("Z00019")
-                .offenderNo("Z0019ZZ")
-                .firstName("STEPHEN")
-                .lastName("STRUDWICK")
-                .dateOfBirth(LocalDate.of(1968, Month.JANUARY, 1))
-                .age(53)
-                .agencyId("LEI")
-                .assignedLivingUnitId(-14L)
-                .facialImageId(-19L)
+                .bookingId(-40L)
+                .bookingNo("SAME_NO")
+                .offenderNo("A1184JR")
+                .firstName("JOE")
+                .lastName("ROOT")
+                .dateOfBirth(LocalDate.of(1990, Month.DECEMBER, 30))
+                .age(30)
+                .agencyId("SYI")
+                .assignedLivingUnitId(-204L)
                 .build());
 
-        final var results = repository.findInmatesByLocation(-13L, "WING", "LEI", null, "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+        final var results = repository.findInmatesByLocation(-200L, "CELL", "SYI", null, "lastName,firstName,offenderNo", Order.DESC, 0, 10);
 
-        assertThat(results.getItems()).hasSize(10);
-        // Check the first 2 items are as expected
+        assertThat(results.getItems()).hasSize(1);
         assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));
-        assertThat(results.getItems().get(1)).isEqualTo(expectedInfo.get(1));
-        // Check there is an item where the living unit ID is multiple levels down from the location ID (-13)
-        assertThat(results.getItems()).anyMatch((r) -> r.getAssignedLivingUnitId() == -15L);
     }
 
     /*****************************************************************************************/
