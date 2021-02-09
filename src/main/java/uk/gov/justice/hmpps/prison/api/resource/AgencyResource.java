@@ -88,7 +88,7 @@ public class AgencyResource {
         boolean activeOnly,
 
         @RequestParam(value = "jurisdictionCode", required = false)
-        @ApiParam("Only return active agencies")
+        @ApiParam(value = "Only return agencies that match the supplied Jurisdiction Code(s)", example = "MC")
         List<String> jurisdictionCodes
     ) {
         return agencyService.getAgenciesByType(agencyType, activeOnly, jurisdictionCodes);
