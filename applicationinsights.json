@@ -1,0 +1,17 @@
+{
+  "role": {
+    "name": "prison-api"
+  },
+  "customDimensions": {
+    "service.version": "${BUILD_NUMBER}"
+  },
+  "instrumentation": {
+    "logging": {
+      "level": "DEBUG"
+    }
+  },
+  "selfDiagnostics": {
+    "destination": "console"
+  }
+}
+
