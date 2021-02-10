@@ -114,11 +114,12 @@ public class AgencyService {
         return AgencyTransformer.transform(agencyLocation);
     }
 
-    public List<Agency> getAgenciesByType(final String agencyType, final boolean activeOnly) {
+    public List<Agency> getAgenciesByType(final String agencyType, final boolean activeOnly, List<String> jurisdictionCodes) {
 
         final var filter = AgencyLocationFilter.builder()
                 .activeFlag(activeOnly ? ActiveFlag.Y : null)
                 .type(agencyType)
+                .jurisdictionCodes(jurisdictionCodes)
                 .build();
 
         return agencyLocationRepository.findAll(filter)

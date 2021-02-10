@@ -12,6 +12,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,5 +74,8 @@ public class OffenderTransactionHistoryDto {
 
     @ApiModelProperty(value = "Indicates that the amount has been cleared from holding", position = 16)
     private Boolean holdingCleared;
+
+    @ApiModelProperty(value = "Creation date time", example = "2020-12-11T:20:00", position = 17)
+    private LocalDateTime createDateTime;
 }
 

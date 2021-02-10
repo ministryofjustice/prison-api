@@ -15,6 +15,10 @@ env:
       secretKeyRef:
         key: APPLICATION_INSIGHTS_IKEY
         name: {{ template "app.name" . }}
+
+  - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+    value: "InstrumentationKey=$(APPLICATION_INSIGHTS_IKEY)"
+
   - name: DATA_COMPLIANCE_REQUEST_SQS_AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:

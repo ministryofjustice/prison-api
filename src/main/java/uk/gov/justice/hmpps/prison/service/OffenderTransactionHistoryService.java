@@ -156,6 +156,7 @@ public class OffenderTransactionHistoryService {
             .transactionType(offenderTransactionHistory.getTransactionType())
             .currentBalance(poundsToPence(offenderTransactionHistory.getCurrentBalance()))
             .holdingCleared(offenderTransactionHistory.getHoldingCleared())
+            .createDateTime(offenderTransactionHistory.getCreateDatetime())
             .relatedOffenderTransactions(relatedTransactionDetails)
             .build();
     }
