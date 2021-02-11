@@ -129,6 +129,7 @@ public class DataComplianceReferralService {
                                 .alertCodes(booking.getOffenderAlerts().stream()
                                         .map(OffenderAlertPendingDeletion::getAlertCode)
                                         .collect(toSet()))
+                                .agencyLocationId(booking.getAgencyLocationId())
                                 .build())
                         .collect(toUnmodifiableList()))
                 .build();

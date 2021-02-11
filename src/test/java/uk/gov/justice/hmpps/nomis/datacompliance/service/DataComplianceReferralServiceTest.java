@@ -167,6 +167,7 @@ public class DataComplianceReferralServiceTest {
                                 .offenderBookId(offenderId)
                                 .offenceCode("offence" + offenderId)
                                 .alertCode("alert" + offenderId)
+                                .agencyLocationId("LEI")
                                 .build())
                         .build())
                 .build();
@@ -190,6 +191,7 @@ public class DataComplianceReferralServiceTest {
                         .bookingId(offenderId)
                         .offenderCharge(OffenderChargePendingDeletion.builder().offenceCode("offence" + offenderId).build())
                         .offenderAlert(OffenderAlertPendingDeletion.builder().alertCode("alert" + offenderId).build())
+                        .agencyLocationId("LEI")
                         .build())
                 .build();
     }
