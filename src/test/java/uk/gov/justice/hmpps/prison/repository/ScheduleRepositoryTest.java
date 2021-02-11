@@ -241,7 +241,7 @@ public class ScheduleRepositoryTest {
             assertThat(List.of(-1L, -2L, -3L, -4L, -5L, -6L, -35L, -40L)).contains(result.getBookingId());
 
             // Get offender cell locations. -1L and -3L share a cell.
-            assertThat(List.of("LEI-A-1-1", "LEI-A-1-2", "LEI-H-1-5", "LEI-A-1", "LEI-A-1-10", "MDI-1-1-001", "SYI-A-2-1")).contains(result.getCellLocation());
+            assertThat(List.of("LEI-A-1-1", "LEI-A-1-2", "LEI-H-1-5", "LEI-A-1", "LEI-A-1-10", "MDI-1-1-001")).contains(result.getCellLocation());
 
             // Assert it return both suspended and not suspended
             assertThat(List.of(true, false)).contains(result.getSuspended());

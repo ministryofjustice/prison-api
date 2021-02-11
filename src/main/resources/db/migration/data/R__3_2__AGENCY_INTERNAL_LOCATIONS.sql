@@ -308,13 +308,13 @@ INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_C
 INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_CODE, INTERNAL_LOCATION_TYPE, AGY_LOC_ID, UNIT_TYPE, CERTIFIED_FLAG, OPERATION_CAPACITY, NO_OF_OCCUPANT, DESCRIPTION, PARENT_INTERNAL_LOCATION_ID, USER_DESC)
 VALUES
 (-200, 'A',    'WING',  'SYI',   'NA', 'Y', 14, 13, 'SYI-A', null, 'Block A'),
-(-201, '1',    'LAND',  'SYI',   'NA', 'Y', 14, 13, 'SYI-A-1', -200, 'Landing A/1'),
-(-202, '1',    'CELL',  'SYI',   'NA', 'Y',  2,  2, 'SYI-A-1-1', -201, 'Cell A/1-1'),
-(-203, '2',    'LAND',  'SYI',   'NA', 'Y', 14, 13, 'SYI-A-2', -200, 'Landing A/2'),
-(-204, '21',   'CELL',  'SYI',   'NA', 'Y',  1,  1, 'SYI-A-2-1', -203, 'Cell A/2-1'),
+(-201, '1',    'LAND',  'SYI',   'NA', 'Y', 14, 13, 'SYI-A-1', -1, 'Landing A/1'),
+(-202, '1',    'CELL',  'SYI',   'NA', 'Y',  2,  2, 'SYI-A-1-1', -2, 'Cell A/1-1'),
+(-203, '2',    'LAND',  'SYI',   'NA', 'Y', 14, 13, 'SYI-A-2', -1, 'Landing A/2'),
+(-204, '21',   'CELL',  'SYI',   'NA', 'Y',  1,  1, 'SYI-A-2-1', -32, 'Cell A/2-1'),
 (-205, 'H',    'WING',  'SYI',   'NA', 'Y', 20, 20, 'SYI-H', null, null),
-(-206, '1',    'LAND',  'SYI',   'NA', 'Y', 20, 20, 'SYI-H-1', -205, 'Landing H/1'),
-(-207, '1',    'CELL',  'SYI',   'NA', 'Y',  1,  1, 'SYI-H-1-1', -206, 'Cell H/1-1'),
+(-206, '1',    'LAND',  'SYI',   'NA', 'Y', 20, 20, 'SYI-H-1', -13, 'Landing H/1'),
+(-207, '1',    'CELL',  'SYI',   'NA', 'Y',  1,  1, 'SYI-H-1-1', -14, 'Cell H/1-1'),
 (-208, 'CHAP', 'AREA',  'SYI',   'NA', 'N',  1,  1, 'SYI-CHAP', null, 'Chapel');
 
 -- 'Abstract' locations in LEI for 'Prisoner's cell' and 'Other cell'.  selected by event type 'OCCUR', used by the Use-of-Force application. See DCS-424
