@@ -257,6 +257,8 @@ public class OffenderTransactionHistoryServiceTest {
     public class Mapping {
         @Test
         public void testMapsTransactions() {
+            final var createDateTime = LocalDateTime.now();
+
             when(repository.findByOffender_NomsId(anyString()))
                 .thenReturn(List.of(
                     TRANSACTION_OUT.toBuilder()
@@ -264,7 +266,7 @@ public class OffenderTransactionHistoryServiceTest {
                         .referenceNumber("12343/1")
                         .transactionEntrySequence(1L)
                         .entryDate(LocalDate.now())
-                        .createDatetime(LocalDateTime.now())
+                        .createDatetime(createDateTime)
                         .build()
                 ));
 
@@ -289,6 +291,7 @@ public class OffenderTransactionHistoryServiceTest {
             assertThat(transaction.getPostingType()).isEqualTo("DR");
             assertThat(transaction.getOffenderNo()).isEqualTo(OFFENDER_NO);
             assertThat(transaction.getAgencyId()).isEqualTo("MDI");
+            assertThat(transaction.getCreateDateTime()).isEqualTo(createDateTime);
             assertThat(transaction.getRelatedOffenderTransactions()).isEmpty();
         }
 
