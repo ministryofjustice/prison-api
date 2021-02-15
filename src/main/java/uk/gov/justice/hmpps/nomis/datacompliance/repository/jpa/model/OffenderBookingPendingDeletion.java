@@ -29,6 +29,9 @@ public class OffenderBookingPendingDeletion {
     @Column(name = "OFFENDER_BOOK_ID")
     private Long bookingId;
 
+    @Column(name = "AGY_LOC_ID")
+    private String agencyLocationId;
+
     @ManyToOne
     @JoinColumn(name = "OFFENDER_ID", nullable = false)
     private OffenderAliasPendingDeletion offenderAlias;

@@ -42,6 +42,7 @@ class OffenderAliasPendingDeletionRepositoryTest {
 
         assertThat(offender.getOffenderBookings()).hasSize(1);
         assertThat(offender.getOffenderBookings().get(0).getBookingId()).isEqualTo(-1);
+        assertThat(offender.getOffenderBookings().get(0).getAgencyLocationId()).isEqualTo("LEI");
         assertThat(offender.getOffenderBookings().get(0).getOffenderCharges())
                 .extracting(OffenderChargePendingDeletion::getOffenceCode)
                 .containsExactlyInAnyOrder("RC86356", "RV98011");
