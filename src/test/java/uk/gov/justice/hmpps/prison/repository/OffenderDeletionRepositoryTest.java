@@ -40,10 +40,11 @@ public class OffenderDeletionRepositoryTest {
 
         assertOffenderDataExists();
 
-        assertThat(repository.deleteOffender("A1234AA"))
+        assertThat(repository.cleanseOffenderData("A1234AA"))
                 .containsExactly(-1001L);
 
         assertOffenderDataDeleted();
+        assertBaseRecordIsNotDeleted();
 
         // GL_TRANSACTIONS should still have the anonymised data:
         assertThat(jdbcTemplate.queryForList(
@@ -55,7 +56,7 @@ public class OffenderDeletionRepositoryTest {
     @Test
     @Transactional
     public void deleteUnknownOffenderThrows() {
-        assertThatThrownBy(() -> repository.deleteOffender("unknown"))
+        assertThatThrownBy(() -> repository.cleanseOffenderData("unknown"))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Resource with id [unknown] not found.");
     }
@@ -66,6 +67,10 @@ public class OffenderDeletionRepositoryTest {
 
     private void assertOffenderDataDeleted() {
         checkTables(new Condition<>(List::isEmpty, "Entry Not Found"));
+    }
+
+    private void assertBaseRecordIsNotDeleted() {
+        checkBaseRecord(new Condition<>(list -> !list.isEmpty(), "Entry is Found"));
     }
 
     private void checkTables(final Condition<? super List<? extends String>> condition) {
@@ -123,11 +128,14 @@ public class OffenderDeletionRepositoryTest {
 
         queryByOffenderId("GL_TRANSACTIONS").is(condition);
         queryByOffenderId("OFFENDER_BOOKINGS").is(condition);
-        queryByOffenderId("OFFENDER_IDENTIFIERS").is(condition);
         queryByOffenderId("OFFENDER_SUB_ACCOUNTS").is(condition);
         queryByOffenderId("OFFENDER_TRANSACTIONS").is(condition);
         queryByOffenderId("OFFENDER_TRUST_ACCOUNTS").is(condition);
-        queryByOffenderId("OFFENDERS").is(condition);
+    }
+
+    private void checkBaseRecord(final Condition<? super List<? extends String>> condition) {
+          queryByOffenderId("OFFENDER_IDENTIFIERS").is(condition);
+          queryByOffenderId("OFFENDERS").is(condition);
     }
 
     private ListAssert<String> queryByAgencyIncidentId(final String tableName) {
