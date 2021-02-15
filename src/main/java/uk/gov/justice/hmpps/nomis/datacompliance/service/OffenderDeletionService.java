@@ -44,7 +44,7 @@ public class OffenderDeletionService {
 
         checkRequestedDeletion(grant);
 
-        final var offenderIds = offenderDeletionRepository.deleteOffender(grant.getOffenderNo());
+        final var offenderIds = offenderDeletionRepository.cleanseOffenderData(grant.getOffenderNo());
 
         dataComplianceEventPusher.send(new OffenderDeletionComplete(grant.getOffenderNo(), grant.getReferralId()));
 

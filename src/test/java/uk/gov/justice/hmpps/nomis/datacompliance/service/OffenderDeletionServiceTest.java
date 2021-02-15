@@ -62,7 +62,7 @@ public class OffenderDeletionServiceTest {
 
         mockOffenderIds();
 
-        when(offenderDeletionRepository.deleteOffender(OFFENDER_NUMBER)).thenReturn(Set.of(OFFENDER_ID));
+        when(offenderDeletionRepository.cleanseOffenderData(OFFENDER_NUMBER)).thenReturn(Set.of(OFFENDER_ID));
 
         service.deleteOffender(OffenderDeletionGrant.builder()
                 .offenderNo(OFFENDER_NUMBER)

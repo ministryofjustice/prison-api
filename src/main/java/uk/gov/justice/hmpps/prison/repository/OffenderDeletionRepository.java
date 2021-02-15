@@ -20,9 +20,9 @@ public class OffenderDeletionRepository extends RepositoryBase {
      * @return Set of offender_ids of the deleted offender aliases.
      */
 
-    public Set<Long> deleteOffender(final String offenderNumber) {
+    public Set<Long> cleanseOffenderData(final String offenderNumber) {
 
-        log.info("Deleting all data for offender: '{}'", offenderNumber);
+        log.info("Cleaning data for offender: '{}'", offenderNumber);
 
         final Set<Long> offenderIds = offenderIdsFor(offenderNumber);
 
@@ -31,9 +31,9 @@ public class OffenderDeletionRepository extends RepositoryBase {
         }
 
         deleteOffenderBookings(offenderIds);
-        deleteOffenderData(offenderIds);
+        cleanOffenderData(offenderIds);
 
-        log.info("Deleted {} offender records with offenderNumber: '{}'", offenderIds.size(), offenderNumber);
+        log.info("Deleted {} offender records (excluding non-base-records) for offenderNumber: '{}'", offenderIds.size(), offenderNumber);
 
         return offenderIds;
     }
@@ -365,16 +365,15 @@ public class OffenderDeletionRepository extends RepositoryBase {
         }
     }
 
-    private void deleteOffenderData(final Set<Long> offenderIds) {
+    private void cleanOffenderData(final Set<Long> offenderIds) {
 
-        log.debug("Deleting all (non-booking) offender data for offender ID: '{}'", offenderIds);
+        log.debug("Cleaned all (non-booking, non-base-record) offender data for offender ID: '{}'", offenderIds);
 
         deleteContactDetailsByOffenderIds(offenderIds);
         deleteOffenderFinances(offenderIds);
         executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_BANK_CHEQUE_BENEFICIARIES, offenderIds);
         executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_DAMAGE_OBLIGATIONS, offenderIds);
         executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_FREEZE_DISBURSEMENTS, offenderIds);
-        executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IDENTIFIERS, offenderIds);
         executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_MINIMUM_BALANCES, offenderIds);
         executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_SYSTEM_REPORT_REQUESTS, offenderIds);
 
@@ -384,9 +383,7 @@ public class OffenderDeletionRepository extends RepositoryBase {
 
         var bookingRowsDeleted = executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKINGS, offenderIds);
 
-        executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER, offenderIds);
-
-        log.info("Deleted {} bookings for offender ID: {}", bookingRowsDeleted, offenderIds);
+        log.info("Cleaned {} data for offender ID: {}", bookingRowsDeleted, offenderIds);
     }
 
     private void deleteContactDetailsByOffenderIds(final Set<Long> offenderIds) {
