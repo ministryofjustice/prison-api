@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment;
 import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
+import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
@@ -1324,6 +1325,48 @@ public class InmateRepositoryTest {
         final var offender = repository.findOffender("A1234AA");
         assertThat(offender.get().getReceptionDate()).isEqualTo(LocalDate.now());
 
+    }
+
+    @Test
+    public void testSearchForInmatesByWingLocation() {
+        final var expectedInfo = List.of(
+            OffenderBooking.builder()
+                .bookingId(-40L)
+                .bookingNo("SAME_NO")
+                .offenderNo("A1184JR")
+                .firstName("JOE")
+                .lastName("ROOT")
+                .dateOfBirth(LocalDate.of(1990, Month.DECEMBER, 30))
+                .age(30)
+                .agencyId("SYI")
+                .assignedLivingUnitId(-204L)
+                .build());
+
+        final var results = repository.findInmatesByLocation(-200L, "WING", "SYI", null, "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+
+        assertThat(results.getItems()).hasSize(1);
+        assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));
+    }
+
+    @Test
+    public void testSearchForInmatesByCellLocation() {
+        final var expectedInfo = List.of(
+            OffenderBooking.builder()
+                .bookingId(-40L)
+                .bookingNo("SAME_NO")
+                .offenderNo("A1184JR")
+                .firstName("JOE")
+                .lastName("ROOT")
+                .dateOfBirth(LocalDate.of(1990, Month.DECEMBER, 30))
+                .age(30)
+                .agencyId("SYI")
+                .assignedLivingUnitId(-204L)
+                .build());
+
+        final var results = repository.findInmatesByLocation(-204L, "CELL", "SYI", null, "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+
+        assertThat(results.getItems()).hasSize(1);
+        assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));
     }
 
     /*****************************************************************************************/
