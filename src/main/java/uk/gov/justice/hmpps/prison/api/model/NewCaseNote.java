@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.hmpps.prison.util.OracleVarcharUtil;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -106,7 +107,7 @@ public class NewCaseNote {
     }
 
     public void setText(final String text) {
-        this.text = text;
+        this.text = OracleVarcharUtil.enforceMaximumTextSize(text);
     }
 
     @Override
