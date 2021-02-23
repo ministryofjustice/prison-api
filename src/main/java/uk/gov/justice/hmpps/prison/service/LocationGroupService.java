@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
 import uk.gov.justice.hmpps.prison.repository.LocationRepository;
+import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -86,7 +87,7 @@ public class LocationGroupService {
     }
 
     private static String getName(Location location) {
-        return WordUtils.capitalizeFully(
+        return LocationProcessor.formatLocation(
                 location.getUserDescription() == null ? location.getInternalLocationCode() : location.getUserDescription()
         );
     }

@@ -38,6 +38,14 @@ class LocationGroupServiceTest {
     private final LocationGroup SLG2 = LocationGroup.builder().key("1").name("Landing A/1").build();
     private final LocationGroup SLG3 = LocationGroup.builder().key("2").name("Landing A/2").build();
 
+    private final Location L1_WITH_ACRONYM = Location.builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("Mpu").internalLocationCode("A").build();
+    private final Location SL1_WITH_ACRONYM = Location.builder().locationId(-14L).locationType("LAND").description("LEI-H-1").parentLocationId(-1L).userDescription("LANDING H/1 Dru").internalLocationCode("1").build();
+    private final Location SL2_WITH_ACRONYM = Location.builder().locationId(-2L).locationType("LAND").description("LEI-A-1").parentLocationId(-1L).userDescription("dart LANDING A/1").internalLocationCode("2").build();
+
+    private final LocationGroup LG1_WITH_ACRONYM = LocationGroup.builder().key("A").name("MPU").build();
+    private final LocationGroup SLG1_WITH_ACRONYM = LocationGroup.builder().key("1").name("Landing H/1 DRU").build();
+    private final LocationGroup SLG2_WITH_ACRONYM = LocationGroup.builder().key("2").name("DART Landing A/1").build();
+
     @Mock
     private LocationRepository repository;
 
@@ -92,6 +100,14 @@ class LocationGroupServiceTest {
         final var filter = service.locationGroupFilter("LEI", "A");
         assertThat(locationStream(CELL_A_1, CELL_A_3, CELL_B_1, CELL_AA_1).filter(filter))
                 .containsExactlyInAnyOrder(locationStream(CELL_A_1, CELL_A_3).toArray(Location[]::new));
+    }
+
+    @Test
+    void locationGroupFormatting() {
+        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1_WITH_ACRONYM));
+        when(repository.getSubLocationGroupData(Set.of(-1L))).thenReturn(List.of(SL1_WITH_ACRONYM, SL2_WITH_ACRONYM));
+        var foundLocations = service.getLocationGroups("LEI");
+        assertThat(foundLocations).contains(LG1_WITH_ACRONYM.toBuilder().children(List.of(SLG2_WITH_ACRONYM, SLG1_WITH_ACRONYM)).build());
     }
 
     private static Stream<Location> locationStream(final Location... locations) {
