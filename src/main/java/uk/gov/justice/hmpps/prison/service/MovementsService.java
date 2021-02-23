@@ -299,8 +299,10 @@ public class MovementsService {
     }
 
     @VerifyBookingAccess
-    public Page<OffenderIn> getOffendersIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Pageable pageable) {
-        final var page = externalMovementRepository.findMovements(agencyId, ActiveFlag.Y, MovementDirection.IN, fromDate, toDate, pageable);
+    public Page<OffenderIn> getOffendersIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Pageable pageable, final boolean allMovements) {
+        final var page = allMovements
+            ? externalMovementRepository.findAllMovements(agencyId, MovementDirection.IN, fromDate, toDate, pageable)
+            : externalMovementRepository.findMovements(agencyId, ActiveFlag.Y, MovementDirection.IN, fromDate, toDate, pageable);
         final var movements = page.getContent().stream().map(this::transform).collect(toList());
         return new PageImpl<OffenderIn>(movements, pageable, page.getTotalElements());
     }

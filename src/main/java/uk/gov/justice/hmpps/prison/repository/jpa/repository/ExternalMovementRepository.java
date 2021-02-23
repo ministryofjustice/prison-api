@@ -29,6 +29,20 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
             @Param("end") LocalDateTime end,
             Pageable pageable);
 
+    @Query("select m from ExternalMovement m " +
+        "where m.toAgency.id = :agencyId " +
+        "and m.movementDirection = :direction " +
+        "and m.movementTime > :start " +
+        "and (:end is null or m.movementTime < :end)"
+    )
+    Page<ExternalMovement> findAllMovements(
+        @Param("agencyId") String agencyId,
+        @Param("direction") MovementDirection direction,
+        @Param("start") LocalDateTime start,
+        @Param("end") LocalDateTime end,
+        Pageable pageable);
+
+
     List<ExternalMovement> findAllByBookingIdAndActiveFlag(Long bookingId, ActiveFlag activeFlag);
 
     @Query("select coalesce(max(m.movementSequence), 0) from ExternalMovement m where m.bookingId = :bookingId")
