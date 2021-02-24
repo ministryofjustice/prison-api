@@ -32,7 +32,7 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
     @Query("select m from ExternalMovement m " +
         "where m.toAgency.id = :agencyId " +
         "and m.movementDirection = :direction " +
-        "and m.movementTime > :start " +
+        "and m.movementTime >= :start " +
         "and (:end is null or m.movementTime < :end)"
     )
     Page<ExternalMovement> findAllMovements(
