@@ -25,7 +25,6 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 
 import javax.persistence.EntityExistsException;
-import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
@@ -74,18 +73,11 @@ public class ControllerAdvice {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(final ValidationException e) {
         log.debug("Bad Request (400) returned with message {}", e.getMessage());
-        String userMessage = e.getMessage();
-        if (e instanceof ConstraintViolationException) {
-            var violationDetails = ((ConstraintViolationException)e).getConstraintViolations();
-            if (violationDetails != null && violationDetails.size() > 0) {
-                userMessage = violationDetails.iterator().next().getMessage();
-            }
-        }
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
                         .builder()
-                        .userMessage(userMessage)
+                        .userMessage(e.getMessage())
                         .status(HttpStatus.BAD_REQUEST.value())
                         .developerMessage(e.getMessage())
                         .build());

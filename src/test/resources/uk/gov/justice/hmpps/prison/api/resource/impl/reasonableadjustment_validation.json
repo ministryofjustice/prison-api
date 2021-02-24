@@ -1,5 +1,5 @@
 {
   "status": 400,
-  "userMessage": "treatmentCodes: must not be empty",
+  "userMessage": "getReasonableAdjustments.treatmentCodes: treatmentCodes: must not be empty",
   "developerMessage": "getReasonableAdjustments.treatmentCodes: treatmentCodes: must not be empty"
 }

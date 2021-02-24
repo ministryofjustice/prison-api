@@ -1,5 +1,5 @@
 {
   "status": 400,
-  "userMessage": "offenderNo: must not be empty",
+  "userMessage": "getPersonalCareNeeds.offenderNos: offenderNo: must not be empty",
   "developerMessage": "getPersonalCareNeeds.offenderNos: offenderNo: must not be empty"
 }
