@@ -1,0 +1,32 @@
+[
+  {
+    "firstName": "Arthur",
+    "bookingId": -1,
+    "dateOfBirth": "1969-12-30",
+    "fromAgencyDescription": "OUTSIDE",
+    "fromAgencyId": "OUT",
+    "lastName": "Anderson",
+    "location": "LEI-A-1-1",
+    "middleName": "Boris",
+    "movementDateTime": "2019-10-17T17:30:00",
+    "movementTime": "17:30:00",
+    "offenderNo": "A1234AA",
+    "toAgencyDescription": "LEEDS",
+    "toAgencyId": "LEI"
+  },
+  {
+    "firstName": "Arthur",
+    "bookingId": -1,
+    "dateOfBirth": "1969-12-30",
+    "fromAgencyDescription": "OUTSIDE",
+    "fromAgencyId": "OUT",
+    "lastName": "Anderson",
+    "location": "LEI-A-1-1",
+    "middleName": "Boris",
+    "movementDateTime": "2019-10-01T17:00:00",
+    "movementTime": "17:00:00",
+    "offenderNo": "A1234AA",
+    "toAgencyDescription": "LEEDS",
+    "toAgencyId": "LEI"
+  }
+]

@@ -154,6 +154,22 @@ public class MovementResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testGetAllMovementsSince() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+            "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}&allMovements=true",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI", LocalDateTime.of(2019, 10, 1, 0, 0)
+        );
+
+        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_since_all.json");
+    }
+
+    @Test
     public void testGetMovementsPagination() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
