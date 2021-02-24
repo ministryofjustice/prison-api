@@ -1,5 +1,5 @@
 {
   "status": 400,
-  "userMessage": "getPersonalCareNeeds.problemTypes: problemTypes: must not be empty",
+  "userMessage": "problemTypes: must not be empty",
   "developerMessage": "getPersonalCareNeeds.problemTypes: problemTypes: must not be empty"
 }
