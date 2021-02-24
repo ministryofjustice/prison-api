@@ -450,7 +450,7 @@ public class MovementsServiceImplTest {
                 "LEI",
                 LocalDateTime.of(2020, 1, 2, 1, 2),
                 LocalDateTime.of(2020, 2, 2, 1, 2),
-                PageRequest.of(1, 2));
+                PageRequest.of(1, 2), false);
 
         assertThat(offenders).containsExactly(OffenderIn.builder()
                 .offenderNo("A1234AA")
