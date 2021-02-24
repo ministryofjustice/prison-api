@@ -6,11 +6,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
@@ -28,10 +30,33 @@ public class CaseNoteServiceImplIntTest {
 
     @SuppressWarnings("unused")
     @MockBean
+    private BookingService bookingService;
+
+    @SuppressWarnings("unused")
+    @MockBean
     private AuthenticationFacade authenticationFacade;
 
     @Autowired
     private CaseNoteService caseNoteService;
+
+    @Test
+    @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
+    public void createCaseNote_maximumTextSizeExceededDueToUtf8() {
+
+        String stringWith10Chars = "ABCDE12345";
+        StringBuilder string = new StringBuilder(4010);
+        IntStream.rangeClosed(1,399).forEach((i) -> string.append(stringWith10Chars));
+        string.append("ABCDE123⌘⌥"); // Add Unicode chars
+        var textExceeding4000CharsDueToUtf8 = string.toString();
+        final var caseNoteWithLargeSize = new NewCaseNote();
+        caseNoteWithLargeSize.setType("Type1");
+        caseNoteWithLargeSize.setSubType("SubType1");
+        caseNoteWithLargeSize.setText(textExceeding4000CharsDueToUtf8);
+
+        assertThatThrownBy(() -> caseNoteService.createCaseNote(1L, caseNoteWithLargeSize, "123"))
+            .isInstanceOf(ConstraintViolationException.class)
+            .hasMessageContaining("Length exceeds the maximum size allowed");
+    }
 
     @Test
     @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
