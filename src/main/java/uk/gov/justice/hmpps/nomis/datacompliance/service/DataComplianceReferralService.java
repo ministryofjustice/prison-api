@@ -15,7 +15,9 @@ import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAl
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
+import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
+import uk.gov.justice.hmpps.prison.service.MovementsService;
 
 import javax.transaction.Transactional;
 import java.time.Clock;
@@ -25,6 +27,7 @@ import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static java.util.List.of;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -34,9 +37,12 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @RequiredArgsConstructor
 public class DataComplianceReferralService {
 
+    public static final String RELEASED = "REL";
+
     private final OffenderPendingDeletionRepository offenderPendingDeletionRepository;
     private final OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
     private final DataComplianceEventPusher dataComplianceEventPusher;
+    private final MovementsService movementsService;
     private final Clock clock;
 
     public void referOffendersForDeletion(final Long batchId,
@@ -82,7 +88,7 @@ public class DataComplianceReferralService {
                 .orElseThrow(() -> new IllegalStateException(
                         format("Cannot find root offender alias for '%s'", offenderNumber.getOffenderNumber())));
 
-        return transform(offenderNumber, rootOffenderAlias, offenderAliases, batchId);
+        return transform(offenderNumber, rootOffenderAlias, offenderAliases, batchId, getLatestLocationId(rootOffenderAlias.getOffenderNumber()));
     }
 
     private Page<OffenderNumber> getOffendersPendingDeletion(final LocalDate from,
@@ -103,7 +109,8 @@ public class DataComplianceReferralService {
     private OffenderPendingDeletion transform(final OffenderNumber offenderNumber,
                                               final OffenderAliasPendingDeletion rootOffenderAlias,
                                               final Collection<OffenderAliasPendingDeletion> offenderAliases,
-                                              final Long batchId) {
+                                              final Long batchId,
+                                              final String agencyLocationId) {
         return OffenderPendingDeletion.builder()
                 .offenderIdDisplay(offenderNumber.getOffenderNumber())
                 .batchId(batchId)
@@ -111,6 +118,7 @@ public class DataComplianceReferralService {
                 .middleName(rootOffenderAlias.getMiddleName())
                 .lastName(rootOffenderAlias.getLastName())
                 .birthDate(rootOffenderAlias.getBirthDate())
+                .agencyLocationId(agencyLocationId)
                 .offenderAliases(offenderAliases.stream()
                         .map(this::transform)
                         .collect(toUnmodifiableList()))
@@ -129,9 +137,16 @@ public class DataComplianceReferralService {
                                 .alertCodes(booking.getOffenderAlerts().stream()
                                         .map(OffenderAlertPendingDeletion::getAlertCode)
                                         .collect(toSet()))
-                                .agencyLocationId(booking.getAgencyLocationId())
                                 .build())
                         .collect(toUnmodifiableList()))
                 .build();
+    }
+
+    private String getLatestLocationId(String offenderNumber) {
+         return movementsService.getMovementsByOffenders(of(offenderNumber), of(RELEASED), true, true)
+             .stream()
+             .findFirst()
+             .map(Movement::getFromAgency)
+             .orElse(null);
     }
 }

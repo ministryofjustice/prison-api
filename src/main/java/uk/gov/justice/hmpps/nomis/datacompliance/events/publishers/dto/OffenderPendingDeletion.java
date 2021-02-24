@@ -53,6 +53,9 @@ public class OffenderPendingDeletion {
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate birthDate;
 
+    @JsonProperty("agencyLocationId")
+    private String agencyLocationId;
+
     @Singular
     @JsonProperty("offenderAliases")
     private List<OffenderAlias> offenderAliases;
@@ -91,9 +94,6 @@ public class OffenderPendingDeletion {
         @Singular
         @JsonProperty("alertCodes")
         private Set<String> alertCodes;
-
-        @JsonProperty("agencyLocationId")
-        private String agencyLocationId;
     }
 }
 
