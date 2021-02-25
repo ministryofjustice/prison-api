@@ -23,6 +23,8 @@ import uk.gov.justice.hmpps.prison.service.LocationService;
 import uk.gov.justice.hmpps.prison.service.SearchOffenderService;
 import uk.gov.justice.hmpps.prison.service.support.SearchOffenderRequest;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Pattern.Flag;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -95,8 +97,17 @@ public class LocationResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Location detail.", notes = "Location detail.", nickname = "getLocation")
     @GetMapping("/{locationId}")
-    public Location getLocation(@PathVariable("locationId") @ApiParam(value = "The location id of location", required = true) final Long locationId) {
-        return locationService.getLocation(locationId);
+    public Location getLocation(
+        @PathVariable("locationId")
+        @ApiParam(value = "The location id of location", required = true)
+        final Long locationId,
+
+        @RequestParam(value="includeInactive", required = false)
+        @Pattern(regexp="Yes", flags = {Flag.CASE_INSENSITIVE})
+        @ApiParam(value = "Match a location that is inactive?", allowableValues = "Yes")
+        final String includeInactive
+    ) {
+        return locationService.getLocation(locationId, "Yes".equalsIgnoreCase(includeInactive));
     }
 
     @ApiResponses({
