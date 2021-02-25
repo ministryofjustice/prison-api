@@ -23,10 +23,6 @@ import uk.gov.justice.hmpps.prison.service.LocationService;
 import uk.gov.justice.hmpps.prison.service.SearchOffenderService;
 import uk.gov.justice.hmpps.prison.service.support.SearchOffenderRequest;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Pattern.Flag;
 import java.time.LocalDate;
 import java.util.List;
 
