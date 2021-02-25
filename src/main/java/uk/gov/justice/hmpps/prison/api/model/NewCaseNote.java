@@ -43,6 +43,7 @@ public class NewCaseNote {
 
     private LocalDateTime occurrenceDateTime;
 
+    @Size(max = 4000) // For Swagger - custom annotations not well supported
     @MaximumTextSize
     @NotBlank
     private String text;
