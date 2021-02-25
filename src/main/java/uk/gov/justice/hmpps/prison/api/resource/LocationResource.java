@@ -23,6 +23,8 @@ import uk.gov.justice.hmpps.prison.service.LocationService;
 import uk.gov.justice.hmpps.prison.service.SearchOffenderService;
 import uk.gov.justice.hmpps.prison.service.support.SearchOffenderRequest;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
 import java.time.LocalDate;
@@ -103,11 +105,10 @@ public class LocationResource {
         final Long locationId,
 
         @RequestParam(value="includeInactive", required = false)
-        @Pattern(regexp="Yes", flags = {Flag.CASE_INSENSITIVE})
-        @ApiParam(value = "Match a location that is inactive?", allowableValues = "Yes")
-        final String includeInactive
+        @ApiParam(value = "Match a location that is inactive?", allowableValues = "true,false")
+        final Boolean includeInactive
     ) {
-        return locationService.getLocation(locationId, "Yes".equalsIgnoreCase(includeInactive));
+        return locationService.getLocation(locationId, includeInactive != null && includeInactive);
     }
 
     @ApiResponses({
