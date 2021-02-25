@@ -95,8 +95,16 @@ public class LocationResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Location detail.", notes = "Location detail.", nickname = "getLocation")
     @GetMapping("/{locationId}")
-    public Location getLocation(@PathVariable("locationId") @ApiParam(value = "The location id of location", required = true) final Long locationId) {
-        return locationService.getLocation(locationId);
+    public Location getLocation(
+        @PathVariable("locationId")
+        @ApiParam(value = "The location id of location", required = true)
+        final Long locationId,
+
+        @RequestParam(value="includeInactive", required = false)
+        @ApiParam(value = "Match a location that is inactive?", allowableValues = "true,false")
+        final Boolean includeInactive
+    ) {
+        return locationService.getLocation(locationId, includeInactive != null && includeInactive);
     }
 
     @ApiResponses({
