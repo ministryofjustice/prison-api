@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.LocationRepository;
+import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.util.ArrayList;
@@ -88,7 +89,13 @@ public class LocationService {
     }
 
     public Location getLocation(final long locationId) {
-        return locationRepository.findLocation(locationId).orElseThrow(EntityNotFoundException.withId(locationId));
+        return getLocation(locationId, false);
+    }
+
+    public Location getLocation(final long locationId, boolean includeInactive) {
+        return locationRepository
+            .findLocation(locationId, includeInactive ? StatusFilter.ALL : StatusFilter.ACTIVE_ONLY)
+            .orElseThrow(EntityNotFoundException.withId(locationId));
     }
 
     private String getWorkingCaseLoad(final String username) {

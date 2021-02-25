@@ -22,12 +22,6 @@ public class LocationRepository extends RepositoryBase {
     private static final StandardBeanPropertyRowMapper<Location> LOCATION_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Location.class);
 
-
-    public Optional<Location> findLocation(final long locationId) {
-        return findLocation(locationId, ACTIVE_ONLY);
-    }
-
-
     public Optional<Location> findLocation(final long locationId, final StatusFilter filter) {
         final var sql = LocationRepositorySql.GET_LOCATION.getSql();
 
