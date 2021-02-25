@@ -43,15 +43,14 @@ public class CaseNoteServiceImplIntTest {
     @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
     public void createCaseNote_maximumTextSizeExceededDueToUtf8() {
 
-        String stringWith10Chars = "ABCDE12345";
-        StringBuilder string = new StringBuilder(4010);
-        IntStream.rangeClosed(1,399).forEach((i) -> string.append(stringWith10Chars));
-        string.append("ABCDE123⌘⌥"); // Add Unicode chars
-        var textExceeding4000CharsDueToUtf8 = string.toString();
+        final String stringWith10Chars = "ABCDE12345";
+        final StringBuilder textExceeding4000CharsDueToUtf8 = new StringBuilder(4010);
+        IntStream.rangeClosed(1,399).forEach((i) -> textExceeding4000CharsDueToUtf8.append(stringWith10Chars));
+        textExceeding4000CharsDueToUtf8.append("ABCDE123⌘⌥"); // Add Unicode chars
         final var caseNoteWithLargeSize = new NewCaseNote();
         caseNoteWithLargeSize.setType("Type1");
         caseNoteWithLargeSize.setSubType("SubType1");
-        caseNoteWithLargeSize.setText(textExceeding4000CharsDueToUtf8);
+        caseNoteWithLargeSize.setText(textExceeding4000CharsDueToUtf8.toString());
 
         assertThatThrownBy(() -> caseNoteService.createCaseNote(1L, caseNoteWithLargeSize, "123"))
             .isInstanceOf(ConstraintViolationException.class)

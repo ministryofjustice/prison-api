@@ -68,7 +68,7 @@ public class CaseNoteService {
                            final AuthenticationFacade authenticationFacade,
                            final BookingService bookingService,
                            @Value("${batch.max.size:1000}") final int maxBatchSize,
-                           MaximumTextSizeValidator maximumTextSizeValidator) {
+                           final MaximumTextSizeValidator maximumTextSizeValidator) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;

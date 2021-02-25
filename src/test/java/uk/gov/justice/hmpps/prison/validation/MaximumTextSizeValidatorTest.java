@@ -18,8 +18,8 @@ public class MaximumTextSizeValidatorTest {
     private final MaximumTextSizeValidator validator = new MaximumTextSizeValidator();
 
     static {
-        String stringWith10Chars = "ABCDE12345";
-        StringBuilder string = new StringBuilder(4010);
+        final String stringWith10Chars = "ABCDE12345";
+        final StringBuilder string = new StringBuilder(3990);
         IntStream.rangeClosed(1,399).forEach((i) -> string.append(stringWith10Chars));
         CHAR_TEXT_3990_BYTES = string.toString();
     }
