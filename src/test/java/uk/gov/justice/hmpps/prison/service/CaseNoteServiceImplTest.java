@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
@@ -13,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.transformers.CaseNoteTransformer;
+import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSizeValidator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,11 +46,14 @@ public class CaseNoteServiceImplTest {
     @Mock
     private AuthenticationFacade authenticationFacade;
 
+    @Mock
+    private MaximumTextSizeValidator maximumTextSizeValidator;
+
     private CaseNoteService caseNoteService;
 
     @BeforeEach
     public void setUp() {
-        caseNoteService = new CaseNoteService(repository, new CaseNoteTransformer(userService, null), userService, authenticationFacade, bookingService, 10);
+        caseNoteService = new CaseNoteService(repository, new CaseNoteTransformer(userService, null), userService, authenticationFacade, bookingService, 10, maximumTextSizeValidator);
     }
 
     @Test
@@ -89,6 +94,57 @@ public class CaseNoteServiceImplTest {
     }
 
     @Test
+    public void testCaseNoteAmendedSizeExceedsMaximum() {
+        when(repository.getCaseNote(1L, 1L))
+            .thenReturn(Optional.of(CaseNote
+                .builder()
+                .agencyId("LEI")
+                .bookingId(1L)
+                .caseNoteId(1L)
+                .originalNoteText("Hello")
+                .text("Hello")
+                .type("KA")
+                .subType("KS")
+                .authorName("Mr Black")
+                .staffId(1L)
+                .build()));
+
+        when(userService.getUserByUsername("staff2"))
+            .thenReturn(UserDetail
+                .builder()
+                .staffId(2L)
+                .username("TEST_USER")
+                .build());
+        when(authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
+        when(maximumTextSizeValidator.isValid(anyString(), any())).thenReturn(true);
+
+        when(repository.getCaseNote(1L, 1L))
+            .thenReturn(Optional.of(CaseNote
+                .builder()
+                .agencyId("LEI")
+                .bookingId(1L)
+                .caseNoteId(1L)
+                .originalNoteText("Hello")
+                .text("Hello")
+                .amendments(List.of(CaseNoteAmendment.builder().additionalNoteText("update text").build()))
+                .type("KA")
+                .subType("KS")
+                .authorName("Mr Black")
+                .staffId(1L)
+                .build()));
+
+        when(maximumTextSizeValidator.isValid(anyString(), any())).thenReturn(false);
+        when(maximumTextSizeValidator.getMaximumAnsiEncodingSize()).thenReturn(100);
+
+        assertThatThrownBy(() -> caseNoteService.updateCaseNote(1L, 1L, "staff2", "update text"))
+            .isInstanceOf(org.springframework.web.client.HttpClientErrorException.class)
+            .hasMessageContaining("Length should not exceed 31 characters");
+
+        verify(maximumTextSizeValidator).isValid(ArgumentMatchers.contains("update text"), ArgumentMatchers.isNull());
+
+    }
+
+    @Test
     public void testThatTheCaseNoteAmendmentRestrictions_AreIgnoredGivenTheCorrectRole() {
         when(repository.getCaseNote(1L, 1L))
                 .thenReturn(Optional.of(CaseNote
@@ -111,6 +167,7 @@ public class CaseNoteServiceImplTest {
                         .username("TEST_USER")
                         .build());
         when(authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
+        when(maximumTextSizeValidator.isValid(anyString(), any())).thenReturn(true);
 
         when(repository.getCaseNote(1L, 1L))
                 .thenReturn(Optional.of(CaseNote

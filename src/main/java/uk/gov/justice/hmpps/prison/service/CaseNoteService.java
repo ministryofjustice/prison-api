@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.CaseNoteTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.CaseNoteTypeSubTypeValid;
+import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSizeValidator;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -50,7 +51,6 @@ import static java.lang.String.format;
 @Slf4j
 public class CaseNoteService {
     private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
-    private static final int MAXIMUM_CHARACTER_LIMIT = 4000;
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
@@ -61,18 +61,21 @@ public class CaseNoteService {
     private final BookingService bookingService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
+    private final MaximumTextSizeValidator maximumTextSizeValidator;
 
     public CaseNoteService(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
-                               final UserService userService,
-                               final AuthenticationFacade authenticationFacade,
-                               final BookingService bookingService,
-                               @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                           final UserService userService,
+                           final AuthenticationFacade authenticationFacade,
+                           final BookingService bookingService,
+                           @Value("${batch.max.size:1000}") final int maxBatchSize,
+                           final MaximumTextSizeValidator maximumTextSizeValidator) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
         this.bookingService = bookingService;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
+        this.maximumTextSizeValidator = maximumTextSizeValidator;
     }
 
     @VerifyBookingAccess
@@ -136,9 +139,9 @@ public class CaseNoteService {
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
                 newCaseNoteText);
 
-        if (amendedText.length() > MAXIMUM_CHARACTER_LIMIT) {
+        if (!maximumTextSizeValidator.isValid(amendedText, null)) {
 
-            final var spaceLeft = MAXIMUM_CHARACTER_LIMIT - (caseNote.getText().length() + (amendedText.length() - newCaseNoteText.length()));
+            final var spaceLeft = maximumTextSizeValidator.getMaximumAnsiEncodingSize() - (caseNote.getText().length() + (amendedText.length() - newCaseNoteText.length()));
 
             final var errorMessage = spaceLeft <= 0 ?
                     "Amendments can no longer be made due to the maximum character limit being reached" :

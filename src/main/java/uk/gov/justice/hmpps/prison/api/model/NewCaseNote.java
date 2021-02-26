@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSize;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -42,7 +43,8 @@ public class NewCaseNote {
 
     private LocalDateTime occurrenceDateTime;
 
-    @Size(max = 4000)
+    @Size(max = 4000) // For Swagger - custom annotations not well supported
+    @MaximumTextSize
     @NotBlank
     private String text;
 
