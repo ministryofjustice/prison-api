@@ -316,6 +316,14 @@ public class UserResource {
     }
 
     @ApiResponses({
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "User details for supplied email address", notes = "User details for supplied email address", nickname = "getUserDetailsByEmail")
+    @GetMapping("/email/{emailAddress}")
+    public List<UserDetail> getUserDetailsByEmail(@PathVariable("emailAddress") @ApiParam(value = "The email address of the user.", required = true) final String emailAddress) {
+        return userService.getUsersByEmail(emailAddress);
+    }
+
+    @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = AccessRole.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),

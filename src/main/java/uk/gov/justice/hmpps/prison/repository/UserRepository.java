@@ -62,6 +62,10 @@ public class UserRepository extends RepositoryBase {
         return Optional.ofNullable(userDetails);
     }
 
+    public List<UserDetail> findByEmailAddress(final String emailAddress) {
+        final var sql = UserRepositorySql.FIND_USER_BY_EMAIL_ADDRESS.getSql();
+        return jdbcTemplate.query(sql, createParams("emailAddress", emailAddress), USER_DETAIL_ROW_MAPPER);
+    }
 
     @Cacheable("findRolesByUsername")
     public List<UserRole> findRolesByUsername(final String username, final String query) {

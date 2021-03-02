@@ -50,6 +50,16 @@ public class UserRepositoryTest {
         assertThat(user).isNotPresent();
     }
 
+    @Test
+    public void testFindUserByEmailAddress() {
+        final var users = userRepository.findByEmailAddress("prison-api-user@test.com");
+        assertThat(users).extracting(UserDetail::getLastName).containsOnly("User");
+    }
+
+    @Test
+    public void testFindUserByEmailAddressNotExists() {
+        assertThat(userRepository.findByEmailAddress("XXXXXXXX")).isEmpty();
+    }
 
     @Test
     public void testFindRolesByUsername() {

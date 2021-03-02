@@ -18,12 +18,14 @@ import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -42,7 +44,7 @@ import static org.mockito.Mockito.when;
  * Test cases for {@link UserService}.
  */
 @ExtendWith(MockitoExtension.class)
-public class UserServiceImplTest {
+public class UserServiceTest {
     private static final String USERNAME_GEN = "HH_GEN";
     private static final String LEEDS_CASELOAD_ID = "LEI";
     private static final String API_CASELOAD_ID = "NWEB";
@@ -253,5 +255,40 @@ public class UserServiceImplTest {
         assertThat(results).hasSize(4);
 
         verify(userRepository, times(2)).getUserListByUsernames(anyList());
+    }
+
+    @Test
+    void testGetUsersByEmail() {
+        final var userDetail = UserDetail.builder()
+            .staffId(123L)
+            .username("user1")
+            .firstName("first")
+            .lastName("last")
+            .activeCaseLoadId("caseload1")
+            .build();
+
+        when(userRepository.findByEmailAddress("ab'c@def.com")).thenReturn(List.of(userDetail));
+        when(caseLoadService.getCaseLoadsForUser("user1", false)).thenReturn(emptyList());
+
+        final var results = userService.getUsersByEmail(" Ab’C@dEF.com  ");
+
+        assertThat(results).containsOnly(userDetail);
+    }
+
+    @Test
+    void testGetUsersByEmailGivenEmptyCaseloadId() {
+        final var userDetail = UserDetail.builder()
+            .staffId(123L)
+            .username("user1")
+            .firstName("first")
+            .lastName("last")
+            .build();
+
+        when(userRepository.findByEmailAddress("ab'c@def.com")).thenReturn(List.of(userDetail));
+        when(caseLoadService.getCaseLoadsForUser("user1", false)).thenReturn(emptyList());
+
+        final var results = userService.getUsersByEmail(" Ab’C@dEF.com  ");
+
+        assertThat(results).extracting(UserDetail::getActiveCaseLoadId).containsOnly("___");
     }
 }

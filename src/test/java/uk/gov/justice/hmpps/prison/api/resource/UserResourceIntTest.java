@@ -2,13 +2,21 @@ package uk.gov.justice.hmpps.prison.api.resource;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import uk.gov.justice.hmpps.prison.api.model.AccessRole;
+import uk.gov.justice.hmpps.prison.api.model.Location;
+import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
+import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,5 +89,28 @@ public class UserResourceIntTest extends ResourceTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 
         verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void getUserDetailsByEmail() {
+        when(userRepository.findByEmailAddress("a@b.com")).thenReturn(List.of(UserDetail.builder()
+            .staffId(123L)
+            .username("user1")
+            .firstName("first")
+            .lastName("last")
+            .build()));
+
+        final var response = testRestTemplate.exchange(
+            "/api/users/email/a@b.com",
+            HttpMethod.GET,
+            createHttpEntityWithBearerAuthorisation(
+                "ITAG_USER",
+                List.of(),
+                Map.of(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+            ),
+            new ParameterizedTypeReference<List<UserDetail>>() {});
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).extracting(UserDetail::getStaffId).containsOnly(123L);
     }
 }

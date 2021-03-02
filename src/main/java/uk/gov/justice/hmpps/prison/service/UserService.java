@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
+import uk.gov.justice.hmpps.prison.util.EmailHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +84,17 @@ public class UserService {
             });
         }
         return results;
+    }
+
+    public List<UserDetail> getUsersByEmail(final String emailAddress) {
+        final var userDetails = userRepository.findByEmailAddress(EmailHelper.format(emailAddress));
+        for (UserDetail userDetail: userDetails) {
+          final var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(userDetail.getUsername(), false);
+          if (userDetail.getActiveCaseLoadId() == null && (caseLoadsForUser.isEmpty() || caseLoadsForUser.get(0).equals(EMPTY_CASELOAD))) {
+              userDetail.setActiveCaseLoadId(EMPTY_CASELOAD.getCaseLoadId());
+          }
+        }
+        return userDetails;
     }
 
     @Transactional

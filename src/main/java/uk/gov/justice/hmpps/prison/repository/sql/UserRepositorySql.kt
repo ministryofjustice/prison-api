@@ -47,6 +47,31 @@ enum class UserRepositorySql(val sql: String) {
     """
   ),
 
+  FIND_USER_BY_EMAIL_ADDRESS(
+    """
+        SELECT SM.STAFF_ID,
+        AUA.USERNAME,
+        SM.FIRST_NAME,
+        SM.LAST_NAME,
+        AUA.WORKING_CASELOAD_ID AS ACTIVE_CASE_LOAD_ID,
+        SM.STATUS ACCOUNT_STATUS,
+        (
+          SELECT TAG_IMAGE_ID
+          FROM TAG_IMAGES
+          WHERE IMAGE_OBJECT_ID = SM.STAFF_ID
+          AND IMAGE_OBJECT_TYPE = 'STAFF'
+          AND ACTIVE_FLAG = 'Y'
+        ) THUMBNAIL_ID
+        FROM STAFF_MEMBERS SM 
+        JOIN STAFF_USER_ACCOUNTS AUA 
+        ON SM.STAFF_ID = AUA.STAFF_ID
+        JOIN INTERNET_ADDRESSES IA
+        ON SM.STAFF_ID = IA.OWNER_ID
+        AND IA.OWNER_CLASS = 'STF'
+        AND IA.INTERNET_ADDRESS = :emailAddress
+    """
+  ),
+
   FIND_ROLES_BY_USERNAME(
     """
         SELECT RL.ROLE_ID,
