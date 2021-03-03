@@ -11,8 +11,10 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderR
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderRestrictions;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderSentConditions;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderRestrictionsRepository;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderSentConditionsRepository;
 
 import java.util.List;
 import java.util.Set;
@@ -32,6 +34,7 @@ class OffenderRestrictionServiceTest {
     private static final long BOOK_ID = 456;
     private static final String OFFENDER_RESTRICTION_CODE = "CHILD";
     private static final long RETENTION_CHECK_ID = 789;
+    public static final long OFFENDER_SENT_CONDITION_ID = 1109L;
     private static final String REGEX = "^(some|regex)$";
     private static final String COMMENT_TEXT = "some comment text";
 
@@ -44,12 +47,15 @@ class OffenderRestrictionServiceTest {
     @Mock
     private DataComplianceEventPusher dataComplianceEventPusher;
 
+    @Mock
+    private OffenderSentConditionsRepository offenderSentConditionsRepository;
+
 
     private OffenderRestrictionService offenderRestrictionService;
 
     @BeforeEach
     void setUp() {
-        offenderRestrictionService = new OffenderRestrictionService(dataComplianceEventPusher, offenderAliasPendingDeletionRepository, offenderRestrictionsRepository);
+        offenderRestrictionService = new OffenderRestrictionService(dataComplianceEventPusher, offenderAliasPendingDeletionRepository, offenderRestrictionsRepository, offenderSentConditionsRepository);
     }
 
     @Test
@@ -63,6 +69,39 @@ class OffenderRestrictionServiceTest {
                 .offenderId(OFFENDER_ID)
                 .offenderBooking(OffenderBookingPendingDeletion.builder().bookingId(BOOK_ID).build())
                 .build()));
+
+        when(offenderSentConditionsRepository.findChildRelatedConditionsByBookings(Set.of(BOOK_ID)))
+            .thenReturn(List.of(new OffenderSentConditions(OFFENDER_SENT_CONDITION_ID, BOOK_ID, "N", "Y")));
+
+        offenderRestrictionService.checkForOffenderRestrictions(OffenderRestrictionRequest.builder()
+            .offenderIdDisplay(OFFENDER_NO)
+            .retentionCheckId(RETENTION_CHECK_ID)
+            .restrictionCode(OFFENDER_RESTRICTION_CODE)
+            .regex(REGEX)
+            .build());
+
+        verify(dataComplianceEventPusher).send(OffenderRestrictionResult.builder()
+            .offenderIdDisplay(OFFENDER_NO)
+            .retentionCheckId(RETENTION_CHECK_ID)
+            .restricted(true)
+            .build());
+    }
+
+
+    @Test
+    void checkForOffenderRestrictionsAndSentConditionsMatch() {
+
+        when(offenderRestrictionsRepository.findOffenderRestrictions(Set.of(BOOK_ID), Set.of(OFFENDER_RESTRICTION_CODE), REGEX))
+            .thenReturn(EMPTY_LIST);
+
+        when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NO))
+            .thenReturn(List.of(OffenderAliasPendingDeletion.builder()
+                .offenderId(OFFENDER_ID)
+                .offenderBooking(OffenderBookingPendingDeletion.builder().bookingId(BOOK_ID).build())
+                .build()));
+
+        when(offenderSentConditionsRepository.findChildRelatedConditionsByBookings(Set.of(BOOK_ID)))
+            .thenReturn(List.of(new OffenderSentConditions(OFFENDER_SENT_CONDITION_ID, BOOK_ID, "Y", "N")));
 
         offenderRestrictionService.checkForOffenderRestrictions(OffenderRestrictionRequest.builder()
             .offenderIdDisplay(OFFENDER_NO)
@@ -89,6 +128,9 @@ class OffenderRestrictionServiceTest {
                 .offenderId(OFFENDER_ID)
                 .offenderBooking(OffenderBookingPendingDeletion.builder().bookingId(BOOK_ID).build())
                 .build()));
+
+        when(offenderSentConditionsRepository.findChildRelatedConditionsByBookings(Set.of(BOOK_ID)))
+            .thenReturn(EMPTY_LIST);
 
         offenderRestrictionService.checkForOffenderRestrictions(OffenderRestrictionRequest.builder()
             .offenderIdDisplay(OFFENDER_NO)
