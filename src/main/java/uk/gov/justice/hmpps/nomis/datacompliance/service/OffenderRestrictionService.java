@@ -10,8 +10,10 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderR
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderRestrictions;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderSentConditions;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderRestrictionsRepository;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderSentConditionsRepository;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +31,7 @@ public class OffenderRestrictionService {
     private final DataComplianceEventPusher dataComplianceEventPusher;
     private final OffenderAliasPendingDeletionRepository offenderAliasPendingDeletionRepository;
     private final OffenderRestrictionsRepository offenderRestrictionsRepository;
+    private final OffenderSentConditionsRepository offenderSentConditionsRepository;
 
     public void checkForOffenderRestrictions(final OffenderRestrictionRequest offenderRestrictionRequest){
 
@@ -41,8 +44,9 @@ public class OffenderRestrictionService {
         final Set<Long> bookIds = getBookIds(offenderAliases);
 
         final List<OffenderRestrictions> offenderRestrictions = offenderRestrictionsRepository.findOffenderRestrictions(bookIds, offenderRestrictionRequest.getRestrictionCodes(), offenderRestrictionRequest.getRegex());
+        final List<OffenderSentConditions> childRelatedConditionsByBookings = offenderSentConditionsRepository.findChildRelatedConditionsByBookings(bookIds);
 
-        pushOffenderRestrictionResult(offenderRestrictionRequest, !offenderRestrictions.isEmpty());
+        pushOffenderRestrictionResult(offenderRestrictionRequest, isRestricted(offenderRestrictions, childRelatedConditionsByBookings));
     }
 
 
@@ -60,6 +64,10 @@ public class OffenderRestrictionService {
             .flatMap(Collection::stream)
             .map(OffenderBookingPendingDeletion::getBookingId)
             .collect(toSet());
+    }
+
+    private boolean isRestricted(List<OffenderRestrictions> offenderRestrictions, List<OffenderSentConditions> childRelatedConditionsByBookings) {
+        return !(offenderRestrictions.isEmpty() && childRelatedConditionsByBookings.isEmpty());
     }
 }
 
