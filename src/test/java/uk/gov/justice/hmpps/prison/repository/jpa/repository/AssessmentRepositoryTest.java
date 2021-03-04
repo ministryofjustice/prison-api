@@ -60,6 +60,13 @@ public class AssessmentRepositoryTest {
 
         assertThat(assessmentQuestions.get(0).getParentAssessment().getAssessmentId()).isEqualTo(-11L);
     }
+
+    @Test
+    void getCsraAssessmentQuestions_ReturnsNothing_WhenNotCsraAssessment() {
+        final var assessmentQuestions = repository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(-2L);
+
+        assertThat(assessmentQuestions).isEmpty();
+    }
 }
 
 
