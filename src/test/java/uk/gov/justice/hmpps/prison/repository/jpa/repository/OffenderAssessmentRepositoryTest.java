@@ -1,0 +1,111 @@
+package uk.gov.justice.hmpps.prison.repository.jpa.repository;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.*;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+
+@DataJpaTest
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = NONE)
+@Import({AuthenticationFacade.class, AuditorAwareImpl.class})
+@WithMockUser
+public class OffenderAssessmentRepositoryTest {
+
+    @Autowired
+    private OffenderAssessmentRepository repository;
+
+    @Test
+    void getAssessmentByBookingIdAndAssessmentSeq() {
+        final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 2L).orElseThrow();
+
+        assertThat(assessment.getBookingId()).isEqualTo(-43L);
+        assertThat(assessment.getAssessmentSeq()).isEqualTo(2L);
+        assertThat(assessment.getCalculatedClassification()).isEqualTo("STANDARD");
+        assertThat(assessment.getOverridingClassification()).isEqualTo("HI");
+        assertThat(assessment.getReviewedClassification()).isEqualTo("STANDARD");
+        assertThat(assessment.getAssessmentDate()).isEqualTo(LocalDate.parse("2019-01-02"));
+        assertThat(assessment.getAssessmentAgencyId()).isEqualTo("LEI");
+        assertThat(assessment.getAssessmentComment()).isEqualTo("A Comment");
+        assertThat(assessment.getOverrideReason()).isEqualTo("Incomplete");
+        assertThat(assessment.getOverrideUserId()).isEqualTo("1234");
+        assertThat(assessment.getReviewAuthority()).isEqualTo("GOV");
+        assertThat(assessment.getNextReviewDate()).isEqualTo(LocalDate.parse("2019-11-22"));
+
+        final var expectedQuestion1 = "Reason for review";
+        final var expectedAnswer1 = "Scheduled";
+        final var expectedQuestion2 = "Risk of harming a cell mate:";
+        final var expectedAnswer2 = "Standard";
+        final var expectedQuestion3 = "Outcome of review:";
+        final var expectedAnswer3 = "A new plan must be agreed";
+
+        assertThat(assessment.getAssessmentItems()).usingRecursiveComparison()
+            .ignoringFields("createDatetime", "createUserId", "assessmentAnswer.assessmentCode", "assessmentAnswer.cellSharingAlertFlag",
+                "assessmentAnswer.createDatetime", "assessmentAnswer.createUserId", "assessmentAnswer.listSeq",
+                // AssertJ cannot handle recursive properties - we will check the assessmentAnswer.parentAssessment separately
+                "assessmentAnswer.parentAssessment")
+            .isEqualTo(List.of(
+                OffenderAssessmentItem.builder()
+                    .bookingId(-43L)
+                    .assessmentSeq(2L)
+                    .itemSeq(1L)
+                    .assessmentAnswer(AssessmentEntry.builder()
+                        .assessmentId(-22L)
+                        .description(expectedAnswer1)
+                        .build())
+                    .build(),
+                OffenderAssessmentItem.builder()
+                    .bookingId(-43L)
+                    .assessmentSeq(2L)
+                    .itemSeq(2L)
+                    .assessmentAnswer(AssessmentEntry.builder()
+                        .assessmentId(-28L)
+                        .description(expectedAnswer2)
+                        .build())
+                    .build(),
+                OffenderAssessmentItem.builder()
+                    .bookingId(-43L)
+                    .assessmentSeq(2L)
+                    .itemSeq(3L)
+                    .assessmentAnswer(AssessmentEntry.builder()
+                        .assessmentId(-32L)
+                        .description(expectedAnswer3)
+                        .build())
+                    .build()
+                )
+        );
+
+        // Check each assessmentAnswer's parentAssessments contains the question
+        final var parentAssessmentByAssessmentAnswer = new HashMap<String, AssessmentEntry>();
+        assessment.getAssessmentItems().stream().forEach(a -> parentAssessmentByAssessmentAnswer.put(a.getAssessmentAnswer().getDescription(), a.getAssessmentAnswer().getParentAssessment()));
+
+        assertThat(parentAssessmentByAssessmentAnswer.get(expectedAnswer1).getDescription()).isEqualTo(expectedQuestion1);
+        assertThat(parentAssessmentByAssessmentAnswer.get(expectedAnswer2).getDescription()).isEqualTo(expectedQuestion2);
+        assertThat(parentAssessmentByAssessmentAnswer.get(expectedAnswer3).getDescription()).isEqualTo(expectedQuestion3);
+    }
+
+    @Test
+    void getAssessmentByBookingIdAndAssessmentSeq_ReturnsNothing() {
+        final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 4L);
+
+        assertThat(assessment).isEmpty();
+    }
+}
+
+
