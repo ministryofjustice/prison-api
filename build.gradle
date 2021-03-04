@@ -45,7 +45,7 @@ dependencies {
     implementation 'javax.activation:activation:1.1.1'
 
     implementation 'commons-codec:commons-codec:1.15'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.3'
+    implementation 'com.fasterxml.jackson.module:jackson-modules-java8:2.12.1'
     implementation 'com.github.jsqlparser:jsqlparser:4.0'
     implementation 'net.sf.ehcache:ehcache:2.10.6'
     implementation 'com.zaxxer:HikariCP:4.0.2'
