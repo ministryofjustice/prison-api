@@ -4,19 +4,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.*;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -37,16 +34,23 @@ public class OffenderAssessmentRepositoryTest {
 
         assertThat(assessment.getBookingId()).isEqualTo(-43L);
         assertThat(assessment.getAssessmentSeq()).isEqualTo(2L);
+        assertThat(assessment.getOffenderBooking().getBookingId()).isEqualTo(-43L);
         assertThat(assessment.getCalculatedClassification()).isEqualTo("STANDARD");
         assertThat(assessment.getOverridingClassification()).isEqualTo("HI");
         assertThat(assessment.getReviewedClassification()).isEqualTo("STANDARD");
         assertThat(assessment.getAssessmentDate()).isEqualTo(LocalDate.parse("2019-01-02"));
-        assertThat(assessment.getAssessmentAgencyId()).isEqualTo("LEI");
+        assertThat(assessment.getAssessmentCreateLocation()).isEqualTo("LEI");
         assertThat(assessment.getAssessmentComment()).isEqualTo("A Comment");
+        assertThat(assessment.getAssessCommitteeCode()).isEqualTo("RECP");
+        assertThat(assessment.getAssessStatus()).isEqualTo("A");
         assertThat(assessment.getOverrideReason()).isEqualTo("Incomplete");
         assertThat(assessment.getOverrideUserId()).isEqualTo("1234");
         assertThat(assessment.getReviewAuthority()).isEqualTo("GOV");
         assertThat(assessment.getNextReviewDate()).isEqualTo(LocalDate.parse("2019-11-22"));
+        assertThat(assessment.getEvaluationDate()).isEqualTo(LocalDate.parse("2016-07-07"));
+        assertThat(assessment.getCreationUser()).isEqualTo("HQV13Z");
+        assertThat(assessment.getModifyUser()).isEqualTo("ITAG_USER");
+        assertThat(assessment.getAssessmentType().getAssessmentId()).isEqualTo(-4L);
 
         final var expectedQuestion1 = "Reason for review";
         final var expectedAnswer1 = "Scheduled";
