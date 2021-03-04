@@ -6,7 +6,7 @@ import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SwaggerValidator extends ResourceTest {
+public class SwaggerValidatorIntTest extends ResourceTest {
     @Test
     public void test() {
         final var rootUri = testRestTemplate.getRootUri();
