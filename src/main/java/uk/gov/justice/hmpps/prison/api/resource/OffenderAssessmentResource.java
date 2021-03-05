@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
+import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationUpdateDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategoryApprovalDetail;
@@ -31,6 +32,7 @@ import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
 import uk.gov.justice.hmpps.prison.api.support.CategoryInformationType;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.InmateService;
+import uk.gov.justice.hmpps.prison.service.OffenderAssessmentService;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -47,9 +49,11 @@ import java.util.Set;
 @RequestMapping("${api.base.path}/offender-assessments")
 public class OffenderAssessmentResource {
     private final InmateService inmateService;
+    private final OffenderAssessmentService offenderAssessmentService;
 
-    public OffenderAssessmentResource(final InmateService inmateService) {
+    public OffenderAssessmentResource(final InmateService inmateService, final OffenderAssessmentService offenderAssessmentService) {
         this.inmateService = inmateService;
+        this.offenderAssessmentService = offenderAssessmentService;
     }
 
     @ApiResponses({
@@ -89,6 +93,15 @@ public class OffenderAssessmentResource {
     public List<Assessment> postOffenderAssessmentsCsraList(@RequestBody @NotEmpty @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
         validateOffenderList(offenderList);
         return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true, true, true);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Retrieves details of a single CSRA assessment.", nickname = "getOffenderCsraAssessment")
+    @GetMapping("/csra/{bookingId}/assessment/{assessmentSeq}")
+    public AssessmentDetail getOffenderCsraAssessment(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender") final Long bookingId, @PathVariable("assessmentSeq") @ApiParam(value = "The assessment sequence number for the given offender booking") final Long assessmentSeq) {
+        return offenderAssessmentService.getOffenderAssessment(bookingId, assessmentSeq);
     }
 
     @ApiResponses({

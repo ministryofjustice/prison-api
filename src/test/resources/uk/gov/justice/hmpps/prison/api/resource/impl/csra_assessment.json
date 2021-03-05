@@ -1,0 +1,32 @@
+{
+  "bookingId": -43,
+  "assessmentSeq": 2,
+  "offenderNo": "A1183JE",
+  "classificationCode": "HI",
+  "assessmentCode": "CSRREV",
+  "cellSharingAlertFlag": true,
+  "assessmentDate": "2019-01-02",
+  "assessmentAgencyId": "LEI",
+  "assessmentComment": "A Comment",
+  "assessmentCommitteeCode": "RECP",
+  "assessorUser": "HQV13Z",
+  "approvalDate": "2016-07-07",
+  "approvalUser": "ITAG_USER",
+  "originalClassificationCode": "STANDARD",
+  "classificationReviewReason": "Incomplete",
+  "nextReviewDate": "2019-11-22",
+  "questions" : [
+      {
+          "question": "Reason for review",
+          "answer": "Scheduled"
+      },
+      {
+          "question": "Risk of harming a cell mate:",
+          "answer": "Standard"
+      },
+      {
+          "question": "Outcome of review:",
+          "answer": "A new plan must be agreed"
+      }
+  ]
+}

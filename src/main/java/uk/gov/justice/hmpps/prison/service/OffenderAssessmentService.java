@@ -33,14 +33,14 @@ public class OffenderAssessmentService {
         final var assessment = repository.findByBookingIdAndAssessmentSeq(bookingId, assessmentSeq);
 
         if (assessment.isEmpty()) {
-            throw new EntityNotFoundException(String.format("Csra assessment for booking %s and sequence %s not found", bookingId, assessmentSeq));
+            throw new EntityNotFoundException(String.format("Csra assessment for booking %s and sequence %s not found.", bookingId, assessmentSeq));
         }
 
         final var assessmentDetails = assessment.get();
         final var assessmentQuestions = assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(assessmentDetails.getAssessmentType().getAssessmentId());
 
         if (assessmentQuestions.isEmpty()) {
-            throw new EntityNotFoundException(String.format("Csra assessment questions for booking %s and sequence %s not found", bookingId, assessmentSeq));
+            throw new EntityNotFoundException(String.format("Csra assessment questions for booking %s and sequence %s not found.", bookingId, assessmentSeq));
         }
 
         final var assessmentItems = assessmentDetails.getAssessmentItems();
