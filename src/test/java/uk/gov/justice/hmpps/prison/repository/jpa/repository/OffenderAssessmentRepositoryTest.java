@@ -35,11 +35,11 @@ public class OffenderAssessmentRepositoryTest {
         assertThat(assessment.getBookingId()).isEqualTo(-43L);
         assertThat(assessment.getAssessmentSeq()).isEqualTo(2L);
         assertThat(assessment.getOffenderBooking().getBookingId()).isEqualTo(-43L);
-        assertThat(assessment.getCalculatedClassification()).isEqualTo("STANDARD");
-        assertThat(assessment.getOverridingClassification()).isEqualTo("HI");
-        assertThat(assessment.getReviewedClassification()).isEqualTo("HI");
+        assertThat(assessment.getCalculatedClassification().getCode()).isEqualTo("STANDARD");
+        assertThat(assessment.getOverridingClassification().getCode()).isEqualTo("HI");
+        assertThat(assessment.getReviewedClassification().getCode()).isEqualTo("HI");
         assertThat(assessment.getAssessmentDate()).isEqualTo(LocalDate.parse("2019-01-02"));
-        assertThat(assessment.getAssessmentCreateLocation()).isEqualTo("LEI");
+        assertThat(assessment.getAssessmentCreateLocation().getId()).isEqualTo("LEI");
         assertThat(assessment.getAssessmentComment()).isEqualTo("A Comment");
         assertThat(assessment.getAssessCommittee().getCode()).isEqualTo("RECP");
         assertThat(assessment.getAssessCommittee().getDescription()).isEqualTo("Reception");
@@ -55,8 +55,8 @@ public class OffenderAssessmentRepositoryTest {
         assertThat(assessment.getAssessmentType().getAssessmentId()).isEqualTo(-4L);
 
         final var classificationSummary = assessment.getClassificationSummary();
-        assertThat(classificationSummary.getFinalClassification()).isEqualTo("HI");
-        assertThat(classificationSummary.getOriginalClassification()).isEqualTo("STANDARD");
+        assertThat(classificationSummary.getFinalClassification().getCode()).isEqualTo("HI");
+        assertThat(classificationSummary.getOriginalClassification().getCode()).isEqualTo("STANDARD");
         assertThat(classificationSummary.getClassificationApprovalReason()).isEqualTo("Previous History");
 
         final var expectedQuestion1 = "Reason for review";

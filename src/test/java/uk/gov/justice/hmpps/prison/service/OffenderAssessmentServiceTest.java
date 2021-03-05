@@ -7,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentQuestion;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentClassification;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentCommittee;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentEntry;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentOverrideReason;
@@ -67,11 +69,13 @@ public class OffenderAssessmentServiceTest {
                             .build())
                         .build()
                 ))
-                .calculatedClassification("STANDARD")
-                .overridingClassification("HI")
-                .reviewedClassification("HI")
+                .calculatedClassification(new AssessmentClassification("STANDARD", "Standard"))
+                .overridingClassification(new AssessmentClassification("HI", "High"))
+                .reviewedClassification(new AssessmentClassification("HI", "High"))
                 .assessmentDate(LocalDate.parse("2019-01-02"))
-                .assessmentCreateLocation("LEI")
+                .assessmentCreateLocation(AgencyLocation.builder()
+                    .id("LEI")
+                    .build())
                 .assessmentComment("Assessment Comment 1")
                 .assessCommittee(new AssessmentCommittee("RECP", "Reception"))
                 .creationUser(StaffUserAccount.builder()

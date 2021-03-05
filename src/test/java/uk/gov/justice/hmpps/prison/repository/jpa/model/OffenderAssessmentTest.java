@@ -13,22 +13,40 @@ public class OffenderAssessmentTest {
 
     @ParameterizedTest
     @MethodSource("classificationsWithExpectedResults")
-    void classificationSummaryCalculation(String calculatedClassification, String overrideClassification, String reviewedClassification,
+    void classificationSummaryCalculation(String calculatedClassificationCode, String overrideClassificationCode, String reviewedClassificationCode,
                                           String reviewCommitteeComment, String overrideReason, String expectedFinalOutcome,
                                           String expectedOriginalOutcome, String expectedApprovalReason)
     {
         final var offenderAssessment = OffenderAssessment.builder()
-            .calculatedClassification(calculatedClassification)
-            .overridingClassification(overrideClassification)
-            .reviewedClassification(reviewedClassification)
+            .calculatedClassification(generateClassification(calculatedClassificationCode))
+            .overridingClassification(generateClassification(overrideClassificationCode))
+            .reviewedClassification(generateClassification(reviewedClassificationCode))
             .reviewCommitteeComment(reviewCommitteeComment)
             .overrideReason(overrideReason == null ? null: new AssessmentOverrideReason("OVERRIDE_DUMMY_VALUE", overrideReason))
             .build();
         final var classificationSummary = offenderAssessment.getClassificationSummary();
 
-        assertThat(classificationSummary.getFinalClassification()).isEqualTo(expectedFinalOutcome);
-        assertThat(classificationSummary.getOriginalClassification()).isEqualTo(expectedOriginalOutcome);
+        assertClassificationCodeEquals(classificationSummary.getFinalClassification(), expectedFinalOutcome);
+        assertClassificationCodeEquals(classificationSummary.getOriginalClassification(), expectedOriginalOutcome);
         assertThat(classificationSummary.getClassificationApprovalReason()).isEqualTo(expectedApprovalReason);
+    }
+
+    private void assertClassificationCodeEquals(AssessmentClassification actualClassification, String expectedCode) {
+        if (expectedCode == null) {
+            assertThat(actualClassification).isNull();
+        } else {
+            assertThat(actualClassification.getCode()).isEqualTo(expectedCode);
+        }
+    }
+
+    private AssessmentClassification generateClassification(String classificationCode) {
+        if (classificationCode == null) {
+            return null;
+        }
+        final var generatedClassification = new AssessmentClassification();
+        generatedClassification.setCode(classificationCode);
+        generatedClassification.setDescription("Description of " + classificationCode);
+        return generatedClassification;
     }
 
     private static Stream<Arguments> classificationsWithExpectedResults() {

@@ -54,14 +54,29 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     @MapsId("bookingId")
     private OffenderBooking offenderBooking;
 
-    @Column(name = "CALC_SUP_LEVEL_TYPE")
-    private String calculatedClassification;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentClassification.ASSESS_CLASS + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "CALC_SUP_LEVEL_TYPE", referencedColumnName = "code"))
+    })
+    private AssessmentClassification calculatedClassification;
 
-    @Column(name = "OVERRIDED_SUP_LEVEL_TYPE")
-    private String overridingClassification;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentClassification.ASSESS_CLASS + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "OVERRIDED_SUP_LEVEL_TYPE", referencedColumnName = "code"))
+    })
+    private AssessmentClassification overridingClassification;
 
-    @Column(name = "REVIEW_SUP_LEVEL_TYPE")
-    private String reviewedClassification;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentClassification.ASSESS_CLASS + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "REVIEW_SUP_LEVEL_TYPE", referencedColumnName = "code"))
+    })
+    private AssessmentClassification reviewedClassification;
 
     @Column(name = "ASSESSMENT_DATE")
     private LocalDate assessmentDate;
@@ -69,8 +84,9 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     @Column(name = "ASSESS_COMMENT_TEXT")
     private String assessmentComment;
 
-    @Column(name = "ASSESSMENT_CREATE_LOCATION")
-    private String assessmentCreateLocation;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ASSESSMENT_CREATE_LOCATION")
+    private AgencyLocation assessmentCreateLocation;
 
     @Column(name = "ASSESS_STATUS")
     private String assessStatus;
@@ -137,29 +153,33 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
      */
     @NonNull
     public ClassificationSummary getClassificationSummary() {
-        if (reviewedClassification != null && !reviewedClassification.equals("PEND")) {
-            String previousClassification = null;
-            if (calculatedClassification != null && !calculatedClassification.equals("PEND") &&
+        if (reviewedClassification != null && !reviewedClassification.isPending()) {
+            AssessmentClassification previousClassification = null;
+            if (calculatedClassification != null && !calculatedClassification.isPending() &&
                     !calculatedClassification.equals(reviewedClassification)) {
                 previousClassification = calculatedClassification;
             }
-            var approvalReason = reviewCommitteeComment;
-            if (!reviewedClassification.equals(calculatedClassification) && overrideReason != null) {
-                approvalReason = overrideReason.getDescription();
-            }
-            return new ClassificationSummary(reviewedClassification, previousClassification, approvalReason);
+            return new ClassificationSummary(reviewedClassification, previousClassification, getApprovalReason());
         }
-        if (calculatedClassification != null && !calculatedClassification.equals("PEND")) {
+        if (calculatedClassification != null && !calculatedClassification.isPending()) {
             return new ClassificationSummary(calculatedClassification, null, null);
         }
         return new ClassificationSummary(null, null, null);
     }
 
+    private String getApprovalReason() {
+        var approvalReason = reviewCommitteeComment;
+        if (!reviewedClassification.equals(calculatedClassification) && overrideReason != null) {
+            approvalReason = overrideReason.getDescription();
+        }
+        return approvalReason;
+    }
+
     @Data
     @AllArgsConstructor
     public static class ClassificationSummary {
-        private final String finalClassification;
-        private final String originalClassification;
+        private final AssessmentClassification finalClassification;
+        private final AssessmentClassification originalClassification;
         private final String classificationApprovalReason;
     }
 }
