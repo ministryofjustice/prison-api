@@ -46,7 +46,8 @@ public class OffenderAssessmentRepositoryTest {
         assertThat(assessment.getAssessStatus()).isEqualTo("A");
         assertThat(assessment.getOverrideReason()).isEqualTo("Incomplete");
         assertThat(assessment.getOverrideUserId()).isEqualTo("1234");
-        assertThat(assessment.getReviewAuthority()).isEqualTo("GOV");
+        assertThat(assessment.getReviewCommittee().getCode()).isEqualTo("GOV");
+        assertThat(assessment.getReviewCommittee().getDescription()).isEqualTo("Governor");
         assertThat(assessment.getNextReviewDate()).isEqualTo(LocalDate.parse("2019-11-22"));
         assertThat(assessment.getEvaluationDate()).isEqualTo(LocalDate.parse("2016-07-07"));
         assertThat(assessment.getCreationUser().getUsername()).isEqualTo("JBRIEN");

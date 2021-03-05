@@ -89,8 +89,13 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     @Column(name = "OVERRIDE_USER_ID")
     private String overrideUserId;
 
-    @Column(name = "REVIEW_COMMITTE_CODE")
-    private String reviewAuthority;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentCommittee.ASSESS_COMMITTEE + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "REVIEW_COMMITTE_CODE", referencedColumnName = "code"))
+    })
+    private AssessmentCommittee reviewCommittee;
 
     @Column(name = "NEXT_REVIEW_DATE")
     private LocalDate nextReviewDate;
