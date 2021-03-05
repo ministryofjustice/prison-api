@@ -87,8 +87,9 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     @Column(name = "EVALUATION_DATE")
     private LocalDate evaluationDate;
 
-    @Column(name = "CREATION_USER")
-    private String creationUser;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="CREATION_USER")
+    private StaffUserAccount creationUser;
 
     // This allows access to protected variable
     public String getModifyUser() {

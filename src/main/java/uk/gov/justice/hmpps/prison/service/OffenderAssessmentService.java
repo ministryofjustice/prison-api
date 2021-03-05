@@ -50,7 +50,6 @@ public class OffenderAssessmentService {
 
         final var classificationProcessor = assessmentDetails.getClassificationSummary();
 
-        // TODO - Null checks
         return AssessmentDetail.builder()
             .bookingId(assessmentDetails.getBookingId())
             .assessmentSeq(assessmentDetails.getAssessmentSeq())
@@ -62,7 +61,7 @@ public class OffenderAssessmentService {
             .assessmentAgencyId(assessmentDetails.getAssessmentCreateLocation())
             .assessmentComment(assessmentDetails.getAssessmentComment())
             .assessmentCommitteeCode(assessmentDetails.getAssessCommitteeCode())
-            .assessorUser(assessmentDetails.getCreationUser())
+            .assessorUser((assessmentDetails.getCreationUser() != null)?assessmentDetails.getCreationUser().getUsername():null)
             .approvalDate(assessmentDetails.getEvaluationDate())
             .approvalUser(assessmentDetails.getModifyUser())
             .originalClassificationCode(classificationProcessor.getOriginalClassification())
