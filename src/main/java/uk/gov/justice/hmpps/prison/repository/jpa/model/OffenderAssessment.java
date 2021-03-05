@@ -6,6 +6,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.Column;
@@ -23,6 +27,8 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
@@ -69,8 +75,13 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     @Column(name = "ASSESS_STATUS")
     private String assessStatus;
 
-    @Column(name = "ASSESS_COMMITTE_CODE")
-    private String assessCommitteeCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentCommittee.ASSESS_COMMITTEE + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "ASSESS_COMMITTE_CODE", referencedColumnName = "code"))
+    })
+    private AssessmentCommittee assessCommittee;
 
     @Column(name = "OVERRIDE_REASON")
     private String overrideReason;

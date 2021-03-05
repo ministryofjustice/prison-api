@@ -60,7 +60,7 @@ public class OffenderAssessmentService {
             .assessmentDate(assessmentDetails.getAssessmentDate())
             .assessmentAgencyId(assessmentDetails.getAssessmentCreateLocation())
             .assessmentComment(assessmentDetails.getAssessmentComment())
-            .assessmentCommitteeCode(assessmentDetails.getAssessCommitteeCode())
+            .assessmentCommitteeCode((assessmentDetails.getAssessCommittee() != null)?assessmentDetails.getAssessCommittee().getCode():null)
             .assessorUser((assessmentDetails.getCreationUser() != null)?assessmentDetails.getCreationUser().getUsername():null)
             .approvalDate(assessmentDetails.getEvaluationDate())
             .approvalUser(assessmentDetails.getModifyUser())

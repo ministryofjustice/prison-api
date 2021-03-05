@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentQuestion;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentCommittee;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentEntry;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment;
@@ -71,7 +72,7 @@ public class OffenderAssessmentServiceTest {
                 .assessmentDate(LocalDate.parse("2019-01-02"))
                 .assessmentCreateLocation("LEI")
                 .assessmentComment("Assessment Comment 1")
-                .assessCommitteeCode("RECP")
+                .assessCommittee(new AssessmentCommittee("RECP", "Reception"))
                 .creationUser(StaffUserAccount.builder()
                     .username("JBRIEN")
                     .build())
