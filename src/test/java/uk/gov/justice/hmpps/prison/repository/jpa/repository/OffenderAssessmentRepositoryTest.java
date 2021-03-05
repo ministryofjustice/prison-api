@@ -44,15 +44,20 @@ public class OffenderAssessmentRepositoryTest {
         assertThat(assessment.getAssessCommittee().getCode()).isEqualTo("RECP");
         assertThat(assessment.getAssessCommittee().getDescription()).isEqualTo("Reception");
         assertThat(assessment.getAssessStatus()).isEqualTo("A");
-        assertThat(assessment.getOverrideReason()).isEqualTo("Incomplete");
-        assertThat(assessment.getOverrideUserId()).isEqualTo("1234");
+        assertThat(assessment.getOverrideReason().getCode()).isEqualTo("PREVIOUS");
+        assertThat(assessment.getOverrideReason().getDescription()).isEqualTo("Previous History");
         assertThat(assessment.getReviewCommittee().getCode()).isEqualTo("GOV");
         assertThat(assessment.getReviewCommittee().getDescription()).isEqualTo("Governor");
+        assertThat(assessment.getReviewCommitteeComment()).isEqualTo("Review soon");
         assertThat(assessment.getNextReviewDate()).isEqualTo(LocalDate.parse("2019-11-22"));
         assertThat(assessment.getEvaluationDate()).isEqualTo(LocalDate.parse("2016-07-07"));
         assertThat(assessment.getCreationUser().getUsername()).isEqualTo("JBRIEN");
-        assertThat(assessment.getModifyUser()).isEqualTo("ITAG_USER");
         assertThat(assessment.getAssessmentType().getAssessmentId()).isEqualTo(-4L);
+
+        final var classificationSummary = assessment.getClassificationSummary();
+        assertThat(classificationSummary.getFinalClassification()).isEqualTo("HI");
+        assertThat(classificationSummary.getOriginalClassification()).isEqualTo("STANDARD");
+        assertThat(classificationSummary.getClassificationApprovalReason()).isEqualTo("Previous History");
 
         final var expectedQuestion1 = "Reason for review";
         final var expectedAnswer1 = "Scheduled";

@@ -48,24 +48,26 @@ public class OffenderAssessmentService {
 
         final var assessmentQuestionsAndAnswers = assessmentQuestions.stream().map(aq -> new AssessmentQuestion(aq.getDescription(), assessmentAnswersByQuestionId.get(aq.getAssessmentId()))).collect(Collectors.toList());
 
-        final var classificationProcessor = assessmentDetails.getClassificationSummary();
+        final var classificationSummary = assessmentDetails.getClassificationSummary();
 
         return AssessmentDetail.builder()
             .bookingId(assessmentDetails.getBookingId())
             .assessmentSeq(assessmentDetails.getAssessmentSeq())
             .offenderNo(assessmentDetails.getOffenderBooking().getOffender().getNomsId())
-            .classificationCode(classificationProcessor.getFinalClassification())
+            .classificationCode(classificationSummary.getFinalClassification())
             .assessmentCode(assessmentDetails.getAssessmentType().getAssessmentCode())
             .cellSharingAlertFlag(true)
             .assessmentDate(assessmentDetails.getAssessmentDate())
             .assessmentAgencyId(assessmentDetails.getAssessmentCreateLocation())
             .assessmentComment(assessmentDetails.getAssessmentComment())
             .assessmentCommitteeCode((assessmentDetails.getAssessCommittee() != null)?assessmentDetails.getAssessCommittee().getCode():null)
+            .assessmentCommitteeName((assessmentDetails.getAssessCommittee() != null)?assessmentDetails.getAssessCommittee().getDescription():null)
             .assessorUser((assessmentDetails.getCreationUser() != null)?assessmentDetails.getCreationUser().getUsername():null)
             .approvalDate(assessmentDetails.getEvaluationDate())
-            .approvalUser(assessmentDetails.getModifyUser())
-            .originalClassificationCode(classificationProcessor.getOriginalClassification())
-            .classificationReviewReason(assessmentDetails.getOverrideReason())
+            .approvalCommitteeCode((assessmentDetails.getReviewCommittee() != null)?assessmentDetails.getReviewCommittee().getCode():null)
+            .approvalCommitteeName((assessmentDetails.getReviewCommittee() != null)?assessmentDetails.getReviewCommittee().getDescription():null)
+            .originalClassificationCode(classificationSummary.getOriginalClassification())
+            .classificationReviewReason(classificationSummary.getClassificationApprovalReason())
             .nextReviewDate(assessmentDetails.getNextReviewDate())
             .questions(assessmentQuestionsAndAnswers)
             .build();

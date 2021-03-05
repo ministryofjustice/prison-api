@@ -62,22 +62,28 @@ public class AssessmentDetail {
     @ApiModelProperty(value = "The code of the committee that conducted the assessment", position = 10, example = "REVIEW")
     private String assessmentCommitteeCode;
 
-    @ApiModelProperty(value = "Username who made the assessment", position = 11, example = "NGK33Y")
+    @ApiModelProperty(value = "The name of the committee that conducted the assessment", position = 11, example = "REVIEW")
+    private String assessmentCommitteeName;
+
+    @ApiModelProperty(value = "Username who made the assessment", position = 12, example = "NGK33Y")
     private String assessorUser;
 
-    @ApiModelProperty(value = "Date of assessment approval", position = 12, example = "2018-02-11")
+    @ApiModelProperty(value = "Date of assessment approval", position = 13, example = "2018-02-11")
     private LocalDate approvalDate;
 
-    @ApiModelProperty(value = "Username who approved the assessment", position = 13, example = "NGK33Y")
-    private String approvalUser;
+    @ApiModelProperty(value = "The code of the committee that conducted the approval", position = 14, example = "REVIEW")
+    private String approvalCommitteeCode;
 
-    @ApiModelProperty(value = "Classification code before it was reviewed", position = 14, example = "HI")
+    @ApiModelProperty(value = "The name of the committee that conducted the approval", position = 15, example = "REVIEW")
+    private String approvalCommitteeName;
+
+    @ApiModelProperty(value = "Classification code before it was reviewed", position = 16, example = "HI")
     private String originalClassificationCode;
 
-    @ApiModelProperty(value = "The reason for the review of the classification", position = 15, example = "HI")
+    @ApiModelProperty(value = "The reason for the review of the classification", position = 17, example = "HI")
     private String classificationReviewReason;
 
-    @ApiModelProperty(value = "Date of next review", position = 16, example = "2018-02-11")
+    @ApiModelProperty(value = "Date of next review", position = 18, example = "2018-02-11")
     private LocalDate nextReviewDate;
 
     @NotNull

@@ -83,11 +83,13 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     })
     private AssessmentCommittee assessCommittee;
 
-    @Column(name = "OVERRIDE_REASON")
-    private String overrideReason;
-
-    @Column(name = "OVERRIDE_USER_ID")
-    private String overrideUserId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentOverrideReason.OVERRIDE_REASON + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "OVERRIDE_REASON", referencedColumnName = "code"))
+    })
+    private AssessmentOverrideReason overrideReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
@@ -96,6 +98,9 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
         @JoinColumnOrFormula(column = @JoinColumn(name = "REVIEW_COMMITTE_CODE", referencedColumnName = "code"))
     })
     private AssessmentCommittee reviewCommittee;
+
+    @Column(name = "COMMITTE_COMMENT_TEXT")
+    private String reviewCommitteeComment;
 
     @Column(name = "NEXT_REVIEW_DATE")
     private LocalDate nextReviewDate;
@@ -106,11 +111,6 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="CREATION_USER")
     private StaffUserAccount creationUser;
-
-    // This allows access to protected variable
-    public String getModifyUser() {
-        return this.getModifyUserId();
-    }
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ASSESSMENT_TYPE_ID")
@@ -143,12 +143,16 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
                     !calculatedClassification.equals(reviewedClassification)) {
                 previousClassification = calculatedClassification;
             }
-            return new ClassificationSummary(reviewedClassification, previousClassification);
+            var approvalReason = reviewCommitteeComment;
+            if (!reviewedClassification.equals(calculatedClassification) && overrideReason != null) {
+                approvalReason = overrideReason.getDescription();
+            }
+            return new ClassificationSummary(reviewedClassification, previousClassification, approvalReason);
         }
         if (calculatedClassification != null && !calculatedClassification.equals("PEND")) {
-            return new ClassificationSummary(calculatedClassification, null);
+            return new ClassificationSummary(calculatedClassification, null, null);
         }
-        return new ClassificationSummary(null, null);
+        return new ClassificationSummary(null, null, null);
     }
 
     @Data
@@ -156,5 +160,6 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     public static class ClassificationSummary {
         private final String finalClassification;
         private final String originalClassification;
+        private final String classificationApprovalReason;
     }
 }

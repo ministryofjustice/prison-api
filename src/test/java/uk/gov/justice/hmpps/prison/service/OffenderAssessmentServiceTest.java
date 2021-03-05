@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentQuestion;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentCommittee;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentEntry;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentOverrideReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessmentItem;
@@ -77,7 +78,8 @@ public class OffenderAssessmentServiceTest {
                     .username("JBRIEN")
                     .build())
                 .evaluationDate(LocalDate.parse("2019-01-03"))
-                .overrideReason("Review reason")
+                .overrideReason(new AssessmentOverrideReason("OVERRIDE_DUMMY_VALUE", "Review reason"))
+                .reviewCommittee(new AssessmentCommittee("REVW", "Review board"))
                 .nextReviewDate(LocalDate.parse("2020-01-02"))
                 .build()
         ));
@@ -106,9 +108,11 @@ public class OffenderAssessmentServiceTest {
             .assessmentAgencyId("LEI")
             .assessmentComment("Assessment Comment 1")
             .assessmentCommitteeCode("RECP")
+            .assessmentCommitteeName("Reception")
             .assessorUser("JBRIEN")
             .approvalDate(LocalDate.parse("2019-01-03"))
-            .approvalUser(null) // TODO
+            .approvalCommitteeCode("REVW")
+            .approvalCommitteeName("Review board")
             .originalClassificationCode("STANDARD")
             .classificationReviewReason("Review reason")
             .nextReviewDate(LocalDate.parse("2020-01-02"))

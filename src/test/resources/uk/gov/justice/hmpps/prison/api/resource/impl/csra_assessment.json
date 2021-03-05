@@ -9,11 +9,13 @@
   "assessmentAgencyId": "LEI",
   "assessmentComment": "A Comment",
   "assessmentCommitteeCode": "RECP",
+  "assessmentCommitteeName": "Reception",
   "assessorUser": "JBRIEN",
   "approvalDate": "2016-07-07",
-  "approvalUser": "ITAG_USER",
+  "approvalCommitteeCode": "GOV",
+  "approvalCommitteeName": "Governor",
   "originalClassificationCode": "STANDARD",
-  "classificationReviewReason": "Incomplete",
+  "classificationReviewReason": "Previous History",
   "nextReviewDate": "2019-11-22",
   "questions" : [
       {
