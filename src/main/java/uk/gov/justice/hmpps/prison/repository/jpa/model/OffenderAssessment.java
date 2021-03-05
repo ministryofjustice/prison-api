@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -112,5 +113,31 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     public static class Pk implements Serializable {
         private Long bookingId;
         private Long assessmentSeq;
+    }
+
+    /**
+     * Method to generate a summary of the classification outcome.
+     */
+    @NonNull
+    public ClassificationSummary getClassificationSummary() {
+        if (reviewedClassification != null && !reviewedClassification.equals("PEND")) {
+            String previousClassification = null;
+            if (calculatedClassification != null && !calculatedClassification.equals("PEND") &&
+                    !calculatedClassification.equals(reviewedClassification)) {
+                previousClassification = calculatedClassification;
+            }
+            return new ClassificationSummary(reviewedClassification, previousClassification);
+        }
+        if (calculatedClassification != null && !calculatedClassification.equals("PEND")) {
+            return new ClassificationSummary(calculatedClassification, null);
+        }
+        return new ClassificationSummary(null, null);
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class ClassificationSummary {
+        private final String finalClassification;
+        private final String originalClassification;
     }
 }
