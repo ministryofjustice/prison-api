@@ -100,7 +100,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Retrieves details of a single CSRA assessment.", nickname = "getOffenderCsraAssessment")
     @GetMapping("/csra/{bookingId}/assessment/{assessmentSeq}")
-    public AssessmentDetail getOffenderCsraAssessment(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender") final Long bookingId, @PathVariable("assessmentSeq") @ApiParam(value = "The assessment sequence number for the given offender booking") final Long assessmentSeq) {
+    public AssessmentDetail getOffenderCsraAssessment(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender") final Long bookingId, @PathVariable("assessmentSeq") @ApiParam(value = "The assessment sequence number for the given offender booking") final Integer assessmentSeq) {
         return offenderAssessmentService.getOffenderAssessment(bookingId, assessmentSeq);
     }
 

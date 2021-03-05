@@ -29,7 +29,7 @@ public class OffenderAssessmentService {
 
     @Transactional(readOnly = true)
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public AssessmentDetail getOffenderAssessment(Long bookingId, Long assessmentSeq) {
+    public AssessmentDetail getOffenderAssessment(Long bookingId, Integer assessmentSeq) {
         final var assessment = repository.findByBookingIdAndAssessmentSeq(bookingId, assessmentSeq);
 
         if (assessment.isEmpty()) {
@@ -53,7 +53,7 @@ public class OffenderAssessmentService {
         // TODO - Null checks
         return AssessmentDetail.builder()
             .bookingId(assessmentDetails.getBookingId())
-            .assessmentSeq(assessmentDetails.getAssessmentSeq().intValue())
+            .assessmentSeq(assessmentDetails.getAssessmentSeq())
             .offenderNo(assessmentDetails.getOffenderBooking().getOffender().getNomsId())
             .classificationCode(classificationProcessor.getFinalClassification())
             .assessmentCode(assessmentDetails.getAssessmentType().getAssessmentCode())

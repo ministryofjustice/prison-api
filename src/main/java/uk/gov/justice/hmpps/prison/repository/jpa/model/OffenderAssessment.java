@@ -41,7 +41,7 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
 
     @Id
     @Column(name = "ASSESSMENT_SEQ")
-    private Long assessmentSeq;
+    private Integer assessmentSeq;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
@@ -112,7 +112,7 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     @ToString
     public static class Pk implements Serializable {
         private Long bookingId;
-        private Long assessmentSeq;
+        private Integer assessmentSeq;
     }
 
     /**

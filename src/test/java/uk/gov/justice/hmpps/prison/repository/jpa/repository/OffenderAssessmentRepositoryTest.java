@@ -30,14 +30,14 @@ public class OffenderAssessmentRepositoryTest {
 
     @Test
     void getAssessmentByBookingIdAndAssessmentSeq() {
-        final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 2L).orElseThrow();
+        final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 2).orElseThrow();
 
         assertThat(assessment.getBookingId()).isEqualTo(-43L);
         assertThat(assessment.getAssessmentSeq()).isEqualTo(2L);
         assertThat(assessment.getOffenderBooking().getBookingId()).isEqualTo(-43L);
         assertThat(assessment.getCalculatedClassification()).isEqualTo("STANDARD");
         assertThat(assessment.getOverridingClassification()).isEqualTo("HI");
-        assertThat(assessment.getReviewedClassification()).isEqualTo("STANDARD");
+        assertThat(assessment.getReviewedClassification()).isEqualTo("HI");
         assertThat(assessment.getAssessmentDate()).isEqualTo(LocalDate.parse("2019-01-02"));
         assertThat(assessment.getAssessmentCreateLocation()).isEqualTo("LEI");
         assertThat(assessment.getAssessmentComment()).isEqualTo("A Comment");
@@ -97,7 +97,7 @@ public class OffenderAssessmentRepositoryTest {
 
         // Check each assessmentAnswer's parentAssessments contains the question
         final var parentAssessmentByAssessmentAnswer = new HashMap<String, AssessmentEntry>();
-        assessment.getAssessmentItems().stream().forEach(a -> parentAssessmentByAssessmentAnswer.put(a.getAssessmentAnswer().getDescription(), a.getAssessmentAnswer().getParentAssessment()));
+        assessment.getAssessmentItems().forEach(a -> parentAssessmentByAssessmentAnswer.put(a.getAssessmentAnswer().getDescription(), a.getAssessmentAnswer().getParentAssessment()));
 
         assertThat(parentAssessmentByAssessmentAnswer.get(expectedAnswer1).getDescription()).isEqualTo(expectedQuestion1);
         assertThat(parentAssessmentByAssessmentAnswer.get(expectedAnswer2).getDescription()).isEqualTo(expectedQuestion2);
@@ -106,7 +106,7 @@ public class OffenderAssessmentRepositoryTest {
 
     @Test
     void getAssessmentByBookingIdAndAssessmentSeq_ReturnsNothing() {
-        final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 4L);
+        final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 4);
 
         assertThat(assessment).isEmpty();
     }

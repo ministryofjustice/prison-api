@@ -41,10 +41,10 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getOffenderAssessment_returnsCorrectApiObject() {
-        when(repository.findByBookingIdAndAssessmentSeq(-1L, 2L)).thenReturn(Optional.of(
+        when(repository.findByBookingIdAndAssessmentSeq(-1L, 2)).thenReturn(Optional.of(
             OffenderAssessment.builder()
                 .bookingId(-1L)
-                .assessmentSeq(2L)
+                .assessmentSeq(2)
                 .offenderBooking(OffenderBooking.builder()
                     .offender(Offender.builder()
                         .nomsId("NN123N")
@@ -89,7 +89,7 @@ public class OffenderAssessmentServiceTest {
                 .build()
         ));
 
-        final var assessmentApiObject = service.getOffenderAssessment(-1L, 2L);
+        final var assessmentApiObject = service.getOffenderAssessment(-1L, 2);
 
         assertThat(assessmentApiObject).isEqualTo(AssessmentDetail.builder()
             .bookingId(-1L)
@@ -125,25 +125,25 @@ public class OffenderAssessmentServiceTest {
     public void getOffenderAssessment_throwsEntityNotFoundIfNoMatch() {
         when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.getOffenderAssessment(-1L, 2L)).isInstanceOf(EntityNotFoundException.class);
+        assertThatThrownBy(() -> service.getOffenderAssessment(-1L, 2)).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     public void getOffenderAssessment_throwsEntityNotFoundIfNotCsra() {
         when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
-            getOffenderAssessment_MinimalInput(-1L, 2L, "NN123N", -11L)
+            getOffenderAssessment_MinimalInput(-1L, 2, "NN123N", -11L)
         ));
 
         when(assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(-11L)).thenReturn(List.of(
         ));
 
-        assertThatThrownBy(() -> service.getOffenderAssessment(-1L, 2L)).isInstanceOf(EntityNotFoundException.class);
+        assertThatThrownBy(() -> service.getOffenderAssessment(-1L, 2)).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     public void getOffenderAssessment_handlesMinimalNonNullValues() {
         when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
-            getOffenderAssessment_MinimalInput(-1L, 2L, "NN123N", -11L)
+            getOffenderAssessment_MinimalInput(-1L, 2, "NN123N", -11L)
         ));
 
         when(assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(-11L)).thenReturn(List.of(
@@ -153,12 +153,12 @@ public class OffenderAssessmentServiceTest {
                 .build()
         ));
 
-        service.getOffenderAssessment(-1L, 2L);
+        service.getOffenderAssessment(-1L, 2);
     }
 
 
     @Test
-    private OffenderAssessment getOffenderAssessment_MinimalInput(long bookingId, long assessmentSeq,
+    private OffenderAssessment getOffenderAssessment_MinimalInput(long bookingId, int assessmentSeq,
                                                                   String nomsId, long assesmentTypeId) {
         return OffenderAssessment.builder()
                 .bookingId(bookingId)

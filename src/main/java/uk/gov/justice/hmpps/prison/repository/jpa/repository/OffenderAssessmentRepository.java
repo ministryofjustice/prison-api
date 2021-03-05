@@ -7,5 +7,5 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import java.util.Optional;
 
 public interface OffenderAssessmentRepository extends CrudRepository<OffenderAssessment, OffenderAssessment.Pk> {
-    Optional<OffenderAssessment> findByBookingIdAndAssessmentSeq(Long bookingId, Long assessmentSeq);
+    Optional<OffenderAssessment> findByBookingIdAndAssessmentSeq(Long bookingId, Integer assessmentSeq);
 }
