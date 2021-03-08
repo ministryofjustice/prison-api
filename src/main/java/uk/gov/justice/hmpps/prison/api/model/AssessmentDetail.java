@@ -88,6 +88,6 @@ public class AssessmentDetail {
 
     @NotNull
     @Builder.Default
-    @ApiModelProperty(value = "Assessment questions", position = 31)
+    @ApiModelProperty(value = "Assessment questions and answers, in the order they were asked", position = 31)
     private List<AssessmentQuestion> questions = new ArrayList<>();
 }
