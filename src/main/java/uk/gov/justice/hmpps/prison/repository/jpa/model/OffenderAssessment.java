@@ -173,7 +173,7 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     private String getApprovalReason() {
         var approvalReason = reviewCommitteeComment;
         if (!reviewedClassification.equals(calculatedClassification) && overrideReason != null) {
-            approvalReason = overrideReason.getDescription();
+            return overrideReason.getDescription();
         }
         return approvalReason;
     }
