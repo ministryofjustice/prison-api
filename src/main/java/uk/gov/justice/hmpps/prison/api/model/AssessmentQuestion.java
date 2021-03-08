@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
-/**
- * Assessment Detail
- **/
 @SuppressWarnings("unused")
 @ApiModel(description = "AssessmentQuestion")
 @JsonInclude(JsonInclude.Include.NON_NULL)

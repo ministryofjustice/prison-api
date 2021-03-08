@@ -14,9 +14,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Assessment Detail
- **/
 @SuppressWarnings("unused")
 @ApiModel(description = "AssessmentDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
