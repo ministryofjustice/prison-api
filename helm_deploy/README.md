@@ -18,7 +18,7 @@ __Test chart template rendering:__
 This will out the fully rendered kubernetes resources in raw yaml.
 
 ```sh
-helm template [path to chart] --values=values-dev.yaml --values=secrets-example.yaml
+helm template [path to chart] --values=values-dev.yaml
 ```
 
 __List releases:__
