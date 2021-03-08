@@ -7,11 +7,13 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentQuestion;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentEntry;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessmentItem;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AssessmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAssessmentRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +31,7 @@ public class OffenderAssessmentService {
 
     @Transactional(readOnly = true)
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public AssessmentDetail getOffenderAssessment(Long bookingId, Integer assessmentSeq) {
+    public AssessmentDetail getOffenderAssessment(final Long bookingId, final Integer assessmentSeq) {
         final var assessment = repository.findByBookingIdAndAssessmentSeq(bookingId, assessmentSeq);
 
         if (assessment.isEmpty()) {
@@ -37,17 +39,6 @@ public class OffenderAssessmentService {
         }
 
         final var assessmentDetails = assessment.get();
-        final var assessmentQuestions = assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(assessmentDetails.getAssessmentType().getAssessmentId());
-
-        if (assessmentQuestions.isEmpty()) {
-            throw new EntityNotFoundException(String.format("Csra assessment questions for booking %s and sequence %s not found.", bookingId, assessmentSeq));
-        }
-
-        final var assessmentItems = assessmentDetails.getAssessmentItems();
-        final var assessmentAnswersByQuestionId = assessmentItems.stream().map(OffenderAssessmentItem::getAssessmentAnswer).collect(Collectors.toMap((aa) -> aa.getParentAssessment().getAssessmentId(), AssessmentEntry::getDescription));
-
-        final var assessmentQuestionsAndAnswers = assessmentQuestions.stream().map(aq -> new AssessmentQuestion(aq.getDescription(), assessmentAnswersByQuestionId.get(aq.getAssessmentId()))).collect(Collectors.toList());
-
         final var classificationSummary = assessmentDetails.getClassificationSummary();
 
         return AssessmentDetail.builder()
@@ -69,7 +60,20 @@ public class OffenderAssessmentService {
             .originalClassificationCode((classificationSummary.getOriginalClassification() != null)?classificationSummary.getOriginalClassification().getCode(): null)
             .classificationReviewReason(classificationSummary.getClassificationApprovalReason())
             .nextReviewDate(assessmentDetails.getNextReviewDate())
-            .questions(assessmentQuestionsAndAnswers)
+            .questions(getCsraAssessmentQuestionsAndAnswers(assessmentDetails, bookingId, assessmentSeq))
             .build();
+    }
+
+    private List<AssessmentQuestion> getCsraAssessmentQuestionsAndAnswers(final OffenderAssessment assessmentDetails, final Long bookingId, final Integer assessmentSeq) {
+        final var assessmentQuestions = assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(assessmentDetails.getAssessmentType().getAssessmentId());
+
+        if (assessmentQuestions.isEmpty()) {
+            throw new EntityNotFoundException(String.format("Csra assessment questions for booking %s and sequence %s not found.", bookingId, assessmentSeq));
+        }
+
+        final var assessmentItems = assessmentDetails.getAssessmentItems();
+        final var assessmentAnswersByQuestionId = assessmentItems.stream().map(OffenderAssessmentItem::getAssessmentAnswer).collect(Collectors.toMap((aa) -> aa.getParentAssessment().getAssessmentId(), AssessmentEntry::getDescription));
+
+        return assessmentQuestions.stream().map(aq -> new AssessmentQuestion(aq.getDescription(), assessmentAnswersByQuestionId.get(aq.getAssessmentId()))).collect(Collectors.toList());
     }
 }
