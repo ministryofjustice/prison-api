@@ -21,7 +21,7 @@ public class OffenderResourceTest {
 
     @BeforeEach
     public void setUp() {
-        offenderAssessmentResource = new OffenderAssessmentResource(inmateService);
+        offenderAssessmentResource = new OffenderAssessmentResource(inmateService, null);
     }
 
     @Test
