@@ -154,17 +154,20 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
     @NonNull
     public ClassificationSummary getClassificationSummary() {
         if (reviewedClassification != null && !reviewedClassification.isPending()) {
-            AssessmentClassification previousClassification = null;
-            if (calculatedClassification != null && !calculatedClassification.isPending() &&
-                    !calculatedClassification.equals(reviewedClassification)) {
-                previousClassification = calculatedClassification;
-            }
-            return new ClassificationSummary(reviewedClassification, previousClassification, getApprovalReason());
+            return new ClassificationSummary(reviewedClassification, getPreviousClassification(), getApprovalReason());
         }
         if (calculatedClassification != null && !calculatedClassification.isPending()) {
             return new ClassificationSummary(calculatedClassification, null, null);
         }
-        return new ClassificationSummary(null, null, null);
+        return ClassificationSummary.withoutClassification();
+    }
+
+    private AssessmentClassification getPreviousClassification() {
+        if (calculatedClassification != null && !calculatedClassification.isPending() &&
+            !calculatedClassification.equals(reviewedClassification)) {
+            return calculatedClassification;
+        }
+        return null;
     }
 
     private String getApprovalReason() {
@@ -181,5 +184,9 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
         private final AssessmentClassification finalClassification;
         private final AssessmentClassification originalClassification;
         private final String classificationApprovalReason;
+
+        private static ClassificationSummary withoutClassification() {
+            return new ClassificationSummary(null, null, null);
+        }
     }
 }
