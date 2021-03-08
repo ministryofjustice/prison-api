@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentEntry;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentOverrideReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment.OffenderAssessmentBuilder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessmentItem;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
@@ -141,9 +142,10 @@ public class OffenderAssessmentServiceTest {
     }
 
     @Test
-    public void getOffenderAssessment_throwsEntityNotFoundIfNotCsra() {
+    public void getOffenderAssessment_throwsEntityNotFoundIfNoCsraQuestions() {
         when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
-            getOffenderAssessment_MinimalInput(-1L, 2, "NN123N", -11L)
+            getOffenderAssessment_MinimalBuilder(-1L, 2, "NN123N", -11L)
+            .build()
         ));
 
         when(assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(-11L)).thenReturn(List.of(
@@ -153,9 +155,39 @@ public class OffenderAssessmentServiceTest {
     }
 
     @Test
+    public void getOffenderAssessment_ignoresAnswersThatAreNotInCsraQuestions() {
+        when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
+            getOffenderAssessment_MinimalBuilder(-1L, 2, "NN123N", -11L)
+                .assessmentItems(List.of(
+                    OffenderAssessmentItem.builder()
+                        .assessmentAnswer(AssessmentEntry.builder()
+                            .description("Answer without a question")
+                            .parentAssessment(AssessmentEntry.builder()
+                                .assessmentId(-10L)
+                                .build())
+                            .build())
+                        .build()
+                ))
+            .build()
+        ));
+
+        when(assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(-11L)).thenReturn(List.of(
+            AssessmentEntry.builder()
+                .description("Question 1")
+                .build()
+        ));
+
+        final var assessment = service.getOffenderAssessment(-1L, 2);
+        assertThat(assessment.getQuestions()).hasSize(1).contains(AssessmentQuestion.builder()
+            .question("Question 1")
+            .build());
+    }
+
+    @Test
     public void getOffenderAssessment_handlesMinimalNonNullValues() {
         when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
-            getOffenderAssessment_MinimalInput(-1L, 2, "NN123N", -11L)
+            getOffenderAssessment_MinimalBuilder(-1L, 2, "NN123N", -11L)
+            .build()
         ));
 
         when(assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(-11L)).thenReturn(List.of(
@@ -168,10 +200,9 @@ public class OffenderAssessmentServiceTest {
         service.getOffenderAssessment(-1L, 2);
     }
 
-
     @Test
-    private OffenderAssessment getOffenderAssessment_MinimalInput(long bookingId, int assessmentSeq,
-                                                                  String nomsId, long assesmentTypeId) {
+    private OffenderAssessmentBuilder getOffenderAssessment_MinimalBuilder(long bookingId, int assessmentSeq,
+                                                                           String nomsId, long assesmentTypeId) {
         return OffenderAssessment.builder()
                 .bookingId(bookingId)
                 .assessmentSeq(assessmentSeq)
@@ -183,7 +214,6 @@ public class OffenderAssessmentServiceTest {
                 .assessmentType(AssessmentEntry.builder()
                     .assessmentId(assesmentTypeId)
                     .build())
-                .assessmentItems(List.of())
-                .build();
+                .assessmentItems(List.of());
     }
 }
