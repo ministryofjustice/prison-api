@@ -47,6 +47,15 @@ public class SentenceDetailTest {
         }
 
         @Test
+        public void noReleaseDateButLicenceExpiryDate() {
+            final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
+                .topupSupervisionExpiryDate(LocalDate.parse("2010-01-02"))
+                .licenceExpiryDate(LocalDate.parse("2014-03-05"))
+                .build();
+            assertThat(sentenceDetail.getTopupSupervisionStartDate()).isEqualTo("2014-03-06");
+        }
+
+        @Test
         public void noExpiryDate() {
             final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
                 .releaseDate(LocalDate.parse("2010-01-02"))
