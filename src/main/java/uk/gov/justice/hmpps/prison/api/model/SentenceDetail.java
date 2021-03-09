@@ -72,7 +72,7 @@ public class SentenceDetail extends BaseSentenceDetail {
 
     @ApiModelProperty(value = "Top-up supervision start date for offender - calculated as licence end date + 1 day or releaseDate if licence end date not set.", example = "2019-04-01")
     public LocalDate getTopupSupervisionStartDate() {
-        if (getTopupSupervisionExpiryDate() == null || releaseDate == null) return null;
+        if (getTopupSupervisionExpiryDate() == null) return null;
         if (getLicenceExpiryDate() != null) return getLicenceExpiryDate().plusDays(1);
         return releaseDate;
     }
