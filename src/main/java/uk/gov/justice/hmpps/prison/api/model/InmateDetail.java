@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModel;
@@ -10,12 +11,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatusCalc.LegalStatus;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
+
+import static java.lang.String.format;
 
 /**
  * Inmate Detail
@@ -48,7 +52,6 @@ public class InmateDetail {
     @ApiModelProperty(required = true, value = "Internal Root Offender ID", position = 5)
     @NotBlank
     private Long rootOffenderId;
-
 
     @ApiModelProperty(required = true, value = "First Name", position = 6)
     @NotBlank
@@ -138,7 +141,7 @@ public class InmateDetail {
     @ApiModelProperty(value = "Country of birth", example = "GBR")
     private String birthCountryCode;
 
-    @ApiModelProperty(value = "In/Out Status", required = true, example = "IN", allowableValues = "IN,OUT")
+    @ApiModelProperty(value = "In/Out Status", required = true, example = "IN", allowableValues = "IN,OUT,TRN")
     private String inOutStatus;
 
     @ApiModelProperty(value = "Identifiers", notes = "Only returned when requesting extra details")
@@ -159,8 +162,17 @@ public class InmateDetail {
     @ApiModelProperty(value = "Aliases", notes = "Only returned when requesting extra details")
     private List<Alias> aliases;
 
-    @ApiModelProperty(value = "Status of prisoner", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT", position = 18)
+    @ApiModelProperty(value = "Status of prisoner", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT")
     private String status;
+
+    @ApiModelProperty(value = "Last movement status of the prison", example = "CRT-CA")
+    private String statusReason;
+
+    @ApiModelProperty(value = "Last Movement Type Code of prisoner", example = "TAP", allowableValues = "TAP,CRT,TRN,ADM,REL", notes = "Reference Data from MOVE_TYPE Domain")
+    private String lastMovementTypeCode;
+
+    @ApiModelProperty(value = "Last Movement Reason of prisoner", example = "CA", notes = "Reference Data from MOVE_RSN Domain")
+    private String lastMovementReasonCode;
 
     @ApiModelProperty(value = "Legal Status", example = "REMAND", notes = "Only returned when requesting extra details")
     private LegalStatus legalStatus;
@@ -195,5 +207,23 @@ public class InmateDetail {
                 .findFirst()
                 .map(ProfileInformation::getResultValue)
                 .orElse(null);
+    }
+
+    public InmateDetail splitStatusReason() {
+        final var splitStatusReason = StringUtils.split(statusReason, "-");
+        if (splitStatusReason != null) {
+            if (splitStatusReason.length >= 1) {
+                lastMovementTypeCode = splitStatusReason[0];
+            }
+            if (splitStatusReason.length >= 2) {
+                lastMovementReasonCode = splitStatusReason[1];
+            }
+        }
+        return this;
+    }
+
+    public InmateDetail deriveStatus() {
+        this.status = format("%s %s", activeFlag ? "ACTIVE" : "INACTIVE", inOutStatus);
+        return this;
     }
 }
