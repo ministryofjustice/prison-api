@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 public class MovementReason extends ReferenceCode {
 
-    static final String REASON = "MOVE_RSN";
+    public static final String REASON = "MOVE_RSN";
 
     public static final ReferenceCode.Pk COURT = new ReferenceCode.Pk(REASON, "CRT");
 

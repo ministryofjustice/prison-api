@@ -20,5 +20,7 @@
     "sexCode": "M"
   },
   "inOutStatus": "TRN",
-  "status": "INACTIVE TRN"
+  "status": "INACTIVE TRN",
+  "lastMovementTypeCode": "TRN",
+  "lastMovementReasonCode": "NOTR"
 }

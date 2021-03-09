@@ -20,5 +20,7 @@
     "sexCode": "M"
   },
   "inOutStatus": "OUT",
-  "status": "INACTIVE OUT"
+  "status": "INACTIVE OUT",
+  "lastMovementTypeCode": "REL",
+  "lastMovementReasonCode": "CR"
 }

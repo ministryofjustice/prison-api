@@ -237,6 +237,7 @@ public class PrisonerReleaseAndTransferService {
 
         // Generate the external movement in
         createInMovement(booking, ADM, movementReason, fromLocation, prisonToRecallTo, receiveTime, "Recall", null);
+        booking.setStatusReason(ADM.getCode() + "-" + movementReason.getCode());
 
         //Create Bed History
         bedAssignmentHistoriesRepository.save(BedAssignmentHistory.builder()
@@ -348,6 +349,7 @@ public class PrisonerReleaseAndTransferService {
                 .rootOffenderId(offender.getRootOffenderId())
                 .admissionReason("NCO")
                 .bookingSequence(1)
+                .statusReason(ADM.getCode() + "-" + requestForNewBooking.getMovementReasonCode())
                 .build()
         );
         entityManager.flush();
@@ -476,6 +478,7 @@ public class PrisonerReleaseAndTransferService {
         setPreviousMovementsToInactive(booking);
 
         createInMovement(booking, ADM, movementReason, latestExternalMovement.getFromAgency(), latestExternalMovement.getToAgency(), receiveTime, requestToTransferIn.getCommentText(), null);
+        booking.setStatusReason(ADM.getCode() + "-" + movementReason.getCode());
 
         //Create Bed History
         bedAssignmentHistoriesRepository.save(BedAssignmentHistory.builder()

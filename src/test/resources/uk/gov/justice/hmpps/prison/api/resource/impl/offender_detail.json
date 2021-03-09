@@ -172,6 +172,8 @@
   ],
   "aliases": [],
   "status": "ACTIVE IN",
+  "lastMovementTypeCode": "ADM",
+  "lastMovementReasonCode": "24",
   "legalStatus": "SENTENCED",
   "recall": true,
   "imprisonmentStatus": "SENT",

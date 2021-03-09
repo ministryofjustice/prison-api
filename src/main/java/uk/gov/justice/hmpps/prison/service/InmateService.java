@@ -73,7 +73,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
 import static uk.gov.justice.hmpps.prison.service.support.InmatesHelper.deriveClassification;
 import static uk.gov.justice.hmpps.prison.service.support.InmatesHelper.deriveClassificationCode;
@@ -241,7 +240,8 @@ public class InmateService {
 
         if (inmate.getBookingId() != null) {
             final var bookingId = inmate.getBookingId();
-            inmate.setStatus(format("%s %s", inmate.isActiveFlag() ? "ACTIVE" : "INACTIVE", inmate.getInOutStatus()));
+            inmate.deriveStatus();
+            inmate.splitStatusReason();
             getFirstPreferredSpokenLanguage(bookingId).ifPresent(offenderLanguage -> {
                 inmate.setLanguage(offenderLanguage.getReferenceCode().getDescription());
                 inmate.setInterpreterRequired("Y".equalsIgnoreCase(offenderLanguage.getInterpreterRequestedFlag()));

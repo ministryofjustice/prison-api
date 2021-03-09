@@ -26,5 +26,7 @@
     }
   ],
   "inOutStatus": "IN",
-  "status": "ACTIVE IN"
+  "status": "ACTIVE IN",
+  "lastMovementTypeCode": "ADM",
+  "lastMovementReasonCode": "24"
 }

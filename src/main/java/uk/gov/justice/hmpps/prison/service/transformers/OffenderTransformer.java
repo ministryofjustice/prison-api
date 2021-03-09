@@ -17,7 +17,6 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
 import static uk.gov.justice.hmpps.prison.util.DateTimeConverter.getAge;
 
 @Component
@@ -37,11 +36,11 @@ public class OffenderTransformer {
 
         return offenderBuilder
             .activeFlag(latestBooking.getActiveFlag().equalsIgnoreCase("Y"))
+            .inOutStatus(latestBooking.getInOutStatus())
+            .statusReason(latestBooking.getStatusReason())
             .agencyId(latestBooking.getLocation().getId())
             .bookingId(latestBooking.getBookingId())
             .bookingNo(latestBooking.getBookNumber())
-            .inOutStatus(latestBooking.getInOutStatus())
-            .status(format("%s %s", latestBooking.getActiveFlag().equalsIgnoreCase("Y") ? "ACTIVE" : "INACTIVE", latestBooking.getInOutStatus()))
             .assignedLivingUnit(AssignedLivingUnit.builder()
                 .agencyId(latestBooking.getLocation().getId())
                 .agencyName(LocationProcessor.formatLocation(latestBooking.getLocation().getDescription()))
@@ -56,7 +55,9 @@ public class OffenderTransformer {
                 .question(pd.getId().getType().getDescription())
                 .resultValue(pd.getCode().getDescription())
                 .build()).collect(Collectors.toList()))
-            .build();
+            .build()
+            .deriveStatus()
+            .splitStatusReason();
     }
 
     private InmateDetail.InmateDetailBuilder buildOffender(final Offender offender) {

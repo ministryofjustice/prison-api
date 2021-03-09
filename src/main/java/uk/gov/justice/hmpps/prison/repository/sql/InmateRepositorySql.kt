@@ -46,6 +46,7 @@ enum class InmateRepositorySql(val sql: String) {
         B.LIVING_UNIT_ID ASSIGNED_LIVING_UNIT_ID,
         CASE WHEN B.ACTIVE_FLAG = 'Y' THEN 1 ELSE 0 END ACTIVE_FLAG,
         B.IN_OUT_STATUS,
+        B.STATUS_REASON,
         (SELECT MAX(OI.OFFENDER_IMAGE_ID)
                 FROM OFFENDER_IMAGES OI
                 WHERE OI.ACTIVE_FLAG = 'Y'
