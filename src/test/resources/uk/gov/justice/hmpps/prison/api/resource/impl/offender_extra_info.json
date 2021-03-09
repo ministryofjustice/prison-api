@@ -127,6 +127,7 @@
     "midTermDate": "2017-12-31",
     "lateTermDate": "2018-01-31",
     "topupSupervisionExpiryDate": "2021-03-31",
+    "topupSupervisionStartDate": "2018-01-05",
     "bookingId": -7,
     "sentenceStartDate": "2017-09-01",
     "nonDtoReleaseDate": "2018-02-28",
