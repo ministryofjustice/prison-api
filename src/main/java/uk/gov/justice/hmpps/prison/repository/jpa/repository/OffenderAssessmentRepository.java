@@ -1,11 +1,19 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface OffenderAssessmentRepository extends CrudRepository<OffenderAssessment, OffenderAssessment.Pk> {
     Optional<OffenderAssessment> findByBookingIdAndAssessmentSeq(Long bookingId, Integer assessmentSeq);
+
+    @Query("SELECT oa FROM OffenderAssessment oa " +
+        "INNER JOIN oa.offenderBooking booking INNER JOIN booking.offender offender " +
+        "INNER JOIN oa.assessmentType assessment " +
+        "WHERE offender.nomsId = :offenderNo AND assessment.cellSharingAlertFlag = 'Y'" +
+        "ORDER BY oa.assessmentSeq ASC")
+    List<OffenderAssessment> findByCsraAssessmentAndByOffenderNo(String offenderNo);
 }

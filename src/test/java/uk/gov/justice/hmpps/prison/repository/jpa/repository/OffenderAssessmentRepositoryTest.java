@@ -32,32 +32,7 @@ public class OffenderAssessmentRepositoryTest {
     void getAssessmentByBookingIdAndAssessmentSeq() {
         final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 2).orElseThrow();
 
-        assertThat(assessment.getBookingId()).isEqualTo(-43L);
-        assertThat(assessment.getAssessmentSeq()).isEqualTo(2L);
-        assertThat(assessment.getOffenderBooking().getBookingId()).isEqualTo(-43L);
-        assertThat(assessment.getCalculatedClassification().getCode()).isEqualTo("STANDARD");
-        assertThat(assessment.getOverridingClassification().getCode()).isEqualTo("HI");
-        assertThat(assessment.getReviewedClassification().getCode()).isEqualTo("HI");
-        assertThat(assessment.getAssessmentDate()).isEqualTo(LocalDate.parse("2019-01-02"));
-        assertThat(assessment.getAssessmentCreateLocation().getId()).isEqualTo("LEI");
-        assertThat(assessment.getAssessmentComment()).isEqualTo("A Comment");
-        assertThat(assessment.getAssessCommittee().getCode()).isEqualTo("RECP");
-        assertThat(assessment.getAssessCommittee().getDescription()).isEqualTo("Reception");
-        assertThat(assessment.getAssessStatus()).isEqualTo("A");
-        assertThat(assessment.getOverrideReason().getCode()).isEqualTo("PREVIOUS");
-        assertThat(assessment.getOverrideReason().getDescription()).isEqualTo("Previous History");
-        assertThat(assessment.getReviewCommittee().getCode()).isEqualTo("GOV");
-        assertThat(assessment.getReviewCommittee().getDescription()).isEqualTo("Governor");
-        assertThat(assessment.getReviewCommitteeComment()).isEqualTo("Review soon");
-        assertThat(assessment.getNextReviewDate()).isEqualTo(LocalDate.parse("2019-11-22"));
-        assertThat(assessment.getEvaluationDate()).isEqualTo(LocalDate.parse("2016-07-07"));
-        assertThat(assessment.getCreationUser().getUsername()).isEqualTo("JBRIEN");
-        assertThat(assessment.getAssessmentType().getAssessmentId()).isEqualTo(-4L);
-
-        final var classificationSummary = assessment.getClassificationSummary();
-        assertThat(classificationSummary.getFinalClassification().getCode()).isEqualTo("HI");
-        assertThat(classificationSummary.getOriginalClassification().getCode()).isEqualTo("STANDARD");
-        assertThat(classificationSummary.getClassificationApprovalReason()).isEqualTo("Previous History");
+        assertCsraAssessment_Booking43_AssessmentSeq2(assessment);
 
         final var expectedQuestion1 = "Reason for review";
         final var expectedAnswer1 = "Scheduled";
@@ -116,6 +91,69 @@ public class OffenderAssessmentRepositoryTest {
         final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 4);
 
         assertThat(assessment).isEmpty();
+    }
+
+    @Test
+    void getAssessmentaByCsraAssessmentAndOffenderNo() {
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNo("A1183JE");
+
+        assertThat(assessments).usingRecursiveComparison()
+            .ignoringFields("assessmentDate", "assessmentComment", "nextReviewDate", "assessCommittee", "assessStatus", "assessmentCreateLocation", "assessmentItems", "assessmentType",
+                "calculatedClassification", "creationUser", "evaluationDate", "modifyUserId", "offenderBooking",
+                "overrideReason", "overridingClassification", "reviewCommittee", "reviewCommitteeComment",
+                "reviewedClassification", "createDatetime", "createUserId")
+            .isEqualTo(List.of(
+                OffenderAssessment.builder()
+                    .bookingId(-43L)
+                    .assessmentSeq(1)
+                    .build(),
+                OffenderAssessment.builder()
+                    .bookingId(-43L)
+                    .assessmentSeq(2)
+                    .build(),
+                OffenderAssessment.builder()
+                    .bookingId(-43L)
+                    .assessmentSeq(3)
+                    .build()
+            ));
+
+        assertCsraAssessment_Booking43_AssessmentSeq2(assessments.get(1));
+    }
+
+    @Test
+    void getAssessmentaByCsraAssessmentAndOffenderNo_ReturnsNothing() {
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNo("A1183JC");
+
+        assertThat(assessments).isEmpty();
+    }
+
+    private void assertCsraAssessment_Booking43_AssessmentSeq2(final OffenderAssessment assessment) {
+        assertThat(assessment.getBookingId()).isEqualTo(-43L);
+        assertThat(assessment.getAssessmentSeq()).isEqualTo(2L);
+        assertThat(assessment.getOffenderBooking().getBookingId()).isEqualTo(-43L);
+        assertThat(assessment.getCalculatedClassification().getCode()).isEqualTo("STANDARD");
+        assertThat(assessment.getOverridingClassification().getCode()).isEqualTo("HI");
+        assertThat(assessment.getReviewedClassification().getCode()).isEqualTo("HI");
+        assertThat(assessment.getAssessmentDate()).isEqualTo(LocalDate.parse("2019-01-02"));
+        assertThat(assessment.getAssessmentCreateLocation().getId()).isEqualTo("LEI");
+        assertThat(assessment.getAssessmentComment()).isEqualTo("A Comment");
+        assertThat(assessment.getAssessCommittee().getCode()).isEqualTo("RECP");
+        assertThat(assessment.getAssessCommittee().getDescription()).isEqualTo("Reception");
+        assertThat(assessment.getAssessStatus()).isEqualTo("A");
+        assertThat(assessment.getOverrideReason().getCode()).isEqualTo("PREVIOUS");
+        assertThat(assessment.getOverrideReason().getDescription()).isEqualTo("Previous History");
+        assertThat(assessment.getReviewCommittee().getCode()).isEqualTo("GOV");
+        assertThat(assessment.getReviewCommittee().getDescription()).isEqualTo("Governor");
+        assertThat(assessment.getReviewCommitteeComment()).isEqualTo("Review soon");
+        assertThat(assessment.getNextReviewDate()).isEqualTo(LocalDate.parse("2019-11-22"));
+        assertThat(assessment.getEvaluationDate()).isEqualTo(LocalDate.parse("2016-07-07"));
+        assertThat(assessment.getCreationUser().getUsername()).isEqualTo("JBRIEN");
+        assertThat(assessment.getAssessmentType().getAssessmentId()).isEqualTo(-4L);
+
+        final var classificationSummary = assessment.getClassificationSummary();
+        assertThat(classificationSummary.getFinalClassification().getCode()).isEqualTo("HI");
+        assertThat(classificationSummary.getOriginalClassification().getCode()).isEqualTo("STANDARD");
+        assertThat(classificationSummary.getClassificationApprovalReason()).isEqualTo("Previous History");
     }
 }
 
