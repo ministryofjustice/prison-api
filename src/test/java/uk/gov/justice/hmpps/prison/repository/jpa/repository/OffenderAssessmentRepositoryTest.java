@@ -88,7 +88,7 @@ public class OffenderAssessmentRepositoryTest {
 
     @Test
     void getAssessmentByBookingIdAndAssessmentSeq_ReturnsNothing() {
-        final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 4);
+        final var assessment = repository.findByBookingIdAndAssessmentSeq(-43L, 11);
 
         assertThat(assessment).isEmpty();
     }
