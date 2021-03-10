@@ -69,4 +69,18 @@ public class SentenceDetail extends BaseSentenceDetail {
         this.confirmedReleaseDate = confirmedReleaseDate;
         this.releaseDate = releaseDate;
     }
+
+    @ApiModelProperty(value = "Top-up supervision start date for offender - calculated as licence end date + 1 day or releaseDate if licence end date not set.", example = "2019-04-01")
+    public LocalDate getTopupSupervisionStartDate() {
+        if (getTopupSupervisionExpiryDate() == null) return null;
+        if (getLicenceExpiryDate() != null) return getLicenceExpiryDate().plusDays(1);
+        return releaseDate;
+    }
+
+    @ApiModelProperty(value = "Offender's home detention curfew end date - calculated as one day before the releaseDate.", example = "2019-04-01")
+    public LocalDate getHomeDetentionCurfewEndDate() {
+        if (getHomeDetentionCurfewActualDate() == null || releaseDate == null) return null;
+        return releaseDate.minusDays(1);
+
+    }
 }

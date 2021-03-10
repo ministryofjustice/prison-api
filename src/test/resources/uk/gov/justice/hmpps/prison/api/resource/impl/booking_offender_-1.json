@@ -96,5 +96,8 @@
   ],
   "birthCountryCode":"UK",
   "inOutStatus":"IN",
-  "status":"ACTIVE IN"
+  "status":"ACTIVE IN",
+  "statusReason": "ADM-24",
+  "lastMovementTypeCode": "ADM",
+  "lastMovementReasonCode": "24"
 }
