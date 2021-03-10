@@ -15,6 +15,7 @@ enum class InmateRepositorySql(val sql: String) {
         B.LIVING_UNIT_ID,
         B.ACTIVE_FLAG,
         B.IN_OUT_STATUS,
+        B.STATUS_REASON,
         (SELECT MAX(OI.OFFENDER_IMAGE_ID)
         FROM OFFENDER_IMAGES OI
         WHERE OI.ACTIVE_FLAG = 'Y'
