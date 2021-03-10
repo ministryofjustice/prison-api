@@ -248,6 +248,47 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testGetCsraAssessments() {
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/offender-assessments/csra/A1183JE",
+            HttpMethod.GET,
+            httpEntity,
+            String.class);
+
+        assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "csra_assessments_by_offender.json");
+    }
+
+    @Test
+    public void testGetCsraAssessmentsNotAccessibleWithoutPermissions() {
+        final var httpEntity = createHttpEntity(AuthToken.NORMAL_USER, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/offender-assessments/csra/A1183JE",
+            HttpMethod.GET,
+            httpEntity,
+            String.class);
+
+        assertThatStatus(response, HttpStatus.NOT_FOUND.value());
+        assertThatJson(response.getBody()).node("userMessage").asString().contains("Offender booking with id -43 not found.");
+    }
+
+    @Test
+    public void testGetCsraAssessmentsInvalidOffenderNo() {
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/offender-assessments/csra/A1234BB",
+            HttpMethod.GET,
+            httpEntity,
+            String.class);
+
+        assertThatStatus(response, HttpStatus.NOT_FOUND.value());
+        assertThatJson(response.getBody()).node("userMessage").asString().contains("Resource with id [A1234BB] not found.");
+    }
+
+    @Test
     public void testGetAssessments() {
         final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA, null);
 
