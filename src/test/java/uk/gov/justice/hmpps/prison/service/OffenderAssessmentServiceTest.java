@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentQuestion;
+import uk.gov.justice.hmpps.prison.api.model.AssessmentSummary;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentClassification;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentCommittee;
@@ -102,25 +103,27 @@ public class OffenderAssessmentServiceTest {
 
         final var assessmentApiObject = service.getOffenderAssessment(-1L, 2);
 
-        assertThat(assessmentApiObject).isEqualTo(AssessmentDetail.builder()
-            .bookingId(-1L)
-            .assessmentSeq(2)
-            .offenderNo("NN123N")
-            .classificationCode("HI")//
-            .assessmentCode("CSRREV1")//
-            .cellSharingAlertFlag(true)
-            .assessmentDate(LocalDate.parse("2019-01-02"))
-            .assessmentAgencyId("LEI")
-            .assessmentComment("Assessment Comment 1")
+        assertThat(assessmentApiObject).isEqualTo(AssessmentDetail.detailBuilder()
+            .summary(AssessmentSummary.builder()
+                .bookingId(-1L)
+                .assessmentSeq(2)
+                .offenderNo("NN123N")
+                .classificationCode("HI")
+                .assessmentCode("CSRREV1")
+                .cellSharingAlertFlag(true)
+                .assessmentDate(LocalDate.parse("2019-01-02"))
+                .assessmentAgencyId("LEI")
+                .assessmentComment("Assessment Comment 1")
+                .assessorUser("JBRIEN")
+                .nextReviewDate(LocalDate.parse("2020-01-02"))
+                .build())
             .assessmentCommitteeCode("RECP")
             .assessmentCommitteeName("Reception")
-            .assessorUser("JBRIEN")
             .approvalDate(LocalDate.parse("2019-01-03"))
             .approvalCommitteeCode("REVW")
             .approvalCommitteeName("Review board")
             .originalClassificationCode("STANDARD")
             .classificationReviewReason("Review reason")
-            .nextReviewDate(LocalDate.parse("2020-01-02"))
             .questions(List.of(
                 AssessmentQuestion.builder()
                     .question("Question 1")
@@ -201,19 +204,110 @@ public class OffenderAssessmentServiceTest {
     }
 
     @Test
-    private OffenderAssessmentBuilder getOffenderAssessment_MinimalBuilder(long bookingId, int assessmentSeq,
-                                                                           String nomsId, long assesmentTypeId) {
-        return OffenderAssessment.builder()
-                .bookingId(bookingId)
-                .assessmentSeq(assessmentSeq)
+    public void getOffenderAssessments_returnsCorrectApiObject() {
+        when(repository.findByCsraAssessmentAndByOffenderNo("N1234AA")).thenReturn(List.of(
+            OffenderAssessment.builder()
+                .bookingId(-1L)
+                .assessmentSeq(2)
                 .offenderBooking(OffenderBooking.builder()
                     .offender(Offender.builder()
-                        .nomsId(nomsId)
+                        .nomsId("NN123N")
                         .build())
                     .build())
                 .assessmentType(AssessmentEntry.builder()
-                    .assessmentId(assesmentTypeId)
+                    .assessmentId(-11L)
+                    .assessmentCode("CSRREV1")
                     .build())
-                .assessmentItems(List.of());
+                .assessmentItems(List.of(
+                    OffenderAssessmentItem.builder()
+                        .assessmentAnswer(AssessmentEntry.builder()
+                            .description("Answer 1")
+                            .parentAssessment(AssessmentEntry.builder()
+                                .assessmentId(-10L)
+                                .build())
+                            .build())
+                        .build()
+                ))
+                .calculatedClassification(new AssessmentClassification("STANDARD", "Standard"))
+                .overridingClassification(new AssessmentClassification("HI", "High"))
+                .reviewedClassification(new AssessmentClassification("HI", "High"))
+                .assessmentDate(LocalDate.parse("2019-01-02"))
+                .assessmentCreateLocation(AgencyLocation.builder()
+                    .id("LEI")
+                    .build())
+                .assessmentComment("Assessment Comment 1")
+                .assessCommittee(new AssessmentCommittee("RECP", "Reception"))
+                .creationUser(StaffUserAccount.builder()
+                    .username("JBRIEN")
+                    .build())
+                .evaluationDate(LocalDate.parse("2019-01-03"))
+                .overrideReason(new AssessmentOverrideReason("OVERRIDE_DUMMY_VALUE", "Review reason"))
+                .reviewCommittee(new AssessmentCommittee("REVW", "Review board"))
+                .nextReviewDate(LocalDate.parse("2020-01-02"))
+                .build()
+        ));
+
+        final var assessmentApiObjects = service.getOffenderAssessments("N1234AA");
+
+        assertThat(assessmentApiObjects).isEqualTo(List.of(
+            AssessmentSummary.builder()
+                .bookingId(-1L)
+                .assessmentSeq(2)
+                .offenderNo("NN123N")
+                .classificationCode("HI")
+                .assessmentCode("CSRREV1")
+                .cellSharingAlertFlag(true)
+                .assessmentDate(LocalDate.parse("2019-01-02"))
+                .assessmentAgencyId("LEI")
+                .assessmentComment("Assessment Comment 1")
+                .assessorUser("JBRIEN")
+                .nextReviewDate(LocalDate.parse("2020-01-02"))
+                .build()
+            )
+        );
+    }
+
+    @Test
+    public void getOffenderAssessments_returnsAllObjects() {
+        when(repository.findByCsraAssessmentAndByOffenderNo("N1234AA")).thenReturn(List.of(
+            getOffenderAssessment_MinimalBuilder(-1L, 1, "N1234AA", -11L)
+                .build(),
+            getOffenderAssessment_MinimalBuilder(-1L, 2, "N1234AA", -11L)
+                .build()
+        ));
+
+        final var assessmentApiObjects = service.getOffenderAssessments("N1234AA");
+
+        assertThat(assessmentApiObjects).isEqualTo(List.of(
+            AssessmentSummary.builder()
+                .bookingId(-1L)
+                .assessmentSeq(1)
+                .offenderNo("N1234AA")
+                .cellSharingAlertFlag(true)
+                .build(),
+            AssessmentSummary.builder()
+                .bookingId(-1L)
+                .assessmentSeq(2)
+                .offenderNo("N1234AA")
+                .cellSharingAlertFlag(true)
+                .build()
+            )
+        );
+    }
+
+    private OffenderAssessmentBuilder getOffenderAssessment_MinimalBuilder(long bookingId, int assessmentSeq,
+                                                                           String nomsId, long assesmentTypeId) {
+        return OffenderAssessment.builder()
+            .bookingId(bookingId)
+            .assessmentSeq(assessmentSeq)
+            .offenderBooking(OffenderBooking.builder()
+                .offender(Offender.builder()
+                    .nomsId(nomsId)
+                    .build())
+                .build())
+            .assessmentType(AssessmentEntry.builder()
+                .assessmentId(assesmentTypeId)
+                .build())
+            .assessmentItems(List.of());
     }
 }

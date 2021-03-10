@@ -6,12 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentQuestion;
+import uk.gov.justice.hmpps.prison.api.model.AssessmentSummary;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentEntry;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessmentItem;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AssessmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAssessmentRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +43,31 @@ public class OffenderAssessmentService {
         final var assessmentDetails = assessment.get();
         final var classificationSummary = assessmentDetails.getClassificationSummary();
 
-        return AssessmentDetail.builder()
+        return AssessmentDetail.detailBuilder()
+            .summary(getAssessmentSummary(assessmentDetails))
+            .assessmentCommitteeCode((assessmentDetails.getAssessCommittee() != null)?assessmentDetails.getAssessCommittee().getCode():null)
+            .assessmentCommitteeName((assessmentDetails.getAssessCommittee() != null)?assessmentDetails.getAssessCommittee().getDescription():null)
+            .approvalDate(assessmentDetails.getEvaluationDate())
+            .approvalCommitteeCode((assessmentDetails.getReviewCommittee() != null)?assessmentDetails.getReviewCommittee().getCode():null)
+            .approvalCommitteeName((assessmentDetails.getReviewCommittee() != null)?assessmentDetails.getReviewCommittee().getDescription():null)
+            .originalClassificationCode((classificationSummary.getOriginalClassification() != null)?classificationSummary.getOriginalClassification().getCode(): null)
+            .classificationReviewReason(classificationSummary.getClassificationApprovalReason())
+            .questions(getCsraAssessmentQuestionsAndAnswers(assessmentDetails, bookingId, assessmentSeq))
+            .build();
+    }
+
+    @Transactional(readOnly = true)
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public List<AssessmentSummary> getOffenderAssessments(String offenderNo) {
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNo(offenderNo);
+
+        return assessments.stream().map(this::getAssessmentSummary).collect(Collectors.toList());
+    }
+
+    private AssessmentSummary getAssessmentSummary(final OffenderAssessment assessmentDetails) {
+        final var classificationSummary = assessmentDetails.getClassificationSummary();
+
+        return AssessmentSummary.builder()
             .bookingId(assessmentDetails.getBookingId())
             .assessmentSeq(assessmentDetails.getAssessmentSeq())
             .offenderNo(assessmentDetails.getOffenderBooking().getOffender().getNomsId())
@@ -51,16 +77,8 @@ public class OffenderAssessmentService {
             .assessmentDate(assessmentDetails.getAssessmentDate())
             .assessmentAgencyId((assessmentDetails.getAssessmentCreateLocation() != null)?assessmentDetails.getAssessmentCreateLocation().getId(): null)
             .assessmentComment(assessmentDetails.getAssessmentComment())
-            .assessmentCommitteeCode((assessmentDetails.getAssessCommittee() != null)?assessmentDetails.getAssessCommittee().getCode():null)
-            .assessmentCommitteeName((assessmentDetails.getAssessCommittee() != null)?assessmentDetails.getAssessCommittee().getDescription():null)
             .assessorUser((assessmentDetails.getCreationUser() != null)?assessmentDetails.getCreationUser().getUsername():null)
-            .approvalDate(assessmentDetails.getEvaluationDate())
-            .approvalCommitteeCode((assessmentDetails.getReviewCommittee() != null)?assessmentDetails.getReviewCommittee().getCode():null)
-            .approvalCommitteeName((assessmentDetails.getReviewCommittee() != null)?assessmentDetails.getReviewCommittee().getDescription():null)
-            .originalClassificationCode((classificationSummary.getOriginalClassification() != null)?classificationSummary.getOriginalClassification().getCode(): null)
-            .classificationReviewReason(classificationSummary.getClassificationApprovalReason())
             .nextReviewDate(assessmentDetails.getNextReviewDate())
-            .questions(getCsraAssessmentQuestionsAndAnswers(assessmentDetails, bookingId, assessmentSeq))
             .build();
     }
 
