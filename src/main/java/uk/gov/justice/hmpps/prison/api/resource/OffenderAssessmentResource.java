@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
+import uk.gov.justice.hmpps.prison.api.model.AssessmentSummary;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationUpdateDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategoryApprovalDetail;
@@ -93,6 +94,15 @@ public class OffenderAssessmentResource {
     public List<Assessment> postOffenderAssessmentsCsraList(@RequestBody @NotEmpty @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
         validateOffenderList(offenderList);
         return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true, true, true);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Retrieves CSRAs for the given offender.", nickname = "getOffenderCsraAssessments")
+    @GetMapping("/csra/{offenderNo}")
+    public List<AssessmentSummary> getOffenderCsraAssessments(@PathVariable("offenderNo") @ApiParam(value = "The offender number") final String offenderNo) {
+        return offenderAssessmentService.getOffenderAssessments(offenderNo);
     }
 
     @ApiResponses({
