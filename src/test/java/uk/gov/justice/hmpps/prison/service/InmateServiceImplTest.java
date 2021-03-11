@@ -91,6 +91,8 @@ public class InmateServiceImplTest {
     @Mock
     private TelemetryClient telemetryClient;
     @Mock
+    private OffenderAssessmentService offenderAssessmentService;
+    @Mock
     private OffenderLanguageRepository offenderLanguageRepository;
     @Mock
     private OffenderRepository offenderRepository;
@@ -103,7 +105,8 @@ public class InmateServiceImplTest {
     @BeforeEach
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
-                referenceDomainService, bookingService, agencyService, userService, movementsService, authenticationFacade, telemetryClient, "WING", 100, offenderLanguageRepository, offenderRepository);
+                referenceDomainService, bookingService, agencyService, userService, movementsService, authenticationFacade,
+                telemetryClient, "WING", 100, offenderAssessmentService, offenderLanguageRepository, offenderRepository);
     }
 
     @Test
@@ -536,6 +539,23 @@ public class InmateServiceImplTest {
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside");
+    }
+
+    @Test
+    public void findInmate_CsraSummaryLoaded() {
+
+        when(repository.findInmate(any())).thenReturn(Optional.of(buildInmateDetail()));
+        when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
+        when(repository.findPhysicalAttributes(anyLong())).thenReturn(Optional.of(buildPhysicalAttributes()));
+        when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
+        when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
+        when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(offenderAssessmentService.getCsraClassificationCode("S1234AA")).thenReturn("STANDARD");
+
+        final var inmateDetail = serviceToTest.findInmate(-1L, false, true);
+
+        assertThat(inmateDetail.getCsraClassificationCode()).isEqualTo("STANDARD");
     }
 
     private InmateDetail buildInmateDetail() {

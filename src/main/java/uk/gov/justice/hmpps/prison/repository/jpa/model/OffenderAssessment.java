@@ -156,7 +156,8 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
         if (reviewedClassification != null && !reviewedClassification.isPending()) {
             return new ClassificationSummary(reviewedClassification, getPreviousClassification(), getApprovalReason());
         }
-        if (calculatedClassification != null && !calculatedClassification.isPending()) {
+        if (calculatedClassification != null && !calculatedClassification.isPending() &&
+                overridingClassification == null) {
             return new ClassificationSummary(calculatedClassification, null, null);
         }
         return ClassificationSummary.withoutClassification();
@@ -187,6 +188,10 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
 
         private static ClassificationSummary withoutClassification() {
             return new ClassificationSummary(null, null, null);
+        }
+
+        public boolean isSet() {
+            return finalClassification != null;
         }
     }
 }

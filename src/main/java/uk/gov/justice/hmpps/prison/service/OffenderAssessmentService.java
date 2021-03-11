@@ -58,7 +58,7 @@ public class OffenderAssessmentService {
 
     @Transactional(readOnly = true)
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public List<AssessmentSummary> getOffenderAssessments(String offenderNo) {
+    public List<AssessmentSummary> getOffenderAssessments(final String offenderNo) {
         final var assessments = repository.findByCsraAssessmentAndByOffenderNo(offenderNo);
 
         return assessments.stream().map(this::getAssessmentSummary).collect(Collectors.toList());
@@ -80,6 +80,13 @@ public class OffenderAssessmentService {
             .assessorUser((assessmentDetails.getCreationUser() != null)?assessmentDetails.getCreationUser().getUsername():null)
             .nextReviewDate(assessmentDetails.getNextReviewDate())
             .build();
+    }
+
+    public String getCsraClassificationCode(final String offenderNo) {
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNo(offenderNo);
+
+        return assessments.stream().filter(a -> a.getClassificationSummary().isSet()).findFirst()
+            .map(a -> a.getClassificationSummary().getFinalClassification().getCode()).orElse(null);
     }
 
     private List<AssessmentQuestion> getCsraAssessmentQuestionsAndAnswers(final OffenderAssessment assessmentDetails, final Long bookingId, final Integer assessmentSeq) {
