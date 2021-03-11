@@ -17,8 +17,10 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderAlias;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.ProvisionalDeletionReferralResult;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -83,6 +85,36 @@ class DataComplianceEventPusherTest {
                 "}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
                 .isEqualTo("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION");
+    }
+
+    @Test
+    void sendProvisionalDeletionReferralResultEvent() {
+
+        final var request = ArgumentCaptor.forClass(SendMessageRequest.class);
+
+        when(client.sendMessage(request.capture()))
+            .thenReturn(new SendMessageResult().withMessageId("message1"));
+
+        eventPusher.send(ProvisionalDeletionReferralResult.builder()
+            .referralId(123L)
+            .offenderIdDisplay("offender")
+            .subsequentChangesIdentified(false)
+            .agencyLocationId("someAgencyLocId")
+            .offenceCodes(List.of("someOffenceCode1", "someOffenceCode2"))
+            .alertCodes(List.of("someAlertCode1", "someAlertCode2"))
+            .build());
+
+        assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
+        assertThat(request.getValue().getMessageBody()).isEqualTo(
+            "{\"referralId\":123," +
+            "\"offenderIdDisplay\":\"offender\"," +
+            "\"subsequentChangesIdentified\":false," +
+            "\"agencyLocationId\":\"someAgencyLocId\"," +
+            "\"offenceCodes\":[\"someOffenceCode1\",\"someOffenceCode2\"]," +
+            "\"alertCodes\":[\"someAlertCode1\",\"someAlertCode2\"]}");
+
+        assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
+            .isEqualTo("DATA_COMPLIANCE_OFFENDER_PROVISIONAL_DELETION_REFERRAL");
     }
 
     @Test

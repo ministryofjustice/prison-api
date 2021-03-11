@@ -6,10 +6,12 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderD
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderRestrictionResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.ProvisionalDeletionReferralResult;
 
 public interface DataComplianceEventPusher {
     void send(FreeTextSearchResult event);
     void send(OffenderPendingDeletion event);
+    void send(ProvisionalDeletionReferralResult event);
     void send(OffenderPendingDeletionReferralComplete event);
     void send(OffenderDeletionComplete event);
     void sendDuplicateIdResult(DataDuplicateResult event);

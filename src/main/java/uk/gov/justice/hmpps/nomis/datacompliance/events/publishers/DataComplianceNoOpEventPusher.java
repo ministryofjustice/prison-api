@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderD
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderRestrictionResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.ProvisionalDeletionReferralResult;
 
 @Slf4j
 @Component
@@ -22,6 +23,11 @@ public class DataComplianceNoOpEventPusher implements DataComplianceEventPusher 
     @Override
     public void send(final OffenderPendingDeletion event) {
         log.warn("Pretending to push pending offender deletion for '{}' to queue", event.getOffenderIdDisplay());
+    }
+
+    @Override
+    public void send(final ProvisionalDeletionReferralResult event) {
+        log.warn("Pretending to push provisional deletion referral result for '{}' to queue", event.getOffenderIdDisplay());
     }
 
     @Override

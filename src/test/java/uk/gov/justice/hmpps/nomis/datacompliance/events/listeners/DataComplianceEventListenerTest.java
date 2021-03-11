@@ -163,6 +163,46 @@ class DataComplianceEventListenerTest {
     }
 
     @Test
+    void handleProvisionalDeletionReferralRequest() {
+
+        handleMessage(
+            "{\"offenderIdDisplay\":\"A1234AA\",\"referralId\":123}",
+            Map.of("eventType", "PROVISIONAL_DELETION_REFERRAL_REQUEST"));
+
+        verify(dataComplianceReferralService).referProvisionalDeletion("A1234AA", 123L);
+    }
+
+
+
+    @ParameterizedTest()
+    @NullAndEmptySource
+    void handleProvisionalDeletionReferralRequestThrowsIfOffenderIdDisplayNullOrEmpty(String offenderIdDisplay) {
+
+        assertThatThrownBy(() -> {
+            handleMessage(
+                "{\"" + offenderIdDisplay + "\":\"A1234AA\"}",
+                Map.of("eventType", "PROVISIONAL_DELETION_REFERRAL_REQUEST"));
+        })
+            .isInstanceOf(IllegalStateException.class);
+
+        verifyNoInteractions(offenderRestrictionService);
+    }
+
+    @ParameterizedTest()
+    @NullAndEmptySource
+    void handleProvisionalDeletionReferralRequestThrowsIfReferralIdNullOrEmpty(String referralId) {
+
+        assertThatThrownBy(() -> {
+            handleMessage(
+                "{\"offenderIdDisplay\":\"A1234AA\",\"referralId\":" + referralId + "}",
+                Map.of("eventType", "PROVISIONAL_DELETION_REFERRAL_REQUEST"));
+        })
+            .isInstanceOf(IllegalStateException.class);
+
+        verifyNoInteractions(offenderRestrictionService);
+    }
+
+    @Test
     void handleDuplicateIdCheck() {
 
         handleMessage(

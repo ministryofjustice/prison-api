@@ -16,6 +16,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderD
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderRestrictionResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.ProvisionalDeletionReferralResult;
 
 import java.util.Map;
 
@@ -46,6 +47,13 @@ public class DataComplianceAwsEventPusher implements DataComplianceEventPusher {
         log.trace("Sending referral of offender pending deletion: {}", event.getOffenderIdDisplay());
 
         sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION", event));
+    }
+
+    @Override
+    public void send(final ProvisionalDeletionReferralResult event) {
+        log.trace("Sending referral of provisional deletion referral result: {}", event.getOffenderIdDisplay());
+
+        sqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER_PROVISIONAL_DELETION_REFERRAL", event));
     }
 
     @Override
