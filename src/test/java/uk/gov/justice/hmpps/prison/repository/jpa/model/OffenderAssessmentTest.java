@@ -13,9 +13,9 @@ public class OffenderAssessmentTest {
 
     @ParameterizedTest
     @MethodSource("classificationsWithExpectedResults")
-    void classificationSummaryCalculation(String calculatedClassificationCode, String overrideClassificationCode, String reviewedClassificationCode,
-                                          String reviewCommitteeComment, String overrideReason, String expectedFinalOutcome,
-                                          String expectedOriginalOutcome, String expectedApprovalReason)
+    void classificationSummaryCalculation(final String calculatedClassificationCode, final String overrideClassificationCode, final String reviewedClassificationCode,
+                                          final String reviewCommitteeComment, final String overrideReason, final String expectedFinalOutcome,
+                                          final String expectedOriginalOutcome, final String expectedApprovalReason)
     {
         final var offenderAssessment = OffenderAssessment.builder()
             .calculatedClassification(generateClassification(calculatedClassificationCode))
@@ -29,6 +29,20 @@ public class OffenderAssessmentTest {
         assertClassificationCodeEquals(classificationSummary.getFinalClassification(), expectedFinalOutcome);
         assertClassificationCodeEquals(classificationSummary.getOriginalClassification(), expectedOriginalOutcome);
         assertThat(classificationSummary.getClassificationApprovalReason()).isEqualTo(expectedApprovalReason);
+    }
+
+    @ParameterizedTest
+    @MethodSource("classificationsWithExpectedIsSetResults")
+    void classificationSummaryIsSet(final String calculatedClassificationCode, final String overrideClassificationCode, final String reviewedClassificationCode,
+                                    final boolean expectedIsSetResult) {
+        final var offenderAssessment = OffenderAssessment.builder()
+            .calculatedClassification(generateClassification(calculatedClassificationCode))
+            .overridingClassification(generateClassification(overrideClassificationCode))
+            .reviewedClassification(generateClassification(reviewedClassificationCode))
+            .build();
+        final var classificationSummary = offenderAssessment.getClassificationSummary();
+
+        assertThat(classificationSummary.isSet()).isEqualTo(expectedIsSetResult);
     }
 
     private void assertClassificationCodeEquals(AssessmentClassification actualClassification, String expectedCode) {
@@ -54,6 +68,7 @@ public class OffenderAssessmentTest {
             arguments("STANDARD", "HI", "HI", "Approval Comment", "Override Comment", "HI", "STANDARD", "Override Comment"),
             arguments("STANDARD", "HI", "HI", "Approval Comment", null, "HI", "STANDARD", "Approval Comment"),
             arguments("STANDARD", "HI", "HI", null, null, "HI", "STANDARD", null),
+            arguments("STANDARD", "HI", null, null, "Override Comment", null, null, null),
             arguments("STANDARD", "HI", "STANDARD", "Approval Comment", "Override Comment", "STANDARD", null, "Approval Comment"),
             arguments("STANDARD", null, "STANDARD", null, "Override Comment", "STANDARD", null, null),
             arguments(null, "HI", "STANDARD", "Approval Comment", "Override Comment", "STANDARD", null, "Override Comment"),
@@ -62,6 +77,19 @@ public class OffenderAssessmentTest {
             arguments("PEND", null, "HI", "Approval Comment", null, "HI", null, "Approval Comment"),
             arguments("PEND", null, null, null, null, null, null, null),
             arguments(null, null, null, null, null, null, null, null)
+        );
+    }
+
+    private static Stream<Arguments> classificationsWithExpectedIsSetResults() {
+        return Stream.of(
+            arguments("STANDARD", "HI", "HI", true),
+            arguments("STANDARD", "HI", null, false),
+            arguments("STANDARD", null, "STANDARD", true),
+            arguments("STANDARD", null, null, true),
+            arguments(null, "HI", "STANDARD", true),
+            arguments(null, null, "STANDARD", true),
+            arguments("PEND", null, null, false),
+            arguments(null, null, null, false)
         );
     }
 }
