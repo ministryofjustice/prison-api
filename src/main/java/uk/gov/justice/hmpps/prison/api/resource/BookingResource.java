@@ -173,7 +173,7 @@ public class BookingResource {
 
         return basicInfo && !extraInfo ?
                 inmateService.getBasicInmateDetail(bookingId)
-                : inmateService.findInmate(bookingId, extraInfo);
+                : inmateService.findInmate(bookingId, extraInfo, false);
     }
 
     @ApiResponses({
@@ -182,10 +182,10 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Offender detail.", notes = "Offender detail.", nickname = "getOffenderBookingByOffenderNo")
     @GetMapping("/offenderNo/{offenderNo}")
-    public InmateDetail getOffenderBookingByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", required = true) final String offenderNo, @RequestParam(value = "fullInfo", required = false, defaultValue = "false") @ApiParam(value = "If set to true then full data is returned", defaultValue = "false") final boolean fullInfo, @RequestParam(value = "extraInfo", required = false, defaultValue = "false") @ApiParam(value = "Only used when fullInfo=true, returns identifiers,offences,aliases,sentence dates,convicted status", defaultValue = "false") final boolean extraInfo) {
+    public InmateDetail getOffenderBookingByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", required = true) final String offenderNo, @RequestParam(value = "fullInfo", required = false, defaultValue = "false") @ApiParam(value = "If set to true then full data is returned", defaultValue = "false") final boolean fullInfo, @RequestParam(value = "extraInfo", required = false, defaultValue = "false") @ApiParam(value = "Only used when fullInfo=true, returns identifiers,offences,aliases,sentence dates,convicted status", defaultValue = "false") final boolean extraInfo, @RequestParam(value = "csraSummary", required = false, defaultValue = "false") @ApiParam(value = "Only used when fullInfo=true, returns the applicable CSRA classification for this offender", defaultValue = "false") final boolean csraSummary) {
         final var offenderSummary = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return fullInfo || extraInfo ?
-                inmateService.findInmate(offenderSummary.getBookingId(), extraInfo) :
+                inmateService.findInmate(offenderSummary.getBookingId(), extraInfo, csraSummary) :
                 inmateService.getBasicInmateDetail(offenderSummary.getBookingId());
     }
 

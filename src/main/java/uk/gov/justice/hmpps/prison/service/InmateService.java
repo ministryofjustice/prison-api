@@ -92,6 +92,7 @@ public class InmateService {
     private final MovementsService movementsService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
+    private final OffenderAssessmentService offenderAssessmentService;
     private final OffenderLanguageRepository offenderLanguageRepository;
     private final OffenderRepository offenderRepository;
     private final TelemetryClient telemetryClient;
@@ -109,6 +110,7 @@ public class InmateService {
                          final TelemetryClient telemetryClient,
                          @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
                          @Value("${batch.max.size:1000}") final int maxBatchSize,
+                         final OffenderAssessmentService offenderAssessmentService,
                          final OffenderLanguageRepository offenderLanguageRepository,
                          final OffenderRepository offenderRepository) {
         this.repository = repository;
@@ -123,6 +125,7 @@ public class InmateService {
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
         this.userService = userService;
+        this.offenderAssessmentService = offenderAssessmentService;
         this.offenderLanguageRepository = offenderLanguageRepository;
         this.offenderRepository = offenderRepository;
     }
@@ -213,17 +216,17 @@ public class InmateService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public InmateDetail findInmate(final Long bookingId, final boolean extraInfo) {
+    public InmateDetail findInmate(final Long bookingId, final boolean extraInfo, final boolean csraSummary) {
         final var inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        return getOffenderDetails(inmate, extraInfo);
+        return getOffenderDetails(inmate, extraInfo, csraSummary);
     }
 
     public InmateDetail findOffender(final String offenderNo, final boolean extraInfo) {
         final var inmate = repository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        return getOffenderDetails(inmate, extraInfo);
+        return getOffenderDetails(inmate, extraInfo, false);
     }
 
-    private InmateDetail getOffenderDetails(final InmateDetail inmate, final boolean extraInfo) {
+    private InmateDetail getOffenderDetails(final InmateDetail inmate, final boolean extraInfo, final boolean csraSummary) {
         if (inmate.getBookingId() == null) {
             offenderRepository.findById(inmate.getOffenderId())
                 .ifPresent(offender -> inmate.setPhysicalAttributes(PhysicalAttributes.builder()
@@ -257,7 +260,7 @@ public class InmateService {
                 inmate.setAssignedLivingUnit(assignedLivingUnit);
             });
             setAlertsFields(inmate);
-            setAssessmentsFields(bookingId, inmate);
+            setAssessmentsFields(bookingId, inmate, csraSummary);
 
             try {
                 inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
@@ -319,7 +322,7 @@ public class InmateService {
                 .reduce((first, second) -> second);
     }
 
-    private void setAssessmentsFields(final Long bookingId, final InmateDetail inmate) {
+    private void setAssessmentsFields(final Long bookingId, final InmateDetail inmate, final boolean csraSummary) {
         final var assessments = getAllAssessmentsOrdered(bookingId);
         if (!CollectionUtils.isEmpty(assessments)) {
             inmate.setAssessments(filterAssessmentsByCode(assessments));
@@ -328,6 +331,9 @@ public class InmateService {
                 inmate.setCategory(category.getClassification());
                 inmate.setCategoryCode(category.getClassificationCode());
             });
+        }
+        if (csraSummary) {
+            inmate.setCsraClassificationCode(offenderAssessmentService.getCsraClassificationCode(inmate.getOffenderNo()));
         }
     }
 

@@ -295,8 +295,57 @@ public class OffenderAssessmentServiceTest {
         );
     }
 
-    private OffenderAssessmentBuilder getOffenderAssessment_MinimalBuilder(long bookingId, int assessmentSeq,
-                                                                           String nomsId, long assesmentTypeId) {
+    @Test
+    public void getCsraClassificationCode_returnsFirstAssessmentIfSet() {
+        when(repository.findByCsraAssessmentAndByOffenderNo("N1234AA")).thenReturn(List.of(
+            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("HI", "High"))
+                .build(),
+            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("STANDARD", "Standard"))
+                .build()
+        ));
+
+        final var csraClassificationCode = service.getCsraClassificationCode("N1234AA");
+
+        assertThat(csraClassificationCode).isEqualTo("HI");
+    }
+
+    @Test
+    public void getCsraClassificationCode_returnsNextAssessmentIfFirstNotSet() {
+        when(repository.findByCsraAssessmentAndByOffenderNo("N1234AA")).thenReturn(List.of(
+            getOffenderAssessment_CsraClassificationBuilder(null)
+                .build(),
+            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("STANDARD", "Standard"))
+                .build()
+        ));
+
+        final var csraClassificationCode = service.getCsraClassificationCode("N1234AA");
+
+        assertThat(csraClassificationCode).isEqualTo("STANDARD");
+    }
+
+    @Test
+    public void getCsraClassificationCode_returnsNullIfNoAssessmentSet() {
+        when(repository.findByCsraAssessmentAndByOffenderNo("N1234AA")).thenReturn(List.of(
+            getOffenderAssessment_CsraClassificationBuilder(null)
+                .build()
+        ));
+
+        final var csraClassificationCode = service.getCsraClassificationCode("N1234AA");
+
+        assertThat(csraClassificationCode).isEqualTo(null);
+    }
+
+    @Test
+    public void getCsraClassificationCode_returnsNullIfNoAssessments() {
+        when(repository.findByCsraAssessmentAndByOffenderNo("N1234AA")).thenReturn(List.of());
+
+        final var csraClassificationCode = service.getCsraClassificationCode("N1234AA");
+
+        assertThat(csraClassificationCode).isEqualTo(null);
+    }
+
+    private OffenderAssessmentBuilder getOffenderAssessment_MinimalBuilder(final long bookingId, final int assessmentSeq,
+                                                                           final String nomsId, final long assesmentTypeId) {
         return OffenderAssessment.builder()
             .bookingId(bookingId)
             .assessmentSeq(assessmentSeq)
@@ -309,5 +358,21 @@ public class OffenderAssessmentServiceTest {
                 .assessmentId(assesmentTypeId)
                 .build())
             .assessmentItems(List.of());
+    }
+
+    private OffenderAssessmentBuilder getOffenderAssessment_CsraClassificationBuilder(final AssessmentClassification csraClassification) {
+        return OffenderAssessment.builder()
+            .bookingId(-1L)
+            .assessmentSeq(2)
+            .offenderBooking(OffenderBooking.builder()
+                .offender(Offender.builder()
+                    .nomsId("NN123N")
+                    .build())
+                .build())
+            .assessmentType(AssessmentEntry.builder()
+                .assessmentId(-5L)
+                .build())
+            .assessmentItems(List.of())
+            .reviewedClassification(csraClassification);
     }
 }

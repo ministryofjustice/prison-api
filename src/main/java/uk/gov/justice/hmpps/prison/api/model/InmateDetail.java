@@ -129,6 +129,9 @@ public class InmateDetail {
     @ApiModelProperty(value = "CSRA (Latest assessment with cellSharing=true from list of assessments)")
     private String csra;
 
+    @ApiModelProperty(value = "The CSRA classification (from the list of CSRA assessments)", example="STANDARD")
+    private String csraClassificationCode;
+
     @ApiModelProperty(value = "Category description (from list of assessments)")
     private String category;
 
