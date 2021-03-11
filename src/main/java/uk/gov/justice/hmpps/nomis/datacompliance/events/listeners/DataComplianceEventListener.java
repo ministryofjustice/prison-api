@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.DataDuplic
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.FreeTextCheck;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderDeletionGranted;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderRestrictionRequest;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.ProvisionalDeletionReferralRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.ReferralRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
@@ -41,6 +42,7 @@ public class DataComplianceEventListener {
 
     private static final String REFERRAL_REQUEST = "DATA_COMPLIANCE_REFERRAL-REQUEST";
     private static final String AD_HOC_REFERRAL_REQUEST = "DATA_COMPLIANCE_AD-HOC-REFERRAL-REQUEST";
+    private static final String  PROVISIONAL_DELETION_REFERRAL_REQUEST = "PROVISIONAL_DELETION_REFERRAL_REQUEST";
     private static final String DATA_DUPLICATE_ID_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-ID-CHECK";
     private static final String DATA_DUPLICATE_DB_CHECK = "DATA_COMPLIANCE_DATA-DUPLICATE-DB-CHECK";
     private static final String FREE_TEXT_MORATORIUM_CHECK = "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK";
@@ -50,6 +52,7 @@ public class DataComplianceEventListener {
     private final Map<String, MessageHandler> messageHandlers = Map.of(
             REFERRAL_REQUEST, this::handleReferralRequest,
             AD_HOC_REFERRAL_REQUEST, this::handleAdHocReferralRequest,
+            PROVISIONAL_DELETION_REFERRAL_REQUEST, this::handleProvisionalDeletionReferralRequest,
             DATA_DUPLICATE_ID_CHECK, this::handleDuplicateIdCheck,
             DATA_DUPLICATE_DB_CHECK, this::handleDuplicateDataCheck,
             FREE_TEXT_MORATORIUM_CHECK, this::handleFreeTextMoratoriumCheck,
@@ -126,6 +129,15 @@ public class DataComplianceEventListener {
         checkNotNull(event.getBatchId(), "No batch ID specified in request: %s", message.getPayload());
 
         dataComplianceReferralService.referAdHocOffenderDeletion(event.getOffenderIdDisplay(), event.getBatchId());
+    }
+
+    private void handleProvisionalDeletionReferralRequest(final Message<String> message) {
+        final var event = parseEvent(message.getPayload(), ProvisionalDeletionReferralRequest.class);
+
+        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", message.getPayload());
+        checkState(isNotEmpty(event.getReferralId()), "No referralId specified in request: %s", message.getPayload());
+
+        dataComplianceReferralService.referProvisionalDeletion(event.getOffenderIdDisplay(), event.getReferralId());
     }
 
     private void handleFreeTextMoratoriumCheck(final Message<String> message) {

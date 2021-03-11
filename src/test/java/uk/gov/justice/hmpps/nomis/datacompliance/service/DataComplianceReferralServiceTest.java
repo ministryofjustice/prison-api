@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderAlias;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.ProvisionalDeletionReferralResult;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAlertPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
@@ -48,6 +49,7 @@ public class DataComplianceReferralServiceTest {
 
     private static final String OFFENDER_NUMBER_1 = "A1234AA";
     private static final String OFFENDER_NUMBER_2 = "B4321BB";
+    private static final long REFERRAL_ID = 123L;
 
     @Mock
     private OffenderPendingDeletionRepository offenderPendingDeletionRepository;
@@ -187,6 +189,57 @@ public class DataComplianceReferralServiceTest {
 
         verifyNoInteractions(eventPusher);
     }
+
+
+    @Test
+    void referProvisionalDeletion() {
+
+        when(offenderPendingDeletionRepository.findOffenderPendingDeletion(OFFENDER_NUMBER_1, LocalDate.now(clock)))
+            .thenReturn(Optional.of(new uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion(OFFENDER_NUMBER_1)));
+
+        when(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(OFFENDER_NUMBER_1))
+            .thenReturn(List.of(offenderAliasPendingDeletion(1L, OFFENDER_NUMBER_1)));
+
+        when(movementsService.getMovementsByOffenders(List.of(OFFENDER_NUMBER_1), List.of("REL"), true, true)).thenReturn(List.of(offendersLastMovement(OFFENDER_NUMBER_1)));
+
+        service.referProvisionalDeletion(OFFENDER_NUMBER_1, REFERRAL_ID);
+
+        verify(eventPusher).send(expectedProvisionalDeletionReferralResult(1L, OFFENDER_NUMBER_1, REFERRAL_ID,false));
+        verifyNoMoreInteractions(eventPusher);
+    }
+
+    @Test
+    void referProvisionalDeletionSubsequentChangesIdentified() {
+
+        when(offenderPendingDeletionRepository.findOffenderPendingDeletion(OFFENDER_NUMBER_1, LocalDate.now(clock)))
+            .thenReturn(Optional.empty());
+
+        service.referProvisionalDeletion(OFFENDER_NUMBER_1, REFERRAL_ID);
+
+        verify(eventPusher).send(expectedProvisionalDeletionReferralWhenChangeIdentified(OFFENDER_NUMBER_1, REFERRAL_ID));
+        verifyNoMoreInteractions(eventPusher);
+    }
+
+
+    private ProvisionalDeletionReferralResult expectedProvisionalDeletionReferralResult(final long offenderId, final String offenderNumber, long referralId, final boolean subsequentChangesIdentified) {
+        return ProvisionalDeletionReferralResult.builder()
+            .referralId(referralId)
+            .offenderIdDisplay(offenderNumber)
+            .subsequentChangesIdentified(subsequentChangesIdentified)
+            .agencyLocationId("LEI" + offenderNumber)
+            .offenceCode("offence" + offenderId)
+            .alertCode("alert" + offenderId)
+            .build();
+    }
+
+    private ProvisionalDeletionReferralResult expectedProvisionalDeletionReferralWhenChangeIdentified(final String offenderNumber, final Long referralId) {
+        return ProvisionalDeletionReferralResult.builder()
+            .offenderIdDisplay(offenderNumber)
+            .referralId(referralId)
+            .subsequentChangesIdentified(true)
+            .build();
+    }
+
 
     private OffenderPendingDeletion expectedPendingDeletionEvent(final long offenderId, final String offenderNumber) {
         return expectedPendingDeletionEvent(offenderId, offenderNumber, true);
