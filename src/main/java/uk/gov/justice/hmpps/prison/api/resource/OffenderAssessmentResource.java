@@ -99,7 +99,7 @@ public class OffenderAssessmentResource {
     @ApiResponses({
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Retrieves CSRAs for the given offender.", nickname = "getOffenderCsraAssessments")
+    @ApiOperation(value = "Retrieves CSRAs for the given offender, ordered by the latest first.", nickname = "getOffenderCsraAssessments")
     @GetMapping("/csra/{offenderNo}")
     public List<AssessmentSummary> getOffenderCsraAssessments(@PathVariable("offenderNo") @ApiParam(value = "The offender number") final String offenderNo) {
         return offenderAssessmentService.getOffenderAssessments(offenderNo);

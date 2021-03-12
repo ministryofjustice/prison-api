@@ -73,5 +73,7 @@ INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO,
 -- for forename surname inmate
         (-55, sysdate, 'Z00051', -1055, 1, 'N', 'IN',  'Y', 'N', 'MDI', -1055, -114);
 
+-- Second bookings
 INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO, OFFENDER_ID, BOOKING_SEQ, DISCLOSURE_FLAG, IN_OUT_STATUS, ACTIVE_FLAG, YOUTH_ADULT_CODE, AGY_LOC_ID, ROOT_OFFENDER_ID, LIVING_UNIT_ID)
-VALUES  (-56, sysdate, 'Z00056', -1035, 2, 'N', 'OUT',  'N', 'N', 'OUT', -1035, null);
+VALUES  (-56, sysdate, 'Z00056', -1035, 2, 'N', 'OUT',  'N', 'N', 'OUT', -1035, null),
+        (-57, sysdate, 'Z00057', -1043, 2, 'N', 'OUT',  'N', 'N', 'OUT', -1043, null);

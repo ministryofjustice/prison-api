@@ -59,7 +59,7 @@ public class OffenderAssessmentService {
     @Transactional(readOnly = true)
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<AssessmentSummary> getOffenderAssessments(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNo(offenderNo);
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(offenderNo);
 
         return assessments.stream().map(this::getAssessmentSummary).collect(Collectors.toList());
     }
@@ -83,7 +83,7 @@ public class OffenderAssessmentService {
     }
 
     public String getCsraClassificationCode(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNo(offenderNo);
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(offenderNo);
 
         return assessments.stream().filter(a -> a.getClassificationSummary().isSet()).findFirst()
             .map(a -> a.getClassificationSummary().getFinalClassification().getCode()).orElse(null);
