@@ -24,13 +24,13 @@
     "nextReviewDate": "2019-11-22"
   },
   {
-    "bookingId": -43,
-    "assessmentSeq": 3,
+    "bookingId": -57,
+    "assessmentSeq": 1,
     "offenderNo": "A1183JE",
     "classificationCode": "HI",
     "assessmentCode": "CSR",
     "cellSharingAlertFlag": true,
-    "assessmentDate": "2019-01-03",
+    "assessmentDate": "2019-01-05",
     "assessmentAgencyId": "SYI",
     "nextReviewDate": "2019-11-22"
   }

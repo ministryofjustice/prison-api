@@ -95,7 +95,7 @@ public class OffenderAssessmentRepositoryTest {
 
     @Test
     void getAssessmentaByCsraAssessmentAndOffenderNo() {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNo("A1183JE");
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("A1183JE");
 
         assertThat(assessments).usingRecursiveComparison()
             .ignoringFields("assessmentDate", "assessmentComment", "nextReviewDate", "assessCommittee", "assessStatus", "assessmentCreateLocation", "assessmentItems", "assessmentType",
@@ -104,7 +104,7 @@ public class OffenderAssessmentRepositoryTest {
                 "reviewedClassification", "createDatetime", "createUserId")
             .isEqualTo(List.of(
                 OffenderAssessment.builder()
-                    .bookingId(-43L)
+                    .bookingId(-57L)
                     .assessmentSeq(1)
                     .build(),
                 OffenderAssessment.builder()
@@ -113,7 +113,7 @@ public class OffenderAssessmentRepositoryTest {
                     .build(),
                 OffenderAssessment.builder()
                     .bookingId(-43L)
-                    .assessmentSeq(3)
+                    .assessmentSeq(1)
                     .build()
             ));
 
@@ -122,7 +122,7 @@ public class OffenderAssessmentRepositoryTest {
 
     @Test
     void getAssessmentaByCsraAssessmentAndOffenderNo_ReturnsNothing() {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNo("A1183JC");
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("A1183JC");
 
         assertThat(assessments).isEmpty();
     }
