@@ -11,7 +11,7 @@ public class SentenceDetailTest {
     @Nested
     public class getHomeDetentionCurfewEndDate {
         @Test
-        public void noReleaseDate() {
+        public void noConditionalReleaseDate() {
             final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
                 .homeDetentionCurfewActualDate(LocalDate.parse("2010-01-02"))
                 .build();
@@ -21,7 +21,7 @@ public class SentenceDetailTest {
         @Test
         public void noStartDate() {
             final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
-                .releaseDate(LocalDate.parse("2010-01-02"))
+                .conditionalReleaseDate(LocalDate.parse("2010-01-02"))
                 .build();
             assertThat(sentenceDetail.getHomeDetentionCurfewEndDate()).isNull();
         }
@@ -30,7 +30,26 @@ public class SentenceDetailTest {
         public void bothSet() {
             final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
                 .homeDetentionCurfewActualDate(LocalDate.parse("2010-01-02"))
-                .releaseDate(LocalDate.parse("2019-02-04"))
+                .conditionalReleaseDate(LocalDate.parse("2019-02-04"))
+                .build();
+            assertThat(sentenceDetail.getHomeDetentionCurfewEndDate()).isEqualTo("2019-02-03");
+        }
+
+        @Test
+        public void overrideSetnoConditional() {
+            final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
+                .homeDetentionCurfewActualDate(LocalDate.parse("2010-01-02"))
+                .conditionalReleaseOverrideDate(LocalDate.parse("2019-02-04"))
+                .build();
+            assertThat(sentenceDetail.getHomeDetentionCurfewEndDate()).isEqualTo("2019-02-03");
+        }
+
+        @Test
+        public void allSet() {
+            final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
+                .homeDetentionCurfewActualDate(LocalDate.parse("2010-01-02"))
+                .conditionalReleaseDate(LocalDate.parse("2019-02-02"))
+                .conditionalReleaseOverrideDate(LocalDate.parse("2019-02-04"))
                 .build();
             assertThat(sentenceDetail.getHomeDetentionCurfewEndDate()).isEqualTo("2019-02-03");
         }
@@ -39,7 +58,7 @@ public class SentenceDetailTest {
     @Nested
     public class getTopupSupervisionStartDate {
         @Test
-        public void noReleaseDate() {
+        public void noConditionalReleaseDate() {
             final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
                 .topupSupervisionExpiryDate(LocalDate.parse("2010-01-02"))
                 .build();
@@ -47,7 +66,7 @@ public class SentenceDetailTest {
         }
 
         @Test
-        public void noReleaseDateButLicenceExpiryDate() {
+        public void noConditionalReleaseDateButLicenceExpiryDate() {
             final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
                 .topupSupervisionExpiryDate(LocalDate.parse("2010-01-02"))
                 .licenceExpiryDate(LocalDate.parse("2014-03-05"))
@@ -58,16 +77,35 @@ public class SentenceDetailTest {
         @Test
         public void noExpiryDate() {
             final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
-                .releaseDate(LocalDate.parse("2010-01-02"))
+                .conditionalReleaseDate(LocalDate.parse("2010-01-02"))
                 .build();
             assertThat(sentenceDetail.getTopupSupervisionStartDate()).isNull();
+        }
+
+        @Test
+        public void noLicenceExpiryDateConditionalReleaseDate() {
+            final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
+                .topupSupervisionExpiryDate(LocalDate.parse("2010-01-02"))
+                .conditionalReleaseDate(LocalDate.parse("2019-02-04"))
+                .build();
+            assertThat(sentenceDetail.getTopupSupervisionStartDate()).isEqualTo("2019-02-04");
+        }
+
+        @Test
+        public void noLicenceExpiryDateConditionalReleaseOverrideDateOnlySet() {
+            final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
+                .topupSupervisionExpiryDate(LocalDate.parse("2010-01-02"))
+                .conditionalReleaseOverrideDate(LocalDate.parse("2019-02-04"))
+                .build();
+            assertThat(sentenceDetail.getTopupSupervisionStartDate()).isEqualTo("2019-02-04");
         }
 
         @Test
         public void noLicenceExpiryDate() {
             final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
                 .topupSupervisionExpiryDate(LocalDate.parse("2010-01-02"))
-                .releaseDate(LocalDate.parse("2019-02-04"))
+                .conditionalReleaseDate(LocalDate.parse("2019-02-02"))
+                .conditionalReleaseOverrideDate(LocalDate.parse("2019-02-04"))
                 .build();
             assertThat(sentenceDetail.getTopupSupervisionStartDate()).isEqualTo("2019-02-04");
         }
@@ -76,7 +114,7 @@ public class SentenceDetailTest {
         public void licenceExpiryDate() {
             final var sentenceDetail = SentenceDetail.sentenceDetailBuilder()
                 .topupSupervisionExpiryDate(LocalDate.parse("2010-01-02"))
-                .releaseDate(LocalDate.parse("2019-02-04"))
+                .conditionalReleaseDate(LocalDate.parse("2019-02-04"))
                 .licenceExpiryDate(LocalDate.parse("2014-03-05"))
                 .build();
             assertThat(sentenceDetail.getTopupSupervisionStartDate()).isEqualTo("2014-03-06");

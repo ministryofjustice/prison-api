@@ -50,7 +50,7 @@ public class SentenceDetail extends BaseSentenceDetail {
     @ApiModelProperty(value = "Confirmed release date for offender.", position = 31, example = "2020-04-20")
     private LocalDate confirmedReleaseDate;
     @ApiModelProperty(value = "Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm." +
-             "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>", position = 32, example = "2020-04-01")
+        "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>", position = 32, example = "2020-04-01")
     private LocalDate releaseDate;
 
     @Builder(builderMethodName = "sentenceDetailBuilder")
@@ -74,13 +74,13 @@ public class SentenceDetail extends BaseSentenceDetail {
     public LocalDate getTopupSupervisionStartDate() {
         if (getTopupSupervisionExpiryDate() == null) return null;
         if (getLicenceExpiryDate() != null) return getLicenceExpiryDate().plusDays(1);
-        return releaseDate;
+        return conditionalReleaseOverrideDate != null ? conditionalReleaseOverrideDate : getConditionalReleaseDate();
     }
 
     @ApiModelProperty(value = "Offender's home detention curfew end date - calculated as one day before the releaseDate.", example = "2019-04-01")
     public LocalDate getHomeDetentionCurfewEndDate() {
-        if (getHomeDetentionCurfewActualDate() == null || releaseDate == null) return null;
-        return releaseDate.minusDays(1);
-
+        if (getHomeDetentionCurfewActualDate() == null) return null;
+        final var calcConditionalReleaseDate = conditionalReleaseOverrideDate != null ? conditionalReleaseOverrideDate : getConditionalReleaseDate();
+        return calcConditionalReleaseDate == null ? null : calcConditionalReleaseDate.minusDays(1);
     }
 }
