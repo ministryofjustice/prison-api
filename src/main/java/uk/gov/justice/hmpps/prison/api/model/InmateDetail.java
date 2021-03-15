@@ -132,6 +132,9 @@ public class InmateDetail {
     @ApiModelProperty(value = "The CSRA classification (calculated from the list of CSRA assessments)", example="STANDARD")
     private String csraClassificationCode;
 
+    @ApiModelProperty(value = "The date that the csraClassificationCode was assessed")
+    private LocalDate csraClassificationDate;
+
     @ApiModelProperty(value = "Category description (from list of assessments)")
     private String category;
 

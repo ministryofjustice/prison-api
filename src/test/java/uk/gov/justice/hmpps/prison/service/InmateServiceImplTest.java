@@ -36,6 +36,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.service.OffenderAssessmentService.CurrentCsraAssessment;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
 
 import java.time.LocalDate;
@@ -550,12 +551,13 @@ public class InmateServiceImplTest {
         when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
         when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
+        when(offenderAssessmentService.getCurrentCsraClassification("S1234AA")).thenReturn(new CurrentCsraAssessment("STANDARD", LocalDate.parse("2019-02-01")));
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
-        when(offenderAssessmentService.getCsraClassificationCode("S1234AA")).thenReturn("STANDARD");
 
         final var inmateDetail = serviceToTest.findInmate(-1L, false, true);
 
         assertThat(inmateDetail.getCsraClassificationCode()).isEqualTo("STANDARD");
+        assertThat(inmateDetail.getCsraClassificationDate()).isEqualTo(LocalDate.parse("2019-02-01"));
     }
 
     private InmateDetail buildInmateDetail() {

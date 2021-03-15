@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAssessmentR
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,6 +67,13 @@ public class OffenderAssessmentService {
         return assessments.stream().map(this::getAssessmentSummary).collect(Collectors.toList());
     }
 
+    public CurrentCsraAssessment getCurrentCsraClassification(final String offenderNo) {
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(offenderNo);
+
+        return assessments.stream().filter(a -> a.getClassificationSummary().isSet()).findFirst()
+            .map(a -> CurrentCsraAssessment.fromAssessment(a)).orElse(null);
+    }
+
     private AssessmentSummary getAssessmentSummary(final OffenderAssessment assessmentDetails) {
         final var classificationSummary = assessmentDetails.getClassificationSummary();
 
@@ -82,13 +92,6 @@ public class OffenderAssessmentService {
             .build();
     }
 
-    public String getCsraClassificationCode(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(offenderNo);
-
-        return assessments.stream().filter(a -> a.getClassificationSummary().isSet()).findFirst()
-            .map(a -> a.getClassificationSummary().getFinalClassification().getCode()).orElse(null);
-    }
-
     private List<AssessmentQuestion> getCsraAssessmentQuestionsAndAnswers(final OffenderAssessment assessmentDetails, final Long bookingId, final Integer assessmentSeq) {
         final var assessmentQuestions = assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(assessmentDetails.getAssessmentType().getAssessmentId());
 
@@ -100,5 +103,17 @@ public class OffenderAssessmentService {
         final var assessmentAnswersByQuestionId = assessmentItems.stream().map(OffenderAssessmentItem::getAssessmentAnswer).collect(Collectors.toMap((aa) -> aa.getParentAssessment().getAssessmentId(), AssessmentEntry::getDescription));
 
         return assessmentQuestions.stream().map(aq -> new AssessmentQuestion(aq.getDescription(), assessmentAnswersByQuestionId.get(aq.getAssessmentId()))).collect(Collectors.toList());
+    }
+
+    @AllArgsConstructor
+    @Data
+    public static class CurrentCsraAssessment {
+        private String classificationCode;
+        private LocalDate classificationDate;
+
+        public static CurrentCsraAssessment fromAssessment(OffenderAssessment asseessmentWithClassificationSet) {
+            return new CurrentCsraAssessment(asseessmentWithClassificationSet.getClassificationSummary().getFinalClassification().getCode(),
+                asseessmentWithClassificationSet.getAssessmentDate());
+        }
     }
 }
