@@ -333,7 +333,11 @@ public class InmateService {
             });
         }
         if (csraSummary) {
-            inmate.setCsraClassificationCode(offenderAssessmentService.getCsraClassificationCode(inmate.getOffenderNo()));
+            final var currentCsraClassification = offenderAssessmentService.getCurrentCsraClassification(inmate.getOffenderNo());
+            if (currentCsraClassification != null) {
+                inmate.setCsraClassificationCode(currentCsraClassification.getClassificationCode());
+                inmate.setCsraClassificationDate(currentCsraClassification.getClassificationDate());
+            }
         }
     }
 

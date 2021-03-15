@@ -296,52 +296,54 @@ public class OffenderAssessmentServiceTest {
     }
 
     @Test
-    public void getCsraClassificationCode_returnsFirstAssessmentIfSet() {
+    public void getCurrentCsraClassification_returnsResultsOfFirstAssessmentIfSet() {
         when(repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("N1234AA")).thenReturn(List.of(
-            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("HI", "High"))
+            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
                 .build(),
-            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("STANDARD", "Standard"))
+            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("STANDARD", "Standard"), LocalDate.parse("2019-01-01"))
                 .build()
         ));
 
-        final var csraClassificationCode = service.getCsraClassificationCode("N1234AA");
+        final var csraClassificationCode = service.getCurrentCsraClassification("N1234AA");
 
-        assertThat(csraClassificationCode).isEqualTo("HI");
+        assertThat(csraClassificationCode.getClassificationCode()).isEqualTo("HI");
+        assertThat(csraClassificationCode.getClassificationDate()).isEqualTo(LocalDate.parse("2019-01-02"));
     }
 
     @Test
-    public void getCsraClassificationCode_returnsNextAssessmentIfFirstNotSet() {
+    public void getCurrentCsraClassification_returnsResultsOfNextAssessmentIfFirstNotSet() {
         when(repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("N1234AA")).thenReturn(List.of(
-            getOffenderAssessment_CsraClassificationBuilder(null)
+            getOffenderAssessment_CsraClassificationBuilder(null, LocalDate.parse("2019-01-03"))
                 .build(),
-            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("STANDARD", "Standard"))
+            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("STANDARD", "Standard"), LocalDate.parse("2019-01-02"))
                 .build(),
-            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("HI", "High"))
+            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-01"))
                 .build()
         ));
 
-        final var csraClassificationCode = service.getCsraClassificationCode("N1234AA");
+        final var csraClassificationCode = service.getCurrentCsraClassification("N1234AA");
 
-        assertThat(csraClassificationCode).isEqualTo("STANDARD");
+        assertThat(csraClassificationCode.getClassificationCode()).isEqualTo("STANDARD");
+        assertThat(csraClassificationCode.getClassificationDate()).isEqualTo(LocalDate.parse("2019-01-02"));
     }
 
     @Test
-    public void getCsraClassificationCode_returnsNullIfNoAssessmentSet() {
+    public void getCurrentCsraClassification_returnsNullIfNoAssessmentsWithResults() {
         when(repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("N1234AA")).thenReturn(List.of(
-            getOffenderAssessment_CsraClassificationBuilder(null)
+            getOffenderAssessment_CsraClassificationBuilder(null, LocalDate.parse("2019-01-02"))
                 .build()
         ));
 
-        final var csraClassificationCode = service.getCsraClassificationCode("N1234AA");
+        final var csraClassificationCode = service.getCurrentCsraClassification("N1234AA");
 
         assertThat(csraClassificationCode).isEqualTo(null);
     }
 
     @Test
-    public void getCsraClassificationCode_returnsNullIfNoAssessments() {
+    public void getCurrentCsraClassification_returnsNullIfNoAssessments() {
         when(repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("N1234AA")).thenReturn(List.of());
 
-        final var csraClassificationCode = service.getCsraClassificationCode("N1234AA");
+        final var csraClassificationCode = service.getCurrentCsraClassification("N1234AA");
 
         assertThat(csraClassificationCode).isEqualTo(null);
     }
@@ -362,10 +364,11 @@ public class OffenderAssessmentServiceTest {
             .assessmentItems(List.of());
     }
 
-    private OffenderAssessmentBuilder getOffenderAssessment_CsraClassificationBuilder(final AssessmentClassification csraClassification) {
+    private OffenderAssessmentBuilder getOffenderAssessment_CsraClassificationBuilder(final AssessmentClassification csraClassification, final LocalDate assessmentDate) {
         return OffenderAssessment.builder()
             .bookingId(-1L)
             .assessmentSeq(2)
+            .assessmentDate(assessmentDate)
             .offenderBooking(OffenderBooking.builder()
                 .offender(Offender.builder()
                     .nomsId("NN123N")
