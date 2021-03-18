@@ -10,8 +10,10 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.Booking;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion.OffenderAlias;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletionReferralComplete;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.ProvisionalDeletionReferralResult;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAlertPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
+import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderPendingDeletionRepository;
@@ -23,11 +25,13 @@ import javax.transaction.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.List.of;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -74,6 +78,18 @@ public class DataComplianceReferralService {
         dataComplianceEventPusher.send(generateOffenderPendingDeletionEvent(offenderPendingDeletion.get(), batchId));
     }
 
+    public void referProvisionalDeletion(final String offenderNumber, final Long referralId) {
+
+        final var offenderPendingDeletion =
+            offenderPendingDeletionRepository.findOffenderPendingDeletion(offenderNumber, LocalDate.now(clock))
+                .map(this::transform);
+
+        final var provisionalDeletionReferralResult = offenderPendingDeletion.isPresent()
+            ? generateProvisionalDeletionReferralResultEvent(offenderNumber, referralId) : ProvisionalDeletionReferralResult.changesIdentifiedResult(offenderNumber, referralId);
+
+        dataComplianceEventPusher.send(provisionalDeletionReferralResult);
+    }
+
     private OffenderPendingDeletion generateOffenderPendingDeletionEvent(final OffenderNumber offenderNumber,
                                                                          final Long batchId) {
 
@@ -90,6 +106,29 @@ public class DataComplianceReferralService {
 
         return transform(offenderNumber, rootOffenderAlias, offenderAliases, batchId, getLatestLocationId(rootOffenderAlias.getOffenderNumber()));
     }
+
+    private ProvisionalDeletionReferralResult generateProvisionalDeletionReferralResultEvent(final String offenderNo, Long referralId){
+
+        final var offenderAliases = offenderAliasPendingDeletionRepository
+            .findOffenderAliasPendingDeletionByOffenderNumber(offenderNo);
+
+        checkState(!offenderAliases.isEmpty(), "Offender not found: '%s'", offenderNo);
+
+        return transform(offenderNo, offenderAliases, referralId);
+    }
+
+    private ProvisionalDeletionReferralResult transform(final String offenderNumber, final List<OffenderAliasPendingDeletion> offenderAliases, Long referralId) {
+
+        return ProvisionalDeletionReferralResult.builder()
+            .referralId(referralId)
+            .offenderIdDisplay(offenderNumber)
+            .subsequentChangesIdentified(false)
+            .agencyLocationId(getLatestLocationId(offenderNumber))
+            .offenceCodes(getOffenceCodes(offenderAliases))
+            .alertCodes(getAlertCodes(offenderAliases))
+            .build();
+    }
+
 
     private Page<OffenderNumber> getOffendersPendingDeletion(final LocalDate from,
                                                              final LocalDate to,
@@ -149,4 +188,25 @@ public class DataComplianceReferralService {
              .map(Movement::getFromAgency)
              .orElse(null);
     }
+
+    private List<String> getOffenceCodes(final List<OffenderAliasPendingDeletion> offenderAliases) {
+        return offenderAliases.stream()
+            .map(OffenderAliasPendingDeletion::getOffenderBookings)
+            .flatMap(Collection::stream)
+            .map(OffenderBookingPendingDeletion::getOffenderCharges)
+            .flatMap(Collection::stream)
+            .map(OffenderChargePendingDeletion::getOffenceCode)
+            .collect(toList());
+    }
+
+    private List<String> getAlertCodes(final List<OffenderAliasPendingDeletion> offenderAliases) {
+        return offenderAliases.stream()
+            .map(OffenderAliasPendingDeletion::getOffenderBookings)
+            .flatMap(Collection::stream)
+            .map(OffenderBookingPendingDeletion::getOffenderAlerts)
+            .flatMap(Collection::stream)
+            .map(OffenderAlertPendingDeletion::getAlertCode)
+            .collect(toList());
+    }
+
 }
