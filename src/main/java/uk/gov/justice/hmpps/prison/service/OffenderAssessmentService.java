@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.*;
 
@@ -105,15 +106,16 @@ public class OffenderAssessmentService {
             .map(OffenderAssessmentItem::getAssessmentAnswer)
             .collect(groupingBy((aa) -> aa.getParentAssessment().getAssessmentId(), mapping(AssessmentEntry::getDescription, toList())));
 
-        return assessmentQuestions.stream().map(aq -> {
-            final var answers = assessmentAnswersByQuestionId.get(aq.getAssessmentId());
-            if (answers == null) {
-                return new AssessmentQuestion(aq.getDescription(), null, null);
-            }
-            return new AssessmentQuestion(aq.getDescription(),
-                answers.stream().findFirst().orElse(null),
-                answers.stream().skip(1).collect(toList()));
-        }).collect(toList());
+        return assessmentQuestions.stream().map(aq -> getAssessmentQuestionAndAnswers(aq, assessmentAnswersByQuestionId.get(aq.getAssessmentId()))).collect(toList());
+    }
+
+    private AssessmentQuestion getAssessmentQuestionAndAnswers(final AssessmentEntry assessment, final List<String> answers) {
+        if (answers == null) {
+            return new AssessmentQuestion(assessment.getDescription(), null, null);
+        }
+        return new AssessmentQuestion(assessment.getDescription(),
+            answers.stream().findFirst().orElse(null),
+            answers.stream().skip(1).collect(toList()));
     }
 
     @AllArgsConstructor
