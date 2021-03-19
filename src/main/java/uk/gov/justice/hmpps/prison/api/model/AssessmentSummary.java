@@ -33,7 +33,7 @@ public class AssessmentSummary {
     @ApiModelProperty(value = "Offender number (e.g. NOMS Number).", position = 3, example = "GV09876N")
     private String offenderNo;
 
-    @ApiModelProperty(value = "Classification code", position = 4, example = "STANDARD")
+    @ApiModelProperty(value = "Classification code. This will not have a value if the assessment is incomplete or pending", position = 4, example = "STANDARD")
     private String classificationCode;
 
     @NotBlank

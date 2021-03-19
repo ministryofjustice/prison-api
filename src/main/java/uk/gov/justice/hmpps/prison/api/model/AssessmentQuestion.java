@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @SuppressWarnings("unused")
 @ApiModel(description = "AssessmentQuestion")
@@ -23,6 +24,9 @@ public class AssessmentQuestion {
     @ApiModelProperty(value = "Question", position = 1)
     private String question;
 
-    @ApiModelProperty(value = "Answer", position = 2)
+    @ApiModelProperty(value = "The answer given. More than one answer might have been given, in which case the other answers will be in the additionalAnswers property", position = 2)
     private String answer;
+
+    @ApiModelProperty(value = "If a question has more than one answer, all but the first answer will be in this property", position = 3)
+    private List<String> additionalAnswers;
 }

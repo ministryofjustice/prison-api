@@ -19,7 +19,9 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+
+import static java.util.stream.Collectors.*;
 
 @Service
 @Validated
@@ -64,14 +66,14 @@ public class OffenderAssessmentService {
     public List<AssessmentSummary> getOffenderAssessments(final String offenderNo) {
         final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(offenderNo);
 
-        return assessments.stream().map(this::getAssessmentSummary).collect(Collectors.toList());
+        return assessments.stream().map(this::getAssessmentSummary).collect(toList());
     }
 
     public CurrentCsraAssessment getCurrentCsraClassification(final String offenderNo) {
         final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(offenderNo);
 
         return assessments.stream().filter(a -> a.getClassificationSummary().isSet()).findFirst()
-            .map(a -> CurrentCsraAssessment.fromAssessment(a)).orElse(null);
+            .map(CurrentCsraAssessment::fromAssessment).orElse(null);
     }
 
     private AssessmentSummary getAssessmentSummary(final OffenderAssessment assessmentDetails) {
@@ -100,9 +102,20 @@ public class OffenderAssessmentService {
         }
 
         final var assessmentItems = assessmentDetails.getAssessmentItems();
-        final var assessmentAnswersByQuestionId = assessmentItems.stream().map(OffenderAssessmentItem::getAssessmentAnswer).collect(Collectors.toMap((aa) -> aa.getParentAssessment().getAssessmentId(), AssessmentEntry::getDescription));
+        final var assessmentAnswersByQuestionId = assessmentItems.stream()
+            .map(OffenderAssessmentItem::getAssessmentAnswer)
+            .collect(groupingBy((aa) -> aa.getParentAssessment().getAssessmentId(), mapping(AssessmentEntry::getDescription, toList())));
 
-        return assessmentQuestions.stream().map(aq -> new AssessmentQuestion(aq.getDescription(), assessmentAnswersByQuestionId.get(aq.getAssessmentId()))).collect(Collectors.toList());
+        return assessmentQuestions.stream().map(aq -> getAssessmentQuestionAndAnswers(aq, assessmentAnswersByQuestionId.get(aq.getAssessmentId()))).collect(toList());
+    }
+
+    private AssessmentQuestion getAssessmentQuestionAndAnswers(final AssessmentEntry assessment, final List<String> answers) {
+        if (answers == null) {
+            return new AssessmentQuestion(assessment.getDescription(), null, null);
+        }
+        return new AssessmentQuestion(assessment.getDescription(),
+            answers.stream().findFirst().orElse(null),
+            answers.stream().skip(1).collect(toList()));
     }
 
     @AllArgsConstructor

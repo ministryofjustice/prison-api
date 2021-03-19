@@ -128,6 +128,7 @@ public class OffenderAssessmentServiceTest {
                 AssessmentQuestion.builder()
                     .question("Question 1")
                     .answer("Answer 1")
+                    .additionalAnswers(List.of())
                     .build(),
                 AssessmentQuestion.builder()
                     .question("Question 2")
@@ -155,6 +156,59 @@ public class OffenderAssessmentServiceTest {
         ));
 
         assertThatThrownBy(() -> service.getOffenderAssessment(-1L, 2)).isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void getOffenderAssessment_handlesMultipleAnswersToCsraQuestion() {
+        when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
+            getOffenderAssessment_MinimalBuilder(-1L, 2, "NN123N", -11L)
+                .assessmentItems(List.of(
+                    OffenderAssessmentItem.builder()
+                        .assessmentAnswer(AssessmentEntry.builder()
+                            .description("First answer")
+                            .parentAssessment(AssessmentEntry.builder()
+                                .assessmentId(-10L)
+                                .build())
+                            .build())
+                        .build(),
+                    OffenderAssessmentItem.builder()
+                        .assessmentAnswer(AssessmentEntry.builder()
+                            .description("Second answer")
+                            .parentAssessment(AssessmentEntry.builder()
+                                .assessmentId(-10L)
+                                .build())
+                            .build())
+                        .build(),
+                    OffenderAssessmentItem.builder()
+                        .assessmentAnswer(AssessmentEntry.builder()
+                            .description("Third answer")
+                            .parentAssessment(AssessmentEntry.builder()
+                                .assessmentId(-10L)
+                                .build())
+                            .build())
+                        .build()
+                ))
+                .build()
+        ));
+
+        when(assessmentRepository.findCsraQuestionsByAssessmentTypeIdOrderedByListSeq(-11L)).thenReturn(List.of(
+            AssessmentEntry.builder()
+                .description("Multiple answer question")
+                .assessmentId(-10L)
+                .build()
+        ));
+
+        final var assessment = service.getOffenderAssessment(-1L, 2);
+        assertThat(assessment.getQuestions()).isEqualTo(List.of(
+            AssessmentQuestion.builder()
+                .question("Multiple answer question")
+                .answer("First answer")
+                .additionalAnswers(List.of(
+                    "Second answer", "Third answer"
+                ))
+                .build()
+            )
+        );
     }
 
     @Test
