@@ -168,7 +168,7 @@ workflows:
             - prison-api-prod
           requires:
             - request-prod-approval
-  scheduled:
+  security:
     triggers:
       - schedule:
           cron: "0 7 * * 1-5"
@@ -180,4 +180,6 @@ workflows:
       - hmpps/gradle_owasp_dependency_check:
           context:
             - hmpps-common-vars
-          executor: builder
+      - hmpps/veracode_pipeline_scan:
+          context:
+            - hmpps-common-vars
