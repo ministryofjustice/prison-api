@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   hmpps: ministryofjustice/hmpps@3.0
-  owasp: entur/owasp@0.0.14
 
 defaults: &defaults
 
@@ -178,5 +177,7 @@ workflows:
               only:
                 - main
     jobs:
-      - owasp/gradle_owasp_dependency_check:
+      - hmpps/gradle_owasp_dependency_check:
+          context:
+            - hmpps-common-vars
           executor: builder
