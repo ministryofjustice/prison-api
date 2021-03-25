@@ -189,6 +189,9 @@ public class InmateDetail {
     @ApiModelProperty(value = "The prisoner's imprisonment status.", example="LIFE", notes = "Only returned when requesting extra details")
     private String imprisonmentStatus;
 
+    @ApiModelProperty(value = "The prisoner's imprisonment status description.", example="Serving Life Imprisonment", notes = "Only returned when requesting extra details")
+    private String imprisonmentStatusDescription;
+
     @ApiModelProperty(value = "The prisoner's IEP Status", notes = "Only returned when requesting extra details")
     private PrivilegeSummary privilegeSummary;
 

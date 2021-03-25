@@ -14,8 +14,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.AssignedLivingUnit;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
+import uk.gov.justice.hmpps.prison.api.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
@@ -24,9 +26,12 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
+import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
+import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
+import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.KeyWorkerAllocationRepository;
@@ -558,6 +563,27 @@ public class InmateServiceImplTest {
 
         assertThat(inmateDetail.getCsraClassificationCode()).isEqualTo("STANDARD");
         assertThat(inmateDetail.getCsraClassificationDate()).isEqualTo(LocalDate.parse("2019-02-01"));
+    }
+
+    @Test
+    public void findInmate_extraInfo_imprisonmentStatusDetails() {
+
+        when(repository.findInmate(any())).thenReturn(Optional.of(buildInmateDetail()));
+        when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
+        when(repository.findPhysicalAttributes(anyLong())).thenReturn(Optional.of(buildPhysicalAttributes()));
+        when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
+        when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
+        when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.getImprisonmentStatus(anyLong())).thenReturn(Optional.of(ImprisonmentStatus.builder().imprisonmentStatus("LIFE").description("Life imprisonment").build()));
+        when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(bookingService.getBookingIEPSummary(anyLong(),anyBoolean())).thenReturn(PrivilegeSummary.builder().build());
+
+
+        final var inmateDetail = serviceToTest.findInmate(-1L, true, false);
+
+        assertThat(inmateDetail.getImprisonmentStatus()).isEqualTo("LIFE");
+        assertThat(inmateDetail.getImprisonmentStatusDescription()).isEqualTo("Life imprisonment");
     }
 
     private InmateDetail buildInmateDetail() {
