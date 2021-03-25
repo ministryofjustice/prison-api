@@ -567,7 +567,9 @@ public class InmateServiceImplTest {
 
     @Test
     public void findInmate_extraInfo_imprisonmentStatusDetails() {
-
+        final var imprisonmentStatus = new ImprisonmentStatus();
+        imprisonmentStatus.setImprisonmentStatus("LIFE");
+        imprisonmentStatus.setDescription("Life imprisonment");
         when(repository.findInmate(any())).thenReturn(Optional.of(buildInmateDetail()));
         when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
         when(repository.findPhysicalAttributes(anyLong())).thenReturn(Optional.of(buildPhysicalAttributes()));
@@ -575,7 +577,7 @@ public class InmateServiceImplTest {
         when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
-        when(repository.getImprisonmentStatus(anyLong())).thenReturn(Optional.of(ImprisonmentStatus.builder().imprisonmentStatus("LIFE").description("Life imprisonment").build()));
+        when(repository.getImprisonmentStatus(anyLong())).thenReturn(Optional.of(imprisonmentStatus));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(bookingService.getBookingIEPSummary(anyLong(),anyBoolean())).thenReturn(PrivilegeSummary.builder().build());
 
