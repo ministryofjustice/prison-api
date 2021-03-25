@@ -276,6 +276,7 @@ public class InmateService {
                 repository.getImprisonmentStatus(bookingId).ifPresent(status -> {
                     inmate.setLegalStatus(status.getLegalStatus());
                     inmate.setImprisonmentStatus(status.getImprisonmentStatus());
+                    inmate.setImprisonmentStatusDescription(status.getDescription());
                 });
 
                 final var offenceHistory = bookingService.getActiveOffencesForBooking(bookingId, true);

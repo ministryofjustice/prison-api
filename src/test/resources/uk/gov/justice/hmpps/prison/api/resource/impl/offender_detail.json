@@ -177,6 +177,7 @@
   "legalStatus": "SENTENCED",
   "recall": true,
   "imprisonmentStatus": "SENT",
+  "imprisonmentStatusDescription":"Adult Imprisonment Without Option",
   "privilegeSummary": {
     "bookingId": -2,
     "iepLevel": "Basic",

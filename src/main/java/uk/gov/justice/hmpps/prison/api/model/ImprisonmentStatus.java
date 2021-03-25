@@ -9,6 +9,7 @@ public class ImprisonmentStatus {
     private Long bookingId;
     private String bandCode;
     private String imprisonmentStatus;
+    private String description;
     private Integer imprisonStatusSeq;
     private LegalStatus legalStatus;
 }

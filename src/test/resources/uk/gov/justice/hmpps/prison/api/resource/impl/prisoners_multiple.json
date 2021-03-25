@@ -18,7 +18,8 @@
     "religion": "Church of England",
     "religionCode": "CHRCE",
     "convictedStatus": "Convicted",
-    "imprisonmentStatus": "SENT"
+    "imprisonmentStatus": "SENT",
+    "imprisonmentStatusDesc":"Adult Imprisonment Without Option"
   },
   {
     "offenderNo": "A1234AC",
@@ -39,6 +40,7 @@
     "religion": "Anglican",
     "religionCode": "CHRANG",
     "convictedStatus": "Convicted",
-    "imprisonmentStatus": "SENT"
+    "imprisonmentStatus": "SENT",
+    "imprisonmentStatusDesc":"Adult Imprisonment Without Option"
   }
 ]
