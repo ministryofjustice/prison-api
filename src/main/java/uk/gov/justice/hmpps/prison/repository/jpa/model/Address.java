@@ -2,20 +2,29 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,23 +36,19 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.County.COUNTY;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "ADDRESSES")
-public class Address {
+@DiscriminatorColumn(name = "OWNER_CLASS")
+@Inheritance
+@EqualsAndHashCode(of = "addressId")
+@ToString(of = {"addressId", "addressType", "flat", "premise", "postalCode"})
+public abstract class Address implements Serializable {
     @Id
     @Column(name = "ADDRESS_ID", nullable = false)
     private Long addressId;
-
-    @Column(name = "OWNER_ID", nullable = false)
-    private Long ownerId;
-
-    @Column(name = "OWNER_CLASS", nullable = false)
-    private String ownerClass;
-
-    private String flat;
 
     @ManyToOne
     @NotFound(action = IGNORE)
@@ -53,6 +58,7 @@ public class Address {
     })
     private AddressType addressType;
 
+    private String flat;
     private String premise;
     private String street;
     private String locality;
@@ -107,4 +113,8 @@ public class Address {
     @JoinColumn(name = "ADDRESS_ID")
     @Builder.Default
     private List<AddressUsage> addressUsages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Default
+    private List<AddressPhone> phones = new ArrayList<>();
 }

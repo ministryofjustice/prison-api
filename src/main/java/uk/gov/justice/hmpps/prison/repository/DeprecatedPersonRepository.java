@@ -8,7 +8,7 @@ import uk.gov.justice.hmpps.prison.repository.sql.PersonRepositorySql;
 import java.util.List;
 
 @Repository
-public class PersonRepository extends RepositoryBase {
+public class DeprecatedPersonRepository extends RepositoryBase {
     private static final StandardBeanPropertyRowMapper<PersonIdentifier> PERSON_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(PersonIdentifier.class);
 
 

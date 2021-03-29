@@ -6,9 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.AddressUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.PhoneRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import javax.validation.constraints.NotNull;
@@ -23,16 +21,13 @@ import static java.util.stream.Collectors.toList;
 public class OffenderAddressService {
 
     private final OffenderBookingRepository offenderBookingRepository;
-    private final AddressRepository addressRepository;
-    private final PhoneRepository phoneRepository;
 
     @VerifyOffenderAccess
     public List<AddressDto> getAddressesByOffenderNo(@NotNull final String offenderNo) {
         final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
         final var offenderBooking = optionalOffenderBooking.orElseThrow(EntityNotFoundException.withMessage(String.format("No active offender bookings found for offender number %s\n", offenderNo)));
-        final var offenderRootId = offenderBooking.getOffender().getRootOffenderId();
 
-        return addressRepository.findAllByOwnerClassAndOwnerId("OFF", offenderRootId).stream().map(address -> {
+        return offenderBooking.getOffender().getAddresses().stream().map(address -> {
             final var country = address.getCountry() != null ? address.getCountry().getDescription() : null;
             final var county = address.getCounty() != null ? address.getCounty().getDescription() : null;
             final var town = address.getCity() != null ? address.getCity().getDescription() : null;
@@ -61,7 +56,7 @@ public class OffenderAddressService {
                                             .addressUsage(addressUsage.getAddressUsage())
                                             .addressUsageDescription(addressUsage.getAddressUsageType() == null ? null : addressUsage.getAddressUsageType().getDescription())
                                             .build()).collect(Collectors.toList()))
-                    .phones(phoneRepository.findAllByOwnerClassAndOwnerId("ADDR", address.getAddressId()).stream().map(phone ->
+                    .phones(address.getPhones().stream().map(phone ->
                             Telephone.builder()
                                     .ext(phone.getExtNo())
                                     .type(phone.getPhoneType())

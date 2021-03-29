@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -33,6 +34,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationTyp
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "AGENCY_LOCATIONS")
+@ToString(of = {"id", "description"})
 public class AgencyLocation extends ExtendedAuditableEntity {
 
     public static final String IN = "IN";
@@ -66,4 +68,7 @@ public class AgencyLocation extends ExtendedAuditableEntity {
 
     @Column(name = "JURISDICTION_CODE")
     private String jurisdictionCode;
+
+    @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AgencyAddress> addresses;
 }

@@ -135,6 +135,9 @@ public class Offender extends ExtendedAuditableEntity {
     @Column(name = "LAST_NAME_ALPHA_KEY")
     private String lastNameAlphaKey;
 
+    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Default
+    private List<OffenderAddress> addresses = new ArrayList<>();
 
     public Optional<OffenderIdentifier> getLatestIdentifierOfType(final String type) {
         final var offenderIdentifiers = mapOfIdentifiers().get(type);

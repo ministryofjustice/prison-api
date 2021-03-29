@@ -5,10 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Address;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PersonAddress;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,23 +23,20 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @ActiveProfiles("test")
 
 @AutoConfigureTestDatabase(replace = NONE)
-public class AddressRepositoryTest {
+public class PersonAddressRepositoryTest {
 
     @Autowired
-    private AddressRepository repository;
+    private PersonAddressRepository repository;
 
-    @Test
-    public void noAddressesForOffender() {
-        assertThat(repository.findAllByOwnerClassAndOwnerId("non-existent-offender-number", -1000000L)).isEmpty();
-    }
 
     @Test
     public void findAllForPerson() {
-        final var expected = List.of(
-                                Address.builder()
+        final var person = Person.builder().id(-8L).build();
+        final var expected = new ArrayList<PersonAddress>();
+        expected.add(
+                                PersonAddress.builder()
                                     .addressId(-15L)
-                                    .ownerClass("PER")
-                                    .ownerId(-8L)
+                                    .person(person)
                                     .noFixedAddressFlag("N")
                                     .commentText(null)
                                     .primaryFlag("Y")
@@ -54,11 +52,10 @@ public class AddressRepositoryTest {
                                     .startDate(LocalDate.of(2016, 8, 2))
                                     .endDate(null)
                                     .addressUsages(Collections.emptyList())
-                                    .build(),
-                                Address.builder()
+                                    .build());
+           expected.add(                     PersonAddress.builder()
                                     .addressId(-16L)
-                                    .ownerClass("PER")
-                                    .ownerId(-8L)
+                                    .person(person)
                                     .noFixedAddressFlag("Y")
                                     .commentText(null)
                                     .primaryFlag("N")
@@ -76,10 +73,10 @@ public class AddressRepositoryTest {
                                     .addressUsages(Collections.emptyList())
                                     .build());
 
-        final var addresses = repository.findAllByOwnerClassAndOwnerId("PER", -8L);
+        final var addresses = repository.findAllByPersonId(person.getId());
 
         assertThat(addresses)
-                .usingElementComparatorIgnoringFields("addressUsages")
+                .usingElementComparatorIgnoringFields("addressUsages", "person")
                 .isEqualTo(expected);
 
         assertThat(addresses.stream()
