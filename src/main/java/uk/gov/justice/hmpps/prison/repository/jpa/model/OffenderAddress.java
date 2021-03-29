@@ -23,7 +23,7 @@ public class OffenderAddress extends Address {
 
     static final String ADDR_TYPE = "OFF";
 
-    @JoinColumn(name = "OWNER_ID", referencedColumnName = "ROOT_OFFENDER_ID")
+    @JoinColumn(name = "OWNER_ID")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Offender offender;
 }

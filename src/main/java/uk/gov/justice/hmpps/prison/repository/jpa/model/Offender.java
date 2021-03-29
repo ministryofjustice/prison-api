@@ -86,6 +86,10 @@ public class Offender extends ExtendedAuditableEntity {
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ROOT_OFFENDER_ID", updatable = false, insertable = false)
+    private Offender rootOffender;
+
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Default
     private List<OffenderBooking> bookings = new ArrayList<>();

@@ -27,7 +27,7 @@ public class OffenderAddressService {
         final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
         final var offenderBooking = optionalOffenderBooking.orElseThrow(EntityNotFoundException.withMessage(String.format("No active offender bookings found for offender number %s\n", offenderNo)));
 
-        return offenderBooking.getOffender().getAddresses().stream().map(address -> {
+        return offenderBooking.getOffender().getRootOffender().getAddresses().stream().map(address -> {
             final var country = address.getCountry() != null ? address.getCountry().getDescription() : null;
             final var county = address.getCounty() != null ? address.getCounty().getDescription() : null;
             final var town = address.getCity() != null ? address.getCity().getDescription() : null;

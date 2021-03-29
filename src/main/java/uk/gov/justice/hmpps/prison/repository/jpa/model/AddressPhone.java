@@ -20,7 +20,7 @@ import javax.persistence.ManyToOne;
 @SuperBuilder
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ToString(of = {"address"})
+@ToString(callSuper = true)
 public class AddressPhone extends Phone {
 
     static final String PHONE_TYPE = "ADDR";

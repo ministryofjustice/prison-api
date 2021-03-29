@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface AddressPhoneRepository extends CrudRepository<AddressPhone, Long> {
 
-    @Query("Select pa from AddressPhone pa where pa.address.id = :addressId")
+    @Query("Select pa from AddressPhone pa where pa.address.addressId = :addressId")
     List<AddressPhone> findAllByAddressId(Long addressId);
 
 }
