@@ -32,8 +32,7 @@ public class PersonAddressRepositoryTest {
     @Test
     public void findAllForPerson() {
         final var person = Person.builder().id(-8L).build();
-        final var expected = new ArrayList<PersonAddress>();
-        expected.add(
+        final var expected = List.of(
                                 PersonAddress.builder()
                                     .addressId(-15L)
                                     .person(person)
@@ -52,8 +51,8 @@ public class PersonAddressRepositoryTest {
                                     .startDate(LocalDate.of(2016, 8, 2))
                                     .endDate(null)
                                     .addressUsages(Collections.emptyList())
-                                    .build());
-           expected.add(                     PersonAddress.builder()
+                                    .build(),
+        PersonAddress.builder()
                                     .addressId(-16L)
                                     .person(person)
                                     .noFixedAddressFlag("Y")
@@ -75,9 +74,7 @@ public class PersonAddressRepositoryTest {
 
         final var addresses = repository.findAllByPersonId(person.getId());
 
-        assertThat(addresses)
-                .usingElementComparatorIgnoringFields("addressUsages", "person")
-                .isEqualTo(expected);
+        assertThat(addresses).usingRecursiveComparison().ignoringFields("addressUsages", "person").isEqualTo(expected);
 
         assertThat(addresses.stream()
                 .map(address -> new ArrayList<>(address.getAddressUsages()))

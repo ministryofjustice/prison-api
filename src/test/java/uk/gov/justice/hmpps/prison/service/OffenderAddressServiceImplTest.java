@@ -49,7 +49,9 @@ public class OffenderAddressServiceImplTest {
 
         final var offenderNo = "off-1";
 
-        final var offenderBooking = OffenderBooking.builder().offender(Offender.builder().rootOffenderId(1L).build()).build();
+        final var offender = Offender.builder().rootOffenderId(1L).build();
+        offender.setRootOffender(offender);
+        final var offenderBooking = OffenderBooking.builder().offender(offender).build();
         when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any())).thenReturn(Optional.of(offenderBooking));
         offenderBooking.getOffender().setAddresses(List.of(
                 OffenderAddress.builder()
