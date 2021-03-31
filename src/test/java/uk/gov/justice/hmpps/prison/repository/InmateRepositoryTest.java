@@ -162,6 +162,22 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testSearchForOffenderBookingsReturnsEmptyImprisonmentStatusIfNone() {
+        final var foundInmates = repository.searchForOffenderBookings(OffenderBookingSearchRequest.builder()
+            .caseloads(Set.of("MDI"))
+            .searchTerm2("TRESCOTHICK")
+            .locationPrefix("MDI")
+            .pageRequest(new PageRequest("lastName, firstName"))
+            .build());
+
+        final var inmates = foundInmates.getItems();
+
+        assertThat(inmates)
+            .extracting(OffenderBooking::getBookingId, OffenderBooking::getImprisonmentStatus, OffenderBooking::getBandCode)
+            .containsExactly(Tuple.tuple(-35L, null, null));
+    }
+
+    @Test
     public void testSearchForConvictedOffenderBookings() {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI");
