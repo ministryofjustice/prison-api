@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -29,6 +32,7 @@ import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
+import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAddress;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
@@ -41,6 +45,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderIepReviewSearchCriteria;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -266,5 +271,109 @@ public class AgencyResource {
     @GetMapping("/{agencyId}/establishment-types")
     public AgencyEstablishmentTypes getAgencyEstablishmentTypes(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId) {
         return agencyService.getEstablishmentTypes(agencyId);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to create a agency address", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Create an address", notes = "Requires MAINTAIN_REF_DATA")
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
+    @ProxyUser
+    @PostMapping("/{agencyId}/addresses")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AddressDto createAgencyAddress(
+        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
+    ) {
+
+        return null;
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to update a agency address", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Update an existing address", notes = "Requires MAINTAIN_REF_DATA")
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
+    @ProxyUser
+    @PutMapping("/{agencyId}/addresses/{addressId}")
+    public AddressDto updateAgencyAddress(
+        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
+        @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
+        ) {
+
+        return null;
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to delete a agency address", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Delete an existing address", notes = "Requires MAINTAIN_REF_DATA")
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
+    @ProxyUser
+    @DeleteMapping("/{agencyId}/addresses/{addressId}")
+    public void deleteAgencyAddress(
+        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId
+    ) {
+
+
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to create a agency address", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Create an contact for an address", notes = "Requires MAINTAIN_REF_DATA")
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
+    @ProxyUser
+    @PostMapping("/{agencyId}/addresses/{addressId}/contacts")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AddressDto createAgencyAddressContact(
+        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
+    ) {
+
+        return null;
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to update a agency address", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Update an existing contact on an address", notes = "Requires MAINTAIN_REF_DATA")
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
+    @ProxyUser
+    @PutMapping("/{agencyId}/addresses/{addressId}/contacts/{contactId}")
+    public AddressDto updateAgencyAddressContact(
+        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
+        @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
+    ) {
+
+        return null;
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to delete a agency address", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Delete an existing address contact", notes = "Requires MAINTAIN_REF_DATA")
+    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
+    @ProxyUser
+    @DeleteMapping("/{agencyId}/addresses/{addressId}/contacts/{contactId}")
+    public void deleteAgencyAddressContact(
+        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId
+    ) {
+
+
     }
 }

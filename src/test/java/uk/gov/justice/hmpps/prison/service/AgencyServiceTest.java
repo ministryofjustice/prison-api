@@ -73,19 +73,6 @@ public class AgencyServiceTest {
     }
 
     @Test
-    public void shouldCallCollaboratorsForFullPrisonList() {
-        service.getPrisonContactDetail();
-        verify(agencyRepo).getPrisonContactDetails(null);
-    }
-
-    @Test
-    public void shouldCallCollaboratorsForSinglePrison() {
-        when(agencyRepo.getPrisonContactDetails("ABC")).thenReturn(buildPrisonContactDetailsListSingleResult());
-        service.getPrisonContactDetail("ABC");
-        verify(agencyRepo).getPrisonContactDetails("ABC");
-    }
-
-    @Test
     public void shouldReturnEntityNotFoundForSinglePrisonWithBlankAddress() {
         assertThatThrownBy(() -> service.getPrisonContactDetail("BLANK")).isInstanceOf(EntityNotFoundException.class);
     }

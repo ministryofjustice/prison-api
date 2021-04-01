@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.val;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -12,8 +11,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
-import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
-import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -23,21 +20,16 @@ import uk.gov.justice.hmpps.prison.repository.sql.AgencyRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReview;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReviewSearchCriteria;
-import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -45,8 +37,6 @@ import static java.util.stream.Collectors.toList;
  */
 @Repository
 public class AgencyRepository extends RepositoryBase {
-    private static final StandardBeanPropertyRowMapper<Address> ADDRESS_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(Address.class);
 
     private static final StandardBeanPropertyRowMapper<Agency> AGENCY_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Agency.class);
@@ -71,7 +61,7 @@ public class AgencyRepository extends RepositoryBase {
                 .addPagination()
                 .build();
 
-        final var paRowMapper = new PageAwareRowMapper<Agency>(AGENCY_ROW_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<>(AGENCY_ROW_MAPPER);
 
         final var agencies = jdbcTemplate.query(
                 sql,
@@ -223,45 +213,6 @@ public class AgencyRepository extends RepositoryBase {
         params.addValue("periodStart", periodStart);
         params.addValue("periodEnd", periodEnd);
     }
-
-
-    public List<PrisonContactDetail> getPrisonContactDetails(final String agencyId) {
-        final var sql = AgencyRepositorySql.FIND_PRISON_ADDRESSES_PHONE_NUMBERS.getSql();
-
-        final var outerJoinResults = jdbcTemplate.query(sql, createParams("agencyId", agencyId), ADDRESS_ROW_MAPPER);
-
-        return mapResultsToPrisonContactDetailsList(groupAddresses(outerJoinResults).values());
-    }
-
-    @VisibleForTesting
-    public List<PrisonContactDetail> mapResultsToPrisonContactDetailsList(final Collection<List<Address>> groupedResults) {
-        return groupedResults.stream().map(this::mapResultsToPrisonContactDetails)
-                .sorted(Comparator.comparing(PrisonContactDetail::getAgencyId))
-                .collect(toList());
-
-    }
-
-    private PrisonContactDetail mapResultsToPrisonContactDetails(final List<Address> addressList) {
-        final var telephones = addressList.stream().map(a ->
-                Telephone.builder().number(a.getPhoneNo()).type(a.getPhoneType()).ext(a.getExtNo()).build()).collect(toList());
-
-        final var address = addressList.stream().findAny().get();
-        return PrisonContactDetail.builder().agencyId(address.getAgencyId())
-                .description(address.getDescription())
-                .formattedDescription(LocationProcessor.formatLocation(address.getDescription()))
-                .addressType(address.getAddressType())
-                .phones(telephones)
-                .locality(address.getLocality())
-                .postCode(address.getPostalCode())
-                .premise(address.getPremise())
-                .city(address.getCity())
-                .country(address.getCountry()).build();
-    }
-
-    private Map<String, List<Address>> groupAddresses(final List<Address> list) {
-        return list.stream().collect(groupingBy(Address::getAgencyId));
-    }
-
 
     public Page<OffenderIepReview> getPrisonIepReview(final OffenderIepReviewSearchCriteria criteria) {
         val pageRequest = criteria.getPageRequest();

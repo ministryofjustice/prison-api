@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import com.google.common.collect.ImmutableList;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
-import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -166,45 +163,6 @@ public class AgencyRepositoryTest {
     public void testGetAgencyLocationsWithDatesPM() {
         final var locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), TimeSlot.PM);
         assertThat(locations).hasSize(2);
-    }
-
-    @Test
-    public void testGetAllPrisonContactDetailsInAgencyIdOrder() {
-        final var prisonContactDetailList = repository.getPrisonContactDetails(null);
-        assertThat(prisonContactDetailList).extracting("agencyId")
-                .containsExactly(
-                        "BMI", "BXI", "LEI", "MDI", "MUL", "RNI", "SYI", "TRO", "WAI"
-                );
-        assertThat(prisonContactDetailList).contains(buildBmiPrisonContactDetails());
-    }
-
-    @Test
-    public void testGetAllPrisonContactDetailsByAgencyIdMultipleAddressesOnePrimary() {
-        final var prisonContactDetailList = repository.getPrisonContactDetails("TRO");
-        assertThat(prisonContactDetailList).extracting("agencyId")
-                .containsExactly(
-                        "TRO"
-                );
-    }
-
-    @Test
-    public void testGetPrisonContactDetailsByAgencyId() {
-        final var prisonContactDetails = repository.getPrisonContactDetails("BMI");
-        assertThat(prisonContactDetails.get(0)).isEqualTo(buildBmiPrisonContactDetails());
-    }
-
-    private PrisonContactDetail buildBmiPrisonContactDetails() {
-        return PrisonContactDetail.builder()
-                .agencyId("BMI")
-                .description("BIRMINGHAM")
-                .formattedDescription("Birmingham")
-                .addressType("BUS")
-                .premise("Birmingham HMP")
-                .locality("Ambley")
-                .city("Birmingham")
-                .country("England")
-                .postCode("BM1 23V")
-                .phones(ImmutableList.of(Telephone.builder().number("0114 2345345").type("BUS").ext("345").build())).build();
     }
 
     @Test
