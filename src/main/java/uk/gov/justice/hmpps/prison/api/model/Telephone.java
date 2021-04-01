@@ -1,20 +1,16 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Telephone Details
@@ -26,79 +22,22 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@ToString
+@Data
 public class Telephone {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
 
+    @ApiModelProperty("Phone Id")
+    private Long phoneId;
+
+    @ApiModelProperty(required = true, value = "Telephone number")
     @NotBlank
     private String number;
 
+    @ApiModelProperty(required = true, value = "Telephone type")
     @NotBlank
     private String type;
 
+    @ApiModelProperty(value = "Telephone extension number")
     private String ext;
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
-
-    /**
-     * Telephone number
-     */
-    @ApiModelProperty(required = true, value = "Telephone number")
-    @JsonProperty("number")
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(final String number) {
-        this.number = number;
-    }
-
-    /**
-     * Telephone type
-     */
-    @ApiModelProperty(required = true, value = "Telephone type")
-    @JsonProperty("type")
-    public String getType() {
-        return type;
-    }
-
-    public void setType(final String type) {
-        this.type = type;
-    }
-
-    /**
-     * Telephone extention number
-     */
-    @ApiModelProperty(value = "Telephone extention number")
-    @JsonProperty("ext")
-    public String getExt() {
-        return ext;
-    }
-
-    public void setExt(final String ext) {
-        this.ext = ext;
-    }
-
-    @Override
-    public String toString() {
-        final var sb = new StringBuilder();
-
-        sb.append("class Telephone {\n");
-
-        sb.append("  number: ").append(number).append("\n");
-        sb.append("  type: ").append(type).append("\n");
-        sb.append("  ext: ").append(ext).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
-    }
 }

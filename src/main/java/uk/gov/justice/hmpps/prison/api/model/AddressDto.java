@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -19,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class AddressDto {
 
-    @JsonIgnore
+    @ApiModelProperty("Address Id")
     private Long addressId;
 
     @ApiModelProperty("Address Type")

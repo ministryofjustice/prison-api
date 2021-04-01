@@ -59,6 +59,7 @@ public class AddressTransformer {
 
     public static Telephone translate(final Phone phone) {
         return Telephone.builder()
+            .phoneId(phone.getPhoneId())
             .ext(phone.getExtNo())
             .type(phone.getPhoneType())
             .number(phone.getPhoneNo())
