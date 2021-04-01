@@ -10,4 +10,6 @@ INSERT INTO OFFENDER_IMPRISON_STATUSES (OFFENDER_BOOK_ID, IMPRISON_STATUS_SEQ, I
         (-27, 1, 'TRL', TO_DATE('2016-03-30', 'YYYY-MM-DD'), TO_DATE('2016-03-30 15:08:00', 'YYYY-MM-DD HH24:MI:SS'), null, 'LEI', null,'Y'),
         (-29, 1, 'TRL', TO_DATE('2016-03-30', 'YYYY-MM-DD'), TO_DATE('2016-03-30 15:08:00', 'YYYY-MM-DD HH24:MI:SS'), null, 'LEI', null,'Y'),
         (-7, 1, 'DEPORT', TO_DATE('2016-03-30', 'YYYY-MM-DD'), TO_DATE('2016-03-30 15:08:00', 'YYYY-MM-DD HH24:MI:SS'), null, 'LEI', null,'Y'),
-        (-55, 1, 'TRL', TO_DATE('2016-03-30', 'YYYY-MM-DD'), TO_DATE('2016-03-30 15:08:00', 'YYYY-MM-DD HH24:MI:SS'), null, 'MDI', null,'Y');
+        (-55, 1, 'FTR_ORA', TO_DATE('2016-03-29', 'YYYY-MM-DD'), TO_DATE('2016-03-29 15:08:00', 'YYYY-MM-DD HH24:MI:SS'), null, 'MDI', null,'Y'),
+        (-55, 2, 'TRL', TO_DATE('2016-03-30', 'YYYY-MM-DD'), TO_DATE('2016-03-30 15:08:00', 'YYYY-MM-DD HH24:MI:SS'), null, 'MDI', null,'Y'),
+        (-55, 3, 'DPP', TO_DATE('2016-03-31', 'YYYY-MM-DD'), TO_DATE('2016-03-31 15:08:00', 'YYYY-MM-DD HH24:MI:SS'), null, 'MDI', null,'N');
