@@ -130,11 +130,13 @@ public class PersonServiceTest {
                 .addressId(-15L)
                 .phones(List.of(
                     Telephone.builder()
+                        .phoneId(-7L)
                         .number("0114 2345345")
                         .ext("345")
                         .type("HOME")
                         .build(),
                     Telephone.builder()
+                        .phoneId(-8L)
                         .number("0114 2345346")
                         .ext(null)
                         .type("BUS")
@@ -199,8 +201,8 @@ public class PersonServiceTest {
         List<Telephone> results = personService.getPhones(-8L);
 
         assertThat(results).isEqualTo(List.of(
-            Telephone.builder().ext("345").number("0114 2345345").type("HOME").build(),
-            Telephone.builder().ext(null).number("0114 2345346").type("BUS").build()
+            Telephone.builder().phoneId(-7L).ext("345").number("0114 2345345").type("HOME").build(),
+            Telephone.builder().phoneId(-8L).ext(null).number("0114 2345346").type("BUS").build()
         ));
 
     }

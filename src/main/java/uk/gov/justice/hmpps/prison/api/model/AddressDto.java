@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -11,11 +12,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 
-@ApiModel(description = "An Offender's Address")
+@ApiModel(description = "An Address")
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AddressDto {
 
     @ApiModelProperty("Address Id")
