@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.AddressUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Address;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsage;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType;
@@ -17,11 +17,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAddress;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Phone;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.PhoneRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,7 +28,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,19 +35,13 @@ import static org.mockito.Mockito.when;
 public class OffenderAddressServiceImplTest {
 
     @Mock
-    private AddressRepository addressRepository;
-
-    @Mock
     private OffenderBookingRepository offenderBookingRepository;
-
-    @Mock
-    private PhoneRepository phoneRepository;
 
     private OffenderAddressService offenderAddressService;
 
     @BeforeEach
     public void setUp() {
-        offenderAddressService = new OffenderAddressService(offenderBookingRepository, addressRepository, phoneRepository);
+        offenderAddressService = new OffenderAddressService(offenderBookingRepository);
     }
 
     @Test
@@ -58,13 +49,15 @@ public class OffenderAddressServiceImplTest {
 
         final var offenderNo = "off-1";
 
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any())).thenReturn(Optional.of(OffenderBooking.builder().offender(Offender.builder().rootOffenderId(1L).build()).build()));
-        when(addressRepository.findAllByOwnerClassAndOwnerId(any(), anyLong())).thenReturn(List.of(
-                Address.builder()
+        final var offender = Offender.builder().rootOffenderId(1L).build();
+        offender.setRootOffender(offender);
+        final var offenderBooking = OffenderBooking.builder().offender(offender).build();
+        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any())).thenReturn(Optional.of(offenderBooking));
+        offenderBooking.getOffender().setAddresses(List.of(
+                OffenderAddress.builder()
                         .addressId(-15L)
                         .addressType(new AddressType("HOME", "Home Address"))
-                        .ownerClass("PER")
-                        .ownerId(-8L)
+                        .offender(offenderBooking.getOffender())
                         .noFixedAddressFlag("N")
                         .commentText(null)
                         .primaryFlag("Y")
@@ -79,16 +72,28 @@ public class OffenderAddressServiceImplTest {
                         .city(new City("25343", "Sheffield"))
                         .startDate(LocalDate.of(2016, 8, 2))
                         .endDate(null)
+                    .phones( List.of(
+                        AddressPhone.builder()
+                            .phoneId(-7L)
+                            .phoneNo("0114 2345345")
+                            .phoneType("HOME")
+                            .extNo("345")
+                            .build(),
+                        AddressPhone.builder()
+                            .phoneId(-8L)
+                            .phoneNo("0114 2345346")
+                            .phoneType("BUS")
+                            .extNo(null)
+                            .build()))
                         .addressUsages(List.of(
                                 AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
                                 AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()
                         ))
                         .build(),
-                Address.builder()
+            OffenderAddress.builder()
                         .addressId(-16L)
                         .addressType(new AddressType("BUS", "Business Address"))
-                        .ownerClass("PER")
-                        .ownerId(-8L)
+                        .offender(offenderBooking.getOffender())
                         .noFixedAddressFlag("Y")
                         .commentText(null)
                         .primaryFlag("N")
@@ -106,30 +111,9 @@ public class OffenderAddressServiceImplTest {
                         .build()
         ));
 
-        when(phoneRepository.findAllByOwnerClassAndOwnerId("ADDR", -15L)).thenReturn(
-                List.of(
-                        Phone.builder()
-                                .phoneId(-7L)
-                                .ownerId(-15L)
-                                .ownerClass("ADDR")
-                                .phoneNo("0114 2345345")
-                                .phoneType("HOME")
-                                .extNo("345")
-                                .build(),
-                        Phone.builder()
-                                .phoneId(-8L)
-                                .ownerId(-15L)
-                                .ownerClass("ADDR")
-                                .phoneNo("0114 2345346")
-                                .phoneType("BUS")
-                                .extNo(null)
-                                .build())
-        );
         List<AddressDto> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
 
         verify(offenderBookingRepository).findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
-        verify(addressRepository).findAllByOwnerClassAndOwnerId("OFF", 1L);
-        verify(phoneRepository).findAllByOwnerClassAndOwnerId("ADDR", -15L);
 
         assertThat(results).isEqualTo(List.of(
                 AddressDto.builder()

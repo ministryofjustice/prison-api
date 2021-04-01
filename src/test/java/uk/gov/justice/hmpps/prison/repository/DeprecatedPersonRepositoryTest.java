@@ -20,12 +20,12 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class PersonRepositoryTest {
+public class DeprecatedPersonRepositoryTest {
     private static final long UNKNOWN_PERSON_ID = 1000L;
     private static final long PERSON_ID_MULTIPLE_IDENTIFIERS = -1L;
 
     @Autowired
-    private PersonRepository repository;
+    private DeprecatedPersonRepository repository;
 
     @Test
     public void findPersonIdentifiersForUnknownPersonId() {
