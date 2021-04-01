@@ -34,6 +34,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAddress;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
+import uk.gov.justice.hmpps.prison.api.model.RequestToUpdatePhone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -333,11 +334,12 @@ public class AgencyResource {
     @ApiOperation(value = "Create an contact for an address", notes = "Requires MAINTAIN_REF_DATA")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @PostMapping("/{agencyId}/addresses/{addressId}/contacts")
+    @PostMapping("/{agencyId}/addresses/{addressId}/phones")
     @ResponseStatus(HttpStatus.CREATED)
-    public AddressDto createAgencyAddressContact(
+    public AddressDto createAgencyAddressPhoneContact(
         @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
+        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
+        @RequestBody @Valid @NotNull RequestToUpdatePhone requestToUpdatePhone
     ) {
 
         return null;
@@ -351,11 +353,12 @@ public class AgencyResource {
     @ApiOperation(value = "Update an existing contact on an address", notes = "Requires MAINTAIN_REF_DATA")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @PutMapping("/{agencyId}/addresses/{addressId}/contacts/{contactId}")
-    public AddressDto updateAgencyAddressContact(
+    @PutMapping("/{agencyId}/addresses/{addressId}/phones/{phoneId}")
+    public AddressDto updateAgencyAddressPhoneContact(
         @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
         @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
-        @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
+        @PathVariable @ApiParam(value = "The ID of the contact", required = true) final Long phoneId,
+        @RequestBody @Valid @NotNull RequestToUpdatePhone requestToUpdatePhone
     ) {
 
         return null;
@@ -368,10 +371,11 @@ public class AgencyResource {
     @ApiOperation(value = "Delete an existing address contact", notes = "Requires MAINTAIN_REF_DATA")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @DeleteMapping("/{agencyId}/addresses/{addressId}/contacts/{contactId}")
-    public void deleteAgencyAddressContact(
+    @DeleteMapping("/{agencyId}/addresses/{addressId}/phones/{phoneId}")
+    public void deleteAgencyAddressPhoneContact(
         @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId
+        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
+        @PathVariable @ApiParam(value = "The ID of the contact", required = true) final Long phoneId
     ) {
 
 

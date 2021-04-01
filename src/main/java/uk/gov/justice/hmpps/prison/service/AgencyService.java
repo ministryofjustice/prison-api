@@ -79,7 +79,6 @@ public class AgencyService {
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
-    private final AddressTranslator addressTranslator;
 
     public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
         final var criteria = AgencyLocationFilter.builder()
@@ -274,7 +273,7 @@ public class AgencyService {
                 .premise(primaryAddress.getPremise())
                 .city(primaryTown)
                 .country(primaryCountry)
-                .addresses(addressTranslator.translate(prison.getAddresses()))
+                .addresses(AddressTransformer.translate(prison.getAddresses()))
                 .build();
 
         }

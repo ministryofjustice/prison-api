@@ -16,13 +16,12 @@ import java.util.List;
 public class OffenderAddressService {
 
     private final OffenderBookingRepository offenderBookingRepository;
-    private final AddressTranslator addressTranslator;
 
     @VerifyOffenderAccess
     public List<AddressDto> getAddressesByOffenderNo(@NotNull final String offenderNo) {
         final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
         final var offenderBooking = optionalOffenderBooking.orElseThrow(EntityNotFoundException.withMessage(String.format("No active offender bookings found for offender number %s\n", offenderNo)));
 
-        return addressTranslator.translate(offenderBooking.getOffender().getRootOffender().getAddresses());
+        return AddressTransformer.translate(offenderBooking.getOffender().getRootOffender().getAddresses());
     }
 }
