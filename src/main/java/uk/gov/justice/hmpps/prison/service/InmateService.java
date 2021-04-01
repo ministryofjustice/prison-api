@@ -700,7 +700,7 @@ public class InmateService {
         }
         if (StringUtils.isNotBlank(detail.getPlacementAgencyId())) {
             try {
-                agencyService.getAgency(detail.getPlacementAgencyId(), ACTIVE_ONLY, "INST");
+                agencyService.getAgency(detail.getPlacementAgencyId(), ACTIVE_ONLY, "INST", false);
             } catch (final EntityNotFoundException ex) {
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Placement agency id not recognised.");
             }
@@ -738,7 +738,7 @@ public class InmateService {
         }
         if (StringUtils.isNotBlank(detail.getApprovedPlacementAgencyId())) {
             try {
-                agencyService.getAgency(detail.getApprovedPlacementAgencyId(), ACTIVE_ONLY, "INST");
+                agencyService.getAgency(detail.getApprovedPlacementAgencyId(), ACTIVE_ONLY, "INST", false);
             } catch (final EntityNotFoundException ex) {
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Review placement agency id not recognised.");
             }

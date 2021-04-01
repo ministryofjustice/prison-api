@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -80,7 +81,7 @@ public class AgencyService {
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
 
-    public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
+    public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType, final boolean withAddresses) {
         final var criteria = AgencyLocationFilter.builder()
                 .id(agencyId)
                 .type(agencyType)
@@ -90,7 +91,14 @@ public class AgencyService {
         return agencyLocationRepository.findAll(criteria)
                 .stream()
                 .findFirst()
-                .map(AgencyTransformer::transform).orElseThrow(EntityNotFoundException.withId(agencyId));
+                .map(agency -> translate(withAddresses, agency)).orElseThrow(EntityNotFoundException.withId(agencyId));
+    }
+
+    private Agency translate(final boolean withAddresses, final AgencyLocation agency) {
+        if (withAddresses) {
+            return AgencyTransformer.transformWithAddresses(agency);
+        }
+        return AgencyTransformer.transform(agency);
     }
 
 

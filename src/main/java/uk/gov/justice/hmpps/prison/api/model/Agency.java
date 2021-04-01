@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @ApiModel(description = "Agency Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -36,4 +37,7 @@ public class Agency {
 
     @ApiModelProperty(value = "Date agency became inactive", example = "2012-01-12", position = 6)
     private LocalDate deactivationDate;
+
+    @ApiModelProperty(value = "List of addresses associated with agency", example = "2012-01-12", position = 6)
+    private List<AddressDto> addresses;
 }

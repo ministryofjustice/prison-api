@@ -35,6 +35,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAddress;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdatePhone;
+import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -106,8 +107,11 @@ public class AgencyResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Agency detail.", notes = "Agency detail.", nickname = "getAgency")
     @GetMapping("/{agencyId}")
-    public Agency getAgency(@PathVariable("agencyId") @ApiParam(value = "The ID of the agency", required = true) final String agencyId, @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @ApiParam(value = "Only return active agencies", defaultValue = "true") final boolean activeOnly, @RequestParam(value = "agencyType", required = false) @ApiParam("Agency Type") final String agencyType) {
-        return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType);
+    public Agency getAgency(@PathVariable("agencyId") @ApiParam(value = "The ID of the agency", required = true) final String agencyId,
+                            @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @ApiParam(value = "Only return active agencies", defaultValue = "true") final boolean activeOnly,
+                            @RequestParam(value = "agencyType", required = false) @ApiParam("Agency Type") final String agencyType,
+                            @RequestParam(value = "withAddresses", defaultValue = "false", required = false) @ApiParam(value = "Returns Address Information", defaultValue = "false") final boolean withAddresses) {
+        return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType, withAddresses);
     }
 
     @ApiResponses({
@@ -336,7 +340,7 @@ public class AgencyResource {
     @ProxyUser
     @PostMapping("/{agencyId}/addresses/{addressId}/phones")
     @ResponseStatus(HttpStatus.CREATED)
-    public AddressDto createAgencyAddressPhoneContact(
+    public Telephone createAgencyAddressPhoneContact(
         @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
         @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
         @RequestBody @Valid @NotNull RequestToUpdatePhone requestToUpdatePhone
@@ -354,7 +358,7 @@ public class AgencyResource {
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @PutMapping("/{agencyId}/addresses/{addressId}/phones/{phoneId}")
-    public AddressDto updateAgencyAddressPhoneContact(
+    public Telephone updateAgencyAddressPhoneContact(
         @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
         @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
         @PathVariable @ApiParam(value = "The ID of the contact", required = true) final Long phoneId,
