@@ -8,8 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.AddressDto;
-import uk.gov.justice.hmpps.prison.api.model.AddressUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
@@ -81,6 +79,7 @@ public class AgencyService {
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
+    private final AddressTranslator addressTranslator;
 
     public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
         final var criteria = AgencyLocationFilter.builder()
@@ -244,9 +243,7 @@ public class AgencyService {
 
         return
             removeBlankAddresses(prisons.stream()
-                .map(prison -> {
-                    return getPrisonContactDetail(prison);
-                })
+                .map(this::getPrisonContactDetail)
                 .collect(toList())
             );
     }
@@ -263,15 +260,13 @@ public class AgencyService {
 
             final var primaryCountry = primaryAddress.getCountry() != null ? primaryAddress.getCountry().getDescription() : null;
             final var primaryTown = primaryAddress.getCity() != null ? primaryAddress.getCity().getDescription() : null;
-            final var primaryAddressType = primaryAddress.getAddressType() != null ? primaryAddress.getAddressType().getDescription() : null;
-
+            final var primaryAddressType = primaryAddress.getAddressType() != null ? primaryAddress.getAddressType().getCode() : null;
 
             return PrisonContactDetail.builder().agencyId(prison.getId())
                 .description(prison.getDescription())
                 .formattedDescription(LocationProcessor.formatLocation(prison.getDescription()))
                 .addressType(primaryAddressType)
-                .phones(primaryAddress.getPhones()
-                    .stream()
+                .phones(primaryAddress.getPhones().stream()
                     .map(phone ->
                         Telephone.builder().number(phone.getPhoneNo()).type(phone.getPhoneType()).ext(phone.getExtNo()).build()).collect(toList()))
                 .locality(primaryAddress.getLocality())
@@ -279,49 +274,7 @@ public class AgencyService {
                 .premise(primaryAddress.getPremise())
                 .city(primaryTown)
                 .country(primaryCountry)
-                .addresses(
-                    prison.getAddresses().stream().map(
-                        address -> {
-                            final var country = address.getCountry() != null ? address.getCountry().getDescription() : null;
-                            final var county = address.getCounty() != null ? address.getCounty().getDescription() : null;
-                            final var town = address.getCity() != null ? address.getCity().getDescription() : null;
-                            final var addressType = address.getAddressType() != null ? address.getAddressType().getDescription() : null;
-
-                            return  AddressDto.builder()
-                                .addressId(address.getAddressId())
-                                .addressType(addressType)
-                                .flat(address.getFlat())
-                                .comment(address.getCommentText())
-                                .country(country)
-                                .county(county)
-                                .locality(address.getLocality())
-                                .town(town)
-                                .postalCode(address.getPostalCode())
-                                .noFixedAddress(address.getNoFixedAddressFlag().equals("Y"))
-                                .premise(address.getPremise())
-                                .primary(address.getPrimaryFlag().equals("Y"))
-                                .startDate(address.getStartDate())
-                                .endDate(address.getEndDate())
-                                .street(address.getStreet())
-                                .addressUsages(address.getAddressUsages().stream()
-                                    .map(addressUsage ->
-                                        AddressUsageDto.builder()
-                                            .addressId(address.getAddressId())
-                                            .activeFlag("Y".equalsIgnoreCase(addressUsage.getActiveFlag()))
-                                            .addressUsage(addressUsage.getAddressUsage())
-                                            .addressUsageDescription(addressUsage.getAddressUsageType() == null ? null : addressUsage.getAddressUsageType().getDescription())
-                                            .build()).collect(Collectors.toList()))
-                                .phones(address.getPhones().stream().map(phone ->
-                                    Telephone.builder()
-                                        .ext(phone.getExtNo())
-                                        .type(phone.getPhoneType())
-                                        .number(phone.getPhoneNo())
-                                        .build())
-                                    .collect(toList()))
-                                .build();
-                        }
-                    ).collect(Collectors.toUnmodifiableList())
-                )
+                .addresses(addressTranslator.translate(prison.getAddresses()))
                 .build();
 
         }
@@ -330,8 +283,14 @@ public class AgencyService {
     public PrisonContactDetail getPrisonContactDetail(final String agencyId) {
         final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(AgencyLocationType.INST)
             .orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
-        return getPrisonContactDetail(agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(agencyId, agencyLocationType, ActiveFlag.Y)
-            .orElseThrow(EntityNotFoundException.withMessage(format("Contact details not found for Prison %s", agencyId))));
+        final var prisonContactDetailList = removeBlankAddresses(List.of(getPrisonContactDetail(agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(agencyId, agencyLocationType, ActiveFlag.Y)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Contact details not found for Prison %s", agencyId))))));
+
+        if (prisonContactDetailList.isEmpty()) {
+            throw EntityNotFoundException.withMessage(format("Contact details not found for Prison %s", agencyId));
+        }
+        return prisonContactDetailList.get(0);
+
     }
 
     public List<Agency> getAgenciesByCaseload(final String caseload) {
