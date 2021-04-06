@@ -72,5 +72,8 @@ public class PrisonContactDetail {
     @Builder.Default
     private List<Telephone> phones = new ArrayList<>();
 
-
+    @ApiModelProperty(required = false, position = 10, value = "List of Address details")
+    @NotNull
+    @Builder.Default
+    private List<AddressDto> addresses = new ArrayList<>();
 }

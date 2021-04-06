@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
+import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -26,6 +27,7 @@ import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -79,7 +81,7 @@ public class AgencyService {
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
 
-    public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
+    public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType, final boolean withAddresses) {
         final var criteria = AgencyLocationFilter.builder()
                 .id(agencyId)
                 .type(agencyType)
@@ -89,7 +91,14 @@ public class AgencyService {
         return agencyLocationRepository.findAll(criteria)
                 .stream()
                 .findFirst()
-                .map(AgencyTransformer::transform).orElseThrow(EntityNotFoundException.withId(agencyId));
+                .map(agency -> translate(withAddresses, agency)).orElseThrow(EntityNotFoundException.withId(agencyId));
+    }
+
+    private Agency translate(final boolean withAddresses, final AgencyLocation agency) {
+        if (withAddresses) {
+            return AgencyTransformer.transformWithAddresses(agency);
+        }
+        return AgencyTransformer.transform(agency);
     }
 
 
@@ -235,16 +244,60 @@ public class AgencyService {
     }
 
     public List<PrisonContactDetail> getPrisonContactDetail() {
-        return removeBlankAddresses(agencyRepository.getPrisonContactDetails(null));
+
+        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
+        final var prisons = agencyLocationRepository.findByTypeAndActiveFlagAndDeactivationDateIsNull(agencyLocationType, ActiveFlag.Y);
+
+        return
+            removeBlankAddresses(prisons.stream()
+                .map(this::getPrisonContactDetail)
+                .collect(toList())
+            );
+    }
+
+    private PrisonContactDetail getPrisonContactDetail(final uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation prison) {
+        if (prison.getAddresses().isEmpty()) {
+            return PrisonContactDetail.builder().agencyId(prison.getId())
+                .description(prison.getDescription())
+                .formattedDescription(LocationProcessor.formatLocation(prison.getDescription()))
+                .build();
+        } else {
+            final var primaryAddress = prison.getAddresses().stream()
+                .filter(a -> "Y".equals(a.getPrimaryFlag())).findFirst().orElse(prison.getAddresses().get(0));
+
+            final var primaryCountry = primaryAddress.getCountry() != null ? primaryAddress.getCountry().getDescription() : null;
+            final var primaryTown = primaryAddress.getCity() != null ? primaryAddress.getCity().getDescription() : null;
+            final var primaryAddressType = primaryAddress.getAddressType() != null ? primaryAddress.getAddressType().getCode() : null;
+
+            return PrisonContactDetail.builder().agencyId(prison.getId())
+                .description(prison.getDescription())
+                .formattedDescription(LocationProcessor.formatLocation(prison.getDescription()))
+                .addressType(primaryAddressType)
+                .phones(primaryAddress.getPhones().stream()
+                    .map(phone ->
+                        Telephone.builder().number(phone.getPhoneNo()).type(phone.getPhoneType()).ext(phone.getExtNo()).build()).collect(toList()))
+                .locality(primaryAddress.getLocality())
+                .postCode(primaryAddress.getPostalCode())
+                .premise(primaryAddress.getPremise())
+                .city(primaryTown)
+                .country(primaryCountry)
+                .addresses(AddressTransformer.translate(prison.getAddresses()))
+                .build();
+
+        }
     }
 
     public PrisonContactDetail getPrisonContactDetail(final String agencyId) {
+        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(AgencyLocationType.INST)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
+        final var prisonContactDetailList = removeBlankAddresses(List.of(getPrisonContactDetail(agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(agencyId, agencyLocationType, ActiveFlag.Y)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Contact details not found for Prison %s", agencyId))))));
 
-        final var prisonContactDetailList = removeBlankAddresses(agencyRepository.getPrisonContactDetails(agencyId));
         if (prisonContactDetailList.isEmpty()) {
             throw EntityNotFoundException.withMessage(format("Contact details not found for Prison %s", agencyId));
         }
         return prisonContactDetailList.get(0);
+
     }
 
     public List<Agency> getAgenciesByCaseload(final String caseload) {

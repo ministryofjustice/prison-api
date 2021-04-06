@@ -1,6 +1,5 @@
 [
   {
-    "addressType": null,
     "flat": "Flat 1",
     "premise": "Brook Hamlets",
     "street": "Mayfield Drive",
@@ -8,12 +7,18 @@
     "postalCode": "B5",
     "county": "South Yorkshire",
     "country": "England",
-    "comment": null,
     "primary": true,
     "noFixedAddress": false,
     "startDate": "2016-08-02",
     "endDate": "2014-07-01",
     "phones": [],
-    "addressUsages": [ { "addressId": -17, "addressUsage": "HDC", "addressUsageDescription": "HDC Address", "activeFlag": true } ]
+    "addressUsages": [
+      {
+        "addressId": -17,
+        "addressUsage": "HDC",
+        "addressUsageDescription": "HDC Address",
+        "activeFlag": true
+      }
+    ]
   }
 ]

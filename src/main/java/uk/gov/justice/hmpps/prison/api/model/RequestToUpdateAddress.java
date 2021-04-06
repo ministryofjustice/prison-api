@@ -1,30 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
-@ApiModel(description = "An Address")
-@Data
-@Builder(toBuilder = true)
-@NoArgsConstructor
-@AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class AddressDto {
-
-    @ApiModelProperty("Address Id")
-    private Long addressId;
-
-    @ApiModelProperty("Address Type")
-    private String addressType;
+public class RequestToUpdateAddress {
 
     @ApiModelProperty("Flat")
     private String flat;
@@ -38,6 +18,9 @@ public class AddressDto {
     @ApiModelProperty("Town")
     private String town;
 
+    @ApiModelProperty("Locality")
+    private String locality;
+
     @ApiModelProperty("Postal Code")
     private String postalCode;
 
@@ -50,9 +33,6 @@ public class AddressDto {
     @ApiModelProperty("Comment")
     private String comment;
 
-    @ApiModelProperty("Locality")
-    private String locality;
-
     @ApiModelProperty(required = true, value = "Primary Address")
     private Boolean primary;
 
@@ -64,10 +44,4 @@ public class AddressDto {
 
     @ApiModelProperty(value = "Date ended")
     private LocalDate endDate;
-
-    @ApiModelProperty(value = "The phone number associated with the address")
-    private List<Telephone> phones;
-
-    @ApiModelProperty(value = "The address usages/types")
-    private List<AddressUsageDto> addressUsages;
 }

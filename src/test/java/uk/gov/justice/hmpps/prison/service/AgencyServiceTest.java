@@ -68,21 +68,8 @@ public class AgencyServiceTest {
     @Test
     public void shouldCallGetAgency() {
         when(agencyLocationRepository.findAll(isA(AgencyLocationFilter.class))).thenReturn(List.of(AgencyLocation.builder().id("LEI").build()));
-        service.getAgency("LEI", ALL, null);
+        service.getAgency("LEI", ALL, null, false);
         verify(agencyLocationRepository).findAll(isA(AgencyLocationFilter.class));
-    }
-
-    @Test
-    public void shouldCallCollaboratorsForFullPrisonList() {
-        service.getPrisonContactDetail();
-        verify(agencyRepo).getPrisonContactDetails(null);
-    }
-
-    @Test
-    public void shouldCallCollaboratorsForSinglePrison() {
-        when(agencyRepo.getPrisonContactDetails("ABC")).thenReturn(buildPrisonContactDetailsListSingleResult());
-        service.getPrisonContactDetail("ABC");
-        verify(agencyRepo).getPrisonContactDetails("ABC");
     }
 
     @Test

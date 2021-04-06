@@ -125,6 +125,7 @@ public class OffenderAddressServiceImplTest {
                         .premise("Brook Hamlets")
                         .street("Mayfield Drive")
                         .postalCode("B5")
+                        .locality("Nether Edge")
                         .country("England")
                         .county("South Yorkshire")
                         .town("Sheffield")
@@ -132,11 +133,13 @@ public class OffenderAddressServiceImplTest {
                         .addressId(-15L)
                         .phones(List.of(
                                 Telephone.builder()
+                                        .phoneId(-7L)
                                         .number("0114 2345345")
                                         .ext("345")
                                         .type("HOME")
                                         .build(),
                                 Telephone.builder()
+                                        .phoneId(-8L)
                                         .number("0114 2345346")
                                         .ext(null)
                                         .type("BUS")

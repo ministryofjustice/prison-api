@@ -6,6 +6,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AgencyLocationRepository extends CrudRepository<AgencyLocation, String>, JpaSpecificationExecutor<AgencyLocation> {
@@ -13,4 +14,7 @@ public interface AgencyLocationRepository extends CrudRepository<AgencyLocation,
     Optional<AgencyLocation> findByIdAndDeactivationDateIsNull(String id);
 
     Optional<AgencyLocation> findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(String id, AgencyLocationType type, ActiveFlag activeFlag);
+
+    List<AgencyLocation> findByTypeAndActiveFlagAndDeactivationDateIsNull(AgencyLocationType type, ActiveFlag activeFlag);
+
 }
