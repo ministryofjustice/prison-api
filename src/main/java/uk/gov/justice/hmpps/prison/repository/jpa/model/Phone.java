@@ -24,7 +24,7 @@ import javax.persistence.Table;
 @DiscriminatorColumn(name = "OWNER_CLASS")
 @Inheritance
 @EqualsAndHashCode(of = "phoneId", callSuper = false)
-public abstract class Phone extends AuditableEntity{
+public abstract class Phone extends AuditableEntity {
     @Id
     @SequenceGenerator(name = "PHONE_ID", sequenceName = "PHONE_ID", allocationSize = 1)
     @GeneratedValue(generator = "PHONE_ID")

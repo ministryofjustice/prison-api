@@ -43,7 +43,7 @@ public class PersonPhoneRepositoryTest {
 
         final var phones = addressPhoneRepository.findAllByAddressId(-12L);
 
-        assertThat(phones).usingRecursiveComparison().ignoringFields("address").isEqualTo(expected);
+        assertThat(phones).usingRecursiveComparison().ignoringFields("address", "createDatetime", "createUserId").isEqualTo(expected);
     }
 
     @Test
@@ -58,6 +58,6 @@ public class PersonPhoneRepositoryTest {
 
         final var phones = repository.findAllByPersonId(-8L);
 
-        assertThat(phones).usingRecursiveComparison().ignoringFields("person").isEqualTo(expected);
+        assertThat(phones).usingRecursiveComparison().ignoringFields("person", "createDatetime", "createUserId").isEqualTo(expected);
     }
 }

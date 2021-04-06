@@ -17,8 +17,8 @@ import javax.persistence.ManyToOne;
 @DiscriminatorValue(OffenderAddress.ADDR_TYPE)
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(of = {"offender"})
+@EqualsAndHashCode(exclude = "offender", callSuper = true)
+@ToString(of = {"offender"}, callSuper = true)
 public class OffenderAddress extends Address {
 
     static final String ADDR_TYPE = "OFF";

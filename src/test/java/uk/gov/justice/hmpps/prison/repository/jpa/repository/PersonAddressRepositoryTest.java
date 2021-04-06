@@ -74,7 +74,7 @@ public class PersonAddressRepositoryTest {
 
         final var addresses = repository.findAllByPersonId(person.getId());
 
-        assertThat(addresses).usingRecursiveComparison().ignoringFields("addressUsages", "person").isEqualTo(expected);
+        assertThat(addresses).usingRecursiveComparison().ignoringFields("addressUsages", "person", "createDatetime", "createUserId").isEqualTo(expected);
 
         assertThat(addresses.stream()
                 .map(address -> new ArrayList<>(address.getAddressUsages()))
