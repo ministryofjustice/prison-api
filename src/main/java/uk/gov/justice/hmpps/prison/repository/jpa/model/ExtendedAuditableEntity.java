@@ -1,8 +1,11 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -13,6 +16,9 @@ import java.sql.Timestamp;
 @Getter(AccessLevel.PROTECTED)
 @Setter(AccessLevel.PROTECTED)
 @MappedSuperclass
+@SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
 abstract class ExtendedAuditableEntity extends AuditableEntity {
     @Getter
     @Column(name = "AUDIT_TIMESTAMP")
