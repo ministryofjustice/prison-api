@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.5"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.6"
 }
 
 group 'uk.gov.justice.hmpps.prison'
