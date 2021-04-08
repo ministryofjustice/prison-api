@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -154,6 +155,155 @@ public class AgencyResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCanCreateNewAddress() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "addressType", "BUS",
+            "premise", "Leeds Prison",
+            "town", "29059",
+            "postalCode", "LS12 5TH",
+            "county", "W.YORKSHIRE",
+            "country", "ENG",
+            "primary", "true",
+            "startDate", "2006-01-12",
+            "locality", "North Leeds",
+            "comment", "Some text"
+            );
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/LEI/addresses",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(response, 201, "new_address.json");
+
+        final var getResponse = testRestTemplate.exchange(
+            "/api/agencies/LEI?withAddresses=true",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(getResponse, 200, "new_agency_address.json");
+
+        final var addressId = ((Double)new Gson().fromJson(response.getBody(), Map.class).get("addressId")).intValue();
+
+        final var updateBody = Map.of(
+            "addressType", "BUS",
+            "premise", "Leeds Prison",
+            "town", "29059",
+            "postalCode", "LS12 5TH",
+            "county", "W.YORKSHIRE",
+            "country", "ENG",
+            "primary", "false",
+            "startDate", "2006-01-12",
+            "endDate", "2021-01-04",
+            "locality", "North Leeds"
+        );
+
+        final var updateHttpEntity = createHttpEntity(token, updateBody);
+
+        final var updateResponse = testRestTemplate.exchange(
+            "/api/agencies/LEI/addresses/"+addressId,
+            HttpMethod.PUT,
+            updateHttpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(updateResponse, 200, "updated_address.json");
+
+        final var deleteResponse = testRestTemplate.exchange(
+            "/api/agencies/LEI/addresses/"+addressId,
+            HttpMethod.DELETE,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatStatus(deleteResponse, 200);
+
+        final var getResponseAgain = testRestTemplate.exchange(
+            "/api/agencies/LEI?withAddresses=true",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(getResponseAgain, 200, "new_agency_address_updated.json");
+
+    }
+
+    @Test
+    public void testCanCreateNewPhone() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "number", "0115 2345222",
+            "type", "FAX",
+            "ext", "121"
+        );
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/BMI/addresses/-3/phones",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(response, 201, "new_phone.json");
+
+        final var getResponse = testRestTemplate.exchange(
+            "/api/agencies/BMI?withAddresses=true",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(getResponse, 200, "new_agency_address_phone.json");
+
+        final var phoneId = ((Double)new Gson().fromJson(response.getBody(), Map.class).get("phoneId")).intValue();
+
+        final var updateBody = Map.of(
+            "number", "0115 2345221",
+            "type", "FAX",
+            "ext", "122"
+        );
+
+        final var updateHttpEntity = createHttpEntity(token, updateBody);
+
+        final var updateResponse = testRestTemplate.exchange(
+            "/api/agencies/BMI/addresses/-3/phones/"+phoneId,
+            HttpMethod.PUT,
+            updateHttpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(updateResponse, 200, "updated_phone.json");
+
+        final var deleteResponse = testRestTemplate.exchange(
+            "/api/agencies/BMI/addresses/-3/phones/"+phoneId,
+            HttpMethod.DELETE,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatStatus(deleteResponse, 200);
+
+        final var getResponseAgain = testRestTemplate.exchange(
+            "/api/agencies/BMI?withAddresses=true",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(getResponseAgain, 200, "new_agency_address_phone_updated.json");
+    }
+
+    @Test
     public void testCantCreateExistingAgency() {
         final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
         final var body = Map.of(
@@ -231,7 +381,7 @@ public class AgencyResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCantCreateAgencyWith1charDecription() {
+    public void testCantCreateAgencyWith1charDescription() {
         final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
         final var body = Map.of(
             "agencyId", "MDI",

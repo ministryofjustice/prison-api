@@ -1,0 +1,13 @@
+{
+  "addressType": "Business Address",
+  "premise": "Leeds Prison",
+  "locality": "North Leeds",
+  "town": "Leeds",
+  "postalCode": "LS12 5TH",
+  "county": "West Yorkshire",
+  "country": "England",
+  "primary": false,
+  "noFixedAddress": false,
+  "startDate": "2006-01-12",
+  "endDate": "2021-01-04"
+}

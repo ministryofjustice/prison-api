@@ -1,0 +1,44 @@
+{
+  "agencyId": "BMI",
+  "description": "Birmingham",
+  "agencyType": "INST",
+  "active": true,
+  "addresses": [
+    {
+      "addressId": -3,
+      "addressType": "Business Address",
+      "street": "BMI Place",
+      "town": "Birmingham",
+      "country": "England",
+      "primary": true,
+      "noFixedAddress": false,
+      "phones": [
+        {
+          "phoneId": -1,
+          "number": "0114 2345345",
+          "type": "BUS",
+          "ext": "345"
+        },
+        {
+          "number": "0115 2345222",
+          "type": "FAX",
+          "ext": "121"
+        }
+      ]
+    },
+    {
+      "addressId": -4,
+      "addressType": "Business Address",
+      "street": "Not Primary Address",
+      "town": "Birmingham",
+      "primary": false,
+      "noFixedAddress": false
+    },
+    {
+      "addressId": -5,
+      "country": "England",
+      "primary": false,
+      "noFixedAddress": false
+    }
+  ]
+}
