@@ -1,8 +1,11 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -19,6 +22,9 @@ import java.time.LocalDateTime;
 @Setter(AccessLevel.PROTECTED)
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
 abstract class AuditableEntity implements Serializable {
     @Column(name = "CREATE_USER_ID")
     @CreatedBy

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
@@ -18,17 +19,27 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
+import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAddress;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
+import uk.gov.justice.hmpps.prison.api.model.RequestToUpdatePhone;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyAddress;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressPhoneRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyAddressRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
@@ -80,6 +91,13 @@ public class AgencyService {
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
+    private final AddressPhoneRepository addressPhoneRepository;
+    private final AgencyAddressRepository agencyAddressRepository;
+
+    private final ReferenceCodeRepository<AddressType> addressTypeReferenceCodeRepository;
+    private final ReferenceCodeRepository<City> cityReferenceCodeRepository;
+    private final ReferenceCodeRepository<County> countyReferenceCodeRepository;
+    private final ReferenceCodeRepository<Country> countryReferenceCodeRepository;
 
     public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType, final boolean withAddresses) {
         final var criteria = AgencyLocationFilter.builder()
@@ -372,4 +390,119 @@ public class AgencyService {
             .attributes(attributes)
             .build();
     }
+
+    @Transactional
+    public AddressDto createAgencyAddress(final String agencyId, final RequestToUpdateAddress requestToUpdateAddress) {
+        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+
+        final AgencyAddress address = AgencyAddress.builder()
+            .flat(requestToUpdateAddress.getFlat())
+            .premise(requestToUpdateAddress.getPremise())
+            .street(requestToUpdateAddress.getStreet())
+            .locality(requestToUpdateAddress.getLocality())
+            .postalCode(requestToUpdateAddress.getPostalCode())
+            .primaryFlag(requestToUpdateAddress.isPrimary() ? "Y" : "N")
+            .noFixedAddressFlag(requestToUpdateAddress.isNoFixedAddress() ? "Y" : "N")
+            .startDate(requestToUpdateAddress.getStartDate())
+            .endDate(requestToUpdateAddress.getEndDate())
+            .commentText(requestToUpdateAddress.getComment())
+            .addressType(addressTypeReferenceCodeRepository.findById(AddressType.pk(requestToUpdateAddress.getAddressType())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getAddressType())))
+            .city(StringUtils.isNotBlank(requestToUpdateAddress.getTown()) ? cityReferenceCodeRepository.findById(City.pk(requestToUpdateAddress.getTown())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getTown())) : null)
+            .county(StringUtils.isNotBlank(requestToUpdateAddress.getCounty()) ? countyReferenceCodeRepository.findById(County.pk(requestToUpdateAddress.getCounty())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getCounty())) : null)
+            .country(StringUtils.isNotBlank(requestToUpdateAddress.getCountry()) ? countryReferenceCodeRepository.findById(Country.pk(requestToUpdateAddress.getCountry())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getCountry())) : null)
+            .build();
+
+        return AddressTransformer.translate(agencyAddressRepository.save(agency.addAddress(address)));
+    }
+
+    @Transactional
+    public AddressDto updateAgencyAddress(final String agencyId, final Long addressId, final RequestToUpdateAddress requestToUpdateAddress) {
+        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+
+        final var agencyAddress = agency.getAddresses().stream()
+            .filter(a -> a.getAddressId().equals(addressId))
+            .findFirst().orElseThrow(EntityNotFoundException.withId(addressId));
+
+        agencyAddress.setFlat(requestToUpdateAddress.getFlat());
+        agencyAddress.setPremise(requestToUpdateAddress.getPremise());
+        agencyAddress.setStreet(requestToUpdateAddress.getStreet());
+        agencyAddress.setLocality(requestToUpdateAddress.getLocality());
+        agencyAddress.setPostalCode(requestToUpdateAddress.getPostalCode());
+        agencyAddress.setPrimaryFlag(requestToUpdateAddress.isPrimary() ? "Y" : "N");
+        agencyAddress.setNoFixedAddressFlag(requestToUpdateAddress.isNoFixedAddress() ? "Y" : "N");
+        agencyAddress.setStartDate(requestToUpdateAddress.getStartDate());
+        agencyAddress.setEndDate(requestToUpdateAddress.getEndDate());
+        agencyAddress.setCommentText(requestToUpdateAddress.getComment());
+
+        agencyAddress.setAddressType(addressTypeReferenceCodeRepository.findById(AddressType.pk(requestToUpdateAddress.getAddressType())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getAddressType())));
+        agencyAddress.setCity(StringUtils.isNotBlank(requestToUpdateAddress.getTown()) ? cityReferenceCodeRepository.findById(City.pk(requestToUpdateAddress.getTown())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getTown())) : null);
+        agencyAddress.setCounty(StringUtils.isNotBlank(requestToUpdateAddress.getCounty()) ? countyReferenceCodeRepository.findById(County.pk(requestToUpdateAddress.getCounty())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getCounty())) : null);
+        agencyAddress.setCountry(StringUtils.isNotBlank(requestToUpdateAddress.getCountry()) ?countryReferenceCodeRepository.findById(Country.pk(requestToUpdateAddress.getCountry())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getCountry())) : null);
+
+        return AddressTransformer.translate(agencyAddress);
+    }
+
+    @Transactional
+    public void deleteAgencyAddress(final String agencyId, final Long addressId) {
+        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+
+        final var agencyAddress = agency.getAddresses().stream()
+            .filter(a -> a.getAddressId().equals(addressId))
+            .findFirst().orElseThrow(EntityNotFoundException.withId(addressId));
+
+        agency.removeAddress(agencyAddress);
+    }
+
+    @Transactional
+    public Telephone createAgencyAddressPhone(final String agencyId, final Long addressId, final RequestToUpdatePhone requestToUpdatePhone) {
+        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+
+        final var agencyAddress = agency.getAddresses().stream()
+            .filter(a -> a.getAddressId().equals(addressId))
+            .findFirst().orElseThrow(EntityNotFoundException.withId(addressId));
+
+        final var phone = AddressPhone.builder()
+            .phoneNo(requestToUpdatePhone.getNumber())
+            .extNo(requestToUpdatePhone.getExt())
+            .phoneType(requestToUpdatePhone.getType())
+            .build();
+
+        return AddressTransformer.translate(addressPhoneRepository.save(agencyAddress.addPhone(phone)));
+    }
+
+    @Transactional
+    public Telephone updateAgencyAddressPhone(final String agencyId, final Long addressId, final Long phoneId, final RequestToUpdatePhone requestToUpdatePhone) {
+        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+
+        final var agencyAddress = agency.getAddresses().stream()
+            .filter(a -> a.getAddressId().equals(addressId))
+            .findFirst().orElseThrow(EntityNotFoundException.withId(addressId));
+
+        final var addressPhone = agencyAddress.getPhones().stream()
+            .filter(p -> p.getPhoneId().equals(phoneId))
+            .findFirst().orElseThrow(EntityNotFoundException.withId(phoneId));
+
+        addressPhone.setPhoneNo(requestToUpdatePhone.getNumber());
+        addressPhone.setExtNo(requestToUpdatePhone.getExt());
+        addressPhone.setPhoneType(requestToUpdatePhone.getType());
+
+        return AddressTransformer.translate(addressPhone);
+    }
+
+    @Transactional
+    public void deleteAgencyAddressPhone(final String agencyId, final Long addressId, final Long phoneId) {
+        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+
+        final var agencyAddress = agency.getAddresses().stream()
+            .filter(a -> a.getAddressId().equals(addressId))
+            .findFirst().orElseThrow(EntityNotFoundException.withId(addressId));
+
+        final var addressPhone = agencyAddress.getPhones().stream()
+            .filter(p -> p.getPhoneId().equals(phoneId))
+            .findFirst().orElseThrow(EntityNotFoundException.withId(phoneId));
+
+        agencyAddress.removePhone(addressPhone);
+    }
+
+
 }

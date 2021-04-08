@@ -9,8 +9,10 @@ import lombok.experimental.SuperBuilder;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Data
@@ -21,9 +23,11 @@ import javax.persistence.Table;
 @Table(name = "PHONES")
 @DiscriminatorColumn(name = "OWNER_CLASS")
 @Inheritance
-@EqualsAndHashCode(of = "phoneId")
-public abstract class Phone {
+@EqualsAndHashCode(of = "phoneId", callSuper = false)
+public abstract class Phone extends AuditableEntity {
     @Id
+    @SequenceGenerator(name = "PHONE_ID", sequenceName = "PHONE_ID", allocationSize = 1)
+    @GeneratedValue(generator = "PHONE_ID")
     @Column(name = "PHONE_ID", nullable = false)
     private Long phoneId;
 

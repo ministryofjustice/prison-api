@@ -15,7 +15,6 @@ import javax.validation.constraints.NotBlank;
 /**
  * Telephone Details
  **/
-@SuppressWarnings("unused")
 @ApiModel(description = "Telephone Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -26,18 +25,18 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class Telephone {
 
-    @ApiModelProperty("Phone Id")
+    @ApiModelProperty(value = "Phone Id", example = "2234232")
     private Long phoneId;
 
-    @ApiModelProperty(required = true, value = "Telephone number")
+    @ApiModelProperty(required = true, value = "Telephone number", example = "0114 2345678")
     @NotBlank
     private String number;
 
-    @ApiModelProperty(required = true, value = "Telephone type")
+    @ApiModelProperty(required = true, value = "Telephone type", example = "TEL")
     @NotBlank
     private String type;
 
-    @ApiModelProperty(value = "Telephone extension number")
+    @ApiModelProperty(value = "Telephone extension number", example = "123")
     private String ext;
 
 }

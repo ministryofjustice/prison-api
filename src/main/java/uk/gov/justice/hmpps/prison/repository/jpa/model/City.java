@@ -15,4 +15,8 @@ public class City extends ReferenceCode {
     public City(final String code, final String description) {
         super(CITY, code, description);
     }
+
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(CITY, code);
+    }
 }

@@ -293,7 +293,7 @@ public class AgencyResource {
         @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
     ) {
 
-        return null;
+        return agencyService.createAgencyAddress(agencyId, requestToUpdateAddress);
     }
 
     @ApiResponses({
@@ -311,7 +311,7 @@ public class AgencyResource {
         @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
         ) {
 
-        return null;
+        return agencyService.updateAgencyAddress(agencyId, addressId, requestToUpdateAddress);
     }
 
     @ApiResponses({
@@ -326,8 +326,7 @@ public class AgencyResource {
         @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
         @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId
     ) {
-
-
+        agencyService.deleteAgencyAddress(agencyId, addressId);
     }
 
     @ApiResponses({
@@ -346,7 +345,7 @@ public class AgencyResource {
         @RequestBody @Valid @NotNull RequestToUpdatePhone requestToUpdatePhone
     ) {
 
-        return null;
+        return agencyService.createAgencyAddressPhone(agencyId, addressId, requestToUpdatePhone);
     }
 
     @ApiResponses({
@@ -365,7 +364,7 @@ public class AgencyResource {
         @RequestBody @Valid @NotNull RequestToUpdatePhone requestToUpdatePhone
     ) {
 
-        return null;
+        return agencyService.updateAgencyAddressPhone(agencyId, addressId, phoneId, requestToUpdatePhone);
     }
 
     @ApiResponses({
@@ -381,7 +380,6 @@ public class AgencyResource {
         @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
         @PathVariable @ApiParam(value = "The ID of the contact", required = true) final Long phoneId
     ) {
-
-
+         agencyService.deleteAgencyAddressPhone(agencyId, addressId, phoneId);
     }
 }
