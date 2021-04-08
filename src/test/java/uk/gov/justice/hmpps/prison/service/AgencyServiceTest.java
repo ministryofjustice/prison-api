@@ -15,12 +15,18 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HousingAttributeReferenceCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressPhoneRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyAddressRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
@@ -59,10 +65,23 @@ public class AgencyServiceTest {
     private AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
     @Mock
     private ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
+    @Mock
+    private AddressPhoneRepository addressPhoneRepository;
+    @Mock
+    private AgencyAddressRepository agencyAddressRepository;
+    @Mock
+    private ReferenceCodeRepository<AddressType> addressTypeReferenceCodeRepository;
+    @Mock
+    private ReferenceCodeRepository<City> cityReferenceCodeRepository;
+    @Mock
+    private ReferenceCodeRepository<County> countyReferenceCodeRepository;
+    @Mock
+    private ReferenceCodeRepository<Country> countryReferenceCodeRepository;
 
     @BeforeEach
     public void setUp() {
-        service = new AgencyService(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyLocationTypeReferenceCodeRepository, agencyInternalLocationRepository, agencyInternalLocationProfileRepository);
+        service = new AgencyService(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyLocationTypeReferenceCodeRepository, agencyInternalLocationRepository, agencyInternalLocationProfileRepository,
+        addressPhoneRepository, agencyAddressRepository, addressTypeReferenceCodeRepository, cityReferenceCodeRepository, countyReferenceCodeRepository, countryReferenceCodeRepository);
     }
 
     @Test

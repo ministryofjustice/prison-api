@@ -15,4 +15,8 @@ public class AddressType extends ReferenceCode {
     public AddressType(final String code, final String description) {
         super(ADDR_TYPE, code, description);
     }
+
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(ADDR_TYPE, code);
+    }
 }

@@ -17,8 +17,8 @@ import javax.persistence.ManyToOne;
 @NoArgsConstructor
 @Data
 @SuperBuilder
-@EqualsAndHashCode(callSuper = true)
-@ToString(of = {"agency"})
+@EqualsAndHashCode(exclude = "agency", callSuper = true)
+@ToString(of = {"agency"}, callSuper = true)
 public class AgencyAddress extends Address {
 
     static final String ADDR_TYPE = "AGY";

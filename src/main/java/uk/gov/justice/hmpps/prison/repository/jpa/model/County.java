@@ -15,4 +15,8 @@ public class County extends ReferenceCode {
     public County(final String code, final String description) {
         super(COUNTY, code, description);
     }
+
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(COUNTY, code);
+    }
 }

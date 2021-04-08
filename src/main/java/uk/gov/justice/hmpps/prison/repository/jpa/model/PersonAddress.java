@@ -19,7 +19,7 @@ import javax.persistence.ManyToOne;
 @AllArgsConstructor
 @SuperBuilder
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(exclude = "person", callSuper = true)
 @ToString(of = {"person"}, callSuper = true)
 public class PersonAddress extends Address {
 

@@ -69,6 +69,17 @@ public class AgencyLocation extends ExtendedAuditableEntity {
     @Column(name = "JURISDICTION_CODE")
     private String jurisdictionCode;
 
-    @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AgencyAddress> addresses;
+    @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Builder.Default
+    private List<AgencyAddress> addresses = new ArrayList<>();
+
+    public void removeAddress(final AgencyAddress address) {
+        addresses.remove(address);
+    }
+
+    public AgencyAddress addAddress(final AgencyAddress address) {
+        address.setAgency(this);
+        addresses.add(address);
+        return address;
+    }
 }

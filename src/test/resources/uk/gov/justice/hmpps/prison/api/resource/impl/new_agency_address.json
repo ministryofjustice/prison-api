@@ -1,0 +1,21 @@
+{
+  "agencyId": "LEI",
+  "description": "Leeds",
+  "agencyType": "INST",
+  "active": true,
+  "addresses": [
+    {
+      "addressType": "Business Address",
+      "premise": "Leeds Prison",
+      "locality": "North Leeds",
+      "town": "Leeds",
+      "postalCode": "LS12 5TH",
+      "county": "West Yorkshire",
+      "country": "England",
+      "comment": "Some text",
+      "primary": true,
+      "noFixedAddress": false,
+      "startDate": "2006-01-12"
+    }
+  ]
+}
