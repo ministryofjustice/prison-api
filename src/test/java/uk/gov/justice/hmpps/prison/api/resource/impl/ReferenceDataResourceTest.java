@@ -135,4 +135,50 @@ public class ReferenceDataResourceTest extends ResourceTest {
         assertThatJson(response.getBody()).isEqualTo("{\"activeFlag\":\"Y\",\"code\":\"ROTL\",\"description\":\"Release on Temporary Licence\",\"domain\":\"ADDRESS_TYPE\",\"listSeq\":8,\"subCodes\":[],\"systemDataFlag\":\"N\"}");
 
     }
+
+    @Test
+    public void testReadDomainReverseLookupNoWildcard() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+            "/api/reference-domains/domains/{domain}/reverse-lookup?description={searchWord}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            "CITY", "Leeds");
+
+        assertThatJsonFileAndStatus(response, 200, "single_ref_data_reverse_lookup.json");
+    }
+
+    @Test
+    public void testReadDomainReverseLookupNoWildcardCaseInsensitive() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+            "/api/reference-domains/domains/{domain}/reverse-lookup?description={searchWord}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            "CITY", "leeds");
+
+        assertThatJsonFileAndStatus(response, 200, "single_ref_data_reverse_lookup.json");
+    }
+
+    @Test
+    public void testReadDomainReverseLookupWithWildcard() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+            "/api/reference-domains/domains/{domain}/reverse-lookup?description={searchWord}&wildcard={wildcard}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            "COUNTY", "yorkshire", "true");
+
+        assertThatJsonFileAndStatus(response, 200, "multiple_ref_data_reverse_lookup.json");
+    }
+
 }

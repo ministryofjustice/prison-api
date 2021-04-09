@@ -156,4 +156,10 @@ public class ReferenceDomainService {
                 .sorted(Comparator.comparing(ReferenceCode::getDescription))
                 .collect(Collectors.toList());
     }
+
+    public List<ReferenceCode> getReferenceCodeByDomainAndDescription(final String domain, final String description, final boolean wildcard) {
+        verifyReferenceDomain(domain);
+
+        return referenceDataRepository.getReferenceCodeByDomainAndDescription(domain, description, wildcard);
+    }
 }

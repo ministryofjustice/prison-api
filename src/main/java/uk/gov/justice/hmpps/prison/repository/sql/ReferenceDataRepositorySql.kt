@@ -129,6 +129,24 @@ enum class ReferenceDataRepositorySql(val sql: String) {
     """
   ),
 
+  FIND_REFERENCE_CODE_BY_DOMAIN_AND_DESCRIPTION (
+    """
+        SELECT RC.CODE,
+        RC.DOMAIN,
+        RC.DESCRIPTION,
+        RC.PARENT_DOMAIN,
+        RC.PARENT_CODE,
+        RC.ACTIVE_FLAG,
+        RC.LIST_SEQ,
+        RC.SYSTEM_DATA_FLAG,
+        RC.EXPIRED_DATE
+        FROM REFERENCE_CODES RC
+        INNER JOIN REFERENCE_DOMAINS RD ON RC.DOMAIN = RD.DOMAIN
+                WHERE RC.DOMAIN = :domain
+        AND UPPER(RC.DESCRIPTION) like :description
+    """
+  ),
+
   GET_AVAILABLE_EVENT_SUBTYPES(
     """
         --- For INSERT_APPOINTMENT
