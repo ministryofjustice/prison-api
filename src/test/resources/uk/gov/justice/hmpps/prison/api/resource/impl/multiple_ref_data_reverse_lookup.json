@@ -1,0 +1,37 @@
+[
+  {
+    "domain": "COUNTY",
+    "code": "E.YORKSHIRE",
+    "description": "East Riding of Yorkshire",
+    "activeFlag": "Y",
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  {
+    "domain": "COUNTY",
+    "code": "N.YORKSHIRE",
+    "description": "North Yorkshire",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  {
+    "domain": "COUNTY",
+    "code": "S.YORKSHIRE",
+    "description": "South Yorkshire",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  {
+    "domain": "COUNTY",
+    "code": "W.YORKSHIRE",
+    "description": "West Yorkshire",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  }
+]

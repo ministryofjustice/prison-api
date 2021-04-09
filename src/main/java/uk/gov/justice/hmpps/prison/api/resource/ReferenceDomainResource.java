@@ -139,6 +139,19 @@ public class ReferenceDomainResource {
     }
 
     @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Reference code matching description ", notes = "Wild card can be specified")
+    @GetMapping("/domains/{domain}/reverse-lookup")
+    public List<ReferenceCode> getReferenceCodeByDomainAndDescription(@PathVariable("domain") @ApiParam(value = "The domain identifier/name.", required = true) final String domain,
+                                                                      @RequestParam(value = "description", required = true) @ApiParam(value = "decription of a reference code to find", required = true) final String description,
+                                                                      @RequestParam(value = "wildcard", required = false, defaultValue = "false") @ApiParam(value = "Specify whether or not to wild card the results", defaultValue = "false") final boolean wildcard) {
+        return referenceDomainService.getReferenceCodeByDomainAndDescription(domain, description, wildcard);
+    }
+
+
+    @ApiResponses({
             @ApiResponse(code = 201, message = "Created", response = ReferenceCode.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),

@@ -81,6 +81,17 @@ public class ReferenceDataRepository extends RepositoryBase {
         return referenceCodeAsList.isEmpty() ? Optional.empty() : Optional.of(referenceCodeAsList.get(0));
     }
 
+
+    public List<ReferenceCode> getReferenceCodeByDomainAndDescription(final String domain, final String description, final boolean wildcard) {
+        final var sql = ReferenceDataRepositorySql.FIND_REFERENCE_CODE_BY_DOMAIN_AND_DESCRIPTION.getSql();
+
+        final var searchWord = StringUtils.upperCase(wildcard ? "%" + description + "%" : description);
+        return jdbcTemplate.query(
+            sql,
+            createParams("domain", domain, "description", searchWord),
+            REF_CODE_ROW_MAPPER);
+    }
+
     private Optional<ReferenceCode> getReferenceCodeByDomainAndCode(final String domain, final String code) {
         final var sql = ReferenceDataRepositorySql.FIND_REFERENCE_CODE_BY_DOMAIN_AND_CODE.getSql();
 
