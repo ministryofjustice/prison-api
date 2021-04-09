@@ -232,8 +232,8 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
             OFFENDER_NO);
 
         assertThat(response.getBody().getStatus().intValue()).isEqualTo(HTTP_BAD_REQ);
-        assertThat(response.getBody().getDeveloperMessage()).isEqualTo("Invalid value for MonthOfYear (valid values 1 - 12): 30");
-        assertThat(response.getBody().getUserMessage()).isEqualTo("Invalid value for MonthOfYear (valid values 1 - 12): 30");
+        assertThat(response.getBody().getDeveloperMessage()).startsWith("Unable to parse date time value \"2019-30-17\"");
+        assertThat(response.getBody().getUserMessage()).startsWith("Unable to parse date time value \"2019-30-17\"");
     }
 
     @Test
