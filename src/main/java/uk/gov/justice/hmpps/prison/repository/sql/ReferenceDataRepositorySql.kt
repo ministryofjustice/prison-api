@@ -129,7 +129,7 @@ enum class ReferenceDataRepositorySql(val sql: String) {
     """
   ),
 
-  FIND_REFERENCE_CODE_BY_DOMAIN_AND_DESCRIPTION (
+  FIND_REFERENCE_CODE_BY_DOMAIN_AND_DESCRIPTION(
     """
         SELECT RC.CODE,
         RC.DOMAIN,

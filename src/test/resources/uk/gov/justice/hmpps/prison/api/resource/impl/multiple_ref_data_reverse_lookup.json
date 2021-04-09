@@ -10,7 +10,7 @@
   {
     "domain": "COUNTY",
     "code": "N.YORKSHIRE",
-    "description": "North Yorkshire",
+    "description": "North Yorkshire",ReferenceDataRepositorySql
     "activeFlag": "Y",
     "listSeq": 99,
     "systemDataFlag": "N",
