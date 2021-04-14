@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.builder;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.*;
 
 @Service
 @Slf4j
