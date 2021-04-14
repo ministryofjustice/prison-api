@@ -24,4 +24,7 @@ public interface BedAssignmentHistoriesRepository extends PagingAndSortingReposi
 
     @Query("select ba from BedAssignmentHistory ba where ba.livingUnitId = :livingUnitId and (ba.assignmentEndDateTime is null or :fromDate <= ba.assignmentEndDateTime) and :toDate >= ba.assignmentDateTime")
     List<BedAssignmentHistory> findByLivingUnitIdAndDateTimeRange(@Param("livingUnitId") long livingUnitId, @Param("fromDate") LocalDateTime from, @Param("toDate") LocalDateTime to);
+
+    @Query("select ba from BedAssignmentHistory ba where (ba.assignmentEndDateTime is null or :fromDate <= ba.assignmentEndDateTime) and :toDate >= ba.assignmentDateTime")
+    List<BedAssignmentHistory> findByDateTimeRange(@Param("fromDate") LocalDateTime from, @Param("toDate") LocalDateTime to);
 }

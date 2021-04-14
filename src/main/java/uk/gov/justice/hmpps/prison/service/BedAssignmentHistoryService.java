@@ -18,7 +18,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.*;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.builder;
 
 @Service
 @Slf4j
@@ -72,6 +73,16 @@ public class BedAssignmentHistoryService {
                 .stream()
                 .map(this::transform)
                 .collect(Collectors.toList());
+    }
+
+    public List<BedAssignment> getBedAssignmentsHistoryForDateRange(final LocalDateTime from, final LocalDateTime to) {
+        if(from.isAfter(to)) throw new IllegalArgumentException("The fromDate should be less then or equal to the toDate");
+
+        return repository
+            .findByDateTimeRange(from, to)
+            .stream()
+            .map(this::transform)
+            .collect(Collectors.toList());
     }
 
     private BedAssignment transform(final BedAssignmentHistory assignment) {

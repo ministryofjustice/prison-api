@@ -39,8 +39,17 @@ public class CellResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @GetMapping("/{locationId}/history")
-    public List<BedAssignment> getBedAssignmentsHistory(@PathVariable("locationId") @ApiParam(value = "The location id.", required = true) final Long locationId, @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDate") @ApiParam(value = "From date", example = "2020-03-24T10:10:10", required = true) final LocalDateTime fromDateTime, @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDate") @ApiParam(value = "To date", example = "2020-12-01T11:11:11", required = true) final LocalDateTime toDateTime) {
+    public List<BedAssignment> getBedAssignmentsHistory(@PathVariable("locationId") @ApiParam(value = "The location id.", required = true) final Long locationId, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDate") @ApiParam(value = "From date", example = "2020-03-24T10:10:10", required = true) final LocalDateTime fromDateTime, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDate") @ApiParam(value = "To date", example = "2020-12-01T11:11:11", required = true) final LocalDateTime toDateTime) {
         return bedAssignmentHistoryService.getBedAssignmentsHistory(locationId, fromDateTime, toDateTime);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @GetMapping("/history")
+    public List<BedAssignment> getBedAssignmentsHistoryForDateRange(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDate") @ApiParam(value = "From date", example = "2020-03-24T10:10:10", required = true) final LocalDateTime fromDateTime, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDate") @ApiParam(value = "To date", example = "2020-12-01T11:11:11", required = true) final LocalDateTime toDateTime) {
+        return bedAssignmentHistoryService.getBedAssignmentsHistoryForDateRange(fromDateTime, toDateTime);
     }
 
     @ApiResponses({
