@@ -19,6 +19,16 @@ public class CellResourceHistoryTest extends ResourceTest {
         final var fromDateTime =  LocalDateTime.of(2000,10,16, 10, 10, 10);
         final var toDateTime =    LocalDateTime.of(2020,10,10, 11, 11, 11);
 
+        final var response = makeRequest(fromDateTime.toString(), toDateTime.toString());
+
+        assertThatJsonFileAndStatus(response, 200, "cell-histories-by-date-range.json");
+    }
+
+    @Test
+    public void returnAllBedHistoriesForDateRangeOnly() {
+        final var fromDateTime =  LocalDateTime.of(2000,10,16, 10, 10, 10);
+        final var toDateTime =    LocalDateTime.of(2020,10,10, 11, 11, 11);
+
         final var response = makeRequest(SOME_CELL_LOCATION_ID, fromDateTime.toString(), toDateTime.toString());
 
         assertThatJsonFileAndStatus(response, 200, "cell-histories.json");
@@ -55,6 +65,18 @@ public class CellResourceHistoryTest extends ResourceTest {
                 locationId,
                 fromDate,
                 toDate
+        );
+    }
+
+    private ResponseEntity<String> makeRequest(final String fromDate, final String toDate) {
+        final var entity = createHttpEntity(validToken(), null);
+
+        return testRestTemplate.exchange("/api/cell/history?fromDate={fromDate}&toDate={toDate}",
+            HttpMethod.GET,
+            entity,
+            new ParameterizedTypeReference<String>() {},
+            fromDate,
+            toDate
         );
     }
 }

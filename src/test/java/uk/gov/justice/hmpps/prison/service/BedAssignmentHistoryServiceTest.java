@@ -136,6 +136,42 @@ class BedAssignmentHistoryServiceTest {
     }
 
     @Test
+    void getBedAssignmentHistory_forDateRange() {
+        final var livingUnitId = 1L;
+        final var bookingId = 1L;
+        final var from = LocalDateTime.now();
+        final var to = LocalDateTime.now();
+
+        when(locationRepository.findOneByLocationId(livingUnitId))
+            .thenReturn(Optional.of(AgencyInternalLocation.builder()
+                .description("MDI-1-2")
+                .agencyId("MDI")
+                .build()));
+
+        when(repository.findByDateTimeRange(any(), any()))
+            .thenReturn(List.of(aBedAssignment(bookingId, livingUnitId)));
+
+        final var cellHistory = service.getBedAssignmentsHistoryForDateRange(from, to);
+
+        verify(repository).findByDateTimeRange(from, to);
+
+        assertThat(cellHistory).containsOnly(
+            BedAssignment.builder()
+                .bookingId(bookingId)
+                .livingUnitId(livingUnitId)
+                .assignmentDate(LocalDate.of(2015, 5, 1))
+                .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
+                .assignmentEndDate(LocalDate.of(2016, 5, 1))
+                .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                .assignmentReason("Needs moving")
+                .description("MDI-1-2")
+                .agencyId("MDI")
+                .bedAssignmentHistorySequence(2)
+                .build()
+        );
+    }
+
+    @Test
     void getBedAssignmentHistory_cellNotFound() {
         when(locationRepository.existsById(anyLong())).thenReturn(false);
 
@@ -150,6 +186,14 @@ class BedAssignmentHistoryServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("The fromDate should be less then or equal to the toDate");
     }
+
+    @Test
+    void getBedAssignmentHistoryForDateRange_checkDateOrder() {
+        assertThatThrownBy(() -> service.getBedAssignmentsHistoryForDateRange( LocalDateTime.now().plusDays(1), LocalDateTime.now()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("The fromDate should be less then or equal to the toDate");
+    }
+
 
 
     private BedAssignmentHistory aBedAssignment(final long bookingId, final long livingUnitId) {
