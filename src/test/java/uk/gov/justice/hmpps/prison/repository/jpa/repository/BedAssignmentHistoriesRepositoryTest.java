@@ -161,6 +161,8 @@ public class BedAssignmentHistoriesRepositoryTest {
                     .livingUnitId(2L)
                     .assignmentDate(LocalDate.now())
                     .assignmentDateTime(LocalDateTime.now())
+                    .assignmentEndDate(LocalDate.now())
+                    .assignmentEndDateTime(LocalDateTime.now())
                     .build();
             repository.save(bedAssignmentHistory);
         });
