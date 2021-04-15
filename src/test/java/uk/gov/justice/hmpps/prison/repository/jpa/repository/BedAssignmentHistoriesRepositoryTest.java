@@ -90,7 +90,7 @@ public class BedAssignmentHistoriesRepositoryTest {
                 LocalDateTime.of(2042, 10, 10, 0, 0, 0)
             );
 
-        assertThat(cellHistory).containsExactlyInAnyOrder(
+        assertThat(cellHistory).containsAnyOf(
             BedAssignmentHistory.builder()
                 .livingUnitId(-16L)
                 .assignmentDate(LocalDate.of(2040, 10, 17))
@@ -161,8 +161,6 @@ public class BedAssignmentHistoriesRepositoryTest {
                     .livingUnitId(2L)
                     .assignmentDate(LocalDate.now())
                     .assignmentDateTime(LocalDateTime.now())
-                    .assignmentEndDate(LocalDate.now())
-                    .assignmentEndDateTime(LocalDateTime.now())
                     .build();
             repository.save(bedAssignmentHistory);
         });
