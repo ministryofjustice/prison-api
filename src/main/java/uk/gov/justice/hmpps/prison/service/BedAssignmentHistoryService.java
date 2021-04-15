@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -17,8 +18,6 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.*;
 
 @Service
 @Slf4j
@@ -39,7 +38,7 @@ public class BedAssignmentHistoryService {
         final var maxSequence = repository.getMaxSeqForBookingId(bookingId);
         final var bookingAndSequence = new BedAssignmentHistoryPK(bookingId, maxSequence + 1);
         final var bedAssignmentHistory =
-                builder()
+                BedAssignmentHistory.builder()
                         .bedAssignmentHistoryPK(bookingAndSequence)
                         .livingUnitId(livingUnitId)
                         .assignmentDate(time.toLocalDate())
