@@ -16,18 +16,17 @@ public class CellResourceHistoryTest extends ResourceTest {
     @Test
     public void returnAllBedHistories() {
 
-        final var fromDateTime =  LocalDateTime.of(2000,10,16, 10, 10, 10);
-        final var toDateTime =    LocalDateTime.of(2020,10,10, 11, 11, 11);
+        final var assignmentDate = java.time.LocalDate.of(2020, 4, 3);
 
-        final var response = makeRequest(fromDateTime.toString(), toDateTime.toString());
+        final var response = makeRequest(assignmentDate.toString());
 
         assertThatJsonFileAndStatus(response, 200, "cell-histories-by-date-range.json");
     }
 
     @Test
     public void returnAllBedHistoriesForDateRangeOnly() {
-        final var fromDateTime =  LocalDateTime.of(2000,10,16, 10, 10, 10);
-        final var toDateTime =    LocalDateTime.of(2020,10,10, 11, 11, 11);
+        final var fromDateTime = LocalDateTime.of(2000, 10, 16, 10, 10, 10);
+        final var toDateTime = LocalDateTime.of(2020, 10, 10, 11, 11, 11);
 
         final var response = makeRequest(SOME_CELL_LOCATION_ID, fromDateTime.toString(), toDateTime.toString());
 
@@ -59,24 +58,25 @@ public class CellResourceHistoryTest extends ResourceTest {
         final var entity = createHttpEntity(validToken(), null);
 
         return testRestTemplate.exchange("/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
-                HttpMethod.GET,
-                entity,
-                new ParameterizedTypeReference<String>() {},
-                locationId,
-                fromDate,
-                toDate
+            HttpMethod.GET,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            },
+            locationId,
+            fromDate,
+            toDate
         );
     }
 
-    private ResponseEntity<String> makeRequest(final String fromDate, final String toDate) {
+    private ResponseEntity<String> makeRequest(final String assignmentDate) {
         final var entity = createHttpEntity(validToken(), null);
 
-        return testRestTemplate.exchange("/api/cell/history?fromDate={fromDate}&toDate={toDate}",
+        return testRestTemplate.exchange("/api/cell/history/{assignmentDate}",
             HttpMethod.GET,
             entity,
-            new ParameterizedTypeReference<String>() {},
-            fromDate,
-            toDate
+            new ParameterizedTypeReference<String>() {
+            },
+            assignmentDate
         );
     }
 }

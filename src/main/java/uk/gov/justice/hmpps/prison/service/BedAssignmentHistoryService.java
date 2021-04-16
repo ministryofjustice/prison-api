@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,11 +74,9 @@ public class BedAssignmentHistoryService {
                 .collect(Collectors.toList());
     }
 
-    public List<BedAssignment> getBedAssignmentsHistoryForDateRange(final LocalDateTime from, final LocalDateTime to) {
-        if(from.isAfter(to)) throw new IllegalArgumentException("The fromDate should be less then or equal to the toDate");
-
+    public List<BedAssignment> getBedAssignmentsHistoryByDate(final LocalDate assignmentDate) {
         return repository
-            .findByDateTimeRange(from, to)
+            .findBedAssignmentHistoriesByAssignmentDate(assignmentDate)
             .stream()
             .map(this::transform)
             .collect(Collectors.toList());
