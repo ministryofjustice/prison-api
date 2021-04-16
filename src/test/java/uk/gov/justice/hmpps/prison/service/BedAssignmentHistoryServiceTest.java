@@ -139,8 +139,7 @@ class BedAssignmentHistoryServiceTest {
     void getBedAssignmentHistory_forDateRange() {
         final var livingUnitId = 1L;
         final var bookingId = 1L;
-        final var from = LocalDateTime.now();
-        final var to = LocalDateTime.now();
+        final var assignmentDate = LocalDate.now();
 
         when(locationRepository.findOneByLocationId(livingUnitId))
             .thenReturn(Optional.of(AgencyInternalLocation.builder()
@@ -148,12 +147,12 @@ class BedAssignmentHistoryServiceTest {
                 .agencyId("MDI")
                 .build()));
 
-        when(repository.findByDateTimeRange(any(), any()))
+        when(repository.findBedAssignmentHistoriesByAssignmentDate(any()))
             .thenReturn(List.of(aBedAssignment(bookingId, livingUnitId)));
 
-        final var cellHistory = service.getBedAssignmentsHistoryForDateRange(from, to);
+        final var cellHistory = service.getBedAssignmentsHistoryByDate(assignmentDate);
 
-        verify(repository).findByDateTimeRange(from, to);
+        verify(repository).findBedAssignmentHistoriesByAssignmentDate(assignmentDate);
 
         assertThat(cellHistory).containsOnly(
             BedAssignment.builder()
@@ -186,15 +185,6 @@ class BedAssignmentHistoryServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("The fromDate should be less then or equal to the toDate");
     }
-
-    @Test
-    void getBedAssignmentHistoryForDateRange_checkDateOrder() {
-        assertThatThrownBy(() -> service.getBedAssignmentsHistoryForDateRange( LocalDateTime.now().plusDays(1), LocalDateTime.now()))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("The fromDate should be less then or equal to the toDate");
-    }
-
-
 
     private BedAssignmentHistory aBedAssignment(final long bookingId, final long livingUnitId) {
         return BedAssignmentHistory.builder()

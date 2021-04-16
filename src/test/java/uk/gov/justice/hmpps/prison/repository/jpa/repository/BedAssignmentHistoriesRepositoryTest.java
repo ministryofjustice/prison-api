@@ -83,52 +83,27 @@ public class BedAssignmentHistoriesRepositoryTest {
     }
 
     @Test
-    public void findBedAssignmentHistory_forDatePeriod() {
+    public void findBedAssignmentHistory_byDate() {
         final var cellHistory =
-            repository.findByDateTimeRange(
-                LocalDateTime.of(2040, 10, 16, 0, 0, 0),
-                LocalDateTime.of(2042, 10, 10, 0, 0, 0)
-            );
+            repository.findBedAssignmentHistoriesByAssignmentDate(LocalDate.of(2040, 10, 17));
 
         assertThat(cellHistory).containsAnyOf(
             BedAssignmentHistory.builder()
                 .livingUnitId(-16L)
                 .assignmentDate(LocalDate.of(2040, 10, 17))
                 .assignmentDateTime(LocalDateTime.of(LocalDate.of(2040, 10, 17), LocalTime.of(11, 0)))
-                .assignmentEndDate(LocalDate.of(2041, 1, 1))
-                .assignmentEndDateTime(LocalDateTime.of(LocalDate.of(2041, 1, 1), LocalTime.of(11, 0)))
                 .assignmentReason("ADM")
                 .build(),
             BedAssignmentHistory.builder()
                 .livingUnitId(-17L)
-                .assignmentDate(LocalDate.of(2040, 4, 3))
-                .assignmentDateTime(LocalDateTime.of(LocalDate.of(2040, 4, 3), LocalTime.of(11, 0)))
+                .assignmentDate(LocalDate.of(2040, 10, 17))
+                .assignmentDateTime(LocalDateTime.of(LocalDate.of(2040, 10, 17), LocalTime.of(11, 0)))
                 .assignmentReason("ADM")
                 .build(),
             BedAssignmentHistory.builder()
                 .livingUnitId(-18L)
-                .assignmentDate(LocalDate.of(2040, 4, 3))
-                .assignmentDateTime(LocalDateTime.of(LocalDate.of(2040, 4, 3), LocalTime.of(11, 0)))
-                .assignmentEndDate(LocalDate.of(2041, 4, 3))
-                .assignmentEndDateTime(LocalDateTime.of(LocalDate.of(2041, 4, 3), LocalTime.of(11, 0)))
-                .assignmentReason("ADM")
-                .build(),
-            BedAssignmentHistory.builder()
-                .livingUnitId(-16L)
-                .assignmentDate(LocalDate.of(2020, 4, 3))
-                .assignmentDateTime(LocalDateTime.of(LocalDate.of(2020, 4, 3), LocalTime.of(11, 0)))
-                .assignmentReason("ADM")
-                .build(),
-            BedAssignmentHistory.builder()
-                .livingUnitId(-15L)
-                .assignmentDate(LocalDate.of(2020, 4, 3))
-                .assignmentDateTime(LocalDateTime.of(LocalDate.of(2020, 4, 3), LocalTime.of(11, 0)))
-                .assignmentReason("ADM")
-                .build(),
-            BedAssignmentHistory.builder()
-                .livingUnitId(4005L)
-                .assignmentDate(LocalDate.of(2019, 10, 17))
-                .assignmentDateTime(LocalDateTime.of(LocalDate.of(2019, 10, 17), LocalTime.of(11, 0)))
+                .assignmentDate(LocalDate.of(2040, 10, 17))
+                .assignmentDateTime(LocalDateTime.of(LocalDate.of(2040, 10, 17), LocalTime.of(11, 0)))
                 .assignmentReason("ADM")
                 .build()
         );
