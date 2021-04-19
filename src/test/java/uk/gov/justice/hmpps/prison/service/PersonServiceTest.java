@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PersonAddress;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PersonInternetAddress;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PersonPhone;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.PersonAddressRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PersonRepository;
 
 import java.time.LocalDate;
@@ -40,75 +41,75 @@ public class PersonServiceTest {
     @Mock
     private PersonRepository personRepository;
 
+    @Mock
+    private PersonAddressRepository personAddressRepository;
+
     private PersonService personService;
 
     @BeforeEach
     void setUp() {
-        personService = new PersonService(deprecatedPersonRepository, personRepository);
+        personService = new PersonService(deprecatedPersonRepository, personRepository, personAddressRepository);
     }
 
 
     @Test
     public void canRetrieveAddresses() {
-        final var person = Person.builder().id(-8L)
-            .addresses(List.of(PersonAddress.builder()
-                    .addressId(-15L)
-                    .addressType(new AddressType("HOME", "Home Address"))
-                    .noFixedAddressFlag("N")
-                    .commentText(null)
-                    .primaryFlag("Y")
-                    .mailFlag("N")
-                    .flat("Flat 1")
-                    .premise("Brook Hamlets")
-                    .street("Mayfield Drive")
-                    .locality("Nether Edge")
-                    .postalCode("B5")
-                    .country(new Country("ENG", "England"))
-                    .county(new County("S.YORKSHIRE", "South Yorkshire"))
-                    .city(new City("25343", "Sheffield"))
-                    .startDate(LocalDate.of(2016, 8, 2))
-                    .phones(List.of(
-                        AddressPhone.builder()
-                            .phoneId(-7L)
-                            .phoneNo("0114 2345345")
-                            .phoneType("HOME")
-                            .extNo("345")
-                            .build(),
-                        AddressPhone.builder()
-                            .phoneId(-8L)
-                            .phoneNo("0114 2345346")
-                            .phoneType("BUS")
-                            .extNo(null)
-                            .build())
-                    )
-                    .addressUsages(List.of(
-                        AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
-                        AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()
-                    ))
-                    .endDate(null)
+        final var personAddress1 = PersonAddress.builder()
+            .addressId(-15L)
+            .addressType(new AddressType("HOME", "Home Address"))
+            .noFixedAddressFlag("N")
+            .commentText(null)
+            .primaryFlag("Y")
+            .mailFlag("N")
+            .flat("Flat 1")
+            .premise("Brook Hamlets")
+            .street("Mayfield Drive")
+            .locality("Nether Edge")
+            .postalCode("B5")
+            .country(new Country("ENG", "England"))
+            .county(new County("S.YORKSHIRE", "South Yorkshire"))
+            .city(new City("25343", "Sheffield"))
+            .startDate(LocalDate.of(2016, 8, 2))
+            .phones(List.of(
+                AddressPhone.builder()
+                    .phoneId(-7L)
+                    .phoneNo("0114 2345345")
+                    .phoneType("HOME")
+                    .extNo("345")
                     .build(),
-                PersonAddress.builder()
-                    .addressId(-16L)
-                    .addressType(new AddressType("BUS", "Business Address"))
-                    .noFixedAddressFlag("Y")
-                    .commentText(null)
-                    .primaryFlag("N")
-                    .mailFlag("N")
-                    .flat(null)
-                    .premise(null)
-                    .street(null)
-                    .locality(null)
-                    .postalCode(null)
-                    .country(new Country("ENG", "England"))
-                    .county(null)
-                    .city(null)
-                    .startDate(LocalDate.of(2016, 8, 2))
-                    .endDate(null)
-                    .build()
+                AddressPhone.builder()
+                    .phoneId(-8L)
+                    .phoneNo("0114 2345346")
+                    .phoneType("BUS")
+                    .extNo(null)
+                    .build())
+            )
+            .addressUsages(List.of(
+                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
+                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()
             ))
-            .internetAddresses(List.of()).build();
+            .endDate(null)
+            .build();
+        final var personAddress2 = PersonAddress.builder()
+            .addressId(-16L)
+            .addressType(new AddressType("BUS", "Business Address"))
+            .noFixedAddressFlag("Y")
+            .commentText(null)
+            .primaryFlag("N")
+            .mailFlag("N")
+            .flat(null)
+            .premise(null)
+            .street(null)
+            .locality(null)
+            .postalCode(null)
+            .country(new Country("ENG", "England"))
+            .county(null)
+            .city(null)
+            .startDate(LocalDate.of(2016, 8, 2))
+            .endDate(null)
+            .build();
 
-        when(personRepository.findById(person.getId())).thenReturn(Optional.of(person));
+        when(personAddressRepository.findAllByPersonId(-8L)).thenReturn(List.of(personAddress1, personAddress2));
 
         List<AddressDto> results = personService.getAddresses(-8L);
 
