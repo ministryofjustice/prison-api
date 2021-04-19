@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.service.keyworker;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.Validate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +19,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -30,13 +33,16 @@ public class KeyWorkerAllocationService {
     private final KeyWorkerAllocationRepository repository;
     private final AgencyRepository agencyRepository;
     private final UserRepository userRepository;
+    private final int maxBatchSize;
 
     public KeyWorkerAllocationService(final KeyWorkerAllocationRepository repository,
-                                          final AgencyRepository agencyRepository,
-                                          final UserRepository userRepository) {
+                                      final AgencyRepository agencyRepository,
+                                      final UserRepository userRepository,
+                                      @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.repository = repository;
         this.agencyRepository = agencyRepository;
         this.userRepository = userRepository;
+        this.maxBatchSize = maxBatchSize;
     }
 
 
@@ -120,7 +126,11 @@ public class KeyWorkerAllocationService {
 
     public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(final List<String> offenderNos) {
         Validate.notEmpty(offenderNos, "At lease 1 offender no is required.");
-        final var allocations = repository.getAllocationHistoryByOffenderNos(offenderNos);
+        final var allocations = new ArrayList<OffenderKeyWorker>();
+        final var batch = Lists.partition(new ArrayList<>(offenderNos), maxBatchSize);
+        batch.forEach(offenderNosBatch ->
+            allocations.addAll(repository.getAllocationHistoryByOffenderNos(offenderNosBatch))
+        );
         return allocations.stream()
                 .sorted(Comparator
                         .comparing(OffenderKeyWorker::getOffenderNo)
