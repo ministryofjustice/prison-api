@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional(readOnly = true)
@@ -61,7 +62,7 @@ public class KeyWorkerAllocationService {
 
         final var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
         final var agencyIds = agencyRepository.findAgenciesByCaseload(userDetail.getActiveCaseLoadId())
-                .stream().map(Agency::getAgencyId).collect(Collectors.toList());
+                .stream().map(Agency::getAgencyId).collect(toList());
         final var allocations = repository.getAllocationDetailsForKeyworker(userDetail.getStaffId(), agencyIds);
         allocations.forEach(a -> a.setInternalLocationDesc(LocationProcessor.stripAgencyId(a.getInternalLocationDesc(), a.getAgencyId())));
 
@@ -86,7 +87,7 @@ public class KeyWorkerAllocationService {
                         .comparing(KeyWorkerAllocationDetail::getStaffId)
                         .thenComparing(KeyWorkerAllocationDetail::getBookingId)
                         .thenComparing(KeyWorkerAllocationDetail::getAssigned).reversed())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final String agencyId) {
@@ -102,7 +103,7 @@ public class KeyWorkerAllocationService {
                         .comparing(KeyWorkerAllocationDetail::getBookingId)
                         .thenComparing(KeyWorkerAllocationDetail::getStaffId)
                         .thenComparing(KeyWorkerAllocationDetail::getAssigned).reversed())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @VerifyAgencyAccess
@@ -120,22 +121,21 @@ public class KeyWorkerAllocationService {
                 .sorted(Comparator
                         .comparing(OffenderKeyWorker::getOffenderNo)
                         .thenComparing(OffenderKeyWorker::getAssigned).reversed())
-                .collect(Collectors.toList());
+                .collect(toList());
 
     }
 
     public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(final List<String> offenderNos) {
         Validate.notEmpty(offenderNos, "At lease 1 offender no is required.");
-        final var allocations = new ArrayList<OffenderKeyWorker>();
         final var batch = Lists.partition(new ArrayList<>(offenderNos), maxBatchSize);
-        batch.forEach(offenderNosBatch ->
-            allocations.addAll(repository.getAllocationHistoryByOffenderNos(offenderNosBatch))
-        );
+        final var allocations = batch.stream().flatMap(offenderNosBatch ->
+            repository.getAllocationHistoryByOffenderNos(offenderNosBatch).stream()
+        ).collect(toList());
         return allocations.stream()
                 .sorted(Comparator
                         .comparing(OffenderKeyWorker::getOffenderNo)
                         .thenComparing(OffenderKeyWorker::getAssigned).reversed())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
 }
