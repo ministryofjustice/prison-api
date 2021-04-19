@@ -65,6 +65,16 @@ public class KeyWorkerAllocationServiceTest {
     }
 
     @Test
+    public void getAllocationHistoryByOffenderNos_HandlesEmptyHistory() {
+
+        when(repository.getAllocationHistoryByOffenderNos(any())).thenReturn(List.of());
+
+        final var allocationHistory = keyWorkerAllocationService.getAllocationHistoryByOffenderNos(List.of("off1", "off2", "off3"));
+
+        assertThat(allocationHistory).hasSize(0);
+    }
+
+    @Test
     public void getAllocationHistoryByOffenderNos_CallsKeyworkerRepoInBatches() {
 
         final var keyWorkerAllocationServiceWithSmallBatchSize = new KeyWorkerAllocationService(repository,
