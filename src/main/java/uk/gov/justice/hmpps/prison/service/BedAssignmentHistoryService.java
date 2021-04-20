@@ -11,6 +11,7 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -18,6 +19,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,13 +41,13 @@ public class BedAssignmentHistoryService {
         final var maxSequence = repository.getMaxSeqForBookingId(bookingId);
         final var bookingAndSequence = new BedAssignmentHistoryPK(bookingId, maxSequence + 1);
         final var bedAssignmentHistory =
-                BedAssignmentHistory.builder()
-                        .bedAssignmentHistoryPK(bookingAndSequence)
-                        .livingUnitId(livingUnitId)
-                        .assignmentDate(time.toLocalDate())
-                        .assignmentDateTime(time)
-                        .assignmentReason(reasonCode)
-                        .build();
+            BedAssignmentHistory.builder()
+                .bedAssignmentHistoryPK(bookingAndSequence)
+                .livingUnitId(livingUnitId)
+                .assignmentDate(time.toLocalDate())
+                .assignmentDateTime(time)
+                .assignmentReason(reasonCode)
+                .build();
         repository.save(bedAssignmentHistory);
         log.info("Added bed assignment history for offender booking id {} to living unit id {}", bookingId, livingUnitId);
 
@@ -56,22 +58,24 @@ public class BedAssignmentHistoryService {
     public Page<BedAssignment> getBedAssignmentsHistory(final Long bookingId, final PageRequest pageRequest) {
         final var bedAssignmentsHistory = repository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId, pageRequest);
         final var results = bedAssignmentsHistory.getContent()
-                .stream()
-                .map(this::transform)
-                .collect(Collectors.toList());
+            .stream()
+            .map(this::transform)
+            .collect(Collectors.toList());
 
         return new PageImpl<>(results, pageRequest, bedAssignmentsHistory.getTotalElements());
     }
 
     public List<BedAssignment> getBedAssignmentsHistory(final long livingUnitId, final LocalDateTime from, final LocalDateTime to) {
-        if(from.isAfter(to)) throw new IllegalArgumentException("The fromDate should be less then or equal to the toDate");
-        if (!locationRepository.existsById(livingUnitId)) throw new EntityNotFoundException(String.format("Cell %s not found", livingUnitId));
+        if (from.isAfter(to))
+            throw new IllegalArgumentException("The fromDate should be less then or equal to the toDate");
+        if (!locationRepository.existsById(livingUnitId))
+            throw new EntityNotFoundException(String.format("Cell %s not found", livingUnitId));
 
         return repository
-                .findByLivingUnitIdAndDateTimeRange(livingUnitId, from, to)
-                .stream()
-                .map(this::transform)
-                .collect(Collectors.toList());
+            .findByLivingUnitIdAndDateTimeRange(livingUnitId, from, to)
+            .stream()
+            .map(this::transform)
+            .collect(Collectors.toList());
     }
 
     public List<BedAssignment> getBedAssignmentsHistoryByDate(final LocalDate assignmentDate) {
@@ -84,19 +88,24 @@ public class BedAssignmentHistoryService {
 
     private BedAssignment transform(final BedAssignmentHistory assignment) {
         final var agencyInternalLocation = locationRepository.findOneByLocationId(assignment.getLivingUnitId());
+        final var offenderNo = Optional.ofNullable(assignment.getOffenderBooking())
+            .map(OffenderBooking::getOffender)
+            .map(uk.gov.justice.hmpps.prison.repository.jpa.model.Offender::getNomsId)
+            .orElse(null);
 
         return BedAssignment.builder()
-                .livingUnitId(assignment.getLivingUnitId())
-                .description(agencyInternalLocation.map(AgencyInternalLocation::getDescription).orElse(null))
-                .assignmentDate(assignment.getAssignmentDate())
-                .assignmentEndDate(assignment.getAssignmentEndDate())
-                .assignmentDateTime(assignment.getAssignmentDateTime())
-                .assignmentEndDateTime(assignment.getAssignmentEndDateTime())
-                .assignmentReason(assignment.getAssignmentReason())
-                .bookingId(assignment.getOffenderBooking().getBookingId())
-                .agencyId(agencyInternalLocation.map(AgencyInternalLocation::getAgencyId).orElse(null))
-                .bedAssignmentHistorySequence(assignment.getBedAssignmentHistoryPK().getSequence())
-                .movementMadeBy(assignment.movementMadeBy())
-                .build();
+            .livingUnitId(assignment.getLivingUnitId())
+            .description(agencyInternalLocation.map(AgencyInternalLocation::getDescription).orElse(null))
+            .assignmentDate(assignment.getAssignmentDate())
+            .assignmentEndDate(assignment.getAssignmentEndDate())
+            .assignmentDateTime(assignment.getAssignmentDateTime())
+            .assignmentEndDateTime(assignment.getAssignmentEndDateTime())
+            .assignmentReason(assignment.getAssignmentReason())
+            .bookingId(assignment.getOffenderBooking().getBookingId())
+            .agencyId(agencyInternalLocation.map(AgencyInternalLocation::getAgencyId).orElse(null))
+            .bedAssignmentHistorySequence(assignment.getBedAssignmentHistoryPK().getSequence())
+            .movementMadeBy(assignment.movementMadeBy())
+            .offenderNo(offenderNo)
+            .build();
     }
 }
