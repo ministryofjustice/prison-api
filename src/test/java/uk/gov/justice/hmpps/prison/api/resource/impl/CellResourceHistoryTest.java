@@ -20,7 +20,7 @@ public class CellResourceHistoryTest extends ResourceTest {
 
         final var response = makeRequest(assignmentDate.toString());
 
-        assertThatJsonFileAndStatus(response, 200, "cell-histories-by-date-range.json");
+        assertThatJsonFileAndStatus(response, 200, "cell-histories-by-date.json");
     }
 
     @Test

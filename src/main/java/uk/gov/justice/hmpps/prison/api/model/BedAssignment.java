@@ -55,4 +55,7 @@ public class BedAssignment {
 
     @ApiModelProperty(value = "the staff member responsible for the movement of a prisoner", position = 11, example = "KQJ74F")
     private String movementMadeBy;
+
+    @ApiModelProperty(value = "Offender number", position = 12, example = "A1234AA")
+    private String offenderNo;
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "bookingId": -33,
+    "livingUnitId": -15,
+    "assignmentDate": "2020-04-03",
+    "assignmentDateTime": "2020-04-03T11:00:00",
+    "assignmentReason": "ADM",
+    "agencyId": "LEI",
+    "description": "LEI-H-1-1",
+    "bedAssignmentHistorySequence": 1,
+    "movementMadeBy": "SA",
+    "offenderNo": "A5577RS"
+  },
+  {
+    "bookingId": -34,
+    "livingUnitId": -16,
+    "assignmentDate": "2020-04-03",
+    "assignmentDateTime": "2020-04-03T11:00:00",
+    "assignmentReason": "ADM",
+    "agencyId": "LEI",
+    "description": "LEI-H-1-2",
+    "bedAssignmentHistorySequence": 3,
+    "movementMadeBy": "SA",
+    "offenderNo": "A1178RS"
+  }
+]

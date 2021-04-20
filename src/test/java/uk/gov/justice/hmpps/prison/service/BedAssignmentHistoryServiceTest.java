@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
@@ -36,11 +37,11 @@ class BedAssignmentHistoryServiceTest {
         final var pk = service.add(1L, 2L, "RSN", now);
 
         verify(repository).save(argThat(bedAssignment ->
-                bedAssignment.getBedAssignmentHistoryPK().getOffenderBookingId() == 1L
-                        && bedAssignment.getLivingUnitId() == 2L
-                        && bedAssignment.getAssignmentReason().equals("RSN")
-                        && bedAssignment.getAssignmentDate().isEqual(now.toLocalDate())
-                        && bedAssignment.getAssignmentDateTime().isEqual(now)));
+            bedAssignment.getBedAssignmentHistoryPK().getOffenderBookingId() == 1L
+                && bedAssignment.getLivingUnitId() == 2L
+                && bedAssignment.getAssignmentReason().equals("RSN")
+                && bedAssignment.getAssignmentDate().isEqual(now.toLocalDate())
+                && bedAssignment.getAssignmentDateTime().isEqual(now)));
 
         assertThat(pk).isEqualTo(new BedAssignmentHistory.BedAssignmentHistoryPK(1L, 1));
     }
@@ -48,26 +49,26 @@ class BedAssignmentHistoryServiceTest {
     @Test
     void getBedAssignmentsHistory() {
         var assignments = List.of(
-                BedAssignmentHistory.builder()
-                        .bedAssignmentHistoryPK(new BedAssignmentHistory.BedAssignmentHistoryPK(1L, 2))
-                        .assignmentDate(LocalDate.of(2015, 5, 1))
-                        .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
-                        .assignmentEndDate(LocalDate.of(2016, 5, 1))
-                        .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
-                        .assignmentReason("Needs moving")
-                        .livingUnitId(1L)
-                        .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
-                        .build(),
-                BedAssignmentHistory.builder()
-                        .bedAssignmentHistoryPK(new BedAssignmentHistory.BedAssignmentHistoryPK(1L, 3))
-                        .assignmentDate(LocalDate.of(2016, 5, 1))
-                        .assignmentDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
-                        .assignmentEndDate(LocalDate.of(2017, 5, 1))
-                        .assignmentEndDateTime(LocalDateTime.of(2017, 5, 1, 10, 10, 10))
-                        .assignmentReason("Needs moving again")
-                        .livingUnitId(2L)
-                        .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
-                        .build()
+            BedAssignmentHistory.builder()
+                .bedAssignmentHistoryPK(new BedAssignmentHistory.BedAssignmentHistoryPK(1L, 2))
+                .assignmentDate(LocalDate.of(2015, 5, 1))
+                .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
+                .assignmentEndDate(LocalDate.of(2016, 5, 1))
+                .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                .assignmentReason("Needs moving")
+                .livingUnitId(1L)
+                .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
+                .build(),
+            BedAssignmentHistory.builder()
+                .bedAssignmentHistoryPK(new BedAssignmentHistory.BedAssignmentHistoryPK(1L, 3))
+                .assignmentDate(LocalDate.of(2016, 5, 1))
+                .assignmentDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                .assignmentEndDate(LocalDate.of(2017, 5, 1))
+                .assignmentEndDateTime(LocalDateTime.of(2017, 5, 1, 10, 10, 10))
+                .assignmentReason("Needs moving again")
+                .livingUnitId(2L)
+                .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
+                .build()
         );
         var page = new PageImpl<>(assignments);
         when(repository.findAllByBedAssignmentHistoryPKOffenderBookingId(1L, PageRequest.of(0, 20))).thenReturn(page);
@@ -109,34 +110,35 @@ class BedAssignmentHistoryServiceTest {
 
         when(locationRepository.existsById(livingUnitId)).thenReturn(true);
         when(repository.findByLivingUnitIdAndDateTimeRange(anyLong(), any(), any()))
-                .thenReturn(List.of(bedHistoryAssignment));
+            .thenReturn(List.of(bedHistoryAssignment));
 
         when(locationRepository.findOneByLocationId(livingUnitId))
-                .thenReturn(Optional.of(AgencyInternalLocation.builder()
-                        .description("MDI-1-2")
-                        .agencyId("MDI")
-                        .build()));
+            .thenReturn(Optional.of(AgencyInternalLocation.builder()
+                .description("MDI-1-2")
+                .agencyId("MDI")
+                .build()));
 
         final var cellHistory = service.getBedAssignmentsHistory(livingUnitId, LocalDateTime.now(), LocalDateTime.now());
 
         assertThat(cellHistory).containsOnly(
-                BedAssignment.builder()
-                        .bookingId(1L)
-                        .livingUnitId(livingUnitId)
-                        .assignmentDate(LocalDate.of(2015, 5, 1))
-                        .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
-                        .assignmentEndDate(LocalDate.of(2016, 5, 1))
-                        .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
-                        .assignmentReason("Needs moving")
-                        .description("MDI-1-2")
-                        .agencyId("MDI")
-                        .bedAssignmentHistorySequence(2)
-                        .build()
+            BedAssignment.builder()
+                .bookingId(1L)
+                .livingUnitId(livingUnitId)
+                .assignmentDate(LocalDate.of(2015, 5, 1))
+                .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
+                .assignmentEndDate(LocalDate.of(2016, 5, 1))
+                .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+                .assignmentReason("Needs moving")
+                .description("MDI-1-2")
+                .agencyId("MDI")
+                .bedAssignmentHistorySequence(2)
+                .offenderNo("A12345")
+                .build()
         );
     }
 
     @Test
-    void getBedAssignmentHistory_forDateRange() {
+    void getBedAssignmentHistory_byDate() {
         final var livingUnitId = 1L;
         final var bookingId = 1L;
         final var assignmentDate = LocalDate.now();
@@ -157,6 +159,7 @@ class BedAssignmentHistoryServiceTest {
         assertThat(cellHistory).containsOnly(
             BedAssignment.builder()
                 .bookingId(bookingId)
+                .offenderNo("A12345")
                 .livingUnitId(livingUnitId)
                 .assignmentDate(LocalDate.of(2015, 5, 1))
                 .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
@@ -175,28 +178,28 @@ class BedAssignmentHistoryServiceTest {
         when(locationRepository.existsById(anyLong())).thenReturn(false);
 
         assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDateTime.now(), LocalDateTime.now()))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Cell 1 not found");
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Cell 1 not found");
     }
 
     @Test
     void getBedAssignmentHistory_checkDateOrder() {
         assertThatThrownBy(() -> service.getBedAssignmentsHistory(1L, LocalDateTime.now().plusDays(1), LocalDateTime.now()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("The fromDate should be less then or equal to the toDate");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("The fromDate should be less then or equal to the toDate");
     }
 
     private BedAssignmentHistory aBedAssignment(final long bookingId, final long livingUnitId) {
-        return BedAssignmentHistory.builder()
-                .bedAssignmentHistoryPK(new BedAssignmentHistory.BedAssignmentHistoryPK(bookingId, 2))
-                .assignmentDate(LocalDate.of(2015, 5, 1))
-                .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
-                .assignmentEndDate(LocalDate.of(2016, 5, 1))
-                .assignmentEndDateTime(LocalDateTime.of(2016, 5, 1, 10, 10, 10))
-                .assignmentReason("Needs moving")
-                .livingUnitId(livingUnitId)
-                .offenderBooking(OffenderBooking.builder().bookingId(bookingId).build())
-                .build();
+        return uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.builder()
+            .bedAssignmentHistoryPK(new uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK(bookingId, 2))
+            .assignmentDate(java.time.LocalDate.of(2015, 5, 1))
+            .assignmentDateTime(java.time.LocalDateTime.of(2015, 5, 1, 10, 10, 10))
+            .assignmentEndDate(java.time.LocalDate.of(2016, 5, 1))
+            .assignmentEndDateTime(java.time.LocalDateTime.of(2016, 5, 1, 10, 10, 10))
+            .assignmentReason("Needs moving")
+            .livingUnitId(livingUnitId)
+            .offenderBooking(OffenderBooking.builder().bookingId(bookingId).offender(Offender.builder().nomsId("A12345").build()).build())
+            .build();
     }
 
 }
