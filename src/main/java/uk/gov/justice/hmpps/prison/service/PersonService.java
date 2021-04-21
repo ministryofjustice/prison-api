@@ -8,7 +8,6 @@ import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.PersonIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.DeprecatedPersonRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.PersonAddressRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PersonRepository;
 
 import java.util.List;
@@ -21,14 +20,14 @@ import static java.util.stream.Collectors.toList;
 public class PersonService {
     private final DeprecatedPersonRepository deprecatedPersonRepository;
     private final PersonRepository personRepository;
-    private final PersonAddressRepository personAddressRepository;
 
     public List<PersonIdentifier> getPersonIdentifiers(final long personId) {
         return deprecatedPersonRepository.getPersonIdentifiers(personId);
     }
 
     public List<AddressDto> getAddresses(final long personId) {
-        return AddressTransformer.translate(personAddressRepository.findAllByPersonId(personId));
+        final var person = personRepository.findById(personId).orElseThrow(EntityNotFoundException.withId(personId));
+        return AddressTransformer.translate(person.getAddresses());
     }
 
     public List<Telephone> getPhones(final long personId) {

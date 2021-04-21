@@ -10,6 +10,7 @@ import lombok.ToString;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
 
@@ -140,6 +141,7 @@ public class Offender extends ExtendedAuditableEntity {
     private String lastNameAlphaKey;
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Where(clause = "OWNER_CLASS = '"+OffenderAddress.ADDR_TYPE+"'")
     @Default
     private List<OffenderAddress> addresses = new ArrayList<>();
 

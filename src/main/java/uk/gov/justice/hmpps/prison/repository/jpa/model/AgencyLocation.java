@@ -9,6 +9,7 @@ import lombok.ToString;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -70,6 +71,7 @@ public class AgencyLocation extends ExtendedAuditableEntity {
     private String jurisdictionCode;
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Where(clause = "OWNER_CLASS = '"+AgencyAddress.ADDR_TYPE+"'")
     @Builder.Default
     private List<AgencyAddress> addresses = new ArrayList<>();
 
