@@ -3,13 +3,17 @@ version: 2.1
 orbs:
   hmpps: ministryofjustice/hmpps@3.1
 
+executor: &executor
+  executor:
+    name: hmpps/java
+    tag: "16.0"
+  environment:
+    # Setting max gradle workers to 1 (which means 1 running concurrently, not max 1!) - because although this doesn't stop the ktlint workers from starting it does seem to prevent the test executor from needing as much memory.
+    _JAVA_OPTIONS: -Xmx1024m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-XX:+UseContainerSupport -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=1
+
 jobs:
   check:
-    executor: builder
-      tag: "16.0"
-      environment:
-              # Setting max gradle workers to 1 (which means 1 running concurrently, not max 1!) - because although this doesn't stop the ktlint workers from starting it does seem to prevent the test executor from needing as much memory.
-        _JAVA_OPTIONS: -Xmx1024m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-XX:+UseContainerSupport -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=1
+    <<: *executor
     steps:
       - run:
           command: |
@@ -40,7 +44,7 @@ jobs:
       - store_artifacts:
           path: build/libs
   test-integration:
-    executor: builder
+    <<: *executor
     steps:
       - checkout
       - restore_cache:
@@ -63,7 +67,7 @@ jobs:
       - store_artifacts:
           path: build/libs
   test-schema-nomis:
-    executor: builder
+    <<: *executor
     steps:
       - checkout
       - restore_cache:
