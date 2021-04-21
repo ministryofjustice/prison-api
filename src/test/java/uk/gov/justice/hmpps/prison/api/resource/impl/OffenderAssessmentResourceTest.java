@@ -327,7 +327,7 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
                 String.class);
 
         assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
-        assertThatJson(response.getBody()).node("userMessage").asString().contains("Required List parameter 'offenderNo' is not present");
+        assertThatJson(response.getBody()).node("userMessage").asString().contains("Required request parameter 'offenderNo' for method parameter type List is not present");
     }
 
      @Test
