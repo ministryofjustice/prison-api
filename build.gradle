@@ -81,7 +81,7 @@ dependencies {
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.2'
     testImplementation 'io.jsonwebtoken:jjwt:0.9.1'
     testImplementation 'org.glassfish:javax.el:3.0.0'
-    testImplementation 'io.swagger.parser.v3:swagger-parser:2.0.25'
+    testImplementation 'io.swagger.parser.v3:swagger-parser:2.0.20' // Keep this at 2.0.20 as advised here: https://github.com/ministryofjustice/prison-api/pull/748#discussion_r512664711
 
     testCompileOnly 'org.projectlombok:lombok:1.18.20'
 }
@@ -103,6 +103,7 @@ task testWithSchemaNomis(type: Test) {
     useJUnitPlatform()
     minHeapSize = "128m"
     maxHeapSize = "2048m"
+    jvmArgs = ["--illegal-access=permit"]
 }
 
 task testWithSchemaNomisOracle(type: Test) {
@@ -113,6 +114,7 @@ task testWithSchemaNomisOracle(type: Test) {
     exclude '**/*IntTest*'
     environment nomisEnvVars
     useJUnitPlatform()
+    jvmArgs = ["--illegal-access=permit"]
 }
 
 test.dependsOn testIntegration, testWithSchemaNomis
@@ -121,5 +123,4 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
         jvmTarget = "15"
     }
-
 }
