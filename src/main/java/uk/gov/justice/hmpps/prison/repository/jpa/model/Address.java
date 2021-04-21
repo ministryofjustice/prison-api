@@ -11,6 +11,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -118,6 +119,7 @@ public abstract class Address extends AuditableEntity {
     private List<AddressUsage> addressUsages = new ArrayList<>();
 
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Where(clause = "OWNER_CLASS = '"+AddressPhone.PHONE_TYPE+"'")
     @Default
     private List<AddressPhone> phones = new ArrayList<>();
 

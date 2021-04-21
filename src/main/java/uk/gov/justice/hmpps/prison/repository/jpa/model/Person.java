@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -34,14 +35,17 @@ public class Person extends ExtendedAuditableEntity {
     private Long id;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Where(clause = "OWNER_CLASS = '"+PersonAddress.ADDR_TYPE+"'")
     @Default
     private List<PersonAddress> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Where(clause = "OWNER_CLASS = '"+PersonPhone.PHONE_TYPE+"'")
     @Default
     private List<PersonPhone> phones = new ArrayList<>();
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Where(clause = "OWNER_CLASS = '"+PersonInternetAddress.TYPE+"'")
     @Default
     private List<PersonInternetAddress> internetAddresses = new ArrayList<>();
 
