@@ -91,7 +91,7 @@ task testIntegration(type: Test) {
     useJUnitPlatform()
     minHeapSize = "128m"
     maxHeapSize = "2048m"
-    jvmArgs = ["--add-opens", "java.base/java.lang=ALL-UNNAMED"]
+    jvmArgs = ["--add-opens", "java.base/java.lang=ALL-UNNAMED", "--add-opens", "java.base/java.util=ALL-UNNAMED"]
 }
 
 task testWithSchemaNomis(type: Test) {

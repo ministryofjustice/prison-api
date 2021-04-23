@@ -48,6 +48,7 @@ gradlew bootRun
 In order to get the `/info` endpoint to work you will need to add in
 ```
 -add-opens java.base/java.lang=ALL-UNNAMED
+-add-opens java.base/java.util=ALL-UNNAMED
 ```
 to your run configuration.  This is because the current version of ehcache needs to calculate the size of the objects in the cache, which the latest version of openjdk disallows.
 
