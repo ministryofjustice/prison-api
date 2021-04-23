@@ -1,6 +1,7 @@
 #!/bin/sh
 exec java ${JAVA_OPTS} \
   --add-opens java.base/java.lang=ALL-UNNAMED \
+  --add-opens java.base/java.util=ALL-UNNAMED \
   -Dcom.sun.management.jmxremote.local.only=false \
   -Djava.security.egd=file:/dev/./urandom \
   -Doracle.jdbc.J2EE13Compliant=true \

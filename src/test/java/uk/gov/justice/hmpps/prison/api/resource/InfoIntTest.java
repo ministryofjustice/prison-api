@@ -52,7 +52,7 @@ public class InfoIntTest extends ResourceTest {
             createHttpEntity(token, null),
             new ParameterizedTypeReference<String>() {
             },
-            "ADDRESS_TYPE");
+            "TASK_TYPE");
 
         assertThatStatus(response, 200);
 
