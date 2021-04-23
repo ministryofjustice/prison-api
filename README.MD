@@ -45,6 +45,12 @@ gradlew bootRun
 ./gradlew bootRun --args='--spring.profiles.active=nomis-hsqldb'
 ```
 
+In order to get the `/info` endpoint to work you will need to add in
+```
+-add-opens java.base/java.lang=ALL-UNNAMED
+```
+to your run configuration.  This is because the current version of ehcache needs to calculate the size of the objects in the cache, which the latest version of openjdk disallows.
+
 #### Authenticating with JWT when running locally
 
 When running locally with the profile `dev` JWTs are verified against resources/local-public-key.pem.  When deployed to t3, t2, preprod or prod, JWTs are verified against the public key hosted by the auth server at https://<auth-server>/auth/.well-known/jwks.json.
