@@ -32,6 +32,19 @@ public class AgencyResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCanFindCourtsByTypeAndAddresses() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/type/CRT?withAddresses=true",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_and_jurisdictionCode_CC.json");
+    }
+
+    @Test
     public void testCanFindAgenciesByTypeAndJurisdictionCode() {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
@@ -71,6 +84,22 @@ public class AgencyResourceTest extends ResourceTest {
             });
 
         assertThatJsonFileAndStatus(response, 200, "single_agency.json");
+    }
+
+    @Test
+    public void testCanFindAgencyWithAddress() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/BMI?withAddresses=true",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(response, 200, "single_agency_with_address.json");
     }
 
     @Test
@@ -610,6 +639,23 @@ public class AgencyResourceTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(response, 200, "inactive_agencies_by_type.json");
     }
+
+    @Test
+    public void testCanFindCourtsPlusAddresses() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/type/CRT?withAddresses={withAddresses}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            }, "true");
+
+        assertThatJsonFileAndStatus(response, 200, "courts_by_type.json");
+    }
+
 
     @Test
     public void testCanFindCellsWithCapacity() {
