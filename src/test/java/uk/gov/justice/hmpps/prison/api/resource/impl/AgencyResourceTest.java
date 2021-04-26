@@ -32,19 +32,6 @@ public class AgencyResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCanFindCourtsByTypeAndAddresses() {
-        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
-        final var httpEntity = createHttpEntity(token, null);
-        final var response = testRestTemplate.exchange(
-            "/api/agencies/type/CRT?withAddresses=true",
-            HttpMethod.GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_and_jurisdictionCode_CC.json");
-    }
-
-    @Test
     public void testCanFindAgenciesByTypeAndJurisdictionCode() {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
