@@ -1,0 +1,27 @@
+[
+  {
+    "agencyId": "ABDRCT",
+    "description": "Court 2",
+    "agencyType": "CRT",
+    "active": true,
+    "addresses": [
+      {
+        "addressId": -21,
+        "addressType": "Business Address",
+        "street": "Coles Corner",
+        "town": "Longhope",
+        "primary": true,
+        "noFixedAddress": false,
+        "phones": [],
+        "addressUsages": []
+      }
+    ]
+  },
+  {
+    "agencyId": "COURT1",
+    "description": "Court 1",
+    "agencyType": "CRT",
+    "active": true,
+    "addresses": []
+  }
+]

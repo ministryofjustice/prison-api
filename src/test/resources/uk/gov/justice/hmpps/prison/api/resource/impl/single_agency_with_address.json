@@ -1,0 +1,51 @@
+{
+  "agencyId": "BMI",
+  "description": "Birmingham",
+  "agencyType": "INST",
+  "active": true,
+  "addresses": [
+    {
+      "addressId": -5,
+      "country": "England",
+      "primary": false,
+      "noFixedAddress": false,
+      "phones": [],
+      "addressUsages": []
+    },
+    {
+      "addressId": -3,
+      "addressType": "Business Address",
+      "premise": "Birmingham HMP",
+      "street": "BMI Place",
+      "locality": "Ambley",
+      "town": "Birmingham",
+      "postalCode": "BM1 23V",
+      "country": "England",
+      "primary": true,
+      "noFixedAddress": false,
+      "phones": [
+        {
+          "phoneId": -1,
+          "number": "0114 2345345",
+          "type": "BUS",
+          "ext": "345"
+        }
+      ],
+      "addressUsages": []
+    },
+    {
+      "addressId": -4,
+      "addressType": "Business Address",
+      "premise": "Birmingham HMP",
+      "street": "Not Primary Address",
+      "locality": "Ambley",
+      "town": "Birmingham",
+      "postalCode": "BM1 23V",
+      "country": "England",
+      "primary": false,
+      "noFixedAddress": false,
+      "phones": [],
+      "addressUsages": []
+    }
+  ]
+}
