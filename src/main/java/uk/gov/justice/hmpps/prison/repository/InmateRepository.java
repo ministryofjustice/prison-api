@@ -55,6 +55,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -571,13 +572,11 @@ public class InmateRepository extends RepositoryBase {
         final var rawData = jdbcTemplate.query(
                 InmateRepositorySql.GET_RECATEGORISE.getSql(),
                 createParams("agencyId", agencyId,
-                        "assessStatus", Set.of("A", "P"),
                         "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
         return applyCutoffDateForActiveCategorisations(
-                removeNonStandardCategoryRecords(removeEarlierCategorisations(rawData)),
-                cutoffDate);
+            removeNonStandardCategoryRecords(removeEarlierCategorisations(removeOffendersWithNoPreviousStandardCategorisations(rawData))), cutoffDate);
     }
 
 
@@ -608,6 +607,14 @@ public class InmateRepository extends RepositoryBase {
 
                 .map(OffenderCategorise::deriveStatus)
                 .collect(Collectors.toList());
+    }
+
+    private List<OffenderCategorise> removeOffendersWithNoPreviousStandardCategorisations(final List<OffenderCategorise> catList) {
+        final var standardCategoryCodes = Set.of("B", "C", "D");
+        final var offenderNoMap = catList.stream().collect(Collectors.groupingBy(OffenderCategorise::getOffenderNo));
+        return offenderNoMap.values().stream().filter(oc ->
+            oc.stream().filter(cat -> standardCategoryCodes.contains(cat.getCategory())).findAny().isPresent()
+        ).flatMap(List::stream).collect(Collectors.toList());
     }
 
     private List<OffenderCategorise> removeEarlierCategorisations(final List<OffenderCategorise> catList) {
@@ -964,7 +971,7 @@ public class InmateRepository extends RepositoryBase {
     }
 
     private List<OffenderCategorise> removeNonStandardCategoryRecords(List<OffenderCategorise> rawData) {
-        final var validCategoryCodes = Set.of("B", "C", "D");
+        final var validCategoryCodes = Set.of("B", "C", "D", "U");
         return rawData.stream().filter(cat -> cat.getCategory() != null && validCategoryCodes.contains(cat.getCategory())).collect(Collectors.toList());
     }
 

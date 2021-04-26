@@ -652,7 +652,6 @@ enum class InmateRepositorySql(val sql: String) {
                 join offender_bookings ob on ob.offender_book_id = off_ass.offender_book_id
         join offenders         o  on ob.offender_id      = o.offender_id
         where ob.agy_loc_id = :agencyId
-        and off_ass.assess_status in (:assessStatus)
         and off_ass.assessment_type_id = :assessmentId
         order by off_ass.next_review_date asc
     """
