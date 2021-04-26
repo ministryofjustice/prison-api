@@ -96,9 +96,12 @@ public class AgencyResource {
 
         @RequestParam(value = "jurisdictionCode", required = false)
         @ApiParam(value = "Only return agencies that match the supplied Jurisdiction Code(s)", example = "MC")
-        List<String> jurisdictionCodes
+        List<String> jurisdictionCodes,
+
+        @RequestParam(value = "withAddresses", defaultValue = "false", required = false)
+        @ApiParam(value = "Returns Address Information", defaultValue = "false") final boolean withAddresses
     ) {
-        return agencyService.getAgenciesByType(agencyType, activeOnly, jurisdictionCodes);
+        return agencyService.getAgenciesByType(agencyType, activeOnly, jurisdictionCodes, withAddresses);
     }
 
     @ApiResponses({
