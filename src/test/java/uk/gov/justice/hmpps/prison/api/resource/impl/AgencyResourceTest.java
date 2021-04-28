@@ -397,7 +397,7 @@ public class AgencyResourceTest extends ResourceTest {
             new ParameterizedTypeReference<String>() {
             });
 
-        assertThatStatus(response, 400);
+        assertThatStatus(response, 404);
     }
     @Test
     public void testCantCreateAgencyWithBadAgencyId() {
