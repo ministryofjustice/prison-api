@@ -33,7 +33,7 @@ public class AgencyLocationFilter implements Specification<AgencyLocation> {
     @Builder.Default
     private final List<String> excludedAgencies = List.of("OUT", "TRN");
 
-    private List<String> jurisdictionCodes;
+    private List<String> courtTypes;
 
     public Predicate toPredicate(final Root<AgencyLocation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
@@ -54,8 +54,8 @@ public class AgencyLocationFilter implements Specification<AgencyLocation> {
             predicateBuilder.add(cb.not(root.get("id").in(excludedAgencies)));
         }
 
-        if (jurisdictionCodes != null && jurisdictionCodes.size() > 0) {
-            predicateBuilder.add(root.get("jurisdictionCode").in(jurisdictionCodes));
+        if (courtTypes != null && courtTypes.size() > 0) {
+            predicateBuilder.add(root.get("courtType").get("code").in(courtTypes));
         }
 
         final var predicates = predicateBuilder.build();

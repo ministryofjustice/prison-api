@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
@@ -293,6 +294,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                         .id("COURT1")
                                         .description("Court 1")
                                         .type(AgencyLocationType.COURT_TYPE)
+                                        .courtType(new CourtType("MC", "Mag Court"))
                                         .activeFlag(ActiveFlag.Y)
                                         .build())
                                 .build()))
@@ -331,6 +333,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                                 .id("COURT1")
                                                 .description("Court 1")
                                                 .type(AgencyLocationType.COURT_TYPE)
+                                                .courtType(new CourtType("MC", "Mag Court"))
                                                 .activeFlag(ActiveFlag.Y)
                                                 .build())
                                         .build()))
@@ -357,6 +360,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                                 .id("COURT1")
                                                 .description("Court 1")
                                                 .type(AgencyLocationType.COURT_TYPE)
+                                                .courtType(new CourtType("MC", "Mag Court"))
                                                 .activeFlag(ActiveFlag.Y)
                                                 .build())
                                         .build()))

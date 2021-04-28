@@ -2,5 +2,6 @@
   "agencyId": "SHFCRT",
   "description": "Sheffield Crown Court",
   "agencyType": "CRT",
-  "active": true
+  "active": true,
+  "courtType": "CC"
 }
