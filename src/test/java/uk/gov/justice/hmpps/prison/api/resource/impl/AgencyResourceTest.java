@@ -147,6 +147,7 @@ public class AgencyResourceTest extends ResourceTest {
             "description", "Sheffield Crown Court",
             "longDescription", "This is a court in Sheffield",
             "agencyType", "CRT",
+            "courtType", "CC",
             "active", "true");
 
         final var httpEntity = createHttpEntity(token, body);
@@ -358,6 +359,46 @@ public class AgencyResourceTest extends ResourceTest {
         assertThatStatus(response, 400);
     }
 
+    @Test
+    public void testCantCreateCourtWithInvalidCourtType() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "agencyId", "SHEFCC",
+            "description", "Will Fail",
+            "agencyType", "CRT",
+            "courtType", "BADTYPE");
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatStatus(response, 400);
+    }
+
+    @Test
+    public void testCantCreateCourtWithNoCourtType() {
+        final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);
+        final var body = Map.of(
+            "agencyId", "SHEFCC",
+            "description", "Will Fail",
+            "agencyType", "CRT");
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatStatus(response, 400);
+    }
     @Test
     public void testCantCreateAgencyWithBadAgencyId() {
         final var token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER);

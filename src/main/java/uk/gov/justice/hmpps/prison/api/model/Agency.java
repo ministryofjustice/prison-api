@@ -35,9 +35,12 @@ public class Agency {
     @Default
     private boolean active = true;
 
-    @ApiModelProperty(value = "Date agency became inactive", example = "2012-01-12", position = 6)
+    @ApiModelProperty(value = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = "CACD,CB,CC,CO,DCM,GCM,IMM,MC,OTHER,YC", position = 6)
+    private String courtType;
+
+    @ApiModelProperty(value = "Date agency became inactive", example = "2012-01-12", position = 7)
     private LocalDate deactivationDate;
 
-    @ApiModelProperty(value = "List of addresses associated with agency",  position = 7)
+    @ApiModelProperty(value = "List of addresses associated with agency",  position = 8)
     private List<AddressDto> addresses;
 }

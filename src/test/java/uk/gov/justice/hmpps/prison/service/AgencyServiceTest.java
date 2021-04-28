@@ -24,6 +24,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HousingAttributeReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressPhoneRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyAddressRepository;
@@ -66,6 +67,8 @@ public class AgencyServiceTest {
     @Mock
     private ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
     @Mock
+    private ReferenceCodeRepository<CourtType> courtTypeReferenceCodeRepository;
+    @Mock
     private AddressPhoneRepository addressPhoneRepository;
     @Mock
     private AgencyAddressRepository agencyAddressRepository;
@@ -80,7 +83,7 @@ public class AgencyServiceTest {
 
     @BeforeEach
     public void setUp() {
-        service = new AgencyService(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyLocationTypeReferenceCodeRepository, agencyInternalLocationRepository, agencyInternalLocationProfileRepository,
+        service = new AgencyService(authenticationFacade, agencyRepo, agencyLocationRepository, referenceDomainService, agencyLocationTypeReferenceCodeRepository, courtTypeReferenceCodeRepository, agencyInternalLocationRepository, agencyInternalLocationProfileRepository,
         addressPhoneRepository, agencyAddressRepository, addressTypeReferenceCodeRepository, cityReferenceCodeRepository, countyReferenceCodeRepository, countryReferenceCodeRepository);
     }
 

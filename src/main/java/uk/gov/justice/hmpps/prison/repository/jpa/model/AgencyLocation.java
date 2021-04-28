@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.AGY_LOC_TYPE;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDICTION;
 
 @Data
 @Entity
@@ -67,8 +68,12 @@ public class AgencyLocation extends ExtendedAuditableEntity {
     @Column(name = "DEACTIVATION_DATE")
     private LocalDate deactivationDate;
 
-    @Column(name = "JURISDICTION_CODE")
-    private String jurisdictionCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + JURISDICTION + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "JURISDICTION_CODE", referencedColumnName = "code", nullable = false))
+    })
+    private CourtType courtType;
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyAddress.ADDR_TYPE+"'")
