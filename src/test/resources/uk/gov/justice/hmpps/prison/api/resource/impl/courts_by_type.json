@@ -3,6 +3,7 @@
     "agencyId": "ABDRCT",
     "description": "Court 2",
     "agencyType": "CRT",
+    "courtType": "CC",
     "active": true,
     "addresses": [
       {
@@ -21,6 +22,7 @@
     "agencyId": "COURT1",
     "description": "Court 1",
     "agencyType": "CRT",
+    "courtType": "MC",
     "active": true,
     "addresses": []
   }

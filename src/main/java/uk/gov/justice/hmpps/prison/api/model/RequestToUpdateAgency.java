@@ -38,7 +38,12 @@ public class RequestToUpdateAgency {
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Invalid characters for agencyType")
     private String agencyType;
 
-    @ApiModelProperty(value = "Indicates the Agency is active",  notes = "if set false, the current date will be the deactivation date", example = "true", position = 4)
+    @ApiModelProperty(required = true, value = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = "CACD,CB,CC,CO,DCM,GCM,IMM,MC,OTHER,YC", position = 4)
+    @Valid @Length(max = 12, min = 2, message = "Court Type is max 12 characters and min of 2")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Invalid characters for Court Type")
+    private String courtType;
+
+    @ApiModelProperty(value = "Indicates the Agency is active",  notes = "if set false, the current date will be the deactivation date", example = "true", position = 5)
     @Default
     private boolean active = true;
 }

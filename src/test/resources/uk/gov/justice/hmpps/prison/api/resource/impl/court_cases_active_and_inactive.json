@@ -21,6 +21,7 @@
           "agencyId": "COURT1",
           "description": "Court 1",
           "agencyType": "CRT",
+          "courtType": "MC",
           "active": true
         }
       }
@@ -48,6 +49,7 @@
           "agencyId": "COURT1",
           "description": "Court 1",
           "agencyType": "CRT",
+          "courtType": "MC",
           "active": true
         }
       }

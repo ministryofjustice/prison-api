@@ -7,6 +7,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
 import uk.gov.justice.hmpps.prison.service.AddressTransformer;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
@@ -30,11 +31,12 @@ public class AgencyTransformer {
             .agencyType(agency.getType() != null ? agency.getType().getCode() : null)
             .active(agency.getActiveFlag() != null && agency.getActiveFlag().isActive())
             .description(LocationProcessor.formatLocation(agency.getDescription()))
+            .courtType(agency.getCourtType() != null ? agency.getCourtType().getCode() : null)
             .longDescription(agency.getLongDescription())
             .deactivationDate(agency.getDeactivationDate());
     }
 
-    public static AgencyLocation build(final RequestToCreateAgency agency, final AgencyLocationType type) {
+    public static AgencyLocation build(final RequestToCreateAgency agency, final AgencyLocationType type, final CourtType courtType) {
         return AgencyLocation.builder()
             .id(agency.getAgencyId())
             .type(type)
@@ -42,15 +44,17 @@ public class AgencyTransformer {
             .description(agency.getDescription())
             .longDescription(agency.getLongDescription())
             .deactivationDate(agency.isActive() ? null : LocalDate.now())
+            .courtType(courtType)
             .build();
     }
 
-    public static AgencyLocation update(final AgencyLocation agencyLocation, final RequestToUpdateAgency agency, final AgencyLocationType type) {
+    public static AgencyLocation update(final AgencyLocation agencyLocation, final RequestToUpdateAgency agency, final AgencyLocationType type, final CourtType courtType) {
         agencyLocation.setActiveFlag(agency.isActive() ? ActiveFlag.Y : ActiveFlag.N);
         agencyLocation.setDescription(agency.getDescription());
         agencyLocation.setDeactivationDate(agency.isActive() ? null : LocalDate.now());
         agencyLocation.setType(type);
         agencyLocation.setLongDescription(agency.getLongDescription());
+        agencyLocation.setCourtType(courtType);
         return agencyLocation;
     }
 }

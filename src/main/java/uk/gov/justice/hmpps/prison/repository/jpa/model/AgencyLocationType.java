@@ -24,4 +24,13 @@ public class AgencyLocationType extends ReferenceCode {
     public AgencyLocationType(final String code) {
         super(AGY_LOC_TYPE, code, null);
     }
+
+    public boolean isCourt() {
+        return getCode().equals(COURT_TYPE.getCode());
+    }
+
+    public boolean isPrison() {
+        return getCode().equals(PRISON_TYPE.getCode());
+    }
+
 }
