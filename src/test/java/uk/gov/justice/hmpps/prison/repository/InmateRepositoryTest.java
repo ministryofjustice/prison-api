@@ -850,11 +850,11 @@ public class InmateRepositoryTest {
 
     @Test
     public void testGetRecategoriseFavoursEarlierCatergorisationsForOffenderIfLatestNotValidAssessStatus() {
-        final var recategorisations = repository.getRecategorise("TRO", LocalDate.of(2019, 6, 9));
+        final var recategorisations = repository.getRecategorise("ZZGHI", LocalDate.of(2019, 6, 9));
 
-        // -58 has a latest assessment with a status of I, which should be ignored in favour of the earlier valid one
+        // -26 has a latest assessment with a status of I, which should be ignored in favour of the earlier valid one
         assertThat(recategorisations).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus",  "category"
-        ).containsExactly(Tuple.tuple(-58l, 1, LocalDate.of(2019, 6, 8), "A", "B"));
+        ).containsExactly(Tuple.tuple(-26l, 1, LocalDate.of(2019, 6, 8), "A", "B"));
     }
 
     @Test
