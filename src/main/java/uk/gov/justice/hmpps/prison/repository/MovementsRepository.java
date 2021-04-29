@@ -87,11 +87,12 @@ public class MovementsRepository extends RepositoryBase {
     }
 
 
-    public List<OffenderMovement> getOffendersOut(final String agencyId, final LocalDate movementDate) {
+    public List<OffenderMovement> getOffendersOut(final String agencyId, final LocalDate movementDate, final String movementType) {
         final var sql = MovementsRepositorySql.GET_OFFENDERS_OUT_TODAY.getSql();
         return jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId,
-                "movementDate", DateTimeConverter.toDate(movementDate)),
+                "movementDate", DateTimeConverter.toDate(movementDate),
+                "movementType", movementType),
                 OFFENDER_MOVEMENT_MAPPER);
     }
 

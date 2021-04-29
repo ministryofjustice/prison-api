@@ -223,4 +223,47 @@ public class MovementResourceTest extends ResourceTest {
         assertThatStatus(response, HttpStatus.OK.value());
         assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_upcoming_court.json");
     }
+
+    @Test
+    public void testGetAllMovementsOutForAGivenDate() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+            "/api/movements/{agencyId}/out/{isoDate}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI", LocalDate.of(2017, 7, 16)
+        );
+
+        assertThatStatus(response, HttpStatus.OK.value());
+        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_out_on_given_day.json");
+    }
+
+    @Test
+    public void testGetAllMovementsOutForAGivenDateAndMovementType() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var movementsFoundResponse = testRestTemplate.exchange(
+            "/api/movements/{agencyId}/out/{isoDate}?movementType={movementType}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI", LocalDate.of(2017, 7, 16), "tap"
+        );
+
+        assertThatStatus(movementsFoundResponse, HttpStatus.OK.value());
+        assertThat(getBodyAsJsonContent(movementsFoundResponse)).isStrictlyEqualToJson("movements_out_on_given_day.json");
+
+        final var noMovementsResponse = testRestTemplate.exchange(
+            "/api/movements/{agencyId}/out/{isoDate}?movementType={movementType}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI", LocalDate.of(2017, 7, 16), "REL"
+        );
+
+        assertThatStatus(noMovementsResponse, HttpStatus.OK.value());
+        assertThat(noMovementsResponse.getBody()).isEqualTo("[]");
+    }
 }

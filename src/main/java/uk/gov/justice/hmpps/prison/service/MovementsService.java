@@ -51,6 +51,8 @@ import java.util.stream.Collectors;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.text.WordUtils.capitalizeFully;
+import static org.apache.commons.lang3.StringUtils.upperCase;
+import static org.apache.commons.lang3.StringUtils.stripToNull;
 
 @Slf4j
 @Service
@@ -117,9 +119,9 @@ public class MovementsService {
     }
 
     @VerifyAgencyAccess
-    public List<OffenderOutTodayDto> getOffendersOut(final String agencyId, final LocalDate movementDate) {
+    public List<OffenderOutTodayDto> getOffendersOut(final String agencyId, final LocalDate movementDate, final String movementType) {
 
-        final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate);
+        final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate, upperCase(stripToNull(movementType)));
 
         return offenders
                 .stream()
