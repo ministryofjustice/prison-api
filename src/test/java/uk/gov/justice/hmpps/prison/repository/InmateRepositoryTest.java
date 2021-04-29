@@ -840,6 +840,15 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testGetRecategoriseReturnsCatUIfaStandardCategorisationExists() {
+        final var recategorisations = repository.getRecategorise("MUL", LocalDate.of(2019, 6, 9));
+
+        // -16 has a latest assessment of type U, with a previous assessment of type B
+        assertThat(recategorisations).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus",  "category"
+        ).containsExactly(Tuple.tuple(-16L, 2, LocalDate.of(2019, 6, 8), "A", "U"));
+    }
+
+    @Test
     public void testGetALLActiveAssessments() {
         final var list = repository.findAssessmentsByOffenderNo(
                 List.of("A1234AF"), "CATEGORY", Collections.emptySet(), false, true);
