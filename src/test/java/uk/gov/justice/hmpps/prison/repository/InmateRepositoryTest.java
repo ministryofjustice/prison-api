@@ -840,12 +840,21 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testGetRecategoriseReturnsCatUIfaStandardCategorisationExists() {
+    public void testGetRecategoriseReturnsCategorisationIfStandardCategorisationExistsForOffender() {
         final var recategorisations = repository.getRecategorise("MUL", LocalDate.of(2019, 6, 9));
 
         // -16 has a latest assessment of type U, with a previous assessment of type B
         assertThat(recategorisations).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus",  "category"
         ).containsExactly(Tuple.tuple(-16L, 2, LocalDate.of(2019, 6, 8), "A", "U"));
+    }
+
+    @Test
+    public void testGetRecategoriseFavoursEarlierCatergorisationsForOffenderIfLatestNotValidAssessStatus() {
+        final var recategorisations = repository.getRecategorise("TRO", LocalDate.of(2019, 6, 9));
+
+        // -58 has a latest assessment with a status of I, which should be ignored in favour of the earlier valid one
+        assertThat(recategorisations).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus",  "category"
+        ).containsExactly(Tuple.tuple(-58l, 1, LocalDate.of(2019, 6, 8), "A", "B"));
     }
 
     @Test
