@@ -146,8 +146,12 @@ public class MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "", nickname = "getOffendersOut")
     @GetMapping("/{agencyId}/out/{isoDate}")
-    public List<OffenderOutTodayDto> getOffendersOutToday(@PathVariable("agencyId") @ApiParam(value = "The prison id", required = true) final String agencyId, @PathVariable("isoDate") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "date", required = true) final LocalDate movementsDate) {
-        return movementsService.getOffendersOut(agencyId, movementsDate);
+    public List<OffenderOutTodayDto> getOffendersOutToday(
+        @PathVariable("agencyId") @ApiParam(value = "The prison id", required = true) final String agencyId,
+        @PathVariable("isoDate") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "date", required = true) final LocalDate movementsDate,
+        @RequestParam(value = "movementType", required = false) @ApiParam(value = "The optional movement type to filter by e.g CRT, REL, TAP, TRN") final String movementType
+    ) {
+        return movementsService.getOffendersOut(agencyId, movementsDate, movementType);
     }
 
     @ApiResponses({
