@@ -582,8 +582,8 @@ public class InmateRepository extends RepositoryBase {
         final var offendersLatestCategorisations = offenderNoMap.values().stream()
             .filter(offenderCategorisations -> oneStandardCategorisationExists(offenderCategorisations, standardCategoryCodes))
             .map(offenderCategorisations -> getLatestOffenderCategorisations(offenderCategorisations))
-            .flatMap(List::stream).collect(Collectors.toList());
-        return offendersLatestCategorisations.stream()
+            .flatMap(List::stream);
+        return offendersLatestCategorisations
             .filter(categorisation ->
                 validCategoryCode(categorisation, validCategoryCodes)
                 && validAssessStatus(categorisation, validAssessStatus)
