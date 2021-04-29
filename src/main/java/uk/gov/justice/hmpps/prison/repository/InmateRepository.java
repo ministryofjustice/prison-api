@@ -55,7 +55,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -575,10 +574,39 @@ public class InmateRepository extends RepositoryBase {
                         "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        return applyCutoffDateForActiveCategorisations(
-            removeNonStandardCategoryRecords(removeEarlierCategorisations(removeOffendersWithNoPreviousStandardCategorisations(rawData))), cutoffDate);
+        final var standardCategoryCodes = Set.of("B", "C", "D");
+        final var validCategoryCodes = Set.of("B", "C", "D", "U");
+        final var validAssessStatus = Set.of("A", "P");
+
+        final var offenderNoMap = rawData.stream().collect(Collectors.groupingBy(OffenderCategorise::getOffenderNo));
+        final var offendersLatestCategorisations = offenderNoMap.values().stream()
+            .filter(offenderCategorisations -> oneStandardCategorisationExists(offenderCategorisations, standardCategoryCodes))
+            .map(offenderCategorisations -> getLatestOffenderCategorisations(offenderCategorisations))
+            .flatMap(List::stream).collect(Collectors.toList());
+        return offendersLatestCategorisations.stream()
+            .filter(categorisation ->
+                validCategoryCode(categorisation, validCategoryCodes)
+                && validAssessStatus(categorisation, validAssessStatus)
+                && nextReviewDateIsBeforeCutOffDateOrPendingCategorisation(categorisation, cutoffDate)
+            )
+            .collect(Collectors.toList());
     }
 
+    private Boolean oneStandardCategorisationExists(final List<OffenderCategorise> offenderCategorisations, Set<String> standardCategoryCodes) {
+        return offenderCategorisations.stream().filter(cat -> standardCategoryCodes.contains(cat.getCategory())).findAny().isPresent();
+    }
+
+    private Boolean nextReviewDateIsBeforeCutOffDateOrPendingCategorisation(OffenderCategorise categorisation, final LocalDate cutoffDate) {
+        return "P".equals(categorisation.getAssessStatus()) || (categorisation.getNextReviewDate() != null && !cutoffDate.isBefore(categorisation.getNextReviewDate()));
+    }
+
+    private Boolean validCategoryCode(OffenderCategorise categorisation, Set<String> validCategoryCodes) {
+        return categorisation.getCategory() != null && validCategoryCodes.contains(categorisation.getCategory());
+    }
+
+    private Boolean validAssessStatus(OffenderCategorise categorisation, Set<String> validAssessStatus) {
+        return categorisation.getCategory() != null && validAssessStatus.contains(categorisation.getAssessStatus());
+    }
 
     public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, final String agencyId, final boolean latestOnly) {
         final var rawData = jdbcTemplate.query(
@@ -609,24 +637,7 @@ public class InmateRepository extends RepositoryBase {
                 .collect(Collectors.toList());
     }
 
-    private List<OffenderCategorise> removeOffendersWithNoPreviousStandardCategorisations(final List<OffenderCategorise> catList) {
-        final var standardCategoryCodes = Set.of("B", "C", "D");
-        final var offenderNoMap = catList.stream().collect(Collectors.groupingBy(OffenderCategorise::getOffenderNo));
-        return offenderNoMap.values().stream().filter(oc ->
-            oc.stream().filter(cat -> standardCategoryCodes.contains(cat.getCategory())).findAny().isPresent()
-        ).flatMap(List::stream).collect(Collectors.toList());
-    }
-
-    private List<OffenderCategorise> removeEarlierCategorisations(final List<OffenderCategorise> catList) {
-        final var bookingIdMap = catList.stream().collect(Collectors.groupingBy(OffenderCategorise::getBookingId));
-        bookingIdMap.replaceAll((k, v) -> cleanDuplicateRecordsUsingAssessmentSeq(v));
-
-        return bookingIdMap.values().stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-    }
-
-    private List<OffenderCategorise> cleanDuplicateRecordsUsingAssessmentSeq(final List<OffenderCategorise> individualCatList) {
+    private List<OffenderCategorise> getLatestOffenderCategorisations(final List<OffenderCategorise> individualCatList) {
         final var maxSeqOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
         final var maxDateOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
         if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return individualCatList;
@@ -636,13 +647,14 @@ public class InmateRepository extends RepositoryBase {
                 .collect(Collectors.toList());
     }
 
-    private List<OffenderCategorise> applyCutoffDateForActiveCategorisations(List<OffenderCategorise> catList, final LocalDate cutoffDate) {
-        return catList
-                .stream()
-                .filter(cat -> "P".equals(cat.getAssessStatus()) || (cat.getNextReviewDate() != null && !cutoffDate.isBefore(cat.getNextReviewDate())))
-                .collect(Collectors.toList());
-    }
+    private List<OffenderCategorise> removeEarlierCategorisations(final List<OffenderCategorise> catList) {
+        final var bookingIdMap = catList.stream().collect(Collectors.groupingBy(OffenderCategorise::getBookingId));
+        bookingIdMap.replaceAll((k, v) -> getLatestOffenderCategorisations(v));
 
+        return bookingIdMap.values().stream()
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+    }
 
     public Optional<AssignedLivingUnit> findAssignedLivingUnit(final long bookingId, final String locationTypeRoot) {
         final var sql = InmateRepositorySql.FIND_ASSIGNED_LIVING_UNIT.getSql();
@@ -968,11 +980,6 @@ public class InmateRepository extends RepositoryBase {
         }
 
         return maxSeq == null ? 1 : maxSeq;
-    }
-
-    private List<OffenderCategorise> removeNonStandardCategoryRecords(List<OffenderCategorise> rawData) {
-        final var validCategoryCodes = Set.of("B", "C", "D", "U");
-        return rawData.stream().filter(cat -> cat.getCategory() != null && validCategoryCodes.contains(cat.getCategory())).collect(Collectors.toList());
     }
 
     public String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria) {
