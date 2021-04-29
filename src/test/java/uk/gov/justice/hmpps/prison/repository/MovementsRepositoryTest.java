@@ -174,6 +174,41 @@ public class MovementsRepositoryTest {
     }
 
     @Test
+    public void canRetrieveOffendersOutForAGivenDate() {
+        final var offender = OffenderMovement.builder()
+            .offenderNo("Z0020ZZ")
+            .dateOfBirth(LocalDate.of(1966, 1, 1))
+            .firstName("BURT")
+            .lastName("REYNOLDS")
+            .fromAgency("LEI")
+            .directionCode("OUT")
+            .movementTime(LocalTime.of(0, 0))
+            .movementDate(LocalDate.of(2017, 7, 16))
+            .movementReasonDescription("Funerals And Deaths")
+            .build();
+
+        assertThat(repository.getOffendersOut("LEI", LocalDate.of(2017, Month.JULY, 16), null)).containsExactly(offender);
+    }
+
+    @Test
+    public void canRetrieveOffendersOutForAGivenDateAndMoveType() {
+        final var offender = OffenderMovement.builder()
+            .offenderNo("Z0020ZZ")
+            .dateOfBirth(LocalDate.of(1966, 1, 1))
+            .firstName("BURT")
+            .lastName("REYNOLDS")
+            .fromAgency("LEI")
+            .directionCode("OUT")
+            .movementTime(LocalTime.of(0, 0))
+            .movementDate(LocalDate.of(2017, 7, 16))
+            .movementReasonDescription("Funerals And Deaths")
+            .build();
+
+        assertThat(repository.getOffendersOut("LEI", LocalDate.of(2017, Month.JULY, 16), "TAP")).containsExactly(offender);
+        assertThat(repository.getOffendersOut("LEI", LocalDate.of(2017, Month.JULY, 16), "REL")).isEmpty();
+    }
+
+    @Test
     public void canRetrieveOffendersInReception() {
         final var offenders = repository.getOffendersInReception("MDI");
 

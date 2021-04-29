@@ -16,6 +16,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
+import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
 import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository;
@@ -146,7 +147,7 @@ public class MovementsServiceImplTest {
     @Test
     public void testGetOffenders_OutToday() {
         final var timeOut = LocalTime.now();
-        final List<OffenderMovement> offenders = ImmutableList.of(
+        final List<OffenderMovement> singleOffender = ImmutableList.of(
                 OffenderMovement.builder()
                         .offenderNo("1234")
                         .directionCode("OUT")
@@ -159,19 +160,47 @@ public class MovementsServiceImplTest {
                         .movementTime(timeOut)
                         .build());
 
+        when(movementsRepository.getOffendersOut("LEI", LocalDate.now(), null)).thenReturn(singleOffender);
 
-        when(movementsRepository.getOffendersOut("LEI", LocalDate.now())).thenReturn(offenders);
+        assertThat(movementsService.getOffendersOut("LEI", LocalDate.now(), null)).containsExactly(
+            OffenderOutTodayDto.builder()
+                .offenderNo("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.now())
+                .timeOut(timeOut)
+                .reasonDescription("Normal Transfer")
+                .build());
+    }
 
-        final var offendersOutToday = movementsService.getOffendersOut("LEI", LocalDate.now());
+    @Test
+    public void testGetOffenders_OutTodayByMovementType() {
+        final var timeOut = LocalTime.now();
 
-        assertThat(offendersOutToday).hasSize(1);
+        final List<OffenderMovement> singleOffender = ImmutableList.of(
+            OffenderMovement.builder()
+                .offenderNo("1234")
+                .directionCode("OUT")
+                .dateOfBirth(LocalDate.now())
+                .movementDate(LocalDate.now())
+                .fromAgency("LEI")
+                .firstName("JOHN")
+                .lastName("DOE")
+                .movementReasonDescription("NORMAL TRANSFER")
+                .movementTime(timeOut)
+                .build());
 
-        assertThat(offendersOutToday).extracting("offenderNo").contains("1234");
-        assertThat(offendersOutToday).extracting("firstName").contains("John");
-        assertThat(offendersOutToday).extracting("lastName").contains("Doe");
-        assertThat(offendersOutToday).extracting("dateOfBirth").contains(LocalDate.now());
-        assertThat(offendersOutToday).extracting("timeOut").contains(timeOut);
-        assertThat(offendersOutToday).extracting("reasonDescription").contains("Normal Transfer");
+        when(movementsRepository.getOffendersOut("LEI", LocalDate.now(), "REL")).thenReturn(singleOffender);
+
+        assertThat(movementsService.getOffendersOut("LEI", LocalDate.now(), "rel")).containsExactly(
+            OffenderOutTodayDto.builder()
+                .offenderNo("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.now())
+                .timeOut(timeOut)
+                .reasonDescription("Normal Transfer")
+                .build());
     }
 
     @Test
@@ -329,9 +358,9 @@ public class MovementsServiceImplTest {
         final var transferEvents = true;
         final var movements = true;
 
-        assertThatThrownBy(() -> {
-            final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
-        }).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("No agency location identifiers were supplied");
+        assertThatThrownBy(() ->
+            movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
+        ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("No agency location identifiers were supplied");
 
         verifyNoMoreInteractions(movementsRepository);
     }
@@ -349,9 +378,9 @@ public class MovementsServiceImplTest {
         final var transferEvents = true;
         final var movements = true;
 
-        assertThatThrownBy(() -> {
-            final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
-        }).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("The supplied fromDateTime parameter is after the toDateTime value");
+        assertThatThrownBy(() ->
+            movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
+        ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("The supplied fromDateTime parameter is after the toDateTime value");
 
         verifyNoMoreInteractions(movementsRepository);
     }
@@ -370,9 +399,9 @@ public class MovementsServiceImplTest {
         final var transferEvents = false;
         final var movements = false;
 
-        assertThatThrownBy(() -> {
-            final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
-        }).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]");
+        assertThatThrownBy(() ->
+            movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
+        ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]");
 
         verifyNoMoreInteractions(movementsRepository);
     }

@@ -292,6 +292,7 @@ enum class MovementsRepositorySql(val sql: String) {
         INNER JOIN OFFENDERS               ON OFFENDERS.OFFENDER_ID = OB.OFFENDER_ID
         LEFT JOIN REFERENCE_CODES RC2 ON RC2.CODE = OEM.MOVEMENT_REASON_CODE AND RC2.DOMAIN = 'MOVE_RSN'
         WHERE
+        OEM.MOVEMENT_TYPE = COALESCE(:movementType, OEM.MOVEMENT_TYPE) AND
         OEM.MOVEMENT_DATE = :movementDate AND
         OEM.DIRECTION_CODE = 'OUT' AND
                 OEM.FROM_AGY_LOC_ID = :agencyId
