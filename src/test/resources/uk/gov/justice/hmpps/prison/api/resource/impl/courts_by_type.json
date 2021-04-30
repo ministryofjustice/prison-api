@@ -3,7 +3,7 @@
     "agencyId": "ABDRCT",
     "description": "Court 2",
     "agencyType": "CRT",
-    "courtType": "CC",
+    "courtType": "YC",
     "active": true,
     "addresses": [
       {
