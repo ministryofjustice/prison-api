@@ -32,7 +32,20 @@ public class AgencyResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCanFindAgenciesByTypeAndJurisdictionCode() {
+    public void testCanFindAgenciesByTypeAndCourtTypeCode() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/type/CRT?courtType=CC",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_and_courtTypeCode_CC.json");
+    }
+
+    @Test
+    public void testCanFindAgenciesByTypeAndDeprecatedJuridictionCode() {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
         final var response = testRestTemplate.exchange(
@@ -41,20 +54,20 @@ public class AgencyResourceTest extends ResourceTest {
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
-        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_and_jurisdictionCode_CC.json");
+        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_and_courtTypeCode_CC.json");
     }
 
     @Test
-    public void testCanFindAgenciesByTypeAndJurisdictionCodes() {
+    public void testCanFindAgenciesByTypeAndCourtTypeCodes() {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
         final var response = testRestTemplate.exchange(
-            "/api/agencies/type/CRT?jurisdictionCode=CC&jurisdictionCode=MC",
+            "/api/agencies/type/CRT?courtType=CC&courtType=MC",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
-        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_and_jurisdictionCodes_CC_MC.json");
+        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_and_courtTypeCodes_CC_MC.json");
     }
 
     @Test
