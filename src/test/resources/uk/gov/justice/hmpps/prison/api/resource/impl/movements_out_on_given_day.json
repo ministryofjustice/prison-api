@@ -1,10 +1,26 @@
 [
   {
-    "offenderNo": "Z0020ZZ",
-    "dateOfBirth": "1966-01-01",
+    "offenderNo": "Z0024ZZ",
+    "dateOfBirth": "1958-01-01",
+    "reasonDescription": "Escape",
+    "timeOut": "00:00:00",
+    "firstName": "Lucius",
+    "lastName": "Fox"
+  },
+  {
+    "offenderNo": "Z0023ZZ",
+    "dateOfBirth": "1960-01-01",
+    "reasonDescription": "Escape",
+    "timeOut": "00:00:00",
+    "firstName": "Richard",
+    "lastName": "Grayson"
+  },
+  {
+    "offenderNo": "Z0021ZZ",
+    "dateOfBirth": "1964-01-01",
     "reasonDescription": "Funerals And Deaths",
     "timeOut": "00:00:00",
-    "firstName": "Burt",
-    "lastName": "Reynolds"
+    "firstName": "David",
+    "lastName": "Dickenson"
   }
 ]
