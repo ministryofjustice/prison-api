@@ -94,14 +94,19 @@ public class AgencyResource {
         @ApiParam("Only return active agencies")
         boolean activeOnly,
 
+        @Deprecated(forRemoval = true)
         @RequestParam(value = "jurisdictionCode", required = false)
-        @ApiParam(value = "Only return agencies that match the supplied Jurisdiction Code(s)", example = "MC")
+        @ApiParam(value = "Only return agencies that match the supplied Jurisdiction Code(s), NOTE: Deprecated, please use courtType param", example = "MC")
         List<String> jurisdictionCodes,
+
+        @RequestParam(value = "courtType", required = false)
+        @ApiParam(value = "Only return courts that match the supplied court types(s)", example = "MC")
+            List<String> courtTypes,
 
         @RequestParam(value = "withAddresses", defaultValue = "false", required = false)
         @ApiParam(value = "Returns Address Information", defaultValue = "false") final boolean withAddresses
     ) {
-        return agencyService.getAgenciesByType(agencyType, activeOnly, jurisdictionCodes, withAddresses);
+        return agencyService.getAgenciesByType(agencyType, activeOnly, courtTypes != null ? courtTypes : jurisdictionCodes, withAddresses);
     }
 
     @ApiResponses({
