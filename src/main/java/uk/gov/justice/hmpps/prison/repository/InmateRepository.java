@@ -73,6 +73,10 @@ public class InmateRepository extends RepositoryBase {
     public final static String QUERY_OPERATOR_AND = "and:";
     public final static String QUERY_OPERATOR_OR = "or:";
 
+    private final static Set standardCategoryCodes = Set.of("B", "C", "D");
+    private final static Set validCategoryCodes = Set.of("B", "C", "D", "U");
+    private final static Set validAssessStatus = Set.of("A", "P");
+
     private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"))
             .put("BOOKING_NO", new FieldMapper("bookingNo"))
@@ -574,38 +578,33 @@ public class InmateRepository extends RepositoryBase {
                         "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        final var standardCategoryCodes = Set.of("B", "C", "D");
-        final var validCategoryCodes = Set.of("B", "C", "D", "U");
-        final var validAssessStatus = Set.of("A", "P");
-
         final var offenderNoMap = rawData.stream().collect(Collectors.groupingBy(OffenderCategorise::getOffenderNo));
-        final var offendersLatestCategorisations = offenderNoMap.values().stream()
-            .filter(offenderCategorisations -> oneStandardCategorisationExists(offenderCategorisations, standardCategoryCodes))
-            .map(offenderCategorisations -> getLatestOffenderCategorisations(offenderCategorisations))
+        final var offendersLatestCategorisations = offenderNoMap
+            .values().stream()
+            .filter(this::oneStandardCategorisationExists)
+            .map(this::getCategorisationsWithValidAssessStatus)
+            .map(this::getLatestOffenderCategorisations)
             .flatMap(List::stream);
         return offendersLatestCategorisations
-            .filter(categorisation ->
-                validCategoryCode(categorisation, validCategoryCodes)
-                && validAssessStatus(categorisation, validAssessStatus)
-                && nextReviewDateIsBeforeCutOffDateOrPendingCategorisation(categorisation, cutoffDate)
-            )
+            .filter(this::validCategoryCode)
+            .filter(categorisation -> nextReviewDateIsBeforeCutOffDateOrPendingCategorisation(categorisation, cutoffDate))
             .collect(Collectors.toList());
     }
 
-    private Boolean oneStandardCategorisationExists(final List<OffenderCategorise> offenderCategorisations, Set<String> standardCategoryCodes) {
+    private boolean oneStandardCategorisationExists(final List<OffenderCategorise> offenderCategorisations) {
         return offenderCategorisations.stream().filter(cat -> standardCategoryCodes.contains(cat.getCategory())).findAny().isPresent();
     }
 
-    private Boolean nextReviewDateIsBeforeCutOffDateOrPendingCategorisation(OffenderCategorise categorisation, final LocalDate cutoffDate) {
+    private boolean nextReviewDateIsBeforeCutOffDateOrPendingCategorisation(OffenderCategorise categorisation, final LocalDate cutoffDate) {
         return "P".equals(categorisation.getAssessStatus()) || (categorisation.getNextReviewDate() != null && !cutoffDate.isBefore(categorisation.getNextReviewDate()));
     }
 
-    private Boolean validCategoryCode(OffenderCategorise categorisation, Set<String> validCategoryCodes) {
+    private boolean validCategoryCode(OffenderCategorise categorisation) {
         return categorisation.getCategory() != null && validCategoryCodes.contains(categorisation.getCategory());
     }
 
-    private Boolean validAssessStatus(OffenderCategorise categorisation, Set<String> validAssessStatus) {
-        return categorisation.getCategory() != null && validAssessStatus.contains(categorisation.getAssessStatus());
+    private List<OffenderCategorise>  getCategorisationsWithValidAssessStatus(final List<OffenderCategorise> offenderCategorisations) {
+        return offenderCategorisations.stream().filter(cat -> cat.getCategory() != null && validAssessStatus.contains(cat.getAssessStatus())).collect(Collectors.toList());
     }
 
     public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, final String agencyId, final boolean latestOnly) {
