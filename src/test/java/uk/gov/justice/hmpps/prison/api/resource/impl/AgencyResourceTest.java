@@ -36,7 +36,7 @@ public class AgencyResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
         final var response = testRestTemplate.exchange(
-            "/api/agencies/type/CRT?courtType=CC",
+            "/api/agencies/type/CRT?courtType=YC",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
@@ -49,7 +49,7 @@ public class AgencyResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
         final var response = testRestTemplate.exchange(
-            "/api/agencies/type/CRT?jurisdictionCode=CC",
+            "/api/agencies/type/CRT?jurisdictionCode=YC",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
@@ -62,7 +62,7 @@ public class AgencyResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
         final var response = testRestTemplate.exchange(
-            "/api/agencies/type/CRT?courtType=CC&courtType=MC",
+            "/api/agencies/type/CRT?courtType=YC&courtType=MC",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
