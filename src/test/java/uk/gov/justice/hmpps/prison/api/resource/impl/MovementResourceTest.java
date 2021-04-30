@@ -228,42 +228,42 @@ public class MovementResourceTest extends ResourceTest {
     public void testGetAllMovementsOutForAGivenDate() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
-        final var response = testRestTemplate.exchange(
+        final var movementsOutOnDayResponse = testRestTemplate.exchange(
             "/api/movements/{agencyId}/out/{isoDate}",
             HttpMethod.GET,
             createHttpEntity(token, null),
             new ParameterizedTypeReference<String>() {
-            }, "LEI", LocalDate.of(2017, 7, 16)
+            }, "LEI", LocalDate.of(2012, 7, 16)
         );
 
-        assertThatStatus(response, HttpStatus.OK.value());
-        assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_out_on_given_day.json");
+        assertThatStatus(movementsOutOnDayResponse, HttpStatus.OK.value());
+        assertThat(getBodyAsJsonContent(movementsOutOnDayResponse)).isStrictlyEqualToJson("movements_out_on_given_day.json");
     }
 
     @Test
     public void testGetAllMovementsOutForAGivenDateAndMovementType() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
-        final var movementsFoundResponse = testRestTemplate.exchange(
+        final var temporaryAbsenceMovementOnDayResponse = testRestTemplate.exchange(
             "/api/movements/{agencyId}/out/{isoDate}?movementType={movementType}",
             HttpMethod.GET,
             createHttpEntity(token, null),
             new ParameterizedTypeReference<String>() {
-            }, "LEI", LocalDate.of(2017, 7, 16), "tap"
+            }, "LEI", LocalDate.of(2012, 7, 16), "tap"
         );
 
-        assertThatStatus(movementsFoundResponse, HttpStatus.OK.value());
-        assertThat(getBodyAsJsonContent(movementsFoundResponse)).isStrictlyEqualToJson("movements_out_on_given_day.json");
+        assertThatStatus(temporaryAbsenceMovementOnDayResponse, HttpStatus.OK.value());
+        assertThat(getBodyAsJsonContent(temporaryAbsenceMovementOnDayResponse)).isStrictlyEqualToJson("movements_out_on_given_day_by_type.json");
 
-        final var noMovementsResponse = testRestTemplate.exchange(
+        final var noCourtMovementsOnDayResponse = testRestTemplate.exchange(
             "/api/movements/{agencyId}/out/{isoDate}?movementType={movementType}",
             HttpMethod.GET,
             createHttpEntity(token, null),
             new ParameterizedTypeReference<String>() {
-            }, "LEI", LocalDate.of(2017, 7, 16), "REL"
+            }, "LEI", LocalDate.of(2017, 7, 16), "CRT"
         );
 
-        assertThatStatus(noMovementsResponse, HttpStatus.OK.value());
-        assertThat(noMovementsResponse.getBody()).isEqualTo("[]");
+        assertThatStatus(noCourtMovementsOnDayResponse, HttpStatus.OK.value());
+        assertThat(noCourtMovementsOnDayResponse.getBody()).isEqualTo("[]");
     }
 }
