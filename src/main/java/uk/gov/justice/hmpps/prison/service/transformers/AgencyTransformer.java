@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service.transformers;
 
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.Agency.AgencyBuilder;
+import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
@@ -13,6 +14,8 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
 
+import static java.util.stream.Collectors.toList;
+
 public class AgencyTransformer {
 
     public static Agency transform(final AgencyLocation agency) {
@@ -22,6 +25,10 @@ public class AgencyTransformer {
     public static Agency transformWithAddresses(final AgencyLocation agency) {
         return transformToBuilder(agency)
             .addresses(AddressTransformer.translate(agency.getAddresses()))
+            .phones(AddressTransformer.translatePhones(agency.getPhones()))
+            .emails(agency.getInternetAddresses().stream().map(e -> Email.builder()
+                .email(e.getInternetAddress())
+                .build()).collect(toList()))
             .build();
     }
 

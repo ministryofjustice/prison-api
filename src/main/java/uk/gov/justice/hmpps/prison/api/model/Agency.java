@@ -43,4 +43,10 @@ public class Agency {
 
     @ApiModelProperty(value = "List of addresses associated with agency",  position = 8)
     private List<AddressDto> addresses;
+
+    @ApiModelProperty(value = "List of phones associated with agency",  position = 9)
+    private List<Telephone> phones;
+
+    @ApiModelProperty(value = "List of emails associated with agency",  position = 10)
+    private List<Email> emails;
 }

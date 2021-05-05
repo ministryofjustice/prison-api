@@ -24,6 +24,19 @@
     "agencyType": "CRT",
     "courtType": "MC",
     "active": true,
-    "addresses": []
+    "addresses": [],
+    "phones": [
+      {
+        "phoneId": -10,
+        "number": "0114 55556666",
+        "type": "BUS",
+        "ext": "345"
+      }
+    ],
+    "emails": [
+      {
+        "email": "court1@justice.gov.uk"
+      }
+    ]
   }
 ]
