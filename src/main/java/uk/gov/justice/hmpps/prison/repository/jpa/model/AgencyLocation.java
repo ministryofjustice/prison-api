@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -79,6 +80,16 @@ public class AgencyLocation extends ExtendedAuditableEntity {
     @Where(clause = "OWNER_CLASS = '"+AgencyAddress.ADDR_TYPE+"'")
     @Builder.Default
     private List<AgencyAddress> addresses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Where(clause = "OWNER_CLASS = '"+AgencyPhone.PHONE_TYPE+"'")
+    @Builder.Default
+    private List<AgencyPhone> phones = new ArrayList<>();
+
+    @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Where(clause = "OWNER_CLASS = '"+AgencyInternetAddress.TYPE+"'")
+    @Default
+    private List<AgencyInternetAddress> internetAddresses = new ArrayList<>();
 
     public void removeAddress(final AgencyAddress address) {
         addresses.remove(address);
