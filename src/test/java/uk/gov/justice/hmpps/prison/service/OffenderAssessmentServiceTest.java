@@ -402,6 +402,50 @@ public class OffenderAssessmentServiceTest {
         assertThat(csraClassificationCode).isEqualTo(null);
     }
 
+    @Test
+    public void getOffendersAssessmentRatings_returnsResultsOfNextAssessmentIfFirstNotSet() {
+        when(repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("N1234AA")).thenReturn(List.of(
+            getOffenderAssessment_CsraClassificationBuilder(null, LocalDate.parse("2019-01-03"))
+                .build(),
+            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
+                .build()
+        ));
+
+        final var csraRatings = service.getOffendersAssessmentRatings(List.of("N1234AA"));
+
+        assertThat(csraRatings).isEqualTo(List.of(
+            uk.gov.justice.hmpps.prison.api.model.AssessmentClassification.builder()
+                .offenderNo("N1234AA")
+                .classificationCode("HI")
+                .classificationDate(LocalDate.parse("2019-01-02"))
+                .build()
+            )
+        );
+    }
+
+    @Test
+    public void getOffendersAssessmentRatings_returnsAllOffendersRequestedEvenIfNoAssessments() {
+        when(repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("N1234AA")).thenReturn(List.of(
+            getOffenderAssessment_CsraClassificationBuilder(new AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
+            .build()
+        ));
+        when(repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("N2345BB")).thenReturn(List.of());
+
+        final var csraRatings = service.getOffendersAssessmentRatings(List.of("N1234AA", "N2345BB"));
+
+        assertThat(csraRatings).isEqualTo(List.of(
+            uk.gov.justice.hmpps.prison.api.model.AssessmentClassification.builder()
+                .offenderNo("N1234AA")
+                .classificationCode("HI")
+                .classificationDate(LocalDate.parse("2019-01-02"))
+                .build(),
+            uk.gov.justice.hmpps.prison.api.model.AssessmentClassification.builder()
+                .offenderNo("N2345BB")
+                .build()
+            )
+        );
+    }
+
     private OffenderAssessmentBuilder getOffenderAssessment_MinimalBuilder(final long bookingId, final int assessmentSeq,
                                                                            final String nomsId, final long assesmentTypeId) {
         return OffenderAssessment.builder()

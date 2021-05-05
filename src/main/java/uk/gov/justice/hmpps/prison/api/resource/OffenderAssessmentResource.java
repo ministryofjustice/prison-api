@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
+import uk.gov.justice.hmpps.prison.api.model.AssessmentClassification;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentSummary;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
@@ -94,6 +95,15 @@ public class OffenderAssessmentResource {
     public List<Assessment> postOffenderAssessmentsCsraList(@RequestBody @NotEmpty @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
         validateOffenderList(offenderList);
         return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true, true, true);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "The current CSRA rating for each offender.", response = Assessment.class, responseContainer = "List")})
+    @ApiOperation(value = "Retrieves CSRA ratings for multiple offenders - POST version to allow large offender lists.", nickname = "postOffenderAssessmentsCsraRatings")
+    @PostMapping("/csra/rating")
+    public List<AssessmentClassification> postOffenderAssessmentsCsraRatings(@RequestBody @NotEmpty @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
+        validateOffenderList(offenderList);
+        return offenderAssessmentService.getOffendersAssessmentRatings(offenderList);
     }
 
     @ApiResponses({
