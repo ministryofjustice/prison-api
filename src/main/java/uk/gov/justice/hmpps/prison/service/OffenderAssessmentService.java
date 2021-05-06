@@ -128,8 +128,9 @@ public class OffenderAssessmentService {
     public List<AssessmentClassification> getOffendersAssessmentRatings(final List<String> offenderNos) {
         final var classifications = new ArrayList<AssessmentClassification>();
         final var batch = Lists.partition(new ArrayList<>(offenderNos), maxBatchSize);
-        batch.forEach(offenderNosBatch -> classifications.addAll(getOffendersCurrentAssessmentRating(offenderNosBatch)));
-        return classifications;
+        return batch.stream().flatMap(offenderNosBatch ->
+            getOffendersCurrentAssessmentRating(offenderNosBatch).stream()
+        ).collect(toList());
     }
 
     private List<AssessmentClassification> getOffendersCurrentAssessmentRating(final List<String> offenderNos) {
@@ -143,7 +144,7 @@ public class OffenderAssessmentService {
     }
 
     private Optional<AssessmentClassification> getOffenderCurrentAssessmentRating(final String offenderNo, final List<OffenderAssessment> assessmentsLatestFirst) {
-        var currentClassification = calculateCurrentCsraClassification(assessmentsLatestFirst);
+        final var currentClassification = calculateCurrentCsraClassification(assessmentsLatestFirst);
         if (currentClassification == null) {
             return Optional.empty();
         }
