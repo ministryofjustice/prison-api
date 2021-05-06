@@ -30,6 +30,7 @@ import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -104,11 +105,17 @@ public class UserResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Get staff details for local administrator", notes = "Get user details for local administrator", nickname = "getStaffUsersForLocalAdministrator")
     @GetMapping("/local-administrator/available")
-    public ResponseEntity<List<UserDetail>> getStaffUsersForLocalAdministrator(@RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter, @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final String accessRole, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
+    public ResponseEntity<List<UserDetail>> getStaffUsersForLocalAdministrator(@RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter,
+                                                                               @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final String accessRole,
+                                                                               @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam("Limit to active / inactive / show all users.") final Status status,
+                                                                               @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") final Long pageOffset,
+                                                                               @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") final Long pageLimit,
+                                                                               @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields,
+                                                                               @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
 
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
-        final var userDetails = userService.getUsersAsLocalAdministrator(authenticationFacade.getCurrentUsername(), nameFilter, accessRole, pageRequest);
+        final var userDetails = userService.getUsersAsLocalAdministrator(authenticationFacade.getCurrentUsername(), nameFilter, accessRole, status, pageRequest);
 
         return ResponseEntity.ok()
                 .headers(userDetails.getPaginationHeaders())
@@ -124,7 +131,7 @@ public class UserResource {
     @ApiOperation(value = "Deprecated: Get staff details for local administrators", notes = "Deprecated: please use /users/local-administrator/available", nickname = "getStaffUsersForLocalAdministrator")
     @GetMapping("/local-administrator/caseload/{caseload}")
     public ResponseEntity<List<UserDetail>> deprecatedPleaseRemove(@PathVariable("caseload") @ApiParam(value = "The agency (prison) id.", required = true, allowEmptyValue = true) final String caseload, @RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter, @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final String accessRole, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
-        return getStaffUsersForLocalAdministrator(nameFilter, accessRole, pageOffset, pageLimit, sortFields, sortOrder);
+        return getStaffUsersForLocalAdministrator(nameFilter, accessRole, Status.ALL, pageOffset, pageLimit, sortFields, sortOrder);
     }
 
     @ApiResponses({
@@ -148,6 +155,7 @@ public class UserResource {
     @GetMapping
     public ResponseEntity<List<UserDetail>> getUsers(@RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter,
                                                      @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final String accessRole,
+                                                     @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam("Limit to active / inactive / show all users.") final Status status,
                                                      @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false)
                                                      @ApiParam(value = "Requested offset of first record in returned collection of user records.", defaultValue = "0") final Long pageOffset,
                                                      @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false)
@@ -158,7 +166,7 @@ public class UserResource {
                                                      @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
-        final var userDetails = userService.getUsers(nameFilter, accessRole, pageRequest);
+        final var userDetails = userService.getUsers(nameFilter, accessRole, status, pageRequest);
 
         return ResponseEntity.ok()
             .headers(userDetails.getPaginationHeaders())

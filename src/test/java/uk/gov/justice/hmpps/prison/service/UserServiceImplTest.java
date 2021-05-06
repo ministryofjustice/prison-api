@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
@@ -79,18 +80,36 @@ public class UserServiceImplTest {
     public void testGetUsers() {
         final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final var nameFilterDto = new NameFilter("A");
-        userService.getUsers("A", ROLE_CODE, null);
+        userService.getUsers("A", ROLE_CODE, Status.ALL, null);
 
-        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
+        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), eq(Status.ALL) ,refEq(pr));
     }
 
     @Test
     public void testGetUsersWithFullNameSearch() {
         final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final var nameFilterDto = new NameFilter("Brown James");
-        userService.getUsers("Brown James", ROLE_CODE, null);
+        userService.getUsers("Brown James", ROLE_CODE, Status.ALL, null);
 
-        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
+        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), eq(Status.ALL), refEq(pr));
+    }
+
+    @Test
+    public void testGetUsersFilterActive() {
+        final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
+        final var nameFilterDto = new NameFilter("A");
+        userService.getUsers("A", ROLE_CODE, Status.ACTIVE,null);
+
+        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), eq(Status.ACTIVE), refEq(pr));
+    }
+
+    @Test
+    public void testGetUsersFilterInactive() {
+        final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
+        final var nameFilterDto = new NameFilter("A");
+        userService.getUsers("A", ROLE_CODE, Status.INACTIVE, null);
+
+        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), eq(Status.INACTIVE),refEq(pr));
     }
 
     @Test

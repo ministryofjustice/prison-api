@@ -217,6 +217,8 @@ enum class UserRepositorySql(val sql: String) {
         SUA.WORKING_CASELOAD_ID ACTIVE_CASE_LOAD_ID
                 FROM STAFF_USER_ACCOUNTS SUA
         INNER JOIN STAFF_MEMBERS SM ON SUA.STAFF_ID = SM.STAFF_ID
+        
+        WHERE (:status = 'ALL' or SM.STATUS = :status) 
     """
   ),
 
@@ -232,6 +234,8 @@ enum class UserRepositorySql(val sql: String) {
         INNER JOIN STAFF_MEMBERS SM ON SUA.STAFF_ID = SM.STAFF_ID
                 INNER JOIN LAA_GENERAL_USERS LAAG ON SUA.USERNAME = LAAG.USERNAME AND ACTIVE_FLAG = :activeFlag
         INNER JOIN LAA_ADMINISTRATORS LAAA ON LAAA.USERNAME = :laaUsername AND LAAA.ACTIVE_FLAG = :activeFlag and LAAG.LOCAL_AUTHORITY_CODE = LAAA.LOCAL_AUTHORITY_CODE
+        
+        WHERE (:status = 'ALL' or SM.STATUS = :status) 
     """
   ),
 

@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.UserRepositorySql;
@@ -258,25 +259,25 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(caseload, "An caseload id is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS_BY_CASELOAD, nameFilter, accessRole, pageRequest, caseload, null);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS_BY_CASELOAD, nameFilter, accessRole, Status.ALL, pageRequest, caseload, null);
     }
 
 
-    public Page<UserDetail> findUsers(final String accessRole, final NameFilter nameFilter, final PageRequest pageRequest) {
+    public Page<UserDetail> findUsers(final String accessRole, final NameFilter nameFilter,  final Status status, final PageRequest pageRequest) {
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS, nameFilter, accessRole, pageRequest, null, null);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS, nameFilter, accessRole, status, pageRequest, null, null);
     }
 
 
-    public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final String accessRole, final NameFilter nameFilter, final PageRequest pageRequest) {
+    public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final String accessRole, final NameFilter nameFilter, final Status status, final PageRequest pageRequest) {
         Validate.notBlank(laaUsername, "A username is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS_AVAILABLE_TO_LAA_USER, nameFilter, accessRole, pageRequest, null, laaUsername);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS_AVAILABLE_TO_LAA_USER, nameFilter, accessRole, status, pageRequest, null, laaUsername);
     }
 
-    private Page<UserDetail> getUsersByCaseload(final UserRepositorySql query, final NameFilter nameFilter, final String accessRole, final PageRequest pageRequest, final String caseload, final String laaUsername) {
+    private Page<UserDetail> getUsersByCaseload(final UserRepositorySql query, final NameFilter nameFilter, final String accessRole, final Status status, final PageRequest pageRequest, final String caseload, final String laaUsername) {
         final var baseSql = applyAccessRoleQuery(applyNameFilterQuery(query.getSql(), nameFilter), accessRole);
 
 
@@ -300,7 +301,8 @@ public class UserRepository extends RepositoryBase {
                     "firstName", StringUtils.isNotBlank(nameFilter.getFirstName()) ? nameFilter.getFirstName() + "%" : null,
                     "apiCaseloadId", apiCaseloadId,
                     "applicationType", applicationType,
-                    "roleCode", accessRole),
+                    "roleCode", accessRole,
+                    "status", status.getSqlName()),
                 paRowMapper);
 
         return new Page<>(users, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());

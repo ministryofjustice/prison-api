@@ -100,7 +100,7 @@ public class StaffRepositoryTest {
 
         assertThat(staffDetail.getStaffId()).isEqualTo(-10L);
         assertThat(staffDetail.getFirstName()).isEqualTo("EX");
-        assertThat(staffDetail.getStatus()).isEqualTo("INACTIVE");
+        assertThat(staffDetail.getStatus()).isEqualTo("INACT");
     }
 
     @Test
