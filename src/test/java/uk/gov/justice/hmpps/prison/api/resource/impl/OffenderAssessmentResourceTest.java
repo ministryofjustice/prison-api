@@ -193,6 +193,34 @@ public class OffenderAssessmentResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testGetCsraRatings() {
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA,
+            List.of("A1183JE", "A1234BB"));
+
+        final var response = testRestTemplate.exchange(
+            "/api/offender-assessments/csra/rating",
+            HttpMethod.POST,
+            httpEntity,
+            String.class);
+
+        assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "csra_ratings.json");
+    }
+
+    @Test
+    public void testGetCsraRatingsInvalidOffenderNos() {
+        final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA, List.of());
+
+        final var response = testRestTemplate.exchange(
+            "/api/offender-assessments/csra/rating",
+            HttpMethod.POST,
+            httpEntity,
+            String.class);
+
+        assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
+        assertThatJson(response.getBody()).node("userMessage").asString().contains("postOffenderAssessmentsCsraRatings.offenderList: must not be empty");
+    }
+
+    @Test
     public void testGetCsraAssessment() {
         final var httpEntity = createHttpEntity(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA, null);
 

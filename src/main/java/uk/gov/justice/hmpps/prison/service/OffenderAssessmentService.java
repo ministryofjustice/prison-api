@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import uk.gov.justice.hmpps.prison.api.model.AssessmentClassification;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentQuestion;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentSummary;
@@ -20,6 +21,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -116,6 +118,22 @@ public class OffenderAssessmentService {
         return new AssessmentQuestion(assessment.getDescription(),
             answers.stream().findFirst().orElse(null),
             answers.stream().skip(1).collect(toList()));
+    }
+
+    public List<AssessmentClassification> getOffendersAssessmentRatings(List<String> offenderList) {
+        return offenderList.stream().map(this::getOffenderCurrentAssessmentRating).collect(Collectors.toList());
+    }
+
+    private AssessmentClassification getOffenderCurrentAssessmentRating(String offenderNo) {
+        var currentClassification = getCurrentCsraClassification(offenderNo);
+        if (currentClassification == null) {
+            return AssessmentClassification.builder().offenderNo(offenderNo).build();
+        }
+        return AssessmentClassification.builder()
+            .offenderNo(offenderNo)
+            .classificationCode(currentClassification.classificationCode)
+            .classificationDate(currentClassification.classificationDate)
+            .build();
     }
 
     @AllArgsConstructor
