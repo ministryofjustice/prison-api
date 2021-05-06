@@ -1,8 +1,10 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -19,9 +21,9 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.*;
 
@@ -31,11 +33,14 @@ import static java.util.stream.Collectors.*;
 public class OffenderAssessmentService {
     private final OffenderAssessmentRepository repository;
     private final AssessmentRepository assessmentRepository;
+    private final int maxBatchSize;
 
     public OffenderAssessmentService(final OffenderAssessmentRepository repository,
-                                     final AssessmentRepository assessmentRepository) {
+                                     final AssessmentRepository assessmentRepository,
+                                     @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.repository = repository;
         this.assessmentRepository = assessmentRepository;
+        this.maxBatchSize = maxBatchSize;
     }
 
     @Transactional(readOnly = true)
@@ -74,8 +79,7 @@ public class OffenderAssessmentService {
     public CurrentCsraAssessment getCurrentCsraClassification(final String offenderNo) {
         final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(offenderNo);
 
-        return assessments.stream().filter(a -> a.getClassificationSummary().isSet()).findFirst()
-            .map(CurrentCsraAssessment::fromAssessment).orElse(null);
+        return calculateCurrentCsraClassification(assessments);
     }
 
     private AssessmentSummary getAssessmentSummary(final OffenderAssessment assessmentDetails) {
@@ -120,20 +124,39 @@ public class OffenderAssessmentService {
             answers.stream().skip(1).collect(toList()));
     }
 
-    public List<AssessmentClassification> getOffendersAssessmentRatings(List<String> offenderList) {
-        return offenderList.stream().map(this::getOffenderCurrentAssessmentRating).collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    public List<AssessmentClassification> getOffendersAssessmentRatings(final List<String> offenderNos) {
+        final var classifications = new ArrayList<AssessmentClassification>();
+        final var batch = Lists.partition(new ArrayList<>(offenderNos), maxBatchSize);
+        batch.forEach(offenderNosBatch -> classifications.addAll(getOffendersCurrentAssessmentRating(offenderNosBatch)));
+        return classifications;
     }
 
-    private AssessmentClassification getOffenderCurrentAssessmentRating(String offenderNo) {
-        var currentClassification = getCurrentCsraClassification(offenderNo);
+    private List<AssessmentClassification> getOffendersCurrentAssessmentRating(final List<String> offenderNos) {
+        final var assessmentsLatestFirstForAllOffenders = repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(offenderNos);
+        final var assessmentsLatestFirstByOffenderNo = assessmentsLatestFirstForAllOffenders.stream().collect(groupingBy(OffenderAssessment::getOffenderNo));
+        return assessmentsLatestFirstByOffenderNo.entrySet().stream()
+            .map(e -> getOffenderCurrentAssessmentRating(e.getKey(), e.getValue()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(toList());
+    }
+
+    private Optional<AssessmentClassification> getOffenderCurrentAssessmentRating(final String offenderNo, final List<OffenderAssessment> assessmentsLatestFirst) {
+        var currentClassification = calculateCurrentCsraClassification(assessmentsLatestFirst);
         if (currentClassification == null) {
-            return AssessmentClassification.builder().offenderNo(offenderNo).build();
+            return Optional.empty();
         }
-        return AssessmentClassification.builder()
+        return Optional.of(AssessmentClassification.builder()
             .offenderNo(offenderNo)
             .classificationCode(currentClassification.classificationCode)
             .classificationDate(currentClassification.classificationDate)
-            .build();
+            .build());
+    }
+
+    private CurrentCsraAssessment calculateCurrentCsraClassification(final List<OffenderAssessment> offenderAssessmentsLatestFirst) {
+        return offenderAssessmentsLatestFirst.stream().filter(a -> a.getClassificationSummary().isSet()).findFirst()
+            .map(CurrentCsraAssessment::fromAssessment).orElse(null);
     }
 
     @AllArgsConstructor
