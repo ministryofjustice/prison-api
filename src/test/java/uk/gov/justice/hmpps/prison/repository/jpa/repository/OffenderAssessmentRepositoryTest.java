@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
@@ -125,6 +126,20 @@ public class OffenderAssessmentRepositoryTest {
         final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("A1183JC");
 
         assertThat(assessments).isEmpty();
+    }
+
+    @Test
+    void getAssessmentaByCsraAssessmentAndOffenderNos() {
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("A1183JE", "A1184MA", "A1184JR"));
+
+        assertThat(assessments).extracting("bookingId", "assessmentSeq")
+            .containsExactly(tuple(-41L, 2),
+                tuple(-57L, 1),
+                tuple(-43L, 2),
+                tuple(-43L, 1)
+            );
+
+        assertCsraAssessment_Booking43_AssessmentSeq2(assessments.get(2));
     }
 
     private void assertCsraAssessment_Booking43_AssessmentSeq2(final OffenderAssessment assessment) {

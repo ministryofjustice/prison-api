@@ -148,6 +148,10 @@ public class OffenderAssessment extends ExtendedAuditableEntity {
         private Integer assessmentSeq;
     }
 
+    public String getOffenderNo() {
+        return getOffenderBooking().getOffender().getNomsId();
+    }
+
     /**
      * Method to generate a summary of the classification outcome.
      */
