@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
@@ -196,7 +197,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindLocalAdministratorUsersByCaseload() {
 
-        final var page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(null), new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(null), Status.ALL, new PageRequest("last_name", Order.ASC, 0L, 5L));
         final var items = page.getItems();
 
         assertThat(items).hasSize(3);
@@ -204,8 +205,27 @@ public class UserRepositoryTest {
     }
 
     @Test
+    public void testFindLocalAdministratorUsersByActiveStatus() {
+
+        final var page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(null), Status.ACTIVE, new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var items = page.getItems();
+
+        assertThat(items).hasSize(3);
+        assertThat(items).extracting("username").first().isEqualTo("CA_USER");
+    }
+
+    @Test
+    public void testFindLocalAdministratorUsersByInactiveStatus() {
+
+        final var page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(null), Status.INACTIVE, new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var items = page.getItems();
+
+        assertThat(items).hasSize(0);
+    }
+
+    @Test
     public void testFindLocalAdministratorUsersByCaseloadAndNameFilter() {
-        final var usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter("ITAG_USER"), new PageRequest());
+        final var usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter("ITAG_USER"), Status.ALL, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").containsOnly("ITAG_USER");
     }
@@ -213,7 +233,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindLocalAdministratorUsersByCaseloadAndAccessRoleFilter() {
 
-        final var usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", "OMIC_ADMIN", new NameFilter("User"), new PageRequest());
+        final var usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", "OMIC_ADMIN", new NameFilter("User"), Status.ALL, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
     }

@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
@@ -264,12 +265,12 @@ public class UserService {
                 .findUsersByCaseload(caseload, accessRole, new NameFilter(nameFilter), pageWithDefaults);
     }
 
-    public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final String nameFilter, final String accessRole, final PageRequest pageRequest) {
+    public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final String nameFilter, final String accessRole, final Status status, final PageRequest pageRequest) {
 
         final var pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
         return userRepository
-                .getUsersAsLocalAdministrator(laaUsername, accessRole, new NameFilter(nameFilter), pageWithDefaults);
+                .getUsersAsLocalAdministrator(laaUsername, accessRole, new NameFilter(nameFilter), status, pageWithDefaults);
     }
 
     private PageRequest getPageRequestDefaultLastNameOrder(final PageRequest pageRequest) {
@@ -297,11 +298,11 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES_ADMIN')")
-    public Page<UserDetail> getUsers(final String nameFilter, final String accessRole, final PageRequest pageRequest) {
+    public Page<UserDetail> getUsers(final String nameFilter, final String accessRole, final Status status, final PageRequest pageRequest) {
 
         final var pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
         return userRepository
-                .findUsers(accessRole, new NameFilter(nameFilter), pageWithDefaults);
+                .findUsers(accessRole, new NameFilter(nameFilter), status, pageWithDefaults);
     }
 }
