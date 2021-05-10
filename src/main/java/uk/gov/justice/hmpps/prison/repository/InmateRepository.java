@@ -592,7 +592,7 @@ public class InmateRepository extends RepositoryBase {
     }
 
     private boolean oneStandardCategorisationExists(final List<OffenderCategorise> offenderCategorisations) {
-        return offenderCategorisations.stream().filter(cat -> standardCategoryCodes.contains(cat.getCategory())).findAny().isPresent();
+        return offenderCategorisations.stream().anyMatch(cat -> cat.getCategory() != null && standardCategoryCodes.contains(cat.getCategory()));
     }
 
     private boolean nextReviewDateIsBeforeCutOffDateOrPendingCategorisation(OffenderCategorise categorisation, final LocalDate cutoffDate) {
