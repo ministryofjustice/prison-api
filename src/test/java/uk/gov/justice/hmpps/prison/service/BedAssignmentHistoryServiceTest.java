@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
+import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -22,14 +24,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class BedAssignmentHistoryServiceTest {
 
+    private final int MAX_BATCH_SIZE = 1;
     private final BedAssignmentHistoriesRepository repository = mock(BedAssignmentHistoriesRepository.class);
     private final AgencyInternalLocationRepository locationRepository = mock(AgencyInternalLocationRepository.class);
-    private final BedAssignmentHistoryService service = new BedAssignmentHistoryService(repository, locationRepository);
+    private final AgencyRepository agencyRepository = mock(AgencyRepository.class);
+
+    private final BedAssignmentHistoryService service = new BedAssignmentHistoryService(repository, locationRepository, MAX_BATCH_SIZE);
 
     @Test
     void add() {
@@ -146,6 +152,10 @@ class BedAssignmentHistoryServiceTest {
         final var moorland = "MDI";
         final var leeds = "LEI";
 
+        when(locationRepository.findAgencyInternalLocationsByAgencyIdAndLocationType(any(), any())).thenReturn(List.of(
+            AgencyInternalLocation.builder().locationId(livingUnitIdInMoorland).build()
+        ));
+
         when(locationRepository.findOneByLocationId(livingUnitIdInMoorland))
             .thenReturn(Optional.of(AgencyInternalLocation.builder()
                 .locationId(livingUnitIdInMoorland)
@@ -160,7 +170,7 @@ class BedAssignmentHistoryServiceTest {
                 .agencyId(leeds)
                 .build()));
 
-        when(repository.findBedAssignmentHistoriesByAssignmentDate(any()))
+        when(repository.findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(any(), any()))
             .thenReturn(List.of(
                 aBedAssignment(bookingId, livingUnitIdInMoorland),
                 aBedAssignment(bookingId, livingUnitIdInMoorland)
@@ -168,7 +178,7 @@ class BedAssignmentHistoryServiceTest {
 
         final var cellHistory = service.getBedAssignmentsHistoryByDateForAgency(moorland, assignmentDate);
 
-        verify(repository).findBedAssignmentHistoriesByAssignmentDate(assignmentDate);
+        verify(repository, times(1)).findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(assignmentDate, Set.of(livingUnitIdInMoorland));
 
         assertThat(cellHistory).containsOnly(
             BedAssignment.builder()
@@ -185,6 +195,21 @@ class BedAssignmentHistoryServiceTest {
                 .bedAssignmentHistorySequence(2)
                 .build()
         );
+    }
+
+    @Test
+    void getBedAssignmentHistory_byDate_batchCalls() {
+        when(locationRepository.findAgencyInternalLocationsByAgencyIdAndLocationType(any(), any())).thenReturn(List.of(
+            AgencyInternalLocation.builder().locationId(1L).build(),
+            AgencyInternalLocation.builder().locationId(2L).build()
+        ));
+
+        final var assignmentDate = LocalDate.now();
+
+        final var cellHistory = service.getBedAssignmentsHistoryByDateForAgency("MDI", assignmentDate);
+
+        verify(repository, times(1)).findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(assignmentDate, Set.of(1L));
+        verify(repository, times(1)).findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(assignmentDate, Set.of(2L));
     }
 
     @Test
