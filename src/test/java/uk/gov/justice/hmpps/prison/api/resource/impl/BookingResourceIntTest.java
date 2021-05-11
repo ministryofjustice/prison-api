@@ -605,24 +605,44 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
-    public void getBedAssignmentHistory() {
+    public void getBedAssignmentHistory_with_defaultSorting() {
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-1/cell-history",
+                "/api/bookings/-36/cell-history",
                 HttpMethod.GET,
                 createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
                 String.class);
 
-        assertThatJsonFileAndStatus(response, 200, "offender_cell_history.json");
-    }
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[0].bookingId").isEqualTo(-36);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[0].livingUnitId").isEqualTo(-18);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].assignmentDate").isEqualTo("2060-10-17");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].assignmentDateTime").isEqualTo("2060-10-17T11:00:00");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].assignmentReason").isEqualTo("ADM");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].agencyId").isEqualTo("LEI");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].description").isEqualTo("LEI-H-1-4");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[0].bedAssignmentHistorySequence").isEqualTo(4);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].movementMadeBy").isEqualTo("SA");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].offenderNo").isEqualTo("A1180MA");
 
-    @Test
-    public void getBedAssignmentHistory_with_staffId() {
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/-1/cell-history",
-            HttpMethod.GET,
-            createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
-            String.class);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[1].bookingId").isEqualTo(-36);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[1].livingUnitId").isEqualTo(-17);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].assignmentDate").isEqualTo("2050-10-17");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].assignmentDateTime").isEqualTo("2050-10-17T11:00:00");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].assignmentReason").isEqualTo("ADM");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].agencyId").isEqualTo("LEI");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].description").isEqualTo("LEI-H-1-3");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[1].bedAssignmentHistorySequence").isEqualTo(3);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].movementMadeBy").isEqualTo("SA");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].offenderNo").isEqualTo("A1180MA");
 
-        assertThatJsonFileAndStatus(response, 200, "offender_cell_history_with_staffid.json");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[2].bookingId").isEqualTo(-36);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[2].livingUnitId").isEqualTo(-16);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].assignmentDate").isEqualTo("2040-10-17");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].assignmentDateTime").isEqualTo("2040-10-17T11:00:00");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].assignmentReason").isEqualTo("ADM");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].agencyId").isEqualTo("LEI");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].description").isEqualTo("LEI-H-1-2");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[2].bedAssignmentHistorySequence").isEqualTo(2);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].movementMadeBy").isEqualTo("SA");
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].offenderNo").isEqualTo("A1180MA");
     }
 }

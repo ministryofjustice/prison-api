@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -1023,7 +1024,6 @@ public class BookingResource {
                                                         @RequestParam(value = "size", required = false) @ApiParam(value = "The number of results per page. Defaults to 20.", defaultValue = "20") final Integer size) {
         final var pageIndex = page != null ? page : 0;
         final var pageSize = size != null ? size : 20;
-        return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize));
+        return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize, Sort.by("assignmentDate").descending()));
     }
-
 }
