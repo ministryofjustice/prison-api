@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -14,10 +16,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.Bed
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
+import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,10 +34,16 @@ public class BedAssignmentHistoryService {
 
     private final BedAssignmentHistoriesRepository repository;
     private final AgencyInternalLocationRepository locationRepository;
+    private final int maxBatchSize;
 
-    public BedAssignmentHistoryService(final BedAssignmentHistoriesRepository repository, final AgencyInternalLocationRepository locationRepository) {
+    public BedAssignmentHistoryService(
+        final BedAssignmentHistoriesRepository repository,
+        final AgencyInternalLocationRepository locationRepository,
+        @Value("${batch.max.size:1000}") final int maxBatchSize) {
+
         this.repository = repository;
         this.locationRepository = locationRepository;
+        this.maxBatchSize = maxBatchSize;
     }
 
     @VerifyBookingAccess
@@ -78,16 +89,27 @@ public class BedAssignmentHistoryService {
             .collect(Collectors.toList());
     }
 
-    public List<BedAssignment> getBedAssignmentsHistoryByDate(final LocalDate assignmentDate) {
-        return repository
-            .findBedAssignmentHistoriesByAssignmentDate(assignmentDate)
+    @VerifyAgencyAccess
+    public List<BedAssignment> getBedAssignmentsHistoryByDateForAgency(final String agencyId, final LocalDate assignmentDate) {
+        final var livingUnitIdsForAgency = locationRepository.findAgencyInternalLocationsByAgencyIdAndLocationType(agencyId, "CELL")
             .stream()
+            .map(AgencyInternalLocation::getLocationId)
+            .collect(Collectors.toSet());
+
+        final var livingUnitIdsBatched = Lists.partition(new ArrayList<>(livingUnitIdsForAgency), maxBatchSize);
+
+        return livingUnitIdsBatched
+            .stream()
+            .flatMap(livingUnitIds -> repository.findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(assignmentDate, new HashSet<>(livingUnitIds)).stream())
             .map(this::transform)
             .collect(Collectors.toList());
     }
 
     private BedAssignment transform(final BedAssignmentHistory assignment) {
         final var agencyInternalLocation = locationRepository.findOneByLocationId(assignment.getLivingUnitId());
+        final var agencyId = agencyInternalLocation.map(AgencyInternalLocation::getAgencyId).orElse(null);
+        final var agencyDescription = agencyInternalLocation.map(AgencyInternalLocation::getDescription).orElse(null);
+
         final var offenderNo = Optional.ofNullable(assignment.getOffenderBooking())
             .map(OffenderBooking::getOffender)
             .map(uk.gov.justice.hmpps.prison.repository.jpa.model.Offender::getNomsId)
@@ -95,14 +117,14 @@ public class BedAssignmentHistoryService {
 
         return BedAssignment.builder()
             .livingUnitId(assignment.getLivingUnitId())
-            .description(agencyInternalLocation.map(AgencyInternalLocation::getDescription).orElse(null))
+            .agencyId(agencyId)
+            .description(agencyDescription)
             .assignmentDate(assignment.getAssignmentDate())
             .assignmentEndDate(assignment.getAssignmentEndDate())
             .assignmentDateTime(assignment.getAssignmentDateTime())
             .assignmentEndDateTime(assignment.getAssignmentEndDateTime())
             .assignmentReason(assignment.getAssignmentReason())
             .bookingId(assignment.getOffenderBooking().getBookingId())
-            .agencyId(agencyInternalLocation.map(AgencyInternalLocation::getAgencyId).orElse(null))
             .bedAssignmentHistorySequence(assignment.getBedAssignmentHistoryPK().getSequence())
             .movementMadeBy(assignment.movementMadeBy())
             .offenderNo(offenderNo)

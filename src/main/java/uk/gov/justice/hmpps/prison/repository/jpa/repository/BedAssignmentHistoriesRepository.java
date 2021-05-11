@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface BedAssignmentHistoriesRepository extends PagingAndSortingRepository<BedAssignmentHistory, BedAssignmentHistory.BedAssignmentHistoryPK> {
 
@@ -26,5 +27,5 @@ public interface BedAssignmentHistoriesRepository extends PagingAndSortingReposi
     @Query("select ba from BedAssignmentHistory ba where ba.livingUnitId = :livingUnitId and (ba.assignmentEndDateTime is null or :fromDate <= ba.assignmentEndDateTime) and :toDate >= ba.assignmentDateTime")
     List<BedAssignmentHistory> findByLivingUnitIdAndDateTimeRange(@Param("livingUnitId") long livingUnitId, @Param("fromDate") LocalDateTime from, @Param("toDate") LocalDateTime to);
 
-    List<BedAssignmentHistory> findBedAssignmentHistoriesByAssignmentDate(LocalDate assignmentDate);
+    List<BedAssignmentHistory> findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(LocalDate assignmentDate, Set<Long> livingUnitIds);
 }

@@ -49,9 +49,12 @@ public class CellResource {
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @GetMapping("/history/{assignmentDate}")
-    public List<BedAssignment> getBedAssignmentsHistoryByDate(@DateTimeFormat(iso = ISO.DATE) @PathVariable("assignmentDate") @ApiParam(value = "Assignment date (2020-03-24)", example = "2020-03-24", required = true) final LocalDate assignmentDate) {
-        return bedAssignmentHistoryService.getBedAssignmentsHistoryByDate(assignmentDate);
+    @GetMapping("/{agencyId}/history/{assignmentDate}")
+    public List<BedAssignment> getBedAssignmentsHistoryByDateForAgency(
+        @ApiParam(value = "Agency Id", example = "MDI", required = true) @PathVariable("agencyId") final String agencyId,
+        @DateTimeFormat(iso = ISO.DATE) @PathVariable("assignmentDate")
+        @ApiParam(value = "Assignment date (2020-03-24)", example = "2020-03-24", required = true) final LocalDate assignmentDate) {
+        return bedAssignmentHistoryService.getBedAssignmentsHistoryByDateForAgency(agencyId, assignmentDate);
     }
 
     @ApiResponses({

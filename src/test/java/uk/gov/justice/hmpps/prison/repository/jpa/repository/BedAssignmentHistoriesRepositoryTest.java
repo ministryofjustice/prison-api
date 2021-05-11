@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,7 +86,7 @@ public class BedAssignmentHistoriesRepositoryTest {
     @Test
     public void findBedAssignmentHistory_byDate() {
         final var cellHistory =
-            repository.findBedAssignmentHistoriesByAssignmentDate(LocalDate.of(2040, 10, 17));
+            repository.findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(LocalDate.of(2040, 10, 17), Set.of(-16L, -17L, -18L));
 
         assertThat(cellHistory).containsAnyOf(
             BedAssignmentHistory.builder()
