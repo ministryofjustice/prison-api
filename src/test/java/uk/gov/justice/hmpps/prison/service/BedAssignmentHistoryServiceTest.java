@@ -138,21 +138,35 @@ class BedAssignmentHistoryServiceTest {
     }
 
     @Test
-    void getBedAssignmentHistory_byDate() {
-        final var livingUnitId = 1L;
+    void getBedAssignmentHistory_byDate_filteredByAgencyId() {
+        final var livingUnitIdInMoorland = 1L;
+        final var livingUnitIdInLeeds = 2L;
         final var bookingId = 1L;
         final var assignmentDate = LocalDate.now();
+        final var moorland = "MDI";
+        final var leeds = "LEI";
 
-        when(locationRepository.findOneByLocationId(livingUnitId))
+        when(locationRepository.findOneByLocationId(livingUnitIdInMoorland))
             .thenReturn(Optional.of(AgencyInternalLocation.builder()
+                .locationId(livingUnitIdInMoorland)
                 .description("MDI-1-2")
-                .agencyId("MDI")
+                .agencyId(moorland)
+                .build()));
+
+        when(locationRepository.findOneByLocationId(livingUnitIdInLeeds))
+            .thenReturn(Optional.of(AgencyInternalLocation.builder()
+                .locationId(livingUnitIdInLeeds)
+                .description("LEI-1-2")
+                .agencyId(leeds)
                 .build()));
 
         when(repository.findBedAssignmentHistoriesByAssignmentDate(any()))
-            .thenReturn(List.of(aBedAssignment(bookingId, livingUnitId)));
+            .thenReturn(List.of(
+                aBedAssignment(bookingId, livingUnitIdInMoorland),
+                aBedAssignment(bookingId, livingUnitIdInMoorland)
+            ));
 
-        final var cellHistory = service.getBedAssignmentsHistoryByDate(assignmentDate);
+        final var cellHistory = service.getBedAssignmentsHistoryByDateForAgency(moorland, assignmentDate);
 
         verify(repository).findBedAssignmentHistoriesByAssignmentDate(assignmentDate);
 
@@ -160,7 +174,7 @@ class BedAssignmentHistoryServiceTest {
             BedAssignment.builder()
                 .bookingId(bookingId)
                 .offenderNo("A12345")
-                .livingUnitId(livingUnitId)
+                .livingUnitId(livingUnitIdInMoorland)
                 .assignmentDate(LocalDate.of(2015, 5, 1))
                 .assignmentDateTime(LocalDateTime.of(2015, 5, 1, 10, 10, 10))
                 .assignmentEndDate(LocalDate.of(2016, 5, 1))

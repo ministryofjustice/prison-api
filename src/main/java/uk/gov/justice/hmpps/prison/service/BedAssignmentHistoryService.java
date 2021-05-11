@@ -14,10 +14,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.Bed
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
+import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,10 +80,24 @@ public class BedAssignmentHistoryService {
             .collect(Collectors.toList());
     }
 
-    public List<BedAssignment> getBedAssignmentsHistoryByDate(final LocalDate assignmentDate) {
-        return repository
-            .findBedAssignmentHistoriesByAssignmentDate(assignmentDate)
+    @VerifyAgencyAccess
+    public List<BedAssignment> getBedAssignmentsHistoryByDateForAgency(final String agencyId, final LocalDate assignmentDate) {
+        final var assignments = new ArrayList<>(repository.findBedAssignmentHistoriesByAssignmentDate(assignmentDate));
+
+        final var livingUnitIds = assignments.stream()
+            .map(BedAssignmentHistory::getLivingUnitId)
+            .collect(Collectors.toSet());
+
+        final var agencyLivingUnitIds = livingUnitIds
             .stream()
+            .map(locationRepository::findOneByLocationId)
+            .filter(agencyInternalLocation -> agencyInternalLocation.map(loc -> loc.getAgencyId().equals(agencyId)).orElse(false))
+            .map(agencyInternalLocation -> agencyInternalLocation.get().getLocationId())
+            .collect(Collectors.toSet());
+
+        return assignments
+            .stream()
+            .filter(assignment -> agencyLivingUnitIds.contains(assignment.getLivingUnitId()))
             .map(this::transform)
             .collect(Collectors.toList());
     }
