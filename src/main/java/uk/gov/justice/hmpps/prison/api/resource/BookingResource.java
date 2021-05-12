@@ -1018,6 +1018,7 @@ public class BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Gets cell history for an offender booking", notes = "Default sort order is by assignment date descending", nickname = "getBedAssignmentsHistory")
     @GetMapping("/{bookingId}/cell-history")
     public Page<BedAssignment> getBedAssignmentsHistory(@PathVariable("bookingId") @ApiParam(value = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
                                                         @RequestParam(value = "page", required = false) @ApiParam(value = "The page number to return. Index starts at 0", defaultValue = "0") final Integer page,
