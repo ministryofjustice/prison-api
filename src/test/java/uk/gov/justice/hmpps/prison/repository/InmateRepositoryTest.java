@@ -1261,15 +1261,15 @@ public class InmateRepositoryTest {
     public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"), false, Set.of("LEI"), true);
         assertThat(offenders).hasSize(1);
-        assertThat(offenders).extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName", "dateOfBirth", "assignedLivingUnitId").contains(
-                Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", parse("1970-03-01"), -7L)
+        assertThat(offenders).extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName", "dateOfBirth", "assignedLivingUnitId", "assignedLivingUnitDesc").contains(
+                Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", parse("1970-03-01"), -7L, "LEI-A-1-5")
         );
     }
 
     @Test
     public void testAccessToAllData_whenTrue() {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), true, Collections.emptySet(), false);
-        assertThat(offenders).containsExactly(new InmateBasicDetails(-9L, "A00119", "A1234AI", "CHESTER", "JAMES", "THOMPSON", "LEI", -7L, parse("1970-03-01")));
+        assertThat(offenders).containsExactly(new InmateBasicDetails(-9L, "A00119", "A1234AI", "CHESTER", "JAMES", "THOMPSON", "LEI", -7L, "LEI-A-1-5", parse("1970-03-01")));
     }
 
     @Test
@@ -1295,8 +1295,8 @@ public class InmateRepositoryTest {
     @Test
     public void testGetBasicInmateDetailsByBookingIds() {
         final var offenders = repository.getBasicInmateDetailsByBookingIds("LEI", List.of(-3L, -4L, -35L));  //-35L ignored as it is MDI agency
-        assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, parse("1999-10-27"))
-                , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, parse("1970-01-01")));
+        assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, "LEI-A-1-1", parse("1999-10-27"))
+                , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, "LEI-A-1", parse("1970-01-01")));
     }
 
 
