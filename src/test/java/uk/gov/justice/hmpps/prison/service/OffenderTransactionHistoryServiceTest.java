@@ -296,7 +296,6 @@ public class OffenderTransactionHistoryServiceTest {
             assertThat(transaction.getRelatedOffenderTransactions()).isEmpty();
         }
 
-        // TODO: Add more related transaction tests
         @Test
         public void testMapsRelatedTransactionsForPaidActivityWork() {
             final var courseActivity = CourseActivity.builder().description("Wing cleaner").build();
