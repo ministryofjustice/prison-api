@@ -66,6 +66,7 @@ public class OffenderTransactionHistoryService {
             .filter(byAccountCode(accountCode))
             .filter(transaction -> transactionType == null || transaction.getTransactionType().equals(transactionType))
             .sorted(SORT_BY_RECENT_DATE)
+            .map(this::enrichRelatedTransactionsWithCurrentBalance)
             .map(this::transform)
             .collect(Collectors.toList());
     }
@@ -105,18 +106,9 @@ public class OffenderTransactionHistoryService {
 
                 transaction.setCurrentBalance(runningBalance.get());
 
-                enrichRelatedTransactionWithCurrentBalance(transaction.getRelatedTransactionDetails(), runningBalance.get());
-
                 return Stream.of(transaction);
             });
         }).collect(Collectors.toList());
-    }
-
-    private void enrichRelatedTransactionWithCurrentBalance(final List<OffenderTransactionDetails> relatedTransactionDetails, final BigDecimal endBalance) {
-        var balanceAfterTransaction = new AtomicReference<>(endBalance);
-        relatedTransactionDetails.forEach(t ->
-            t.setCurrentBalance(balanceAfterTransaction.getAndUpdate(b -> b.subtract(t.getPayAmount())))
-        );
     }
 
     private Predicate<OffenderTransactionHistory> byDateRange(final LocalDate fromDate, final LocalDate toDate) {
@@ -138,6 +130,14 @@ public class OffenderTransactionHistoryService {
                 .orElse(null);
 
         return entry -> (accountCode == null || entry.getAccountType().equals(accountCodeValue));
+    }
+
+    private OffenderTransactionHistory enrichRelatedTransactionsWithCurrentBalance(final OffenderTransactionHistory offenderTransactionHistory) {
+        var balanceAfterTransaction = new AtomicReference<>(offenderTransactionHistory.getCurrentBalance());
+        offenderTransactionHistory.getRelatedTransactionDetails().forEach(t ->
+            t.setCurrentBalance(balanceAfterTransaction.getAndUpdate(b -> b.subtract(t.getPayAmount())))
+        );
+        return offenderTransactionHistory;
     }
 
     private OffenderTransactionHistoryDto transform(final OffenderTransactionHistory offenderTransactionHistory) {
