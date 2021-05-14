@@ -37,10 +37,10 @@ import static uk.gov.justice.hmpps.prison.util.MoneySupport.poundsToPence;
 @Validated
 @Slf4j
 public class OffenderTransactionHistoryService {
-    public static final Comparator<OffenderTransactionHistory> SORT_BY_RECENT_DATE = Comparator
+    private static final Comparator<OffenderTransactionHistory> SORT_BY_RECENT_DATE = Comparator
         .comparing(OffenderTransactionHistory::getCreateDatetime).reversed();
 
-    public static final Comparator<OffenderTransactionHistory> SORT_BY_OLDEST_DATE = Comparator
+    private static final Comparator<OffenderTransactionHistory> SORT_BY_OLDEST_DATE = Comparator
         .comparing(OffenderTransactionHistory::getCreateDatetime);
 
     private final String apiCurrency;
@@ -105,9 +105,18 @@ public class OffenderTransactionHistoryService {
 
                 transaction.setCurrentBalance(runningBalance.get());
 
+                enrichRelatedTransactionWithCurrentBalance(transaction.getRelatedTransactionDetails(), runningBalance.get());
+
                 return Stream.of(transaction);
             });
         }).collect(Collectors.toList());
+    }
+
+    private void enrichRelatedTransactionWithCurrentBalance(final List<OffenderTransactionDetails> relatedTransactionDetails, final BigDecimal endBalance) {
+        var balanceAfterTransaction = new AtomicReference<>(endBalance);
+        relatedTransactionDetails.forEach(t ->
+            t.setCurrentBalance(balanceAfterTransaction.getAndUpdate(b -> b.subtract(t.getPayAmount())))
+        );
     }
 
     private Predicate<OffenderTransactionHistory> byDateRange(final LocalDate fromDate, final LocalDate toDate) {
@@ -131,7 +140,7 @@ public class OffenderTransactionHistoryService {
         return entry -> (accountCode == null || entry.getAccountType().equals(accountCodeValue));
     }
 
-    public OffenderTransactionHistoryDto transform(final OffenderTransactionHistory offenderTransactionHistory) {
+    private OffenderTransactionHistoryDto transform(final OffenderTransactionHistory offenderTransactionHistory) {
 
         final var relatedTransactionDetails = offenderTransactionHistory
             .getRelatedTransactionDetails()
@@ -161,7 +170,7 @@ public class OffenderTransactionHistoryService {
             .build();
     }
 
-    public RelatedTransactionDetails transform(final OffenderTransactionDetails offenderTransactionDetails) {
+    private RelatedTransactionDetails transform(final OffenderTransactionDetails offenderTransactionDetails) {
         final var eventId =
             Optional.ofNullable(offenderTransactionDetails.getEvent())
                 .map(OffenderCourseAttendance::getEventId)
@@ -193,6 +202,7 @@ public class OffenderTransactionHistoryService {
             .bonusPay(poundsToPence(offenderTransactionDetails.getBonusPay()))
             .payAmount(poundsToPence(offenderTransactionDetails.getPayAmount()))
             .pieceWork(poundsToPence(offenderTransactionDetails.getPieceWork()))
+            .currentBalance(poundsToPence(offenderTransactionDetails.getCurrentBalance()))
             .calendarDate(offenderTransactionDetails.getCalendarDate())
             .payTypeCode(paymentTypeCode)
             .transactionEntrySequence(offenderTransactionDetails.getTransactionEntrySequence())

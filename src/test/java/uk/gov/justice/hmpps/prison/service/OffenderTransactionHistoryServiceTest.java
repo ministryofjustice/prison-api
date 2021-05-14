@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -295,6 +296,7 @@ public class OffenderTransactionHistoryServiceTest {
             assertThat(transaction.getRelatedOffenderTransactions()).isEmpty();
         }
 
+        // TODO: Add more related transaction tests
         @Test
         public void testMapsRelatedTransactionsForPaidActivityWork() {
             final var courseActivity = CourseActivity.builder().description("Wing cleaner").build();
@@ -626,6 +628,114 @@ public class OffenderTransactionHistoryServiceTest {
             assertThat(transactions.get(4))
                 .extracting("currentBalance", "agencyId", "accountType")
                 .containsExactlyInAnyOrder(200L, "LEI", "SPND");
+        }
+    }
+
+    @Nested
+    public class RelatedTransactionRunningBalance {
+        @Test
+        public void testCalculateRunningBalanceOverMultipleDays() {
+            final var yesterdaysDate = LocalDateTime.now().minusDays(1);
+            final var todaysDate = LocalDateTime.now();
+
+            final var yesterdaysRelatedTransactionAmount = 5;
+            final var yesterdaysOutAmount = 10;
+            final var todaysRelatedTransactionAmount = 20;
+            final var todaysOutAmount = 30;
+
+            final var currentBalanceAfterYesterdaysIn = yesterdaysRelatedTransactionAmount;
+            final var currentBalanceAfterYesterday = currentBalanceAfterYesterdaysIn - yesterdaysOutAmount;
+            final var currentBalanceAfterTodaysIn = currentBalanceAfterYesterday + todaysRelatedTransactionAmount;
+
+            final var yesterdaysRelatedTransaction = makeRelatedTransaction(yesterdaysRelatedTransactionAmount, yesterdaysDate.toLocalDate(), 1, 1, 1);
+            final var todaysRelatedTransaction = makeRelatedTransaction(todaysRelatedTransactionAmount, todaysDate.toLocalDate(), 2, 2, 1);
+
+            final var batchTransactionYesterdayIn = makeBatchTransactionIn(yesterdaysDate.minusHours(1), yesterdaysRelatedTransactionAmount, List.of(yesterdaysRelatedTransaction));
+            final var batchTransactionYesterdayOut = makeBatchTransactionOut(yesterdaysDate, yesterdaysOutAmount);
+            final var batchTransactionTodayIn = makeBatchTransactionIn(todaysDate.minusHours(1), todaysRelatedTransactionAmount, List.of(todaysRelatedTransaction));
+            final var batchTransactionTodayOut = makeBatchTransactionOut(todaysDate, todaysOutAmount);
+
+            when(repository.findByOffender_NomsId(anyString()))
+                .thenReturn(List.of(
+                    batchTransactionTodayIn, batchTransactionTodayOut,
+                    batchTransactionYesterdayIn, batchTransactionYesterdayOut
+                ));
+
+            final var relatedTransactionDetails = service.getTransactionHistory(OFFENDER_NO, null, yesterdaysDate.toLocalDate(), todaysDate.toLocalDate(), null)
+                .stream()
+                .flatMap(transaction -> transaction.getRelatedOffenderTransactions().stream()).collect(toList());
+
+            assertThat(relatedTransactionDetails.size()).isEqualTo(2L);
+            assertThat(relatedTransactionDetails.get(0).getId()).isEqualTo(2L);
+            assertThat(relatedTransactionDetails.get(0).getCurrentBalance()).isEqualTo(currentBalanceAfterTodaysIn * 100);
+            assertThat(relatedTransactionDetails.get(1).getId()).isEqualTo(1L);
+            assertThat(relatedTransactionDetails.get(1).getCurrentBalance()).isEqualTo(currentBalanceAfterYesterdaysIn * 100);
+        }
+
+        @Test
+        public void testCalculateRunningBalanceWithMultipleRelatedTransactions() {
+            final var todaysDate = LocalDateTime.now();
+
+            final var firstRelatedTransactionAmount = 5;
+            final var secondRelatedTransactionAmount = 10;
+            final var finalBalance = firstRelatedTransactionAmount + secondRelatedTransactionAmount;
+
+            final var firstRelatedTransaction = makeRelatedTransaction(firstRelatedTransactionAmount, todaysDate.toLocalDate(), 1, 1, 1);
+            final var secondRelatedTransaction = makeRelatedTransaction(secondRelatedTransactionAmount, todaysDate.toLocalDate(), 2, 2, 2);
+
+            final var batchTransactionToday = makeBatchTransactionIn(todaysDate, finalBalance,
+                List.of(secondRelatedTransaction, firstRelatedTransaction));
+
+            when(repository.findByOffender_NomsId(anyString()))
+                .thenReturn(List.of(batchTransactionToday));
+
+            final var relatedTransactionDetails = service.getTransactionHistory(OFFENDER_NO, null, todaysDate.minusDays(1).toLocalDate(), todaysDate.toLocalDate(), null)
+                .stream()
+                .flatMap(transaction -> transaction.getRelatedOffenderTransactions().stream()).collect(toList());
+
+            assertThat(relatedTransactionDetails.size()).isEqualTo(2L);
+            assertThat(relatedTransactionDetails.get(0).getId()).isEqualTo(2L);
+            assertThat(relatedTransactionDetails.get(0).getCurrentBalance()).isEqualTo(finalBalance * 100);
+            assertThat(relatedTransactionDetails.get(1).getId()).isEqualTo(1L);
+            assertThat(relatedTransactionDetails.get(1).getCurrentBalance()).isEqualTo(firstRelatedTransactionAmount * 100);
+        }
+
+        private OffenderTransactionHistory makeBatchTransactionIn(final LocalDateTime batchTransactionTime, final int entryAmount, final List<OffenderTransactionDetails> relatedTransactions) {
+            return OFFENDER_TRANSACTION.toBuilder()
+                .postingType("CR")
+                .accountType("SPND")
+                .transactionType("IN")
+                .entryDate(LocalDate.now())
+                .entryAmount(BigDecimal.valueOf(entryAmount))
+                .createDatetime(batchTransactionTime)
+                .relatedTransactionDetails(relatedTransactions)
+                .build();
+        }
+
+        private OffenderTransactionHistory makeBatchTransactionOut(final LocalDateTime batchTransactionTime, final int entryAmount) {
+            return OFFENDER_TRANSACTION.toBuilder()
+                .postingType("DR")
+                .accountType("SPND")
+                .transactionType("OUT")
+                .entryDate(LocalDate.now())
+                .entryAmount(BigDecimal.valueOf(entryAmount))
+                .createDatetime(batchTransactionTime)
+                .build();
+        }
+
+        private OffenderTransactionDetails makeRelatedTransaction(final int payAmount, final LocalDate transactionTime, final long transactionId, final long eventId, final long entrySequence) {
+            final var courseActivity = CourseActivity.builder().description("Wing cleaner").build();
+            final var courseAttendance = OffenderCourseAttendance.builder().eventId(eventId).courseActivity(courseActivity).build();
+            return OffenderTransactionDetails.builder()
+                .id(transactionId)
+                .payAmount(BigDecimal.valueOf(payAmount))
+                .bonusPay(BigDecimal.valueOf(0.0))
+                .pieceWork(BigDecimal.valueOf(0.0))
+                .calendarDate(transactionTime)
+                .transactionId(transactionId)
+                .event(courseAttendance)
+                .transactionEntrySequence(entrySequence)
+                .build();
         }
     }
 }

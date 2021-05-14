@@ -53,7 +53,10 @@ public class RelatedTransactionDetails {
     @JsonDeserialize(using = MoneyDeserializer.class)
     private Long bonusPay;
 
-    @ApiModelProperty(value = "Reason for payment",example = "Cleaner HB1 PM", position = 10)
+    @ApiModelProperty(value = "Balance at a point in time", position = 10)
+    private Long currentBalance;
+
+    @ApiModelProperty(value = "Reason for payment",example = "Cleaner HB1 PM", position = 11)
     private String paymentDescription;
 
 }
