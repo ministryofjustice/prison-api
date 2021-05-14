@@ -156,7 +156,7 @@ public class AgencyResourceTest extends ResourceTest {
         assertThatJsonFileAndStatus(response2, 200, "single_agency_updated.json");
 
         final var getResponse = testRestTemplate.exchange(
-            "/api/agencies/LEI",
+            "/api/agencies/LEI?skipFormatLocation=true",
             HttpMethod.GET,
             createHttpEntity(token, null),
             new ParameterizedTypeReference<String>() {
