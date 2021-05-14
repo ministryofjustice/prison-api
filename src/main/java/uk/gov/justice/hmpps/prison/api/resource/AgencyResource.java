@@ -104,9 +104,12 @@ public class AgencyResource {
             List<String> courtTypes,
 
         @RequestParam(value = "withAddresses", defaultValue = "false", required = false)
-        @ApiParam(value = "Returns Address Information", defaultValue = "false") final boolean withAddresses
+        @ApiParam(value = "Returns Address Information", defaultValue = "false") final boolean withAddresses,
+
+        @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false)
+        @ApiParam(value = "Don't format the location", defaultValue = "false") final boolean skipFormatLocation
     ) {
-        return agencyService.getAgenciesByType(agencyType, activeOnly, courtTypes != null ? courtTypes : jurisdictionCodes, withAddresses);
+        return agencyService.getAgenciesByType(agencyType, activeOnly, courtTypes != null ? courtTypes : jurisdictionCodes, withAddresses, skipFormatLocation);
     }
 
     @ApiResponses({
@@ -118,8 +121,9 @@ public class AgencyResource {
     public Agency getAgency(@PathVariable("agencyId") @ApiParam(value = "The ID of the agency", required = true) final String agencyId,
                             @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @ApiParam(value = "Only return active agencies", defaultValue = "true") final boolean activeOnly,
                             @RequestParam(value = "agencyType", required = false) @ApiParam("Agency Type") final String agencyType,
-                            @RequestParam(value = "withAddresses", defaultValue = "false", required = false) @ApiParam(value = "Returns Address Information", defaultValue = "false") final boolean withAddresses) {
-        return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType, withAddresses);
+                            @RequestParam(value = "withAddresses", defaultValue = "false", required = false) @ApiParam(value = "Returns Address Information", defaultValue = "false") final boolean withAddresses,
+                            @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false) @ApiParam(value = "Don't format the location", defaultValue = "false") final boolean skipFormatLocation) {
+        return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType, withAddresses, skipFormatLocation);
     }
 
     @ApiResponses({

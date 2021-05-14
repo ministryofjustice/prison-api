@@ -19,7 +19,7 @@ import javax.persistence.ManyToOne;
 @AllArgsConstructor
 @SuperBuilder
 @Data
-@EqualsAndHashCode(exclude = "address", callSuper = true)
+@EqualsAndHashCode(exclude = "agency", callSuper = true)
 @ToString(callSuper = true)
 public class AgencyPhone extends Phone {
 

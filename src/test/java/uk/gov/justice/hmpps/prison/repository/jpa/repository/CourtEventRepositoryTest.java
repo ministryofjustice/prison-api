@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
-import org.assertj.core.data.Index;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -241,8 +240,8 @@ public class CourtEventRepositoryTest {
         final var events = courtEventRepository.getCourtEventsUpcoming(LocalDateTime.of(2016, 1, 1, 0, 0));
 
         assertThat(events).asList().extracting("offenderNo", "startTime", "court", "courtDescription", "eventSubType", "eventDescription", "holdFlag")
-                .contains(Tuple.tuple("A1234AB", LocalDateTime.of(2017, 2, 20, 10, 11), "ABDRCT", "Court 2", "CA", "Court Appearance", "N"),
-                        Tuple.tuple("A1234AH", LocalDateTime.of(2050, 1, 1, 11, 0), "ABDRCT", "Court 2", "DC", "Discharged to Court", "Y"));
+                .contains(Tuple.tuple("A1234AB", LocalDateTime.of(2017, 2, 20, 10, 11), "ABDRCT", "court 2", "CA", "Court Appearance", "N"),
+                        Tuple.tuple("A1234AH", LocalDateTime.of(2050, 1, 1, 11, 0), "ABDRCT", "court 2", "DC", "Discharged to Court", "Y"));
 
     }
 }

@@ -18,12 +18,12 @@ import static java.util.stream.Collectors.toList;
 
 public class AgencyTransformer {
 
-    public static Agency transform(final AgencyLocation agency) {
-        return transformToBuilder(agency).build();
+    public static Agency transform(final AgencyLocation agency, final boolean skipFormatLocation) {
+        return transformToBuilder(agency, skipFormatLocation).build();
     }
 
-    public static Agency transformWithAddresses(final AgencyLocation agency) {
-        return transformToBuilder(agency)
+    public static Agency transformWithAddresses(final AgencyLocation agency, final boolean skipFormatLocation) {
+        return transformToBuilder(agency, skipFormatLocation)
             .addresses(AddressTransformer.translate(agency.getAddresses()))
             .phones(AddressTransformer.translatePhones(agency.getPhones()))
             .emails(agency.getInternetAddresses().stream().map(e -> Email.builder()
@@ -32,12 +32,12 @@ public class AgencyTransformer {
             .build();
     }
 
-    private static AgencyBuilder transformToBuilder(final AgencyLocation agency) {
+    private static AgencyBuilder transformToBuilder(final AgencyLocation agency, final boolean skipFormatLocation) {
         return Agency.builder()
             .agencyId(agency.getId())
             .agencyType(agency.getType() != null ? agency.getType().getCode() : null)
             .active(agency.getActiveFlag() != null && agency.getActiveFlag().isActive())
-            .description(LocationProcessor.formatLocation(agency.getDescription()))
+            .description(skipFormatLocation ? agency.getDescription() : LocationProcessor.formatLocation(agency.getDescription()))
             .courtType(agency.getCourtType() != null ? agency.getCourtType().getCode() : null)
             .longDescription(agency.getLongDescription())
             .deactivationDate(agency.getDeactivationDate());
