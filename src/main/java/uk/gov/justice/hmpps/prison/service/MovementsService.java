@@ -265,7 +265,7 @@ public class MovementsService {
                         .offenderNo((String) e.get("offenderNo"))
                         .startTime((LocalDateTime) e.get("startTime"))
                         .court((String) e.get("court"))
-                        .courtDescription((String) e.get("courtDescription"))
+                        .courtDescription(LocationProcessor.formatLocation((String) e.get("courtDescription")))
                         .eventSubType((String) e.get("eventSubType"))
                         .eventDescription((String) e.get("eventDescription"))
                         .hold("Y".equals(e.get("holdFlag")))
