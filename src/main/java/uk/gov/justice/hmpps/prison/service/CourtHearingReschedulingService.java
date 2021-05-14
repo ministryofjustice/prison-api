@@ -87,7 +87,7 @@ public class CourtHearingReschedulingService {
     private CourtHearing transformToCourtHearing(final CourtEvent event) {
         return CourtHearing.builder()
                 .id(event.getId())
-                .location(AgencyTransformer.transform(event.getCourtLocation()))
+                .location(AgencyTransformer.transform(event.getCourtLocation(), false))
                 .dateTime(event.getEventDateTime())
                 .build();
     }

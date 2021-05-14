@@ -175,8 +175,8 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
         assertThat(service.schedule(OFFENDER_BOOKING_ID, move)).isEqualTo(ScheduledPrisonToPrisonMove.builder()
                 .id(1L)
                 .scheduledMoveDateTime(move.getScheduledMoveDateTime())
-                .fromPrisonLocation(AgencyTransformer.transform(FROM_PRISON_AGENCY))
-                .toPrisonLocation(AgencyTransformer.transform(TO_PRISON_AGENCY))
+                .fromPrisonLocation(AgencyTransformer.transform(FROM_PRISON_AGENCY, false))
+                .toPrisonLocation(AgencyTransformer.transform(TO_PRISON_AGENCY, false))
                 .build());
 
         verify(scheduleRepository).save(OffenderIndividualSchedule.builder()

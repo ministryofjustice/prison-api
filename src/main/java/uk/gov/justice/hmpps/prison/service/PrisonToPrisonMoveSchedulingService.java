@@ -91,8 +91,8 @@ public class PrisonToPrisonMoveSchedulingService {
         return ScheduledPrisonToPrisonMove.builder()
                 .id(scheduledMove.getId())
                 .scheduledMoveDateTime(scheduledMove.getEventDateTime())
-                .fromPrisonLocation(AgencyTransformer.transform(scheduledMove.getFromLocation()))
-                .toPrisonLocation(AgencyTransformer.transform(scheduledMove.getToLocation()))
+                .fromPrisonLocation(AgencyTransformer.transform(scheduledMove.getFromLocation(), false))
+                .toPrisonLocation(AgencyTransformer.transform(scheduledMove.getToLocation(), false))
                 .build();
     }
 

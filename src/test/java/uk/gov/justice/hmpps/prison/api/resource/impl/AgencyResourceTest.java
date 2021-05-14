@@ -45,6 +45,19 @@ public class AgencyResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCanFindAgenciesByTypeAndSuppressFormatOfDescription() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/type/CRT?courtType=YC&skipFormatLocation=true",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+        assertThatJsonFileAndStatus(response, 200, "agencies_by_type_CRT_suppress_format.json");
+    }
+
+    @Test
     public void testCanFindAgenciesByTypeAndDeprecatedJuridictionCode() {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
         final var httpEntity = createHttpEntity(token, null);
