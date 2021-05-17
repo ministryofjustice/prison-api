@@ -699,6 +699,38 @@ public class OffenderTransactionHistoryServiceTest {
             assertThat(relatedTransactionDetails.get(1).getCurrentBalance()).isEqualTo(firstRelatedTransactionAmount * 100);
         }
 
+        @Test
+        public void testRelatedTransactionsOrderedByLatestFirstThenTxnIdDesc() {
+            final var todaysDate = LocalDateTime.now();
+
+            final var todaysLastRelatedTransactionAmount = 5;
+            final var todaysFirstRelatedTransactionAmount = 10;
+            final var yesterdaysRelatedTransactionAmount = 20;
+            final var finalBalance = todaysLastRelatedTransactionAmount + todaysFirstRelatedTransactionAmount + yesterdaysRelatedTransactionAmount;
+
+            final var todaysLastRelatedTransaction = makeRelatedTransaction(todaysLastRelatedTransactionAmount, todaysDate.toLocalDate(), 33, 1, 1);
+            final var todaysFirstRelatedTransaction = makeRelatedTransaction(todaysFirstRelatedTransactionAmount, todaysDate.toLocalDate(), 22, 1, 1);
+            final var yesterdaysRelatedTransaction = makeRelatedTransaction(yesterdaysRelatedTransactionAmount, todaysDate.minusDays(1).toLocalDate(), 44, 1, 1);
+
+            final var batchTransactionToday = makeBatchTransactionIn(todaysDate, finalBalance,
+                List.of(todaysFirstRelatedTransaction, yesterdaysRelatedTransaction, todaysLastRelatedTransaction));
+
+            when(repository.findByOffender_NomsId(anyString()))
+                .thenReturn(List.of(batchTransactionToday));
+
+            final var relatedTransactionDetails = service.getTransactionHistory(OFFENDER_NO, null, todaysDate.minusDays(1).toLocalDate(), todaysDate.toLocalDate(), null)
+                .stream()
+                .flatMap(transaction -> transaction.getRelatedOffenderTransactions().stream()).collect(toList());
+
+            assertThat(relatedTransactionDetails.size()).isEqualTo(3L);
+            assertThat(relatedTransactionDetails.get(0).getId()).isEqualTo(33L);
+            assertThat(relatedTransactionDetails.get(0).getCurrentBalance()).isEqualTo(finalBalance * 100);
+            assertThat(relatedTransactionDetails.get(1).getId()).isEqualTo(22L);
+            assertThat(relatedTransactionDetails.get(1).getCurrentBalance()).isEqualTo((finalBalance - todaysLastRelatedTransactionAmount) * 100);
+            assertThat(relatedTransactionDetails.get(2).getId()).isEqualTo(44L);
+            assertThat(relatedTransactionDetails.get(2).getCurrentBalance()).isEqualTo(yesterdaysRelatedTransactionAmount * 100);
+        }
+
         private OffenderTransactionHistory makeBatchTransactionIn(final LocalDateTime batchTransactionTime, final int entryAmount, final List<OffenderTransactionDetails> relatedTransactions) {
             return OFFENDER_TRANSACTION.toBuilder()
                 .postingType("CR")
