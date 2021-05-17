@@ -50,9 +50,9 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.text.WordUtils.capitalizeFully;
-import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.apache.commons.lang3.StringUtils.stripToNull;
+import static org.apache.commons.lang3.StringUtils.upperCase;
+import static org.apache.commons.text.WordUtils.capitalizeFully;
 
 @Slf4j
 @Service
@@ -265,7 +265,7 @@ public class MovementsService {
                         .offenderNo((String) e.get("offenderNo"))
                         .startTime((LocalDateTime) e.get("startTime"))
                         .court((String) e.get("court"))
-                        .courtDescription((String) e.get("courtDescription"))
+                        .courtDescription(LocationProcessor.formatLocation((String) e.get("courtDescription")))
                         .eventSubType((String) e.get("eventSubType"))
                         .eventDescription((String) e.get("eventDescription"))
                         .hold("Y".equals(e.get("holdFlag")))
