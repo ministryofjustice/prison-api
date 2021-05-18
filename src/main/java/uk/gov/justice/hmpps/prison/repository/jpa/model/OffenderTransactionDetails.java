@@ -18,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -67,6 +68,10 @@ public class OffenderTransactionDetails extends AuditableEntity {
 
     @Column(name = "BONUS_PAY")
     private BigDecimal bonusPay;
+
+    @Builder.Default
+    @Transient
+    private BigDecimal currentBalance = BigDecimal.ZERO;
 
     public Boolean isAttachedToPaidActivity() {
         return paymentTypeCode != null && paymentTypeCode.equals(ACTIVITY_PAY_TYPE_CODE);
