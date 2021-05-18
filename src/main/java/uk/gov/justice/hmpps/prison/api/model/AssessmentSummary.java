@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 @Builder
+@EqualsAndHashCode
 public class AssessmentSummary {
 
     @NotNull

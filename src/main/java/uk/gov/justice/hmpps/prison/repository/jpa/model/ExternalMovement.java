@@ -65,11 +65,15 @@ public class ExternalMovement extends AuditableEntity {
     private LocalDateTime movementTime;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "FROM_AGY_LOC_ID", nullable = true)
+    @JoinColumn(name = "ARREST_AGENCY_LOC_ID")
+    private AgencyLocation arrestAgencyLocation;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "FROM_AGY_LOC_ID")
     private AgencyLocation fromAgency;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "TO_AGY_LOC_ID", nullable = true)
+    @JoinColumn(name = "TO_AGY_LOC_ID")
     private AgencyLocation toAgency;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

@@ -36,6 +36,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate;
+import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
@@ -133,8 +134,25 @@ public class OffenderResource {
     public InmateDetail releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
-        return prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner);
+        return prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner, null);
     }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to release a prisoner.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation("*** BETA *** Discharges a prisoner fto hospital, requires the RELEASE_PRISONER role")
+    @PutMapping("/{offenderNo}/discharge-to-hospital")
+    @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
+    @ProxyUser
+    @VerifyOffenderAccess
+    public InmateDetail dischargePrisonerToHospital(
+        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @RequestBody @NotNull @Valid final RequestToDischargePrisoner requestToDischargePrisoner) {
+        return prisonerReleaseAndTransferService.dischargeToHospital(offenderNo, requestToDischargePrisoner);
+    }
+
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),

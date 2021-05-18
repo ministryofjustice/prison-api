@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.AssignedLivingUnit;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
 import uk.gov.justice.hmpps.prison.api.model.ImprisonmentStatus;
@@ -29,15 +28,14 @@ import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
-import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.KeyWorkerAllocationRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -103,6 +101,9 @@ public class InmateServiceImplTest {
     @Mock
     private OffenderRepository offenderRepository;
 
+    @Mock
+    private ExternalMovementRepository externalMovementRepository;
+
     @Captor
     private ArgumentCaptor<List<Long>> bookingIdsArgument;
 
@@ -111,8 +112,8 @@ public class InmateServiceImplTest {
     @BeforeEach
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
-                referenceDomainService, bookingService, agencyService, userService, movementsService, authenticationFacade,
-                telemetryClient, "WING", 100, offenderAssessmentService, offenderLanguageRepository, offenderRepository);
+                referenceDomainService, bookingService, agencyService, userService, authenticationFacade,
+                telemetryClient, "WING", 100, offenderAssessmentService, offenderLanguageRepository, offenderRepository, externalMovementRepository);
     }
 
     @Test

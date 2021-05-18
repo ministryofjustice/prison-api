@@ -11,6 +11,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ExternalMovementRepository extends PagingAndSortingRepository<ExternalMovement, ExternalMovement.PK> {
 
@@ -47,4 +48,6 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
 
     @Query("select coalesce(max(m.movementSequence), 0) from ExternalMovement m where m.bookingId = :bookingId")
     Long getLatestMovementSequence(Long bookingId);
+
+    Optional<ExternalMovement> findFirstByBookingIdOrderByMovementSequenceDesc(Long bookingId);
 }
