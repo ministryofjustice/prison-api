@@ -58,7 +58,7 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok:1.18.20'
 
-    runtimeOnly 'org.hsqldb:hsqldb:2.6.0'
+    runtimeOnly 'org.hsqldb:hsqldb:2.5.1'
     runtimeOnly 'org.flywaydb:flyway-core:7.9.0'
 
     testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
