@@ -12,14 +12,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.env.Environment;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.AssignedLivingUnit;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
 import uk.gov.justice.hmpps.prison.api.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
@@ -31,9 +29,12 @@ import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
-import uk.gov.justice.hmpps.prison.repository.KeyWorkerAllocationRepository;
-import uk.gov.justice.hmpps.prison.repository.UserRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
@@ -79,19 +80,11 @@ public class InmateServiceImplTest {
     @Mock
     private AgencyService agencyService;
     @Mock
-    private UserRepository userRepository;
-    @Mock
     private UserService userService;
-    @Mock
-    private MovementsService movementsService;
     @Mock
     private ReferenceDomainService referenceDomainService;
     @Mock
     private AuthenticationFacade authenticationFacade;
-    @Mock
-    private KeyWorkerAllocationRepository keyWorkerAllocationRepository;
-    @Mock
-    private Environment env;
     @Mock
     private TelemetryClient telemetryClient;
     @Mock
@@ -504,11 +497,14 @@ public class InmateServiceImplTest {
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
-        when(movementsService.getMovementsByOffenders(anyList(), anyList(), anyBoolean(), anyBoolean())).thenReturn(List.of(buildMovementReleased("REL","")));
+        when(externalMovementRepository.findFirstByBookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("REL",""));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - released from Leeds");
+
+        assertThat(inmateDetail.getRestrictivePatient().getSupportingPrison().getDescription()).isEqualTo("Leeds");
+
     }
 
     @Test
@@ -523,7 +519,7 @@ public class InmateServiceImplTest {
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
-        when(movementsService.getMovementsByOffenders(anyList(), anyList(), anyBoolean(), anyBoolean())).thenReturn(List.of(buildMovementReleased("TAP","Temporary Absence")));
+        when(externalMovementRepository.findFirstByBookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("TAP","Temporary Absence"));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
@@ -604,6 +600,9 @@ public class InmateServiceImplTest {
                 .assignedLivingUnitId(-13L)
                 .birthCountryCode("UK")
                 .inOutStatus("OUT")
+                .status("REL-HP")
+                .lastMovementTypeCode("REL")
+                .lastMovementReasonCode("HP")
                 .build();
     }
 
@@ -624,17 +623,16 @@ public class InmateServiceImplTest {
                 .build();
     }
 
-    private Movement buildMovementReleased(String movementType,String movementTypeDescription) {
-        return Movement.builder()
-                .offenderNo("S1234AA")
-                .createDateTime(LocalDateTime.now())
-                .fromAgency("LEI")
-                .fromAgencyDescription("Leeds")
-                .toAgency("OUT")
-                .toAgencyDescription("Outside")
-                .directionCode("OUT")
-                .movementType(movementType)
-                .movementTypeDescription(movementTypeDescription)
-                .build();
+    private Optional<ExternalMovement> buildMovementReleased(String movementType, String movementTypeDescription) {
+        final var now = LocalDateTime.now();
+        return Optional.of(ExternalMovement.builder()
+                .movementDate(now.toLocalDate())
+                .movementTime(now)
+                .fromAgency(AgencyLocation.builder().id("LEI").description("Leeds").build())
+                .toAgency(AgencyLocation.builder().id("OUT").description("Outside").build())
+                .movementDirection(MovementDirection.OUT)
+                .movementType(new MovementType(movementType, movementTypeDescription))
+                .movementReason(new MovementReason(MovementReason.PSY_HOSPITAL.getCode(), "to hospital"))
+                .build());
     }
 }

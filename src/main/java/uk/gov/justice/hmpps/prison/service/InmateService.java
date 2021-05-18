@@ -293,11 +293,12 @@ public class InmateService {
                 inmate.setRecall(LegalStatusCalc.calcRecall(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
 
                 if ("OUT".equals(inmate.getInOutStatus()) && REL.getCode().equals(inmate.getLastMovementTypeCode())) {
-                    externalMovementRepository.findFirstByBookingIdOrderByMovementSequenceDesc(inmate.getBookingId()).ifPresent(
+                    externalMovementRepository.findFirstByBookingIdOrderByMovementSequenceDesc(inmate.getBookingId()).ifPresentOrElse(
                         lastMovement -> {
                             inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
                             inmate.setRestrictivePatient(mapRestrictivePatient(lastMovement));
-                        }
+                        },
+                        () -> inmate.setLocationDescription("Outside")
                     );
                 }
 
