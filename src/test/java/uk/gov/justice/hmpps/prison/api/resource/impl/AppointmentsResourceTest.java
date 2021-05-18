@@ -50,7 +50,7 @@ public class AppointmentsResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        verify(bookingRepository).createMultipleAppointments(any(), any(), anyString());
+        verify(bookingRepository).createAppointment(any(), any(), anyString());
     }
 
     @Test
