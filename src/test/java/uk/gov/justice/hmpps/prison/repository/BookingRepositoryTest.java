@@ -474,11 +474,14 @@ public class BookingRepositoryTest {
 
         // Then
         final var scheduledEventsAfter = repository.getBookingAppointments(bookingId, today, today, null, Order.ASC);
+        final var bookingAppointmentAfter = repository.getBookingAppointmentByEventId(assignedId);
 
         assertThat(scheduledEventsAfter)
-                .extracting("eventId", "bookingId", "eventType", "eventSubType", "eventDate", "startTime", "endTime", "eventLocation")
+                .extracting("bookingId", "eventType", "eventSubType", "eventDate", "startTime", "endTime", "eventLocation")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple(assignedId, -31L, "APP", "ACTI", today, now, in1Hour, "Chapel"));
+                        Tuple.tuple(-31L, "APP", "ACTI", today, now, in1Hour, "Chapel"));
+        assertThat(bookingAppointmentAfter).isPresent();
+        assertThat(bookingAppointmentAfter.get().getBookingId()).isEqualTo(-31L);
     }
 
     @Test
