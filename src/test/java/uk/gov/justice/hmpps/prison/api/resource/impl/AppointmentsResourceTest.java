@@ -68,6 +68,10 @@ public class AppointmentsResourceTest extends ResourceTest {
 
     @Test
     public void triggerProxyUserAspect() throws Throwable {
+        when(bookingRepository.checkBookingExists(anyLong())).thenReturn(true);
+        when(bookingRepository.findBookingsIdsInAgency(any(), anyString())).thenReturn(List.of(1L, 2L));
+        when(bookingRepository.createAppointment(any(), any(), anyString())).thenReturn(3L);
+
         makeCreateAppointmentsRequest(getCreateAppointmentBody());
 
         verify(proxyUserAspect).controllerCall(any());
