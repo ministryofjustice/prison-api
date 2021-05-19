@@ -17,7 +17,6 @@
     "supportingPrison": {
       "agencyId": "LEI",
       "description": "Leeds",
-      "longDescription": "HMP LEEDS",
       "agencyType": "INST",
       "active": true
     },
