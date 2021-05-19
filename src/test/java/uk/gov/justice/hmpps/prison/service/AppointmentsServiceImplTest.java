@@ -206,7 +206,7 @@ public class AppointmentsServiceImplTest {
 
         final var appointment1 = appointmentsToCreate.withDefaults().get(0);
         final var createdId1 = 1L;
-        final var appointmentWithRepeats = appointmentsService.withRepeats(appointmentsToCreate.getRepeat(), appointment1);
+        final var appointmentWithRepeats = AppointmentsService.withRepeats(appointmentsToCreate.getRepeat(), appointment1);
         final var recurringId1 = 2L;
         final var recurringId2 = 3L;
         when(bookingRepository.createAppointment(
@@ -216,13 +216,13 @@ public class AppointmentsServiceImplTest {
         ))
             .thenReturn(createdId1);
         when(bookingRepository.createAppointment(
-            appointmentWithRepeats.get(1),
+            appointmentWithRepeats.getRepeatAppointments().get(0),
             appointmentsToCreate.getAppointmentDefaults(),
             LOCATION_B.getAgencyId()
         ))
             .thenReturn(recurringId1);
         when(bookingRepository.createAppointment(
-            appointmentWithRepeats.get(2),
+            appointmentWithRepeats.getRepeatAppointments().get(1),
             appointmentsToCreate.getAppointmentDefaults(),
             LOCATION_B.getAgencyId()
         ))
@@ -560,7 +560,10 @@ public class AppointmentsServiceImplTest {
 
     @Test
     public void shouldHandleNoRepeats() {
-        assertThat(AppointmentsService.withRepeats(null, Collections.singletonList(DETAILS_2))).containsExactly(List.of(DETAILS_2));
+        assertThat(AppointmentsService.withRepeats(null, Collections.singletonList(DETAILS_2)))
+            .containsExactly(
+                AppointmentWithRepeats.of(DETAILS_2)
+            );
     }
 
     @Test
@@ -569,7 +572,7 @@ public class AppointmentsServiceImplTest {
                 Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(1).build(),
                 List.of(DETAILS_2)
         ))
-                .containsExactly(List.of(DETAILS_2));
+                .containsExactly(AppointmentWithRepeats.of(DETAILS_2));
     }
 
     @Test
@@ -578,11 +581,13 @@ public class AppointmentsServiceImplTest {
                 Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(3).build(),
                 List.of(DETAILS_2)
         ))
-                .containsExactly(List.of(
-                        DETAILS_2,
+                .containsExactly(
+                    AppointmentWithRepeats.of(DETAILS_2,
+                    List.of(
                         DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
                         DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build()
-                ));
+                    ))
+                );
     }
 
     @Test
@@ -591,10 +596,13 @@ public class AppointmentsServiceImplTest {
                 Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(2).build(),
                 List.of(DETAILS_3)
         ))
-                .containsExactly(List.of(
-                        DETAILS_3,
-                        DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build()
-                ));
+                .containsExactly(
+                    AppointmentWithRepeats.of(DETAILS_3,
+                        List.of(
+                            DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build()
+                        )
+                    )
+                );
     }
 
     @Test
@@ -604,15 +612,17 @@ public class AppointmentsServiceImplTest {
                 List.of(DETAILS_2, DETAILS_3)
         ))
                 .containsExactly(
-                    List.of(
-                        DETAILS_2,
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build()
+                    AppointmentWithRepeats.of(DETAILS_2,
+                        List.of(
+                            DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
+                            DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build()
+                        )
                     ),
-                    List.of(
-                        DETAILS_3,
-                        DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build(),
-                        DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(2)).build()
+                    AppointmentWithRepeats.of(DETAILS_3,
+                        List.of(
+                            DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build(),
+                            DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(2)).build()
+                        )
                     )
                 );
     }

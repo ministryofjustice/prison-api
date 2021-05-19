@@ -95,17 +95,15 @@ public class AppointmentsService {
 
         assertAdditionalAppointmentConstraints(flattenedDetails);
 
-        final var withRepeats = withRepeats(appointments.getRepeat(), flattenedDetails);
+        final var appointmentsWithRepeats = withRepeats(appointments.getRepeat(), flattenedDetails);
 
         final var createdAppointments = new ArrayList<CreatedAppointmentDetails>();
-        log.warn("Saving appointments");
-        withRepeats.forEach(a -> {
-                assertThatAppointmentsFallWithin(a, appointmentTimeLimit());
+        appointmentsWithRepeats.forEach(a -> {
+                assertThatAppointmentsFallWithin(a.getAllAppointments(), appointmentTimeLimit());
                 createdAppointments.add(createAppointments(a, defaults, agencyId));
             }
         );
-        log.warn("Saved appointments");
-        trackAppointmentsCreated(withRepeats.stream().reduce(0, (t, a) -> t + a.size(), Integer::sum), defaults);
+        trackAppointmentsCreated(appointmentsWithRepeats.stream().reduce(0, (t, a) -> t + a.getAppointmentCount(), Integer::sum), defaults);
 
         return createdAppointments;
     }
@@ -360,23 +358,26 @@ public class AppointmentsService {
         return logMap;
     }
 
-    public static List<List<AppointmentDetails>> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
+    public static List<AppointmentWithRepeats> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
         return details.stream()
                 .map(d -> withRepeats(repeat, d))
                 .collect(toList());
     }
 
-    public static List<AppointmentDetails> withRepeats(final Repeat repeat, final AppointmentDetails details) {
-        if (repeat == null) return List.of(details);
+    public static AppointmentWithRepeats withRepeats(final Repeat repeat, final AppointmentDetails details) {
+        if (repeat == null || repeat.getCount() < 2) return AppointmentWithRepeats.of(details);
 
         final var appointmentDuration = Optional
                 .ofNullable(details.getEndTime())
                 .map(endTime -> Duration.between(details.getStartTime(), endTime));
 
-        return repeat
+        final var initialAndRepeatingAppointments = repeat
                 .dateTimeStream(details.getStartTime())
                 .map(startTime -> buildFromPrototypeWithStartTimeAndDuration(details, startTime, appointmentDuration))
                 .collect(toList());
+
+        return AppointmentWithRepeats.of(initialAndRepeatingAppointments.get(0),
+            initialAndRepeatingAppointments.subList(1, initialAndRepeatingAppointments.size()));
     }
 
     private static AppointmentDetails buildFromPrototypeWithStartTimeAndDuration(final AppointmentDetails prototype,
@@ -387,18 +388,13 @@ public class AppointmentsService {
         return builder.build();
     }
 
-    private CreatedAppointmentDetails createAppointments(final List<AppointmentDetails> details, final AppointmentDefaults defaults, final String agencyId) {
-        if (details.size() < 1) {
-            return null;
-        }
-        final var masterAppointment = details.get(0);
+    private CreatedAppointmentDetails createAppointments(final AppointmentWithRepeats appointmentWithRepeats, final AppointmentDefaults defaults, final String agencyId) {
+        final var masterAppointment = appointmentWithRepeats.getMasterAppointment();
         final var masterAppointmentId = bookingRepository.createAppointment(masterAppointment, defaults, agencyId);
 
         final var recurringIds = new ArrayList<Long>();
-        if (details.size() > 1) {
-            final var recurringAppointments = details.subList(1, details.size());
-            recurringAppointments.forEach(a -> recurringIds.add(bookingRepository.createAppointment(a, defaults, agencyId)));
-        }
+        appointmentWithRepeats.getRepeatAppointments().forEach(a -> recurringIds.add(bookingRepository.createAppointment(a, defaults, agencyId)));
+
         return CreatedAppointmentDetails.builder()
             .appointmentEventId(masterAppointmentId)
             .bookingId(masterAppointment.getBookingId())
