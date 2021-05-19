@@ -24,7 +24,7 @@
               "matchType": "strict"
             }
           ],
-          "percentage": 10
+          "percentage": 100
         },
         {
           "attributes": [
@@ -39,7 +39,7 @@
               "matchType": "strict"
             }
           ],
-          "percentage": 10
+          "percentage": 100
         }
       ]
     }
