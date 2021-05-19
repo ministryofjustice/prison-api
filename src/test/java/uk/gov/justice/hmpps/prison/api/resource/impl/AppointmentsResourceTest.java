@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -50,7 +51,7 @@ public class AppointmentsResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        verify(bookingRepository).createMultipleAppointments(any(), any(), anyString());
+        verify(bookingRepository, times(2)).createAppointment(any(), any(), anyString());
     }
 
     @Test
@@ -73,7 +74,6 @@ public class AppointmentsResourceTest extends ResourceTest {
             .build();
 
         when(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.of(scheduledEvent));
-
 
         final var response = testRestTemplate.exchange(
             "/api/appointments/1",

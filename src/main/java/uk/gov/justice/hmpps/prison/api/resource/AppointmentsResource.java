@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +20,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
+import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RestController
 @Api(tags = {"appointments"})
@@ -40,12 +41,11 @@ public class AppointmentsResource {
     @ApiOperation(value = "Create multiple appointments", notes = "Create multiple appointments", nickname = "createAppointments")
     @PostMapping
     @ProxyUser
-    public ResponseEntity<Void> createAppointments(
+    public List<CreatedAppointmentDetails> createAppointments(
         @RequestBody
         @ApiParam(required = true) final AppointmentsToCreate createAppointmentsRequest
     ) {
-        appointmentsService.createAppointments(createAppointmentsRequest);
-        return ResponseEntity.ok().build();
+        return appointmentsService.createAppointments(createAppointmentsRequest);
     }
 
     @ApiResponses({
