@@ -1,6 +1,5 @@
 {
   "fromAgency": "LEI",
-  "fromAgencyDescription": "Leeds",
   "toAgency": "HAZLWD",
   "toAgencyDescription": "Hazelwood House",
   "movementType": "REL",
