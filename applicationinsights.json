@@ -12,6 +12,31 @@
   },
   "selfDiagnostics": {
     "destination": "console"
+  },
+  "preview": {
+    "sampling": {
+      "overrides": [
+        {
+          "attributes": [
+            {
+              "key": "db.system",
+              "value": "oracle",
+              "matchType": "strict"
+            }
+          ],
+          "percentage": 10
+        },
+        {
+          "attributes": [
+            {
+              "key": "http.url",
+              "value": "https?://[^/]+/health.*",
+              "matchType": "regexp"
+            }
+          ],
+          "percentage": 10
+        }
+      ]
+    }
   }
 }
-
