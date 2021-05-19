@@ -739,26 +739,25 @@ public class BookingRepository extends RepositoryBase {
                         SENTENCE_TERMS_ROW_MAPPER);
     }
 
-    public long createAppointment(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {
-        final var generatedKeyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(
-            BookingRepositorySql.INSERT_APPOINTMENT.getSql(),
-            toSqlParameterSource(details, defaults, agencyId),
-            generatedKeyHolder,
-            new String[]{"EVENT_ID"});
-        return generatedKeyHolder.getKey().longValue();
+    public void createMultipleAppointments(final List<AppointmentDetails> flattenedDetails, final AppointmentDefaults defaults, final String agencyId) {
+        jdbcTemplate.batchUpdate(
+                BookingRepositorySql.INSERT_APPOINTMENT.getSql(),
+                toSqlParameterSourceList(flattenedDetails, defaults, agencyId));
     }
 
-    private SqlParameterSource toSqlParameterSource(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {
-        return createParams(
-                "bookingId", details.getBookingId(),
-                "eventSubType", defaults.getAppointmentType(),
-                "eventDate", DateTimeConverter.toDate(details.getStartTime().toLocalDate()),
-                "startTime", DateTimeConverter.fromLocalDateTime(details.getStartTime()),
-                "endTime", DateTimeConverter.fromLocalDateTime(details.getEndTime()),
-                "locationId", defaults.getLocationId(),
-                "agencyId", agencyId,
-                "comment", details.getComment());
+    private SqlParameterSource[] toSqlParameterSourceList(final List<AppointmentDetails> flattenedDetails, final AppointmentDefaults defaults, final String agencyId) {
+        return flattenedDetails
+                .stream()
+                .map(appointment -> createParams(
+                        "bookingId", appointment.getBookingId(),
+                        "eventSubType", defaults.getAppointmentType(),
+                        "eventDate", DateTimeConverter.toDate(appointment.getStartTime().toLocalDate()),
+                        "startTime", DateTimeConverter.fromLocalDateTime(appointment.getStartTime()),
+                        "endTime", DateTimeConverter.fromLocalDateTime(appointment.getEndTime()),
+                        "locationId", defaults.getLocationId(),
+                        "agencyId", agencyId,
+                        "comment", appointment.getComment()
+                )).toArray(SqlParameterSource[]::new);
     }
 
     public List<Long> findBookingsIdsInAgency(final List<Long> bookingIds, final String agencyId) {
