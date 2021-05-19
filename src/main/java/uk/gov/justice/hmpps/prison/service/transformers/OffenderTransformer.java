@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
+import uk.gov.justice.hmpps.prison.api.model.RestrictivePatient;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
@@ -51,10 +52,11 @@ public class OffenderTransformer {
             .profileInformation(latestBooking.getActiveProfileDetails().stream()
                 .filter(pd -> pd.getCode() != null)
                 .map(pd -> ProfileInformation.builder()
-                .type(pd.getId().getType().getType())
-                .question(pd.getId().getType().getDescription())
-                .resultValue(pd.getCode().getDescription())
-                .build()).collect(Collectors.toList()))
+                    .type(pd.getId().getType().getType())
+                    .question(pd.getId().getType().getDescription())
+                    .resultValue(pd.getCode().getDescription())
+                    .build()).collect(Collectors.toList()))
+            .restrictivePatient(latestBooking.getLastMovement().map(RestrictivePatient::mapRestrictivePatient).orElse(null))
             .build()
             .deriveStatus()
             .splitStatusReason();

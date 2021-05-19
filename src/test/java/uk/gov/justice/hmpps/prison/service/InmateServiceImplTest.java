@@ -497,7 +497,7 @@ public class InmateServiceImplTest {
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
-        when(externalMovementRepository.findFirstByBookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("REL",""));
+        when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("REL",""));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
@@ -519,7 +519,7 @@ public class InmateServiceImplTest {
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
-        when(externalMovementRepository.findFirstByBookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("TAP","Temporary Absence"));
+        when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("TAP","Temporary Absence"));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
@@ -632,7 +632,7 @@ public class InmateServiceImplTest {
                 .toAgency(AgencyLocation.builder().id("OUT").description("Outside").build())
                 .movementDirection(MovementDirection.OUT)
                 .movementType(new MovementType(movementType, movementTypeDescription))
-                .movementReason(new MovementReason(MovementReason.PSY_HOSPITAL.getCode(), "to hospital"))
+                .movementReason(new MovementReason(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.getCode(), "to hospital"))
                 .build());
     }
 }

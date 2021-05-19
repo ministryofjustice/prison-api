@@ -57,7 +57,6 @@ import uk.gov.justice.hmpps.prison.service.support.InmateDto;
 import uk.gov.justice.hmpps.prison.service.support.InmatesHelper;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
-import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -77,7 +76,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.PSY_HOSPITAL;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
 import static uk.gov.justice.hmpps.prison.service.support.InmatesHelper.deriveClassification;
@@ -293,10 +291,10 @@ public class InmateService {
                 inmate.setRecall(LegalStatusCalc.calcRecall(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
 
                 if ("OUT".equals(inmate.getInOutStatus()) && REL.getCode().equals(inmate.getLastMovementTypeCode())) {
-                    externalMovementRepository.findFirstByBookingIdOrderByMovementSequenceDesc(inmate.getBookingId()).ifPresentOrElse(
+                    externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(inmate.getBookingId()).ifPresentOrElse(
                         lastMovement -> {
                             inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
-                            inmate.setRestrictivePatient(mapRestrictivePatient(lastMovement));
+                            inmate.setRestrictivePatient(RestrictivePatient.mapRestrictivePatient(lastMovement));
                         },
                         () -> inmate.setLocationDescription("Outside")
                     );
@@ -310,20 +308,7 @@ public class InmateService {
         return inmate;
     }
 
-    private RestrictivePatient mapRestrictivePatient(final ExternalMovement lastMovement) {
-        if (REL.getCode().equals(lastMovement.getMovementType().getCode()) &&
-            PSY_HOSPITAL.getCode().equals(lastMovement.getMovementReason().getCode())) {
-            return RestrictivePatient.builder()
-                .dischargeDate(lastMovement.getMovementDate())
-                .dischargedHospital(AgencyTransformer.transform(lastMovement.getToAgency(), false))
-                .supportingPrison(AgencyTransformer.transform(lastMovement.getFromAgency(), false))
-                .dischargeDetails(lastMovement.getCommentText())
-                .build();
-        }
-        return null;
-    }
-
-    private String calculateReleaseLocationDescription(final ExternalMovement lastMovement) {
+    public static String calculateReleaseLocationDescription(final ExternalMovement lastMovement) {
         return REL.getCode().equals(lastMovement.getMovementType().getCode())
                 ? "Outside - released from " + lastMovement.getFromAgency().getDescription()
                 : "Outside - " + lastMovement.getMovementType().getDescription();

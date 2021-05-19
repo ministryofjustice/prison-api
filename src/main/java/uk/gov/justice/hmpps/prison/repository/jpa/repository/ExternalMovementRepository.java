@@ -44,10 +44,7 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
         Pageable pageable);
 
 
-    List<ExternalMovement> findAllByBookingIdAndActiveFlag(Long bookingId, ActiveFlag activeFlag);
+    List<ExternalMovement> findAllByOffenderBooking_BookingIdAndActiveFlag(Long bookingId, ActiveFlag activeFlag);
 
-    @Query("select coalesce(max(m.movementSequence), 0) from ExternalMovement m where m.bookingId = :bookingId")
-    Long getLatestMovementSequence(Long bookingId);
-
-    Optional<ExternalMovement> findFirstByBookingIdOrderByMovementSequenceDesc(Long bookingId);
+    Optional<ExternalMovement> findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(Long bookingId);
 }

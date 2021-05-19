@@ -451,7 +451,7 @@ public class MovementsServiceImplTest {
                 .thenReturn(
                         new PageImpl<>(Collections.singletonList(ExternalMovement.builder()
                                 .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
-                                .booking(OffenderBooking.builder()
+                                .offenderBooking(OffenderBooking.builder()
                                         .bookingId(-1L)
                                         .assignedLivingUnit(AgencyInternalLocation.builder().description("INSIDE").build())
                                         .offender(Offender.builder()

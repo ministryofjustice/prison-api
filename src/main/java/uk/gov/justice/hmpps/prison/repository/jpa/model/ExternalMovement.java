@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import static javax.persistence.EnumType.STRING;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.City.CITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.REASON;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TYPE;
 
 @Data
@@ -42,17 +43,17 @@ public class ExternalMovement extends AuditableEntity {
     @AllArgsConstructor
     @EqualsAndHashCode
     public static class PK implements Serializable {
-        @Column(name = "OFFENDER_BOOK_ID", updatable = false, insertable = false)
-        private Long bookingId;
-
-        @Column(name = "MOVEMENT_SEQ", updatable = false, insertable = false)
+        private OffenderBooking offenderBooking;
         private Long movementSequence;
     }
 
     @Id
-    private Long bookingId;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    private OffenderBooking offenderBooking;
 
     @Id
+    @Column(name = "MOVEMENT_SEQ")
     private Long movementSequence;
 
     @Column(name = "MOVEMENT_DATE")
@@ -75,10 +76,6 @@ public class ExternalMovement extends AuditableEntity {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_AGY_LOC_ID")
     private AgencyLocation toAgency;
-
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false, updatable = false, insertable = false)
-    private OffenderBooking booking;
 
     @Enumerated(EnumType.STRING)
     private ActiveFlag activeFlag;
@@ -123,5 +120,11 @@ public class ExternalMovement extends AuditableEntity {
     })
     private MovementType movementType;
 
+
+    public String calculateReleaseLocationDescription() {
+        return REL.getCode().equals(getMovementType().getCode())
+            ? "Outside - released from " + getFromAgency().getDescription()
+            : "Outside - " + getMovementType().getDescription();
+    }
 
 }
