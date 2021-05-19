@@ -449,11 +449,11 @@ public class OffendersResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
         final var body = Map.of(
-            "lastName", "TestSurname",
-            "firstName", "TestFirstname",
-            "dateOfBirth", LocalDate.of(2000, 10, 17).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "lastName", "TestSurnam",
+            "firstName", "TestFirstnam",
+            "dateOfBirth", LocalDate.of(2001, 10, 19).format(DateTimeFormatter.ISO_LOCAL_DATE),
             "gender", "M",
-            "ethnicity", "M1");
+            "ethnicity", "W1");
 
         final var entity = createHttpEntity(token, body);
 
