@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -15,6 +16,7 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
+import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 
 import java.time.LocalDateTime;
@@ -44,19 +46,29 @@ public class AppointmentsResourceTest extends ResourceTest {
     @Test
     public void createAnAppointment() {
 
+        final var firstEventId = 11L;
+        final var secondEventId = 12L;
         when(bookingRepository.checkBookingExists(anyLong())).thenReturn(true);
         when(bookingRepository.findBookingsIdsInAgency(any(), anyString())).thenReturn(List.of(1L, 2L));
+        when(bookingRepository.createAppointment(any(), any(), anyString())).thenReturn(firstEventId, secondEventId);
 
-        final var response = makeCreateAppointmentsRequest();
+        final var appointments = getCreateAppointmentBody();
+        final var response = makeCreateAppointmentsRequest(appointments);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).hasSize(2)
+            .extracting("appointmentEventId", "bookingId")
+            .containsExactlyInAnyOrder(
+                Tuple.tuple(firstEventId, appointments.getAppointments().get(0).getBookingId()),
+                Tuple.tuple(secondEventId, appointments.getAppointments().get(1).getBookingId())
+            );
 
         verify(bookingRepository, times(2)).createAppointment(any(), any(), anyString());
     }
 
     @Test
     public void triggerProxyUserAspect() throws Throwable {
-        makeCreateAppointmentsRequest();
+        makeCreateAppointmentsRequest(getCreateAppointmentBody());
 
         verify(proxyUserAspect).controllerCall(any());
     }
@@ -278,9 +290,7 @@ public class AppointmentsResourceTest extends ResourceTest {
         verifyNoInteractions(bookingRepository);
     }
 
-    private ResponseEntity<String> makeCreateAppointmentsRequest() {
-        final AppointmentsToCreate body = getCreateAppointmentBody();
-
+    private ResponseEntity<List<CreatedAppointmentDetails>> makeCreateAppointmentsRequest(final AppointmentsToCreate body) {
         return testRestTemplate.exchange(
             "/api/appointments",
             HttpMethod.POST,
