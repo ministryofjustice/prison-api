@@ -53,11 +53,12 @@ public class OffenderProfileDetail extends AuditableEntity {
         private Integer sequence;
     }
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumns(value = {
         @JoinColumn(name = "PROFILE_CODE", referencedColumnName = "PROFILE_CODE", insertable = false, updatable = false),
         @JoinColumn(name = "PROFILE_TYPE", referencedColumnName = "PROFILE_TYPE", nullable = false, insertable = false, updatable = false)
     })
+    @NotFound(action = IGNORE)
     private ProfileCode code;
 
     @Column(name = "CASELOAD_TYPE")
