@@ -201,6 +201,9 @@ public class InmateDetail {
     @ApiModelProperty(value = "current prison or outside with last movement information.", example="Outside - released from Leeds")
     private String locationDescription;
 
+    @ApiModelProperty(value = "Retricted patient details, if released to psychiatric hospital")
+    private RestrictivePatient restrictivePatient;
+
     public void setProfileInformation(final List<ProfileInformation> profileInformation) {
         this.profileInformation = profileInformation;
         updateReligion();

@@ -310,7 +310,7 @@ public class MovementsService {
     }
 
     private OffenderIn transform(ExternalMovement m) {
-        final var booking = m.getBooking();
+        final var booking = m.getOffenderBooking();
         final var offender = booking.getOffender();
         final var description = Optional.ofNullable(booking.getAssignedLivingUnit()).map(unit -> firstNonNull(unit.getUserDescription(), unit.getDescription())).orElse(null);
         final var fromAgency = Optional.ofNullable(m.getFromAgency());
@@ -319,7 +319,7 @@ public class MovementsService {
         final var toCityDescription = Optional.ofNullable(m.getToCity()).map(City::getDescription).orElse(null);
         return OffenderIn.builder()
                 .offenderNo(offender.getNomsId())
-                .bookingId(m.getBooking().getBookingId())
+                .bookingId(m.getOffenderBooking().getBookingId())
                 .dateOfBirth(offender.getBirthDate())
                 .firstName(capitalizeFully(offender.getFirstName()))
                 .middleName(capitalizeFully(offender.getMiddleName()))

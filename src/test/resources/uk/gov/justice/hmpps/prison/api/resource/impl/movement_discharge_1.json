@@ -1,0 +1,10 @@
+{
+  "fromAgency": "SYI",
+  "fromAgencyDescription": "Shrewsbury",
+  "toAgency": "OUT",
+  "toAgencyDescription": "Outside",
+  "movementType": "REL",
+  "movementTypeDescription": "Release",
+  "directionCode": "OUT",
+  "movementReason": "Conditional Release (CJA91) -SH Term>1YR"
+}

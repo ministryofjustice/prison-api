@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
@@ -14,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
@@ -52,7 +53,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}/sentences",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -69,7 +70,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}/sentences",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -86,7 +87,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}/alerts",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -103,7 +104,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}/case-notes",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -120,7 +121,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}/case-notes",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -137,7 +138,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -154,7 +155,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -171,7 +172,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -188,7 +189,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -205,7 +206,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -223,7 +224,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -238,7 +239,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/incidents/-1",
-            HttpMethod.GET,
+            GET,
             createHttpEntity(token, null),
             new ParameterizedTypeReference<IncidentCase>() {
             });
@@ -256,7 +257,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/incidents/-4",
-            HttpMethod.GET,
+            GET,
             createHttpEntity(token, null),
             new ParameterizedTypeReference<IncidentCase>() {
             });
@@ -273,7 +274,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -290,7 +291,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -309,7 +310,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -324,7 +325,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -341,7 +342,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -360,7 +361,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -441,6 +442,142 @@ public class OffendersResourceTest extends ResourceTest {
         );
 
         assertThatJsonFileAndStatus(response, 200, "new_prisoner.json");
+    }
+
+    @Test
+    public void testCanMovePrisonerFromCourtToHospital() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of(
+            "lastName", "TestSurnam",
+            "firstName", "TestFirstnam",
+            "dateOfBirth", LocalDate.of(2001, 10, 19).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "gender", "M",
+            "ethnicity", "W1");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var createResponse =  testRestTemplate.exchange(
+            "/api/offenders",
+            POST,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            }
+        );
+
+        final var offenderNo = new Gson().fromJson(createResponse.getBody(), Map.class).get("offenderNo");
+
+        final var dischargeRequest = Map.of(
+            "hospitalLocationCode", "ARNOLD",
+            "dischargeTime", LocalDateTime.of(2021, 5, 18, 17, 23, 0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            "commentText", "Discharged to Psychiatric hospital",
+            "supportingPrisonId", "LEI",
+            "fromLocationId", "COURT1");
+        final var dischargeEntity = createHttpEntity(token, dischargeRequest);
+
+        final var dischargeResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/discharge-to-hospital",
+            PUT,
+            dischargeEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo
+        );
+        assertThatJsonFileAndStatus(dischargeResponse, 200, "discharged_from_court.json");
+    }
+
+    @Test
+    public void testCanMovePrisonerFromPrisonToHospital() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of(
+            "lastName", "TestSurname",
+            "firstName", "TestFirstname",
+            "dateOfBirth", LocalDate.of(2000, 10, 17).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "gender", "M",
+            "ethnicity", "M1");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var createResponse =  testRestTemplate.exchange(
+            "/api/offenders",
+            POST,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            }
+        );
+
+        final var offenderNo = new Gson().fromJson(createResponse.getBody(), Map.class).get("offenderNo");
+
+        final var newBookingBody = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
+        final var newBookingEntity = createHttpEntity(token, newBookingBody);
+
+        final var newBookingResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/booking",
+            POST,
+            newBookingEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo
+        );
+        assertThat(newBookingResponse.getStatusCodeValue()).isEqualTo(200);
+
+        final var bookingId = new BigDecimal(new Gson().fromJson(newBookingResponse.getBody(), Map.class).get("bookingId").toString()).toBigInteger().longValue();
+        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner incorrectly"));
+
+        final var releaseResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            releaseBody,
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo
+        );
+
+        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
+
+        // check that no new movement is created
+        final var movementCheck1 =  testRestTemplate.exchange(
+            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
+            GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            bookingId, 2
+        );
+
+        assertThatJsonFileAndStatus(movementCheck1, 200, "movement_discharge_1.json");
+
+        final var dischargeRequest = Map.of(
+            "hospitalLocationCode", "HAZLWD",
+            "dischargeTime", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            "commentText", "Discharged to Psychiatric hospital",
+            "supportingPrisonId", "LEI",
+            "fromLocationId", "COURT1");
+        final var dischargeEntity = createHttpEntity(token, dischargeRequest);
+
+        final var dischargeResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/discharge-to-hospital",
+            PUT,
+            dischargeEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo
+        );
+        assertThatJsonFileAndStatus(dischargeResponse, 200, "discharged_from_prison.json");
+
+        // check that no new movement is created
+        final var movementCheck2 =  testRestTemplate.exchange(
+            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
+            GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            bookingId, 2
+        );
+
+        assertThatJsonFileAndStatus(movementCheck2, 200, "movement_discharge_2.json");
+
     }
 
     @Test
@@ -798,7 +935,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{offenderNumber}/addresses",
-            HttpMethod.GET,
+            GET,
             requestEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -815,7 +952,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/next-sequence",
-            HttpMethod.GET,
+            GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
@@ -829,7 +966,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{offenderNumber}/adjudications?finding={findingCode}",
-            HttpMethod.GET,
+            GET,
             requestEntity,
             new ParameterizedTypeReference<String>() {
             },
@@ -885,6 +1022,6 @@ public class OffendersResourceTest extends ResourceTest {
 
     private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
         final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, headers);
-        return testRestTemplate.exchange("/api/offenders/ids", HttpMethod.GET, requestEntity, String.class);
+        return testRestTemplate.exchange("/api/offenders/ids", GET, requestEntity, String.class);
     }
 }

@@ -1,0 +1,9 @@
+{
+  "fromAgency": "LEI",
+  "toAgency": "HAZLWD",
+  "toAgencyDescription": "Hazelwood House",
+  "movementType": "REL",
+  "movementTypeDescription": "Release",
+  "directionCode": "OUT",
+  "movementReason": "Final Discharge To Hospital-Psychiatric"
+}

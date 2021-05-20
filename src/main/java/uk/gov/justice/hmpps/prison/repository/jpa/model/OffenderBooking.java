@@ -112,6 +112,10 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @Default
     private List<OffenderNonAssociationDetail> nonAssociationDetails = new ArrayList<>();
 
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<ExternalMovement> externalMovements = new ArrayList<>();
+
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
 
@@ -209,5 +213,31 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     public int incBookingSequence() {
         bookingSequence = bookingSequence + 1;
         return bookingSequence;
+    }
+
+    public ExternalMovement addExternalMovement(final ExternalMovement externalMovement) {
+        externalMovement.setMovementSequence(getNextMovementSequence());
+        externalMovement.setOffenderBooking(this);
+        externalMovements.add(externalMovement);
+        return externalMovement;
+    }
+
+    public Optional<ExternalMovement> getLastMovement() {
+        return getMovementsRecentFirst().stream().findFirst();
+    }
+
+    public List<ExternalMovement> getMovementsRecentFirst() {
+        return externalMovements.stream()
+            .sorted(Comparator.comparingLong(ExternalMovement::getMovementSequence)
+            .reversed())
+            .collect(Collectors.toList());
+    }
+
+    public Long getNextMovementSequence() {
+        return getLastMovement().map(ExternalMovement::getMovementSequence).orElse(0L) + 1;
+    }
+
+    public void setPreviousMovementsToInactive() {
+        externalMovements.stream().filter(m -> m.getActiveFlag().isActive()).forEach(m -> m.setActiveFlag(ActiveFlag.N));
     }
 }
