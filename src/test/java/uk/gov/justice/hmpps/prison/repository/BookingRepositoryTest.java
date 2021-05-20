@@ -509,8 +509,8 @@ public class BookingRepositoryTest {
 
         assertThat(repository.getBookingAppointmentByEventId(id))
                 .hasValueSatisfying(se -> assertThat(se)
-                        .extracting("bookingId", "eventId", "startTime", "endTime", "eventLocationId")
-                        .containsExactly(bookingId, id, startTime, endTime, locationId));
+                        .extracting("bookingId", "eventId", "startTime", "endTime", "eventLocationId", "createUserId")
+                        .containsExactly(bookingId, id, startTime, endTime, locationId, "SA"));
     }
 
     @Test
