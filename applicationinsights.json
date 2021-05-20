@@ -32,11 +32,6 @@
               "key": "http.url",
               "value": "https?://[^/]+/health.*",
               "matchType": "regexp"
-            },
-            {
-              "key": "http.status_code",
-              "value": "200",
-              "matchType": "strict"
             }
           ],
           "percentage": 10
