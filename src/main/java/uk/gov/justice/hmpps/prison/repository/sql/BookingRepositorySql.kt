@@ -561,6 +561,7 @@ enum class BookingRepositorySql(val sql: String) {
                OIS.START_TIME,
                OIS.END_TIME,
                OIS.TO_INTERNAL_LOCATION_ID EVENT_LOCATION_ID,
+               OIS.CREATE_USER_ID,
                OIS.AGY_LOC_ID AGENCY_ID,
                COALESCE(AIL.USER_DESC, AIL.DESCRIPTION, AGY.DESCRIPTION) EVENT_LOCATION,
                'APP' EVENT_SOURCE,
