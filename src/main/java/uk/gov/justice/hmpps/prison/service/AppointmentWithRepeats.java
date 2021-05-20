@@ -12,11 +12,11 @@ import java.util.List;
 @RequiredArgsConstructor(staticName="of")
 public class AppointmentWithRepeats {
 
-    private final AppointmentDetails masterAppointment;
+    private final AppointmentDetails mainAppointment;
     private final List<AppointmentDetails> repeatAppointments;
 
-    public static AppointmentWithRepeats of(AppointmentDetails masterAppointment) {
-        return new AppointmentWithRepeats(masterAppointment, Collections.emptyList());
+    public static AppointmentWithRepeats of(AppointmentDetails mainAppointment) {
+        return new AppointmentWithRepeats(mainAppointment, Collections.emptyList());
     }
 
     public Integer getAppointmentCount() {
@@ -25,7 +25,7 @@ public class AppointmentWithRepeats {
 
     public List<AppointmentDetails> getAllAppointments() {
         final var allAppointments = new ArrayList<AppointmentDetails>();
-        allAppointments.add(masterAppointment);
+        allAppointments.add(mainAppointment);
         allAppointments.addAll(repeatAppointments);
         return Collections.unmodifiableList(allAppointments);
     }

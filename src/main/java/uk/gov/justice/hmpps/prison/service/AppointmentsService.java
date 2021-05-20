@@ -389,17 +389,17 @@ public class AppointmentsService {
     }
 
     private CreatedAppointmentDetails createAppointments(final AppointmentWithRepeats appointmentWithRepeats, final AppointmentDefaults defaults, final String agencyId) {
-        final var masterAppointment = appointmentWithRepeats.getMasterAppointment();
-        final var masterAppointmentId = bookingRepository.createAppointment(masterAppointment, defaults, agencyId);
+        final var mainAppointment = appointmentWithRepeats.getMainAppointment();
+        final var mainAppointmentId = bookingRepository.createAppointment(mainAppointment, defaults, agencyId);
 
         final var recurringIds = new ArrayList<Long>();
         appointmentWithRepeats.getRepeatAppointments().forEach(a -> recurringIds.add(bookingRepository.createAppointment(a, defaults, agencyId)));
 
         return CreatedAppointmentDetails.builder()
-            .appointmentEventId(masterAppointmentId)
-            .bookingId(masterAppointment.getBookingId())
-            .startTime(masterAppointment.getStartTime())
-            .endTime(masterAppointment.getEndTime())
+            .appointmentEventId(mainAppointmentId)
+            .bookingId(mainAppointment.getBookingId())
+            .startTime(mainAppointment.getStartTime())
+            .endTime(mainAppointment.getEndTime())
             .recurringAppointmentEventIds(recurringIds)
             .build();
     }

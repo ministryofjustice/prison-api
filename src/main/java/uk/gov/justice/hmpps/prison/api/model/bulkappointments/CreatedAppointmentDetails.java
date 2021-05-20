@@ -36,6 +36,6 @@ public class CreatedAppointmentDetails {
     @ApiModelProperty(value = "The end time of the appointment.", example = "2018-12-31T23:59")
     private LocalDateTime endTime;
 
-    @ApiModelProperty(value = "The ids of all recurring appointments that were created.", example = "2018-12-31T23:59")
+    @ApiModelProperty(value = "The ids of all recurring appointments (or repeat appointments) that were created.")
     private List<Long> recurringAppointmentEventIds;
 }
