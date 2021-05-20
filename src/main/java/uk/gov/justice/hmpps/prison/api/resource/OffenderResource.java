@@ -142,7 +142,7 @@ public class OffenderResource {
         @ApiResponse(code = 403, message = "Forbidden - user not authorised to release a prisoner.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation("*** BETA *** Discharges a prisoner fto hospital, requires the RELEASE_PRISONER role")
+    @ApiOperation("*** BETA *** Discharges a prisoner to hospital, requires the RELEASE_PRISONER role")
     @PutMapping("/{offenderNo}/discharge-to-hospital")
     @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser

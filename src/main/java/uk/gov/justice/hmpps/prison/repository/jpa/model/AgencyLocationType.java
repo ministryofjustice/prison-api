@@ -19,7 +19,7 @@ public class AgencyLocationType extends ReferenceCode {
     public static final AgencyLocationType COURT_TYPE = new AgencyLocationType(CRT.getCode(), "Court");
     public static final AgencyLocationType PRISON_TYPE = new AgencyLocationType(INST.getCode(), "Prison");
     public static final AgencyLocationType HS_HOSPITAL_TYPE = new AgencyLocationType(HSHOSP.getCode(), "Secure Hospital");
-    public static final AgencyLocationType HOSPITAL_TYPE = new AgencyLocationType(HSHOSP.getCode(), "Secure Hospital");
+    public static final AgencyLocationType HOSPITAL_TYPE = new AgencyLocationType(HOSPITAL.getCode(), "Hospital");
 
     public AgencyLocationType(final String code, final String description) {
         super(AGY_LOC_TYPE, code, description);
