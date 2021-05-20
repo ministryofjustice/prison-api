@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
+import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
@@ -31,19 +33,20 @@ import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.security.AuthenticationFacade.hasRoles;
 
 @Service
 @Validated
 @Transactional(readOnly = true)
+@Slf4j
 public class AppointmentsService {
 
     // Maximum of 1000 values in an Oracle 'IN' clause is current hard limit. (See #validateBookingIds below).
@@ -72,15 +75,9 @@ public class AppointmentsService {
         this.scheduledAppointmentRepository = scheduledAppointmentRepository;
     }
 
-    /**
-     * Create multiple appointments (ScheduledEvents?).
-     * This implementation creates each appointment using BookingService#createBookingAppointment.
-     *
-     * @param appointments Details of the new appointments to be created.
-     */
     @HasWriteScope
     @Transactional
-    public void createAppointments(@NotNull @Valid final AppointmentsToCreate appointments) {
+    public List<CreatedAppointmentDetails> createAppointments(@NotNull @Valid final AppointmentsToCreate appointments) {
 
         assertThatRequestHasPermission(appointments);
         assertFewerThanMaximumNumberOfBookingIds(appointments);
@@ -98,10 +95,17 @@ public class AppointmentsService {
 
         assertAdditionalAppointmentConstraints(flattenedDetails);
 
-        final var withRepeats = withRepeats(appointments.getRepeat(), flattenedDetails);
+        final var appointmentsWithRepeats = withRepeats(appointments.getRepeat(), flattenedDetails);
 
-        assertThatAppointmentsFallWithin(withRepeats, appointmentTimeLimit());
-        createAppointments(withRepeats, defaults, agencyId);
+        final var createdAppointments = new ArrayList<CreatedAppointmentDetails>();
+        appointmentsWithRepeats.forEach(a -> {
+                assertThatAppointmentsFallWithin(a.getAllAppointments(), appointmentTimeLimit());
+                createdAppointments.add(createAppointments(a, defaults, agencyId));
+            }
+        );
+        trackAppointmentsCreated(appointmentsWithRepeats.stream().reduce(0, (t, a) -> t + a.getAppointmentCount(), Integer::sum), defaults);
+
+        return createdAppointments;
     }
 
     @Transactional
@@ -231,7 +235,7 @@ public class AppointmentsService {
     }
 
     private void assertAllBookingIdsInCaseload(final List<AppointmentDetails> appointments, final String agencyId) {
-        final var bookingIds = appointments.stream().map(AppointmentDetails::getBookingId).collect(Collectors.toList());
+        final var bookingIds = appointments.stream().map(AppointmentDetails::getBookingId).collect(toList());
         final var bookingIdsInAgency = bookingRepository.findBookingsIdsInAgency(bookingIds, agencyId);
         if (bookingIdsInAgency.size() < bookingIds.size()) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "A BookingId does not exist in your caseload");
@@ -305,12 +309,12 @@ public class AppointmentsService {
         return filteredByTimeSlot
                 .sorted(Comparator.comparing(ScheduledAppointmentDto::getStartTime)
                         .thenComparing(ScheduledAppointmentDto::getLocationDescription))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
 
-    private void trackAppointmentsCreated(final List<AppointmentDetails> appointments, final AppointmentDefaults defaults) {
-        if (appointments.size() < 1) return;
+    private void trackAppointmentsCreated(final Integer appointmentsCreatedCount, final AppointmentDefaults defaults) {
+        if (appointmentsCreatedCount == null || appointmentsCreatedCount < 1) return;
 
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("type", defaults.getAppointmentType());
@@ -320,7 +324,7 @@ public class AppointmentsService {
         if (defaults.getEndTime() != null) {
             logMap.put("defaultEnd", defaults.getEndTime().toString());
         }
-        logMap.put("count", Integer.toString(appointments.size()));
+        logMap.put("count", appointmentsCreatedCount.toString());
 
         telemetryClient.trackEvent("AppointmentsCreated", logMap, null);
     }
@@ -354,21 +358,26 @@ public class AppointmentsService {
         return logMap;
     }
 
-    public static List<AppointmentDetails> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
-        if (repeat == null) return details;
+    public static List<AppointmentWithRepeats> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
         return details.stream()
-                .flatMap(d -> withRepeats(repeat, d))
-                .collect(Collectors.toList());
+                .map(d -> withRepeats(repeat, d))
+                .collect(toList());
     }
 
-    public static Stream<AppointmentDetails> withRepeats(final Repeat repeat, final AppointmentDetails details) {
+    public static AppointmentWithRepeats withRepeats(final Repeat repeat, final AppointmentDetails details) {
+        if (repeat == null || repeat.getCount() < 2) return AppointmentWithRepeats.of(details);
+
         final var appointmentDuration = Optional
                 .ofNullable(details.getEndTime())
                 .map(endTime -> Duration.between(details.getStartTime(), endTime));
 
-        return repeat
+        final var initialAndRepeatingAppointments = repeat
                 .dateTimeStream(details.getStartTime())
-                .map(startTime -> buildFromPrototypeWithStartTimeAndDuration(details, startTime, appointmentDuration));
+                .map(startTime -> buildFromPrototypeWithStartTimeAndDuration(details, startTime, appointmentDuration))
+                .collect(toList());
+
+        return AppointmentWithRepeats.of(initialAndRepeatingAppointments.get(0),
+            initialAndRepeatingAppointments.subList(1, initialAndRepeatingAppointments.size()));
     }
 
     private static AppointmentDetails buildFromPrototypeWithStartTimeAndDuration(final AppointmentDetails prototype,
@@ -379,8 +388,19 @@ public class AppointmentsService {
         return builder.build();
     }
 
-    private void createAppointments(final List<AppointmentDetails> details, final AppointmentDefaults defaults, final String agencyId) {
-        bookingRepository.createMultipleAppointments(details, defaults, agencyId);
-        trackAppointmentsCreated(details, defaults);
+    private CreatedAppointmentDetails createAppointments(final AppointmentWithRepeats appointmentWithRepeats, final AppointmentDefaults defaults, final String agencyId) {
+        final var mainAppointment = appointmentWithRepeats.getMainAppointment();
+        final var mainAppointmentId = bookingRepository.createAppointment(mainAppointment, defaults, agencyId);
+
+        final var recurringIds = new ArrayList<Long>();
+        appointmentWithRepeats.getRepeatAppointments().forEach(a -> recurringIds.add(bookingRepository.createAppointment(a, defaults, agencyId)));
+
+        return CreatedAppointmentDetails.builder()
+            .appointmentEventId(mainAppointmentId)
+            .bookingId(mainAppointment.getBookingId())
+            .startTime(mainAppointment.getStartTime())
+            .endTime(mainAppointment.getEndTime())
+            .recurringAppointmentEventIds(recurringIds)
+            .build();
     }
 }

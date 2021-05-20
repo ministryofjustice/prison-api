@@ -36,6 +36,7 @@ import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
+import uk.gov.justice.hmpps.prison.api.model.RestrictivePatient;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
 import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
 import uk.gov.justice.hmpps.prison.api.support.CategoryInformationType;
@@ -43,7 +44,9 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -73,6 +76,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
 import static uk.gov.justice.hmpps.prison.service.support.InmatesHelper.deriveClassification;
 import static uk.gov.justice.hmpps.prison.service.support.InmatesHelper.deriveClassificationCode;
@@ -89,12 +93,12 @@ public class InmateService {
     private final UserService userService;
     private final InmateAlertService inmateAlertService;
     private final ReferenceDomainService referenceDomainService;
-    private final MovementsService movementsService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
     private final OffenderAssessmentService offenderAssessmentService;
     private final OffenderLanguageRepository offenderLanguageRepository;
     private final OffenderRepository offenderRepository;
+    private final ExternalMovementRepository externalMovementRepository;
     private final TelemetryClient telemetryClient;
 
     private final String locationTypeGranularity;
@@ -106,18 +110,18 @@ public class InmateService {
                          final BookingService bookingService,
                          final AgencyService agencyService,
                          final UserService userService,
-                         final MovementsService movementsService, final AuthenticationFacade authenticationFacade,
+                         final AuthenticationFacade authenticationFacade,
                          final TelemetryClient telemetryClient,
                          @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
                          @Value("${batch.max.size:1000}") final int maxBatchSize,
                          final OffenderAssessmentService offenderAssessmentService,
                          final OffenderLanguageRepository offenderLanguageRepository,
-                         final OffenderRepository offenderRepository) {
+                         final OffenderRepository offenderRepository,
+                         final ExternalMovementRepository externalMovementRepository) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
         this.referenceDomainService = referenceDomainService;
-        this.movementsService = movementsService;
         this.telemetryClient = telemetryClient;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
@@ -128,6 +132,7 @@ public class InmateService {
         this.offenderAssessmentService = offenderAssessmentService;
         this.offenderLanguageRepository = offenderLanguageRepository;
         this.offenderRepository = offenderRepository;
+        this.externalMovementRepository = externalMovementRepository;
     }
 
     public Page<OffenderBooking> findAllInmates(final InmateSearchCriteria criteria) {
@@ -285,27 +290,33 @@ public class InmateService {
                 inmate.setSentenceTerms(sentenceTerms);
                 inmate.setRecall(LegalStatusCalc.calcRecall(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
 
-                inmate.setLocationDescription(calculateLocationDescription(inmate));
+                if ("OUT".equals(inmate.getInOutStatus()) && REL.getCode().equals(inmate.getLastMovementTypeCode())) {
+                    externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(inmate.getBookingId()).ifPresentOrElse(
+                        lastMovement -> {
+                            inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
+                            inmate.setRestrictivePatient(RestrictivePatient.mapRestrictivePatient(lastMovement));
+                        },
+                        () -> inmate.setLocationDescription("Outside")
+                    );
+                }
+
+                if (inmate.getLocationDescription() ==  null) {
+                    inmate.setLocationDescription(inmate.getAssignedLivingUnit().getAgencyName());
+                }
             }
         }
         return inmate;
     }
 
-    private String calculateLocationDescription(final InmateDetail inmate) {
-        if ("OUT".equals(inmate.getInOutStatus())) {
-            final var movementList = movementsService.getMovementsByOffenders(List.of(inmate.getOffenderNo()), List.of(), true, false);
-            return movementList.stream().findFirst().map(lastMovement ->
-                    "REL".equals(lastMovement.getMovementType())
-                    ? "Outside - released from " + lastMovement.getFromAgencyDescription()
-                    : "Outside - " + lastMovement.getMovementTypeDescription()).orElse("Outside");
-        }
-        return inmate.getAssignedLivingUnit().getAgencyName();
+    public static String calculateReleaseLocationDescription(final ExternalMovement lastMovement) {
+        return REL.getCode().equals(lastMovement.getMovementType().getCode())
+                ? "Outside - released from " + lastMovement.getFromAgency().getDescription()
+                : "Outside - " + lastMovement.getMovementType().getDescription();
     }
 
 
     private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final Long bookingId) {
-        final var a = offenderLanguageRepository
-                .findByOffenderBookId(bookingId);
+        offenderLanguageRepository.findByOffenderBookId(bookingId);
         return offenderLanguageRepository
                 .findByOffenderBookId(bookingId)
                 .stream()
@@ -606,15 +617,11 @@ public class InmateService {
 
     @VerifyAgencyAccess
     public List<OffenderCategorise> getCategory(final String agencyId, final CategoryInformationType type, final LocalDate date) {
-        switch (type) {
-            case UNCATEGORISED:
-                return repository.getUncategorised(agencyId);
-            case CATEGORISED:
-                return repository.getApprovedCategorised(agencyId, ObjectUtils.defaultIfNull(date, LocalDate.now().minusMonths(1)));
-            case RECATEGORISATIONS:
-                return repository.getRecategorise(agencyId, ObjectUtils.defaultIfNull(date, LocalDate.now().plusMonths(2)));
-        }
-        return null;
+        return switch (type) {
+            case UNCATEGORISED -> repository.getUncategorised(agencyId);
+            case CATEGORISED -> repository.getApprovedCategorised(agencyId, ObjectUtils.defaultIfNull(date, LocalDate.now().minusMonths(1)));
+            case RECATEGORISATIONS -> repository.getRecategorise(agencyId, ObjectUtils.defaultIfNull(date, LocalDate.now().plusMonths(2)));
+        };
     }
 
     @VerifyBookingAccess

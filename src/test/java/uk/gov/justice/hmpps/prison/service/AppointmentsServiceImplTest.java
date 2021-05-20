@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
+import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.RepeatPeriod;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -113,6 +114,142 @@ public class AppointmentsServiceImplTest {
     @AfterEach
     public void clearSecurityContext() {
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    public void createAppointments_returnsMultipleMasterAppointmentDetails() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId(), DETAILS_2.getBookingId());
+
+        final var appointmentsToCreate = AppointmentsToCreate
+            .builder()
+            .appointmentDefaults(
+                AppointmentDefaults
+                    .builder()
+                    .locationId(LOCATION_B.getLocationId())
+                    .appointmentType(REFERENCE_CODE_T.getCode())
+                    .startTime(LocalDateTime.now().plusHours(1))
+                    .build())
+            .appointments(List.of(DETAILS_1, DETAILS_2))
+            .build();
+
+        final var appointment1 = appointmentsToCreate.withDefaults().get(0);
+        final var createdId1 = 1L;
+        final var appointment2 = appointmentsToCreate.withDefaults().get(1);
+        final var createdId2 = 2L;
+        when(bookingRepository.createAppointment(
+            appointment1,
+            appointmentsToCreate.getAppointmentDefaults(),
+            LOCATION_B.getAgencyId()
+        ))
+            .thenReturn(createdId1);
+        when(bookingRepository.createAppointment(
+            appointment2,
+            appointmentsToCreate.getAppointmentDefaults(),
+            LOCATION_B.getAgencyId()
+        ))
+            .thenReturn(createdId2);
+
+        final var createdAppointmentDetails = appointmentsService.createAppointments(appointmentsToCreate);
+
+        assertThat(createdAppointmentDetails).hasSize(2)
+            .containsExactlyInAnyOrder(
+                CreatedAppointmentDetails.builder()
+                    .appointmentEventId(createdId1)
+                    .bookingId(appointment1.getBookingId())
+                    .startTime(appointment1.getStartTime())
+                    .endTime(appointment1.getEndTime())
+                    .recurringAppointmentEventIds(Collections.emptyList())
+                    .build(),
+                CreatedAppointmentDetails.builder()
+                    .appointmentEventId(createdId2)
+                    .bookingId(appointment2.getBookingId())
+                    .startTime(appointment2.getStartTime())
+                    .endTime(appointment2.getEndTime())
+                    .recurringAppointmentEventIds(Collections.emptyList())
+                    .build()
+            );
+
+        verify(telemetryClient).trackEvent("AppointmentsCreated",
+            Map.of(
+                "defaultStart", appointmentsToCreate.getAppointmentDefaults().getStartTime().toString(),
+                "count", "2",
+                "type", "T",
+                "location", "1",
+                "user", "username"
+            ),
+            null);
+    }
+
+    @Test
+    public void createAppointments_returnsRepeatAppointmentIds() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+        final var appointmentsToCreate = AppointmentsToCreate
+            .builder()
+            .appointmentDefaults(
+                AppointmentDefaults
+                    .builder()
+                    .locationId(LOCATION_B.getLocationId())
+                    .appointmentType(REFERENCE_CODE_T.getCode())
+                    .startTime(LocalDateTime.now().plusHours(1))
+                    .build())
+            .appointments(List.of(DETAILS_1))
+            .repeat(Repeat.builder()
+                .count(3)
+                .repeatPeriod(RepeatPeriod.DAILY)
+                .build())
+            .build();
+
+        final var appointment1 = appointmentsToCreate.withDefaults().get(0);
+        final var createdId1 = 1L;
+        final var appointmentWithRepeats = AppointmentsService.withRepeats(appointmentsToCreate.getRepeat(), appointment1);
+        final var recurringId1 = 2L;
+        final var recurringId2 = 3L;
+        when(bookingRepository.createAppointment(
+            appointment1,
+            appointmentsToCreate.getAppointmentDefaults(),
+            LOCATION_B.getAgencyId()
+        ))
+            .thenReturn(createdId1);
+        when(bookingRepository.createAppointment(
+            appointmentWithRepeats.getRepeatAppointments().get(0),
+            appointmentsToCreate.getAppointmentDefaults(),
+            LOCATION_B.getAgencyId()
+        ))
+            .thenReturn(recurringId1);
+        when(bookingRepository.createAppointment(
+            appointmentWithRepeats.getRepeatAppointments().get(1),
+            appointmentsToCreate.getAppointmentDefaults(),
+            LOCATION_B.getAgencyId()
+        ))
+            .thenReturn(recurringId2);
+
+        final var createdAppointmentDetails = appointmentsService.createAppointments(appointmentsToCreate);
+
+        assertThat(createdAppointmentDetails).hasSize(1)
+            .containsExactlyInAnyOrder(
+                CreatedAppointmentDetails.builder()
+                    .appointmentEventId(createdId1)
+                    .bookingId(appointment1.getBookingId())
+                    .startTime(appointment1.getStartTime())
+                    .endTime(appointment1.getEndTime())
+                    .recurringAppointmentEventIds(List.of(recurringId1, recurringId2))
+                    .build()
+            );
+
+        verify(telemetryClient).trackEvent("AppointmentsCreated",
+            Map.of(
+                "defaultStart", appointmentsToCreate.getAppointmentDefaults().getStartTime().toString(),
+                "count", "3",
+                "type", "T",
+                "location", "1",
+                "user", "username"
+            ),
+            null);
     }
 
     @Test
@@ -246,8 +383,8 @@ public class AppointmentsServiceImplTest {
         appointmentsService.createAppointments(appointmentsToCreate);
 
         verify(bookingRepository)
-                .createMultipleAppointments(
-                        appointmentsToCreate.withDefaults(),
+                .createAppointment(
+                        appointmentsToCreate.withDefaults().get(0),
                         appointmentsToCreate.getAppointmentDefaults(),
                         LOCATION_B.getAgencyId());
 
@@ -363,8 +500,8 @@ public class AppointmentsServiceImplTest {
         appointmentsService.createAppointments(appointmentsToCreate);
 
         verify(bookingRepository)
-                .createMultipleAppointments(
-                        appointmentsToCreate.withDefaults(),
+                .createAppointment(
+                        appointmentsToCreate.withDefaults().get(0),
                         appointmentsToCreate.getAppointmentDefaults(),
                         LOCATION_B.getAgencyId());
     }
@@ -414,8 +551,8 @@ public class AppointmentsServiceImplTest {
         appointmentsService.createAppointments(appointmentsToCreate);
 
         verify(bookingRepository)
-                .createMultipleAppointments(
-                        appointmentsToCreate.withDefaults(),
+                .createAppointment(
+                        appointmentsToCreate.withDefaults().get(0),
                         appointmentsToCreate.getAppointmentDefaults(),
                         LOCATION_B.getAgencyId());
     }
@@ -423,7 +560,10 @@ public class AppointmentsServiceImplTest {
 
     @Test
     public void shouldHandleNoRepeats() {
-        assertThat(AppointmentsService.withRepeats(null, Collections.singletonList(DETAILS_2))).containsExactly(DETAILS_2);
+        assertThat(AppointmentsService.withRepeats(null, Collections.singletonList(DETAILS_2)))
+            .containsExactly(
+                AppointmentWithRepeats.of(DETAILS_2)
+            );
     }
 
     @Test
@@ -432,7 +572,7 @@ public class AppointmentsServiceImplTest {
                 Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(1).build(),
                 List.of(DETAILS_2)
         ))
-                .containsExactly(DETAILS_2);
+                .containsExactly(AppointmentWithRepeats.of(DETAILS_2));
     }
 
     @Test
@@ -442,9 +582,11 @@ public class AppointmentsServiceImplTest {
                 List.of(DETAILS_2)
         ))
                 .containsExactly(
-                        DETAILS_2,
+                    AppointmentWithRepeats.of(DETAILS_2,
+                    List.of(
                         DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
                         DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build()
+                    ))
                 );
     }
 
@@ -455,8 +597,11 @@ public class AppointmentsServiceImplTest {
                 List.of(DETAILS_3)
         ))
                 .containsExactly(
-                        DETAILS_3,
-                        DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build()
+                    AppointmentWithRepeats.of(DETAILS_3,
+                        List.of(
+                            DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build()
+                        )
+                    )
                 );
     }
 
@@ -467,12 +612,18 @@ public class AppointmentsServiceImplTest {
                 List.of(DETAILS_2, DETAILS_3)
         ))
                 .containsExactly(
-                        DETAILS_2,
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build(),
-                        DETAILS_3,
-                        DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build(),
-                        DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(2)).build()
+                    AppointmentWithRepeats.of(DETAILS_2,
+                        List.of(
+                            DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
+                            DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build()
+                        )
+                    ),
+                    AppointmentWithRepeats.of(DETAILS_3,
+                        List.of(
+                            DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build(),
+                            DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(2)).build()
+                        )
+                    )
                 );
     }
 

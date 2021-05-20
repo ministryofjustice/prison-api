@@ -40,7 +40,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -445,15 +444,15 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    public void createMultipleAppointments() {
+    public void createAppointment() {
         final var now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         final var in1Hour = now.plusHours(1L);
         final var today = now.toLocalDate();
 
-        final var bookingIds = Arrays.asList(-31L, -32L);
+        final var bookingId = -31L;
 
         // Given
-        final var scheduledEventsBefore = repository.getBookingAppointments(bookingIds, today, today, null, Order.ASC);
+        final var scheduledEventsBefore = repository.getBookingAppointments(bookingId, today, today, null, Order.ASC);
         assertThat(scheduledEventsBefore).hasSize(0);
 
         // When
@@ -463,27 +462,26 @@ public class BookingRepositoryTest {
                 .appointmentType("ACTI") // Activity
                 .build();
 
-        final var appointments = bookingIds
-                .stream()
-                .map(id -> AppointmentDetails
-                        .builder()
-                        .bookingId(id)
-                        .startTime(now)
-                        .endTime(in1Hour)
-                        .comment("Comment")
-                        .build())
-                .collect(Collectors.toList());
+        final var appointment = AppointmentDetails
+                .builder()
+                .bookingId(bookingId)
+                .startTime(now)
+                .endTime(in1Hour)
+                .comment("Comment")
+                .build();
 
-        repository.createMultipleAppointments(appointments, defaults, "LEI");
+        final var assignedId = repository.createAppointment(appointment, defaults, "LEI");
 
         // Then
-        final var scheduledEventsAfter = repository.getBookingAppointments(bookingIds, today, today, null, Order.ASC);
+        final var scheduledEventsAfter = repository.getBookingAppointments(bookingId, today, today, null, Order.ASC);
+        final var bookingAppointmentAfter = repository.getBookingAppointmentByEventId(assignedId);
 
         assertThat(scheduledEventsAfter)
                 .extracting("bookingId", "eventType", "eventSubType", "eventDate", "startTime", "endTime", "eventLocation")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple(-31L, "APP", "ACTI", today, now, in1Hour, "Chapel"),
-                        Tuple.tuple(-32L, "APP", "ACTI", today, now, in1Hour, "Chapel"));
+                        Tuple.tuple(-31L, "APP", "ACTI", today, now, in1Hour, "Chapel"));
+        assertThat(bookingAppointmentAfter).isPresent();
+        assertThat(bookingAppointmentAfter.get().getBookingId()).isEqualTo(-31L);
     }
 
     @Test

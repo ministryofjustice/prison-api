@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -15,6 +16,7 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
+import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 
 import java.time.LocalDateTime;
@@ -29,6 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -43,19 +46,33 @@ public class AppointmentsResourceTest extends ResourceTest {
     @Test
     public void createAnAppointment() {
 
+        final var firstEventId = 11L;
+        final var secondEventId = 12L;
         when(bookingRepository.checkBookingExists(anyLong())).thenReturn(true);
         when(bookingRepository.findBookingsIdsInAgency(any(), anyString())).thenReturn(List.of(1L, 2L));
+        when(bookingRepository.createAppointment(any(), any(), anyString())).thenReturn(firstEventId, secondEventId);
 
-        final var response = makeCreateAppointmentsRequest();
+        final var appointments = getCreateAppointmentBody();
+        final var response = makeCreateAppointmentsRequest(appointments);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).hasSize(2)
+            .extracting("appointmentEventId", "bookingId")
+            .containsExactlyInAnyOrder(
+                Tuple.tuple(firstEventId, appointments.getAppointments().get(0).getBookingId()),
+                Tuple.tuple(secondEventId, appointments.getAppointments().get(1).getBookingId())
+            );
 
-        verify(bookingRepository).createMultipleAppointments(any(), any(), anyString());
+        verify(bookingRepository, times(2)).createAppointment(any(), any(), anyString());
     }
 
     @Test
     public void triggerProxyUserAspect() throws Throwable {
-        makeCreateAppointmentsRequest();
+        when(bookingRepository.checkBookingExists(anyLong())).thenReturn(true);
+        when(bookingRepository.findBookingsIdsInAgency(any(), anyString())).thenReturn(List.of(1L, 2L));
+        when(bookingRepository.createAppointment(any(), any(), anyString())).thenReturn(3L);
+
+        makeCreateAppointmentsRequest(getCreateAppointmentBody());
 
         verify(proxyUserAspect).controllerCall(any());
     }
@@ -73,7 +90,6 @@ public class AppointmentsResourceTest extends ResourceTest {
             .build();
 
         when(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.of(scheduledEvent));
-
 
         final var response = testRestTemplate.exchange(
             "/api/appointments/1",
@@ -279,9 +295,7 @@ public class AppointmentsResourceTest extends ResourceTest {
         verifyNoInteractions(bookingRepository);
     }
 
-    private ResponseEntity<String> makeCreateAppointmentsRequest() {
-        final AppointmentsToCreate body = getCreateAppointmentBody();
-
+    private ResponseEntity<List<CreatedAppointmentDetails>> makeCreateAppointmentsRequest(final AppointmentsToCreate body) {
         return testRestTemplate.exchange(
             "/api/appointments",
             HttpMethod.POST,

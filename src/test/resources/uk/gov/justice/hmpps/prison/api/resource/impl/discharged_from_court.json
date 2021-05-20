@@ -1,0 +1,32 @@
+{
+  "firstName": "TESTFIRSTNAM",
+  "lastName": "TESTSURNAM",
+  "dateOfBirth": "2001-10-19",
+  "activeFlag": false,
+  "agencyId": "OUT",
+  "assignedLivingUnit": {
+    "agencyId": "OUT",
+    "agencyName": "Outside"
+  },
+  "inOutStatus": "OUT",
+  "status": "INACTIVE OUT",
+  "statusReason": "REL-HP",
+  "lastMovementTypeCode": "REL",
+  "lastMovementReasonCode": "HP",
+  "restrictivePatient": {
+    "supportingPrison": {
+      "agencyId": "LEI",
+      "description": "Leeds",
+      "agencyType": "INST",
+      "active": true
+    },
+    "dischargedHospital": {
+      "agencyId": "ARNOLD",
+      "description": "Arnold Lodge",
+      "agencyType": "HSHOSP",
+      "active": true
+    },
+    "dischargeDate": "2021-05-18",
+    "dischargeDetails": "Psychiatric Hospital Discharge to Arnold Lodge"
+  }
+}
