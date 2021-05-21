@@ -49,8 +49,8 @@ public class RestrictivePatient {
             DISCHARGE_TO_PSY_HOSPITAL.getCode().equals(lastMovement.getMovementReason().getCode())) {
             return RestrictivePatient.builder()
                 .dischargeDate(lastMovement.getMovementDate())
-                .dischargedHospital(AgencyTransformer.transform(lastMovement.getToAgency(), false))
-                .supportingPrison(AgencyTransformer.transform(lastMovement.getFromAgency(), false))
+                .dischargedHospital(lastMovement.getToAgency().getType().isHospital() ? AgencyTransformer.transform(lastMovement.getToAgency(), false) : null)
+                .supportingPrison(lastMovement.getToAgency().getType().isPrison() ? AgencyTransformer.transform(lastMovement.getFromAgency(), false) : null)
                 .dischargeDetails(lastMovement.getCommentText())
                 .build();
         }
