@@ -50,7 +50,7 @@ public class RestrictivePatient {
             return RestrictivePatient.builder()
                 .dischargeDate(lastMovement.getMovementDate())
                 .dischargedHospital(lastMovement.getToAgency().getType().isHospital() ? AgencyTransformer.transform(lastMovement.getToAgency(), false) : null)
-                .supportingPrison(lastMovement.getToAgency().getType().isPrison() ? AgencyTransformer.transform(lastMovement.getFromAgency(), false) : null)
+                .supportingPrison(lastMovement.getFromAgency().getType().isPrison() ? AgencyTransformer.transform(lastMovement.getFromAgency(), false) : null)
                 .dischargeDetails(lastMovement.getCommentText())
                 .build();
         }
