@@ -503,9 +503,6 @@ public class InmateServiceImplTest {
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - released from Leeds");
-
-        assertThat(inmateDetail.getRestrictivePatient().getSupportingPrison().getDescription()).isEqualTo("Leeds");
-
     }
 
     @Test

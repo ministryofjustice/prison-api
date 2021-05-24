@@ -8,32 +8,27 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SmokeTestHelperServiceTest {
 
-    private BookingService bookingService = mock(BookingService.class);
-    private OffenderBookingRepository offenderBookingRepository = mock(OffenderBookingRepository.class);
-    private OffenderImprisonmentStatusRepository offenderImprisonmentStatusRepository = mock(OffenderImprisonmentStatusRepository.class);
-    private SmokeTestHelperService smokeTestHelperService = new SmokeTestHelperService(bookingService, offenderBookingRepository);
+    private final BookingService bookingService = mock(BookingService.class);
+    private final OffenderBookingRepository offenderBookingRepository = mock(OffenderBookingRepository.class);
+    private final SmokeTestHelperService smokeTestHelperService = new SmokeTestHelperService(bookingService, offenderBookingRepository);
 
     private final static String SOME_OFFENDER_NO = "A1234AA";
     private final static long SOME_BOOKING_ID = 11L;
@@ -68,21 +63,20 @@ public class SmokeTestHelperServiceTest {
     class NoImprisonmentStatus {
 
         @Test
-        public void badRequest() {
+        public void notFoundRequest() {
             mockOffenderBooking();
-            when(offenderImprisonmentStatusRepository.findByOffenderBookingId(SOME_BOOKING_ID))
-                    .thenReturn(emptyList());
+            when(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(SOME_OFFENDER_NO, SOME_BOOKING_SEQ))
+                    .thenReturn(Optional.empty());
 
-            assertThatExceptionOfType(BadRequestException.class)
+            assertThatExceptionOfType(EntityNotFoundException.class)
                     .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO))
-                    .withMessage(format("Unable to find active imprisonment status for offender number %s", SOME_OFFENDER_NO));
+                    .withMessage(format("No booking found for offender %s and seq %d", SOME_OFFENDER_NO, SOME_BOOKING_SEQ));
         }
 
         @Test
         public void ignoresInactiveStatuses() {
             mockOffenderBooking();
             mockImprisonmentStatus("N");
-
             assertThatExceptionOfType(BadRequestException.class)
                     .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO))
                     .withMessage(format("Unable to find active imprisonment status for offender number %s", SOME_OFFENDER_NO));
@@ -91,25 +85,15 @@ public class SmokeTestHelperServiceTest {
         @Test
         public void oldStatusNotUpdated() {
             mockOffenderBooking();
-            final var oldImprisonmentStatus = mockImprisonmentStatus("N");
+            final var offenderBooking = mockImprisonmentStatus("N");
 
             assertThatExceptionOfType(BadRequestException.class)
                     .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO));
 
-            assertThat(oldImprisonmentStatus.getLatestStatus()).isEqualTo("N");
-            assertThat(oldImprisonmentStatus.getExpiryDate().toLocalDate()).isEqualTo(LocalDate.now().minusDays(1L));
+            assertThat(offenderBooking.getImprisonmentStatuses().get(0).getLatestStatus()).isEqualTo("N");
+            assertThat(offenderBooking.getImprisonmentStatuses().get(0).getExpiryDate().toLocalDate()).isEqualTo(LocalDate.now().minusDays(1L));
         }
 
-        @Test
-        public void newStatusNotSaved() {
-            mockOffenderBooking();
-            mockImprisonmentStatus("N");
-
-            assertThatExceptionOfType(BadRequestException.class)
-                    .isThrownBy(() -> smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO));
-
-            verify(offenderImprisonmentStatusRepository, never()).save(any(OffenderImprisonmentStatus.class));
-        }
     }
 
     @Nested
@@ -118,22 +102,22 @@ public class SmokeTestHelperServiceTest {
         @Test
         public void savesNewStatus() {
             mockOffenderBooking();
-            mockImprisonmentStatus("Y");
+            final var offenderBooking = mockImprisonmentStatus("Y");
 
             smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO);
 
-            verify(offenderImprisonmentStatusRepository).save(argThat(imprisonmentStatus ->
-                    imprisonmentStatus.getLatestStatus().equals("Y")
-                            && imprisonmentStatus.getImprisonStatusSeq() == 2L
-                            && imprisonmentStatus.getEffectiveDate().equals(LocalDate.now())
-                            && imprisonmentStatus.getEffectiveTime().toLocalDate().equals(LocalDate.now())
-            ));
+            final var activeImprisonmentStatus = offenderBooking.getActiveImprisonmentStatus();
+            assertThat(activeImprisonmentStatus).isPresent();
+
+            assertThat(activeImprisonmentStatus.get().getImprisonStatusSeq()).isEqualTo(2L);
+            assertThat(activeImprisonmentStatus.get().getEffectiveDate()).isEqualTo(LocalDate.now());
+            assertThat(activeImprisonmentStatus.get().getEffectiveTime().toLocalDate()).isEqualTo(LocalDate.now());
         }
 
         @Test
         public void updatesOldStatus() {
             mockOffenderBooking();
-            final var oldImprisonmentStatus = mockImprisonmentStatus("Y");
+            final var oldImprisonmentStatus = mockImprisonmentStatus("Y").getActiveImprisonmentStatus().get();
 
             smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO);
 
@@ -148,11 +132,17 @@ public class SmokeTestHelperServiceTest {
     }
 
     @NotNull
-    private OffenderImprisonmentStatus mockImprisonmentStatus(final String latestStatus) {
+    private OffenderBooking mockImprisonmentStatus(final String latestStatus) {
         final var oldImprisonmentStatus = anOffenderImprisonmentStatus(latestStatus);
-        when(offenderImprisonmentStatusRepository.findByOffenderBookingId(SOME_BOOKING_ID))
-                .thenReturn(List.of(oldImprisonmentStatus));
-        return oldImprisonmentStatus;
+        List<OffenderImprisonmentStatus> statuses = new ArrayList<>();
+        statuses.add(oldImprisonmentStatus);
+        final var offenderBooking = OffenderBooking.builder()
+            .imprisonmentStatuses(statuses)
+            .build();
+        when(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(SOME_OFFENDER_NO, SOME_BOOKING_SEQ)).thenReturn(
+            Optional.of(offenderBooking)
+        );
+        return offenderBooking;
     }
 
     private OffenderImprisonmentStatus anOffenderImprisonmentStatus(final String latestStatus) {
