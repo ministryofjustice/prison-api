@@ -10,8 +10,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ListIndexBase;
+import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
+import uk.gov.justice.hmpps.prison.api.model.RestrictivePatient;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
+import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -26,14 +29,23 @@ import javax.persistence.OrderBy;
 import javax.persistence.OrderColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.CONVICTED_UNSENTENCED;
+import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.IMMIGRATION_DETAINEE;
+import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.INDETERMINATE_SENTENCE;
+import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.RECALL;
+import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.SENTENCED;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.DISCHARGE_TO_PSY_HOSPITAL;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 
 @EqualsAndHashCode(of = "bookingId", callSuper = false)
 @Data
@@ -115,6 +127,10 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     private List<ExternalMovement> externalMovements = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<OffenderImprisonmentStatus> imprisonmentStatuses = new ArrayList<>();
 
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
@@ -226,11 +242,38 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         return getMovementsRecentFirst().stream().findFirst();
     }
 
+
+    public OffenderImprisonmentStatus setImprisonmentStatus(final OffenderImprisonmentStatus offenderImprisonmentStatus, final LocalDateTime effectiveFrom) {
+        setPreviousImprisonmentStatusToInactive(effectiveFrom);
+        offenderImprisonmentStatus.setImprisonStatusSeq(getNextImprisonmentStatusSequence());
+        offenderImprisonmentStatus.setOffenderBooking(this);
+        offenderImprisonmentStatus.makeActive();
+        offenderImprisonmentStatus.setEffectiveDate(effectiveFrom.toLocalDate());
+        offenderImprisonmentStatus.setEffectiveTime(effectiveFrom);
+        imprisonmentStatuses.add(offenderImprisonmentStatus);
+        return offenderImprisonmentStatus;
+    }
+
+    public Optional<OffenderImprisonmentStatus> getActiveImprisonmentStatus() {
+        return getImprisonmentStatusesRecentFirst().stream().filter(OffenderImprisonmentStatus::isActiveLatestStatus).findFirst();
+    }
+
     public List<ExternalMovement> getMovementsRecentFirst() {
         return externalMovements.stream()
             .sorted(Comparator.comparingLong(ExternalMovement::getMovementSequence)
             .reversed())
             .collect(Collectors.toList());
+    }
+
+    public List<OffenderImprisonmentStatus> getImprisonmentStatusesRecentFirst() {
+        return imprisonmentStatuses.stream()
+            .sorted(Comparator.comparingLong(OffenderImprisonmentStatus::getImprisonStatusSeq)
+                .reversed())
+            .collect(Collectors.toList());
+    }
+
+    public Long getNextImprisonmentStatusSequence() {
+        return getImprisonmentStatusesRecentFirst().stream().findFirst().map(OffenderImprisonmentStatus::getImprisonStatusSeq).orElse(0L) + 1;
     }
 
     public Long getNextMovementSequence() {
@@ -239,5 +282,44 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     public void setPreviousMovementsToInactive() {
         externalMovements.stream().filter(m -> m.getActiveFlag().isActive()).forEach(m -> m.setActiveFlag(ActiveFlag.N));
+    }
+
+    public void setPreviousImprisonmentStatusToInactive(final LocalDateTime expiryTime) {
+        imprisonmentStatuses.stream().filter(OffenderImprisonmentStatus::isActiveLatestStatus).forEach(m -> m.makeInactive(expiryTime));
+    }
+
+    public LegalStatus getLegalStatus() {
+        return getActiveImprisonmentStatus().map(
+            is -> is.getImprisonmentStatus().getLegalStatus()
+        ).orElse(null);
+    }
+
+    public String getConvictedStatus() {
+        return getActiveImprisonmentStatus().map(
+            is -> is.getImprisonmentStatus().getConvictedStatus()
+        ).orElse(null);
+    }
+
+    public RestrictivePatient getRestrictivePatientDetails() {
+        return getLastMovement().map(lastMovement -> mapRestrictivePatient(lastMovement, getLegalStatus(), null)).orElse(null);
+    }
+
+    public static RestrictivePatient mapRestrictivePatient(final ExternalMovement lastMovement, LegalStatus legalStatus, LocalDate releaseDate) {
+        if (REL.getCode().equals(lastMovement.getMovementType().getCode()) &&
+            DISCHARGE_TO_PSY_HOSPITAL.getCode().equals(lastMovement.getMovementReason().getCode())) {
+
+
+            if (legalStatus != null && Arrays.asList(INDETERMINATE_SENTENCE, RECALL, SENTENCED, CONVICTED_UNSENTENCED, IMMIGRATION_DETAINEE).contains(legalStatus) &&
+                (releaseDate == null || LocalDate.now().isBefore(releaseDate))) {
+
+                return RestrictivePatient.builder()
+                    .dischargeDate(lastMovement.getMovementDate())
+                    .dischargedHospital(lastMovement.getToAgency().isHospital() ? AgencyTransformer.transform(lastMovement.getToAgency(), false) : null)
+                    .supportingPrison(lastMovement.getFromAgency().isPrison() ? AgencyTransformer.transform(lastMovement.getFromAgency(), false) : null)
+                    .dischargeDetails(lastMovement.getCommentText())
+                    .build();
+            }
+        }
+        return null;
     }
 }

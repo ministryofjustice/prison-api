@@ -5,12 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -23,27 +27,30 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(OffenderImprisonmentStatus.PK.class)
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(of = {"offenderBooking", "imprisonStatusSeq"}, callSuper = false)
+@ToString(of = {"imprisonmentStatus", "latestStatus", "imprisonStatusSeq", "effectiveDate", "expiryDate"})
 public class OffenderImprisonmentStatus extends AuditableEntity {
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PK implements Serializable {
-        @Column(name = "OFFENDER_BOOK_ID", updatable = false, insertable = false, nullable = false)
-        private Long offenderBookId;
-        @Column(name = "IMPRISON_STATUS_SEQ", updatable = false, insertable = false, nullable = false)
+        private OffenderBooking offenderBooking;
         private Long imprisonStatusSeq;
     }
 
     @Id
-    private Long offenderBookId;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    private OffenderBooking offenderBooking;
 
     @Id
+    @Column(name = "IMPRISON_STATUS_SEQ", nullable = false)
     private Long imprisonStatusSeq;
 
-    @Column(name = "IMPRISONMENT_STATUS", nullable = false)
-    private String imprisonmentStatus;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "IMPRISONMENT_STATUS", nullable = false, referencedColumnName = "IMPRISONMENT_STATUS")
+    private ImprisonmentStatus imprisonmentStatus;
 
     @Column(name = "EFFECTIVE_DATE", nullable = false)
     private LocalDate effectiveDate;
@@ -66,5 +73,19 @@ public class OffenderImprisonmentStatus extends AuditableEntity {
     @Column(name = "CREATE_DATE")
     @CreatedDate
     private LocalDate createDate;
+
+    public boolean isActiveLatestStatus() {
+        return "Y".equalsIgnoreCase(latestStatus);
+    }
+
+    public void makeActive() {
+        setLatestStatus("Y");
+        setExpiryDate(null);
+    }
+
+    public void makeInactive(final LocalDateTime expiryDate) {
+        setExpiryDate(expiryDate);
+        setLatestStatus("N");
+    }
 
 }

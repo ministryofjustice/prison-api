@@ -9,7 +9,6 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
-import uk.gov.justice.hmpps.prison.api.model.RestrictivePatient;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
@@ -56,7 +55,7 @@ public class OffenderTransformer {
                     .question(pd.getId().getType().getDescription())
                     .resultValue(pd.getCode().getDescription())
                     .build()).collect(Collectors.toList()))
-            .restrictivePatient(latestBooking.getLastMovement().map(RestrictivePatient::mapRestrictivePatient).orElse(null))
+            .restrictivePatient(latestBooking.getRestrictivePatientDetails())
             .build()
             .deriveStatus()
             .splitStatusReason();

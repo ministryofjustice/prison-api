@@ -25,7 +25,6 @@ import uk.gov.justice.hmpps.prison.api.model.CategoryRejectionDetail;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.LegalStatusCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
@@ -36,7 +35,7 @@ import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
-import uk.gov.justice.hmpps.prison.api.model.RestrictivePatient;
+import uk.gov.justice.hmpps.prison.api.model.RecallCalc;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
 import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
 import uk.gov.justice.hmpps.prison.api.support.CategoryInformationType;
@@ -288,13 +287,13 @@ public class InmateService {
                 final var sentenceTerms = bookingService.getOffenderSentenceTerms(bookingId, null);
                 inmate.setOffenceHistory(offenceHistory);
                 inmate.setSentenceTerms(sentenceTerms);
-                inmate.setRecall(LegalStatusCalc.calcRecall(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
+                inmate.setRecall(RecallCalc.calculate(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
 
                 if ("OUT".equals(inmate.getInOutStatus()) && REL.getCode().equals(inmate.getLastMovementTypeCode())) {
                     externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(inmate.getBookingId()).ifPresentOrElse(
                         lastMovement -> {
                             inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
-                            inmate.setRestrictivePatient(RestrictivePatient.mapRestrictivePatient(lastMovement));
+                            inmate.setRestrictivePatient(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.mapRestrictivePatient(lastMovement, inmate.getLegalStatus(), inmate.getSentenceDetail() != null ? inmate.getSentenceDetail().getReleaseDate() : null));
                         },
                         () -> inmate.setLocationDescription("Outside")
                     );

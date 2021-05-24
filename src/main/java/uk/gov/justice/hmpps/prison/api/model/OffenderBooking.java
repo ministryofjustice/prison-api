@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.hmpps.prison.api.model.LegalStatusCalc.LegalStatus;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -102,7 +101,7 @@ public class OffenderBooking implements CategoryCodeAware {
     private LegalStatus legalStatus;
 
     public void deriveLegalDetails() {
-        legalStatus = LegalStatusCalc.getLegalStatus(bandCode, imprisonmentStatus);
-        convictedStatus = LegalStatusCalc.getConvictedStatus(bandCode);
+        legalStatus = uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus.calcLegalStatus(bandCode, imprisonmentStatus);
+        convictedStatus = uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus.calcConvictedStatus(bandCode);
     }
 }

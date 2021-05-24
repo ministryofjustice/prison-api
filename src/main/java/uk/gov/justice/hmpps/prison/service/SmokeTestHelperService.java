@@ -4,8 +4,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.time.LocalDateTime;
@@ -16,11 +15,11 @@ import static java.lang.String.format;
 public class SmokeTestHelperService {
 
     private final BookingService bookingService;
-    private final OffenderImprisonmentStatusRepository imprisonmentStatusRepository;
+    private final OffenderBookingRepository offenderBookingRepository;
 
-    public SmokeTestHelperService(BookingService bookingService, OffenderImprisonmentStatusRepository imprisonmentStatusRepository) {
+    public SmokeTestHelperService(BookingService bookingService, OffenderBookingRepository offenderBookingRepository) {
         this.bookingService = bookingService;
-        this.imprisonmentStatusRepository = imprisonmentStatusRepository;
+        this.offenderBookingRepository = offenderBookingRepository;
     }
 
     @Transactional
@@ -29,34 +28,17 @@ public class SmokeTestHelperService {
     public void imprisonmentDataSetup(String offenderNo) {
         final var latestOffenderBooking = bookingService.getOffenderIdentifiers(offenderNo, "SMOKE_TEST");
         final var bookingAndSeq = getBookingAndSeqOrThrow(offenderNo, latestOffenderBooking);
-        final var latestStatus = getActiveImprisonmentStatusOrThrow(offenderNo, bookingAndSeq);
+        final var booking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, bookingAndSeq.getBookingSeq())
+            .orElseThrow(EntityNotFoundException.withMessage(format("No booking found for offender %s and seq %d", offenderNo, bookingAndSeq.getBookingSeq())));
 
-        final var now = LocalDateTime.now();
-        saveNewStatus(latestStatus, now);
+        final var currentImprisonmentStatus = booking.getActiveImprisonmentStatus().orElseThrow(() -> new BadRequestException(format("Unable to find active imprisonment status for offender number %s", offenderNo)));
 
-        latestStatus.setLatestStatus("N");
-        latestStatus.setExpiryDate(now);
+        booking.setImprisonmentStatus(currentImprisonmentStatus.toBuilder().build(), LocalDateTime.now());
     }
 
     private OffenderBookingIdSeq.BookingAndSeq getBookingAndSeqOrThrow(String offenderNo, OffenderBookingIdSeq latestOffenderBooking) {
         return latestOffenderBooking.getBookingAndSeq()
-                .orElseThrow(() -> EntityNotFoundException.withMessage("No booking found for offender %s", offenderNo));
+                .orElseThrow(() -> EntityNotFoundException.withMessage(format("No booking found for offender %s", offenderNo)));
     }
 
-    private OffenderImprisonmentStatus getActiveImprisonmentStatusOrThrow(String offenderNo, OffenderBookingIdSeq.BookingAndSeq bookingAndSeq) {
-        return imprisonmentStatusRepository.findByOffenderBookId(bookingAndSeq.getBookingId())
-                .stream()
-                .filter(status -> status.getLatestStatus().equals("Y"))
-                .findFirst()
-                .orElseThrow(() -> new BadRequestException(format("Unable to find active imprisonment status for offender number %s", offenderNo)));
-    }
-
-    private void saveNewStatus(OffenderImprisonmentStatus latestStatus, LocalDateTime now) {
-        final var newStatus = latestStatus.toBuilder()
-                .imprisonStatusSeq(latestStatus.getImprisonStatusSeq() + 1)
-                .effectiveDate(now.toLocalDate())
-                .effectiveTime(now)
-                .build();
-        imprisonmentStatusRepository.save(newStatus);
-    }
 }
