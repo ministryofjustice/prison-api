@@ -30,6 +30,7 @@ import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
@@ -628,8 +629,8 @@ public class InmateServiceImplTest {
         return Optional.of(ExternalMovement.builder()
                 .movementDate(now.toLocalDate())
                 .movementTime(now)
-                .fromAgency(AgencyLocation.builder().id("LEI").description("Leeds").build())
-                .toAgency(AgencyLocation.builder().id("OUT").description("Outside").build())
+                .fromAgency(AgencyLocation.builder().id("LEI").description("Leeds").type(AgencyLocationType.PRISON_TYPE).build())
+                .toAgency(AgencyLocation.builder().id("OUT").description("Outside").type(AgencyLocationType.PRISON_TYPE).build())
                 .movementDirection(MovementDirection.OUT)
                 .movementType(new MovementType(movementType, movementTypeDescription))
                 .movementReason(new MovementReason(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.getCode(), "to hospital"))

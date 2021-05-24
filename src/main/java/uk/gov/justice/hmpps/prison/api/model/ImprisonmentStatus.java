@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import lombok.Data;
-import uk.gov.justice.hmpps.prison.api.model.LegalStatusCalc.LegalStatus;
 
 @Data
 public class ImprisonmentStatus {

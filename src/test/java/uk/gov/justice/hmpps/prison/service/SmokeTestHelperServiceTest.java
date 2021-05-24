@@ -4,7 +4,10 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository;
 
 import java.time.LocalDate;
@@ -28,8 +31,9 @@ import static org.mockito.Mockito.when;
 public class SmokeTestHelperServiceTest {
 
     private BookingService bookingService = mock(BookingService.class);
+    private OffenderBookingRepository offenderBookingRepository = mock(OffenderBookingRepository.class);
     private OffenderImprisonmentStatusRepository offenderImprisonmentStatusRepository = mock(OffenderImprisonmentStatusRepository.class);
-    private SmokeTestHelperService smokeTestHelperService = new SmokeTestHelperService(bookingService, offenderImprisonmentStatusRepository);
+    private SmokeTestHelperService smokeTestHelperService = new SmokeTestHelperService(bookingService, offenderBookingRepository);
 
     private final static String SOME_OFFENDER_NO = "A1234AA";
     private final static long SOME_BOOKING_ID = 11L;
@@ -66,7 +70,7 @@ public class SmokeTestHelperServiceTest {
         @Test
         public void badRequest() {
             mockOffenderBooking();
-            when(offenderImprisonmentStatusRepository.findByOffenderBookId(SOME_BOOKING_ID))
+            when(offenderImprisonmentStatusRepository.findByOffenderBookingId(SOME_BOOKING_ID))
                     .thenReturn(emptyList());
 
             assertThatExceptionOfType(BadRequestException.class)
@@ -146,7 +150,7 @@ public class SmokeTestHelperServiceTest {
     @NotNull
     private OffenderImprisonmentStatus mockImprisonmentStatus(final String latestStatus) {
         final var oldImprisonmentStatus = anOffenderImprisonmentStatus(latestStatus);
-        when(offenderImprisonmentStatusRepository.findByOffenderBookId(SOME_BOOKING_ID))
+        when(offenderImprisonmentStatusRepository.findByOffenderBookingId(SOME_BOOKING_ID))
                 .thenReturn(List.of(oldImprisonmentStatus));
         return oldImprisonmentStatus;
     }
@@ -154,8 +158,8 @@ public class SmokeTestHelperServiceTest {
     private OffenderImprisonmentStatus anOffenderImprisonmentStatus(final String latestStatus) {
         final var expiryDate = latestStatus.equals("Y") ? null : LocalDateTime.now().minusDays(1);
         return new OffenderImprisonmentStatus(
-                SOME_BOOKING_ID,
-                1L, "status",
+                OffenderBooking.builder().bookingId(SOME_BOOKING_ID).build(),
+                1L, ImprisonmentStatus.builder().status("status").build(),
                 LocalDate.now().minusDays(1),
                 LocalDateTime.now().minusDays(1),
                 expiryDate,

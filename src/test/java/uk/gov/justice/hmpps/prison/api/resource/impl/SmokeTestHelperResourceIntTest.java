@@ -15,7 +15,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
-import static org.assertj.core.groups.Tuple.tuple;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
@@ -60,8 +59,8 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
     @DisplayName("will add new imprisonment status to active booking")
     public void willAddImprisonmentStatus() {
         // GIVEN the offender booking as a single imprisonment status
-        final var bookingId = -1;
-        assertThat(repository.findByOffenderBookId(bookingId)).hasSize(1);
+        final var bookingId = -1L;
+        assertThat(repository.findByOffenderBookingId(bookingId)).hasSize(1);
 
         // WHEN I setup the smoke test data
         final var response = testRestTemplate.exchange(
@@ -74,16 +73,12 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
 
 
         // THEN I have twp imprisonment statuses
-        final List<OffenderImprisonmentStatus> statuses = repository.findByOffenderBookId(bookingId);
-        assertThat(statuses)
-                .hasSize(2)
-                .extracting(OffenderImprisonmentStatus::getImprisonmentStatus, OffenderImprisonmentStatus::getCommentText, OffenderImprisonmentStatus::getLatestStatus)
-                .containsExactly(
-                        tuple("SENT", "Some Comment Text", "N"),
-                        tuple("SENT", "Some Comment Text", "Y"));
-
+        final List<OffenderImprisonmentStatus> statuses = repository.findByOffenderBookingId(bookingId);
+        assertThat(statuses).hasSize(2);
+        assertThat(statuses.get(0).isActiveLatestStatus()).isFalse();
         assertThat(statuses.get(0).getExpiryDate()).isCloseTo(LocalDateTime.now(), within(60, ChronoUnit.SECONDS));
         assertThat(statuses.get(1).getExpiryDate()).isNull();
+        assertThat(statuses.get(1).isActiveLatestStatus()).isTrue();
     }
 
 

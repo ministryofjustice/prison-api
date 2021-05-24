@@ -21,7 +21,6 @@ import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.LegalStatusCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
@@ -950,7 +949,7 @@ public class InmateRepository extends RepositoryBase {
                     createParams("bookingId", bookingId),
                     IMPRISONMENT_STATUS_MAPPER)
                     .stream().max(Comparator.comparingInt(ImprisonmentStatus::getImprisonStatusSeq));
-            imprisonmentStatus.ifPresent(s -> s.setLegalStatus(LegalStatusCalc.getLegalStatus(s.getBandCode(), s.getImprisonmentStatus())));
+            imprisonmentStatus.ifPresent(s -> s.setLegalStatus(uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus.calcLegalStatus(s.getBandCode(), s.getImprisonmentStatus())));
         } catch (final EmptyResultDataAccessException e) {
             imprisonmentStatus = Optional.empty();
         }

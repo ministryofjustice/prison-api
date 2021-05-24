@@ -9,14 +9,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
-import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.DISCHARGE_TO_PSY_HOSPITAL;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 
 @SuppressWarnings("unused")
 @ApiModel(description = "Restrictive Patient details")
@@ -43,17 +38,4 @@ public class RestrictivePatient {
     @ApiModelProperty(value = "Discharge details")
     private String dischargeDetails;
 
-
-    public static RestrictivePatient mapRestrictivePatient(final ExternalMovement lastMovement) {
-        if (REL.getCode().equals(lastMovement.getMovementType().getCode()) &&
-            DISCHARGE_TO_PSY_HOSPITAL.getCode().equals(lastMovement.getMovementReason().getCode())) {
-            return RestrictivePatient.builder()
-                .dischargeDate(lastMovement.getMovementDate())
-                .dischargedHospital(lastMovement.getToAgency().getType().isHospital() ? AgencyTransformer.transform(lastMovement.getToAgency(), false) : null)
-                .supportingPrison(lastMovement.getFromAgency().getType().isPrison() ? AgencyTransformer.transform(lastMovement.getFromAgency(), false) : null)
-                .dischargeDetails(lastMovement.getCommentText())
-                .build();
-        }
-        return null;
-    }
 }
