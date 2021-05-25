@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @ApiModel(description = "The details of an appointment that has just been created")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,11 +19,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class CreatedAppointmentDetails {
-
-    @ApiModelProperty(required = true, value = "The id of the appointment that was created.", example = "123456")
-    @NotNull
-    private Long appointmentEventId;
-
     @ApiModelProperty(required = true, value = "The Booking id of the offender for whom the appointment was created.", example = "123456")
     @NotNull
     private Long bookingId;
@@ -36,6 +30,13 @@ public class CreatedAppointmentDetails {
     @ApiModelProperty(value = "The end time of the appointment.", example = "2018-12-31T23:59")
     private LocalDateTime endTime;
 
-    @ApiModelProperty(value = "The ids of all recurring appointments (or repeat appointments) that were created.")
-    private List<Long> recurringAppointmentEventIds;
+    @ApiModelProperty
+    private Long appointmentEventId;
+
+    @ApiModelProperty(value = "The scheduled event subType", example = "ACTI")
+    private String appointmentType;
+
+    @ApiModelProperty(value = "The identifier of the appointments' Location. The location must be situated in the requestor's case load.", example = "25", position = 1)
+    @NotNull
+    private Long locationId;
 }

@@ -33,7 +33,6 @@ import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -61,12 +60,12 @@ public class AppointmentsService {
     private final ScheduledAppointmentRepository scheduledAppointmentRepository;
 
     public AppointmentsService(
-            final BookingRepository bookingRepository,
-            final AuthenticationFacade authenticationFacade,
-            final LocationService locationService,
-            final ReferenceDomainService referenceDomainService,
-            final TelemetryClient telemetryClient,
-            final ScheduledAppointmentRepository scheduledAppointmentRepository) {
+        final BookingRepository bookingRepository,
+        final AuthenticationFacade authenticationFacade,
+        final LocationService locationService,
+        final ReferenceDomainService referenceDomainService,
+        final TelemetryClient telemetryClient,
+        final ScheduledAppointmentRepository scheduledAppointmentRepository) {
         this.bookingRepository = bookingRepository;
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
@@ -85,8 +84,8 @@ public class AppointmentsService {
         final var defaults = appointments.getAppointmentDefaults();
 
         final var agencyId = findLocationInUserLocations(defaults.getLocationId())
-                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload."))
-                .getAgencyId();
+            .orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload."))
+            .getAgencyId();
 
         assertValidAppointmentType(defaults.getAppointmentType());
         assertAllBookingIdsInCaseload(appointments.getAppointments(), agencyId);
@@ -96,14 +95,23 @@ public class AppointmentsService {
         assertAdditionalAppointmentConstraints(flattenedDetails);
 
         final var appointmentsWithRepeats = withRepeats(appointments.getRepeat(), flattenedDetails);
+        assertThatAppointmentsFallWithin(appointmentsWithRepeats, appointmentTimeLimit());
 
-        final var createdAppointments = new ArrayList<CreatedAppointmentDetails>();
-        appointmentsWithRepeats.forEach(a -> {
-                assertThatAppointmentsFallWithin(a.getAllAppointments(), appointmentTimeLimit());
-                createdAppointments.add(createAppointments(a, defaults, agencyId));
+        final var createdAppointments = appointmentsWithRepeats.stream().map(a -> {
+            final var appointmentId = bookingRepository.createAppointment(a, defaults, agencyId);
+
+            return CreatedAppointmentDetails.builder()
+                .appointmentEventId(appointmentId)
+                .bookingId(a.getBookingId())
+                .startTime(a.getStartTime())
+                .endTime(a.getEndTime())
+                .appointmentType(defaults.getAppointmentType())
+                .locationId(defaults.getLocationId())
+                .build();
             }
-        );
-        trackAppointmentsCreated(appointmentsWithRepeats.stream().reduce(0, (t, a) -> t + a.getAppointmentCount(), Integer::sum), defaults);
+        ).collect(java.util.stream.Collectors.toList());
+
+        trackAppointmentsCreated(createdAppointments.size(), defaults);
 
         return createdAppointments;
     }
@@ -147,8 +155,8 @@ public class AppointmentsService {
 
     private ScheduledEvent getScheduledEventOrThrowEntityNotFound(Long eventId) {
         return bookingRepository
-                .getBookingAppointmentByEventId(eventId)
-                .orElseThrow(() -> EntityNotFoundException.withMessage("Booking Appointment for eventId %d not found.", eventId));
+            .getBookingAppointmentByEventId(eventId)
+            .orElseThrow(() -> EntityNotFoundException.withMessage("Booking Appointment for eventId %d not found.", eventId));
     }
 
     private void validateStartTime(final NewAppointment newAppointment) {
@@ -159,7 +167,7 @@ public class AppointmentsService {
 
     private void validateEndTime(final NewAppointment newAppointment) {
         if (newAppointment.getEndTime() != null
-                && newAppointment.getEndTime().isBefore(newAppointment.getStartTime())) {
+            && newAppointment.getEndTime().isBefore(newAppointment.getStartTime())) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment end time is before the start time.");
         }
     }
@@ -169,7 +177,7 @@ public class AppointmentsService {
 
         try {
             result = referenceDomainService.getReferenceCodeByDomainAndCode(
-                    ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false);
+                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false);
         } catch (final EntityNotFoundException ex) {
             result = Optional.empty();
         }
@@ -189,7 +197,7 @@ public class AppointmentsService {
 
             final var userLocations = locationService.getUserLocations(username);
             final var isValidLocation = userLocations.stream()
-                    .anyMatch(loc -> loc.getAgencyId().equals(appointmentLocation.getAgencyId()));
+                .anyMatch(loc -> loc.getAgencyId().equals(appointmentLocation.getAgencyId()));
 
             if (isValidLocation) return appointmentLocation.getAgencyId();
 
@@ -248,7 +256,7 @@ public class AppointmentsService {
 
     private static void assertStartTimePrecedesEndTime(final AppointmentDetails appointment) {
         if (appointment.getEndTime() != null
-                && appointment.getEndTime().isBefore(appointment.getStartTime())) {
+            && appointment.getEndTime().isBefore(appointment.getStartTime())) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment end time is before the start time.");
         }
     }
@@ -259,9 +267,9 @@ public class AppointmentsService {
 
     private Optional<ReferenceCode> findEventType(final String appointmentType) {
         return referenceDomainService.getReferenceCodeByDomainAndCode(
-                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(),
-                appointmentType,
-                false);
+            ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(),
+            appointmentType,
+            false);
     }
 
     private Optional<Location> findLocationInUserLocations(final long locationId) {
@@ -279,37 +287,37 @@ public class AppointmentsService {
 
     public List<ScheduledAppointmentDto> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
         final var appointmentStream = locationId != null ?
-                scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(agencyId, date, locationId).stream() :
-                scheduledAppointmentRepository.findByAgencyIdAndEventDate(agencyId, date).stream();
+            scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(agencyId, date, locationId).stream() :
+            scheduledAppointmentRepository.findByAgencyIdAndEventDate(agencyId, date).stream();
 
         final var appointmentDtos = appointmentStream
-                .map(scheduledAppointment ->
-                        ScheduledAppointmentDto
-                                .builder()
-                                .id(scheduledAppointment.getEventId())
-                                .offenderNo(scheduledAppointment.getOffenderNo())
-                                .firstName(scheduledAppointment.getFirstName())
-                                .lastName(scheduledAppointment.getLastName())
-                                .date(scheduledAppointment.getEventDate())
-                                .startTime(scheduledAppointment.getStartTime())
-                                .endTime(scheduledAppointment.getEndTime())
-                                .appointmentTypeDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getAppointmentTypeDescription()))
-                                .appointmentTypeCode(scheduledAppointment.getAppointmentTypeCode())
-                                .locationDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getLocationDescription()))
-                                .locationId(scheduledAppointment.getLocationId())
-                                .createUserId(scheduledAppointment.getCreateUserId())
-                                .agencyId(scheduledAppointment.getAgencyId())
-                                .build()
-                );
+            .map(scheduledAppointment ->
+                ScheduledAppointmentDto
+                    .builder()
+                    .id(scheduledAppointment.getEventId())
+                    .offenderNo(scheduledAppointment.getOffenderNo())
+                    .firstName(scheduledAppointment.getFirstName())
+                    .lastName(scheduledAppointment.getLastName())
+                    .date(scheduledAppointment.getEventDate())
+                    .startTime(scheduledAppointment.getStartTime())
+                    .endTime(scheduledAppointment.getEndTime())
+                    .appointmentTypeDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getAppointmentTypeDescription()))
+                    .appointmentTypeCode(scheduledAppointment.getAppointmentTypeCode())
+                    .locationDescription(StringWithAbbreviationsProcessor.format(scheduledAppointment.getLocationDescription()))
+                    .locationId(scheduledAppointment.getLocationId())
+                    .createUserId(scheduledAppointment.getCreateUserId())
+                    .agencyId(scheduledAppointment.getAgencyId())
+                    .build()
+            );
 
         final var filteredByTimeSlot = timeSlot != null ?
-                appointmentDtos.filter(appointment -> CalcDateRanges.eventStartsInTimeslot(appointment.getStartTime(), timeSlot)) :
-                appointmentDtos;
+            appointmentDtos.filter(appointment -> CalcDateRanges.eventStartsInTimeslot(appointment.getStartTime(), timeSlot)) :
+            appointmentDtos;
 
         return filteredByTimeSlot
-                .sorted(Comparator.comparing(ScheduledAppointmentDto::getStartTime)
-                        .thenComparing(ScheduledAppointmentDto::getLocationDescription))
-                .collect(toList());
+            .sorted(Comparator.comparing(ScheduledAppointmentDto::getStartTime)
+                .thenComparing(ScheduledAppointmentDto::getLocationDescription))
+            .collect(toList());
     }
 
 
@@ -358,26 +366,23 @@ public class AppointmentsService {
         return logMap;
     }
 
-    public static List<AppointmentWithRepeats> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
+    public static List<AppointmentDetails> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
         return details.stream()
-                .map(d -> withRepeats(repeat, d))
-                .collect(toList());
+            .flatMap(d -> withRepeats(repeat, d).stream())
+            .collect(toList());
     }
 
-    public static AppointmentWithRepeats withRepeats(final Repeat repeat, final AppointmentDetails details) {
-        if (repeat == null || repeat.getCount() < 2) return AppointmentWithRepeats.of(details);
+    public static List<AppointmentDetails> withRepeats(final Repeat repeat, final AppointmentDetails details) {
+        if (repeat == null || repeat.getCount() < 2) return List.of(details);
 
         final var appointmentDuration = Optional
-                .ofNullable(details.getEndTime())
-                .map(endTime -> Duration.between(details.getStartTime(), endTime));
+            .ofNullable(details.getEndTime())
+            .map(endTime -> Duration.between(details.getStartTime(), endTime));
 
-        final var initialAndRepeatingAppointments = repeat
-                .dateTimeStream(details.getStartTime())
-                .map(startTime -> buildFromPrototypeWithStartTimeAndDuration(details, startTime, appointmentDuration))
-                .collect(toList());
-
-        return AppointmentWithRepeats.of(initialAndRepeatingAppointments.get(0),
-            initialAndRepeatingAppointments.subList(1, initialAndRepeatingAppointments.size()));
+        return repeat
+            .dateTimeStream(details.getStartTime())
+            .map(startTime -> buildFromPrototypeWithStartTimeAndDuration(details, startTime, appointmentDuration))
+            .collect(toList());
     }
 
     private static AppointmentDetails buildFromPrototypeWithStartTimeAndDuration(final AppointmentDetails prototype,
@@ -386,21 +391,5 @@ public class AppointmentsService {
         final var builder = prototype.toBuilder().startTime(startTime);
         appointmentDuration.ifPresent(d -> builder.endTime(startTime.plus(d)));
         return builder.build();
-    }
-
-    private CreatedAppointmentDetails createAppointments(final AppointmentWithRepeats appointmentWithRepeats, final AppointmentDefaults defaults, final String agencyId) {
-        final var mainAppointment = appointmentWithRepeats.getMainAppointment();
-        final var mainAppointmentId = bookingRepository.createAppointment(mainAppointment, defaults, agencyId);
-
-        final var recurringIds = new ArrayList<Long>();
-        appointmentWithRepeats.getRepeatAppointments().forEach(a -> recurringIds.add(bookingRepository.createAppointment(a, defaults, agencyId)));
-
-        return CreatedAppointmentDetails.builder()
-            .appointmentEventId(mainAppointmentId)
-            .bookingId(mainAppointment.getBookingId())
-            .startTime(mainAppointment.getStartTime())
-            .endTime(mainAppointment.getEndTime())
-            .recurringAppointmentEventIds(recurringIds)
-            .build();
     }
 }
