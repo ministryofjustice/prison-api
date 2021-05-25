@@ -25,6 +25,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.AGY_LOC_TYPE;
@@ -99,5 +100,17 @@ public class AgencyLocation extends ExtendedAuditableEntity {
         address.setAgency(this);
         addresses.add(address);
         return address;
+    }
+
+    public boolean isPrison() {
+        return getType().isPrison() && !Arrays.asList(IN, OUT, TRN).contains(getId());
+    }
+
+    public boolean isCourt() {
+        return getType().isCourt();
+    }
+
+    public boolean isHospital() {
+        return getType().isHospital();
     }
 }

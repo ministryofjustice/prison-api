@@ -30,15 +30,15 @@ public class AgencyLocationType extends ReferenceCode {
     }
 
     public boolean isCourt() {
-        return getCode().equals(COURT_TYPE.getCode());
+        return COURT_TYPE.getCode().equals(getCode());
     }
 
     public boolean isPrison() {
-        return getCode().equals(PRISON_TYPE.getCode());
+        return PRISON_TYPE.getCode().equals(getCode());
     }
 
     public boolean isHospital() {
-        return getCode().equals(HOSPITAL_TYPE.getCode()) || getCode().equals(HS_HOSPITAL_TYPE.getCode());
+        return HOSPITAL_TYPE.getCode().equals(getCode()) || HS_HOSPITAL_TYPE.getCode().equals(getCode());
     }
 
 }

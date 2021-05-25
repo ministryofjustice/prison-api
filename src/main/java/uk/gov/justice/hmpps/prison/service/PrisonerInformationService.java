@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.LegalStatusCalc;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInformation;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PrisonerStatusInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerStatusInformationRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -86,7 +86,7 @@ public class PrisonerInformationService {
                 .englishSpeaking("Y".equals(entity.getEnglishSpeakingFlag()))
                 .communityStatus(format("%s %s", "Y".equals(entity.getActiveFlag()) ? "ACTIVE" : "INACTIVE", entity.getInOutStatus()))
                 .build();
-        prisonerInformation.setLegalStatus(LegalStatusCalc.getLegalStatus(entity.getBandCode(), entity.getImprisonmentStatus()));
+        prisonerInformation.setLegalStatus(ImprisonmentStatus.calcLegalStatus(entity.getBandCode(), entity.getImprisonmentStatus()));
         prisonerInformation.deriveUnitCodes(entity.getCellLocation());
         return prisonerInformation;
     }

@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import uk.gov.justice.hmpps.prison.api.model.LegalStatusCalc.LegalStatus;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -137,8 +136,8 @@ public class PrisonerDetail {
     private LocalDate currentWorkingBirthDate;
 
     public void deriveLegalDetails() {
-        legalStatus = LegalStatusCalc.getLegalStatus(bandCode, imprisonmentStatus);
-        convictedStatus = LegalStatusCalc.getConvictedStatus(bandCode);
+        legalStatus = uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus.calcLegalStatus(bandCode, imprisonmentStatus);
+        convictedStatus = uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus.calcConvictedStatus(bandCode);
     }
 
 }

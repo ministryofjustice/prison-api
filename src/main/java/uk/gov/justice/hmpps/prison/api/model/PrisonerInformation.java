@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
-import uk.gov.justice.hmpps.prison.api.model.LegalStatusCalc.LegalStatus;
 
 import java.time.LocalDate;
 

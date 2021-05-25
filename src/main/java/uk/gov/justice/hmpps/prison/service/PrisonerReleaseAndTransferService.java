@@ -175,7 +175,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         final var toLocation = agencyLocationRepository.findById(requestToDischargePrisoner.getHospitalLocationCode()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToDischargePrisoner.getHospitalLocationCode())));
-        if (!toLocation.getType().isHospital()) {
+        if (!toLocation.isHospital()) {
             throw EntityNotFoundException.withMessage(format("%s is not a hospital", toLocation.getDescription()));
         }
 
@@ -310,7 +310,7 @@ public class PrisonerReleaseAndTransferService {
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
         //clear off old status
-        setupBookingAccount(fromLocation, prisonToRecallTo, receiveTime, movementReason, imprisonmentStatus, booking.getBookingId());
+        setupBookingAccount(booking, fromLocation, prisonToRecallTo, receiveTime, movementReason, imprisonmentStatus);
 
         return offenderTransformer.transform(booking);
     }
@@ -437,32 +437,21 @@ public class PrisonerReleaseAndTransferService {
                 IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", receivedPrison.getDescription())).build(), receiveTime, receivedPrison.getId()),
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
-        setupBookingAccount(fromLocation, receivedPrison, receiveTime, movementReason, imprisonmentStatus, booking.getBookingId());
+        setupBookingAccount(booking, fromLocation, receivedPrison, receiveTime, movementReason, imprisonmentStatus);
 
         return offenderTransformer.transform(booking);
     }
 
-    private void setupBookingAccount(final AgencyLocation fromLocation, final AgencyLocation receivedPrison, final LocalDateTime receiveTime, final MovementReason movementReason, final ImprisonmentStatus imprisonmentStatus, final Long bookingId) {
-        //clear off old status
-        offenderImprisonmentStatusRepository.findByOffenderBookIdAndLatestStatus(bookingId, "Y")
-            .forEach(impStat -> {
-                impStat.setExpiryDate(receiveTime);
-                impStat.setLatestStatus("N");
-            });
+    private void setupBookingAccount(final OffenderBooking booking, final AgencyLocation fromLocation, final AgencyLocation receivedPrison, final LocalDateTime receiveTime, final MovementReason movementReason, final ImprisonmentStatus imprisonmentStatus) {
 
         // add imprisonment status
-        offenderImprisonmentStatusRepository.save(OffenderImprisonmentStatus.builder()
-            .offenderBookId(bookingId)
+        booking.setImprisonmentStatus(OffenderImprisonmentStatus.builder()
             .agyLocId(receivedPrison.getId())
-            .imprisonStatusSeq(offenderImprisonmentStatusRepository.getMaxSeqForBookingId(bookingId) + 1L)
-            .imprisonmentStatus(imprisonmentStatus.getStatus())
-            .latestStatus("Y")
-            .effectiveDate(receiveTime.toLocalDate())
-            .effectiveTime(receiveTime)
-            .build());
+            .imprisonmentStatus(imprisonmentStatus)
+            .build(), receiveTime);
 
         // create Admission case note
-        generateAdmissionNote(bookingId, fromLocation, receivedPrison, receiveTime, movementReason);
+        generateAdmissionNote(booking.getBookingId(), fromLocation, receivedPrison, receiveTime, movementReason);
     }
 
     private void setYouthStatus(final OffenderBooking booking) {
