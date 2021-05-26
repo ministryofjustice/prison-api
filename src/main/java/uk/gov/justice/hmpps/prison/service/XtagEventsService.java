@@ -67,6 +67,8 @@ public class XtagEventsService {
                 break;
             }
             case "BED_ASSIGNMENT_HISTORY-INSERTED":
+            case "OFFENDER_MOVEMENT-DISCHARGE":
+            case "OFFENDER_MOVEMENT-RECEPTION":
             case "CONFIRMED_RELEASE_DATE-CHANGED":
             case "SENTENCE_DATES-CHANGED": {
                 final var nomsId = offenderBookingRepository.findById(oe.getBookingId()).map(b -> b.getOffender().getNomsId())
