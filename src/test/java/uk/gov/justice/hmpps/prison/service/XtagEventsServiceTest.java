@@ -4,6 +4,8 @@ package uk.gov.justice.hmpps.prison.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -139,14 +141,15 @@ public class XtagEventsServiceTest {
         assertEventIsDecoratedWithOffenderDisplayNoUsingOffenderId("OFFENDER-UPDATED");
     }
 
-    @Test
-    public void shouldDecorateSentenceDateChangedWithOffenderDisplayNo() {
-        assertEventIsDecoratedWithOffenderDisplayNoUsingBookingId("SENTENCE_DATES-CHANGED");
-    }
-
-    @Test
-    public void shouldDecorateBedAssignmentWithOffenderDisplayNo() {
-        assertEventIsDecoratedWithOffenderDisplayNoUsingBookingId("BED_ASSIGNMENT_HISTORY-INSERTED");
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "OFFENDER_MOVEMENT-DISCHARGE",
+        "OFFENDER_MOVEMENT-RECEPTION",
+        "BED_ASSIGNMENT_HISTORY-INSERTED",
+        "CONFIRMED_RELEASE_DATE-CHANGED",
+        "SENTENCE_DATES-CHANGED"})
+    public void shouldDecorateWithOffenderDisplayNoUsingBookingId(String eventType) {
+        assertEventIsDecoratedWithOffenderDisplayNoUsingBookingId(eventType);
     }
 
     @Test
