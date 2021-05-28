@@ -4,6 +4,8 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -47,6 +49,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -116,255 +119,232 @@ public class AppointmentsServiceImplTest {
         SecurityContextHolder.clearContext();
     }
 
-    @Test
-    public void createAppointments_returnsMultipleAppointmentDetails() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId(), DETAILS_2.getBookingId());
+    @Nested
+    @DisplayName("Creating appointments")
+    class CreateAppointments {
+        @Test
+        public void createAppointments_returnsMultipleAppointmentDetails() {
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+            stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId(), DETAILS_2.getBookingId());
 
-        final var appointmentsToCreate = AppointmentsToCreate
-            .builder()
-            .appointmentDefaults(
-                AppointmentDefaults
-                    .builder()
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .startTime(LocalDateTime.now().plusHours(1))
-                    .build())
-            .appointments(List.of(DETAILS_1, DETAILS_2))
-            .build();
-
-        final var appointment1 = appointmentsToCreate.withDefaults().get(0);
-        final var createdId1 = 1L;
-        final var appointment2 = appointmentsToCreate.withDefaults().get(1);
-        final var createdId2 = 2L;
-
-        when(bookingRepository.createAppointment(
-            appointment1,
-            appointmentsToCreate.getAppointmentDefaults(),
-            LOCATION_B.getAgencyId()
-        )).thenReturn(createdId1);
-
-        when(bookingRepository.createAppointment(
-            appointment2,
-            appointmentsToCreate.getAppointmentDefaults(),
-            LOCATION_B.getAgencyId()
-        )).thenReturn(createdId2);
-
-        final var createdAppointmentDetails = appointmentsService.createAppointments(appointmentsToCreate);
-
-        assertThat(createdAppointmentDetails).hasSize(2)
-            .containsExactlyInAnyOrder(
-                CreatedAppointmentDetails.builder()
-                    .appointmentEventId(createdId1)
-                    .bookingId(appointment1.getBookingId())
-                    .startTime(appointment1.getStartTime())
-                    .endTime(appointment1.getEndTime())
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .build(),
-                CreatedAppointmentDetails.builder()
-                    .appointmentEventId(createdId2)
-                    .bookingId(appointment2.getBookingId())
-                    .startTime(appointment2.getStartTime())
-                    .endTime(appointment2.getEndTime())
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .build()
-            );
-
-        verify(telemetryClient).trackEvent("AppointmentsCreated",
-            Map.of(
-                "defaultStart", appointmentsToCreate.getAppointmentDefaults().getStartTime().toString(),
-                "count", "2",
-                "type", "T",
-                "location", "1",
-                "user", "username"
-            ),
-            null);
-    }
-
-    @Test
-    public void createAppointments_returnsRepeatAppointmentIds() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
-
-        final var appointmentsToCreate = AppointmentsToCreate
-            .builder()
-            .appointmentDefaults(
-                AppointmentDefaults
-                    .builder()
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .startTime(LocalDateTime.now().plusHours(1))
-                    .build())
-            .appointments(List.of(DETAILS_1))
-            .repeat(Repeat.builder()
-                .count(3)
-                .repeatPeriod(RepeatPeriod.DAILY)
-                .build())
-            .build();
-
-
-        final var createdId1 = 1L;
-        final var recurringId1 = 2L;
-        final var recurringId2 = 3L;
-
-        final var appointmentWithRepeats = AppointmentsService
-            .withRepeats(appointmentsToCreate.getRepeat(), appointmentsToCreate.withDefaults().get(0));
-
-        when(bookingRepository.createAppointment(
-            appointmentWithRepeats.get(0),
-            appointmentsToCreate.getAppointmentDefaults(),
-            LOCATION_B.getAgencyId()
-        )).thenReturn(createdId1);
-
-        when(bookingRepository.createAppointment(
-            appointmentWithRepeats.get(1),
-            appointmentsToCreate.getAppointmentDefaults(),
-            LOCATION_B.getAgencyId()
-        )).thenReturn(recurringId1);
-
-        when(bookingRepository.createAppointment(
-            appointmentWithRepeats.get(2),
-            appointmentsToCreate.getAppointmentDefaults(),
-            LOCATION_B.getAgencyId()
-        )).thenReturn(recurringId2);
-
-        final var createdAppointmentDetails = appointmentsService.createAppointments(appointmentsToCreate);
-
-        assertThat(createdAppointmentDetails).hasSize(3)
-            .containsExactlyInAnyOrder(
-                CreatedAppointmentDetails.builder()
-                    .appointmentEventId(createdId1)
-                    .bookingId(appointmentWithRepeats.get(0).getBookingId())
-                    .startTime(appointmentWithRepeats.get(0).getStartTime())
-                    .endTime(appointmentWithRepeats.get(0).getEndTime())
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .build(),
-                CreatedAppointmentDetails.builder()
-                    .appointmentEventId(recurringId1)
-                    .bookingId(appointmentWithRepeats.get(1).getBookingId())
-                    .startTime(appointmentWithRepeats.get(1).getStartTime())
-                    .endTime(appointmentWithRepeats.get(1).getEndTime())
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .build(),
-                CreatedAppointmentDetails.builder()
-                    .appointmentEventId(recurringId2)
-                    .bookingId(appointmentWithRepeats.get(2).getBookingId())
-                    .startTime(appointmentWithRepeats.get(2).getStartTime())
-                    .endTime(appointmentWithRepeats.get(2).getEndTime())
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .build()
-            );
-
-        verify(telemetryClient).trackEvent("AppointmentsCreated",
-            Map.of(
-                "defaultStart", appointmentsToCreate.getAppointmentDefaults().getStartTime().toString(),
-                "count", "3",
-                "type", "T",
-                "location", "1",
-                "user", "username"
-            ),
-            null);
-    }
-
-    @Test
-    public void createTooManyAppointments() {
-        assertThatThrownBy(() ->
-            appointmentsService.createAppointments(AppointmentsToCreate
-                .builder()
-                .appointmentDefaults(
-                    AppointmentDefaults
-                        .builder()
-                        .build())
-                .appointments(Arrays.asList(new AppointmentDetails[1001]))
-                .build()))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("Request to create 1001 appointments exceeds limit of 1000");
-
-        verifyNoMoreInteractions(telemetryClient);
-    }
-
-    private void ensureRoles(final String... roles) {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(USERNAME, null, roles));
-    }
-
-    @Test
-    public void locationNotInCaseload() {
-        stubLocation(LOCATION_C);
-
-        assertThatThrownBy(() ->
-            appointmentsService.createAppointments(
-                AppointmentsToCreate
-                    .builder()
-                    .appointmentDefaults(
-                        AppointmentDefaults
-                            .builder()
-                            .locationId(LOCATION_C.getLocationId())
-                            .build())
-                    .appointments(List.of())
-                    .build()))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("Location does not exist or is not in your caseload.");
-
-        verifyNoMoreInteractions(telemetryClient);
-    }
-
-    @Test
-    public void unknownAppointmentType() {
-        stubLocation(LOCATION_B);
-
-        assertThatThrownBy(() ->
-            appointmentsService.createAppointments(
-                AppointmentsToCreate
-                    .builder()
-                    .appointmentDefaults(
-                        AppointmentDefaults
-                            .builder()
-                            .locationId(LOCATION_B.getLocationId())
-                            .appointmentType("NOT_KNOWN")
-                            .startTime(LocalDateTime.now())
-                            .build())
-                    .appointments(List.of())
-                    .build()))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("Event type not recognised.");
-
-        verifyNoMoreInteractions(telemetryClient);
-    }
-
-    @Test
-    public void createNoAppointments() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-
-        appointmentsService.createAppointments(
-            AppointmentsToCreate
+            final var appointmentsToCreate = AppointmentsToCreate
                 .builder()
                 .appointmentDefaults(
                     AppointmentDefaults
                         .builder()
                         .locationId(LOCATION_B.getLocationId())
                         .appointmentType(REFERENCE_CODE_T.getCode())
-                        .startTime(LocalDateTime.now())
+                        .startTime(LocalDateTime.now().plusHours(1))
                         .build())
-                .appointments(List.of())
-                .build());
+                .appointments(List.of(DETAILS_1, DETAILS_2))
+                .build();
 
-        verifyNoMoreInteractions(telemetryClient);
-    }
+            final var appointment1 = appointmentsToCreate.withDefaults().get(0);
+            final var createdId1 = 1L;
+            final var appointment2 = appointmentsToCreate.withDefaults().get(1);
+            final var createdId2 = 2L;
 
-    @Test
-    public void bookingIdNotInCaseload() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
+            when(bookingRepository.createAppointment(
+                appointment1,
+                appointmentsToCreate.getAppointmentDefaults(),
+                LOCATION_B.getAgencyId()
+            )).thenReturn(createdId1);
 
-        assertThatThrownBy(() ->
+            when(bookingRepository.createAppointment(
+                appointment2,
+                appointmentsToCreate.getAppointmentDefaults(),
+                LOCATION_B.getAgencyId()
+            )).thenReturn(createdId2);
+
+            final var createdAppointmentDetails = appointmentsService.createAppointments(appointmentsToCreate);
+
+            assertThat(createdAppointmentDetails).hasSize(2)
+                .containsExactlyInAnyOrder(
+                    CreatedAppointmentDetails.builder()
+                        .appointmentEventId(createdId1)
+                        .bookingId(appointment1.getBookingId())
+                        .startTime(appointment1.getStartTime())
+                        .endTime(appointment1.getEndTime())
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .build(),
+                    CreatedAppointmentDetails.builder()
+                        .appointmentEventId(createdId2)
+                        .bookingId(appointment2.getBookingId())
+                        .startTime(appointment2.getStartTime())
+                        .endTime(appointment2.getEndTime())
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .build()
+                );
+
+            verify(telemetryClient).trackEvent("AppointmentsCreated",
+                Map.of(
+                    "defaultStart", appointmentsToCreate.getAppointmentDefaults().getStartTime().toString(),
+                    "count", "2",
+                    "type", "T",
+                    "location", "1",
+                    "user", "username"
+                ),
+                null);
+        }
+
+        @Test
+        public void createAppointments_returnsRepeatAppointmentIds() {
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+            stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+            final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                    AppointmentDefaults
+                        .builder()
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .startTime(LocalDateTime.now().plusHours(1))
+                        .build())
+                .appointments(List.of(DETAILS_1))
+                .repeat(Repeat.builder()
+                    .count(3)
+                    .repeatPeriod(RepeatPeriod.DAILY)
+                    .build())
+                .build();
+
+
+            final var createdId1 = 1L;
+            final var recurringId1 = 2L;
+            final var recurringId2 = 3L;
+
+            final var appointmentWithRepeats = AppointmentsService
+                .withRepeats(appointmentsToCreate.getRepeat(), appointmentsToCreate.withDefaults().get(0));
+
+            when(bookingRepository.createAppointment(
+                appointmentWithRepeats.get(0),
+                appointmentsToCreate.getAppointmentDefaults(),
+                LOCATION_B.getAgencyId()
+            )).thenReturn(createdId1);
+
+            when(bookingRepository.createAppointment(
+                appointmentWithRepeats.get(1),
+                appointmentsToCreate.getAppointmentDefaults(),
+                LOCATION_B.getAgencyId()
+            )).thenReturn(recurringId1);
+
+            when(bookingRepository.createAppointment(
+                appointmentWithRepeats.get(2),
+                appointmentsToCreate.getAppointmentDefaults(),
+                LOCATION_B.getAgencyId()
+            )).thenReturn(recurringId2);
+
+            final var createdAppointmentDetails = appointmentsService.createAppointments(appointmentsToCreate);
+
+            assertThat(createdAppointmentDetails).hasSize(3)
+                .containsExactlyInAnyOrder(
+                    CreatedAppointmentDetails.builder()
+                        .appointmentEventId(createdId1)
+                        .bookingId(appointmentWithRepeats.get(0).getBookingId())
+                        .startTime(appointmentWithRepeats.get(0).getStartTime())
+                        .endTime(appointmentWithRepeats.get(0).getEndTime())
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .build(),
+                    CreatedAppointmentDetails.builder()
+                        .appointmentEventId(recurringId1)
+                        .bookingId(appointmentWithRepeats.get(1).getBookingId())
+                        .startTime(appointmentWithRepeats.get(1).getStartTime())
+                        .endTime(appointmentWithRepeats.get(1).getEndTime())
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .build(),
+                    CreatedAppointmentDetails.builder()
+                        .appointmentEventId(recurringId2)
+                        .bookingId(appointmentWithRepeats.get(2).getBookingId())
+                        .startTime(appointmentWithRepeats.get(2).getStartTime())
+                        .endTime(appointmentWithRepeats.get(2).getEndTime())
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .build()
+                );
+
+            verify(telemetryClient).trackEvent("AppointmentsCreated",
+                Map.of(
+                    "defaultStart", appointmentsToCreate.getAppointmentDefaults().getStartTime().toString(),
+                    "count", "3",
+                    "type", "T",
+                    "location", "1",
+                    "user", "username"
+                ),
+                null);
+        }
+
+        @Test
+        public void createTooManyAppointments() {
+            assertThatThrownBy(() ->
+                appointmentsService.createAppointments(AppointmentsToCreate
+                    .builder()
+                    .appointmentDefaults(
+                        AppointmentDefaults
+                            .builder()
+                            .build())
+                    .appointments(Arrays.asList(new AppointmentDetails[1001]))
+                    .build()))
+                .isInstanceOf(HttpClientErrorException.class)
+                .hasMessageContaining("Request to create 1001 appointments exceeds limit of 1000");
+
+            verifyNoMoreInteractions(telemetryClient);
+        }
+
+        @Test
+        public void locationNotInCaseload() {
+            stubLocation(LOCATION_C);
+
+            assertThatThrownBy(() ->
+                appointmentsService.createAppointments(
+                    AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(
+                            AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_C.getLocationId())
+                                .build())
+                        .appointments(List.of())
+                        .build()))
+                .isInstanceOf(HttpClientErrorException.class)
+                .hasMessageContaining("Location does not exist or is not in your caseload.");
+
+            verifyNoMoreInteractions(telemetryClient);
+        }
+
+        @Test
+        public void unknownAppointmentType() {
+            stubLocation(LOCATION_B);
+
+            assertThatThrownBy(() ->
+                appointmentsService.createAppointments(
+                    AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(
+                            AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType("NOT_KNOWN")
+                                .startTime(LocalDateTime.now())
+                                .build())
+                        .appointments(List.of())
+                        .build()))
+                .isInstanceOf(HttpClientErrorException.class)
+                .hasMessageContaining("Event type not recognised.");
+
+            verifyNoMoreInteractions(telemetryClient);
+        }
+
+        @Test
+        public void createNoAppointments() {
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+
             appointmentsService.createAppointments(
                 AppointmentsToCreate
                     .builder()
@@ -373,606 +353,689 @@ public class AppointmentsServiceImplTest {
                             .builder()
                             .locationId(LOCATION_B.getLocationId())
                             .appointmentType(REFERENCE_CODE_T.getCode())
-                            .startTime(LocalDateTime.now().plusHours(1))
+                            .startTime(LocalDateTime.now())
                             .build())
-                    .appointments(List.of(DETAILS_1))
-                    .build()))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("A BookingId does not exist in your caseload");
+                    .appointments(List.of())
+                    .build());
 
-        verifyNoMoreInteractions(telemetryClient);
-    }
+            verifyNoMoreInteractions(telemetryClient);
+        }
 
-    @Test
-    public void bookingIdInCaseload() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+        @Test
+        public void bookingIdNotInCaseload() {
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
 
-        final var appointmentsToCreate = AppointmentsToCreate
-            .builder()
-            .appointmentDefaults(
-                AppointmentDefaults
-                    .builder()
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .startTime(LocalDateTime.now().plusHours(1))
-                    .build())
-            .appointments(List.of(DETAILS_1))
-            .build();
+            assertThatThrownBy(() ->
+                appointmentsService.createAppointments(
+                    AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(
+                            AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(LocalDateTime.now().plusHours(1))
+                                .build())
+                        .appointments(List.of(DETAILS_1))
+                        .build()))
+                .isInstanceOf(HttpClientErrorException.class)
+                .hasMessageContaining("A BookingId does not exist in your caseload");
 
-        appointmentsService.createAppointments(appointmentsToCreate);
+            verifyNoMoreInteractions(telemetryClient);
+        }
 
-        verify(bookingRepository)
-            .createAppointment(
-                appointmentsToCreate.withDefaults().get(0),
-                appointmentsToCreate.getAppointmentDefaults(),
-                LOCATION_B.getAgencyId());
+        @Test
+        public void bookingIdInCaseload() {
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+            stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
 
-        verify(telemetryClient).trackEvent(eq("AppointmentsCreated"), anyMap(), isNull());
-    }
-
-    @Test
-    public void appointmentStartTimeTooLate() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
-
-        final var appointmentsToCreate = AppointmentsToCreate
-            .builder()
-            .appointmentDefaults(
-                AppointmentDefaults
-                    .builder()
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .startTime(LocalDateTime.now().plusHours(1L))
-                    .build())
-            .appointments(List.of(DETAILS_1))
-            .repeat(Repeat
+            final var appointmentsToCreate = AppointmentsToCreate
                 .builder()
-                .count(13)
-                .repeatPeriod(RepeatPeriod.MONTHLY)
-                .build())
-            .build();
+                .appointmentDefaults(
+                    AppointmentDefaults
+                        .builder()
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .startTime(LocalDateTime.now().plusHours(1))
+                        .build())
+                .appointments(List.of(DETAILS_1))
+                .build();
 
-        assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("An appointment startTime is later than the limit of ");
-    }
+            appointmentsService.createAppointments(appointmentsToCreate);
 
-    @Test
-    public void appointmentEndTimeTooLate() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+            verify(bookingRepository)
+                .createAppointment(
+                    appointmentsToCreate.withDefaults().get(0),
+                    appointmentsToCreate.getAppointmentDefaults(),
+                    LOCATION_B.getAgencyId());
 
-        final var appointmentsToCreate = AppointmentsToCreate
-            .builder()
-            .appointmentDefaults(
-                AppointmentDefaults
-                    .builder()
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .startTime(LocalDateTime.now().plusHours(1L))
-                    .endTime(LocalDateTime.now().plusDays(31L).plusHours(1L))
-                    .build())
-            .appointments(List.of(DETAILS_1))
-            .repeat(Repeat
+            verify(telemetryClient).trackEvent(eq("AppointmentsCreated"), anyMap(), isNull());
+        }
+
+        @Test
+        public void appointmentStartTimeTooLate() {
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+            stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+            final var appointmentsToCreate = AppointmentsToCreate
                 .builder()
-                .count(12)
-                .repeatPeriod(RepeatPeriod.MONTHLY)
-                .build())
-            .build();
-
-        assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("An appointment endTime is later than the limit of ");
-    }
-
-    @Test
-    public void rejectEndTimeBeforeStartTime() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
-
-        final var appointmentsToCreate = AppointmentsToCreate
-            .builder()
-            .appointmentDefaults(
-                AppointmentDefaults
+                .appointmentDefaults(
+                    AppointmentDefaults
+                        .builder()
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .startTime(LocalDateTime.now().plusHours(1L))
+                        .build())
+                .appointments(List.of(DETAILS_1))
+                .repeat(Repeat
                     .builder()
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .startTime(LocalDateTime.now().plusHours(2L))
-                    .endTime(LocalDateTime.now().plusHours(1L))
+                    .count(13)
+                    .repeatPeriod(RepeatPeriod.MONTHLY)
                     .build())
-            .appointments(List.of(DETAILS_1))
-            .build();
+                .build();
 
-        assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("Appointment end time is before the start time.");
-    }
+            assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
+                .isInstanceOf(HttpClientErrorException.class)
+                .hasMessageContaining("An appointment startTime is later than the limit of ");
+        }
 
-    /**
-     * Also shows that BULK_APPOINTMENTS role is not required when creating appointments for a single offender.
-     */
-    @Test
-    public void acceptEndTimeSameAsStartTime() {
-        ensureRoles(); // No roles
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+        @Test
+        public void appointmentEndTimeTooLate() {
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+            stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
 
-        final var in1Hour = LocalDateTime.now().plusHours(1);
-
-        final var appointmentsToCreate = AppointmentsToCreate
-            .builder()
-            .appointmentDefaults(
-                AppointmentDefaults
+            final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                    AppointmentDefaults
+                        .builder()
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .startTime(LocalDateTime.now().plusHours(1L))
+                        .endTime(LocalDateTime.now().plusDays(31L).plusHours(1L))
+                        .build())
+                .appointments(List.of(DETAILS_1))
+                .repeat(Repeat
                     .builder()
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .startTime(in1Hour)
-                    .endTime(in1Hour)
+                    .count(12)
+                    .repeatPeriod(RepeatPeriod.MONTHLY)
                     .build())
-            .appointments(List.of(DETAILS_1))
-            .build();
+                .build();
 
-        appointmentsService.createAppointments(appointmentsToCreate);
+            assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
+                .isInstanceOf(HttpClientErrorException.class)
+                .hasMessageContaining("An appointment endTime is later than the limit of ");
+        }
 
-        verify(bookingRepository)
-            .createAppointment(
-                appointmentsToCreate.withDefaults().get(0),
-                appointmentsToCreate.getAppointmentDefaults(),
-                LOCATION_B.getAgencyId());
+        @Test
+        public void rejectEndTimeBeforeStartTime() {
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+            stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+            final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                    AppointmentDefaults
+                        .builder()
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .startTime(LocalDateTime.now().plusHours(2L))
+                        .endTime(LocalDateTime.now().plusHours(1L))
+                        .build())
+                .appointments(List.of(DETAILS_1))
+                .build();
+
+            assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
+                .isInstanceOf(HttpClientErrorException.class)
+                .hasMessageContaining("Appointment end time is before the start time.");
+        }
+
+        /**
+         * Also shows that BULK_APPOINTMENTS role is not required when creating appointments for a single offender.
+         */
+        @Test
+        public void acceptEndTimeSameAsStartTime() {
+            ensureRoles(); // No roles
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+            stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+            final var in1Hour = LocalDateTime.now().plusHours(1);
+
+            final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                    AppointmentDefaults
+                        .builder()
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .startTime(in1Hour)
+                        .endTime(in1Hour)
+                        .build())
+                .appointments(List.of(DETAILS_1))
+                .build();
+
+            appointmentsService.createAppointments(appointmentsToCreate);
+
+            verify(bookingRepository)
+                .createAppointment(
+                    appointmentsToCreate.withDefaults().get(0),
+                    appointmentsToCreate.getAppointmentDefaults(),
+                    LOCATION_B.getAgencyId());
+        }
+
+        @Test
+        public void rejectMultipleOffendersWithoutBulkAppointmentRole() {
+            ensureRoles(); // No roles
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+            stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId(), DETAILS_2.getBookingId());
+
+            final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                    AppointmentDefaults
+                        .builder()
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .startTime(LocalDateTime.now().plusHours(1))
+                        .build())
+                .appointments(List.of(DETAILS_1, DETAILS_2))
+                .build();
+
+            assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
+                .isInstanceOf(HttpClientErrorException.class)
+                .hasMessageContaining("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
+        }
+
+        @Test
+        public void permitMultipleOffendersWithBulkAppointmentRole() {
+            stubLocation(LOCATION_B);
+            stubValidReferenceCode(REFERENCE_CODE_T);
+            stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId(), DETAILS_2.getBookingId());
+
+            final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                    AppointmentDefaults
+                        .builder()
+                        .locationId(LOCATION_B.getLocationId())
+                        .appointmentType(REFERENCE_CODE_T.getCode())
+                        .startTime(LocalDateTime.now().plusHours(1))
+                        .build())
+                .appointments(List.of(DETAILS_1, DETAILS_2))
+                .build();
+
+            appointmentsService.createAppointments(appointmentsToCreate);
+
+            verify(bookingRepository)
+                .createAppointment(
+                    appointmentsToCreate.withDefaults().get(0),
+                    appointmentsToCreate.getAppointmentDefaults(),
+                    LOCATION_B.getAgencyId());
+        }
+
     }
 
-    @Test
-    public void rejectMultipleOffendersWithoutBulkAppointmentRole() {
-        ensureRoles(); // No roles
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId(), DETAILS_2.getBookingId());
 
-        final var appointmentsToCreate = AppointmentsToCreate
-            .builder()
-            .appointmentDefaults(
-                AppointmentDefaults
-                    .builder()
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .startTime(LocalDateTime.now().plusHours(1))
-                    .build())
-            .appointments(List.of(DETAILS_1, DETAILS_2))
-            .build();
+    @Nested
+    @DisplayName("Repeatable appointments")
+    class Repeats {
+        @Test
+        public void shouldHandleNoRepeats() {
+            assertThat(AppointmentsService.withRepeats(null, Collections.singletonList(DETAILS_2)))
+                .containsExactly(DETAILS_2);
+        }
 
-        assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
+        @Test
+        public void shouldHandleOneRepeat() {
+            assertThat(AppointmentsService.withRepeats(
+                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(1).build(),
+                List.of(DETAILS_2)
+            ))
+                .containsExactly(DETAILS_2);
+        }
+
+        @Test
+        public void shouldHandleMultipleRepeats() {
+            assertThat(AppointmentsService.withRepeats(
+                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(3).build(),
+                List.of(DETAILS_2)
+            ))
+                .containsExactly(
+                    DETAILS_2,
+                    DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
+                    DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build()
+                );
+        }
+
+
+        @Test
+        public void shouldRepeatMultipleAppointments() {
+            assertThat(AppointmentsService.withRepeats(
+                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(3).build(),
+                List.of(DETAILS_2, DETAILS_3)
+            ))
+                .containsExactly(
+                    DETAILS_2,
+                    DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
+                    DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build(),
+                    DETAILS_3,
+                    DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build(),
+                    DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(2)).build()
+                );
+        }
+
+        @Test
+        public void shouldHandleNullEndTime() {
+            assertThat(AppointmentsService.withRepeats(
+                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(2).build(),
+                List.of(DETAILS_3)
+            ))
+                .containsExactly(
+                    DETAILS_3,
+                    DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build()
+                );
+        }
+
     }
 
-    @Test
-    public void permitMultipleOffendersWithBulkAppointmentRole() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId(), DETAILS_2.getBookingId());
 
-        final var appointmentsToCreate = AppointmentsToCreate
-            .builder()
-            .appointmentDefaults(
-                AppointmentDefaults
-                    .builder()
-                    .locationId(LOCATION_B.getLocationId())
-                    .appointmentType(REFERENCE_CODE_T.getCode())
-                    .startTime(LocalDateTime.now().plusHours(1))
-                    .build())
-            .appointments(List.of(DETAILS_1, DETAILS_2))
-            .build();
+    @Nested
+    @DisplayName("Creating a single appointment for a booking")
+    class CreatedBookingAppointments {
+        @Test
+        public void testCreateBookingAppointment() {
 
-        appointmentsService.createAppointments(appointmentsToCreate);
+            final var appointmentType = "MEDE";
+            final var locationId = -20L;
+            final var bookingId = 100L;
+            final var agencyId = "LEI";
+            final var eventId = -10L;
+            final var principal = "ME";
+            final var createdEventId = 999L;
+            final var expectedEvent = ScheduledEvent
+                .builder()
+                .bookingId(bookingId)
+                .eventId(createdEventId)
+                .eventLocationId(locationId)
+                .build();
+            final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
 
-        verify(bookingRepository)
-            .createAppointment(
-                appointmentsToCreate.withDefaults().get(0),
-                appointmentsToCreate.getAppointmentDefaults(),
-                LOCATION_B.getAgencyId());
-    }
+            final var newAppointment = NewAppointment.builder()
+                .appointmentType(appointmentType)
+                .startTime(LocalDateTime.now().plusDays(1))
+                .endTime(LocalDateTime.now().plusDays(2))
+                .comment("comment")
+                .locationId(locationId).build();
 
+            when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
+            when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
 
-    @Test
-    public void shouldHandleNoRepeats() {
-        assertThat(AppointmentsService.withRepeats(null, Collections.singletonList(DETAILS_2)))
-            .containsExactly(DETAILS_2);
-    }
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(
+                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
+                .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
 
-    @Test
-    public void shouldHandleOneRepeat() {
-        assertThat(AppointmentsService.withRepeats(
-            Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(1).build(),
-            List.of(DETAILS_2)
-        ))
-            .containsExactly(DETAILS_2);
-    }
+            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+                .thenReturn(eventId);
 
-    @Test
-    public void shouldHandleMultipleRepeats() {
-        assertThat(AppointmentsService.withRepeats(
-            Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(3).build(),
-            List.of(DETAILS_2)
-        ))
-            .containsExactly(
-                DETAILS_2,
-                DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
-                DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build()
-            );
-    }
+            when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
+            final var actualEvent = appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
 
-    @Test
-    public void shouldHandleNullEndTime() {
-        assertThat(AppointmentsService.withRepeats(
-            Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(2).build(),
-            List.of(DETAILS_3)
-        ))
-            .containsExactly(
-                DETAILS_3,
-                DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build()
-            );
-    }
+            assertThat(actualEvent).isEqualTo(expectedEvent);
+        }
 
-    @Test
-    public void shouldRepeatMultipleAppointments() {
-        assertThat(AppointmentsService.withRepeats(
-            Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(3).build(),
-            List.of(DETAILS_2, DETAILS_3)
-        ))
-            .containsExactly(
-                DETAILS_2,
-                DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
-                DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build(),
-                DETAILS_3,
-                DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build(),
-                DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(2)).build()
-            );
-    }
+        @Test
+        public void testCreateBookingAppointmentInvalidStartTime() {
 
-    @Test
-    public void testCreateBookingAppointment() {
+            final var bookingId = 100L;
+            final var principal = "ME";
 
-        final var appointmentType = "MEDE";
-        final var locationId = -20L;
-        final var bookingId = 100L;
-        final var agencyId = "LEI";
-        final var eventId = -10L;
-        final var principal = "ME";
-        final var createdEventId = 999L;
-        final var expectedEvent = ScheduledEvent
-            .builder()
-            .bookingId(bookingId)
-            .eventId(createdEventId)
-            .eventLocationId(locationId)
-            .build();
-        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
+            final var newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(-1))
+                .endTime(LocalDateTime.now().plusDays(2)).build();
 
-        final var newAppointment = NewAppointment.builder()
-            .appointmentType(appointmentType)
-            .startTime(LocalDateTime.now().plusDays(1))
-            .endTime(LocalDateTime.now().plusDays(2))
-            .comment("comment")
-            .locationId(locationId).build();
+            try {
+                appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
+                fail("Should have thrown exception");
+            } catch (final HttpClientErrorException e) {
+                assertThat(e.getStatusText()).isEqualTo("Appointment time is in the past.");
+            }
+        }
 
-        when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-        when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
+        @Test
+        public void testCreateBookingAppointmentInvalidEndTime() {
 
-        when(referenceDomainService.getReferenceCodeByDomainAndCode(
-            ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
-            .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
+            final var bookingId = 100L;
+            final var principal = "ME";
 
-        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-            .thenReturn(eventId);
+            final var newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(2))
+                .endTime(LocalDateTime.now().plusDays(1)).build();
 
-        when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
-        final var actualEvent = appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
+            try {
+                appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
+                fail("Should have thrown exception");
+            } catch (final HttpClientErrorException e) {
+                assertThat(e.getStatusText()).isEqualTo("Appointment end time is before the start time.");
+            }
+        }
 
-        assertThat(actualEvent).isEqualTo(expectedEvent);
-    }
+        @Test
+        public void testCreateBookingAppointmentInvalidLocation() {
 
-    @Test
-    public void testCreateBookingAppointmentInvalidStartTime() {
+            final var appointmentType = "MEDE";
+            final var locationId = -20L;
+            final var bookingId = 100L;
+            final var agencyId = "LEI";
+            final var eventId = -10L;
+            final var principal = "ME";
+            final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
+            final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
 
-        final var bookingId = 100L;
-        final var principal = "ME";
+            final var newAppointment = NewAppointment.builder()
+                .appointmentType(appointmentType)
+                .startTime(LocalDateTime.now().plusDays(1))
+                .endTime(LocalDateTime.now().plusDays(2))
+                .comment("comment")
+                .locationId(locationId).build();
 
-        final var newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(-1))
-            .endTime(LocalDateTime.now().plusDays(2)).build();
+            when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
+            when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
 
-        try {
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(
+                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
+                .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
+
+            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+                .thenReturn(eventId);
+
+            when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
+
+            when(locationService.getLocation(newAppointment.getLocationId()))
+                .thenThrow(new EntityNotFoundException("test"));
+
+            assertThatThrownBy(() -> appointmentsService.createBookingAppointment(bookingId, principal, newAppointment))
+                .isInstanceOf(HttpClientErrorException.class).hasMessageContaining("Location does not exist or is not in your caseload.");
+        }
+
+        @Test
+        public void testCreateBookingAppointmentInvalidAppointmentType() {
+
+            final var appointmentType = "MEDE";
+            final var locationId = -20L;
+            final var bookingId = 100L;
+            final var agencyId = "LEI";
+            final var eventId = -10L;
+            final var principal = "ME";
+            final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
+            final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
+
+            final var newAppointment = NewAppointment.builder().appointmentType(appointmentType)
+                .startTime(LocalDateTime.now().plusDays(1)).endTime(LocalDateTime.now().plusDays(2)).comment("comment")
+                .locationId(locationId).build();
+
+            when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
+            when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
+
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(
+                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
+                .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
+
+            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+                .thenReturn(eventId);
+
+            when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
+
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(
+                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> appointmentsService.createBookingAppointment(bookingId, principal, newAppointment))
+                .isInstanceOf(HttpClientErrorException.class)
+                .hasMessageContaining("Event type not recognised.");
+        }
+
+        @Test
+        public void testOverrideAgencyLocationTest() {
+            final var appointmentType = "MEDE";
+            final var locationId = -20L;
+            final var bookingId = 100L;
+            final var agencyId = "LEI";
+            final var eventId = -10L;
+            final var principal = "ME";
+            final var expectedEvent = ScheduledEvent
+                .builder()
+                .bookingId(bookingId)
+                .eventId(eventId)
+                .eventLocationId(locationId)
+                .build();
+
+            final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
+
+            final var newAppointment = NewAppointment.builder()
+                .appointmentType(appointmentType)
+                .startTime(LocalDateTime.now().plusDays(1))
+                .endTime(LocalDateTime.now().plusDays(2))
+                .comment("comment")
+                .locationId(locationId).build();
+
+            ensureRoles("GLOBAL_APPOINTMENT");
+
+            when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(
+                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
+                .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
+
+            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+                .thenReturn(eventId);
+
+            when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
+
             appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
-            fail("Should have thrown exception");
-        } catch (final HttpClientErrorException e) {
-            assertThat(e.getStatusText()).isEqualTo("Appointment time is in the past.");
+
+            verify(locationService, never()).getUserLocations(principal);
         }
     }
 
-    @Test
-    public void testCreateBookingAppointmentInvalidEndTime() {
+    @Nested
+    @DisplayName("Get appointments")
+    class GetAppointment {
+        @Test
+        public void testFindByAgencyIdAndEventDateAndLocationId_IsCalledCorrectly() {
+            final var today = LocalDate.now();
+            final var locationId = 1L;
 
-        final var bookingId = 100L;
-        final var principal = "ME";
+            when(scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(any(), any(), anyLong())).thenReturn(Collections.emptyList());
 
-        final var newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(2))
-            .endTime(LocalDateTime.now().plusDays(1)).build();
+            appointmentsService.getAppointments("LEI", today, locationId, null);
 
-        try {
-            appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
-            fail("Should have thrown exception");
-        } catch (final HttpClientErrorException e) {
-            assertThat(e.getStatusText()).isEqualTo("Appointment end time is before the start time.");
+            verify(scheduledAppointmentRepository).findByAgencyIdAndEventDateAndLocationId("LEI", today, locationId);
         }
-    }
 
-    @Test
-    public void testCreateBookingAppointmentInvalidLocation() {
+        @Test
+        public void testFindByAgencyIdAndEventDate_IsCalledCorrectly_IsCalledCorrectly() {
+            final var today = LocalDate.now();
 
-        final var appointmentType = "MEDE";
-        final var locationId = -20L;
-        final var bookingId = 100L;
-        final var agencyId = "LEI";
-        final var eventId = -10L;
-        final var principal = "ME";
-        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
-        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
+            when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
+                .thenReturn(Collections.emptyList());
 
-        final var newAppointment = NewAppointment.builder()
-            .appointmentType(appointmentType)
-            .startTime(LocalDateTime.now().plusDays(1))
-            .endTime(LocalDateTime.now().plusDays(2))
-            .comment("comment")
-            .locationId(locationId).build();
+            appointmentsService.getAppointments("LEI", today, null, null);
 
-        when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-        when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
+            verify(scheduledAppointmentRepository).findByAgencyIdAndEventDate("LEI", today);
 
-        when(referenceDomainService.getReferenceCodeByDomainAndCode(
-            ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
-            .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
+        }
 
-        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-            .thenReturn(eventId);
+        @Test
+        public void testAMScheduledAppointmentDtos_AreReturned() {
+            final var today = LocalDate.now();
+            final var startTime = LocalDateTime.now();
+            final var endTime = LocalDateTime.now();
 
-        when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
+            when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
+                .thenReturn(List.of(
+                    ScheduledAppointment
+                        .builder()
+                        .eventId(1L)
+                        .offenderNo("A12345")
+                        .firstName("firstName1")
+                        .lastName("lastName1")
+                        .eventDate(today)
+                        .startTime(startTime.withHour(11))
+                        .endTime(endTime.withHour(11))
+                        .appointmentTypeDescription("Appointment Type Description1")
+                        .appointmentTypeCode("appointmentTypeCode1")
+                        .locationDescription("location Description1")
+                        .locationId(1L)
+                        .createUserId("Staff user 1")
+                        .agencyId("LEI")
+                        .build(),
+                    ScheduledAppointment
+                        .builder()
+                        .eventId(2L)
+                        .offenderNo("A12346")
+                        .firstName("firstName2")
+                        .lastName("lastName2")
+                        .eventDate(today)
+                        .startTime(startTime.withHour(23))
+                        .endTime(endTime.withHour(23))
+                        .appointmentTypeDescription("appointmentTypeDescription2")
+                        .appointmentTypeCode("appointmentTypeCode2")
+                        .locationDescription("location Description2")
+                        .locationId(2L)
+                        .createUserId("Staff user 2")
+                        .agencyId("LEI")
+                        .build()
+                ));
 
-        when(locationService.getLocation(newAppointment.getLocationId()))
-            .thenThrow(new EntityNotFoundException("test"));
+            final var appointmentDtos = appointmentsService.getAppointments("LEI", today, null, TimeSlot.AM);
 
-        assertThatThrownBy(() -> appointmentsService.createBookingAppointment(bookingId, principal, newAppointment))
-            .isInstanceOf(HttpClientErrorException.class).hasMessageContaining("Location does not exist or is not in your caseload.");
-    }
-
-    @Test
-    public void testCreateBookingAppointmentInvalidAppointmentType() {
-
-        final var appointmentType = "MEDE";
-        final var locationId = -20L;
-        final var bookingId = 100L;
-        final var agencyId = "LEI";
-        final var eventId = -10L;
-        final var principal = "ME";
-        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
-        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-
-        final var newAppointment = NewAppointment.builder().appointmentType(appointmentType)
-            .startTime(LocalDateTime.now().plusDays(1)).endTime(LocalDateTime.now().plusDays(2)).comment("comment")
-            .locationId(locationId).build();
-
-        when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-        when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
-
-        when(referenceDomainService.getReferenceCodeByDomainAndCode(
-            ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
-            .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
-
-        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-            .thenReturn(eventId);
-
-        when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
-
-        when(referenceDomainService.getReferenceCodeByDomainAndCode(
-            ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
-            .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> appointmentsService.createBookingAppointment(bookingId, principal, newAppointment))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("Event type not recognised.");
-    }
-
-    @Test
-    public void testOverrideAgencyLocationTest() {
-        final var appointmentType = "MEDE";
-        final var locationId = -20L;
-        final var bookingId = 100L;
-        final var agencyId = "LEI";
-        final var eventId = -10L;
-        final var principal = "ME";
-        final var expectedEvent = ScheduledEvent
-            .builder()
-            .bookingId(bookingId)
-            .eventId(eventId)
-            .eventLocationId(locationId)
-            .build();
-
-        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-
-        final var newAppointment = NewAppointment.builder()
-            .appointmentType(appointmentType)
-            .startTime(LocalDateTime.now().plusDays(1))
-            .endTime(LocalDateTime.now().plusDays(2))
-            .comment("comment")
-            .locationId(locationId).build();
-
-        ensureRoles("GLOBAL_APPOINTMENT");
-
-        when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-        when(referenceDomainService.getReferenceCodeByDomainAndCode(
-            ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
-            .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
-
-        when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-            .thenReturn(eventId);
-
-        when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
-
-        appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
-
-        verify(locationService, never()).getUserLocations(principal);
-    }
-
-    @Test
-    public void testFindByAgencyIdAndEventDateAndLocationId_IsCalledCorrectly() {
-        final var today = LocalDate.now();
-        final var locationId = 1L;
-
-        when(scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(any(), any(), anyLong())).thenReturn(Collections.emptyList());
-
-        appointmentsService.getAppointments("LEI", today, locationId, null);
-
-        verify(scheduledAppointmentRepository).findByAgencyIdAndEventDateAndLocationId("LEI", today, locationId);
-    }
-
-    @Test
-    public void testFindByAgencyIdAndEventDate_IsCalledCorrectly_IsCalledCorrectly() {
-        final var today = LocalDate.now();
-
-        when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
-            .thenReturn(Collections.emptyList());
-
-        appointmentsService.getAppointments("LEI", today, null, null);
-
-        verify(scheduledAppointmentRepository).findByAgencyIdAndEventDate("LEI", today);
-
-    }
-
-    @Test
-    public void testAMScheduledAppointmentDtos_AreReturned() {
-        final var today = LocalDate.now();
-        final var startTime = LocalDateTime.now();
-        final var endTime = LocalDateTime.now();
-
-        when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
-            .thenReturn(List.of(
-                ScheduledAppointment
+            assertThat(appointmentDtos).containsOnly(
+                ScheduledAppointmentDto
                     .builder()
-                    .eventId(1L)
+                    .id(1L)
                     .offenderNo("A12345")
                     .firstName("firstName1")
                     .lastName("lastName1")
-                    .eventDate(today)
+                    .date(today)
                     .startTime(startTime.withHour(11))
                     .endTime(endTime.withHour(11))
                     .appointmentTypeDescription("Appointment Type Description1")
                     .appointmentTypeCode("appointmentTypeCode1")
-                    .locationDescription("location Description1")
+                    .locationDescription("Location Description1")
                     .locationId(1L)
                     .createUserId("Staff user 1")
                     .agencyId("LEI")
-                    .build(),
-                ScheduledAppointment
-                    .builder()
-                    .eventId(2L)
-                    .offenderNo("A12346")
-                    .firstName("firstName2")
-                    .lastName("lastName2")
-                    .eventDate(today)
-                    .startTime(startTime.withHour(23))
-                    .endTime(endTime.withHour(23))
-                    .appointmentTypeDescription("appointmentTypeDescription2")
-                    .appointmentTypeCode("appointmentTypeCode2")
-                    .locationDescription("location Description2")
-                    .locationId(2L)
-                    .createUserId("Staff user 2")
-                    .agencyId("LEI")
-                    .build()
-            ));
+                    .build());
+        }
 
-        final var appointmentDtos = appointmentsService.getAppointments("LEI", today, null, TimeSlot.AM);
+        @Test
+        public void testScheduledAppointmentsOrderedByStartTimeThenByLocation() {
+            final var baseDateTime = LocalDateTime.now().minusDays(1);
 
-        assertThat(appointmentDtos).containsOnly(
-            ScheduledAppointmentDto
+            when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
+                .thenReturn(List.of(
+                    ScheduledAppointment.builder().eventId(1L).startTime(baseDateTime.withHour(23)).locationDescription("Gym").build(),
+                    ScheduledAppointment.builder().eventId(2L).startTime(baseDateTime.withHour(11)).locationDescription("Room 2").build(),
+                    ScheduledAppointment.builder().eventId(3L).startTime(baseDateTime.withHour(10)).locationDescription("Z").build(),
+                    ScheduledAppointment.builder().eventId(4L).startTime(baseDateTime.withHour(10)).locationDescription("A").build()
+                ));
+
+            final var appointmentDtos = appointmentsService.getAppointments("LEI", LocalDate.now(), null, null);
+
+            assertThat(appointmentDtos)
+                .extracting(
+                    ScheduledAppointmentDto::getId,
+                    ScheduledAppointmentDto::getLocationDescription
+                ).containsExactly(Tuple.tuple(4L, "A"), Tuple.tuple(3L, "Z"), Tuple.tuple(2L, "Room 2"), Tuple.tuple(1L, "Gym"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Delete a single appointment")
+    class DeleteSingleAppointment {
+        @Test
+        public void deleteBookingAppointment_notFound() {
+            when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> appointmentsService.deleteBookingAppointment(1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Booking Appointment for eventId 1 not found.");
+        }
+
+        @Test
+        public void deleteBookingAppointment() {
+            final var scheduledEvent = ScheduledEvent
                 .builder()
-                .id(1L)
-                .offenderNo("A12345")
-                .firstName("firstName1")
-                .lastName("lastName1")
-                .date(today)
-                .startTime(startTime.withHour(11))
-                .endTime(endTime.withHour(11))
-                .appointmentTypeDescription("Appointment Type Description1")
-                .appointmentTypeCode("appointmentTypeCode1")
-                .locationDescription("Location Description1")
-                .locationId(1L)
-                .createUserId("Staff user 1")
-                .agencyId("LEI")
-                .build());
+                .eventId(1L)
+                .eventType("APP")
+                .eventSubType("VLB")
+                .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
+                .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
+                .eventLocationId(2L)
+                .agencyId("WWI")
+                .build();
+            when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.of(scheduledEvent));
+
+            appointmentsService.deleteBookingAppointment(1L);
+
+            verify(bookingRepository).deleteBookingAppointment(1L);
+            verify(telemetryClient).trackEvent(
+                "AppointmentDeleted",
+                Map.of(
+                    "eventId", "1",
+                    "type", "VLB",
+                    "start", "2020-01-01T01:01",
+                    "end", "2020-01-01T01:31",
+                    "location", "2",
+                    "agency", "WWI",
+                    "user", "username"
+                ),
+                null);
+        }
     }
 
-    @Test
-    public void testScheduledAppointmentsOrderedByStartTimeThenByLocation() {
-        final var baseDateTime = LocalDateTime.now().minusDays(1);
 
-        when(scheduledAppointmentRepository.findByAgencyIdAndEventDate(any(), any()))
-            .thenReturn(List.of(
-                ScheduledAppointment.builder().eventId(1L).startTime(baseDateTime.withHour(23)).locationDescription("Gym").build(),
-                ScheduledAppointment.builder().eventId(2L).startTime(baseDateTime.withHour(11)).locationDescription("Room 2").build(),
-                ScheduledAppointment.builder().eventId(3L).startTime(baseDateTime.withHour(10)).locationDescription("Z").build(),
-                ScheduledAppointment.builder().eventId(4L).startTime(baseDateTime.withHour(10)).locationDescription("A").build()
-            ));
+    @Nested
+    @DisplayName("Delete multiple appointments")
+    class DeleteMultipleAppointments {
+        @Test
+        public void attemptToDeleteAppointmentsThatExist() {
+            when(bookingRepository.getBookingAppointmentByEventId(1L))
+                .thenReturn(Optional.of(ScheduledEvent.builder()
+                    .eventId(1L)
+                    .eventSubType("APP")
+                    .startTime(LocalDateTime.parse("2020-01-01T01:01"))
+                    .endTime(LocalDateTime.parse("2020-01-01T01:31"))
+                    .eventLocationId(2L)
+                    .agencyId("LEI")
+                    .createUserId("username")
+                    .build()));
 
-        final var appointmentDtos = appointmentsService.getAppointments("LEI", LocalDate.now(), null, null);
+            when(bookingRepository.getBookingAppointmentByEventId(2L))
+                .thenReturn(Optional.empty());
 
-        assertThat(appointmentDtos)
-            .extracting(
-                ScheduledAppointmentDto::getId,
-                ScheduledAppointmentDto::getLocationDescription
-            ).containsExactly(Tuple.tuple(4L, "A"), Tuple.tuple(3L, "Z"), Tuple.tuple(2L, "Room 2"), Tuple.tuple(1L, "Gym"));
-    }
+            appointmentsService.deleteBookingAppointments(List.of(1L, 2L));
 
-    @Test
-    public void deleteBookingAppointment_notFound() {
-        when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.empty());
+            verify(bookingRepository, times(1)).deleteBookingAppointment(anyLong());
+            verify(bookingRepository).deleteBookingAppointment(1L);
 
-        assertThatThrownBy(() -> appointmentsService.deleteBookingAppointment(1L))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("Booking Appointment for eventId 1 not found.");
-    }
-
-    @Test
-    public void deleteBookingAppointment() {
-        final var scheduledEvent = ScheduledEvent
-            .builder()
-            .eventId(1L)
-            .eventType("APP")
-            .eventSubType("VLB")
-            .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
-            .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
-            .eventLocationId(2L)
-            .agencyId("WWI")
-            .build();
-        when(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.of(scheduledEvent));
-
-        appointmentsService.deleteBookingAppointment(1L);
-
-        verify(bookingRepository).deleteBookingAppointment(1L);
-        verify(telemetryClient).trackEvent(
-            "AppointmentDeleted",
-            Map.of(
-                "eventId", "1",
-                "type", "VLB",
-                "start", "2020-01-01T01:01",
-                "end", "2020-01-01T01:31",
-                "location", "2",
-                "agency", "WWI",
-                "user", "username"
-            ),
-            null);
+            verify(telemetryClient).trackEvent(
+                "AppointmentDeleted",
+                Map.of(
+                    "eventId", "1",
+                    "type", "APP",
+                    "start", "2020-01-01T01:01",
+                    "end", "2020-01-01T01:31",
+                    "location", "2",
+                    "agency", "LEI",
+                    "user", "username"
+                ),
+                null);
+        }
     }
 
     private void stubValidBookingIds(final String agencyId, final long... bookingIds) {
@@ -993,5 +1056,10 @@ public class AppointmentsServiceImplTest {
         when(locationService.getUserLocations(anyString())).thenReturn(List.of(LOCATION_A, LOCATION_B));
         when(locationService.getLocation(location.getLocationId())).thenReturn(location);
     }
+
+    private void ensureRoles(final String... roles) {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(USERNAME, null, roles));
+    }
+
 }
 
