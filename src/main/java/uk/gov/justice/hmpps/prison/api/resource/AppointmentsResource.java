@@ -66,6 +66,21 @@ public class AppointmentsResource {
     }
 
     @ApiResponses({
+        @ApiResponse(code = 404, message = "The appointment was not found"),
+        @ApiResponse(code = 403, message = "The client is not authorised for this operation"),
+    })
+    @ApiOperation(value = "Delete multiple appointments.", notes = "Delete multiple appointments.", nickname = "deleteAppointments")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/delete")
+    @HasWriteScope
+    public void deleteAppointments(
+        @ApiParam(value = "The unique identifier for the appointment", required = true)
+        @NotNull @RequestBody List<Long> appointmentIds
+    ) {
+        appointmentsService.deleteBookingAppointments(appointmentIds);
+    }
+
+    @ApiResponses({
         @ApiResponse(code = 200, message = "The appointment has been returned"),
         @ApiResponse(code = 403, message = "The client is not authorised for this operation"),
         @ApiResponse(code = 404, message = "The appointment was not found")
