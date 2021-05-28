@@ -69,7 +69,7 @@ public class DeleteAppointmentIntegrationTest extends ResourceTest {
             Void.class
         );
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     private ResponseEntity<List<CreatedAppointmentDetails>> makeCreateAppointmentsRequest(final AppointmentsToCreate body) {
