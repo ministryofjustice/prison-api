@@ -66,7 +66,6 @@ public class AppointmentsResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 404, message = "The appointment was not found"),
         @ApiResponse(code = 403, message = "The client is not authorised for this operation"),
     })
     @ApiOperation(value = "Delete multiple appointments.", notes = "Delete multiple appointments.", nickname = "deleteAppointments")
