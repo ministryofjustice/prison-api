@@ -98,16 +98,16 @@ public class AppointmentsService {
         assertThatAppointmentsFallWithin(appointmentsWithRepeats, appointmentTimeLimit());
 
         final var createdAppointments = appointmentsWithRepeats.stream().map(a -> {
-            final var appointmentId = bookingRepository.createAppointment(a, defaults, agencyId);
+                final var appointmentId = bookingRepository.createAppointment(a, defaults, agencyId);
 
-            return CreatedAppointmentDetails.builder()
-                .appointmentEventId(appointmentId)
-                .bookingId(a.getBookingId())
-                .startTime(a.getStartTime())
-                .endTime(a.getEndTime())
-                .appointmentType(defaults.getAppointmentType())
-                .locationId(defaults.getLocationId())
-                .build();
+                return CreatedAppointmentDetails.builder()
+                    .appointmentEventId(appointmentId)
+                    .bookingId(a.getBookingId())
+                    .startTime(a.getStartTime())
+                    .endTime(a.getEndTime())
+                    .appointmentType(defaults.getAppointmentType())
+                    .locationId(defaults.getLocationId())
+                    .build();
             }
         ).collect(java.util.stream.Collectors.toList());
 
@@ -136,6 +136,18 @@ public class AppointmentsService {
     public ScheduledEvent getBookingAppointment(Long appointmentId) {
         return getScheduledEventOrThrowEntityNotFound(appointmentId);
     }
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
+    public void deleteBookingAppointments(List<Long> appointmentIds) {
+        appointmentIds.forEach(appointmentId -> bookingRepository
+            .getBookingAppointmentByEventId(appointmentId)
+            .ifPresent(scheduledEvent -> {
+                bookingRepository.deleteBookingAppointment(appointmentId);
+                trackAppointmentDeletion(scheduledEvent);
+            }));
+    }
+
 
     @Transactional
     @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
@@ -214,7 +226,8 @@ public class AppointmentsService {
         }
     }
 
-    private void assertThatAppointmentsFallWithin(final List<AppointmentDetails> appointments, final LocalDateTime limit) {
+    private void assertThatAppointmentsFallWithin(final List<AppointmentDetails> appointments,
+                                                  final LocalDateTime limit) {
         for (final var appointment : appointments) {
             assertThatAppointmentFallsWithin(appointment, limit);
         }
@@ -285,7 +298,8 @@ public class AppointmentsService {
         return Optional.empty();
     }
 
-    public List<ScheduledAppointmentDto> getAppointments(final String agencyId, final LocalDate date, final Long locationId, final TimeSlot timeSlot) {
+    public List<ScheduledAppointmentDto> getAppointments(final String agencyId, final LocalDate date,
+                                                         final Long locationId, final TimeSlot timeSlot) {
         final var appointmentStream = locationId != null ?
             scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId(agencyId, date, locationId).stream() :
             scheduledAppointmentRepository.findByAgencyIdAndEventDate(agencyId, date).stream();
@@ -321,7 +335,8 @@ public class AppointmentsService {
     }
 
 
-    private void trackAppointmentsCreated(final Integer appointmentsCreatedCount, final AppointmentDefaults defaults) {
+    private void trackAppointmentsCreated(final Integer appointmentsCreatedCount,
+                                          final AppointmentDefaults defaults) {
         if (appointmentsCreatedCount == null || appointmentsCreatedCount < 1) return;
 
         final Map<String, String> logMap = new HashMap<>();
@@ -385,9 +400,10 @@ public class AppointmentsService {
             .collect(toList());
     }
 
-    private static AppointmentDetails buildFromPrototypeWithStartTimeAndDuration(final AppointmentDetails prototype,
-                                                                                 final LocalDateTime startTime,
-                                                                                 final Optional<Duration> appointmentDuration) {
+    private static AppointmentDetails buildFromPrototypeWithStartTimeAndDuration(
+        final AppointmentDetails prototype,
+        final LocalDateTime startTime,
+        final Optional<Duration> appointmentDuration) {
         final var builder = prototype.toBuilder().startTime(startTime);
         appointmentDuration.ifPresent(d -> builder.endTime(startTime.plus(d)));
         return builder.build();
