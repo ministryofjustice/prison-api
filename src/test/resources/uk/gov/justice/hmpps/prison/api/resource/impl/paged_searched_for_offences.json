@@ -1,0 +1,131 @@
+{
+  "content": [
+    {
+      "code": "RC86354",
+      "description": "Cause another to use a vehicle where the anchorages/fastenings/adjusting device etc for the seat belt are not maintained affecting adversely the function of restraining the body in the event of an accident.",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "125",
+      "activeFlag": "Y"
+    },
+    {
+      "code": "RC86355",
+      "description": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "825/99",
+        "description": "Ho Code 825/99",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "83",
+      "activeFlag": "Y"
+    },
+    {
+      "code": "RC86356",
+      "description": "Cause another to use a vehicle where the seat belt buckle/other fastening was not maintained so that the belt could be readily fastened or unfastened/kept free from temporary or permanent obstruction/readily accessible to a person sitting in the seat.",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "125",
+      "activeFlag": "Y"
+    },
+    {
+      "code": "RC86359",
+      "description": "Cause another to use a vehicle where the material forming the belt of the seat belt is not maintained affecting adversely the performance of the belt under stress.",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "125",
+      "activeFlag": "Y"
+    },
+    {
+      "code": "RC86360",
+      "description": "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "125",
+      "activeFlag": "Y"
+    },
+    {
+      "code": "RV98011",
+      "description": "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)",
+      "statuteCode": {
+        "code": "RV98",
+        "description": "Statute RV98",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "823/02",
+        "description": "Ho Code 823/02",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "125",
+      "activeFlag": "Y"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": false,
+      "sorted": true,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 1,
+  "last": true,
+  "totalElements": 6,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "unsorted": false,
+    "sorted": true,
+    "empty": false
+  },
+  "numberOfElements": 6,
+  "first": true,
+  "empty": false
+}
