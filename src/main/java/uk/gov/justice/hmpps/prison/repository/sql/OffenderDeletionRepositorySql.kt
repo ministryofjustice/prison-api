@@ -1271,6 +1271,12 @@ enum class OffenderDeletionRepositorySql(val sql: String) {
     """
   ),
 
+  OD_DELETE_OFFENDER_IMMIGRATION_APPEALS(
+    """
+        DELETE FROM OFFENDER_IMMIGRATION_APPEALS WHERE ROOT_OFFENDER_ID IN (:offenderIds)
+    """
+  ),
+
   OD_DELETE_MERGE_TRANSACTIONS(
     """
         DELETE FROM MERGE_TRANSACTIONS WHERE OFFENDER_ID_1 IN (:offenderIds) OR OFFENDER_ID_2 IN (:offenderIds)

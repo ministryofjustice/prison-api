@@ -58,6 +58,7 @@ public class OffenderDeletionRepository extends RepositoryBase {
             deleteOffenderBooking(bookIds);
         }
 
+        executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IMMIGRATION_APPEALS, offenderIds);
         executeNamedSqlWithOffenderIdsAndBookingIds(OffenderDeletionRepositorySql.OD_ANONYMISE_GL_TRANSACTIONS, offenderIds, bookIds);
         executeNamedSqlWithOffenderIdsAndBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BELIEFS, offenderIds, bookIds);
     }
