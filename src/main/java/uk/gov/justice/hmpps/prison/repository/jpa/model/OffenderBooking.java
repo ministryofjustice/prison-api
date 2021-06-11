@@ -326,6 +326,6 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     }
 
     private static boolean releaseDateInTheFuture(final LocalDate releaseDate) {
-        return LocalDate.now().isAfter(releaseDate);
+        return releaseDate != null && LocalDate.now().isAfter(releaseDate);
     }
 }
