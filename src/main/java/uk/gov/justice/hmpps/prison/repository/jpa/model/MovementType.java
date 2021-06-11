@@ -21,4 +21,8 @@ public class MovementType extends ReferenceCode {
     public MovementType(final String code, final String description) {
         super(TYPE, code, description);
     }
+
+    public static MovementType of(ReferenceCode.Pk pk) {
+        return new MovementType(pk.getCode(), pk.getDomain());
+    }
 }

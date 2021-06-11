@@ -261,7 +261,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     public List<ExternalMovement> getMovementsRecentFirst() {
         return externalMovements.stream()
             .sorted(Comparator.comparingLong(ExternalMovement::getMovementSequence)
-            .reversed())
+                .reversed())
             .collect(Collectors.toList());
     }
 
@@ -304,22 +304,28 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         return getLastMovement().map(lastMovement -> mapRestrictivePatient(lastMovement, getLegalStatus(), null)).orElse(null);
     }
 
-    public static RestrictivePatient mapRestrictivePatient(final ExternalMovement lastMovement, LegalStatus legalStatus, LocalDate releaseDate) {
-        if (REL.getCode().equals(lastMovement.getMovementType().getCode()) &&
-            DISCHARGE_TO_PSY_HOSPITAL.getCode().equals(lastMovement.getMovementReason().getCode())) {
+    public static RestrictivePatient mapRestrictivePatient(final ExternalMovement lastMovement, final LegalStatus legalStatus, final LocalDate releaseDate) {
+        if (!isReleasedAndDischargedToHospital(lastMovement)) return null;
+        if (!isCorrectLegalStatus(legalStatus)) return null;
+        if (isReleaseDateInTheFuture(releaseDate)) return null;
 
+        return RestrictivePatient.builder()
+            .dischargeDate(lastMovement.getMovementDate())
+            .dischargedHospital(lastMovement.getToAgency().isHospital() ? AgencyTransformer.transform(lastMovement.getToAgency(), false) : null)
+            .supportingPrison(lastMovement.getFromAgency().isPrison() ? AgencyTransformer.transform(lastMovement.getFromAgency(), false) : null)
+            .dischargeDetails(lastMovement.getCommentText())
+            .build();
+    }
 
-            if (legalStatus != null && Arrays.asList(INDETERMINATE_SENTENCE, RECALL, SENTENCED, CONVICTED_UNSENTENCED, IMMIGRATION_DETAINEE).contains(legalStatus) &&
-                (releaseDate == null || LocalDate.now().isBefore(releaseDate))) {
+    private static boolean isReleasedAndDischargedToHospital(final ExternalMovement lastMovement) {
+        return REL.getCode().equals(lastMovement.getMovementType().getCode()) && DISCHARGE_TO_PSY_HOSPITAL.getCode().equals(lastMovement.getMovementReason().getCode());
+    }
 
-                return RestrictivePatient.builder()
-                    .dischargeDate(lastMovement.getMovementDate())
-                    .dischargedHospital(lastMovement.getToAgency().isHospital() ? AgencyTransformer.transform(lastMovement.getToAgency(), false) : null)
-                    .supportingPrison(lastMovement.getFromAgency().isPrison() ? AgencyTransformer.transform(lastMovement.getFromAgency(), false) : null)
-                    .dischargeDetails(lastMovement.getCommentText())
-                    .build();
-            }
-        }
-        return null;
+    private static boolean isCorrectLegalStatus(final LegalStatus legalStatus) {
+        return legalStatus != null && Arrays.asList(INDETERMINATE_SENTENCE, RECALL, SENTENCED, CONVICTED_UNSENTENCED, IMMIGRATION_DETAINEE).contains(legalStatus);
+    }
+
+    private static boolean isReleaseDateInTheFuture(final LocalDate releaseDate) {
+        return LocalDate.now().isAfter(releaseDate);
     }
 }
