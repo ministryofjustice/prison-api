@@ -307,7 +307,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     public static RestrictivePatient mapRestrictivePatient(final ExternalMovement lastMovement, final LegalStatus legalStatus, final LocalDate releaseDate) {
         if (!isReleasedAndDischargedToHospital(lastMovement)) return null;
         if (!isCorrectLegalStatus(legalStatus)) return null;
-        if (isReleaseDateInTheFuture(releaseDate)) return null;
+        if (releaseDateInTheFuture(releaseDate)) return null;
 
         return RestrictivePatient.builder()
             .dischargeDate(lastMovement.getMovementDate())
@@ -325,7 +325,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         return legalStatus != null && Arrays.asList(INDETERMINATE_SENTENCE, RECALL, SENTENCED, CONVICTED_UNSENTENCED, IMMIGRATION_DETAINEE).contains(legalStatus);
     }
 
-    private static boolean isReleaseDateInTheFuture(final LocalDate releaseDate) {
+    private static boolean releaseDateInTheFuture(final LocalDate releaseDate) {
         return LocalDate.now().isAfter(releaseDate);
     }
 }
