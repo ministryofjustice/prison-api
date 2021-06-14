@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.repository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
@@ -14,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
 
 @Repository
 public class LocationRepository extends RepositoryBase {
@@ -96,7 +95,9 @@ public class LocationRepository extends RepositoryBase {
 
 
     public List<Location> getSubLocationGroupData(Set<Long> parentLocationIds) {
-
+        if (CollectionUtils.isEmpty(parentLocationIds)) {
+            return List.of();
+        }
         return jdbcTemplate.query(
                 LocationRepositorySql.GET_SUB_LOCATION_GROUP_DATA.getSql(),
                 Map.of("parentLocationIds", parentLocationIds),
