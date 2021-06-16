@@ -7,11 +7,11 @@ import javax.persistence.Converter;
 public class YesNoToBooleanConverter implements AttributeConverter<Boolean, String> {
     @Override
     public String convertToDatabaseColumn(Boolean attribute) {
-        return "N";
+        return attribute ? "Y" : "N";
     }
 
     @Override
     public Boolean convertToEntityAttribute(String dbData) {
-        return false;
+        return dbData.equalsIgnoreCase("Y");
     }
 }
