@@ -77,3 +77,40 @@ INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO,
 INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO, OFFENDER_ID, BOOKING_SEQ, DISCLOSURE_FLAG, IN_OUT_STATUS, ACTIVE_FLAG, YOUTH_ADULT_CODE, AGY_LOC_ID, ROOT_OFFENDER_ID, LIVING_UNIT_ID)
 VALUES  (-56, sysdate, 'Z00056', -1035, 2, 'N', 'OUT',  'N', 'N', 'OUT', -1035, null),
         (-57, sysdate, 'Z00057', -1043, 2, 'N', 'OUT',  'N', 'N', 'OUT', -1043, null);
+
+INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_END_DATE, BOOKING_NO,
+                                         OFFENDER_ID, AGY_LOC_ID, LIVING_UNIT_ID, DISCLOSURE_FLAG, IN_OUT_STATUS,
+                                         ACTIVE_FLAG, BOOKING_STATUS, YOUTH_ADULT_CODE, FINGER_PRINTED_STAFF_ID,
+                                         SEARCH_STAFF_ID, PHOTO_TAKING_STAFF_ID, ASSIGNED_STAFF_ID, CREATE_AGY_LOC_ID,
+                                         BOOKING_TYPE, BOOKING_CREATED_DATE, ROOT_OFFENDER_ID, AGENCY_IML_ID,
+                                         SERVICE_FEE_FLAG, EARNED_CREDIT_LEVEL, EKSTRAND_CREDIT_LEVEL,
+                                         INTAKE_AGY_LOC_ID, ACTIVITY_DATE, INTAKE_CASELOAD_ID, INTAKE_USER_ID,
+                                         CASE_OFFICER_ID, CASE_DATE, CASE_TIME, COMMUNITY_ACTIVE_FLAG,
+                                         CREATE_INTAKE_AGY_LOC_ID, COMM_STAFF_ID, COMM_STATUS, COMMUNITY_AGY_LOC_ID,
+                                         NO_COMM_AGY_LOC_ID, COMM_STAFF_ROLE, AGY_LOC_ID_LIST, STATUS_REASON,
+                                         TOTAL_UNEXCUSED_ABSENCES, REQUEST_NAME, CREATE_DATETIME, CREATE_USER_ID,
+                                         MODIFY_DATETIME, MODIFY_USER_ID, RECORD_USER_ID, INTAKE_AGY_LOC_ASSIGN_DATE, BOOKING_SEQ)
+VALUES (584215, TO_DATE('2011-12-21 00:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+        TO_DATE('2012-07-10 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'PW8142', 1823215, 'OUT', null, 'N', 'OUT', 'N', 'C',
+        'N', null, null, null, 5669, 'DGI', 'INST', null, 1823215, null, 'N', null, null, null, null, null, null, null,
+        null, null, 'N', null, null, null, null, null, null, null, 'REL-AR', null, null,
+        '2012-02-19 04:21:41.170689000', 'XTAG',
+        '2017-05-09 22:25:03.716523000', 'OMS_OWNER', null, null, 1);
+
+INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_END_DATE, BOOKING_NO,
+                                         OFFENDER_ID, AGY_LOC_ID, LIVING_UNIT_ID, DISCLOSURE_FLAG, IN_OUT_STATUS,
+                                         ACTIVE_FLAG, BOOKING_STATUS, YOUTH_ADULT_CODE, FINGER_PRINTED_STAFF_ID,
+                                         SEARCH_STAFF_ID, PHOTO_TAKING_STAFF_ID, ASSIGNED_STAFF_ID, CREATE_AGY_LOC_ID,
+                                         BOOKING_TYPE, BOOKING_CREATED_DATE, ROOT_OFFENDER_ID, AGENCY_IML_ID,
+                                         SERVICE_FEE_FLAG, EARNED_CREDIT_LEVEL, EKSTRAND_CREDIT_LEVEL,
+                                         INTAKE_AGY_LOC_ID, ACTIVITY_DATE, INTAKE_CASELOAD_ID, INTAKE_USER_ID,
+                                         CASE_OFFICER_ID, CASE_DATE, CASE_TIME, COMMUNITY_ACTIVE_FLAG,
+                                         CREATE_INTAKE_AGY_LOC_ID, COMM_STAFF_ID, COMM_STATUS, COMMUNITY_AGY_LOC_ID,
+                                         NO_COMM_AGY_LOC_ID, COMM_STAFF_ROLE, AGY_LOC_ID_LIST, STATUS_REASON,
+                                         TOTAL_UNEXCUSED_ABSENCES, REQUEST_NAME, CREATE_DATETIME, CREATE_USER_ID,
+                                         MODIFY_DATETIME, MODIFY_USER_ID, RECORD_USER_ID, INTAKE_AGY_LOC_ASSIGN_DATE, BOOKING_SEQ)
+VALUES (16048, '2009-05-16 00:00:00', null, 'LC6910', 1034658, 'LEI', 12824, 'N',
+        'IN', 'Y', 'O', 'N', null, null, null, 5669, 'LEI', 'INST', null, 1034658, null, 'N', null, null, null, null,
+        null, null, null, null, null, 'N', null, null, 'RECALL', null, null, null, null, 'ADM-L', null, null,
+        '2009-07-05 04:46:19.728863000', 'XTAG',
+        '2017-05-09 22:23:21.917265000', 'OMS_OWNER', null, null, 1);
