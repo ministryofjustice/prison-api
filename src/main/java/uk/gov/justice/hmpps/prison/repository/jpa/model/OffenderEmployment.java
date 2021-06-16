@@ -109,7 +109,7 @@ public class OffenderEmployment {
 
     @Convert(converter = YesNoToBooleanConverter.class)
     @Column(name = "CONTACT_EMPLOYER_FLAG")
-    private String contactEmployerFlag;
+    private Boolean contactEmployerFlag;
 
     @Column(name = "OFFENDER_EMPLOYMENT_ID")
     private Integer offenderEmploymentId;
