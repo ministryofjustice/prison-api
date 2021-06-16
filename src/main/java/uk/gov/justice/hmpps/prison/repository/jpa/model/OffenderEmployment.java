@@ -1,8 +1,10 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.Data;
+import uk.gov.justice.hmpps.prison.repository.converter.YesNoToBooleanConverter;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -79,23 +81,29 @@ public class OffenderEmployment {
     @Column(name = "HOURS_WEEK")
     private Integer hoursWeek;
 
+    @Convert(converter = YesNoToBooleanConverter.class)
     @Column(name = "PARTIAL_EMPLOYMENT_DATE_FLAG")
-    private String partialEmploymentDateFlag; //" VARCHAR2(1 CHAR) DEFAULT 'N'
+    private Boolean partialEmploymentDateFlag;
 
+    @Convert(converter = YesNoToBooleanConverter.class)
     @Column(name = "PARTIAL_TERMINATION_DATE_FLAG")
-    private String partialTerminationDateFlag; //" VARCHAR2(1 CHAR) DEFAULT 'N'
+    private Boolean partialTerminationDateFlag;
 
+    @Convert(converter = YesNoToBooleanConverter.class)
     @Column(name = "CHECK_BOX_1")
-    private String checkBox1; //" VARCHAR2(1 CHAR) DEFAULT 'N'
+    private Boolean checkBox1;
 
+    @Convert(converter = YesNoToBooleanConverter.class)
     @Column(name = "CHECK_BOX_2")
-    private String checkBox2; //" VARCHAR2(1 CHAR) DEFAULT 'N'
+    private Boolean checkBox2;
 
+    @Convert(converter = YesNoToBooleanConverter.class)
     @Column(name = "EMPLOYER_AWARE_FLAG")
-    private String employerAwareFlag; //" VARCHAR2(1 CHAR) DEFAULT 'N' NOT NULL
+    private Boolean employerAwareFlag;
 
+    @Convert(converter = YesNoToBooleanConverter.class)
     @Column(name = "CONTACT_EMPLOYER_FLAG")
-    private String contactEmployerFlag; //" VARCHAR2(1 CHAR) DEFAULT 'N' NOT NULL
+    private String contactEmployerFlag;
 
     @Column(name = "OFFENDER_EMPLOYMENT_ID")
     private Integer offenderEmploymentId;
@@ -105,6 +113,5 @@ public class OffenderEmployment {
 
     @Column(name = "CERTIFICATION")
     private String certification;
-
 }
 
