@@ -470,4 +470,16 @@
   "agencyLocationDesc": "LEEDS",
   "internalLocationDesc": "H-1",
   "facialImageId": -19
+},
+{
+  "bookingId": 16048,
+  "offenderNo": "G2823GV",
+  "firstName": "CIPTEMINTAS",
+  "lastName": "TRAVAR",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "bookingId": 16048
+  },
+  "dateOfBirth": "1977-11-14",
+  "agencyLocationDesc": "LEEDS"
 }]
