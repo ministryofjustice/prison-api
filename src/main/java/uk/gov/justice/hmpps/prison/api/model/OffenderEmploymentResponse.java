@@ -32,10 +32,10 @@ public class OffenderEmploymentResponse {
     @ApiModelProperty(value = "The employment post type condition")
     private String postType;
 
-    @ApiModelProperty(value = "The name of the employer")
+    @ApiModelProperty(value = "The obfuscated name of the employer")
     private String employerName;
 
-    @ApiModelProperty(value = "Supervisor's name for employment period")
+    @ApiModelProperty(value = "The obfuscated name of the supervisor in the employment")
     private String supervisorName;
 
     @ApiModelProperty(value = "Position held on job")
