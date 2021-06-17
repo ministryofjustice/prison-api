@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderEmploymentResponse;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
+import uk.gov.justice.hmpps.prison.service.OffenderEmploymentService;
 
 @Slf4j
 @Validated
@@ -26,6 +29,8 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderEmploymentResponse;
 @Api(tags = {"employment"})
 @RequestMapping("${api.base.path}/employment")
 public class EmploymentResource {
+
+    private final OffenderEmploymentService offenderEmploymentService;
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -39,6 +44,8 @@ public class EmploymentResource {
         @RequestParam(value = "page", defaultValue = "0", required = false) @ApiParam(value = "The page number of the paged results", defaultValue = "0") final Integer page,
         @RequestParam(value = "size", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of results returned.", defaultValue = "10") final Integer size
     ) {
-        return null;
+        log.info("get prisoner employments for offenderNo: {}", offenderNo);
+        var result = offenderEmploymentService.getOffenderEmployments(offenderNo, PageRequest.of(page, size));
+        return ResponseEntity.ok().body(result);
     }
 }
