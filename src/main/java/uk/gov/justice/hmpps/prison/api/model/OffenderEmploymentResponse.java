@@ -7,9 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Occupation;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.PayPeriodType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.ScheduleType;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -17,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(description = "Offender Employment")
@@ -73,7 +69,6 @@ public class OffenderEmploymentResponse {
     private Boolean isEmployerContactable;
 
     @NotNull
-    @Builder.Default
     @ApiModelProperty(value = "A list of addresses associated with the employment")
     private List<AddressDto> addresses = new ArrayList<>();
 }
