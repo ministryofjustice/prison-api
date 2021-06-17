@@ -3,7 +3,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.Where;
 import uk.gov.justice.hmpps.prison.repository.converter.YesNoToBooleanConverter;
 
@@ -13,7 +18,11 @@ import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -30,17 +39,14 @@ public class OffenderEmployment {
     private PK id;
 
     @Column(name = "EMPLOYMENT_DATE")
-    private LocalDate employmentDate;
-
-
-    @Column(name = "EMPLOYMENT_POST_CODE")
-    private String employmentPostCode;
-
-    @Column(name = "EMPLOYMENT_TYPE")
-    private String employmentType;
+    private LocalDate startDate;
 
     @Column(name = "TERMINATION_DATE")
-    private LocalDate terminationDate;
+    private LocalDate endDate;
+
+    @Column(name = "EMPLOYMENT_POST_CODE")
+    @Enumerated(EnumType.STRING)
+    private EmploymentPostType postType;
 
     @Column(name = "EMPLOYER_NAME")
     private String employerName;
@@ -49,76 +55,41 @@ public class OffenderEmployment {
     private String supervisorName;
 
     @Column(name = "POSITION")
-    private String POSITION;
+    private String position;
 
     @Column(name = "TERMINATION_REASON_TEXT")
-    private String terminationReasonText;
+    private String terminationReason;
 
     @Column(name = "WAGE")
-    private Double WAGE;
+    private Double wage;
 
     @Column(name = "WAGE_PERIOD_CODE")
-    private String wagePeriodCode;
+    private PayPeriodType wagePeriod;
 
-    @Column(name = "OCCUPATIONS_CODE")
-    private String occupationsCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + Occupation.DOMAIN + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "OCCUPATIONS_CODE", referencedColumnName = "code"))
+    })
+    private Occupation occupation;
 
     @Column(name = "COMMENT_TEXT")
-    private String commentText;
-
-    @Column(name = "CASELOAD_TYPE")
-    private String caseloadType;
-
-    @Column(name = "ROOT_OFFENDER_ID")
-    private String rootOffenderId;
-
-    @Column(name = "CONTACT_TYPE")
-    private String contactType;
-
-    @Column(name = "CONTACT_NUMBER")
-    private String contactNumber;
+    private String comment;
 
     @Column(name = "SCHEDULE_TYPE")
-    private String scheduleType;
-
-    @Column(name = "SCHEDULE_HOURS")
-    private Integer scheduleHours;
+    private ScheduleType scheduleType;
 
     @Column(name = "HOURS_WEEK")
     private Integer hoursWeek;
 
-    @Convert(converter = YesNoToBooleanConverter.class)
-    @Column(name = "PARTIAL_EMPLOYMENT_DATE_FLAG")
-    private Boolean partialEmploymentDateFlag;
-
-    @Convert(converter = YesNoToBooleanConverter.class)
-    @Column(name = "PARTIAL_TERMINATION_DATE_FLAG")
-    private Boolean partialTerminationDateFlag;
-
-    @Convert(converter = YesNoToBooleanConverter.class)
-    @Column(name = "CHECK_BOX_1")
-    private Boolean checkBox1;
-
-    @Convert(converter = YesNoToBooleanConverter.class)
-    @Column(name = "CHECK_BOX_2")
-    private Boolean checkBox2;
-
-    @Convert(converter = YesNoToBooleanConverter.class)
     @Column(name = "EMPLOYER_AWARE_FLAG")
-    private Boolean employerAwareFlag;
-
     @Convert(converter = YesNoToBooleanConverter.class)
+    private Boolean employerAware;
+
     @Column(name = "CONTACT_EMPLOYER_FLAG")
-    private Boolean contactEmployerFlag;
+    @Convert(converter = YesNoToBooleanConverter.class)
+    private Boolean employerContactable;
 
-    @Column(name = "OFFENDER_EMPLOYMENT_ID")
-    private Integer offenderEmploymentId;
-
-    @Column(name = "EMPLOYMENT_SCHEDULE")
-    private String employmentSchedule;
-
-    @Column(name = "CERTIFICATION")
-    private String certification;
 
     @Where(clause = "OWNER_CLASS = '" + OffenderEmploymentAddress.ADDR_TYPE + "'")
     @OneToMany(mappedBy = "employment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -134,6 +105,51 @@ public class OffenderEmployment {
 
         @Column(name = "EMPLOY_SEQ")
         private Long employSeq;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public enum EmploymentPostType {
+        CARE("Carer"),
+        CAS("Casual"),
+        FT("Full Time"),
+        FTEDU("Full Time Student"),
+        NDEAL("New Deal"),
+        NK("Not Known"),
+        PT("Part Time"),
+        PTEDU("Part Time Student"),
+        SEMP("Self Employed"),
+        SES("Sessional"),
+        UNAV("Unavailable for Work (Retired/Housewife)"),
+        UNEMP("Unemployed"),
+        UP("Unpaid Work (Court Order)"),
+        VL("Volunteer"),
+        WORKTRIAL("Work Trial");
+
+        private final String description;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public enum PayPeriodType {
+        HOUR("Hourly"),
+        MONTH("Monthly"),
+        TWO_WEEKS("Fortnightly"),
+        WEEK("Weekly");
+
+        private final String description;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public enum ScheduleType {
+        FTNIGHT("Fortnightly"),
+        HOUR("Hourly"),
+        INHAND("In Hand"),
+        MONTH("Monthly"),
+        WEEK("Weekly");
+
+        private final String description;
     }
 }
 
