@@ -43,8 +43,8 @@ public class OffenderDeletionRepositoryTest {
         assertThat(repository.cleanseOffenderData("A1234AA"))
                 .containsExactly(-1001L);
 
+        assertBaseRecordExists();
         assertOffenderDataDeleted();
-        assertBaseRecordIsNotDeleted();
 
         // GL_TRANSACTIONS should still have the anonymised data:
         assertThat(jdbcTemplate.queryForList(
@@ -62,18 +62,24 @@ public class OffenderDeletionRepositoryTest {
     }
 
     private void assertOffenderDataExists() {
-        checkTables(new Condition<>(list -> !list.isEmpty(), "Entry Found"));
+        checkAllTables(new Condition<>(list -> !list.isEmpty(), "Entry Found"));
     }
 
     private void assertOffenderDataDeleted() {
-        checkTables(new Condition<>(List::isEmpty, "Entry Not Found"));
+        checkNonBaseRecordTables(new Condition<>(List::isEmpty, "Entry Not Found"));
     }
 
-    private void assertBaseRecordIsNotDeleted() {
+    private void assertBaseRecordExists() {
         checkBaseRecord(new Condition<>(list -> !list.isEmpty(), "Entry is Found"));
     }
 
-    private void checkTables(final Condition<? super List<? extends String>> condition) {
+    private void checkAllTables(final Condition<? super List<? extends String>> condition) {
+        checkBaseRecord(condition);
+        checkNonBaseRecordTables(condition);
+    }
+
+
+    private void checkNonBaseRecordTables(final Condition<? super List<? extends String>> condition) {
 
         queryForCourtEventCharges().is(condition);
 
@@ -97,14 +103,11 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderBookId("INCIDENT_CASE_PARTIES").is(condition);
         queryByOffenderBookId("BED_ASSIGNMENT_HISTORIES").is(condition);
         queryByOffenderBookId("COURT_EVENTS").is(condition);
-        queryByOffenderBookId("OFFENDER_ALERTS").is(condition);
         queryByOffenderBookId("OFFENDER_ASSESSMENTS").is(condition);
-        queryByOffenderBookId("OFFENDER_BOOKING_DETAILS").is(condition);
         queryByOffenderBookId("OFFENDER_CASE_NOTES").is(condition);
         queryByOffenderBookId("OFFENDER_CASES").is(condition);
         queryByOffenderBookId("OFFENDER_CONTACT_PERSONS").is(condition);
         queryByOffenderBookId("OFFENDER_CURFEWS").is(condition);
-        queryByOffenderBookId("OFFENDER_EXTERNAL_MOVEMENTS").is(condition);
         queryByOffenderBookId("OFFENDER_IEP_LEVELS").is(condition);
         queryByOffenderBookId("OFFENDER_IMPRISON_STATUSES").is(condition);
         queryByOffenderBookId("OFFENDER_IND_SCHEDULES").is(condition);
@@ -112,9 +115,7 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderBookId("OFFENDER_KEY_WORKERS").is(condition);
         queryByOffenderBookId("OFFENDER_LANGUAGES").is(condition);
         queryByOffenderBookId("OFFENDER_OIC_SANCTIONS").is(condition);
-        queryByOffenderBookId("OFFENDER_PHYSICAL_ATTRIBUTES").is(condition);
         queryByOffenderBookId("OFFENDER_PRG_OBLIGATIONS").is(condition);
-        queryByOffenderBookId("OFFENDER_PROFILE_DETAILS").is(condition);
         queryByOffenderBookId("OFFENDER_RELEASE_DETAILS").is(condition);
         queryByOffenderBookId("OFFENDER_SENT_CALCULATIONS").is(condition);
         queryByOffenderBookId("OFFENDER_VISIT_VISITORS").is(condition);
@@ -126,16 +127,26 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderBookId("ORDERS").is(condition);
         queryByOffenderBookId("OFFENDER_BELIEFS").is(condition);
 
+        queryByRootOffenderId("OFFENDER_IMMIGRATION_APPEALS").is(condition);
+
         queryByOffenderId("GL_TRANSACTIONS").is(condition);
-        queryByOffenderId("OFFENDER_BOOKINGS").is(condition);
         queryByOffenderId("OFFENDER_SUB_ACCOUNTS").is(condition);
         queryByOffenderId("OFFENDER_TRANSACTIONS").is(condition);
         queryByOffenderId("OFFENDER_TRUST_ACCOUNTS").is(condition);
     }
 
     private void checkBaseRecord(final Condition<? super List<? extends String>> condition) {
-          queryByOffenderId("OFFENDER_IDENTIFIERS").is(condition);
-          queryByOffenderId("OFFENDERS").is(condition);
+        queryByOffenderBookId("OFFENDER_IMAGES").is(condition);
+        queryByOffenderBookId("OFFENDER_IDENTIFYING_MARKS").is(condition);
+        queryByOffenderBookId("OFFENDER_ALERTS").is(condition);
+        queryByOffenderBookId("OFFENDER_EXTERNAL_MOVEMENTS").is(condition);
+        queryByOffenderBookId("OFFENDER_BOOKING_DETAILS").is(condition);
+        queryByOffenderBookId( "OFFENDER_PHYSICAL_ATTRIBUTES").is(condition);
+        queryByOffenderBookId( "OFFENDER_PROFILE_DETAILS").is(condition);
+
+        queryByOffenderId("OFFENDER_IDENTIFIERS").is(condition);
+        queryByOffenderId("OFFENDER_BOOKINGS").is(condition);
+        queryByOffenderId("OFFENDERS").is(condition);
     }
 
     private ListAssert<String> queryByAgencyIncidentId(final String tableName) {
@@ -178,6 +189,12 @@ public class OffenderDeletionRepositoryTest {
         return assertThat(jdbcTemplate.queryForList(
                 "SELECT offender_id FROM " + tableName + " WHERE offender_id = -1001",
                 String.class));
+    }
+
+    private ListAssert<String> queryByRootOffenderId(final String tableName) {
+        return assertThat(jdbcTemplate.queryForList(
+            "SELECT root_offender_id FROM " + tableName + " WHERE root_offender_id = -1001",
+            String.class));
     }
 
 }

@@ -58,6 +58,7 @@ public class OffenderDeletionRepository extends RepositoryBase {
             deleteOffenderBooking(bookIds);
         }
 
+        executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IMMIGRATION_APPEALS, offenderIds);
         executeNamedSqlWithOffenderIdsAndBookingIds(OffenderDeletionRepositorySql.OD_ANONYMISE_GL_TRANSACTIONS, offenderIds, bookIds);
         executeNamedSqlWithOffenderIdsAndBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BELIEFS, offenderIds, bookIds);
     }
@@ -88,11 +89,9 @@ public class OffenderDeletionRepository extends RepositoryBase {
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_BED_ASSIGNMENT_HISTORIES, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_CASE_ASSOCIATED_PERSONS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_IWP_DOCUMENTS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ALERTS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENT_ITEMS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENTS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKING_AGY_LOCS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKING_DETAILS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKING_EVENTS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_CASE_ASSOCIATIONS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_CASE_OFFICERS, bookIds);
@@ -100,12 +99,9 @@ public class OffenderDeletionRepository extends RepositoryBase {
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_DISCHARGE_BALANCES, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_EDUCATIONS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_EMPLOYMENTS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_EXTERNAL_MOVEMENTS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_FINE_PAYMENTS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_FIXED_TERM_RECALLS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IDENTIFYING_MARKS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IEP_LEVELS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IMAGES, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IMPRISON_STATUSES, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_INTER_MVMT_LOCATIONS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_KEY_WORKERS, bookIds);
@@ -114,10 +110,8 @@ public class OffenderDeletionRepository extends RepositoryBase {
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_NO_PAY_PERIODS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_OGRS3_RISK_PREDICTORS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_PAY_STATUSES, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_PHYSICAL_ATTRIBUTES, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_PPTY_CONTAINERS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_PROFILES, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_PROFILE_DETAILS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_RELEASE_DETAILS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_RELEASE_DETAILS_HTY, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_RESTRICTIONS, bookIds);
@@ -381,9 +375,6 @@ public class OffenderDeletionRepository extends RepositoryBase {
         executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_MERGE_TRANSACTIONS, offenderIds);
         executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_LOCKED_MODULES, offenderIds);
 
-        var bookingRowsDeleted = executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKINGS, offenderIds);
-
-        log.info("Cleaned {} data for offender ID: {}", bookingRowsDeleted, offenderIds);
     }
 
     private void deleteContactDetailsByOffenderIds(final Set<Long> offenderIds) {

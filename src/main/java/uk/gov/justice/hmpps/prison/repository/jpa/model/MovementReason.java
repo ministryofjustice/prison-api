@@ -23,4 +23,6 @@ public class MovementReason extends ReferenceCode {
     public static ReferenceCode.Pk pk(final String code) {
         return new ReferenceCode.Pk(REASON, code);
     }
+
+    public static MovementReason of(ReferenceCode.Pk pk) { return new MovementReason(pk.getCode(), pk.getDomain()); }
 }

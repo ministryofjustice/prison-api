@@ -82,4 +82,10 @@ public class LocationRepositoryTest {
                         Location.builder().locationId(-32L).locationType("LAND").description("LEI-A-2").parentLocationId(-1L).userDescription("Landing A/2").internalLocationCode("2").build()
                 );
     }
+
+    @Test
+    public void getSubLocationGroupDataHandlesEmptyParentLocations() {
+        final List<Location> subLocationGroupData = repository.getSubLocationGroupData(Set.of());
+        assertThat(subLocationGroupData).isEmpty();
+    }
 }
