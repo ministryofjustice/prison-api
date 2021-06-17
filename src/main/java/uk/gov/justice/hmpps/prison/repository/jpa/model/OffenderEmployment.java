@@ -32,6 +32,8 @@ import java.util.List;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "OFFENDER_EMPLOYMENTS")
 public class OffenderEmployment {
 
@@ -84,17 +86,18 @@ public class OffenderEmployment {
 
     @Column(name = "EMPLOYER_AWARE_FLAG")
     @Convert(converter = YesNoToBooleanConverter.class)
-    private Boolean employerAware;
+    private Boolean isEmployerAware;
 
     @Column(name = "CONTACT_EMPLOYER_FLAG")
     @Convert(converter = YesNoToBooleanConverter.class)
-    private Boolean employerContactable;
+    private Boolean isEmployerContactable;
 
 
     @Where(clause = "OWNER_CLASS = '" + OffenderEmploymentAddress.ADDR_TYPE + "'")
     @OneToMany(mappedBy = "employment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OffenderEmploymentAddress> addresses = new ArrayList<>();
 
+    @Data
     @Embeddable
     @EqualsAndHashCode
     @NoArgsConstructor
