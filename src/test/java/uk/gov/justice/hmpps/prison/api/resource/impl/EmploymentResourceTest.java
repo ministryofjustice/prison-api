@@ -24,7 +24,8 @@ public class EmploymentResourceTest extends ResourceTest {
             GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {},
-            OFFENDER_NUMBER);
+            OFFENDER_NUMBER
+        );
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
@@ -40,9 +41,10 @@ public class EmploymentResourceTest extends ResourceTest {
             GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {},
-            OFFENDER_NUMBER);
+            OFFENDER_NUMBER
+        );
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThatJsonFileAndStatus(response, 200, "paged_offender_employments.json");
     }
 
     @Test
@@ -56,8 +58,43 @@ public class EmploymentResourceTest extends ResourceTest {
             GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {},
-            OFFENDER_NUMBER);
+            OFFENDER_NUMBER
+        );
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThatJsonFileAndStatus(response, 200, "paged_offender_employments.json");
+    }
+
+    @Test
+    public void testShouldBeAbleToAccessInformationAsAViewPrisonerDataUser() {
+
+        final var token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/employment/prisoner/{offenderNo}",
+            GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {},
+            OFFENDER_NUMBER
+        );
+
+        assertThatJsonFileAndStatus(response, 200, "paged_offender_employments.json");
+    }
+
+    @Test
+    public void testShouldReturn404ForANonExistentOffender() {
+
+        final var token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/employment/prisoner/{offenderNo}",
+            GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {},
+            "non_existent_nomisid"
+        );
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }
 }

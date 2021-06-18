@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,20 +19,20 @@ import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "OFFENDER_EMPLOYMENTS")
@@ -46,9 +47,12 @@ public class OffenderEmployment {
     @Column(name = "TERMINATION_DATE")
     private LocalDate endDate;
 
-    @Column(name = "EMPLOYMENT_POST_CODE")
-    @Enumerated(EnumType.STRING)
-    private EmploymentPostType postType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EmploymentStatus.DOMAIN + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "EMPLOYMENT_POST_CODE", referencedColumnName = "code"))
+    })
+    private EmploymentStatus postType;
 
     @Column(name = "EMPLOYER_NAME")
     private String employerName;
@@ -63,7 +67,7 @@ public class OffenderEmployment {
     private String terminationReason;
 
     @Column(name = "WAGE")
-    private Double wage;
+    private BigDecimal wage;
 
     @Column(name = "WAGE_PERIOD_CODE")
     private PayPeriodType wagePeriod;
@@ -93,6 +97,7 @@ public class OffenderEmployment {
     private Boolean isEmployerContactable;
 
 
+    @Builder.Default
     @Where(clause = "OWNER_CLASS = '" + OffenderEmploymentAddress.ADDR_TYPE + "'")
     @OneToMany(mappedBy = "employment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OffenderEmploymentAddress> addresses = new ArrayList<>();
@@ -108,28 +113,6 @@ public class OffenderEmployment {
 
         @Column(name = "EMPLOY_SEQ")
         private Long employSeq;
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    public enum EmploymentPostType {
-        CARE("Carer"),
-        CAS("Casual"),
-        FT("Full Time"),
-        FTEDU("Full Time Student"),
-        NDEAL("New Deal"),
-        NK("Not Known"),
-        PT("Part Time"),
-        PTEDU("Part Time Student"),
-        SEMP("Self Employed"),
-        SES("Sessional"),
-        UNAV("Unavailable for Work (Retired/Housewife)"),
-        UNEMP("Unemployed"),
-        UP("Unpaid Work (Court Order)"),
-        VL("Volunteer"),
-        WORKTRIAL("Work Trial");
-
-        private final String description;
     }
 
     @Getter

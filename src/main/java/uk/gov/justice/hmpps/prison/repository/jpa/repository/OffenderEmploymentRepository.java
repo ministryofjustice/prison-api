@@ -15,6 +15,7 @@ public interface OffenderEmploymentRepository extends PagingAndSortingRepository
             FROM OffenderBooking B
                      INNER JOIN OffenderEmployment OE ON OE.id.bookingId = B.bookingId
             WHERE B.offender.nomsId = :nomsId
+            ORDER BY OE.startDate
                     """
     )
     Page<OffenderEmployment> findAllByNomisId(@Param("nomsId") String nomsId, Pageable pageable);

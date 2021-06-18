@@ -1,13 +1,11 @@
 package uk.gov.justice.hmpps.prison.repository.converter;
 
 import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class YesNoToBooleanConverterTest {
 
-    private YesNoToBooleanConverter converter = new YesNoToBooleanConverter();
+    private final YesNoToBooleanConverter converter = new YesNoToBooleanConverter();
 
     @Test
     public void convertToDatabaseColumn() {
@@ -19,5 +17,10 @@ class YesNoToBooleanConverterTest {
     public void convertToEntityAttribute() {
         assertThat(converter.convertToEntityAttribute("Y")).isTrue();
         assertThat(converter.convertToEntityAttribute("N")).isFalse();
+    }
+
+    @Test
+    public void testConvertToEntityAttributeHandlesNull() {
+        assertThat(converter.convertToEntityAttribute(null)).isNull();
     }
 }
