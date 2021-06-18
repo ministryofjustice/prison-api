@@ -393,5 +393,18 @@
     "categoryCode": "LOW",
     "communityStatus": "ACTIVE IN",
     "legalStatus": "SENTENCED"
+  },
+  {
+    "nomsId": "G2823GV",
+    "establishmentCode": "LEI",
+    "bookingId": 16048,
+    "givenName1": "CIPTEMINTAS",
+    "givenName2": "SHAYLAB",
+    "lastName": "TRAVAR",
+    "dateOfBirth": "1977-11-14",
+    "gender": "Male",
+    "englishSpeaking": false,
+    "bookingBeginDate": "2009-05-16",
+    "communityStatus": "ACTIVE IN"
   }
 ]
