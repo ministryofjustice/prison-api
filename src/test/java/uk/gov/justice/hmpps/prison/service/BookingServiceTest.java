@@ -519,7 +519,7 @@ public class BookingServiceTest {
 
         ));
 
-        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, null, null, null, pageable);
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(VisitInformationFilter.builder().bookingId(-1L).build(), pageable);
         assertThat(visitsWithVisitors).containsOnly(
                 VisitWithVisitors.builder()
                         .visitDetail(
@@ -652,7 +652,14 @@ public class BookingServiceTest {
 
         ));
 
-        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, LocalDate.of(2019, 10, 10), LocalDate.of(2019, 10, 12), "SCON", pageable);
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(
+            VisitInformationFilter.builder()
+                .bookingId(-1L)
+                .fromDate(LocalDate.of(2019, 10, 10))
+                .toDate(LocalDate.of(2019, 10, 12))
+                .visitType("SCON")
+                .build(),
+            pageable);
         assertThat(visitsWithVisitors).containsOnly(
                 VisitWithVisitors.builder()
                         .visitDetail(
@@ -755,7 +762,7 @@ public class BookingServiceTest {
 
         when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of());
 
-        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, null, null, null, pageable);
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(VisitInformationFilter.builder().bookingId(-1L).build(), pageable);
         assertThat(visitsWithVisitors).containsOnly(
                 VisitWithVisitors.builder()
                         .visitDetail(
@@ -838,7 +845,7 @@ public class BookingServiceTest {
 
         ));
 
-        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(-1L, null, null, null, pageable);
+        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(VisitInformationFilter.builder().bookingId(-1L).build(), pageable);
         assertThat(visitsWithVisitors).containsOnly(
                 VisitWithVisitors.builder()
                         .visitDetail(

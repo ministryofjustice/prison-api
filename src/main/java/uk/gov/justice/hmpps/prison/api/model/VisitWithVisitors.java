@@ -19,7 +19,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VisitWithVisitors<V extends VisitDetails> {
+public class VisitWithVisitors {
     @ApiModelProperty(value = "List of visitors on visit", required = true)
     @JsonProperty("visitors")
     @NotEmpty
@@ -28,5 +28,5 @@ public class VisitWithVisitors<V extends VisitDetails> {
     @ApiModelProperty(value = "Visit Information", required = true)
     @JsonProperty("visitDetails")
     @NotNull
-    private V visitDetail;
+    private VisitDetails visitDetail;
 }

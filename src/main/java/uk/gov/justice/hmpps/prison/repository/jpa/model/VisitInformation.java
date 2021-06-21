@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Subselect(
         "SELECT * FROM" +
         "(SELECT VISIT.OFFENDER_VISIT_ID VISIT_ID," +
+        "VISIT.VISIT_STATUS VISIT_STATUS," +
         "VISIT.OFFENDER_BOOK_ID BOOKING_ID," +
         "VISITOR.OUTCOME_REASON_CODE CANCELLATION_REASON," +
         "RC5.DESCRIPTION CANCEL_REASON_DESCRIPTION," +
@@ -48,6 +49,7 @@ import java.time.LocalDateTime;
 public class VisitInformation {
     @Id
     private Long visitId;
+    private String visitStatus;
     private Long bookingId;
     private Long visitorPersonId;
     private String cancellationReason;
