@@ -19,7 +19,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
 @WithMockUser
-public class VisitorInformationRepositoryTest {
+public class    VisitorInformationRepositoryTest {
 
     @Autowired
     private VisitorRepository repository;

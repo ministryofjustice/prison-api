@@ -24,13 +24,10 @@ import java.time.LocalTime;
 public class VisitInformationFilter implements Specification<VisitInformation> {
 
     private Long bookingId;
-
     private LocalDate fromDate;
-
     private LocalDate toDate;
-
     private String visitType;
-
+    private String visitStatus;
 
     public Predicate toPredicate(final Root<VisitInformation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
@@ -49,6 +46,10 @@ public class VisitInformationFilter implements Specification<VisitInformation> {
 
         if (visitType != null) {
             predicateBuilder.add(cb.equal(root.get("visitType"), visitType));
+        }
+
+        if (visitStatus != null) {
+            predicateBuilder.add(cb.equal(root.get("visitStatus"), visitStatus));
         }
 
         return cb.and(predicateBuilder.build().toArray(new Predicate[0]));

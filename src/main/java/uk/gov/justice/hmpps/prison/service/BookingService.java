@@ -68,7 +68,6 @@ import uk.gov.justice.hmpps.prison.service.transformers.PropertyContainerTransfo
 import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -85,6 +84,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -412,20 +412,16 @@ public class BookingService {
     }
 
     @VerifyBookingAccess
-    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(final @NotNull Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String visitType, final Pageable pageable) {
-        final var visits = visitRepository.findAll( VisitInformationFilter.builder()
-                .bookingId(bookingId)
-                .fromDate(fromDate)
-                .toDate(toDate)
-                .visitType(visitType)
-                .build(), pageable);
+    public Page<VisitWithVisitors> getBookingVisitsWithVisitor(final VisitInformationFilter filter, final Pageable pageable) {
+        checkState(filter.getBookingId() != null, "BookingId required");
+        final var visits = visitRepository.findAll(filter, pageable);
 
         final var visitsWithVisitors = visits.getContent().stream()
                 .map(visitInformation -> {
                     var relationshipCode = "";
                     var relationshipDescription = "";
                     if (visitInformation.getVisitorPersonId() != null) {
-                        var leadContact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitInformation.getVisitorPersonId(), bookingId)
+                        var leadContact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitInformation.getVisitorPersonId(), filter.getBookingId())
                                 .stream()
                                 .sorted(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime).reversed())
                                 .collect(toList())
@@ -437,7 +433,7 @@ public class BookingService {
                             .stream()
                             .filter(visitor -> visitor.getPersonId() != null)
                             .map(visitor -> {
-                                     var contact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitor.getPersonId(), bookingId)
+                                     var contact = offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(visitor.getPersonId(), filter.getBookingId())
                                              .stream()
                                              .sorted(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime).reversed())
                                              .collect(toList())

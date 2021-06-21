@@ -54,6 +54,13 @@ public abstract class ScheduledEventSteps extends CommonSteps {
         });
     }
 
+    @Step("Verify event status present for all scheduled events")
+    public void verifyEventStatusPresent() {
+        scheduledEvents.forEach(event -> {
+            assertThat(event.getEventStatus()).isNotBlank();
+        });
+    }
+
     @Step("Verify event type for all scheduled events")
     public void verifyEventType(final String expectedEventType) {
         scheduledEvents.forEach(event -> {
