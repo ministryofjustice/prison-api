@@ -11,8 +11,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.Sched
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.service.AddressTransformer;
 
-import java.util.Optional;
-import java.util.function.Function;
+import static uk.gov.justice.hmpps.prison.util.OptionalUtil.getOrNull;
 
 @Component
 public class OffenderEmploymentTransformer implements Converter<OffenderEmployment, Employment> {
@@ -37,9 +36,5 @@ public class OffenderEmploymentTransformer implements Converter<OffenderEmployme
             .isEmployerContactable(offenderEmployment.getIsEmployerContactable())
             .addresses(AddressTransformer.translate(offenderEmployment.getAddresses()))
             .build();
-    }
-
-    private <T> String getOrNull(final T data, final Function<T, String> map) {
-        return Optional.ofNullable(data).map(map).orElse(null);
     }
 }
