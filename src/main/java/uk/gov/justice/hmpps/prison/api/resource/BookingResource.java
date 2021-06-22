@@ -76,6 +76,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
@@ -834,13 +835,27 @@ public class BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "All visits for offender.", notes = "All visits for offender.", nickname = "getBookingVisitsWithVisitor")
+    @ApiOperation(value = "visits with visitor list for offender.", notes = "visits with visitor list for offender.", nickname = "getBookingVisitsWithVisitor")
     @GetMapping("/{bookingId}/visits-with-visitors")
-    public Page<VisitWithVisitors<VisitDetails>> getBookingVisitsWithVisitor(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate, @RequestParam(value = "visitType", required = false) @ApiParam("Type of visit. One of SCON, OFFI") final String visitType, @RequestParam(value = "page", required = false) @ApiParam(value = "Target page number, zero being the first page", defaultValue = "0") final Integer pageIndex, @RequestParam(value = "size", required = false) @ApiParam(value = "The number of results per page", defaultValue = "20") final Integer pageSize) {
+    public Page<VisitWithVisitors> getBookingVisitsWithVisitor(
+        @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId,
+        @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
+        @RequestParam(value = "visitType", required = false) @ApiParam(value = "Type of visit", allowableValues = "SCON, OFFI") final String visitType,
+        @RequestParam(value = "visitStatus", required = false) @ApiParam(name = "Status of visit. code from VIS_STS domain, e.g: Cancelled (CANC) or Scheduled (SCH)", example = "SCH") final String visitStatus,
+        @RequestParam(value = "page", required = false) @ApiParam(value = "Target page number, zero being the first page", defaultValue = "0") final Integer pageIndex,
+        @RequestParam(value = "size", required = false) @ApiParam(value = "The number of results per page", defaultValue = "20") final Integer pageSize) {
         final var pageIndexValue = ofNullable(pageIndex).orElse(0);
         final var pageSizeValue = ofNullable(pageSize).orElse(20);
         final PageRequest pageRequest = PageRequest.of(pageIndexValue, pageSizeValue);
-        return bookingService.getBookingVisitsWithVisitor(bookingId, fromDate, toDate, visitType, pageRequest);
+
+        return bookingService.getBookingVisitsWithVisitor(VisitInformationFilter.builder()
+            .bookingId(bookingId)
+            .fromDate(fromDate)
+            .toDate(toDate)
+            .visitType(visitType)
+            .visitStatus(visitStatus)
+            .build(), pageRequest);
     }
 
     @ApiResponses({

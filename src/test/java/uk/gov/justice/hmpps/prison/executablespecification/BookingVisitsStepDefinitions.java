@@ -51,9 +51,9 @@ public class BookingVisitsStepDefinitions extends AbstractStepDefinitions {
         bookingVisits.verifyEventClass(expectedEventClass);
     }
 
-    @And("^event status for all visits is \"([^\"]*)\"$")
-    public void eventStatusForAllVisitsIs(final String expectedEventStatus) throws Throwable {
-        bookingVisits.verifyEventStatus(expectedEventStatus);
+    @And("^event status for all visits is present$")
+    public void eventStatusForAllVisitsIs() throws Throwable {
+        bookingVisits.verifyEventStatusPresent();
     }
 
     @And("^event type for all visits is \"([^\"]*)\"$")

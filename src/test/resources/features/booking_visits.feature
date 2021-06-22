@@ -36,7 +36,7 @@ Feature: Booking Visits
     And "15" visits in total are available
     And booking id for all visits is "-1"
     And event class for all visits is "INT_MOV"
-    And event status for all visits is "SCH"
+    And event status for all visits is present
     And event type for all visits is "VISIT"
     And event type description for all visits is "Visit"
     And event source for all visits is "VIS"

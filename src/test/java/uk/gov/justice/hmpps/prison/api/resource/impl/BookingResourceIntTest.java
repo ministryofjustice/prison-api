@@ -583,6 +583,15 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getVisitsWithVisitorsWithStatus() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?visitStatus=CANC", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1L);
+
+        assertThatJsonFileAndStatus(response, 200, "visits_with_visitors_filtered_by_status_paged.json");
+    }
+
+    @Test
     public void getNonAssociationDetails_victim_rival_gang_and_perpetrator() {
         final var response = testRestTemplate.exchange(
                 "/api/bookings/-1/non-association-details",
