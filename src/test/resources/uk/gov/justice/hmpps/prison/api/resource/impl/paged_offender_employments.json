@@ -1,0 +1,76 @@
+{
+  "content": [
+    {
+      "bookingId": 584215,
+      "startDate": "2010-04-26",
+      "postType": "Full Time",
+      "employerName": "HGuvZZoLHGuvZZo",
+      "supervisorName": "MarMar",
+      "occupation": "Builder",
+      "isEmployerAware": false,
+      "isEmployerContactable": false,
+      "addresses": [
+        {
+          "addressId": 2349704,
+          "town": "Stoke-On-Trent",
+          "county": "Staffordshire",
+          "country": "England",
+          "primary": false,
+          "noFixedAddress": false,
+          "phones": [],
+          "addressUsages": []
+        },
+        {
+          "addressId": 2349705,
+          "country": "England",
+          "primary": false,
+          "noFixedAddress": false,
+          "phones": [],
+          "addressUsages": []
+        }
+      ]
+    },
+    {
+      "bookingId": 584215,
+      "startDate": "2012-03-10",
+      "postType": "New Deal",
+      "isEmployerAware": false,
+      "isEmployerContactable": false,
+      "addresses": []
+    },
+    {
+      "bookingId": 584215,
+      "startDate": "2012-07-11",
+      "postType": "Self Employed",
+      "occupation": "Debt Collector",
+      "isEmployerAware": false,
+      "isEmployerContactable": false,
+      "addresses": []
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": false,
+      "unsorted": true,
+      "empty": true
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 1,
+  "totalElements": 3,
+  "last": true,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "sorted": false,
+    "unsorted": true,
+    "empty": true
+  },
+  "numberOfElements": 3,
+  "first": true,
+  "empty": false
+}

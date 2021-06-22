@@ -5,12 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EmploymentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Occupation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.EmploymentPostType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.PayPeriodType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.ScheduleType;
@@ -18,24 +17,59 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmploymentAddres
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderEmploymentRepository;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderEmploymentTransformer;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OffenderEmploymentServiceTest {
 
+    private final String nomisId = "abc";
+
+    private final PageRequest pageRequest = PageRequest.of(0, 10);
+
+    private final OffenderEmploymentAddress address = OffenderEmploymentAddress.builder()
+        .flat("Flat 1")
+        .locality("Nether Edge")
+        .premise("Brook Hamlets")
+        .street("Mayfield Drive")
+        .postalCode("B5")
+        .startDate(LocalDate.of(2016, 8, 2))
+        .addressId(1L)
+        .build();
+
+    private final OffenderEmployment offenderEmployment = OffenderEmployment.builder()
+        .id(new PK(1L, 2L))
+        .startDate(LocalDate.now().minusDays(5))
+        .endDate(LocalDate.now())
+        .postType(new EmploymentStatus("CAS", "Casual"))
+        .employerName("greggs")
+        .supervisorName("lorem")
+        .position("ipsum")
+        .terminationReason("end of program")
+        .wage(BigDecimal.valueOf(5000.55))
+        .wagePeriod(PayPeriodType.WEEK)
+        .occupation(new Occupation("COOK", "Cook"))
+        .comment("Good cook")
+        .scheduleType(ScheduleType.FTNIGHT)
+        .hoursWeek(30)
+        .isEmployerAware(true)
+        .isEmployerContactable(false)
+        .addresses(List.of(address))
+        .build();
+
+    @Mock
+    private OffenderEmploymentTransformer transformer;
+
     @Mock
     private OffenderEmploymentRepository repository;
 
-    private final OffenderEmploymentTransformer transformer = new OffenderEmploymentTransformer();
 
     private OffenderEmploymentService service;
-
 
     @BeforeEach
     void setup() {
@@ -45,55 +79,14 @@ public class OffenderEmploymentServiceTest {
 
     @Test
     public void getOffenderEmployments() {
-        var nomisId = "abc";
-        var pageRequest = PageRequest.of(0, 10);
-        var offenderEmployments = generateMockData();
 
-        when(repository.findAllByNomisId(nomisId, pageRequest)).thenReturn(offenderEmployments);
+        final var employments = List.of(offenderEmployment, offenderEmployment);
 
-        var actual = service.getOffenderEmployments(nomisId, pageRequest).getContent();
-        var expected = offenderEmployments.getContent().stream().map(transformer::convert).collect(Collectors.toList());
+        when(repository.findAllByNomisId(nomisId, pageRequest)).thenReturn(new PageImpl<>(employments));
 
-        assertThat(actual).isEqualTo(expected);
-    }
+        service.getOffenderEmployments(nomisId, pageRequest);
 
-    private Page<OffenderEmployment> generateMockData() {
+        verify(transformer, times(2)).convert(offenderEmployment);
 
-        var address = new OffenderEmploymentAddress();
-        address.setFlat("Flat 1");
-        address.setLocality("Nether Edge");
-        address.setPremise("Brook Hamlets");
-        address.setStreet("Mayfield Drive");
-        address.setPostalCode("B5");
-        address.setStartDate(LocalDate.of(2016, 8, 2));
-        address.setAddressId(1L);
-
-        List<OffenderEmploymentAddress> addresses = List.of(address);
-
-        var results = LongStream
-            .rangeClosed(1, 2)
-            .mapToObj(it -> new OffenderEmployment(
-                new PK(it, 2L),
-                LocalDate.now().minusDays(5),
-                LocalDate.now(),
-                EmploymentPostType.CAS,
-                "greggs",
-                "lorem",
-                "ipsum",
-                "end of program",
-                5000.55,
-                PayPeriodType.WEEK,
-                new Occupation("COOK", "Cook"),
-                "Good cook",
-                ScheduleType.FTNIGHT,
-                30,
-                true,
-                false,
-                addresses
-            ))
-            .collect(Collectors.toList());
-
-
-        return new PageImpl(results);
     }
 }
