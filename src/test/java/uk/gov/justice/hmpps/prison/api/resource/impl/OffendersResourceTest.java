@@ -578,6 +578,16 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThatJsonFileAndStatus(movementCheck2, 200, "movement_discharge_2.json");
 
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}",
+            GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_detail_moved_hospital.json");
+
     }
 
     @Test
