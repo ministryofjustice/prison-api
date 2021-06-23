@@ -586,7 +586,12 @@ public class OffendersResourceTest extends ResourceTest {
             },
             offenderNo);
 
-        assertThatJsonFileAndStatus(response, 200, "offender_detail_moved_hospital.json");
+        assertThatOKResponseContainsJson(response, """
+              {
+                  "locationDescription": "Outside - released from LEEDS",
+                  "latestLocationId": "LEI"
+              }
+            """);
 
     }
 
