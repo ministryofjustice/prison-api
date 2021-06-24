@@ -487,7 +487,7 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void getOffenderDetails_LocationDescriptionPrisonerReleased() {
+    public void getOffenderDetails_LocationDescriptionAndIdPrisonerReleased() {
 
         when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
         when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
@@ -503,10 +503,30 @@ public class InmateServiceImplTest {
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - released from Leeds");
+        assertThat(inmateDetail.getLatestLocationId()).isEqualTo("LEI");
+    }
+    @Test
+    public void getOffenderDetails_LocationDescriptionAndIdPrisonerTransferred() {
+
+        when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetailTransferring()));
+        when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
+        when(repository.findPhysicalAttributes(anyLong())).thenReturn(Optional.of(buildPhysicalAttributes()));
+        when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
+        when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
+        when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnitTransferred()));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
+        when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementTransferred("REL",""));
+
+        final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
+
+        assertThat(inmateDetail.getLocationDescription()).isEqualTo("Transfer");
+        assertThat(inmateDetail.getLatestLocationId()).isEqualTo("LEI");
     }
 
     @Test
-    public void getOffenderDetails_LocationDescriptionPrisonerTemporaryAbsence() {
+    public void getOffenderDetails_LocationDescriptionAmdIdPrisonerTemporaryAbsence() {
 
         when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
         when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
@@ -522,17 +542,18 @@ public class InmateServiceImplTest {
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - Temporary Absence");
+        assertThat(inmateDetail.getLatestLocationId()).isEqualTo("LEI");
     }
 
     @Test
-    public void getOffenderDetails_LocationDescriptionPrisonerNoMovementDetailsFound() {
+    public void getOffenderDetails_LocationDescriptionAndIdPrisonerNoMovementDetailsFound() {
 
         when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
         when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
         when(repository.findPhysicalAttributes(anyLong())).thenReturn(Optional.of(buildPhysicalAttributes()));
         when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
         when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
-        when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
+        when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnitForOutside()));
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
@@ -540,6 +561,7 @@ public class InmateServiceImplTest {
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside");
+        assertThat(inmateDetail.getLatestLocationId()).isEqualTo("OUT");
     }
 
     @Test
@@ -604,6 +626,17 @@ public class InmateServiceImplTest {
                 .build();
     }
 
+    private InmateDetail buildInmateDetailTransferring() {
+        return buildInmateDetail()
+            .toBuilder()
+            .agencyId("TRN")
+            .status("INACTIVE TRN")
+            .lastMovementTypeCode("TRN")
+            .lastMovementReasonCode("PROD")
+            .inOutStatus("TRN")
+            .build();
+    }
+
     private PhysicalAttributes buildPhysicalAttributes() {
         return PhysicalAttributes.builder()
                 .gender("Male")
@@ -621,6 +654,20 @@ public class InmateServiceImplTest {
                 .build();
     }
 
+    private AssignedLivingUnit buildAssignedLivingUnitForOutside() {
+        return AssignedLivingUnit.builder()
+                .agencyId("OUT")
+                .agencyName("Outside")
+                .build();
+    }
+
+    private AssignedLivingUnit buildAssignedLivingUnitTransferred() {
+        return AssignedLivingUnit.builder()
+                .agencyId("TRN")
+                .agencyName("Transfer")
+                .build();
+    }
+
     private Optional<ExternalMovement> buildMovementReleased(String movementType, String movementTypeDescription) {
         final var now = LocalDateTime.now();
         return Optional.of(ExternalMovement.builder()
@@ -631,6 +678,18 @@ public class InmateServiceImplTest {
                 .movementDirection(MovementDirection.OUT)
                 .movementType(new MovementType(movementType, movementTypeDescription))
                 .movementReason(new MovementReason(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.getCode(), "to hospital"))
+                .build());
+    }
+    private Optional<ExternalMovement> buildMovementTransferred(String movementType, String movementTypeDescription) {
+        final var now = LocalDateTime.now();
+        return Optional.of(ExternalMovement.builder()
+                .movementDate(now.toLocalDate())
+                .movementTime(now)
+                .fromAgency(AgencyLocation.builder().id("LEI").description("Leeds").type(AgencyLocationType.PRISON_TYPE).build())
+                .toAgency(AgencyLocation.builder().id("MDI").description("Moorland").type(AgencyLocationType.PRISON_TYPE).build())
+                .movementDirection(MovementDirection.OUT)
+                .movementType(new MovementType(movementType, movementTypeDescription))
+                .movementReason(new MovementReason("P", "PRODUCTION"))
                 .build());
     }
 }
