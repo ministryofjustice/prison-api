@@ -6,7 +6,9 @@
       "postType": "Full Time",
       "employerName": "HGuvZZoLHGuvZZo",
       "supervisorName": "MarMar",
-      "occupation": "Builder",
+      "wagePeriod": "Weekly",
+      "occupation": "Driver",
+      "schedule": "In Hand",
       "isEmployerAware": false,
       "isEmployerContactable": false,
       "addresses": [
@@ -60,8 +62,8 @@
     "paged": true,
     "unpaged": false
   },
-  "totalPages": 1,
   "totalElements": 3,
+  "totalPages": 1,
   "last": true,
   "size": 10,
   "number": 0,

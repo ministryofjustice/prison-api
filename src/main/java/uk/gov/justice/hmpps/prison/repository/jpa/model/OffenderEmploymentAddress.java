@@ -18,7 +18,7 @@ import javax.persistence.ManyToOne;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(exclude = "employment", callSuper = true)
-@ToString(of = {"employment"}, callSuper = true)
+@ToString(exclude = {"employment"}, callSuper = true)
 @DiscriminatorValue(OffenderEmploymentAddress.ADDR_TYPE)
 public class OffenderEmploymentAddress extends Address {
 

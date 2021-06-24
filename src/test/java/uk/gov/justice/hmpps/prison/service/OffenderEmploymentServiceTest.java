@@ -7,13 +7,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EmploymentSchedule;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EmploymentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Occupation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.PK;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.PayPeriodType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.ScheduleType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmploymentAddress;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PayPeriod;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderEmploymentRepository;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderEmploymentTransformer;
 
@@ -52,10 +52,10 @@ public class OffenderEmploymentServiceTest {
         .position("ipsum")
         .terminationReason("end of program")
         .wage(BigDecimal.valueOf(5000.55))
-        .wagePeriod(PayPeriodType.WEEK)
+        .wagePeriod(new PayPeriod("WEEK", "Weekly"))
         .occupation(new Occupation("COOK", "Cook"))
         .comment("Good cook")
-        .scheduleType(ScheduleType.FTNIGHT)
+        .scheduleType(new EmploymentSchedule("FTNIGHT", "Fortnightly"))
         .hoursWeek(30)
         .isEmployerAware(true)
         .isEmployerContactable(false)
