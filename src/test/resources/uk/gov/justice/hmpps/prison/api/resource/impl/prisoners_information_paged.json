@@ -3,6 +3,7 @@
     {
       "nomsId": "A5577RS",
       "establishmentCode": "LEI",
+      "establishmentName": "Leeds",
       "bookingId": -33,
       "givenName1": "HAROLD",
       "lastName": "LLOYD",
@@ -17,6 +18,7 @@
     {
       "nomsId": "A1234AE",
       "establishmentCode": "LEI",
+      "establishmentName": "Leeds",
       "bookingId": -5,
       "givenName1": "DONALD",
       "givenName2": "JEFFREY ROBERT",
@@ -35,6 +37,7 @@
     {
       "nomsId": "Z0017ZZ",
       "establishmentCode": "LEI",
+      "establishmentName": "Leeds",
       "bookingId": -17,
       "givenName1": "MICHEAL",
       "lastName": "PETERS",
@@ -49,6 +52,7 @@
     {
       "nomsId": "A1178RS",
       "establishmentCode": "LEI",
+      "establishmentName": "Leeds",
       "bookingId": -34,
       "givenName1": "FRED",
       "lastName": "QUIMBY",
@@ -62,6 +66,7 @@
     {
       "nomsId": "A1181HH",
       "establishmentCode": "LEI",
+      "establishmentName": "Leeds",
       "bookingId": -51,
       "givenName1": "DARREN",
       "lastName": "LYNCH",

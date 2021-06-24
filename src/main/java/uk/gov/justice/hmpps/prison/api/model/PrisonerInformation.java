@@ -83,6 +83,9 @@ public class PrisonerInformation implements CategoryCodeAware, ReleaseDateAware 
     @ApiModelProperty(value = "Legal Status", example = "REMAND", position = 19)
     private LegalStatus legalStatus;
 
+    @ApiModelProperty(value = "Establishment Name for prisoner", example = "Moorland", required = true, position = 20)
+    private String establishmentName;
+
     public void deriveUnitCodes(final String cellLocation) {
         if (StringUtils.isNotBlank(cellLocation)) {
             final var levels = StringUtils.split(cellLocation, "-");
