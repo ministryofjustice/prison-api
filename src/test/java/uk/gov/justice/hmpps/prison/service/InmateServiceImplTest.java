@@ -487,7 +487,7 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void getOffenderDetails_LocationDescriptionPrisonerReleased() {
+    public void getOffenderDetails_LocationDescriptionAndIdPrisonerReleased() {
 
         when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
         when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
@@ -503,10 +503,11 @@ public class InmateServiceImplTest {
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - released from Leeds");
+        assertThat(inmateDetail.getLatestLocationId()).isEqualTo("LEI");
     }
 
     @Test
-    public void getOffenderDetails_LocationDescriptionPrisonerTemporaryAbsence() {
+    public void getOffenderDetails_LocationDescriptionAmdIdPrisonerTemporaryAbsence() {
 
         when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
         when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
@@ -522,10 +523,11 @@ public class InmateServiceImplTest {
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - Temporary Absence");
+        assertThat(inmateDetail.getLatestLocationId()).isEqualTo("LEI");
     }
 
     @Test
-    public void getOffenderDetails_LocationDescriptionPrisonerNoMovementDetailsFound() {
+    public void getOffenderDetails_LocationDescriptionAndIdPrisonerNoMovementDetailsFound() {
 
         when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
         when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
@@ -540,6 +542,7 @@ public class InmateServiceImplTest {
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside");
+        assertThat(inmateDetail.getLatestLocationId()).isEqualTo("OUT");
     }
 
     @Test

@@ -289,18 +289,27 @@ public class InmateService {
                 inmate.setSentenceTerms(sentenceTerms);
                 inmate.setRecall(RecallCalc.calculate(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
 
-                if ("OUT".equals(inmate.getInOutStatus()) && REL.getCode().equals(inmate.getLastMovementTypeCode())) {
+                if ("OUT".equals(inmate.getInOutStatus())) {
                     externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(inmate.getBookingId()).ifPresentOrElse(
                         lastMovement -> {
-                            inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
-                            inmate.setRestrictivePatient(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.mapRestrictivePatient(lastMovement, inmate.getLegalStatus(), inmate.getSentenceDetail() != null ? inmate.getSentenceDetail().getReleaseDate() : null));
+                            inmate.setLatestLocationId(lastMovement.getFromAgency().getId());
+                            if (REL.getCode().equals(inmate.getLastMovementTypeCode())) {
+                                inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
+                                inmate.setRestrictivePatient(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.mapRestrictivePatient(lastMovement, inmate.getLegalStatus(), inmate.getSentenceDetail() != null ? inmate.getSentenceDetail().getReleaseDate() : null));
+                            }
                         },
-                        () -> inmate.setLocationDescription("Outside")
+                        () -> {
+                            inmate.setLocationDescription("Outside");
+                            inmate.setLatestLocationId("OUT");
+                        }
                     );
                 }
 
                 if (inmate.getLocationDescription() ==  null) {
                     inmate.setLocationDescription(inmate.getAssignedLivingUnit().getAgencyName());
+                }
+                if (inmate.getLatestLocationId() ==  null) {
+                    inmate.setLatestLocationId(inmate.getAssignedLivingUnit().getAgencyId());
                 }
             }
         }

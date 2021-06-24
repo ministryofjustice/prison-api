@@ -200,6 +200,9 @@ public class InmateDetail {
     @ApiModelProperty(value = "current prison or outside with last movement information.", example="Outside - released from Leeds")
     private String locationDescription;
 
+    @ApiModelProperty(value = "the current prison id or the last prison before release", example="MDI")
+    private String latestLocationId;
+
     @ApiModelProperty(value = "Retricted patient details, if released to psychiatric hospital")
     private RestrictivePatient restrictivePatient;
 
