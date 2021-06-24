@@ -19,6 +19,8 @@ import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -69,8 +71,12 @@ public class OffenderEmployment {
     @Column(name = "WAGE")
     private BigDecimal wage;
 
-    @Column(name = "WAGE_PERIOD_CODE")
-    private PayPeriodType wagePeriod;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + PayPeriod.DOMAIN + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "WAGE_PERIOD_CODE", referencedColumnName = "code"))
+    })
+    private PayPeriod wagePeriod;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
@@ -82,8 +88,12 @@ public class OffenderEmployment {
     @Column(name = "COMMENT_TEXT")
     private String comment;
 
-    @Column(name = "SCHEDULE_TYPE")
-    private ScheduleType scheduleType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EmploymentSchedule.DOMAIN + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "EMPLOYMENT_SCHEDULE", referencedColumnName = "code"))
+    })
+    private EmploymentSchedule scheduleType;
 
     @Column(name = "HOURS_WEEK")
     private Integer hoursWeek;
@@ -114,28 +124,4 @@ public class OffenderEmployment {
         @Column(name = "EMPLOY_SEQ")
         private Long employSeq;
     }
-
-    @Getter
-    @RequiredArgsConstructor
-    public enum PayPeriodType {
-        HOUR("Hourly"),
-        MONTH("Monthly"),
-        TWO_WEEKS("Fortnightly"),
-        WEEK("Weekly");
-
-        private final String description;
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    public enum ScheduleType {
-        FTNIGHT("Fortnightly"),
-        HOUR("Hourly"),
-        INHAND("In Hand"),
-        MONTH("Monthly"),
-        WEEK("Weekly");
-
-        private final String description;
-    }
 }
-

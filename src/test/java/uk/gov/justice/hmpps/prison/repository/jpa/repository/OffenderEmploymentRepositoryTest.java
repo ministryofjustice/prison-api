@@ -10,11 +10,13 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EmploymentSchedule;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EmploymentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Occupation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmployment.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEmploymentAddress;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PayPeriod;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -58,7 +60,9 @@ public class OffenderEmploymentRepositoryTest {
         .postType(new EmploymentStatus("FT", "Full Time"))
         .employerName("HGuvZZoLHGuvZZo")
         .supervisorName("MarMar")
-        .occupation(new Occupation("1204", "Builder"))
+        .occupation(new Occupation("5807", "Driver"))
+        .scheduleType(new EmploymentSchedule("INHAND", "In Hand"))
+        .wagePeriod(new PayPeriod("WEEK", "Weekly"))
         .isEmployerAware(false)
         .isEmployerContactable(false)
         .addresses(List.of(address1, address2))
