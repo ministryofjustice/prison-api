@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.PrisonerStatusInformatio
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerStatusInformationRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.InmatesHelper;
+import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
@@ -80,6 +81,7 @@ public class PrisonerInformationService {
                 .gender(entity.getGender())
                 .dateOfBirth(entity.getDateOfBirth())
                 .establishmentCode(entity.getEstablishmentCode())
+                .establishmentName(LocationProcessor.formatLocation(entity.getEstablishmentName()))
                 .bookingId(entity.getBookingId())
                 .admissionDate(entity.getAdmissionDate())
                 .bookingBeginDate(entity.getBookingBeginDate())

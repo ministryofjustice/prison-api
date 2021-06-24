@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Subselect(
                 "SELECT O.OFFENDER_ID_DISPLAY                                                                     NOMS_ID, " +
                 "       OB.AGY_LOC_ID                                                                             ESTABLISHMENT_CODE, " +
+                "       AL.DESCRIPTION                                                                            ESTABLISHMENT_NAME, " +
                 "       OB.OFFENDER_BOOK_ID                                                                       BOOKING_ID, " +
                 "       O.FIRST_NAME                                                                              GIVEN_NAME1, " +
                 "       CONCAT(O.MIDDLE_NAME, " +
@@ -30,6 +31,7 @@ import java.time.LocalDate;
                 "       OIS.IMPRISONMENT_STATUS                                                                   IMPRISONMENT_STATUS " +
                 " FROM OFFENDER_BOOKINGS OB " +
                 "          INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID AND OB.BOOKING_SEQ = 1 " +
+                "          INNER JOIN AGENCY_LOCATIONS AL ON OB.AGY_LOC_ID = AL.AGY_LOC_ID " +
                 "          LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID " +
                 "          LEFT JOIN OFFENDER_IMPRISON_STATUSES OIS ON OIS.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OIS.LATEST_STATUS = 'Y' " +
                 "          LEFT JOIN IMPRISONMENT_STATUSES IST ON IST.IMPRISONMENT_STATUS = OIS.IMPRISONMENT_STATUS " +
@@ -56,6 +58,7 @@ public class PrisonerStatusInformation {
     @Id
     private String nomsId;
     private String establishmentCode;
+    private String establishmentName;
     private Long bookingId;
     private String givenName1;
     private String givenName2;
