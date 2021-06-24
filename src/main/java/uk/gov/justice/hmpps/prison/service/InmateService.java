@@ -289,7 +289,7 @@ public class InmateService {
                 inmate.setSentenceTerms(sentenceTerms);
                 inmate.setRecall(RecallCalc.calculate(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
 
-                if ("OUT".equals(inmate.getInOutStatus())) {
+                if (!"IN".equals(inmate.getInOutStatus())) {
                     externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(inmate.getBookingId()).ifPresentOrElse(
                         lastMovement -> {
                             inmate.setLatestLocationId(lastMovement.getFromAgency().getId());
@@ -300,7 +300,6 @@ public class InmateService {
                         },
                         () -> {
                             inmate.setLocationDescription("Outside");
-                            inmate.setLatestLocationId("OUT");
                         }
                     );
                 }
