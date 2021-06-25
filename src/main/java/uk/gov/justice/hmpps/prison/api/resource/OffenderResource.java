@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
@@ -482,5 +483,23 @@ public class OffenderResource {
             offenderTransactionHistoryService.getTransactionHistory(offenderNo, accountCode, fromDate, toDate, transactionType);
 
         return ResponseEntity.ok(histories);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Military Records", notes = "Military Records", nickname = "getMilitaryRecords")
+    @GetMapping("/{offenderNo}/military-records")
+    public MilitaryRecords getMilitaryRecords(
+        @ApiParam(name = "offenderNo", value = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull final String offenderNo
+    ) {
+        final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        try {
+            return bookingService.getMilitaryRecords(booking.getBookingId());
+        } catch (EntityNotFoundException e) {
+            // rethrow against the offender number rather than the booking id
+            throw EntityNotFoundException.withId(offenderNo);
+        }
     }
 }
