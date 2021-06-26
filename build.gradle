@@ -90,7 +90,7 @@ task testIntegration(type: Test) {
     include '**/*IntTest*'
     useJUnitPlatform()
     minHeapSize = "128m"
-    maxHeapSize = "2048m"
+    maxHeapSize = "4096m"
     jvmArgs = ["--add-opens", "java.base/java.lang=ALL-UNNAMED", "--add-opens", "java.base/java.util=ALL-UNNAMED"]
 }
 

@@ -136,7 +136,7 @@ public class AdjudicationsRepository extends RepositoryBase {
                 "startDate", asDate(criteria.getStartDate()),
                 "endDate", asDate(criteria.getEndDate()));
 
-        val adjudicationCharges = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_ADJUDICATIONS_FOR_OFFENDER.getSql(), params, adjudicationMapper);
+        val adjudicationCharges = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATIONS_FOR_OFFENDER.getSql(), params, adjudicationMapper);
 
         val chargesGroupedByAdjudication = adjudicationCharges.stream()
                 .collect(groupingBy(AdjudicationChargeDto::getAdjudicationNumber))
