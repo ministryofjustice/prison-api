@@ -24,7 +24,7 @@ enum class AdjudicationsRepositorySql(val sql: String) {
     """
   ),
 
-  FIND_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER(
+  FIND_LATEST_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER(
     """
         SELECT  OO.OIC_OFFENCE_ID   ID
         ,       OO.OIC_OFFENCE_CODE CODE
@@ -45,7 +45,7 @@ enum class AdjudicationsRepositorySql(val sql: String) {
     """
   ),
 
-  FIND_ADJUDICATION_AGENCIES_FOR_OFFENDER(
+  FIND_LATEST_ADJUDICATION_AGENCIES_FOR_OFFENDER(
     """
         SELECT  AL.AGY_LOC_ID AGENCY_ID
         ,       AL.AGENCY_LOCATION_TYPE AGENCY_TYPE
