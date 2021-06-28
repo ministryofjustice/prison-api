@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@3.2
+  hmpps: ministryofjustice/hmpps@3.5
 
 executor: &executor
   executor:
@@ -176,6 +176,9 @@ workflows:
                 - main
     jobs:
       - hmpps/gradle_owasp_dependency_check:
+          context:
+            - hmpps-common-vars
+      - hmpps/trivy_latest_scan:
           context:
             - hmpps-common-vars
       - hmpps/veracode_policy_scan:
