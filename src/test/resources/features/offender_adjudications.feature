@@ -1,7 +1,7 @@
 Feature: Offenders Adjudications
 
   AcceptanceCriteria:
-  A logged in staff user can view an offender's adjudications
+  A logged in staff user can view an offender's adjudications related to the latest booking
 
   Scenario: A staff user views the adjudications for an existing offender
     Given a user has a token name of "PRISON_API_USER"
@@ -18,20 +18,20 @@ Feature: Offenders Adjudications
     When I view the adjudications of offender with offender display number of "A1181GG"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings       |
+      | -3002              | 2019-10-25 00:05 | BXI      | 51:8D        | null           |
+      | -3001              | 2019-09-25 00:04 | LEI      | 51:8D        | null           |
       | -3                 | 2019-08-25 00:03 | MDI      | 51:2D        | PROVED         |
-      | -5                 | 2019-01-25 00:02 | LEI      | 51:8D        | PROVED         |
-      | -1                 | 2017-02-23 00:01 | LEI      | 51:1N,51:2B  | null,DISMISSED |
-    And the associated offences for this offender are: "51:2D, 51:8D, 51:1N, 51:2B"
-    And the associated agencies for this offender are: "MDI, LEI"
+    And the associated offences for this offender are: "51:2D, 51:8D"
+    And the associated agencies for this offender are: "MDI, LEI, BXI"
 
-  Scenario: A staff user views many adjudications for an existing offender at a single prison
+  Scenario: A staff user views adjudications for an offender at a single prison
     Given a user has a token name of "SYSTEM_USER_READ_WRITE"
     When I view the adjudications of offender with offender display number of "A1181GG" at "LEI" with charge of type: "86"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings      |
-      | -5                 | 2019-01-25 00:02 | LEI      | 51:8D        | PROVED        |
-    And the associated offences for this offender are: "51:2D, 51:8D, 51:1N, 51:2B"
-    And the associated agencies for this offender are: "MDI, LEI"
+      | -3001              | 2019-09-25 00:04 | LEI      | 51:8D        | null          |
+    And the associated offences for this offender are: "51:2D, 51:8D"
+    And the associated agencies for this offender are: "MDI, LEI, BXI"
 
   Scenario: A staff user cannot view adjudications for an offender on a caseload they don't have access to.
     Given a user has a token name of "PRISON_API_USER"
