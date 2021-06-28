@@ -24,7 +24,7 @@ Feature: Offenders Adjudications
     And the associated offences for this offender are: "51:2D, 51:8D"
     And the associated agencies for this offender are: "MDI, LEI, BXI"
 
-  Scenario: A staff user views many adjudications for an existing offender at a single prison
+  Scenario: A staff user views adjudications for an offender at a single prison
     Given a user has a token name of "SYSTEM_USER_READ_WRITE"
     When I view the adjudications of offender with offender display number of "A1181GG" at "LEI" with charge of type: "86"
     Then the adjudication results are:
