@@ -79,7 +79,7 @@ public class CaseNoteRepository extends RepositoryBase {
         new StandardBeanPropertyRowMapper<>(CaseNoteEvent.class);
 
 
-    public Page<CaseNote> getCaseNotes(final long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderByField,
+    public Page<CaseNote> getCaseNotes(final long bookingId, final LocalDate from, final LocalDate to, final String orderByField,
                                        final Order order, final long offset, final long limit) {
 
         var initialSql = CaseNoteRepositorySql.FIND_CASENOTES.getSql();
@@ -111,7 +111,6 @@ public class CaseNoteRepository extends RepositoryBase {
 
         final var sql = builder
             .addRowCount()
-            .addQuery(query)
             .addOrderBy(order == Order.ASC, orderByField)
             .addPagination()
             .build();

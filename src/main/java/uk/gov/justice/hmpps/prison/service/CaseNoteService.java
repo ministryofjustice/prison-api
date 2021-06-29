@@ -79,12 +79,11 @@ public class CaseNoteService {
     }
 
     @VerifyBookingAccess
-    public Page<CaseNote> getCaseNotes(final Long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
+    public Page<CaseNote> getCaseNotes(final Long bookingId, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
         final var orderByBlank = StringUtils.isBlank(orderBy);
 
         final var caseNotePage = caseNoteRepository.getCaseNotes(
                 bookingId,
-                query,
                 from,
                 to,
                 orderByBlank ? "creationDateTime" : orderBy,

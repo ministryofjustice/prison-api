@@ -49,7 +49,7 @@ public class InmateAlertRepositoryTest {
 
     @Test
     public void testGetInmateAlertsByOffenderNos() {
-        final var alerts = repository.getAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), true, null, null, Order.ASC);
+        final var alerts = repository.getAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), true, null, Order.ASC);
 
         assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertType", "alertCode", "comment", "dateExpires", "active")
                 .containsExactly(
@@ -64,7 +64,7 @@ public class InmateAlertRepositoryTest {
 
     @Test
     public void testGetInmateAlertsByOffenderNosOrdered() {
-        final var alerts = repository.getAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, null, "alertType", Order.ASC);
+        final var alerts = repository.getAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, "alertType", Order.ASC);
 
         assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertType")
                 .containsExactly(
@@ -78,7 +78,7 @@ public class InmateAlertRepositoryTest {
 
     @Test
     public void testGetInmateAlertsByOffenderNosQuery() {
-        final var alerts = repository.getAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, "alertCode:eq:'XA',or:alertCode:eq:'RSS'", null, Order.ASC);
+        final var alerts = repository.getAlertsByOffenderNos(null, List.of("A1234AA", "A1234AG"), false, null, Order.ASC);
 
         assertThat(alerts).asList().extracting("bookingId", "alertId", "offenderNo", "alertCode")
                 .containsExactly(

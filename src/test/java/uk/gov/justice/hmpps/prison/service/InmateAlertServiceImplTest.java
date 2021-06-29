@@ -315,8 +315,8 @@ public class InmateAlertServiceImplTest {
 
         service.getInmateAlertsByOffenderNosAtAgency("MDI", offenders);
 
-        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("1","2","3","4","5","6","7","8","9","10"),true, null, "bookingId,alertId", Order.ASC);
-        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("11","12","13","14","15","16","17","18","19"),true, null, "bookingId,alertId", Order.ASC);
+        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("1","2","3","4","5","6","7","8","9","10"),true, "bookingId,alertId", Order.ASC);
+        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("11","12","13","14","15","16","17","18","19"),true, "bookingId,alertId", Order.ASC);
     }
 
     private Page<Alert> createAlerts() {

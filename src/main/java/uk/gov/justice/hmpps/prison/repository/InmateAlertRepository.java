@@ -108,12 +108,11 @@ public class InmateAlertRepository extends RepositoryBase {
     }
 
 
-    public List<Alert> getAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
+    public List<Alert> getAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String orderByField, final Order order) {
         final var basicSql = InmateAlertRepositorySql.FIND_INMATE_OFFENDERS_ALERTS.getSql();
         final var initialSql = latestOnly ? basicSql + " AND B.BOOKING_SEQ=1" : basicSql;
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
         final var sql = builder
-            .addQuery(query)
             .addOrderBy(order, orderByField)
             .build();
         final var alertMapper = Row2BeanRowMapper.makeMapping(Alert.class, alertMapping);
