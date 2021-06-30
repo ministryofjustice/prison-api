@@ -201,6 +201,12 @@ public class AgencyRepositoryTest {
         assertThat(results.getItems()).containsExactly(OFFENDER_6_IEP_REVIEW);
     }
 
+    @Test
+    public void testGetAgencyLocationsWhenAllOffendersSuspended() {
+        final var locations = repository.getAgencyLocationsBooked("BXI", LocalDate.of(2021, Month.MAY, 1), null);
+        assertThat(locations).hasSize(2);
+    }
+
     private static final OffenderIepReview OFFENDER_1_IEP_REVIEW = OffenderIepReview.builder()
             .offenderNo("A5577RS")
             .currentLevel("Standard")
