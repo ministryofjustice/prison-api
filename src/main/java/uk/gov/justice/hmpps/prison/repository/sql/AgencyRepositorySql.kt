@@ -174,7 +174,6 @@ enum class AgencyRepositorySql(val sql: String) {
                 AND CS.START_TIME BETWEEN :periodStart AND :periodEnd
                 AND CS.SCHEDULE_DATE = TRUNC(:periodStart)
         WHERE OPP.OFFENDER_PROGRAM_STATUS = 'ALLOC'
-        AND COALESCE(OPP.SUSPENDED_FLAG, 'N') = 'N'
         AND CA.ACTIVE_FLAG = 'Y'
         AND CA.COURSE_ACTIVITY_TYPE IS NOT NULL
         AND CS.CATCH_UP_CRS_SCH_ID IS NULL
