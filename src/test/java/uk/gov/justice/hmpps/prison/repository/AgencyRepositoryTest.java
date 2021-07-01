@@ -204,7 +204,8 @@ public class AgencyRepositoryTest {
     @Test
     public void testGetAgencyLocationsWhenAllOffendersSuspended() {
         final var locations = repository.getAgencyLocationsBooked("BXI", LocalDate.of(2021, Month.MAY, 1), null);
-        assertThat(locations).hasSize(2);
+
+        assertThat(locations).extracting("locationId").containsExactly(-3001L, -3002L);
     }
 
     private static final OffenderIepReview OFFENDER_1_IEP_REVIEW = OffenderIepReview.builder()
