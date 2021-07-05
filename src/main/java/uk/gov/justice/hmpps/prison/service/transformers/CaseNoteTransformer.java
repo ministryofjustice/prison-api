@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteAmendment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 import uk.gov.justice.hmpps.prison.service.UserService;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -50,6 +51,33 @@ public class CaseNoteTransformer {
 
             // Now create matcher object.
             out = splitOutAmendments(in.getText(), caseNote);
+        }
+
+        return out;
+    }
+
+    public CaseNote transform(final OffenderCaseNote in) {
+        CaseNote out = null;
+
+        if (in != null && in.getCaseNoteText() != null) {
+            final var caseNote = CaseNote.builder()
+                .caseNoteId(in.getId())
+                .bookingId(in.getOffenderBooking().getBookingId())
+                .type(in.getType().getCode())
+                .subType(in.getSubType().getCode())
+                .typeDescription(in.getType().getDescription())
+                .subTypeDescription(in.getSubType().getDescription())
+                .creationDateTime(in.getCreateDatetime())
+                .occurrenceDateTime(in.getOccurrenceDateTime())
+                .source(in.getNoteSourceCode())
+                .text(in.getCaseNoteText())
+                .staffId(in.getAuthor().getStaffId())
+                .agencyId(in.getAgencyLocation().getId())
+                .authorName(WordUtils.capitalize(StringUtils.lowerCase(in.getAuthor().getFullName())))
+                .build();
+
+            // Now create matcher object.
+            out = splitOutAmendments(in.getCaseNoteText(), caseNote);
         }
 
         return out;

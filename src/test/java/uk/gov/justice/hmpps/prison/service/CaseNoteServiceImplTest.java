@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.transformers.CaseNoteTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSizeValidator;
@@ -38,6 +39,9 @@ public class CaseNoteServiceImplTest {
     private CaseNoteRepository repository;
 
     @Mock
+    private OffenderCaseNoteRepository offenderCaseNoteRepository;
+
+    @Mock
     private UserService userService;
 
     @Mock
@@ -53,7 +57,7 @@ public class CaseNoteServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        caseNoteService = new CaseNoteService(repository, new CaseNoteTransformer(userService, null), userService, authenticationFacade, bookingService, 10, maximumTextSizeValidator);
+        caseNoteService = new CaseNoteService(repository, offenderCaseNoteRepository, new CaseNoteTransformer(userService, null), userService, authenticationFacade, bookingService, 10, maximumTextSizeValidator);
     }
 
     @Test

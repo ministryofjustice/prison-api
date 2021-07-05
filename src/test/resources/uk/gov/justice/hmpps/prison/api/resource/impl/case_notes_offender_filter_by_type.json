@@ -1,0 +1,45 @@
+{
+  "content": [
+    {
+      "caseNoteId": -4,
+      "bookingId": -2,
+      "type": "ETE",
+      "typeDescription": "Education, Training and Employment",
+      "subType": "ETERTO",
+      "subTypeDescription": "Report to Office",
+      "creationDateTime": "2017-04-17T09:05:00",
+      "occurrenceDateTime": "2017-04-17T09:05:00",
+      "staffId": -1,
+      "authorName": "User, Prison",
+      "text": "Learn woodworking.",
+      "originalNoteText": "Learn woodworking.",
+      "agencyId": "LEI",
+      "amendments": []
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalPages": 1,
+  "totalElements": 1,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "first": true,
+  "numberOfElements": 1,
+  "empty": false
+}

@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +24,8 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -56,6 +60,7 @@ public class CaseNoteService {
     private String caseNoteSource;
 
     private final CaseNoteRepository caseNoteRepository;
+    private final OffenderCaseNoteRepository offenderCaseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final UserService userService;
     private final BookingService bookingService;
@@ -63,13 +68,16 @@ public class CaseNoteService {
     private final int maxBatchSize;
     private final MaximumTextSizeValidator maximumTextSizeValidator;
 
-    public CaseNoteService(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
+    public CaseNoteService(final CaseNoteRepository caseNoteRepository,
+                           final OffenderCaseNoteRepository offenderCaseNoteRepository,
+                           final CaseNoteTransformer transformer,
                            final UserService userService,
                            final AuthenticationFacade authenticationFacade,
                            final BookingService bookingService,
                            @Value("${batch.max.size:1000}") final int maxBatchSize,
                            final MaximumTextSizeValidator maximumTextSizeValidator) {
         this.caseNoteRepository = caseNoteRepository;
+        this.offenderCaseNoteRepository = offenderCaseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
         this.bookingService = bookingService;
@@ -79,11 +87,12 @@ public class CaseNoteService {
     }
 
     @VerifyBookingAccess
-    public Page<CaseNote> getCaseNotes(final Long bookingId, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
+    public Page<CaseNote> getCaseNotes(final Long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
         final var orderByBlank = StringUtils.isBlank(orderBy);
 
         final var caseNotePage = caseNoteRepository.getCaseNotes(
                 bookingId,
+                query,
                 from,
                 to,
                 orderByBlank ? "creationDateTime" : orderBy,
@@ -99,12 +108,20 @@ public class CaseNoteService {
         return new Page<>(transformedCaseNotes, caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), caseNotePage.getPageLimit());
     }
 
+    public org.springframework.data.domain.Page<CaseNote> getCaseNotes(final CaseNoteFilter caseNoteFilter, final Pageable pageable) {
+        final var pagedListOfCaseNotes = offenderCaseNoteRepository.findAll(caseNoteFilter, pageable);
+        final var transformedCaseNotes =
+            pagedListOfCaseNotes.stream()
+            .map(transformer::transform)
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(transformedCaseNotes, pageable, pagedListOfCaseNotes.getTotalElements());
+    }
+
     @VerifyBookingAccess
     public CaseNote getCaseNote(final Long bookingId, final Long caseNoteId) {
-        final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
+        final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId)
                 .orElseThrow(EntityNotFoundException.withId(caseNoteId));
-
-        log.info("Returning case note {}", caseNote);
 
         return transformer.transform(caseNote);
     }
@@ -186,9 +203,6 @@ public class CaseNoteService {
                 .build();
     }
 
-    public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
-        return caseNoteRepository.getCaseNoteTypesByCaseLoadType(caseLoadType);
-    }
 
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
         return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag(caseLoadType, true);
@@ -254,6 +268,8 @@ public class CaseNoteService {
             return subTypes != null && (subTypes.isEmpty() || subTypes.contains(event.getSubNoteType()));
         }).collect(Collectors.toList());
     }
+
+
 
     private static class DeriveDates {
         private LocalDate fromDateToUse;

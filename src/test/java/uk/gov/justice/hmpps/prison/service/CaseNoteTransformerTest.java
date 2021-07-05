@@ -119,7 +119,6 @@ public class CaseNoteTransformerTest {
 
     @Test
     public void emptyCaseNoteTest() {
-        assertThat(transformer.transform(null)).isNull();
         assertThat(transformer.transform(new CaseNote())).isNull();
     }
 }
