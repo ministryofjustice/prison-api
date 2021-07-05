@@ -12,13 +12,23 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.transformers.CaseNoteTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSizeValidator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -42,6 +52,15 @@ public class CaseNoteServiceImplTest {
     private OffenderCaseNoteRepository offenderCaseNoteRepository;
 
     @Mock
+    private OffenderBookingRepository offenderBookingRepository;
+    @Mock
+    private StaffUserAccountRepository staffUserAccountRepository;
+    @Mock
+    private ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
+    @Mock
+    private ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository;
+
+    @Mock
     private UserService userService;
 
     @Mock
@@ -57,7 +76,8 @@ public class CaseNoteServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        caseNoteService = new CaseNoteService(repository, offenderCaseNoteRepository, new CaseNoteTransformer(userService, null), userService, authenticationFacade, bookingService, 10, maximumTextSizeValidator);
+        caseNoteService = new CaseNoteService(repository, offenderCaseNoteRepository, new CaseNoteTransformer(userService, null), userService,
+            authenticationFacade, bookingService, 10, maximumTextSizeValidator, offenderBookingRepository, staffUserAccountRepository, caseNoteTypeReferenceCodeRepository, caseNoteSubTypeReferenceCodeRepository);
     }
 
     @Test
@@ -150,18 +170,16 @@ public class CaseNoteServiceImplTest {
 
     @Test
     public void testThatTheCaseNoteAmendmentRestrictions_AreIgnoredGivenTheCorrectRole() {
-        when(repository.getCaseNote(1L, 1L))
-                .thenReturn(Optional.of(CaseNote
+        when(offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(1L, 1L))
+                .thenReturn(Optional.of(OffenderCaseNote
                         .builder()
-                        .agencyId("LEI")
-                        .bookingId(1L)
-                        .caseNoteId(1L)
-                        .originalNoteText("Hello")
-                        .text("Hello")
-                        .type("KA")
-                        .subType("KS")
-                        .authorName("Mr Black")
-                        .staffId(1L)
+                        .agencyLocation(AgencyLocation.builder().id("LEI").build())
+                        .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
+                        .id(1L)
+                        .caseNoteText("Hello")
+                        .type(new CaseNoteType("KA", "Keyworker"))
+                        .subType(new CaseNoteSubType("KS", "Keyworker Session"))
+                        .author(Staff.builder().staffId(1L).firstName("Ted").lastName("Black").build())
                         .build()));
 
         when(userService.getUserByUsername("staff2"))
@@ -173,20 +191,17 @@ public class CaseNoteServiceImplTest {
         when(authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
         when(maximumTextSizeValidator.isValid(anyString(), any())).thenReturn(true);
 
-        when(repository.getCaseNote(1L, 1L))
-                .thenReturn(Optional.of(CaseNote
-                        .builder()
-                        .agencyId("LEI")
-                        .bookingId(1L)
-                        .caseNoteId(1L)
-                        .originalNoteText("Hello")
-                        .text("Hello")
-                        .amendments(List.of(CaseNoteAmendment.builder().additionalNoteText("update text").build()))
-                        .type("KA")
-                        .subType("KS")
-                        .authorName("Mr Black")
-                        .staffId(1L)
-                        .build()));
+        when(offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(1L, 1L))
+                .thenReturn(Optional.of(OffenderCaseNote
+                    .builder()
+                    .agencyLocation(AgencyLocation.builder().id("LEI").build())
+                    .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
+                    .id(1L)
+                    .caseNoteText(String.format("%s ...[%s updated the case notes on %s] %s", "Hello", "staff2", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")), "update text"))
+                    .type(new CaseNoteType("KA", "Keyworker"))
+                    .subType(new CaseNoteSubType("KS", "Keyworker Session"))
+                    .author(Staff.builder().staffId(1L).firstName("Ted").lastName("Black").build())
+                    .build()));
 
         caseNoteService.updateCaseNote(1L, 1L, "staff2", "update text");
 

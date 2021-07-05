@@ -15,4 +15,8 @@ public class CaseNoteType extends ReferenceCode {
     public CaseNoteType(final String code, final String description) {
         super(CASE_NOTE_TYPE, code, description);
     }
+
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(CASE_NOTE_TYPE, code);
+    }
 }

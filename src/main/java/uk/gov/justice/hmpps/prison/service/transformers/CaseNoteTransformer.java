@@ -72,7 +72,7 @@ public class CaseNoteTransformer {
                 .source(in.getNoteSourceCode())
                 .text(in.getCaseNoteText())
                 .staffId(in.getAuthor().getStaffId())
-                .agencyId(in.getAgencyLocation().getId())
+                .agencyId(in.getAgencyLocation() != null ? in.getAgencyLocation().getId() : null)
                 .authorName(WordUtils.capitalize(StringUtils.lowerCase(in.getAuthor().getFullName())))
                 .build();
 

@@ -24,7 +24,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
+import static java.lang.String.format;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
@@ -36,6 +38,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Table(name = "OFFENDER_CASE_NOTES")
 @ToString(exclude = { "offenderBooking", "agencyLocation" } )
 public class OffenderCaseNote extends AuditableEntity {
+    private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 
     @Id
     @Column(name = "CASE_NOTE_ID", nullable = false)
@@ -76,8 +79,8 @@ public class OffenderCaseNote extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     private ActiveFlag amendmentFlag;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "AGY_LOC_ID", nullable = false)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "AGY_LOC_ID", nullable = true)
     private AgencyLocation agencyLocation;
 
     @ManyToOne
@@ -90,5 +93,14 @@ public class OffenderCaseNote extends AuditableEntity {
     @Override
     public LocalDateTime getCreateDatetime() {
         return super.getCreateDatetime();
+    }
+
+    public void appendText(final String appendedText, final String username) {
+        caseNoteText = format(AMEND_CASE_NOTE_FORMAT,
+            caseNoteText,
+            username,
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
+            appendedText);
+
     }
 }

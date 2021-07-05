@@ -24,8 +24,15 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -41,7 +48,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -54,7 +60,6 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 @Slf4j
 public class CaseNoteService {
-    private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
@@ -67,6 +72,10 @@ public class CaseNoteService {
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
     private final MaximumTextSizeValidator maximumTextSizeValidator;
+    private final OffenderBookingRepository offenderBookingRepository;
+    private final StaffUserAccountRepository staffUserAccountRepository;
+    private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
+    private final ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository;
 
     public CaseNoteService(final CaseNoteRepository caseNoteRepository,
                            final OffenderCaseNoteRepository offenderCaseNoteRepository,
@@ -75,7 +84,12 @@ public class CaseNoteService {
                            final AuthenticationFacade authenticationFacade,
                            final BookingService bookingService,
                            @Value("${batch.max.size:1000}") final int maxBatchSize,
-                           final MaximumTextSizeValidator maximumTextSizeValidator) {
+                           final MaximumTextSizeValidator maximumTextSizeValidator,
+                           final OffenderBookingRepository offenderBookingRepository,
+                           final StaffUserAccountRepository staffUserAccountRepository,
+                           final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository,
+                           final ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository
+                           ) {
         this.caseNoteRepository = caseNoteRepository;
         this.offenderCaseNoteRepository = offenderCaseNoteRepository;
         this.transformer = transformer;
@@ -84,6 +98,10 @@ public class CaseNoteService {
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
         this.maximumTextSizeValidator = maximumTextSizeValidator;
+        this.offenderBookingRepository = offenderBookingRepository;
+        this.caseNoteTypeReferenceCodeRepository = caseNoteTypeReferenceCodeRepository;
+        this.caseNoteSubTypeReferenceCodeRepository = caseNoteSubTypeReferenceCodeRepository;
+        this.staffUserAccountRepository = staffUserAccountRepository;
     }
 
     @VerifyBookingAccess
@@ -129,35 +147,45 @@ public class CaseNoteService {
     @Transactional
     @VerifyBookingAccess
     public CaseNote createCaseNote(final Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid final NewCaseNote caseNote, final String username) {
-        final var userDetail = userService.getUserByUsername(username);
-        final var caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
+        final var userDetail = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
+        final var booking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        final var occurrenceTime = caseNote.getOccurrenceDateTime() == null ? LocalDateTime.now() : caseNote.getOccurrenceDateTime();
 
-        return getCaseNote(bookingId, caseNoteId);
+        final var newCaseNote = OffenderCaseNote.builder()
+            .caseNoteText(caseNote.getText())
+            .agencyLocation(booking.getLocation())
+            .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk(caseNote.getType())).orElseThrow(EntityNotFoundException.withId(caseNote.getType())))
+            .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk(caseNote.getSubType())).orElseThrow(EntityNotFoundException.withId(caseNote.getSubType())))
+            .noteSourceCode(caseNoteSource)
+            .author(userDetail.getStaff())
+            .occurrenceDateTime(occurrenceTime)
+            .occurrenceDate(occurrenceTime.toLocalDate())
+            .amendmentFlag(ActiveFlag.N)
+            .offenderBooking(booking)
+            .build();
+
+        return transformer.transform(offenderCaseNoteRepository.save(newCaseNote));
     }
 
     @Transactional
     @VerifyBookingAccess
     public CaseNote updateCaseNote(final Long bookingId, final Long caseNoteId, final String username, @NotBlank(message = "{caseNoteTextBlank}") final String newCaseNoteText) {
-        final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
+        final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId)
                 .orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
         // Verify that user attempting to amend case note is same one who created it.
         final var userDetail = userService.getUserByUsername(username);
         final var bypassCaseNoteAmendmentRestriction = authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN");
 
-        if (!bypassCaseNoteAmendmentRestriction && !caseNote.getStaffId().equals(userDetail.getStaffId())) {
+        if (!bypassCaseNoteAmendmentRestriction && !caseNote.getAuthor().getStaffId().equals(userDetail.getStaffId())) {
             throw new AccessDeniedException("User not authorised to amend case note.");
         }
 
-        final var amendedText = format(AMEND_CASE_NOTE_FORMAT,
-                caseNote.getText(),
-                username,
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
-                newCaseNoteText);
+        caseNote.appendText(newCaseNoteText, username);
 
-        if (!maximumTextSizeValidator.isValid(amendedText, null)) {
+        if (!maximumTextSizeValidator.isValid(caseNote.getCaseNoteText(), null)) {
 
-            final var spaceLeft = maximumTextSizeValidator.getMaximumAnsiEncodingSize() - (caseNote.getText().length() + (amendedText.length() - newCaseNoteText.length()));
+            final var spaceLeft = maximumTextSizeValidator.getMaximumAnsiEncodingSize() - (caseNote.getCaseNoteText().length() + (caseNote.getCaseNoteText().length() - newCaseNoteText.length()));
 
             final var errorMessage = spaceLeft <= 0 ?
                     "Amendments can no longer be made due to the maximum character limit being reached" :
@@ -166,8 +194,7 @@ public class CaseNoteService {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errorMessage);
         }
 
-        caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
-        return getCaseNote(bookingId, caseNoteId);
+        return transformer.transform(caseNote);
     }
 
     @Transactional
