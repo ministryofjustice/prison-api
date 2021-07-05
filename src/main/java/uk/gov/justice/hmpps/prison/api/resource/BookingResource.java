@@ -414,30 +414,8 @@ public class BookingResource {
         return inmateService.getAssessments(bookingId);
     }
 
-    @ApiOperation(value = "Offender case notes. (deprecated, please use /bookings/{bookingId}/case-notes", notes = "Offender case notes. Deprecated")
-    @GetMapping("/{bookingId}/caseNotes")
-    @Deprecated
-    public ResponseEntity<List<CaseNote>> getOffenderCaseNotesDeprecated(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId,
-                                                               @RequestParam(value = "from", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("start contact date to search from") final LocalDate from,
-                                                               @RequestParam(value = "to", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("end contact date to search up to (including this date)") final LocalDate to,
-                                                               @RequestParam(value = "query", required = false) @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - creationDateTime, type, subType, source</p> ", required = true) final String query,
-                                                               @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseNote records.", defaultValue = "0") final Long pageOffset,
-                                                               @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseNote records returned.", defaultValue = "10") final Long pageLimit,
-                                                               @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>creationDateTime, type, subType, source</b>") final String sortFields,
-                                                               @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
-        return caseNoteService.getCaseNotes(
-                bookingId,
-                query,
-                from,
-                to,
-                sortFields,
-                sortOrder,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L)).getResponse();
-    }
-
     @ApiOperation(value = "Offender case notes.", notes = "Offender case notes.")
-    @GetMapping("/{bookingId}/case-notes")
+    @GetMapping("/{bookingId}/caseNotes")
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", example = "23412312", required = true) final Long bookingId,
                                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "start contact date to search from", example = "2021-02-03") final LocalDate from,
                                                                @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,

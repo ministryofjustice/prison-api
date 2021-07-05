@@ -3,10 +3,8 @@ package uk.gov.justice.hmpps.prison.repository;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
@@ -14,7 +12,6 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
@@ -27,8 +24,6 @@ import uk.gov.justice.hmpps.prison.repository.sql.CaseNoteRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
@@ -195,73 +189,6 @@ public class CaseNoteRepository extends RepositoryBase {
                 "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
             CASE_NOTE_STAFF_USAGE_MAPPER);
     }
-
-
-    public Optional<CaseNote> getCaseNote(final long bookingId, final long caseNoteId) {
-        final var sql = CaseNoteRepositorySql.FIND_CASENOTE.getSql();
-        final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(CaseNote.class, CASE_NOTE_MAPPING);
-
-        CaseNote caseNote;
-        try {
-            caseNote = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper);
-        } catch (final EmptyResultDataAccessException e) {
-            caseNote = null;
-        }
-        return Optional.ofNullable(caseNote);
-    }
-
-
-    public Long createCaseNote(final long bookingId, final NewCaseNote newCaseNote, final String sourceCode, final String username, final Long staffId) {
-        final var initialSql = CaseNoteRepositorySql.INSERT_CASE_NOTE.getSql();
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
-        final var sql = builder.build();
-
-        final var now = LocalDateTime.now();
-
-        final var createdDateTime = DateTimeConverter.fromLocalDateTime(now);
-        final var createdDate = DateTimeConverter.fromTimestamp(createdDateTime);
-
-        final Timestamp occurrenceTime;
-
-        if (newCaseNote.getOccurrenceDateTime() == null) {
-            occurrenceTime = DateTimeConverter.fromLocalDateTime(now);
-        } else {
-            occurrenceTime = DateTimeConverter.fromLocalDateTime(newCaseNote.getOccurrenceDateTime());
-        }
-
-        final var occurrenceDate = DateTimeConverter.fromTimestamp(occurrenceTime);
-
-        final var generatedKeyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(
-            sql,
-            createParams("bookingId", bookingId,
-                "text", newCaseNote.getText(),
-                "type", newCaseNote.getType(),
-                "subType", newCaseNote.getSubType(),
-                "sourceCode", sourceCode,
-                "createDate", createdDate,
-                "createTime", createdDateTime,
-                "contactDate", occurrenceDate,
-                "contactTime", occurrenceTime,
-                "createdBy", username,
-                "userId", username,
-                "staffId", staffId),
-            generatedKeyHolder,
-            new String[]{"CASE_NOTE_ID"});
-
-        return generatedKeyHolder.getKey().longValue();
-    }
-
-
-    public void updateCaseNote(final long bookingId, final long caseNoteId, @Size(max = 4000, message = "{caseNoteTextTooLong}") final String updatedText, final String userId) {
-        final var sql = queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.UPDATE_CASE_NOTE.getSql(), CASE_NOTE_MAPPING).build();
-
-        jdbcTemplate.update(sql, createParams("modifyBy", userId,
-            "caseNoteId", caseNoteId,
-            "text", updatedText));
-    }
-
 
     public Long getCaseNoteCount(final long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
         final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_COUNT.getSql();

@@ -18,7 +18,7 @@ import javax.persistence.criteria.Root;
 import java.time.LocalDate;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
