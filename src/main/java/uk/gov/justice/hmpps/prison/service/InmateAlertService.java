@@ -84,7 +84,7 @@ public class InmateAlertService {
 
         final var alerts = Lists.partition(offenderNos, maxBatchSize)
                 .stream()
-                .flatMap(offenderNosList -> inmateAlertRepository.getAlertsByOffenderNos(agencyId, offenderNosList, true, "bookingId,alertId", Order.ASC).stream())
+                .flatMap(offenderNosList -> inmateAlertRepository.getAlertsByOffenderNos(agencyId, offenderNosList, true, null, "bookingId,alertId", Order.ASC).stream())
                 .collect(Collectors.toList());
 
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
@@ -96,14 +96,14 @@ public class InmateAlertService {
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String orderByField, final Order order) {
 
-        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly, orderByField, order);
+        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly, null, orderByField, order);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
         return alerts;
     }
 
-    public List<Alert> getInmateAlertsByOffenderNos(final String offenderNo, final boolean latestOnly, final String orderByField, final Order order) {
-        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, List.of(offenderNo), latestOnly, orderByField, order);
+    public List<Alert> getInmateAlertsByOffenderNos(final String offenderNo, final boolean latestOnly, final String query, final String orderByField, final Order order) {
+        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, List.of(offenderNo), latestOnly, query, orderByField, order);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
         log.info("Returning {} matching Alerts for Offender Number {}", alerts.size(), offenderNo);
         return alerts;
