@@ -173,7 +173,7 @@ public abstract class CommonSteps {
     @Step("Apply page and size")
     public void applyPageNumberAndSize(final Long pageNumber, final Long size) {
         paginationNumber = Objects.requireNonNullElse(pageNumber, 0L);
-        paginationLimit = Objects.requireNonNullElse(size, 0L);
+        paginationLimit = Objects.requireNonNullElse(size, 10L);
     }
 
 
