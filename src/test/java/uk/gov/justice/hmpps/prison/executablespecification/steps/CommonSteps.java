@@ -182,6 +182,10 @@ public abstract class CommonSteps {
         this.resources = receivedResponse.getBody();
     }
 
+    protected <T> void buildResourceData(final org.springframework.data.domain.Page<T> receivedResponse) {
+        this.pageMetaData = buildPageMetaData(receivedResponse);
+        this.resources = receivedResponse.getContent();
+    }
     void setResourceMetaData(final List<?> resources) {
         this.resources = resources;
     }
@@ -552,6 +556,10 @@ public abstract class CommonSteps {
         return metaData;
     }
 
+    private <T> Page<T> buildPageMetaData(final org.springframework.data.domain.Page<T> page) {
+        return new Page<T>(page.getContent(), page.getTotalElements(), page.getPageable().getOffset(), page.getPageable().getPageSize());
+
+    }
     /**
      * Equality assertion where blank and null are treated as equal
      */
