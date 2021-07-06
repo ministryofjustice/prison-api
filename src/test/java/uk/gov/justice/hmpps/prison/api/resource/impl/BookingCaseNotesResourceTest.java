@@ -11,7 +11,7 @@ public class BookingCaseNotesResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
         final var httpEntity = createHttpEntity(token, null);
-        CaseNoteSteps
+
         final var response = testRestTemplate.exchange(
                 "/api/bookings/-2/caseNotes",
                 HttpMethod.GET,
