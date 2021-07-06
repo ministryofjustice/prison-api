@@ -81,6 +81,7 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
@@ -415,7 +416,12 @@ public class BookingResource {
     }
 
     @ApiOperation(value = "Offender case notes.", notes = "Offender case notes.")
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @GetMapping("/{bookingId}/caseNotes")
+    @VerifyBookingAccess
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", example = "23412312", required = true) final Long bookingId,
                                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "start contact date to search from", example = "2021-02-03") final LocalDate from,
                                                                @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,

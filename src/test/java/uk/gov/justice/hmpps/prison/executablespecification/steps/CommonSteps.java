@@ -55,6 +55,7 @@ public abstract class CommonSteps {
     private ErrorResponse errorResponse;
     private long paginationLimit;
     private long paginationOffset;
+    private long paginationNumber;
 
     @PostConstruct
     protected void postConstruct() {
@@ -169,9 +170,17 @@ public abstract class CommonSteps {
         paginationOffset = Objects.requireNonNullElse(offset, 0L);
     }
 
+    @Step("Apply page and size")
+    public void applyPageNumberAndSize(final Long pageNumber, final Long size) {
+        paginationNumber = Objects.requireNonNullElse(pageNumber, 0L);
+        paginationLimit = Objects.requireNonNullElse(size, 0L);
+    }
+
+
     protected void init() {
         paginationLimit = 10;
         paginationOffset = 0;
+        paginationNumber = 0;
         errorResponse = null;
         resources = null;
         pageMetaData = null;
@@ -514,7 +523,7 @@ public abstract class CommonSteps {
     }
 
     protected String getPaginationParams() {
-        return "offset="+paginationOffset+"&size="+paginationLimit;
+        return "page="+paginationNumber+"&size="+paginationLimit;
     }
 
     Map<String, String> buildSortHeaders(final String sortFields, final Order sortOrder) {
