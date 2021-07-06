@@ -11,9 +11,9 @@ public class BookingCaseNotesResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
         final var httpEntity = createHttpEntity(token, null);
-
+        CaseNoteSteps
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-2/case-notes",
+                "/api/bookings/-2/caseNotes",
                 HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
@@ -29,7 +29,7 @@ public class BookingCaseNotesResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/bookings/-2/case-notes?type=ETE",
+            "/api/bookings/-2/caseNotes?type=ETE",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
@@ -45,7 +45,7 @@ public class BookingCaseNotesResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/bookings/-2/case-notes?type=COMMS&subType=COM_IN",
+            "/api/bookings/-2/caseNotes?type=COMMS&subType=COM_IN",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
@@ -61,7 +61,7 @@ public class BookingCaseNotesResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/bookings/-2/case-notes?from=2017-04-06&to=2017-05-05",
+            "/api/bookings/-2/caseNotes?from=2017-04-06&to=2017-05-05",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
@@ -77,7 +77,7 @@ public class BookingCaseNotesResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/bookings/-3/case-notes?prisonId=BXI",
+            "/api/bookings/-3/caseNotes?prisonId=BXI",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {

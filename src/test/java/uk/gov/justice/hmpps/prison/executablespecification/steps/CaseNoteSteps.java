@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
 import com.google.common.base.Splitter;
+import lombok.Data;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -251,6 +252,11 @@ public class CaseNoteSteps extends CommonSteps {
         }
     }
 
+    @Data
+    public static class CaseNoteWrapper {
+        private List<CaseNote> content;
+    }
+
     private void dispatchQueryRequest(final Long bookingId) {
         caseNotes = null;
 
@@ -282,13 +288,12 @@ public class CaseNoteSteps extends CommonSteps {
         }
 
         try {
-            final var response = restTemplate.exchange(API_REQUEST_BASE_URL + params.toString(), HttpMethod.GET,
-                    createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<CaseNote>>() {
-                    }, bookingId);
+            final var response = restTemplate.exchange(API_REQUEST_BASE_URL + params, HttpMethod.GET,
+                    createEntity(null, addPaginationHeaders()), CaseNoteWrapper.class, bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            buildResourceData(response);
-            caseNotes = response.getBody();
+
+            caseNotes = response.getBody().content;
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
