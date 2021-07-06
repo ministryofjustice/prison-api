@@ -6,7 +6,6 @@ import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
@@ -290,7 +289,7 @@ public class CaseNoteSteps extends CommonSteps {
 
         try {
             final var response = restTemplate.exchange(API_REQUEST_BASE_URL + params, HttpMethod.GET,
-                    createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<PageImpl<CaseNote>>() {
+                    createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<RestResponsePage<CaseNote>>() {
                 }, bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
