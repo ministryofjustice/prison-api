@@ -10,6 +10,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -90,13 +91,21 @@ public class OffenderCaseNote extends AuditableEntity {
     @Column(name = "NOTE_SOURCE_CODE")
     private String noteSourceCode;
 
+    @Column(name = "DATE_CREATION")
+    @CreatedDate
+    private LocalDate dateCreation;
+
+    @Column(name = "TIME_CREATION")
+    @CreatedDate
+    private LocalDateTime timeCreation;
+
     @Override
     public LocalDateTime getCreateDatetime() {
         return super.getCreateDatetime();
     }
 
-    public void appendText(final String appendedText, final String username) {
-        caseNoteText = format(AMEND_CASE_NOTE_FORMAT,
+    public String createAppendedText(final String appendedText, final String username) {
+        return format(AMEND_CASE_NOTE_FORMAT,
             caseNoteText,
             username,
             LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),

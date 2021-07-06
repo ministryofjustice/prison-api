@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteAmendment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
-import uk.gov.justice.hmpps.prison.service.UserService;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.util.regex.Pattern;
@@ -21,11 +21,11 @@ public class CaseNoteTransformer {
 
     private final String caseNoteDateFormat;
 
-    private final UserService userService;
+    private final StaffUserAccountRepository staffUserAccountRepository;
 
     @Autowired
-    public CaseNoteTransformer(final UserService userService, @Value("${caseNote.dateFormat:yyyy/MM/dd HH:mm:ss}") final String caseNoteDateFormat) {
-        this.userService = userService;
+    public CaseNoteTransformer(final StaffUserAccountRepository staffUserAccountRepository, @Value("${caseNote.dateFormat:yyyy/MM/dd HH:mm:ss}") final String caseNoteDateFormat) {
+        this.staffUserAccountRepository = staffUserAccountRepository;
         this.caseNoteDateFormat = caseNoteDateFormat;
     }
 
@@ -122,10 +122,8 @@ public class CaseNoteTransformer {
     private String getFullNameFromUsername(final String username) {
         var authorUsername = username;
         if (StringUtils.isNotBlank(username)) {
-            final var authorDetails = userService.getUserByUsername(username);
-            if (authorDetails != null) {
-                authorUsername = WordUtils.capitalize(StringUtils.lowerCase(authorDetails.getLastName() + ", " + authorDetails.getFirstName()));
-            }
+            authorUsername = staffUserAccountRepository.findById(username).map(user ->
+                WordUtils.capitalize(StringUtils.lowerCase(user.getStaff().getFullName()))).orElse(username);
         }
         return authorUsername;
     }

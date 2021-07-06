@@ -177,11 +177,11 @@ public class CaseNoteService {
             throw new AccessDeniedException("User not authorised to amend case note.");
         }
 
-        caseNote.appendText(newCaseNoteText, username);
+        final var appendedText = caseNote.createAppendedText(newCaseNoteText, username);
 
-        if (!maximumTextSizeValidator.isValid(caseNote.getCaseNoteText(), null)) {
+        if (!maximumTextSizeValidator.isValid(appendedText, null)) {
 
-            final var spaceLeft = maximumTextSizeValidator.getMaximumAnsiEncodingSize() - (caseNote.getCaseNoteText().length() + (caseNote.getCaseNoteText().length() - newCaseNoteText.length()));
+            final var spaceLeft = maximumTextSizeValidator.getMaximumAnsiEncodingSize() - (caseNote.getCaseNoteText().length() + (appendedText.length() - newCaseNoteText.length()));
 
             final var errorMessage = spaceLeft <= 0 ?
                     "Amendments can no longer be made due to the maximum character limit being reached" :
@@ -189,7 +189,7 @@ public class CaseNoteService {
 
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errorMessage);
         }
-
+        caseNote.setCaseNoteText(appendedText);
         return transformer.transform(caseNote);
     }
 
