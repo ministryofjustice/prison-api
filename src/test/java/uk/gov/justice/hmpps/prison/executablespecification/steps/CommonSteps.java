@@ -502,10 +502,6 @@ public abstract class CommonSteps {
         }
     }
 
-    String buildQuery(final String queryParam) {
-        return "?query=" + StringUtils.trimToEmpty(queryParam);
-    }
-
     String buildQueryStringParameters(final Map<String, String> parameters) {
         return parameters.keySet()
                 .stream()
@@ -515,6 +511,10 @@ public abstract class CommonSteps {
 
     protected Map<String, String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
+    }
+
+    protected String getPaginationParams() {
+        return "offset="+paginationOffset+"&size="+paginationLimit;
     }
 
     Map<String, String> buildSortHeaders(final String sortFields, final Order sortOrder) {

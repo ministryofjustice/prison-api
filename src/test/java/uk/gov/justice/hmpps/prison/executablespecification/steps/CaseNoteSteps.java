@@ -287,6 +287,9 @@ public class CaseNoteSteps extends CommonSteps {
             params.append("prisonId=").append(caseNoteFilter.getPrisonId());
         }
 
+        if (params.length() == 0) { params.append("?"); } else { params.append("&"); }
+        params.append(getPaginationParams());
+
         try {
             final var response = restTemplate.exchange(API_REQUEST_BASE_URL + params, HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<RestResponsePage<CaseNote>>() {
