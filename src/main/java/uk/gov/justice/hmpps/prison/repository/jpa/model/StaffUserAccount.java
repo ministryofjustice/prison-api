@@ -30,7 +30,7 @@ public class StaffUserAccount {
     @Column(nullable = false)
     private String username;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "STAFF_ID")
     private Staff staff;
 

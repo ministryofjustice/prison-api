@@ -216,6 +216,11 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.applyPagination(offset, limit);
     }
 
+    @And("^pagination with size \"([0-9]*)\" and page number \"([0-9]*)\" applied$")
+    public void paginationWithPageNumberAndSizeApplied(final Long size, final Long pageNumber) throws Throwable {
+        caseNote.applyPageNumberAndSize(pageNumber, size);
+    }
+
     @And("^filtered case notes are requested for offender booking \"([^\"]*)\"$")
     public void filteredCaseNotesAreRequestedForOffenderBooking(final String bookingId) throws Throwable {
         caseNote.getCaseNotes(Long.valueOf(bookingId));

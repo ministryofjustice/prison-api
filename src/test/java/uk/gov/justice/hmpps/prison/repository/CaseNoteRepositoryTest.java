@@ -5,19 +5,29 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.web.config.CacheConfig;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
+import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
+import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
+import javax.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,12 +38,11 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@SuppressWarnings("SqlResolve")
+@DataJpaTest
 @ActiveProfiles("test")
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
-@JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = {PersistenceConfigs.class, CacheConfig.class})
+@Import({AuthenticationFacade.class, AuditorAwareImpl.class, PersistenceConfigs.class})
+@WithMockUser
 @Slf4j
 public class CaseNoteRepositoryTest {
 
@@ -41,7 +50,24 @@ public class CaseNoteRepositoryTest {
     private CaseNoteRepository repository;
 
     @Autowired
+    private OffenderCaseNoteRepository offenderCaseNoteRepository;
+
+    @Autowired
+    private OffenderBookingRepository offenderBookingRepository;
+
+    @Autowired
+    private ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
+    @Autowired
+    private ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository;
+
+    @Autowired
+    private StaffUserAccountRepository staffUserAccountRepository;
+
+    @Autowired
     JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     public void testGetCaseNoteTypesByCaseLoadType() {
@@ -72,9 +98,8 @@ public class CaseNoteRepositoryTest {
         final long bookingId = -16;
         final var newCaseNote = newCaseNote();
         final var sourceCode = "source code";
-        final var username = "username";
-        final long staffId = -4;
-        final long caseNoteId = repository.createCaseNote(bookingId, newCaseNote, sourceCode, username, staffId);
+        final var username = "ITAG_USER";
+        final long caseNoteId = createCaseNote(bookingId, newCaseNote, sourceCode);
 
         final var map = jdbcTemplate.queryForMap("select TIME_CREATION, CREATE_DATETIME from offender_case_notes where CASE_NOTE_ID = ?", caseNoteId);
 
@@ -94,14 +119,13 @@ public class CaseNoteRepositoryTest {
         final long bookingId = -16;
         final var newCaseNote = newCaseNote();
         final var sourceCode = "source code";
-        final var username = "username";
-        final long staffId = -4;
-        final long caseNoteId = repository.createCaseNote(bookingId, newCaseNote, sourceCode, username, staffId);
+        final var username = "ITAG_USER";
+        final long caseNoteId = createCaseNote(bookingId, newCaseNote, sourceCode);
 
-        final var caseNote = repository.getCaseNote(bookingId, caseNoteId).orElseThrow();
+        final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId).orElseThrow();
 
         final var contactDateTime = caseNote.getOccurrenceDateTime();
-        final var createDateTime = caseNote.getCreationDateTime();
+        final var createDateTime = caseNote.getCreateDatetime();
 
         assertThat(contactDateTime).isBetween(createDateTime.minusSeconds(2), createDateTime.plusSeconds(1));
 
@@ -138,7 +162,7 @@ public class CaseNoteRepositoryTest {
         final var start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         final var caseNote = newCaseNote();
         caseNote.setText("Testing of getCaseNoteEvents");
-        final var id = repository.createCaseNote(-16, caseNote, "source", "user", -4L);
+        final var id = createCaseNote(-16, caseNote, "source");
 
         final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("GEN", "BOB"), 1000);
         log.info("Used start time of {}", start);
@@ -155,7 +179,7 @@ public class CaseNoteRepositoryTest {
             "Testing of getCaseNoteEvents",
             "MUL",
             "GEN HIS",
-            "User, Test"
+            "User, Api"
         ));
         final var event = caseNoteEvents.stream().filter((e) -> e.getContent().equals("Testing of getCaseNoteEvents")).findFirst().orElseThrow();
         assertThat(event.getContactTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));
@@ -167,8 +191,8 @@ public class CaseNoteRepositoryTest {
         final var start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         final var caseNote = newCaseNote();
         caseNote.setText("Testing of getCaseNoteEvents_Limit");
-        repository.createCaseNote(-16, caseNote, "source", "user", -4L);
-        repository.createCaseNote(-16, caseNote, "source", "user", -4L);
+        createCaseNote(-16, caseNote, "source");
+        createCaseNote(-16, caseNote, "source");
 
         final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("GEN", "BOB"), 1);
         assertThat(caseNoteEvents).hasSize(1);
@@ -179,8 +203,8 @@ public class CaseNoteRepositoryTest {
         final var start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         final var caseNote = newCaseNote();
         caseNote.setText("Testing of getCaseNoteEvents_Types");
-        repository.createCaseNote(-16, caseNote, "source", "user", -4L);
-        repository.createCaseNote(-16, caseNote, "source", "user", -4L);
+        createCaseNote(-16, caseNote, "source");
+        createCaseNote(-16, caseNote, "source");
 
         final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("BOB"), 1);
         assertThat(caseNoteEvents).hasSize(0);
@@ -191,6 +215,24 @@ public class CaseNoteRepositoryTest {
         newCaseNote.setText("text");
         newCaseNote.setType("GEN");
         newCaseNote.setSubType("HIS");
+        newCaseNote.setOccurrenceDateTime(LocalDateTime.now());
         return newCaseNote;
+    }
+
+    private long createCaseNote(final long bookingId, final NewCaseNote newCaseNote, final String sourceCode) {
+        final var caseNote = OffenderCaseNote.builder()
+            .caseNoteText(newCaseNote.getText())
+            .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk(newCaseNote.getType())).orElseThrow(EntityNotFoundException.withId(newCaseNote.getType())))
+            .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk(newCaseNote.getSubType())).orElseThrow(EntityNotFoundException.withId(newCaseNote.getSubType())))
+            .noteSourceCode(sourceCode)
+            .author(staffUserAccountRepository.findById("ITAG_USER").orElseThrow().getStaff())
+            .occurrenceDateTime(newCaseNote.getOccurrenceDateTime())
+            .occurrenceDate(newCaseNote.getOccurrenceDateTime().toLocalDate())
+            .amendmentFlag(ActiveFlag.N)
+            .offenderBooking(offenderBookingRepository.findById(bookingId).orElseThrow())
+            .build();
+        final var id = offenderCaseNoteRepository.save(caseNote).getId();
+        entityManager.flush();
+        return id;
     }
 }

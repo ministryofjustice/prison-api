@@ -94,9 +94,9 @@ public class InmateAlertService {
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
-    public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
+    public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String orderByField, final Order order) {
 
-        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly, query, orderByField, order);
+        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly, null, orderByField, order);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
         return alerts;

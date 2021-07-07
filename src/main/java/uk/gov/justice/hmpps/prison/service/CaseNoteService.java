@@ -4,6 +4,9 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,8 +23,16 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -37,7 +48,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -50,36 +60,50 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 @Slf4j
 public class CaseNoteService {
-    private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
 
     private final CaseNoteRepository caseNoteRepository;
+    private final OffenderCaseNoteRepository offenderCaseNoteRepository;
     private final CaseNoteTransformer transformer;
-    private final UserService userService;
     private final BookingService bookingService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
     private final MaximumTextSizeValidator maximumTextSizeValidator;
+    private final OffenderBookingRepository offenderBookingRepository;
+    private final StaffUserAccountRepository staffUserAccountRepository;
+    private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
+    private final ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository;
 
-    public CaseNoteService(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
-                           final UserService userService,
+    public CaseNoteService(final CaseNoteRepository caseNoteRepository,
+                           final OffenderCaseNoteRepository offenderCaseNoteRepository,
+                           final CaseNoteTransformer transformer,
                            final AuthenticationFacade authenticationFacade,
                            final BookingService bookingService,
                            @Value("${batch.max.size:1000}") final int maxBatchSize,
-                           final MaximumTextSizeValidator maximumTextSizeValidator) {
+                           final MaximumTextSizeValidator maximumTextSizeValidator,
+                           final OffenderBookingRepository offenderBookingRepository,
+                           final StaffUserAccountRepository staffUserAccountRepository,
+                           final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository,
+                           final ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository
+                           ) {
         this.caseNoteRepository = caseNoteRepository;
+        this.offenderCaseNoteRepository = offenderCaseNoteRepository;
         this.transformer = transformer;
-        this.userService = userService;
         this.bookingService = bookingService;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
         this.maximumTextSizeValidator = maximumTextSizeValidator;
+        this.offenderBookingRepository = offenderBookingRepository;
+        this.caseNoteTypeReferenceCodeRepository = caseNoteTypeReferenceCodeRepository;
+        this.caseNoteSubTypeReferenceCodeRepository = caseNoteSubTypeReferenceCodeRepository;
+        this.staffUserAccountRepository = staffUserAccountRepository;
     }
 
     @VerifyBookingAccess
-    public Page<CaseNote> getCaseNotes(final Long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
+    @Deprecated
+    public uk.gov.justice.hmpps.prison.api.support.Page<CaseNote> getCaseNotes(final Long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
         final var orderByBlank = StringUtils.isBlank(orderBy);
 
         final var caseNotePage = caseNoteRepository.getCaseNotes(
@@ -97,15 +121,21 @@ public class CaseNoteService {
 
         log.info("Returning {} out of {} matching Case Notes, starting at {} for booking id {}", transformedCaseNotes.size(), caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), bookingId);
 
-        return new Page<>(transformedCaseNotes, caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), caseNotePage.getPageLimit());
+        return new uk.gov.justice.hmpps.prison.api.support.Page<>(transformedCaseNotes, caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), caseNotePage.getPageLimit());
+    }
+
+    public Page<CaseNote> getCaseNotes(final CaseNoteFilter caseNoteFilter, final Pageable pageable) {
+        final var pagedListOfCaseNotes = offenderCaseNoteRepository.findAll(caseNoteFilter, pageable);
+        final var transformedCaseNotes = pagedListOfCaseNotes.stream().map(transformer::transform).collect(Collectors.toList());
+
+        log.info("Returning {} out of {} matching Case Notes, starting at {} for booking id {}", transformedCaseNotes.size(), pagedListOfCaseNotes.getTotalElements(), pagedListOfCaseNotes.getPageable().getOffset(), caseNoteFilter.getBookingId());
+        return new PageImpl<>(transformedCaseNotes, pageable, pagedListOfCaseNotes.getTotalElements());
     }
 
     @VerifyBookingAccess
     public CaseNote getCaseNote(final Long bookingId, final Long caseNoteId) {
-        final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
+        final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId)
                 .orElseThrow(EntityNotFoundException.withId(caseNoteId));
-
-        log.info("Returning case note {}", caseNote);
 
         return transformer.transform(caseNote);
     }
@@ -113,35 +143,45 @@ public class CaseNoteService {
     @Transactional
     @VerifyBookingAccess
     public CaseNote createCaseNote(final Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid final NewCaseNote caseNote, final String username) {
-        final var userDetail = userService.getUserByUsername(username);
-        final var caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
+        final var userDetail = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
+        final var booking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        final var occurrenceTime = caseNote.getOccurrenceDateTime() == null ? LocalDateTime.now() : caseNote.getOccurrenceDateTime();
 
-        return getCaseNote(bookingId, caseNoteId);
+        final var newCaseNote = OffenderCaseNote.builder()
+            .caseNoteText(caseNote.getText())
+            .agencyLocation(booking.getLocation())
+            .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk(caseNote.getType())).orElseThrow(EntityNotFoundException.withId(caseNote.getType())))
+            .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk(caseNote.getSubType())).orElseThrow(EntityNotFoundException.withId(caseNote.getSubType())))
+            .noteSourceCode(caseNoteSource)
+            .author(userDetail.getStaff())
+            .occurrenceDateTime(occurrenceTime)
+            .occurrenceDate(occurrenceTime.toLocalDate())
+            .amendmentFlag(ActiveFlag.N)
+            .offenderBooking(booking)
+            .build();
+
+        return transformer.transform(offenderCaseNoteRepository.save(newCaseNote));
     }
 
     @Transactional
     @VerifyBookingAccess
     public CaseNote updateCaseNote(final Long bookingId, final Long caseNoteId, final String username, @NotBlank(message = "{caseNoteTextBlank}") final String newCaseNoteText) {
-        final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
+        final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId)
                 .orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
         // Verify that user attempting to amend case note is same one who created it.
-        final var userDetail = userService.getUserByUsername(username);
+        final var userDetail = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
         final var bypassCaseNoteAmendmentRestriction = authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN");
 
-        if (!bypassCaseNoteAmendmentRestriction && !caseNote.getStaffId().equals(userDetail.getStaffId())) {
+        if (!bypassCaseNoteAmendmentRestriction && !caseNote.getAuthor().equals(userDetail.getStaff())) {
             throw new AccessDeniedException("User not authorised to amend case note.");
         }
 
-        final var amendedText = format(AMEND_CASE_NOTE_FORMAT,
-                caseNote.getText(),
-                username,
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
-                newCaseNoteText);
+        final var appendedText = caseNote.createAppendedText(newCaseNoteText, username);
 
-        if (!maximumTextSizeValidator.isValid(amendedText, null)) {
+        if (!maximumTextSizeValidator.isValid(appendedText, null)) {
 
-            final var spaceLeft = maximumTextSizeValidator.getMaximumAnsiEncodingSize() - (caseNote.getText().length() + (amendedText.length() - newCaseNoteText.length()));
+            final var spaceLeft = maximumTextSizeValidator.getMaximumAnsiEncodingSize() - (caseNote.getCaseNoteText().length() + (appendedText.length() - newCaseNoteText.length()));
 
             final var errorMessage = spaceLeft <= 0 ?
                     "Amendments can no longer be made due to the maximum character limit being reached" :
@@ -149,9 +189,8 @@ public class CaseNoteService {
 
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errorMessage);
         }
-
-        caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
-        return getCaseNote(bookingId, caseNoteId);
+        caseNote.setCaseNoteText(appendedText);
+        return transformer.transform(caseNote);
     }
 
     @Transactional
@@ -187,9 +226,6 @@ public class CaseNoteService {
                 .build();
     }
 
-    public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
-        return caseNoteRepository.getCaseNoteTypesByCaseLoadType(caseLoadType);
-    }
 
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
         return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag(caseLoadType, true);
@@ -255,6 +291,8 @@ public class CaseNoteService {
             return subTypes != null && (subTypes.isEmpty() || subTypes.contains(event.getSubNoteType()));
         }).collect(Collectors.toList());
     }
+
+
 
     private static class DeriveDates {
         private LocalDate fromDateToUse;

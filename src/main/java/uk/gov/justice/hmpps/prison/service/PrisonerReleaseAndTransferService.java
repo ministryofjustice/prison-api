@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
@@ -19,7 +18,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
-import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
@@ -29,6 +27,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
@@ -36,6 +36,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
@@ -48,7 +49,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.IepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
@@ -97,7 +98,7 @@ public class PrisonerReleaseAndTransferService {
     private final MovementTypeAndReasonRespository movementTypeAndReasonRespository;
     private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
     private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
-    private final CaseNoteRepository caseNoteRepository;
+    private final OffenderCaseNoteRepository caseNoteRepository;
     private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
     private final OffenderNoPayPeriodRepository offenderNoPayPeriodRepository;
@@ -106,7 +107,8 @@ public class PrisonerReleaseAndTransferService {
     private final IepLevelRepository iepLevelRepository;
     private final FinanceRepository financeRepository;
     private final ImprisonmentStatusRepository imprisonmentStatusRepository;
-    private final OffenderImprisonmentStatusRepository offenderImprisonmentStatusRepository;
+    private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
+    private final ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository;
     private final ProfileCodeRepository profileCodeRepository;
     private final ProfileTypeRepository profileTypeRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
@@ -451,7 +453,7 @@ public class PrisonerReleaseAndTransferService {
             .build(), receiveTime);
 
         // create Admission case note
-        generateAdmissionNote(booking.getBookingId(), fromLocation, receivedPrison, receiveTime, movementReason);
+        generateAdmissionNote(booking, fromLocation, receivedPrison, receiveTime, movementReason);
     }
 
     private void setYouthStatus(final OffenderBooking booking) {
@@ -524,7 +526,7 @@ public class PrisonerReleaseAndTransferService {
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
         // create Admission case note
-        generateAdmissionNote(booking.getBookingId(), latestExternalMovement.getFromAgency(), latestExternalMovement.getToAgency(), receiveTime, movementReason);
+        generateAdmissionNote(booking, latestExternalMovement.getFromAgency(), latestExternalMovement.getToAgency(), receiveTime, movementReason);
 
         return offenderTransformer.transform(booking);
      }
@@ -619,26 +621,40 @@ public class PrisonerReleaseAndTransferService {
 
     private void generateReleaseNote(final OffenderBooking booking, final LocalDateTime releaseDateTime, final MovementReason movementReason) {
         final var currentUsername = authenticationFacade.getCurrentUsername();
-        final var userDetail = userRepository.findByUsername(currentUsername).orElseThrow(EntityNotFoundException.withId(currentUsername));
-        final var newCaseNote = NewCaseNote.builder()
-            .type("PRISON")
-            .subType("RELEASE")
-            .text(format("Released from %s for reason: %s.", booking.getLocation().getDescription(), movementReason.getDescription()))
+        final var userDetail = staffUserAccountRepository.findById(currentUsername).orElseThrow(EntityNotFoundException.withId(currentUsername));
+
+        final var newCaseNote = OffenderCaseNote.builder()
+            .caseNoteText(format("Released from %s for reason: %s.", booking.getLocation().getDescription(), movementReason.getDescription()))
+            .agencyLocation(booking.getLocation())
+            .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("PRISON")).orElseThrow(EntityNotFoundException.withId("PRISON")))
+            .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("RELEASE")).orElseThrow(EntityNotFoundException.withId("RELEASE")))
+            .noteSourceCode("AUTO")
+            .author(userDetail.getStaff())
             .occurrenceDateTime(releaseDateTime)
+            .occurrenceDate(releaseDateTime.toLocalDate())
+            .amendmentFlag(ActiveFlag.N)
+            .offenderBooking(booking)
             .build();
-        caseNoteRepository.createCaseNote(booking.getBookingId(), newCaseNote, "AUTO", currentUsername, userDetail.getStaffId());
+        caseNoteRepository.save(newCaseNote);
     }
 
-    private void generateAdmissionNote(final Long bookinId, final AgencyLocation fromLocation, final AgencyLocation toLocation, final LocalDateTime admissionDateTime, final MovementReason admissionReason) {
+    private void generateAdmissionNote(final OffenderBooking booking, final AgencyLocation fromLocation, final AgencyLocation toLocation, final LocalDateTime admissionDateTime, final MovementReason admissionReason) {
         final var currentUsername = authenticationFacade.getCurrentUsername();
-        final var userDetail = userRepository.findByUsername(currentUsername).orElseThrow(EntityNotFoundException.withId(currentUsername));
-        final var newCaseNote = NewCaseNote.builder()
-            .type("TRANSFER")
-            .subType("FROMTOL")
-            .text(format("Offender admitted to %s for reason: %s from %s.", toLocation.getDescription(), admissionReason.getDescription(), fromLocation.getDescription()))
+        final var userDetail = staffUserAccountRepository.findById(currentUsername).orElseThrow(EntityNotFoundException.withId(currentUsername));
+
+        final var newCaseNote = OffenderCaseNote.builder()
+            .caseNoteText(format("Offender admitted to %s for reason: %s from %s.", toLocation.getDescription(), admissionReason.getDescription(), fromLocation.getDescription()))
+            .agencyLocation(booking.getLocation())
+            .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("TRANSFER")).orElseThrow(EntityNotFoundException.withId("TRANSFER")))
+            .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("FROMTOL")).orElseThrow(EntityNotFoundException.withId("FROMTOL")))
+            .noteSourceCode("AUTO")
+            .author(userDetail.getStaff())
             .occurrenceDateTime(admissionDateTime)
+            .occurrenceDate(admissionDateTime.toLocalDate())
+            .amendmentFlag(ActiveFlag.N)
+            .offenderBooking(booking)
             .build();
-        caseNoteRepository.createCaseNote(bookinId, newCaseNote, "AUTO", currentUsername, userDetail.getStaffId());
+        caseNoteRepository.save(newCaseNote);
     }
 
     private void incrementCurrentOccupancy(final AgencyInternalLocation assignedLivingUnit) {

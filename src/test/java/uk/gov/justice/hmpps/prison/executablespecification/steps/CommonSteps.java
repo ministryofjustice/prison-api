@@ -55,6 +55,7 @@ public abstract class CommonSteps {
     private ErrorResponse errorResponse;
     private long paginationLimit;
     private long paginationOffset;
+    private long paginationNumber;
 
     @PostConstruct
     protected void postConstruct() {
@@ -169,9 +170,17 @@ public abstract class CommonSteps {
         paginationOffset = Objects.requireNonNullElse(offset, 0L);
     }
 
+    @Step("Apply page and size")
+    public void applyPageNumberAndSize(final Long pageNumber, final Long size) {
+        paginationNumber = Objects.requireNonNullElse(pageNumber, 0L);
+        paginationLimit = Objects.requireNonNullElse(size, 10L);
+    }
+
+
     protected void init() {
         paginationLimit = 10;
         paginationOffset = 0;
+        paginationNumber = 0;
         errorResponse = null;
         resources = null;
         pageMetaData = null;
@@ -182,6 +191,10 @@ public abstract class CommonSteps {
         this.resources = receivedResponse.getBody();
     }
 
+    protected <T> void buildResourceData(final org.springframework.data.domain.Page<T> receivedResponse) {
+        this.pageMetaData = buildPageMetaData(receivedResponse);
+        this.resources = receivedResponse.getContent();
+    }
     void setResourceMetaData(final List<?> resources) {
         this.resources = resources;
     }
@@ -498,10 +511,6 @@ public abstract class CommonSteps {
         }
     }
 
-    String buildQuery(final String queryParam) {
-        return "?query=" + StringUtils.trimToEmpty(queryParam);
-    }
-
     String buildQueryStringParameters(final Map<String, String> parameters) {
         return parameters.keySet()
                 .stream()
@@ -511,6 +520,10 @@ public abstract class CommonSteps {
 
     protected Map<String, String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
+    }
+
+    protected String getPaginationParams() {
+        return "page="+paginationNumber+"&size="+paginationLimit;
     }
 
     Map<String, String> buildSortHeaders(final String sortFields, final Order sortOrder) {
@@ -552,6 +565,10 @@ public abstract class CommonSteps {
         return metaData;
     }
 
+    private <T> Page<T> buildPageMetaData(final org.springframework.data.domain.Page<T> page) {
+        return new Page<T>(page.getContent(), page.getTotalElements(), page.getPageable().getOffset(), page.getPageable().getPageSize());
+
+    }
     /**
      * Equality assertion where blank and null are treated as equal
      */

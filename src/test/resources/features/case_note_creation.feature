@@ -196,7 +196,7 @@ Feature: Case Note Creation, Update and Count
     Examples:
       |  agencyId | type    | subType | fromDate   | toDate     | totalResults |
       |  LEI      |         |         | 2016-01-01 | 2019-01-01 |          19  |
-      |  LEI      |         |         |            |            |          0   |
+      |  BXI      |         |         |            |            |          0   |
       |  LEI      | CHAP    |         | 2016-01-01 | 2019-01-01 |          1   |
       |  BXI      |         |         | 2016-01-01 | 2019-01-01 |          1   |
       |  LEI      | CHAP    | FAMMAR  |            | 2017-03-25 |          1   |

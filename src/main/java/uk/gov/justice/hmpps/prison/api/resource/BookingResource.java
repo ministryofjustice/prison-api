@@ -8,7 +8,9 @@ import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,8 +78,10 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
@@ -371,7 +375,7 @@ public class BookingResource {
     @ApiOperation("Get alerts for a list of offenders. Requires VIEW_PRISONER_DATA role")
     @PostMapping("/offenderNo/alerts")
     public List<Alert> getAlertsByOffenderNos(@RequestBody @NotEmpty(message = "A minimum of one offender number is required") @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
-        return inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, null, "bookingId,alertId", Order.ASC);
+        return inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, "bookingId,alertId", Order.ASC);
     }
 
     @ApiResponses({
@@ -411,19 +415,31 @@ public class BookingResource {
         return inmateService.getAssessments(bookingId);
     }
 
-    @ApiOperation(value = "Offender case notes.", notes = "Offender case notes.", nickname = "getOffenderCaseNotes")
+    @ApiOperation(value = "Offender case notes.", notes = "Offender case notes.")
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @GetMapping("/{bookingId}/caseNotes")
-    public ResponseEntity<List<CaseNote>> getOffenderCaseNotes(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId, @RequestParam(value = "from", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("start contact date to search from") final LocalDate from, @RequestParam(value = "to", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("end contact date to search up to (including this date)") final LocalDate to,
-                                                               @RequestParam(value = "query", required = false) @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - creationDateTime, type, subType, source</p> ", required = true) final String query, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseNote records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseNote records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>creationDateTime, type, subType, source</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
-        return caseNoteService.getCaseNotes(
-                bookingId,
-                query,
-                from,
-                to,
-                sortFields,
-                sortOrder,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L)).getResponse();
+    @VerifyBookingAccess
+    public Page<CaseNote> getOffenderCaseNotes(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", example = "23412312", required = true) final Long bookingId,
+                                                               @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "start contact date to search from", example = "2021-02-03") final LocalDate from,
+                                                               @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
+                                                               @RequestParam(value = "type", required = false) @ApiParam(value = "Filter by case note type", example = "GEN") final String type,
+                                                               @RequestParam(value = "subType", required = false) @ApiParam(value = "Filter by case note sub-type", example = "OBS") final String subType,
+                                                               @RequestParam(value = "prisonId", required = false) @ApiParam(value = "Filter by the ID of the prison", example = "LEI") final String prisonId,
+                                                               @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
+
+        final var caseNoteFilter = CaseNoteFilter.builder()
+            .type(type)
+            .subType(subType)
+            .prisonId(prisonId)
+            .startDate(from)
+            .endDate(to)
+            .bookingId(bookingId)
+            .build();
+
+        return caseNoteService.getCaseNotes(caseNoteFilter, pageable);
     }
 
     @ApiOperation(value = "Offender case note detail.", notes = "Offender case note detail.", nickname = "getOffenderCaseNote")

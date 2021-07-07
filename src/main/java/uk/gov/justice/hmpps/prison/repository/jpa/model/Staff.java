@@ -34,4 +34,9 @@ public class Staff extends AuditableEntity {
 
     @Column(name = "STATUS")
     private String status;
+
+
+    public String getFullName() {
+        return lastName + ", " + firstName;
+    }
 }

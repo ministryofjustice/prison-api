@@ -1,0 +1,45 @@
+{
+  "content": [
+    {
+      "caseNoteId": -2,
+      "bookingId": -2,
+      "type": "COMMS",
+      "typeDescription": "Communication",
+      "subType": "COM_IN",
+      "subTypeDescription": "Communication IN",
+      "creationDateTime": "2017-04-05T13:23:00",
+      "occurrenceDateTime": "2017-04-05T13:23:00",
+      "staffId": -1,
+      "authorName": "User, Prison",
+      "text": "Test inward communication one.",
+      "originalNoteText": "Test inward communication one.",
+      "agencyId": "LEI",
+      "amendments": []
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalElements": 1,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "first": true,
+  "numberOfElements": 1,
+  "empty": false
+}
