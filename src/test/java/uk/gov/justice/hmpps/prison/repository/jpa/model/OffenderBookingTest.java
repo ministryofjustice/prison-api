@@ -17,10 +17,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderBookingTest {
     private static final OffenderCourtCase ACTIVE_COURT_CASE = OffenderCourtCase.builder()
+        .id(1L)
         .caseStatus(new CaseStatus("A", "Active"))
         .build();
 
     private static final OffenderCourtCase INACTIVE_COURT_CASE = OffenderCourtCase.builder()
+        .id(2L)
         .caseStatus(new CaseStatus("I", "Inactive"))
         .build();
 
@@ -49,6 +51,17 @@ public class OffenderBookingTest {
 
     @Nested
     class CourtCases {
+
+        @Test
+        void getCourtCaseBy_empty_when_no_matching_case_id() {
+            assertThat(OffenderBooking.builder().build().getCourtCaseBy(1L)).isEmpty();
+        }
+
+        @Test
+        void getCourtCaseBy_returns_matching_case() {
+            assertThat(OffenderBooking.builder().courtCases(List.of(ACTIVE_COURT_CASE)).build().getCourtCaseBy(ACTIVE_COURT_CASE.getId())).hasValue(ACTIVE_COURT_CASE);
+        }
+
         @Test
         void getCourtCases_returns_all_court_cases() {
             final var booking = OffenderBooking.builder().courtCases(List.of(ACTIVE_COURT_CASE, INACTIVE_COURT_CASE)).build();
@@ -72,14 +85,15 @@ public class OffenderBookingTest {
 
         @Test
         void handleNullCourtCasesEntries() {
-            final var courtCases = new ArrayList<>();
+            final var courtCases = new ArrayList<OffenderCourtCase>();
             courtCases.add(ACTIVE_COURT_CASE);
             courtCases.add(INACTIVE_COURT_CASE);
             courtCases.add(null);
 
-            final var booking = OffenderBooking.builder().courtCases((List) courtCases).build();
+            final var booking = OffenderBooking.builder().courtCases(courtCases).build();
 
             assertThat(booking.getActiveCourtCases()).containsExactly(ACTIVE_COURT_CASE);
+            assertThat(booking.getCourtCaseBy(9999L)).isEmpty();
         }
     }
 
