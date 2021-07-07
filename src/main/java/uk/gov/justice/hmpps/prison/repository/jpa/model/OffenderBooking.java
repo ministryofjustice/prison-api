@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -200,7 +201,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     }
 
     public Optional<OffenderCourtCase> getCourtCaseBy(final Long courtCaseId) {
-        return courtCases == null ? Optional.empty() : courtCases.stream().filter(cc -> cc.getId().equals(courtCaseId)).findFirst();
+        return courtCases == null ? Optional.empty() : courtCases.stream().filter(Objects::nonNull).filter(cc -> cc.getId().equals(courtCaseId)).findFirst();
     }
 
     public boolean isActive() {
