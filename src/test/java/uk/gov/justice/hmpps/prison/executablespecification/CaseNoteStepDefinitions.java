@@ -217,7 +217,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
     @And("^pagination with size \"([0-9]*)\" and page number \"([0-9]*)\" applied$")
-    public void paginationWithPageNumberAndSizeApplied(final Long pageNumber, final Long size) throws Throwable {
+    public void paginationWithPageNumberAndSizeApplied(final Long size, final Long pageNumber) throws Throwable {
         caseNote.applyPageNumberAndSize(pageNumber, size);
     }
 
