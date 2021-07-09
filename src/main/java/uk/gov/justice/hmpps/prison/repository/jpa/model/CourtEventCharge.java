@@ -54,12 +54,12 @@ public class CourtEventCharge extends AuditableEntity {
     @Column(name = "PLEA_CODE")
     private String pleaCode;
 
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "RESULT_CODE_1", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RESULT_CODE_1")
     private OffenceResult resultCodeOne;
 
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "RESULT_CODE_2", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RESULT_CODE_2")
     private OffenceResult resultCodeTwo;
 
     @Column(name = "RESULT_CODE_1_INDICATOR")

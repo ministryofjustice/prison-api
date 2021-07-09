@@ -8,6 +8,8 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import java.time.LocalDate;
 
@@ -33,9 +35,11 @@ public class OffenceResult extends AuditableEntity {
     private String chargeStatus;
 
     @Column(name = "CONVICTION_FLAG")
+    @Enumerated(EnumType.STRING)
     private ActiveFlag convictionFlag;
 
     @Column(name = "ACTIVE_FLAG")
+    @Enumerated(EnumType.STRING)
     private ActiveFlag activeFlag;
 
     @Column(name = "EXPIRY_DATE")
