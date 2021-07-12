@@ -18,12 +18,14 @@ import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventBasic;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementCount;
+import uk.gov.justice.hmpps.prison.api.model.MovementDate;
 import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
 import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
@@ -36,6 +38,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
@@ -63,16 +66,19 @@ public class MovementsService {
     private final MovementsRepository movementsRepository;
     private final ExternalMovementRepository externalMovementRepository;
     private final CourtEventRepository courtEventRepository;
+    private final OffenderBookingRepository offenderBookingRepository;
     private final int maxBatchSize;
 
 
     public MovementsService(final MovementsRepository movementsRepository,
-                            ExternalMovementRepository externalMovementRepository,
-                            CourtEventRepository courtEventRepository,
+                            final ExternalMovementRepository externalMovementRepository,
+                            final CourtEventRepository courtEventRepository,
+                            final OffenderBookingRepository offenderBookingRepository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
         this.courtEventRepository = courtEventRepository;
+        this.offenderBookingRepository = offenderBookingRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -90,6 +96,82 @@ public class MovementsService {
                         .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
                         .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
                         .build());
+    }
+
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA')")
+    public PrisonerInPrisonSummary getPrisonerInPrisonSummary(final String offenderNo) {
+        final var latestBooking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1).orElseThrow(EntityNotFoundException.withId(offenderNo));
+
+        final var allRelevantMovements = latestBooking.getOffender().getAllMovements()
+            .stream()
+            .filter(f ->List.of("ADM", "REL", "TAP").contains(f.getMovementReason().getCode()))
+            .collect(toList());
+
+
+        final var movementMap = allRelevantMovements
+            .stream()
+            .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
+
+        final var summary = PrisonerInPrisonSummary.builder()
+            .prisonerNumber(offenderNo)
+            .build();
+
+
+        // get the movements
+        allRelevantMovements.stream()
+            .forEach(m -> {
+
+                final var period = summary.getPrisonPeriod().stream().filter(pp -> pp.getBookingId().equals(m.getOffenderBooking().getBookingId())).findFirst()
+                    .map(pp -> {
+                        if (pp.getMovementDates().isEmpty()) {
+                            admission(m, MovementDate.builder().build()).map(move -> pp.getMovementDates().add(move));
+                        } else {
+                            final var lastMovement = pp.getMovementDates().get(pp.getMovementDates().size() - 1);
+                            if (lastMovement.getReasonInToPrison() == null) {
+                                admission(m, lastMovement).map(move -> pp.getMovementDates().add(move));
+                            }
+
+                        }
+                    })
+
+            });
+        return summary;
+    }
+
+    private Optional<MovementDate> createMovementRange(final ExternalMovement m, MovementDate md) {
+
+        MovementDate newMovement = md;
+        boolean newEntry = false;
+        if (md.getDateInToPrison() != null && md.getDateOutOfPrison() != null) {
+            // new entry
+            newMovement = MovementDate.builder().build();
+            newEntry = true;
+        }
+        if ("ADM".equals(m.getMovementReason().getCode())) {
+            inward(m, newMovement);
+
+        } else if ("REL".equals(m.getMovementReason().getCode())) {
+            outward(m, newMovement);
+
+        } else if ("TAP".equals(m.getMovementReason().getCode())) {
+            if (newMovement.getDateInToPrison() != null) {
+                outward(m, newMovement);
+            } else {
+                inward(m, newMovement);
+            }
+        }
+
+        return newEntry ? Optional.of(newMovement) : Optional.empty();
+    }
+
+    private void outward(final ExternalMovement m, final MovementDate md) {
+        md.setDateOutOfPrison(m.getMovementTime());
+        md.setReasonOutOfPrison(m.getMovementReason().getDescription());
+    }
+
+    private void inward(final ExternalMovement m, final MovementDate md) {
+        md.setDateInToPrison(m.getMovementTime());
+        md.setReasonInToPrison(m.getMovementReason().getDescription());
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")

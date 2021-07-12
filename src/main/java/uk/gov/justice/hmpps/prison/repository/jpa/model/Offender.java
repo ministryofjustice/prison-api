@@ -193,4 +193,12 @@ public class Offender extends ExtendedAuditableEntity {
         identifiers.add(offenderIdentifier);
         return offenderIdentifier;
     }
+
+    public List<ExternalMovement> getAllMovements() {
+        final var externalMovements = new ArrayList<ExternalMovement>();
+        bookings.forEach(b -> externalMovements.addAll(b.getExternalMovements()));
+        return externalMovements.stream()
+            .sorted(Comparator.comparing(ExternalMovement::getMovementTime))
+            .collect(Collectors.toList());
+    }
 }
