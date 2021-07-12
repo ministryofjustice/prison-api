@@ -152,7 +152,7 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/discharge-to-hospital")
     @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @VerifyOffenderAccess
+    @VerifyOffenderAccess(overrideRoles = {"RELEASE_PRISONER"})
     public InmateDetail dischargePrisonerToHospital(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToDischargePrisoner requestToDischargePrisoner) {
@@ -199,7 +199,7 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/transfer-out")
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @VerifyOffenderAccess
+    @VerifyOffenderAccess(overrideRoles = {"TRANSFER_PRISONER"})
     public InmateDetail transferOutPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOut requestToTransferOut) {
@@ -344,7 +344,7 @@ public class OffenderResource {
         @ApiResponse(code = 200, message = "OK", response = CaseNote.class)})
     @ApiOperation(value = "Offender case notes", notes = "Retrieve an offenders case notes for latest booking")
     @GetMapping("/{offenderNo}/case-notes/v2")
-    @VerifyOffenderAccess
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "start contact date to search from", example = "2021-02-03") final LocalDate from,
                                                @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
@@ -371,7 +371,7 @@ public class OffenderResource {
         @ApiResponse(code = 200, message = "OK", response = CaseNote.class)})
     @ApiOperation(value = "Offender case note detail.", notes = "Retrieve an single offender case note", nickname = "getOffenderCaseNote")
     @GetMapping("/{offenderNo}/case-notes/{caseNoteId}")
-    @VerifyOffenderAccess
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public CaseNote getOffenderCaseNote(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo, @PathVariable("caseNoteId") @ApiParam(value = "The case note id", required = true) final Long caseNoteId) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         try {

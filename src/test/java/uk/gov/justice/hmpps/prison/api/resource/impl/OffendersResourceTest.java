@@ -103,7 +103,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/case-notes",
+            "/api/offenders/{nomsId}/case-notes/v2",
             GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
@@ -120,7 +120,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/case-notes",
+            "/api/offenders/{nomsId}/case-notes/v2",
             GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {

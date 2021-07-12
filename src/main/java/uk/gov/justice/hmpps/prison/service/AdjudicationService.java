@@ -46,7 +46,7 @@ public class AdjudicationService {
     @Value("${api.cutoff.award.months:0}")
     private int awardCutoffDefault;
 
-    @VerifyOffenderAccess
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
         return repository.findAdjudicationDetails(offenderNo, adjudicationNo)
                 .map(this::enrich)
@@ -107,7 +107,7 @@ public class AdjudicationService {
     }
 
     public Page<Adjudication> findAdjudications(final AdjudicationSearchCriteria criteria) {
-        bookingService.verifyCanViewSensitiveBookingInfo(criteria.getOffenderNumber());
+        bookingService.getOffenderIdentifiers(criteria.getOffenderNumber());
         return repository.findAdjudications(criteria);
     }
 
