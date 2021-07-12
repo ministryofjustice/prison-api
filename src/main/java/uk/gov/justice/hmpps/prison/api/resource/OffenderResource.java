@@ -341,42 +341,6 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 200, message = "OK", response = CaseNote.class, responseContainer = "List")})
-    @ApiOperation(value = "Offender case notes (DEPRECATED)", notes = "Retrieve an offenders case notes for latest booking (deprecated)", nickname = "getOffenderCaseNotes")
-    @GetMapping("/{offenderNo}/case-notes")
-    @VerifyOffenderAccess
-    @Deprecated
-    public ResponseEntity<List<CaseNote>> getOffenderCaseNotes(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
-                                                               @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("start contact date to search from") final LocalDate from,
-                                                               @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("end contact date to search up to (including this date)") final LocalDate to,
-                                                               @RequestParam(value = "query", required = false) @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - creationDateTime, type, subType, source</p> ", required = true) final String query,
-                                                               @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseNote records.", defaultValue = "0") final Long pageOffset,
-                                                               @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseNote records returned.", defaultValue = "10") final Long pageLimit,
-                                                               @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>creationDateTime, type, subType, source</b>") final String sortFields,
-                                                               @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
-        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-
-        try {
-            final var pagedCaseNotes = caseNoteService.getCaseNotes(
-                latestBookingByOffenderNo.getBookingId(),
-                query,
-                from,
-                to,
-                sortFields,
-                sortOrder,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L));
-
-            return ResponseEntity.ok()
-                .headers(pagedCaseNotes.getPaginationHeaders())
-                .body(pagedCaseNotes.getItems());
-
-        } catch (EntityNotFoundException e) {
-            throw EntityNotFoundException.withId(offenderNo);
-        }
-    }
-
-    @ApiResponses({
         @ApiResponse(code = 200, message = "OK", response = CaseNote.class)})
     @ApiOperation(value = "Offender case notes", notes = "Retrieve an offenders case notes for latest booking")
     @GetMapping("/{offenderNo}/case-notes/v2")
