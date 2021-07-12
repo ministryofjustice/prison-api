@@ -155,7 +155,7 @@ public class BookingServiceTest {
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
-        bookingService.verifyCanViewSensitiveBookingInfo("off-1");
+        bookingService.getOffenderIdentifiers("off-1");
     }
 
     @Test
@@ -169,7 +169,7 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-                bookingService.verifyCanViewSensitiveBookingInfo("off-1"))
+                bookingService.getOffenderIdentifiers("off-1"))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
@@ -184,7 +184,7 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
 
-        bookingService.verifyCanViewSensitiveBookingInfo("off-1");
+        bookingService.getOffenderIdentifiers("off-1");
     }
 
     @Test
@@ -193,14 +193,10 @@ public class BookingServiceTest {
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
 
-        bookingService.verifyCanViewSensitiveBookingInfo("off-1");
+        bookingService.getOffenderIdentifiers("off-1", new String [] {"SYSTEM_USER", "GLOBAL_SEARCH"});
 
         verify(securityUtils).isOverrideRole(
-                "SYSTEM_USER",
-                "GLOBAL_SEARCH",
-                "VIEW_PRISONER_DATA",
-                "CREATE_CATEGORISATION",
-                "APPROVE_CATEGORISATION"
+                "SYSTEM_USER", "GLOBAL_SEARCH"
         );
     }
 
@@ -215,7 +211,7 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-                bookingService.verifyCanViewSensitiveBookingInfo("off-1"))
+                bookingService.getOffenderIdentifiers("off-1"))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
